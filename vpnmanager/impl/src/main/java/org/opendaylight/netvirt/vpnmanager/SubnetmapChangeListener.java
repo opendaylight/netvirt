@@ -17,7 +17,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -30,16 +31,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Subnetmap, SubnetmapChangeListener> {
+public class SubnetmapChangeListener extends
+        AsyncClusteredDataTreeChangeListenerBase<Subnetmap, SubnetmapChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetmapChangeListener.class);
     private final DataBroker dataBroker;
     private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
+    private final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver;
 
     @Inject
-    public SubnetmapChangeListener(final DataBroker dataBroker, final VpnSubnetRouteHandler vpnSubnetRouteHandler) {
+    public SubnetmapChangeListener(final DataBroker dataBroker,
+                                   final VpnSubnetRouteHandler vpnSubnetRouteHandler,
+                                   final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver) {
         super(Subnetmap.class, SubnetmapChangeListener.class);
         this.dataBroker = dataBroker;
         this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
+        this.vpnClusterOwnershipDriver = vpnClusterOwnershipDriver;
     }
 
     @PostConstruct
@@ -68,6 +74,11 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
     protected void add(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
         LOG.debug("SubnetmapChangeListener add subnetmap method - key: {}, value: {}", identifier, subnetmap);
         Uuid subnetId = subnetmap.getId();
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmap.getNetworkId());
         if (network == null) {
             LOG.error("SubnetMapChangeListener:add: network was not found for subnetId {}", subnetId.getValue());
@@ -95,6 +106,11 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
 
     @Override
     protected void remove(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         LOG.trace("SubnetmapListener:remove: subnetmap method - key: {}, value: {}", identifier, subnetmap);
     }
 
@@ -106,6 +122,11 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         LOG.debug("SubnetMapChangeListener update method - key {}, original {}, update {}", identifier,
                   subnetmapOriginal, subnetmapUpdate);
         Uuid subnetId = subnetmapUpdate.getId();
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmapUpdate.getNetworkId());
         if (network == null) {
             LOG.error("SubnetMapChangeListener:update: network was not found for subnetId {}", subnetId.getValue());

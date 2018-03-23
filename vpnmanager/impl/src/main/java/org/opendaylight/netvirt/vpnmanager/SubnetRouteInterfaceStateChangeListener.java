@@ -18,10 +18,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames;
@@ -38,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChangeListenerBase<Interface,
+public class SubnetRouteInterfaceStateChangeListener extends AsyncClusteredDataTreeChangeListenerBase<Interface,
     SubnetRouteInterfaceStateChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetRouteInterfaceStateChangeListener.class);
     private static final String LOGGING_PREFIX = "SUBNETROUTE:";
@@ -46,17 +47,20 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
     private final SubnetOpDpnManager subOpDpnManager;
     private final INeutronVpnManager neutronVpnManager;
+    private final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver;
     private final JobCoordinator jobCoordinator;
 
     @Inject
     public SubnetRouteInterfaceStateChangeListener(final DataBroker dataBroker,
             final VpnSubnetRouteHandler vpnSubnetRouteHandler, final SubnetOpDpnManager subnetOpDpnManager,
-            final INeutronVpnManager neutronVpnService, final JobCoordinator jobCoordinator) {
+            final INeutronVpnManager neutronVpnService, final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver,
+                                                   final JobCoordinator jobCoordinator) {
         super(Interface.class, SubnetRouteInterfaceStateChangeListener.class);
         this.dataBroker = dataBroker;
         this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
         this.subOpDpnManager = subnetOpDpnManager;
         this.neutronVpnManager = neutronVpnService;
+        this.vpnClusterOwnershipDriver = vpnClusterOwnershipDriver;
         this.jobCoordinator = jobCoordinator;
     }
 
@@ -80,6 +84,11 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         LOG.trace("{} add: Received interface {} up event", LOGGING_PREFIX, intrf);
         try {
             if (L2vlan.class.equals(intrf.getType())) {
@@ -130,6 +139,11 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         try {
             if (L2vlan.class.equals(intrf.getType())) {
                 LOG.trace("SubnetRouteInterfaceListener remove: Received interface {} down event", intrf);
@@ -199,6 +213,11 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     @Override
     protected void update(InstanceIdentifier<Interface> identifier,
         Interface original, Interface update) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         try {
             String interfaceName = update.getName();
             if (L2vlan.class.equals(update.getType())) {
