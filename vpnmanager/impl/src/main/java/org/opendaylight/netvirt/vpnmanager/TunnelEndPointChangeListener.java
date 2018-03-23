@@ -18,10 +18,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -35,21 +36,23 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class TunnelEndPointChangeListener
-    extends AsyncDataTreeChangeListenerBase<TunnelEndPoints, TunnelEndPointChangeListener> {
+    extends AsyncClusteredDataTreeChangeListenerBase<TunnelEndPoints, TunnelEndPointChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelEndPointChangeListener.class);
 
     private final DataBroker broker;
     private final ManagedNewTransactionRunner txRunner;
     private final VpnInterfaceManager vpnInterfaceManager;
+    private final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver;
     private final JobCoordinator jobCoordinator;
 
     @Inject
     public TunnelEndPointChangeListener(final DataBroker broker, final VpnInterfaceManager vpnInterfaceManager,
-            final JobCoordinator jobCoordinator) {
+            final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver, final JobCoordinator jobCoordinator) {
         super(TunnelEndPoints.class, TunnelEndPointChangeListener.class);
         this.broker = broker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.vpnInterfaceManager = vpnInterfaceManager;
+        this.vpnClusterOwnershipDriver = vpnClusterOwnershipDriver;
         this.jobCoordinator = jobCoordinator;
     }
 
@@ -67,16 +70,31 @@ public class TunnelEndPointChangeListener
 
     @Override
     protected void remove(InstanceIdentifier<TunnelEndPoints> key, TunnelEndPoints tep) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
     }
 
     @Override
     protected void update(InstanceIdentifier<TunnelEndPoints> key, TunnelEndPoints origTep,
         TunnelEndPoints updatedTep) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
     }
 
     @Override
     protected void add(InstanceIdentifier<TunnelEndPoints> key, TunnelEndPoints tep) {
         BigInteger dpnId = key.firstIdentifierOf(DPNTEPsInfo.class).firstKeyOf(DPNTEPsInfo.class).getDPNID();
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         if (BigInteger.ZERO.equals(dpnId)) {
             LOG.warn("add: Invalid DPN id for TEP {}", tep.getInterfaceName());
             return;

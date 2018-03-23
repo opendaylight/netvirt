@@ -15,7 +15,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -28,16 +29,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry, FibEntriesListener> {
+public class FibEntriesListener extends AsyncClusteredDataTreeChangeListenerBase<VrfEntry, FibEntriesListener> {
     private static final Logger LOG = LoggerFactory.getLogger(FibEntriesListener.class);
     private final DataBroker dataBroker;
     private final VpnInstanceListener vpnInstanceListener;
+    private final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver;
 
     @Inject
-    public FibEntriesListener(final DataBroker dataBroker, final VpnInstanceListener vpnInstanceListener) {
+    public FibEntriesListener(final DataBroker dataBroker, final VpnInstanceListener vpnInstanceListener,
+                              IVpnClusterOwnershipDriver vpnClusterOwnershipDriver) {
         super(VrfEntry.class, FibEntriesListener.class);
         this.dataBroker = dataBroker;
         this.vpnInstanceListener = vpnInstanceListener;
+        this.vpnClusterOwnershipDriver = vpnClusterOwnershipDriver;
     }
 
     @PostConstruct
@@ -60,6 +64,11 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
     @Override
     protected void remove(InstanceIdentifier<VrfEntry> identifier,
         VrfEntry del) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         LOG.trace("Remove Fib event - Key : {}, value : {} ", identifier, del);
         final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
         String rd = key.getRouteDistinguisher();
@@ -74,6 +83,11 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
         String rd = key.getRouteDistinguisher();
         List<RoutePaths> originalRoutePaths = new ArrayList<>(original.getRoutePaths());
         List<RoutePaths> updateRoutePaths = new ArrayList<>(update.getRoutePaths());
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         if (originalRoutePaths.size() < updateRoutePaths.size()) {
             updateRoutePaths.removeAll(originalRoutePaths);
             addLabelToVpnInstance(rd, updateRoutePaths);
@@ -86,6 +100,11 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
     @Override
     protected void add(InstanceIdentifier<VrfEntry> identifier,
         VrfEntry add) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         LOG.trace("Add Vrf Entry event - Key : {}, value : {}", identifier, add);
         final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
         String rd = key.getRouteDistinguisher();
