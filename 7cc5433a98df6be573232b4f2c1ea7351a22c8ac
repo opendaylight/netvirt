@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ccd7eac_0318b3c2",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/recovery/impl/ElanInterfaceRecoveryHandler.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-03-23T05:26:11Z",
+      "side": 1,
+      "message": "Please remove this as it is not used",
+      "revId": "7cc5433a98df6be573232b4f2c1ea7351a22c8ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
