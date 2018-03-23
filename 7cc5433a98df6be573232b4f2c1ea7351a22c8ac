@@ -16,6 +16,24 @@
       "revId": "7cc5433a98df6be573232b4f2c1ea7351a22c8ac",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9e10bb13_91ec8805",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/recovery/impl/ElanInterfaceRecoveryHandler.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2018-03-23T05:59:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ccd7eac_0318b3c2",
+      "revId": "7cc5433a98df6be573232b4f2c1ea7351a22c8ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
