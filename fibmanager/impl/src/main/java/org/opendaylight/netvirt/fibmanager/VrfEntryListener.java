@@ -32,7 +32,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.RetryingManagedNewTransactionRunner;
@@ -63,6 +63,7 @@ import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
@@ -105,7 +106,7 @@ import org.slf4j.LoggerFactory;
 
 
 @Singleton
-public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfEntryListener> {
+public class VrfEntryListener extends AsyncClusteredDataTreeChangeListenerBase<VrfEntry, VrfEntryListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VrfEntryListener.class);
     private static final String FLOWID_PREFIX = "L3.";
@@ -129,6 +130,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private final IElanService elanManager;
     private final FibUtil fibUtil;
     private final InterVpnLinkCache interVpnLinkCache;
+    private final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver;
     private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
 
     @Inject
@@ -138,6 +140,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             final BaseVrfEntryHandler vrfEntryHandler,
                             final BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler,
                             final RouterInterfaceVrfEntryHandler routerInterfaceVrfEntryHandler,
+                            final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver,
                             final JobCoordinator jobCoordinator,
                             final FibUtil fibUtil,
                             final InterVpnLinkCache interVpnLinkCache) {
@@ -151,15 +154,15 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         this.baseVrfEntryHandler = vrfEntryHandler;
         this.bgpRouteVrfEntryHandler = bgpRouteVrfEntryHandler;
         this.routerInterfaceVrfEntryHandler = routerInterfaceVrfEntryHandler;
+        this.vpnClusterOwnershipDriver = vpnClusterOwnershipDriver;
         this.jobCoordinator = jobCoordinator;
         this.fibUtil = fibUtil;
         this.interVpnLinkCache = interVpnLinkCache;
     }
 
-    @Override
     @PostConstruct
-    public void init() {
-        LOG.info("{} init", getClass().getSimpleName());
+    public void start() {
+        LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
@@ -187,6 +190,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     @Override
     protected void add(final InstanceIdentifier<VrfEntry> identifier, final VrfEntry vrfEntry) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         Preconditions.checkNotNull(vrfEntry, "VrfEntry should not be null or empty.");
         String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
         LOG.debug("ADD: Adding Fib Entry rd {} prefix {} route-paths {}",
@@ -225,6 +233,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     @Override
     protected void remove(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         Preconditions.checkNotNull(vrfEntry, "VrfEntry should not be null or empty.");
         String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
         LOG.debug("REMOVE: Removing Fib Entry rd {} prefix {} route-paths {}",
@@ -266,6 +279,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     // originalRoutePath is a little dicey - safest to keep the checking even if not needed.
     @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
     protected void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         Preconditions.checkNotNull(update, "VrfEntry should not be null or empty.");
         final String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
         LOG.debug("UPDATE: Updating Fib Entries to rd {} prefix {} route-paths {} origin {} old-origin {}", rd,
