@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "0fbf740d_ef5c0fc1",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-03-23T10:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4594c8bb_b1125a6e",
+      "range": {
+        "startLine": 183,
+        "startChar": 12,
+        "endLine": 183,
+        "endChar": 28
+      },
+      "revId": "4e99ff6ba4ce4506c4968214fdddcbdc2a590698",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "85353185_31cb29b3",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-03-23T10:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e589c29_b4717378",
+      "range": {
+        "startLine": 183,
+        "startChar": 41,
+        "endLine": 183,
+        "endChar": 42
+      },
+      "revId": "4e99ff6ba4ce4506c4968214fdddcbdc2a590698",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "29de1db7_b7966d1c",
         "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2018-03-23T09:36:54Z",
       "side": 1,
       "message": "Bgp Thrift Service started",
+      "range": {
+        "startLine": 272,
+        "startChar": 82,
+        "endLine": 272,
+        "endChar": 83
+      },
+      "revId": "4e99ff6ba4ce4506c4968214fdddcbdc2a590698",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2139bacf_a9d6442f",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-03-23T10:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "29de1db7_b7966d1c",
       "range": {
         "startLine": 272,
         "startChar": 82,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "a1d643cf_0a0abf78",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-03-23T10:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a65a54ce_7e998a05",
+      "range": {
+        "startLine": 415,
+        "startChar": 37,
+        "endLine": 415,
+        "endChar": 40
+      },
+      "revId": "4e99ff6ba4ce4506c4968214fdddcbdc2a590698",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "387741a8_ee06700d",
         "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/server/BgpThriftService.java",
         "patchSetId": 3
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "14901252_d6f2f97d",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/server/BgpThriftService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-03-23T10:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "387741a8_ee06700d",
+      "range": {
+        "startLine": 50,
+        "startChar": 33,
+        "endLine": 50,
+        "endChar": 50
+      },
+      "revId": "4e99ff6ba4ce4506c4968214fdddcbdc2a590698",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9fdbc13c_f5fb1c56",
         "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/server/BgpThriftService.java",
         "patchSetId": 3
@@ -128,6 +248,30 @@
       "writtenOn": "2018-03-23T09:36:54Z",
       "side": 1,
       "message": "isBgpThriftServiceStarted",
+      "range": {
+        "startLine": 201,
+        "startChar": 43,
+        "endLine": 201,
+        "endChar": 44
+      },
+      "revId": "4e99ff6ba4ce4506c4968214fdddcbdc2a590698",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f5bf2089_acd1c85d",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/server/BgpThriftService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-03-23T10:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fdbc13c_f5fb1c56",
       "range": {
         "startLine": 201,
         "startChar": 43,
