@@ -53,12 +53,15 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
     private final IFibManager fibManager;
     private final IMdsalApiManager mdsalManager;
     private final VpnFootprintService vpnFootprintService;
+    private final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver;
     private final JobCoordinator jobCoordinator;
 
     @Inject
     public VpnOpStatusListener(final DataBroker dataBroker, final IBgpManager bgpManager,
                                final IdManagerService idManager, final IFibManager fibManager,
-                               final IMdsalApiManager mdsalManager, final VpnFootprintService vpnFootprintService,
+                               final IMdsalApiManager mdsalManager,
+                               final VpnFootprintService vpnFootprintService,
+                               final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver,
                                final JobCoordinator jobCoordinator) {
         super(VpnInstanceOpDataEntry.class, VpnOpStatusListener.class);
         this.dataBroker = dataBroker;
@@ -67,6 +70,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
         this.fibManager = fibManager;
         this.mdsalManager = mdsalManager;
         this.vpnFootprintService = vpnFootprintService;
+        this.vpnClusterOwnershipDriver = vpnClusterOwnershipDriver;
         this.jobCoordinator = jobCoordinator;
     }
 
@@ -96,6 +100,11 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
     protected void update(InstanceIdentifier<VpnInstanceOpDataEntry> identifier,
                           VpnInstanceOpDataEntry original, VpnInstanceOpDataEntry update) {
         LOG.info("update: Processing update for vpn {} with rd {}", update.getVpnInstanceName(), update.getVrfId());
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         if (update.getVpnState() == VpnInstanceOpDataEntry.VpnState.PendingDelete
                 && vpnFootprintService.isVpnFootPrintCleared(update)) {
             //Cleanup VPN data
