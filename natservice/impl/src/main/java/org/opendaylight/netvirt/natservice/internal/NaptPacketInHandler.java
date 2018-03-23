@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public class NaptPacketInHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(NaptPacketInHandler.class);
-    private final ConcurrentMap<String,NatPacketProcessingState> incomingPacketMap = new ConcurrentHashMap<>();
+    private final static ConcurrentMap<String,NatPacketProcessingState> incomingPacketMap = new ConcurrentHashMap<>();
     private final NaptEventHandler naptEventHandler;
     private final ExecutorService firstPacketExecutorService = SpecialExecutors.newBlockingBoundedFastThreadPool(
             NatConstants.SNAT_PACKET_THEADPOOL_SIZE, Integer.MAX_VALUE, "Napt-firstPacket", NaptPacketInHandler.class);
@@ -160,7 +160,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
         }
     }
 
-    public void removeIncomingPacketMap(String sourceIPPortKey) {
+    public static void removeIncomingPacketMap(String sourceIPPortKey) {
         incomingPacketMap.remove(sourceIPPortKey);
         LOG.debug("removeIncomingPacketMap : sourceIPPortKey {} mapping is removed from map", sourceIPPortKey);
     }
