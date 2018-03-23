@@ -29,11 +29,12 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
@@ -74,7 +75,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBase<StateTunnelList,
+public class TunnelInterfaceStateListener extends AsyncClusteredDataTreeChangeListenerBase<StateTunnelList,
         TunnelInterfaceStateListener> {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelInterfaceStateListener.class);
     private final DataBroker dataBroker;
@@ -82,6 +83,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     private final OdlInterfaceRpcService intfRpcService;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
+    private final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver;
     private final JobCoordinator jobCoordinator;
 
     protected enum UpdateRouteAction {
@@ -103,6 +105,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                                         final OdlInterfaceRpcService ifaceMgrRpcService,
                                         final VpnInterfaceManager vpnInterfaceManager,
                                         final VpnSubnetRouteHandler vpnSubnetRouteHandler,
+                                        final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver,
                                         final JobCoordinator jobCoordinator) {
         super(StateTunnelList.class, TunnelInterfaceStateListener.class);
         this.dataBroker = dataBroker;
@@ -110,6 +113,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         this.intfRpcService = ifaceMgrRpcService;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
+        this.vpnClusterOwnershipDriver = vpnClusterOwnershipDriver;
         this.jobCoordinator = jobCoordinator;
     }
 
@@ -131,6 +135,11 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
     @Override
     protected void remove(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList del) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         LOG.trace("remove: Tunnel deletion---- {}", del);
         if (isGreTunnel(del)) {
             programDcGwLoadBalancingGroup(del, NwConstants.DEL_FLOW);
@@ -141,6 +150,11 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     @Override
     protected void update(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList original,
                           StateTunnelList update) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         LOG.trace("update: Tunnel updation---- {}", update);
         LOG.info("update: ITM Tunnel {} of type {} state event changed from :{} to :{}",
                 update.getTunnelInterfaceName(),
@@ -198,6 +212,11 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
     @Override
     protected void add(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList add) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         LOG.trace("add: Tunnel addition---- {}", add);
         TunnelOperStatus tunOpStatus = add.getOperState();
         if (tunOpStatus != TunnelOperStatus.Down && tunOpStatus != TunnelOperStatus.Up) {

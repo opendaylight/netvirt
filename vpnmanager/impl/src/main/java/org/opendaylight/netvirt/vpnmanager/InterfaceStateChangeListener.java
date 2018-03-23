@@ -19,10 +19,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames;
@@ -37,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class InterfaceStateChangeListener
-    extends AsyncDataTreeChangeListenerBase<Interface, InterfaceStateChangeListener> {
+    extends AsyncClusteredDataTreeChangeListenerBase<Interface, InterfaceStateChangeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateChangeListener.class);
     private static final short DJC_MAX_RETRIES = 3;
@@ -45,15 +46,17 @@ public class InterfaceStateChangeListener
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
     private final VpnInterfaceManager vpnInterfaceManager;
+    private final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver;
     private final JobCoordinator jobCoordinator;
 
     @Inject
     public InterfaceStateChangeListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager,
-            final JobCoordinator jobCoordinator) {
+            final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver, final JobCoordinator jobCoordinator) {
         super(Interface.class, InterfaceStateChangeListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.vpnInterfaceManager = vpnInterfaceManager;
+        this.vpnClusterOwnershipDriver = vpnClusterOwnershipDriver;
         this.jobCoordinator = jobCoordinator;
     }
 
@@ -79,6 +82,11 @@ public class InterfaceStateChangeListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         try {
             if (L2vlan.class.equals(intrf.getType())) {
                 LOG.info("VPN Interface add event - intfName {} from InterfaceStateChangeListener",
@@ -152,6 +160,11 @@ public class InterfaceStateChangeListener
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         final String ifName = intrf.getName();
         BigInteger dpId = BigInteger.ZERO;
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         try {
             if (L2vlan.class.equals(intrf.getType())) {
                 LOG.info("VPN Interface remove event - intfName {} from InterfaceStateChangeListener",
@@ -218,6 +231,11 @@ public class InterfaceStateChangeListener
     protected void update(InstanceIdentifier<Interface> identifier,
                     Interface original, Interface update) {
         final String ifName = update.getName();
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         try {
             OperStatus originalOperStatus = original.getOperStatus();
             OperStatus updateOperStatus = update.getOperStatus();
