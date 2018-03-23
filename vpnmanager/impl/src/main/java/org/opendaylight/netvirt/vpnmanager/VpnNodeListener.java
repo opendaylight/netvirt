@@ -35,6 +35,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchArpOp;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -50,14 +51,18 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
     private final JobCoordinator jobCoordinator;
+    private final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver;
     private final List<BigInteger> connectedDpnIds;
 
     @Inject
-    public VpnNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, JobCoordinator jobCoordinator) {
+    public VpnNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager,
+                           IVpnClusterOwnershipDriver vpnClusterOwnershipDriver,
+                           JobCoordinator jobCoordinator) {
         super(Node.class, VpnNodeListener.class);
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.jobCoordinator = jobCoordinator;
+        this.vpnClusterOwnershipDriver = vpnClusterOwnershipDriver;
         this.connectedDpnIds = new CopyOnWriteArrayList<>();
     }
 
@@ -78,6 +83,11 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
 
     @Override
     protected void add(InstanceIdentifier<Node> identifier, Node add) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         BigInteger dpId = MDSALUtil.getDpnIdFromNodeName(add.getId());
         if (!connectedDpnIds.contains(dpId)) {
             connectedDpnIds.add(dpId);
@@ -87,12 +97,22 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
 
     @Override
     protected void remove(InstanceIdentifier<Node> identifier, Node del) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         BigInteger dpId = MDSALUtil.getDpnIdFromNodeName(del.getId());
         connectedDpnIds.remove(dpId);
     }
 
     @Override
     protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
     }
 
     public boolean isConnectedNode(BigInteger nodeId) {
