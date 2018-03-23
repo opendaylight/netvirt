@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4594c8bb_b1125a6e",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-03-23T09:36:54Z",
+      "side": 1,
+      "message": "Make it volatile",
+      "range": {
+        "startLine": 183,
+        "startChar": 12,
+        "endLine": 183,
+        "endChar": 28
+      },
+      "revId": "4e99ff6ba4ce4506c4968214fdddcbdc2a590698",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8e589c29_b4717378",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-03-23T09:36:54Z",
+      "side": 1,
+      "message": "can be renamed to bgpThriftService",
+      "range": {
+        "startLine": 183,
+        "startChar": 41,
+        "endLine": 183,
+        "endChar": 42
+      },
+      "revId": "4e99ff6ba4ce4506c4968214fdddcbdc2a590698",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "29de1db7_b7966d1c",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-03-23T09:36:54Z",
+      "side": 1,
+      "message": "Bgp Thrift Service started",
+      "range": {
+        "startLine": 272,
+        "startChar": 82,
+        "endLine": 272,
+        "endChar": 83
+      },
+      "revId": "4e99ff6ba4ce4506c4968214fdddcbdc2a590698",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a65a54ce_7e998a05",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-03-23T09:36:54Z",
+      "side": 1,
+      "message": "updateServer \u003d null",
+      "range": {
+        "startLine": 415,
+        "startChar": 37,
+        "endLine": 415,
+        "endChar": 40
+      },
+      "revId": "4e99ff6ba4ce4506c4968214fdddcbdc2a590698",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "387741a8_ee06700d",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/server/BgpThriftService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-03-23T09:36:54Z",
+      "side": 1,
+      "message": "rename it as bgpThriftServerSocketAddr",
+      "range": {
+        "startLine": 50,
+        "startChar": 33,
+        "endLine": 50,
+        "endChar": 50
+      },
+      "revId": "4e99ff6ba4ce4506c4968214fdddcbdc2a590698",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9fdbc13c_f5fb1c56",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/server/BgpThriftService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-03-23T09:36:54Z",
+      "side": 1,
+      "message": "isBgpThriftServiceStarted",
+      "range": {
+        "startLine": 201,
+        "startChar": 43,
+        "endLine": 201,
+        "endChar": 44
+      },
+      "revId": "4e99ff6ba4ce4506c4968214fdddcbdc2a590698",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
