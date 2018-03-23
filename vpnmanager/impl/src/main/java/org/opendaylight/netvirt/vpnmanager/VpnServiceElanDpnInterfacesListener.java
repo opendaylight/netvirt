@@ -21,12 +21,13 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
@@ -39,21 +40,24 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class VpnServiceElanDpnInterfacesListener
-        extends AsyncDataTreeChangeListenerBase<DpnInterfaces, VpnServiceElanDpnInterfacesListener> {
+        extends AsyncClusteredDataTreeChangeListenerBase<DpnInterfaces, VpnServiceElanDpnInterfacesListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnServiceElanDpnInterfacesListener.class);
     private final DataBroker dataBroker;
     private final IInterfaceManager interfaceManager;
     private final IFibManager fibManager;
+    private final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver;
     private final JobCoordinator jobCoordinator;
     private final ManagedNewTransactionRunner txRunner;
 
     @Inject
     public VpnServiceElanDpnInterfacesListener(final DataBroker dataBroker, final IInterfaceManager interfaceManager,
-            final IFibManager fibManager,final JobCoordinator jobCoordinator) {
+            final IFibManager fibManager,final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver,
+                                               final JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
         this.interfaceManager = interfaceManager;
         this.fibManager = fibManager;
+        this.vpnClusterOwnershipDriver = vpnClusterOwnershipDriver;
         this.jobCoordinator = jobCoordinator;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
@@ -71,12 +75,21 @@ public class VpnServiceElanDpnInterfacesListener
 
     @Override
     protected void remove(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces dpnInterfaces) {
-
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
     }
 
     @Override
     protected void update(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces original,
             DpnInterfaces update) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         LOG.info("received Dpninterfaces update event for dpn {}", update.getDpId());
         BigInteger dpnId = update.getDpId();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
@@ -126,6 +139,11 @@ public class VpnServiceElanDpnInterfacesListener
 
     @Override
     protected void add(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces dpnInterfaces) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         BigInteger dpnId = dpnInterfaces.getDpId();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
         ElanInstance elanInstance = VpnUtil.getElanInstanceByName(dataBroker, elanInstanceName);

@@ -16,8 +16,9 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
@@ -39,23 +40,25 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 public class CentralizedSwitchChangeListener
-        extends AsyncDataTreeChangeListenerBase<RouterToNaptSwitch, CentralizedSwitchChangeListener> {
+        extends AsyncClusteredDataTreeChangeListenerBase<RouterToNaptSwitch, CentralizedSwitchChangeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(CentralizedSwitchChangeListener.class);
 
     private final DataBroker dataBroker;
     private final IVpnManager vpnManager;
+    private final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver;
 
     @Inject
-    public CentralizedSwitchChangeListener(final DataBroker dataBroker, final IVpnManager vpnManager) {
+    public CentralizedSwitchChangeListener(final DataBroker dataBroker, final IVpnManager vpnManager,
+                                           final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver) {
         super(RouterToNaptSwitch.class, CentralizedSwitchChangeListener.class);
         this.dataBroker = dataBroker;
         this.vpnManager = vpnManager;
+        this.vpnClusterOwnershipDriver = vpnClusterOwnershipDriver;
     }
 
-    @Override
     @PostConstruct
-    public void init() {
+    public void start() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
@@ -67,6 +70,11 @@ public class CentralizedSwitchChangeListener
 
     @Override
     protected void remove(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         LOG.debug("Removing {}", routerToNaptSwitch);
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         setupRouterGwFlows(routerToNaptSwitch, writeTx, NwConstants.DEL_FLOW);
@@ -76,6 +84,11 @@ public class CentralizedSwitchChangeListener
     @Override
     protected void update(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch origRouterToNaptSwitch,
             RouterToNaptSwitch updatedRouterToNaptSwitch) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         LOG.debug("Updating old {} new {}", origRouterToNaptSwitch, updatedRouterToNaptSwitch);
         if (updatedRouterToNaptSwitch.getPrimarySwitchId() != origRouterToNaptSwitch.getPrimarySwitchId()) {
             WriteTransaction removeTx = dataBroker.newWriteOnlyTransaction();
@@ -89,6 +102,11 @@ public class CentralizedSwitchChangeListener
 
     @Override
     protected void add(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         LOG.debug("Adding {}", routerToNaptSwitch);
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         setupRouterGwFlows(routerToNaptSwitch, writeTx, NwConstants.ADD_FLOW);
