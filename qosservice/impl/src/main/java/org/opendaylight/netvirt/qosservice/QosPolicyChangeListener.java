@@ -253,6 +253,10 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
     public void reapplyPolicy(String entityid) {
         Uuid policyUuid = Uuid.getDefaultInstance(entityid);
+        if (qosNeutronUtils.getQosPolicyMap().get(policyUuid) == null) {
+            LOG.debug("Policy with Uuid: {} does not exist", entityid);
+            return;
+        }
 
         if (!qosNeutronUtils.getQosPolicyMap().get(policyUuid).getBandwidthLimitRules().isEmpty()) {
             BandwidthLimitRules bandwidthLimitRules =
