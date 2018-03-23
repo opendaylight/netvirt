@@ -25,7 +25,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -44,6 +44,7 @@ import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
@@ -65,7 +66,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInstance, VpnInstanceListener> {
+public class VpnInstanceListener extends AsyncClusteredDataTreeChangeListenerBase<VpnInstance, VpnInstanceListener> {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceListener.class);
     private static final String LOGGING_PREFIX_ADD = "VPN-ADD:";
     private static final String LOGGING_PREFIX_DELETE = "VPN-REMOVE:";
@@ -76,13 +77,15 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     private final IFibManager fibManager;
     private final VpnOpDataSyncer vpnOpDataNotifier;
     private final IMdsalApiManager mdsalManager;
+    private final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver;
     private final JobCoordinator jobCoordinator;
 
     @Inject
     public VpnInstanceListener(final DataBroker dataBroker, final IdManagerService idManager,
             final VpnInterfaceManager vpnInterfaceManager, final IFibManager fibManager,
             final VpnOpDataSyncer vpnOpDataSyncer, final IMdsalApiManager mdsalManager,
-            final JobCoordinator jobCoordinator) {
+            final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver,
+                               final JobCoordinator jobCoordinator) {
         super(VpnInstance.class, VpnInstanceListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -91,6 +94,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         this.fibManager = fibManager;
         this.vpnOpDataNotifier = vpnOpDataSyncer;
         this.mdsalManager = mdsalManager;
+        this.vpnClusterOwnershipDriver = vpnClusterOwnershipDriver;
         this.jobCoordinator = jobCoordinator;
     }
 
@@ -112,6 +116,11 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
     @Override
     protected void remove(InstanceIdentifier<VpnInstance> identifier, VpnInstance del) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         LOG.trace("{} remove: VPN event key: {}, value: {}", LOGGING_PREFIX_DELETE, identifier, del);
         final String vpnName = del.getVpnInstanceName();
         Optional<VpnInstanceOpDataEntry> vpnOpValue;
@@ -149,6 +158,11 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     @Override
     protected void update(InstanceIdentifier<VpnInstance> identifier,
         VpnInstance original, VpnInstance update) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         LOG.trace("VPN-UPDATE: update: VPN event key: {}, value: {}. Ignoring", identifier, update);
         String vpnName = update.getVpnInstanceName();
         vpnInterfaceManager.updateVpnInterfacesForUnProcessAdjancencies(vpnName);
@@ -156,6 +170,11 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
     @Override
     protected void add(final InstanceIdentifier<VpnInstance> identifier, final VpnInstance value) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         LOG.trace("{} add: Add VPN event key: {}, value: {}", LOGGING_PREFIX_ADD, identifier, value);
         final String vpnName = value.getVpnInstanceName();
         jobCoordinator.enqueueJob("VPN-" + vpnName, new AddVpnInstanceWorker(dataBroker, value),

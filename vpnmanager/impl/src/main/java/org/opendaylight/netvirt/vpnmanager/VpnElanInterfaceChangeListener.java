@@ -17,11 +17,12 @@ import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
@@ -37,19 +38,22 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class VpnElanInterfaceChangeListener
-    extends AsyncDataTreeChangeListenerBase<ElanInterface, VpnElanInterfaceChangeListener> {
+    extends AsyncClusteredDataTreeChangeListenerBase<ElanInterface, VpnElanInterfaceChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(VpnElanInterfaceChangeListener.class);
 
     private final DataBroker broker;
     private final ManagedNewTransactionRunner txRunner;
     private final IElanService elanService;
+    private IVpnClusterOwnershipDriver vpnClusterOwnershipDriver;
 
     @Inject
-    public VpnElanInterfaceChangeListener(final DataBroker broker, final IElanService elanService) {
+    public VpnElanInterfaceChangeListener(final DataBroker broker, final IElanService elanService,
+                                          final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver) {
         super(ElanInterface.class, VpnElanInterfaceChangeListener.class);
         this.broker = broker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.elanService = elanService;
+        this.vpnClusterOwnershipDriver = vpnClusterOwnershipDriver;
     }
 
     @PostConstruct
@@ -66,6 +70,11 @@ public class VpnElanInterfaceChangeListener
     @Override
     protected void remove(InstanceIdentifier<ElanInterface> key, ElanInterface elanInterface) {
         String interfaceName = elanInterface.getName();
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         if (!elanService.isExternalInterface(interfaceName)) {
             LOG.debug("remove: Interface {} is not external. Ignoring interface removal", interfaceName);
             return;
@@ -86,12 +95,21 @@ public class VpnElanInterfaceChangeListener
     @Override
     protected void update(InstanceIdentifier<ElanInterface> key, ElanInterface origElanInterface,
         ElanInterface updatedElanInterface) {
-
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
     }
 
     @Override
     protected void add(InstanceIdentifier<ElanInterface> key, ElanInterface elanInterface) {
         String interfaceName = elanInterface.getName();
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         if (!elanService.isExternalInterface(interfaceName)) {
             LOG.debug("add: Interface {} is not external. Ignoring", interfaceName);
             return;
