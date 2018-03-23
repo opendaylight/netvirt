@@ -20,6 +20,9 @@
              availability="optional"/>
   <reference id="iInterfaceManager"
              interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
+  <reference id="iVpnClusterOwnershipDriver"
+             interface="org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver"
+             availability="optional"/>
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService"/>
