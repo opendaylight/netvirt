@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public class NaptPacketInHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(NaptPacketInHandler.class);
-    private final static ConcurrentMap<String,NatPacketProcessingState> incomingPacketMap = new ConcurrentHashMap<>();
+    private static final  ConcurrentMap<String,NatPacketProcessingState> INCOMING_PKT_MAP = new ConcurrentHashMap<>();
     private final NaptEventHandler naptEventHandler;
     private final ExecutorService firstPacketExecutorService = SpecialExecutors.newBlockingBoundedFastThreadPool(
             NatConstants.SNAT_PACKET_THEADPOOL_SIZE, Integer.MAX_VALUE, "Napt-firstPacket", NaptPacketInHandler.class);
@@ -121,10 +121,10 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                     String sourceIPPortKey = routerId + NatConstants.COLON_SEPARATOR
                             + internalIPAddress + NatConstants.COLON_SEPARATOR + portNumber;
 
-                    NatPacketProcessingState state = incomingPacketMap.get(sourceIPPortKey);
+                    NatPacketProcessingState state = INCOMING_PKT_MAP.get(sourceIPPortKey);
                     if (state == null) {
                         state = new NatPacketProcessingState(System.currentTimeMillis(), -1);
-                        incomingPacketMap.put(sourceIPPortKey, state);
+                        INCOMING_PKT_MAP.put(sourceIPPortKey, state);
                         LOG.trace("onPacketReceived : Processing new SNAT({}) Packet", sourceIPPortKey);
 
                         //send to Event Queue
@@ -161,7 +161,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
     }
 
     public static void removeIncomingPacketMap(String sourceIPPortKey) {
-        incomingPacketMap.remove(sourceIPPortKey);
+        INCOMING_PKT_MAP.remove(sourceIPPortKey);
         LOG.debug("removeIncomingPacketMap : sourceIPPortKey {} mapping is removed from map", sourceIPPortKey);
     }
 
