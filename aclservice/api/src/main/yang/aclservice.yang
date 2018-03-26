@@ -32,6 +32,46 @@ module aclservice {
 
     }
 
+    //  IP VERSION
+    identity ip-version-base {
+        description "the base identity for ip versions";
+    }
+
+    identity ip-version-v4 {
+        description "IPv4";
+        base ip-version-base;
+    }
+
+    identity ip-version-v6 {
+        description "IPv6";
+        base ip-version-base;
+    }
+
+    //  DHCP
+    identity dhcpv6-base {
+        description "the base identity for DHCPv6 information";
+    }
+
+    identity dhcpv6-off {
+        description "DHCPv6 off";
+        base dhcpv6-base;
+    }
+
+    identity dhcpv6-stateful {
+        description "DHCPv6 stateful";
+        base dhcpv6-base;
+    }
+
+    identity dhcpv6-slaac {
+        description "SLAAC";
+        base dhcpv6-base;
+    }
+
+    identity dhcpv6-stateless {
+        description "DHCP v6 stateless";
+        base dhcpv6-base;
+    }
+
     typedef ip-prefix-or-address {
         description "ip prefix or ip address";
         type union {
@@ -81,16 +121,40 @@ module aclservice {
         }
     }
 
-    container ports-subnet-ip-prefixes {
-        list port-subnet-ip-prefixes {
+    container port-subnets {
+        config false;
+        list port-subnet {
             key port-id;
             leaf port-id {
                 type string;
                 description "Port ID";
             }
-            leaf-list subnet-ip-prefixes {
-                type ip-prefix-or-address;
-                description "Subnet IP Prefixes of the Port.";
+            list subnet-info {
+                key subnet-id;
+                leaf subnet-id {
+                    type yang:uuid;
+                    description "Subnet ID";
+                }
+                leaf ip-version {
+                    description "IP version";
+                    type identityref {
+                        base "ip-version-base";
+                    }
+                }
+                leaf ip-prefix {
+                    type ip-prefix-or-address;
+                    description "Subnet IP prefix.";
+                }
+                leaf ipv6-ra-mode {
+                    description "IPv6 RA mode";
+                    type identityref {
+                        base "dhcpv6-base";
+                    }
+                }
+                leaf gateway-ip {
+                    type inet:ip-address;
+                    description "default gateway used by devices in this subnet";
+                }
             }
         }
     }
