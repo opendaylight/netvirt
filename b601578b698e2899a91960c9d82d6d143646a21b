@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "959e8e11_a2847b53",
+        "filename": "fibmanager/api/src/main/yang/l3nexthop.yang",
+        "patchSetId": 21
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-03-26T17:53:38Z",
+      "side": 1,
+      "message": "Doesn’t this kind of change need a new revision of the YANG model?",
+      "revId": "b601578b698e2899a91960c9d82d6d143646a21b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
