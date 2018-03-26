@@ -15,8 +15,8 @@ import java.util.SortedSet;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.port.subnet.SubnetInfo;
 
 /**
  * The Class AclInterface.
@@ -44,8 +44,8 @@ public final class AclInterface {
     /** The allowed address pairs. */
     private final List<AllowedAddressPairs> allowedAddressPairs;
 
-    /** The IP broadcast CIDRs. */
-    private final List<IpPrefixOrAddress> subnetIpPrefixes;
+    /** List to contain subnet IP CIDRs along with subnet gateway IP. */
+    List<SubnetInfo> subnetInfo;
 
     /** The ingress remote acl tags. */
     private final SortedSet<Integer> ingressRemoteAclTags;
@@ -64,7 +64,7 @@ public final class AclInterface {
         this.portSecurityEnabled = builder.portSecurityEnabled;
         this.securityGroups = builder.securityGroups;
         this.allowedAddressPairs = builder.allowedAddressPairs;
-        this.subnetIpPrefixes = builder.subnetIpPrefixes;
+        this.subnetInfo = builder.subnetInfo;
         this.ingressRemoteAclTags = builder.ingressRemoteAclTags;
         this.egressRemoteAclTags = builder.egressRemoteAclTags;
         this.isMarkedForDelete = builder.isMarkedForDelete;
@@ -134,12 +134,12 @@ public final class AclInterface {
     }
 
     /**
-     * Gets the Subnet IP Prefix.
+     * Gets the Subnet info.
      *
-     * @return the Subnet IP Prefix
+     * @return the Subnet info
      */
-    public List<IpPrefixOrAddress> getSubnetIpPrefixes() {
-        return subnetIpPrefixes;
+    public List<SubnetInfo> getSubnetInfo() {
+        return subnetInfo;
     }
 
     /**
@@ -266,7 +266,7 @@ public final class AclInterface {
     public String toString() {
         return "AclInterface [interfaceId=" + interfaceId + ", lportTag=" + lportTag + ", dpId=" + dpId + ", elanId="
                 + elanId + ", portSecurityEnabled=" + portSecurityEnabled + ", securityGroups=" + securityGroups
-                + ", allowedAddressPairs=" + allowedAddressPairs + ", subnetIpPrefixes=" + subnetIpPrefixes
+                + ", allowedAddressPairs=" + allowedAddressPairs + ", subnetInfo=" + subnetInfo
                 + ", ingressRemoteAclTags=" + ingressRemoteAclTags + ", egressRemoteAclTags=" + egressRemoteAclTags
                 + ", isMarkedForDelete=" + isMarkedForDelete + "]";
     }
@@ -287,7 +287,7 @@ public final class AclInterface {
         private boolean portSecurityEnabled;
         private List<Uuid> securityGroups;
         private List<AllowedAddressPairs> allowedAddressPairs;
-        private List<IpPrefixOrAddress> subnetIpPrefixes;
+        private List<SubnetInfo> subnetInfo;
         private SortedSet<Integer> ingressRemoteAclTags;
         private SortedSet<Integer> egressRemoteAclTags;
         private boolean isMarkedForDelete;
@@ -303,7 +303,7 @@ public final class AclInterface {
             this.portSecurityEnabled = from.portSecurityEnabled;
             this.securityGroups = from.securityGroups;
             this.allowedAddressPairs = from.allowedAddressPairs;
-            this.subnetIpPrefixes = from.subnetIpPrefixes;
+            this.subnetInfo = from.subnetInfo;
             this.ingressRemoteAclTags = from.ingressRemoteAclTags;
             this.egressRemoteAclTags = from.egressRemoteAclTags;
             this.isMarkedForDelete = from.isMarkedForDelete;
@@ -344,8 +344,8 @@ public final class AclInterface {
             return this;
         }
 
-        public Builder subnetIpPrefixes(List<IpPrefixOrAddress> list) {
-            this.subnetIpPrefixes = list == null ? null : ImmutableList.copyOf(list);
+        public Builder subnetInfo(List<SubnetInfo> list) {
+            this.subnetInfo = list == null ? null : ImmutableList.copyOf(list);
             return this;
         }
 

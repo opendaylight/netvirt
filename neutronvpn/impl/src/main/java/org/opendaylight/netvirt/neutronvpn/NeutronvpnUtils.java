@@ -37,6 +37,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -62,14 +63,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.Dhcpv6Base;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.PortsSubnetIpPrefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpVersionBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.PortSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.ports.subnet.ip.prefixes.PortSubnetIpPrefixes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.ports.subnet.ip.prefixes.PortSubnetIpPrefixesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.ports.subnet.ip.prefixes.PortSubnetIpPrefixesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.PortSubnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.PortSubnetBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.PortSubnetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.port.subnet.SubnetInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.port.subnet.SubnetInfoBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.port.subnet.SubnetInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeFlat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeGre;
@@ -690,35 +696,46 @@ public class NeutronvpnUtils {
         interfaceAclBuilder.setAllowedAddressPairs(aclAllowedAddressPairs);
     }
 
-    protected void populateSubnetIpPrefixes(Port port) {
-        List<IpPrefixOrAddress> subnetIpPrefixes = getSubnetIpPrefixes(port);
-        if (subnetIpPrefixes != null) {
+    protected void populateSubnetInfo(Port port) {
+        List<SubnetInfo> portSubnetInfo = getSubnetInfo(port);
+        if (portSubnetInfo != null) {
             String portId = port.getUuid().getValue();
-            InstanceIdentifier<PortSubnetIpPrefixes> portSubnetIpPrefixIdentifier =
-                NeutronvpnUtils.buildPortSubnetIpPrefixIdentifier(portId);
-            PortSubnetIpPrefixesBuilder subnetIpPrefixesBuilder = new PortSubnetIpPrefixesBuilder()
-                    .setKey(new PortSubnetIpPrefixesKey(portId)).setPortId(portId)
-                    .setSubnetIpPrefixes(subnetIpPrefixes);
-            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, portSubnetIpPrefixIdentifier,
-                    subnetIpPrefixesBuilder.build());
-            LOG.debug("Created Subnet IP Prefixes for port {}", port.getUuid().getValue());
+            InstanceIdentifier<PortSubnet> portSubnetIdentifier = buildPortSubnetIdentifier(portId);
+
+            PortSubnetBuilder portSubnetBuilder = new PortSubnetBuilder().setKey(new PortSubnetKey(portId))
+                    .setPortId(portId).setSubnetInfo(portSubnetInfo);
+            try {
+                SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                        portSubnetIdentifier, portSubnetBuilder.build());
+            } catch (TransactionCommitFailedException e) {
+                LOG.error("Failed to populate subnet info for port={}", portId, e);
+            }
+            LOG.debug("Created Subnet info for port={}", portId);
         }
     }
 
-    protected List<IpPrefixOrAddress> getSubnetIpPrefixes(Port port) {
-        List<Uuid> subnetIds = getSubnetIdsFromNetworkId(port.getNetworkId());
-        if (subnetIds == null) {
-            LOG.error("Failed to get Subnet Ids for the Network {}", port.getNetworkId());
+    protected List<SubnetInfo> getSubnetInfo(Port port) {
+        List<FixedIps> portFixedIps = port.getFixedIps();
+        if (portFixedIps == null) {
+            LOG.error("Failed to get Fixed IPs for the port {}", port.getName());
             return null;
         }
-        List<IpPrefixOrAddress> subnetIpPrefixes = new ArrayList<>();
-        for (Uuid subnetId : subnetIds) {
+        List<SubnetInfo> subnetInfoList = new ArrayList<>();
+        for (FixedIps portFixedIp : portFixedIps) {
+            Uuid subnetId = portFixedIp.getSubnetId();
             Subnet subnet = getNeutronSubnet(subnetId);
             if (subnet != null) {
-                subnetIpPrefixes.add(new IpPrefixOrAddress(subnet.getCidr()));
+                Class<? extends IpVersionBase> ipVersion =
+                        NeutronSecurityRuleConstants.IP_VERSION_MAP.get(subnet.getIpVersion());
+                Class<? extends Dhcpv6Base> raMode = subnet.getIpv6RaMode() == null ? null
+                        : NeutronSecurityRuleConstants.RA_MODE_MAP.get(subnet.getIpv6RaMode());
+                SubnetInfo subnetInfo = new SubnetInfoBuilder().setKey(new SubnetInfoKey(subnetId))
+                        .setIpVersion(ipVersion).setIpPrefix(new IpPrefixOrAddress(subnet.getCidr()))
+                        .setIpv6RaMode(raMode).setGatewayIp(subnet.getGatewayIp()).build();
+                subnetInfoList.add(subnetInfo);
             }
         }
-        return subnetIpPrefixes;
+        return subnetInfoList;
     }
 
     protected Subnet getNeutronSubnet(Uuid subnetId) {
@@ -1011,9 +1028,9 @@ public class NeutronvpnUtils {
                 FloatingIpIdToPortMappingKey(floatingIpId)).build();
     }
 
-    static InstanceIdentifier<PortSubnetIpPrefixes> buildPortSubnetIpPrefixIdentifier(String portId) {
-        InstanceIdentifier<PortSubnetIpPrefixes> id = InstanceIdentifier.builder(PortsSubnetIpPrefixes.class)
-            .child(PortSubnetIpPrefixes.class, new PortSubnetIpPrefixesKey(portId)).build();
+    static InstanceIdentifier<PortSubnet> buildPortSubnetIdentifier(String portId) {
+        InstanceIdentifier<PortSubnet> id = InstanceIdentifier.builder(PortSubnets.class)
+                .child(PortSubnet.class, new PortSubnetKey(portId)).build();
         return id;
     }
 

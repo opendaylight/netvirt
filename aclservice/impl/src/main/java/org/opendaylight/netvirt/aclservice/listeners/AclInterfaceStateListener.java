@@ -33,7 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.port.subnet.SubnetInfo;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,11 +149,10 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                 .isMarkedForDelete(false);
 
             if (AclServiceUtils.isOfInterest(prevAclInterface)) {
-                if (prevAclInterface.getSubnetIpPrefixes() == null) {
+                if (prevAclInterface.getSubnetInfo() == null) {
                     // For upgrades
-                    List<IpPrefixOrAddress> subnetIpPrefixes = AclServiceUtils.getSubnetIpPrefixes(dataBroker,
-                            added.getName());
-                    builder.subnetIpPrefixes(subnetIpPrefixes);
+                    List<SubnetInfo> subnetInfo = aclServiceUtils.getSubnetInfo(added.getName());
+                    builder.subnetInfo(subnetInfo);
                 }
                 SortedSet<Integer> ingressRemoteAclTags =
                         aclServiceUtils.getRemoteAclTags(aclInPort.getSecurityGroups(), DirectionIngress.class);

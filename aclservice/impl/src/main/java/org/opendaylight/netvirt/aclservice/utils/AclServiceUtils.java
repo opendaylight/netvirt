@@ -121,7 +121,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.PortsSubnetIpPrefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpVersionV6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.PortSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.AclPortsByIp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.AclPortsByIpKey;
@@ -131,8 +132,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.acl.ports.by.ip.acl.ip.prefixes.PortIdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.acl.ports.by.ip.acl.ip.prefixes.PortIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.ports.subnet.ip.prefixes.PortSubnetIpPrefixes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.ports.subnet.ip.prefixes.PortSubnetIpPrefixesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.PortSubnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.PortSubnetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.port.subnet.SubnetInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -383,7 +385,7 @@ public final class AclServiceUtils {
      */
     public static List<MatchInfoBase> buildIcmpV6Matches(int icmpType, int icmpCode, int lportTag,
             Class<? extends ServiceModeBase> serviceMode) {
-        List<MatchInfoBase> matches = new ArrayList<>(6);
+        List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
         matches.add(MatchIpProtocol.ICMPV6);
         if (icmpType != 0) {
@@ -508,10 +510,10 @@ public final class AclServiceUtils {
         return dpId;
     }
 
-    public static List<String> getIpBroadcastAddresses(List<IpPrefixOrAddress> cidrs) {
+    public static List<String> getIpBroadcastAddresses(List<SubnetInfo> subnetInfoList) {
         List<String> ipBroadcastAddresses = new ArrayList<>();
-        for (IpPrefixOrAddress cidr : cidrs) {
-            IpPrefix cidrIpPrefix = cidr.getIpPrefix();
+        for (SubnetInfo subnetInfo : subnetInfoList) {
+            IpPrefix cidrIpPrefix = subnetInfo.getIpPrefix().getIpPrefix();
             if (cidrIpPrefix != null) {
                 Ipv4Prefix cidrIpv4Prefix = cidrIpPrefix.getIpv4Prefix();
                 if (cidrIpv4Prefix != null) {
@@ -845,20 +847,25 @@ public final class AclServiceUtils {
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
     }
 
-    public static List<IpPrefixOrAddress> getSubnetIpPrefixes(DataBroker broker, String portId) {
-        InstanceIdentifier<PortSubnetIpPrefixes> id = InstanceIdentifier.builder(PortsSubnetIpPrefixes.class)
-                .child(PortSubnetIpPrefixes.class, new PortSubnetIpPrefixesKey(portId)).build();
-        Optional<PortSubnetIpPrefixes> portSubnetIpPrefixes = read(broker, LogicalDatastoreType.OPERATIONAL, id);
-        if (portSubnetIpPrefixes.isPresent()) {
-            return portSubnetIpPrefixes.get().getSubnetIpPrefixes();
+    public List<SubnetInfo> getSubnetInfo(String portId) {
+        InstanceIdentifier<PortSubnet> id = InstanceIdentifier.builder(PortSubnets.class)
+                .child(PortSubnet.class, new PortSubnetKey(portId)).build();
+
+        Optional<PortSubnet> portSubnet = read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        if (portSubnet.isPresent()) {
+            return portSubnet.get().getSubnetInfo();
         }
         return null;
     }
 
-    public static void deleteSubnetIpPrefixes(DataBroker broker, String portId) {
-        InstanceIdentifier<PortSubnetIpPrefixes> id = InstanceIdentifier.builder(PortsSubnetIpPrefixes.class)
-                    .child(PortSubnetIpPrefixes.class, new PortSubnetIpPrefixesKey(portId)).build();
-        MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
+    public void deleteSubnetInfo(String portId) {
+        InstanceIdentifier<PortSubnet> id = InstanceIdentifier.builder(PortSubnets.class)
+                .child(PortSubnet.class, new PortSubnetKey(portId)).build();
+        try {
+            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("Failed to delete subnet info for port={}", portId, e);
+        }
     }
 
     private static List<MatchInfoBase> updateAAPMatches(boolean isSourceIpMacMatch, List<MatchInfoBase> flows,
@@ -1500,5 +1507,36 @@ public final class AclServiceUtils {
             return null;
         }
         return inetAddress;
+    }
+
+    public static Boolean isIpv6RaAllowedFromExternalRouters(List<SubnetInfo> subnetInfoList) {
+        if (subnetInfoList != null && !subnetInfoList.isEmpty()) {
+            for (SubnetInfo subnetInfo : subnetInfoList) {
+                if (subnetInfo != null && IpVersionV6.class.equals(subnetInfo.getIpVersion())
+                        && subnetInfo.getIpv6RaMode() == null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Gets the subnet difference by performing (subnetInfo1 - subnetInfo2).
+     *
+     * @param subnetInfo1 the subnet info 1
+     * @param subnetInfo2 the subnet info 2
+     * @return the subnet diff
+     */
+    public static List<SubnetInfo> getSubnetDiff(List<SubnetInfo> subnetInfo1, List<SubnetInfo> subnetInfo2) {
+        if (subnetInfo1 == null) {
+            return Collections.emptyList();
+        }
+        List<SubnetInfo> newSubnetList = new ArrayList<>(subnetInfo1);
+        if (subnetInfo2 == null) {
+            return newSubnetList;
+        }
+        newSubnetList.removeAll(subnetInfo2);
+        return newSubnetList;
     }
 }

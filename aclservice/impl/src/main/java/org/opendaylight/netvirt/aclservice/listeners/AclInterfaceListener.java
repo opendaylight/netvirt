@@ -94,7 +94,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                 if (aclInterface.getDpId() != null) {
                     aclServiceManager.notify(aclInterface, null, Action.REMOVE);
                 }
-                AclServiceUtils.deleteSubnetIpPrefixes(dataBroker, interfaceId);
+                aclServiceUtils.deleteSubnetInfo(interfaceId);
             }
         }
     }
@@ -224,9 +224,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                         .lPortTag(interfaceState.getIfIndex()).isMarkedForDelete(false);
             }
 
-            if (prevAclInterface == null) {
-                builder.subnetIpPrefixes(AclServiceUtils.getSubnetIpPrefixes(dataBroker, interfaceId));
-            }
+            builder.subnetInfo(aclServiceUtils.getSubnetInfo(interfaceId));
             if (prevAclInterface == null || prevAclInterface.getElanId() == null) {
                 builder.elanId(AclServiceUtils.getElanIdFromInterface(interfaceId, dataBroker));
             }
