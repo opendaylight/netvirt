@@ -25,6 +25,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
+import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
@@ -32,6 +33,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
@@ -40,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.port.subnet.SubnetInfo;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,7 +132,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         if (action == Action.ADD || action == Action.REMOVE) {
             ingressAclDhcpAllowServerTraffic(dpid, lportTag, addOrRemove);
             ingressAclDhcpv6AllowServerTraffic(dpid, lportTag, addOrRemove);
-            ingressAclIcmpv6AllowedTraffic(dpid, lportTag, addOrRemove);
+            ingressAclIcmpv6AllowedTraffic(port, addOrRemove);
+            programIcmpv6RARule(port, port.getSubnetInfo(), addOrRemove);
 
             programArpRule(dpid, lportTag, addOrRemove);
             programIpv4BroadcastRule(port, addOrRemove);
@@ -208,13 +212,15 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     }
 
     /**
-     * Add rules to ensure that certain ICMPv6 like MLD_QUERY (130), NS (135), NA (136) are allowed into the VM.
+     * Add rules to ensure that certain ICMPv6 like MLD_QUERY (130), RS (134), NS (135), NA (136) are
+     * allowed into the VM.
      *
-     * @param dpId the dpid
-     * @param lportTag the lport tag
+     * @param port the port
      * @param addOrRemove is write or delete
      */
-    private void ingressAclIcmpv6AllowedTraffic(BigInteger dpId, int lportTag, int addOrRemove) {
+    private void ingressAclIcmpv6AllowedTraffic(AclInterface port, int addOrRemove) {
+        BigInteger dpId = port.getDpId();
+        int lportTag = port.getLPortTag();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
 
         // Allow ICMPv6 Multicast Listener Query packets.
@@ -240,6 +246,27 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         flowName = "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_NA + "_Permit_";
         syncFlow(dpId, tableId, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+    }
+
+    @Override
+    protected void programIcmpv6RARule(AclInterface port, List<SubnetInfo> subnets, int addOrRemove) {
+        // Allow ICMPv6 Router Advertisement packets from external routers only if ipv6_ra_mode is not
+        // specified for an IPv6 subnet.
+        if (!AclServiceUtils.isIpv6RaAllowedFromExternalRouters(subnets)) {
+            return;
+        }
+        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
+        List<MatchInfoBase> matches =
+                AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_RA, 0, port.getLPortTag(), serviceMode);
+        // Allow ICMPv6 Router Advertisement packets if originating from any LinkLocal Address.
+        matches.addAll(AclServiceUtils.buildIpMatches(
+                new IpPrefixOrAddress(new IpPrefix(AclConstants.IPV6_LINK_LOCAL_PREFIX.toCharArray())),
+                AclServiceManager.MatchCriteria.MATCH_SOURCE));
+
+        String flowName = "Ingress_ICMPv6" + "_" + port.getDpId() + "_" + port.getLPortTag() + "_"
+                + AclConstants.ICMPV6_TYPE_RA + "_LinkLocal_Permit_";
+        syncFlow(port.getDpId(), getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL",
+                0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
     /**
@@ -283,9 +310,9 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         BigInteger dpId = port.getDpId();
         int lportTag = port.getLPortTag();
         MatchInfoBase lportMatchInfo = AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode);
-        List<IpPrefixOrAddress> cidrs = port.getSubnetIpPrefixes();
-        if (cidrs != null) {
-            List<String> broadcastAddresses = AclServiceUtils.getIpBroadcastAddresses(cidrs);
+        List<SubnetInfo> subnetInfoList = port.getSubnetInfo();
+        if (subnetInfoList != null) {
+            List<String> broadcastAddresses = AclServiceUtils.getIpBroadcastAddresses(subnetInfoList);
             for (String broadcastAddress : broadcastAddresses) {
                 List<MatchInfoBase> matches =
                         AclServiceUtils.buildBroadcastIpV4Matches(broadcastAddress);

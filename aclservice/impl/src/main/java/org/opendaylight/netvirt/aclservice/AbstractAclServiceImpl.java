@@ -61,6 +61,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.port.subnet.SubnetInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -197,9 +198,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             programAclWithAllowedAddress(portAfter, addedAaps, Action.UPDATE, NwConstants.ADD_FLOW);
             updateRemoteAclFilterTable(portAfter, portAfter.getSecurityGroups(), addedAaps, NwConstants.ADD_FLOW);
         }
-        if (portAfter.getSubnetIpPrefixes() != null && portBefore.getSubnetIpPrefixes() == null) {
+        if (portAfter.getSubnetInfo() != null && portBefore.getSubnetInfo() == null) {
             programBroadcastRules(portAfter, NwConstants.ADD_FLOW);
         }
+        handleSubnetChange(portBefore, portAfter);
 
         List<Uuid> addedAcls = AclServiceUtils.getUpdatedAclList(portAfter.getSecurityGroups(),
                 portBefore.getSecurityGroups());
@@ -212,6 +214,20 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
         handleAclChange(portBefore, deletedAcls, NwConstants.DEL_FLOW);
         handleAclChange(portAfter, addedAcls, NwConstants.ADD_FLOW);
+    }
+
+    private void handleSubnetChange(AclInterface portBefore, AclInterface portAfter) {
+        List<SubnetInfo> deletedSubnets =
+                AclServiceUtils.getSubnetDiff(portBefore.getSubnetInfo(), portAfter.getSubnetInfo());
+        List<SubnetInfo> addedSubnets =
+                AclServiceUtils.getSubnetDiff(portAfter.getSubnetInfo(), portBefore.getSubnetInfo());
+
+        if (deletedSubnets != null && !deletedSubnets.isEmpty()) {
+            programIcmpv6RARule(portAfter, deletedSubnets, NwConstants.DEL_FLOW);
+        }
+        if (addedSubnets != null && !addedSubnets.isEmpty()) {
+            programIcmpv6RARule(portAfter, addedSubnets, NwConstants.ADD_FLOW);
+        }
     }
 
     private void handleAclChange(AclInterface port, List<Uuid> aclList, int addOrRemove) {
@@ -516,6 +532,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param addOrRemove whether to delete or add flow
      */
     protected abstract void programBroadcastRules(AclInterface port, int addOrRemove);
+
+    protected abstract void programIcmpv6RARule(AclInterface port, List<SubnetInfo> subnets, int addOrRemove);
 
     /**
      * Writes/remove the flow to/from the datastore.
