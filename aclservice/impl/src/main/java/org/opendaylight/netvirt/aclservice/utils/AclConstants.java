@@ -76,6 +76,7 @@ public interface AclConstants {
 
     String IPV4_ALL_NETWORK = "0.0.0.0/0";
     String IPV6_ALL_NETWORK = "::/0";
+    String IPV6_LINK_LOCAL_PREFIX = "fe80::/10";
     String BROADCAST_MAC = "ff:ff:ff:ff:ff:ff";
     String IPV4_ALL_SUBNET_BROADCAST_ADDR = "255.255.255.255";
 
