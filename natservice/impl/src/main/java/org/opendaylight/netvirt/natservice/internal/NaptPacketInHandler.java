@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public class NaptPacketInHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(NaptPacketInHandler.class);
-    private final static ConcurrentMap<String,NatPacketProcessingState> incomingPacketMap = new ConcurrentHashMap<>();
+    private static final  ConcurrentMap<String,NatPacketProcessingState> incomingPacketMap = new ConcurrentHashMap<>();
     private final NaptEventHandler naptEventHandler;
     private final ExecutorService firstPacketExecutorService = SpecialExecutors.newBlockingBoundedFastThreadPool(
             NatConstants.SNAT_PACKET_THEADPOOL_SIZE, Integer.MAX_VALUE, "Napt-firstPacket", NaptPacketInHandler.class);

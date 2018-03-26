@@ -158,30 +158,32 @@ public class NaptEventHandler {
             3) Write the router ID to the metadata.
             5) Write the flow to the INBOUND NAPT Table and forward to FIB table for routing the traffic.
     */
-        
         try {
-			Long routerId = naptEntryEvent.getRouterId();
+            Long routerId = naptEntryEvent.getRouterId();
             String internalIpAddress = naptEntryEvent.getIpAddress();
             int internalPort = naptEntryEvent.getPortNumber();
             String sourceIPPortKey = routerId + NatConstants.COLON_SEPARATOR
-                 + internalIpAddress + NatConstants.COLON_SEPARATOR + internalPort;
-				 
-            LOG.trace("handleEvent : Time Elapsed before procesing snat ({}:{}) packet is {} ms,routerId: {},isPktProcessed:{}",
+                + internalIpAddress + NatConstants.COLON_SEPARATOR + internalPort;
+            LOG.trace("handleEvent : Time Elapsed before procesing snat ({}:{}) packet is {} ms,routerId: {}," +
+				"isPktProcessed:{}",
                 internalIpAddress, internalPort,
-                (System.currentTimeMillis() - naptEntryEvent.getObjectCreationTime()), routerId, naptEntryEvent.isPktProcessed());
+                (System.currentTimeMillis() - naptEntryEvent.getObjectCreationTime()), routerId,
+				naptEntryEvent.isPktProcessed());
             //Get the DPN ID
             BigInteger dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
             long bgpVpnId = NatConstants.INVALID_ID;
             if (dpnId == null) {
-                LOG.warn("handleEvent : dpnId is null. Assuming the router ID {} as the BGP VPN ID and proceeding....",
-                    routerId);
+                LOG.warn("handleEvent : dpnId is null. Assuming the router ID {} as the BGP VPN ID and " +
+				"proceeding....",
+                routerId);
                 bgpVpnId = routerId;
                 LOG.debug("handleEvent : BGP VPN ID {}", bgpVpnId);
                 String vpnName = NatUtil.getRouterName(dataBroker, bgpVpnId);
                 String routerName = NatUtil.getRouterIdfromVpnInstance(dataBroker, vpnName);
                 if (routerName == null) {
-	                NaptPacketInHandler.removeIncomingPacketMap(sourceIPPortKey);
-                    LOG.error("handleEvent: Unable to find router for VpnName {}. Droping packet for SNAT ({}) session", vpnName, sourceIPPortKey);
+                    NaptPacketInHandler.removeIncomingPacketMap(sourceIPPortKey);
+                    LOG.error("handleEvent: Unable to find router for VpnName {}. Droping packet for SNAT ({})" +
+                    "session", vpnName, sourceIPPortKey);
                     return;
                 }
                 routerId = NatUtil.getVpnId(dataBroker, routerName);
@@ -189,7 +191,8 @@ public class NaptEventHandler {
                 dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
                 if (dpnId == null) {
                     NaptPacketInHandler.removeIncomingPacketMap(sourceIPPortKey);
-                    LOG.error("handleEvent: Unable to find router for VpnName {}. Droping packet for SNAT ({}) session", vpnName, sourceIPPortKey);
+                    LOG.error("handleEvent: Unable to find router for VpnName {}. Droping packet for SNAT ({})" +
+                    "session", vpnName, sourceIPPortKey);
                     return;
                 }
             }
@@ -206,23 +209,26 @@ public class NaptEventHandler {
                                 extGwMacAddress, routerId);
                     } else {
                         NaptPacketInHandler.removeIncomingPacketMap(sourceIPPortKey);
-                        LOG.error("handleEvent: No External Gateway MAC address found for External Router ID {}. Droping packet for SNAT ({}) session", routerId, sourceIPPortKey);
+                        LOG.error("handleEvent: No External Gateway MAC address found for External Router ID {}." +
+                        "Droping packet for SNAT ({}) session", routerId, sourceIPPortKey);
                         return;
                     }
 					
                     //Get the external network ID from the ExternalRouter model
                     Uuid networkId = NatUtil.getNetworkIdFromRouterId(dataBroker, routerId);
-                    if(networkId == null ){
+                    if (networkId == null) {
                         NaptPacketInHandler.removeIncomingPacketMap(sourceIPPortKey);
-                        LOG.error("handleEvent: networkId is null. Droping packet for SNAT ({}) session", sourceIPPortKey);
+                        LOG.error("handleEvent: networkId is null. Droping packet for SNAT ({}) session",
+                        sourceIPPortKey);
                         return;
                     }
 
                     //Get the VPN ID from the ExternalNetworks model
                     Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
-                    if(vpnUuid == null ){
+                    if (vpnUuid == null) {
                         NaptPacketInHandler.removeIncomingPacketMap(sourceIPPortKey);
-                        LOG.error("handleEvent: vpnUuid is null. Droping packet for SNAT ({}) session", sourceIPPortKey);
+                        LOG.error("handleEvent: vpnUuid is null. Droping packet for SNAT ({}) session",
+                        sourceIPPortKey);
                         return;
                     }
 
@@ -238,7 +244,8 @@ public class NaptEventHandler {
                                     naptEntryEvent.getProtocol());
                     if (externalAddress == null) {
                          NaptPacketInHandler.removeIncomingPacketMap(sourceIPPortKey);
-                         LOG.error("handleEvent: externalAddress is null. Droping packet for SNAT ({}) session", sourceIPPortKey);
+                         LOG.error("handleEvent: externalAddress is null. Droping packet for SNAT ({}) session", 
+                         sourceIPPortKey);
                          return;
                     }
 
