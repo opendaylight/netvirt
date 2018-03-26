@@ -43,6 +43,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>yang-ext</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.neutron</groupId>
+            <artifactId>model</artifactId>
+            <version>${neutron.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>mdsalutil-api</artifactId>
             <version>${genius.version}</version>

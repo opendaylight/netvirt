@@ -8,6 +8,7 @@ module aclservice {
     import yang-ext { prefix ext; revision-date 2013-07-09;}
     import ietf-interfaces { prefix "ietf-if"; revision-date 2014-05-08;}
     import ietf-inet-types { prefix "inet"; revision-date 2013-07-15; }
+    import neutron-constants { prefix "constants"; revision-date 2015-07-12;}
 
     description
         "ACL Service module";
@@ -81,16 +82,36 @@ module aclservice {
         }
     }
 
-    container ports-subnet-ip-prefixes {
-        list port-subnet-ip-prefixes {
+    container port-subnets {
+        config false;
+        list port-subnet {
             key port-id;
             leaf port-id {
                 type string;
                 description "Port ID";
             }
-            leaf-list subnet-ip-prefixes {
-                type ip-prefix-or-address;
-                description "Subnet IP Prefixes of the Port.";
+            list subnet-info {
+                key subnet-id;
+                leaf subnet-id {
+                    type yang:uuid;
+                    description "Subnet ID";
+                }
+                leaf ip-version {
+                    description "IP version";
+                    type identityref {
+                        base "constants:ip-version-base";
+                    }
+                }
+                leaf ip-prefix {
+                    type ip-prefix-or-address;
+                    description "Subnet IP prefix.";
+                }
+                leaf ipv6-ra-mode {
+                    description "IPv6 RA mode";
+                    type identityref {
+                        base "constants:dhcpv6-base";
+                    }
+                }
             }
         }
     }
