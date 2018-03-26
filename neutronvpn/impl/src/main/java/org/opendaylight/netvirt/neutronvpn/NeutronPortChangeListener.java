@@ -757,7 +757,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             })));
     }
 
-    private static InterfaceAclBuilder handlePortSecurityUpdated(Port portOriginal,
+    private InterfaceAclBuilder handlePortSecurityUpdated(Port portOriginal,
             Port portUpdated, boolean origSecurityEnabled, boolean updatedSecurityEnabled,
             InterfaceBuilder interfaceBuilder) {
         InterfaceAclBuilder interfaceAclBuilder = null;
@@ -767,6 +767,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             if (updatedSecurityEnabled) {
                 // Handle security group enabled
                 NeutronvpnUtils.populateInterfaceAclBuilder(interfaceAclBuilder, portUpdated);
+                neutronvpnUtils.populateSubnetInfo(portUpdated);
             } else {
                 // Handle security group disabled
                 interfaceAclBuilder.setSecurityGroups(new ArrayList<>());
@@ -786,6 +787,11 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 interfaceAclBuilder.setAllowedAddressPairs(NeutronvpnUtils.getAllowedAddressPairsForFixedIps(
                         updatedAddressPairs, portOriginal.getMacAddress(), portOriginal.getFixedIps(),
                         portUpdated.getFixedIps()));
+
+                if (portOriginal.getFixedIps() != null
+                        && !portOriginal.getFixedIps().equals(portUpdated.getFixedIps())) {
+                    neutronvpnUtils.populateSubnetInfo(portUpdated);
+                }
             }
         }
         return interfaceAclBuilder;
@@ -826,7 +832,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             interfaceAclBuilder.setPortSecurityEnabled(true);
             NeutronvpnUtils.populateInterfaceAclBuilder(interfaceAclBuilder, port);
             interfaceBuilder.addAugmentation(InterfaceAcl.class, interfaceAclBuilder.build());
-            neutronvpnUtils.populateSubnetIpPrefixes(port);
+            neutronvpnUtils.populateSubnetInfo(port);
         }
         return interfaceBuilder.build();
     }
