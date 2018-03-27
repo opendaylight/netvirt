@@ -16,6 +16,24 @@
       "revId": "b601578b698e2899a91960c9d82d6d143646a21b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a9b5625_ba49f5e7",
+        "filename": "fibmanager/api/src/main/yang/l3nexthop.yang",
+        "patchSetId": 21
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-03-27T07:36:01Z",
+      "side": 1,
+      "message": "Are we honoring revision changes in YANG model ? Can you please point us to a review in netvirt/genius which we can follow to address this comment?",
+      "parentUuid": "959e8e11_a2847b53",
+      "revId": "b601578b698e2899a91960c9d82d6d143646a21b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
