@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Stephen Kitt <skitt@redhat.com>
+Submitted-by: Stephen Kitt <skitt@redhat.com>
+Submitted-at: Tue, 27 Mar 2018 00:27:55 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/70029
+Project: netvirt
+Branch: refs/heads/stable/oxygen
