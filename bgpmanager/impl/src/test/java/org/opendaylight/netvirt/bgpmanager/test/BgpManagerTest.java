@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.netvirt.bgpmanager.BgpUtil;
 import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -24,13 +24,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 
 @RunWith(MockitoJUnitRunner.class)
 
-public class BgpManagerTest extends AbstractDataBrokerTest {
-    DataBroker dataBroker;
-    FibDSWriter bgpFibWriter = null;
-    MockFibManager fibManager = null;
+public class BgpManagerTest extends AbstractConcurrentDataBrokerTest {
+    private DataBroker dataBroker;
+    private FibDSWriter bgpFibWriter = null;
+    private MockFibManager fibManager = null;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         dataBroker = getDataBroker();
         bgpFibWriter = new FibDSWriter(dataBroker, new BgpUtil(dataBroker));
         fibManager = new MockFibManager(dataBroker);
