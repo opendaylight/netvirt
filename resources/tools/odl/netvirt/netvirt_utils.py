@@ -81,7 +81,11 @@ def get_port_name(port):
 
 
 def get_dpn_from_ofnodeid(node_id):
-    return node_id.split(':')[1]
+    return node_id.split(':')[1] if node_id else 'none'
+
+
+def get_ofport_from_ncid(ncid):
+    return ncid.split(':')[2] if ncid and ncid.startswith('openflow') else 0
 
 
 def to_hex(data, ele=None):
@@ -99,6 +103,15 @@ def sort(data, field):
     return sorted(data, key=lambda x: x[field])
 
 
+def filter_flow(flow_dict, filter_list):
+    if not filter_list:
+        return True
+    for flow_filter in filter_list:
+        if flow_dict.get(flow_filter):
+            return True
+    return False
+
+
 def show_optionals(flow):
     result = ''
     lport = flow.get('lport')
@@ -106,14 +119,26 @@ def show_optionals(flow):
     label = flow.get('mpls')
     vpnid = flow.get('vpnid')
     ip = flow.get('iface-ips')
+    smac = flow.get('src-mac')
+    dmac = flow.get('dst-mac')
+    vlanid = flow.get('vlanid')
+    ofport = flow.get('ofport')
     if lport:
         result = '{},LportTag:{}/{}'.format(result, lport, to_hex(lport))
+    if ofport:
+        result = '{},OfPort:{}'.format(result, ofport)
+    if vlanid:
+        result = '{},VlanId:{}'.format(result, vlanid)
     if vpnid:
         result = '{},VpnId:{}/{}'.format(result, vpnid, to_hex(vpnid*2))
     if label:
         result = '{},MplsLabel:{}'.format(result, label)
     if elantag:
         result = '{},ElanTag:{}/{}'.format(result, elantag, to_hex(elantag))
+    if smac:
+        result = '{},SrcMac:{}'.format(result, smac)
+    if dmac:
+        result = '{},DstMac:{}'.format(result, dmac)
     if ip:
         result = '{},LportIp:{}'.format(result, json.dumps(ip))
     result = '{},Reason:{}'.format(result, flow.get('reason'))
