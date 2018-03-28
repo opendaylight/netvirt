@@ -1,10 +1,9 @@
-import collections
 import constants as const
 import ds_get_data as dsg
 import flow_parser as fp
 import json
 import netvirt_utils as utils
-import ovs_get_data as og
+from collections import defaultdict
 
 
 # Required
@@ -24,10 +23,10 @@ def by_ifname(ifname):
     port = None
     tunnel = None
     tunState = None
-    if iface.get('type') == const.IFTYPE_VLAN:
+    if iface and iface.get('type') == const.IFTYPE_VLAN:
         ports = dsg.get_neutron_ports()
         port = ports.get(ifname)
-    elif iface.get('type') == const.IFTYPE_TUNNEL:
+    elif iface and iface.get('type') == const.IFTYPE_TUNNEL:
         tunnels = dsg.get_config_tunnels()
         tunnel = tunnels.get(ifname)
         tunStates = dsg.get_tunnel_states()
@@ -44,13 +43,13 @@ def print_keys():
 
 
 def analyze_interface(ifname=None):
-    global ifaces,ifstates
-    ifaces = dsg.get_config_interfaces()
-    ifstates = dsg.get_interface_states()
+    global ifaces, ifstates
     if not ifname:
         print_keys()
         exit(1)
     ifname = ifname[0]
+    ifaces = dsg.get_config_interfaces()
+    ifstates = dsg.get_interface_states()
     iface,ifstate,port,tunnel,tunState = by_ifname(ifname)
     print "InterfaceConfig: "
     utils.pretty_print(iface)
@@ -124,7 +123,7 @@ def get_dpn_host_mapping(oper_nodes=None):
 def get_groups(ofnodes=None):
     of_nodes = ofnodes or dsg.get_inventory_config()
     key ='group-id'
-    group_dict = collections.defaultdict(dict)
+    group_dict = defaultdict(dict)
     for node in of_nodes.itervalues():
         dpnid = utils.get_dpn_from_ofnodeid(node['id'])
         for group in node[const.NODE_GROUP]:
@@ -245,7 +244,7 @@ def show_stale_flows(sort_by='table'):
         #print 'Flow:', json.dumps(parse_flow(flow['flow']))
 
 
-def get_all_flows(modules=['ifm']):
+def get_all_flows(modules=['ifm'], filter=[]):
     if not modules:
         return 'No modules specified'
     ifaces = {}
@@ -306,15 +305,16 @@ def get_all_flows(modules=['ifm']):
                                         ifaces, ifstates, ifindexes,
                                         fibentries, vpnids, vpninterfaces,
                                         einsts, eifaces)
-                if flow_dict is not None:
+                if (flow_dict is not None and
+                        utils.filter_flow(flow_dict, filter)):
                     flows.append(flow_dict)
     return flows
 
 
-def show_all_flows():
+def show_flows(modules=['ifm'], sort_by='table', filter_by=[]):
     compute_map = get_dpn_host_mapping()
     nports = dsg.get_neutron_ports()
-    for flow in utils.sort(get_all_flows(['all']), 'table'):
+    for flow in utils.sort(get_all_flows(modules, filter_by), sort_by):
         host = compute_map.get(flow.get('dpnid'), flow.get('dpnid'))
         ip_list = get_ips_for_iface(nports, flow.get('ifname'))
         if ip_list:
@@ -323,13 +323,77 @@ def show_all_flows():
             flow['table'], host, flow['id'],
             utils.show_optionals(flow))
         print result
-        #print 'Flow:', json.dumps(parse_flow(flow['flow']))
+        print 'Flow:', json.dumps(parse_flow(flow['flow']))
+
+
+def show_all_flows():
+    show_flows(modules=['all'])
 
 
 def show_elan_flows():
-    for flow in utils.sort(get_stale_flows(['elan']), 'table'):
-        print 'Table:', flow['table'], 'FlowId:', flow['id'], utils.show_optionals(flow)
-        print 'Flow:', json.dumps(parse_flow(flow['flow']))
+    compute_map = get_dpn_host_mapping()
+    for flow in utils.sort(get_all_flows(['elan']), 'id'):
+        host = compute_map.get(flow.get('dpnid'), flow.get('dpnid'))
+        result = 'MacHost:{}{},Table:{},FlowId:{},{},Flow:{}'.format(flow['id'][-17:],host,flow['table'],flow['id'],utils.show_optionals(flow),json.dumps(parse_flow(flow['flow'])))
+        print result
+        #print 'Flow:', json.dumps(parse_flow(flow['flow']))
+
+
+def get_matchstr(flow):
+    if flow and flow.get('flow') and flow.get('flow').get('match'):
+        return json.dumps(flow.get('flow').get('match', None))
+
+
+def get_key_for_dup_detect(flow):
+    result = '{}:{}:{}'.format(flow.get('dpnid'), flow.get('table'), get_matchstr(flow))
+    return result
+
+
+def show_dup_flows():
+    mmac = dsg.get_mip_mac()
+    einsts = dsg.get_elan_instances()
+    flows = utils.sort(get_all_flows(['elan']), 'table')
+    matches = defaultdict(list)
+    compute_map = get_dpn_host_mapping()
+    for flow in flows:
+        dup_key = get_key_for_dup_detect(flow)
+        if dup_key:
+            if matches and matches.get(dup_key):
+                matches[dup_key].append(flow)
+            else:
+                matches[dup_key].append(flow)
+    for k, v in matches.iteritems():
+        if len(v) > 1:
+            dpnid = k.split(':')[0]
+            host = compute_map.get(dpnid, dpnid)
+            result = 'Host:{},FlowCount:{},MatchKey:{},ElanTag:{}'.format(host, len(v), k,v[0].get('elan-tag'))
+            print result
+            for idx, flow in enumerate(v):
+                result = "Duplicate"
+                mac_addr = flow.get('dst-mac')
+                if mac_addr and mmac.get(mac_addr):
+                    result = fp.is_correct_elan_flow(flow, mmac.get(mac_addr), einsts, host)
+                print '    {}Flow-{}:{}'.format(result, idx, json.dumps(parse_flow(flow.get('flow'))))
+
+
+def show_learned_mac_flows():
+    nports = dsg.get_neutron_ports(key_field='mac-address')
+    flows = utils.sort(get_all_flows(['elan']), 'table')
+    compute_map = get_dpn_host_mapping()
+    for flow_info in flows:
+        flow = flow_info.get('flow')
+        dpnid = flow_info.get('dpnid')
+        host = compute_map.get(dpnid, dpnid)
+        if ((flow_info.get('table') == 50 and
+                flow.get('idle-timeout') == 300 and not
+                nports.get(flow_info.get('src-mac'))) or
+                (flow_info.get('table') == 51 and
+                 not nports.get(flow_info.get('dst-mac')))):
+            result = 'Table:{},Host:{},FlowId:{}{}'.format(
+                flow_info.get('table'), host, flow.get('id'),
+                utils.show_optionals(flow_info))
+            print result
+            print 'Flow:{}'.format(json.dumps(parse_flow(flow)))
 
 
 def show_elan_instances():
@@ -360,13 +424,22 @@ def get_duplicate_ids():
 
 
 def show_idpools():
+    ports = dsg.get_neutron_ports()
+    iface_ids = []
     for k,v in get_duplicate_ids().iteritems():
         result = "Id:{},Keys:{}".format(k, json.dumps(v.get('id-keys')))
         if v.get('pool-name'):
             result = "{},Pool:{}".format(result, v.get('pool-name'))
+            if v.get('pool-name') == 'interfaces':
+                iface_ids.extend(v.get('id-keys'))
         if v.get('parent-pool-name'):
             result = "{},ParentPool:{}".format(result, v.get('parent-pool-name'))
         print result
+    print "\nNeutron Ports"
+    print "============="
+    for id in iface_ids:
+        port = ports.get(id, {})
+        print "Iface={}, NeutronPort={}".format(id, json.dumps(port))
 
 
 def parse_flow(flow):
@@ -422,6 +495,66 @@ def show_all_groups():
             print 'Dpn:', dpn, 'ID:', group_key, 'Group:', json.dumps(groups[dpn][group_key])
 
 
+def analyze_trunks():
+    nports = dsg.get_neutron_ports()
+    ntrunks = dsg.get_neutron_trunks()
+    vpninterfaces = dsg.get_vpninterfaces()
+    ifaces = dsg.get_config_interfaces()
+    ifstates = dsg.get_interface_states()
+    subport_dict = {}
+    for v in ntrunks.itervalues():
+        nport = nports.get(v.get('port-id'))
+        s_subports = []
+        for subport in v.get('sub-ports'):
+            sport_id = subport.get('port-id')
+            snport = nports.get(sport_id)
+            svpniface = vpninterfaces.get(sport_id)
+            siface = ifaces.get(sport_id)
+            sifstate = ifstates.get(sport_id)
+            subport['SubNeutronPort'] = 'Correct' if snport else 'Wrong'
+            subport['SubVpnInterface'] = 'Correct' if svpniface else 'Wrong'
+            subport['ofport'] = utils.get_ofport_from_ncid(sifstate.get('lower-layer-if')[0]) 
+            if siface:
+                vlan_mode = siface.get('odl-interface:l2vlan-mode')
+                parent_iface_id = siface.get('odl-interface:parent-interface')
+                if vlan_mode !='trunk-member':
+                    subport['SubIface'] = 'WrongMode'
+                elif parent_iface_id !=v.get('port-id'):
+                    subport['SubIface'] = 'WrongParent'
+                elif siface.get('odl-interface:vlan-id') !=subport.get('segmentation-id'):
+                    subport['SubIface'] = 'WrongVlanId'
+                else:
+                    subport['SubIface'] = 'Correct'
+            else:
+                subport['SubIface'] = 'Wrong'
+            s_subport = 'SegId:{},PortId:{},SubNeutronPort:{},SubIface:{},SubVpnIface:{}'.format(
+                    subport.get('segmentation-id'),subport.get('port-id'),
+                    subport.get('SubNeutronPort'),
+                    subport.get('SubIface'),
+                    subport.get('SubVpnInterface'))
+            s_subports.append(subport)
+            subport_dict[subport['port-id']] = subport
+        s_trunk = 'TrunkName:{},TrunkId:{},PortId:{},NeutronPort:{},SubPorts:{}'.format(
+                v.get('name'), v.get('uuid'), v.get('port-id'),
+                'Correct' if nport else 'Wrong', json.dumps(s_subports))
+        print s_trunk
+    print '\n------------------------------------'
+    print   'Analyzing Flow status for SubPorts'
+    print   '------------------------------------'
+    for flow in utils.sort(get_all_flows(['ifm'], ['vlanid']), 'ifname'):
+        subport = subport_dict.get(flow.get('ifname')) or None
+        vlanid = subport.get('segmentation-id') if subport else None
+        ofport = subport.get('ofport') if subport else None
+        flow_status = 'Okay'
+        if flow.get('ofport') and flow.get('ofport') != ofport:
+            flow_status = 'OfPort mismatch for SubPort:{} and Flow:{}'.format(subport, flow.get('flow'))
+        if flow.get('vlanid') and flow.get('vlanid') != vlanid:
+            flow_status = 'VlanId mismatch for SubPort:{} and Flow:{}'.format(subport, flow.get('flow'))
+        if subport:
+            print 'SubPort:{},Table:{},FlowStatus:{}'.format(
+                    subport.get('port-id'), flow.get('table'), flow_status)
+
+
 def main(args=None):
     options, args = utils.parse_args()
     if options.callMethod:
@@ -436,7 +569,7 @@ def main(args=None):
     #analyze_inventory('openflow:165862438671169',ifName='tunf94333cc491')
     #show_stale_flows()
     #show_stale_bindings()
-    analyze_interface(args)
+    analyze_interface([args[1]])
     #og.print_flow_dict(og.get_ofctl_flows())
 
 

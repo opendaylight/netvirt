@@ -2,7 +2,8 @@ import netvirt_utils as utils
 import constants as const
 
 
-OPTIONALS = ['ifname', 'lport', 'elan-tag', 'mpls', 'vpnid', 'reason']
+OPTIONALS = ['ifname', 'lport', 'elan-tag', 'mpls', 'vpnid', 'reason',
+             'dst-mac', 'src-mac', 'ofport', 'vlanid']
 MAC_LEN = 17
 
 # Flow table constants
@@ -114,7 +115,8 @@ def get_any_flow(flow, flow_info, groups, ifaces, ifstates, ifindexes,
 def stale_ifm_flow(flow, flow_info, ifaces, ifstates):
     get_flow_info_from_ifm_table(flow_info, flow)
     flow_ifname = flow_info['ifname']
-    if flow_ifname is not None and not ifaces.get(flow_ifname):
+    iface = ifaces.get(flow_ifname)
+    if flow_ifname is not None and not iface:
         flow_info['reason'] = 'Interface doesnt exist'
         return create_flow_dict(flow_info, flow)
     elif flow_ifname and ifstates.get(flow_ifname):
@@ -129,6 +131,13 @@ def stale_ifm_flow(flow, flow_info, ifaces, ifstates):
                 and flow_info['lport'] != ifstate['if-index']):
             flow_info['reason'] = 'Lport and IfIndex mismatch'
             return create_flow_dict(flow_info, flow)
+        if (flow_info.get('ofport') and ifstate.get('lower-layer-if')
+                and flow_info['ofport'] != utils.get_ofport_from_ncid(
+                    ifstate.get('lower-layer-if')[0])):
+            flow_info['reason'] = 'OfPort mismatch'
+        if (flow_info.get('vlanid') and iface.get('odl-interface:vlan-id')
+                and flow_info['vlanid'] != iface.get('odl-interface:vlan-id')):
+            flow_info['reason'] = 'VlanId mismatch'
     return None
     # return create_flow_dict(flow_info, flow)
 
@@ -196,14 +205,14 @@ def stale_acl_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces):
     iface = get_iface_for_lport(ifaces, ifindexes, lport)
     if lport and not iface:
             flow_info['reason'] = 'Interface for lport not found'
-            #return create_flow_dict(flow_info, flow)
+            return create_flow_dict(flow_info, flow)
     if iface:
         flow_info['ifname'] = iface['name']
     if not is_elantag_valid(eltag, eifaces, einsts, iface):
         flow_info['reason'] = 'Lport Elantag mismatch'
-        #return create_flow_dict(flow_info, flow)
-    return create_flow_dict(flow_info, flow)
-    #return None
+        return create_flow_dict(flow_info, flow)
+    #return create_flow_dict(flow_info, flow)
+    return None
 
 
 def is_elantag_valid(eltag, eifaces, einsts, iface):
@@ -211,6 +220,27 @@ def is_elantag_valid(eltag, eifaces, einsts, iface):
             and eltag != get_eltag_for_iface(eifaces, einsts, iface)):
         return False
     return True
+
+
+def is_correct_elan_flow(flow_info, mmac, einsts, flow_host):
+    flow = flow_info.get('flow')
+    flow_etag = flow_info.get('elan-tag')
+    for k, v in mmac.iteritems():
+        mac_host = v.get('compute')
+        if einsts.get(k):
+            einst_tag = einsts.get(k).get('elan-tag')
+            #print einst_tag, flow_etag, mac_host
+            if flow_etag and einst_tag and flow_etag == einst_tag:
+                if mac_host.startswith(flow_host):
+                    act_resubmit = get_act_resubmit(flow)
+                    if (act_resubmit and act_resubmit.get('table') == 220):
+                        return 'Correct'
+                else:
+                    act_tunnel = get_act_set_tunnel(flow)
+                    if act_tunnel:
+                        return 'Correct'
+                return 'Wrong'
+    return 'Wrong'
 
 
 def get_iface_for_lport(ifaces, ifindexes, lport):
@@ -267,6 +297,40 @@ def get_act_group(flow):
                     return action['group-action']
 
 
+def get_act_set_tunnel(flow):
+    for instruction in flow['instructions'].get('instruction', []):
+        if 'apply-actions' in instruction:
+            for action in instruction['apply-actions'].get('action', []):
+                if 'set-field' in action and 'tunnel' in action.get('set-field'):
+                    return action.get('set-field').get('tunnel')
+
+
+def get_act_resubmit(flow):
+    for instruction in flow['instructions'].get('instruction', []):
+        if 'apply-actions' in instruction:
+            for action in instruction['apply-actions'].get('action', []):
+                if ('openflowplugin-extension-nicira-action:nx-resubmit'
+                        in action):
+                    return action[
+                        'openflowplugin-extension-nicira-action:nx-resubmit']
+
+
+def get_act_set_vlanid(flow):
+    for instruction in flow['instructions'].get('instruction', []):
+        if 'apply-actions' in instruction:
+            for action in instruction['apply-actions'].get('action', []):
+                if 'set-field' in action and 'vlan-match' in action.get('set-field'):
+                    return action.get('set-field').get('vlan-match').get('vlan-id')
+
+
+def get_act_output(flow):
+    for instruction in flow['instructions'].get('instruction', []):
+        if 'apply-actions' in instruction:
+            for action in instruction['apply-actions'].get('action', []):
+                if 'output-action' in action and 'output-node-connector' in action.get('output-action'):
+                    return action.get('output-action')
+
+
 def get_match_metadata(flow):
     return flow['match'].get('metadata')
 
@@ -295,6 +359,30 @@ def get_match_tunnelid(flow):
     return None
 
 
+def get_match_ether_dest(flow):
+    if flow.get('match').get('ethernet-match') and flow['match'].get('ethernet-match').get('ethernet-destination'):
+        return flow['match'].get('ethernet-match').get('ethernet-destination')
+    return None
+
+
+def get_match_ether_src(flow):
+    if flow.get('match').get('ethernet-match') and flow['match'].get('ethernet-match').get('ethernet-source'):
+        return flow['match'].get('ethernet-match').get('ethernet-source')
+    return None
+
+
+def get_match_vlanid(flow):
+    if flow.get('match').get('vlan-match') and flow['match'].get('vlan-match').get('vlan-id'):
+        return flow['match'].get('vlan-match').get('vlan-id')
+    return None
+
+
+def get_match_inport(flow):
+    if flow.get('match').get('in-port'):
+        return flow['match'].get('in-port')
+    return None
+
+
 def get_flow_info_from_any(flow_info, flow):
     w_mdata = get_instruction_writemeta(flow)
     if w_mdata:
@@ -316,6 +404,12 @@ def get_flow_info_from_any(flow_info, flow):
             lport = ('%x' % (metadata & LPORT_MASK))[:-LPORT_MASK_ZLEN]
             if lport:
                 flow_info['lport'] = int(lport, 16)
+    m_ether_dest = get_match_ether_dest(flow)
+    if m_ether_dest and m_ether_dest.get('address'):
+        flow_info['dst-mac'] = m_ether_dest.get('address').lower()
+    m_ether_src = get_match_ether_src(flow)
+    if m_ether_src and m_ether_src.get('address'):
+        flow_info['src-mac'] = m_ether_src.get('address').lower()
     return flow_info
 
 # Table specific parsing
@@ -343,12 +437,25 @@ def get_flow_info_from_ifm_table(flow_info, flow):
         if (mask & LPORT_MASK):
             lport = ('%x' % (metadata & LPORT_MASK))[:-LPORT_MASK_ZLEN]
             flow_info['lport'] = int(lport, 16)
-            return flow_info
     m_reg6 = get_match_reg6(flow)
-    if m_reg6 and m_reg6.get('value'):
+    if not flow.get('lport') and m_reg6 and m_reg6.get('value'):
         lport = (('%x' % (m_reg6.get('value') & LPORT_REG6_MASK))
                  [:-LPORT_REG6_MASK_ZLEN])
         flow_info['lport'] = int(lport, 16)
+    if flow['table_id'] == 0:
+        m_inport = get_match_inport(flow)
+        if m_inport:
+            flow_info['ofport'] = utils.get_ofport_from_ncid(m_inport)
+        m_vlan = get_match_vlanid(flow)
+        if m_vlan and m_vlan.get('vlan-id'):
+            flow_info['vlanid'] = m_vlan.get('vlan-id')
+    elif flow['table_id'] == 220:
+        a_output = get_act_output(flow)
+        a_vlan = get_act_set_vlanid(flow)
+        if a_output and a_output.get('output-node-connector'):
+            flow_info['ofport'] = a_output.get('output-node-connector')
+        if a_vlan and a_vlan.get('vlan-id'):
+            flow_info['vlanid'] = a_vlan.get('vlan-id')
     return flow_info
 
 
@@ -391,7 +498,12 @@ def get_flow_info_from_elan_table(flow_info, flow):
         if (mask & LPORT_MASK):
             lport = ('%x' % (metadata & LPORT_MASK))[:-LPORT_MASK_ZLEN]
             flow_info['lport'] = int(lport, 16)
-
+    m_ether_dest = get_match_ether_dest(flow)
+    if m_ether_dest and m_ether_dest.get('address'):
+        flow_info['dst-mac'] = m_ether_dest.get('address').lower()
+    m_ether_src = get_match_ether_src(flow)
+    if m_ether_src and m_ether_src.get('address'):
+        flow_info['src-mac'] = m_ether_src.get('address').lower()
     if not flow_info.get('lport'):
         reg6_load = get_act_reg6load(flow)
         if reg6_load and reg6_load.get('value'):

@@ -32,12 +32,29 @@ def get_config_interfaces(file_name=None):
     return if_dict
 
 
-def get_neutron_ports(file_name=None):
+def get_itm_config_interfaces(file_name=None):
+    tun_dict = {}
+    tunifaces = get_ds_data('itmconfig',file_name)
+    for sourcedpn in tunifaces:
+        for remotedpn in sourcedpn['remote-dpns']:
+            tun_dict[remotedpn['tunnel-name']] = remotedpn
+    return tun_dict
+
+
+def get_neutron_ports(file_name=None, key_field='uuid'):
     port_dict = {}
     ports = get_ds_data('neutronports',file_name)
     for port in ports:
-        port_dict[port['uuid']] = port
+        port_dict[port[key_field]] = port
     return port_dict
+
+
+def get_neutron_trunks(file_name=None):
+    trunk_dict = {}
+    trunks = get_ds_data('neutrontrunks',file_name)
+    for trunk in trunks:
+        trunk_dict[trunk['uuid']] = trunk
+    return trunk_dict
 
 
 def get_interface_states(file_name=None):
@@ -102,6 +119,7 @@ def get_inventory_nodes(file_name, dsType = 'config'):
     for node in nodes:
         nodes_dict[node['id']] = node
     return nodes_dict
+
 
 
 def get_inventory_config(file_name=None):
@@ -182,3 +200,16 @@ def get_idpools(filename=None):
     for idpool in idpools:
         idpools_dict[idpool['pool-name']] = idpool
     return idpools_dict
+
+
+def get_mip_mac(filename='mip-mac.log'):
+    mmac_dict = collections.defaultdict(dict)
+    try:
+        with open(filename) as data_file:
+            data = json.load(data_file)
+    except IOError:
+        data = []
+    for entry in data:
+        entry['mac'] = entry['mac'].lower()
+        mmac_dict[entry.get('mac')][entry.get('network-id')] = entry
+    return mmac_dict
