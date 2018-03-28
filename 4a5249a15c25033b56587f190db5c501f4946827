@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a78677a_1b39521f",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/recovery/AclInstanceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-28T15:46:51Z",
+      "side": 1,
+      "message": "nitpicks, but no need for all these extra lines",
+      "revId": "4a5249a15c25033b56587f190db5c501f4946827",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
