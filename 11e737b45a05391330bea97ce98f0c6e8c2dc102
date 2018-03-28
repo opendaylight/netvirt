@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f8f5f1db_19ae94a8",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/server/BgpThriftService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-28T15:25:43Z",
+      "side": 1,
+      "message": "where is this called?",
+      "revId": "11e737b45a05391330bea97ce98f0c6e8c2dc102",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
