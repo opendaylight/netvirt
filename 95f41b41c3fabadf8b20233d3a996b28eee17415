@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7867cae_6c40889b",
+        "filename": "elanmanager/impl/pom.xml",
+        "patchSetId": 18
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-28T16:32:09Z",
+      "side": 1,
+      "message": "could you move this up to be in alphabetical order - keep with genius artifacts, but above the test scope",
+      "revId": "95f41b41c3fabadf8b20233d3a996b28eee17415",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
