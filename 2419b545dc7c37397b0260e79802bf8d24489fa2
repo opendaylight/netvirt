@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41298bf9_7645d429",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-03-29T03:24:34Z",
+      "side": 1,
+      "message": "Thanks for the inputs.\n\nBut, this approach will potentially keeps a stale subnet-route flows on all the DPN where External subnet VPN has its footprint earlier until external-subnet is deleted.\n\nInstead, I think we need to see why the below externalFixedIps entry is missing for Napt Switch DPN in vpn-instance-op-data(with conntrack-based-snat) as we see it in controller-based snat. If this is fixed, then ipAddresses List on that DPN will not be empty and this subnet-route flow will not be deleted.\n\n{\"ip-address\": \"192.168.56.18/32\", \"ip-address-source\": \"ExternalFixedIP\"}",
+      "range": {
+        "startLine": 358,
+        "startChar": 38,
+        "endLine": 359,
+        "endChar": 31
+      },
+      "revId": "2419b545dc7c37397b0260e79802bf8d24489fa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
