@@ -759,7 +759,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                         label, localNextHopInfo.getVpnInterfaceName(), lri.getDpnId());
                                 if (vpnExtraRoutes.isEmpty()) {
                                     BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP,
-                                            vpnId, rd, vrfEntry, lri.getParentVpnid(), null, vpnExtraRoutes);
+                                            vpnId, rd, vrfEntry, lri.getParentVpnid(), null /*vpnExtraRoute*/,
+                                            vpnExtraRoutes);
                                     returnLocalDpnId.add(dpnId);
                                 } else {
                                     for (Routes extraRoutes : vpnExtraRoutes) {
@@ -813,7 +814,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             String gwMacAddress = vrfEntry.getGatewayMacAddress();
             //The loadbalancing group is created only if the extra route has multiple nexthops
             //to avoid loadbalancing the discovered routes
-            if (vpnExtraRoutes != null) {
+            if (vpnExtraRoutes != null && routes != null) {
                 if (isIpv4Address(routes.getNexthopIpList().get(0))) {
                     localNextHopIP = routes.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX;
                 } else {
