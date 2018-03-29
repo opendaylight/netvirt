@@ -1146,14 +1146,15 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                         vpnName, vpnRd);
                                 fibManager.addOrUpdateFibEntry(vpnRd, null /*macAddress*/, prefix,
                                         Collections.singletonList(nh), VrfEntry.EncapType.Mplsgre, label,
-                                        0 /*l3vni*/, gwMac,  null /*parentVpnRd*/, RouteOrigin.SELF_IMPORTED,
+                                        0 /*l3vni*/, gwMac,  vpn.getVrfId(), RouteOrigin.SELF_IMPORTED,
                                         writeConfigTxn);
                             } else {
                                 LOG.info("handleVpnsExportingRoutes: Importing subnet route fib entry rd {} prefix {}"
                                         + " nexthop {} label {} to vpn {} vpnRd {}", vpn.getVrfId(), prefix, nh, label,
                                         vpnName, vpnRd);
                                 SubnetRoute route = vrfEntry.getAugmentation(SubnetRoute.class);
-                                importSubnetRouteForNewVpn(vpnRd, prefix, nh, label, route, writeConfigTxn);
+                                importSubnetRouteForNewVpn(vpnRd, prefix, nh, label, route, vpn.getVrfId(),
+                                        writeConfigTxn);
                             }
                         });
                     } catch (RuntimeException e) {
@@ -1613,10 +1614,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     public synchronized void importSubnetRouteForNewVpn(String rd, String prefix, String nextHop, int label,
-        SubnetRoute route, WriteTransaction writeConfigTxn) {
+        SubnetRoute route, String parentVpnRd, WriteTransaction writeConfigTxn) {
 
         RouteOrigin origin = RouteOrigin.SELF_IMPORTED;
-        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, origin, null /* parentVpnRd */)
+        VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop, origin, parentVpnRd)
                 .addAugmentation(SubnetRoute.class, route).build();
         List<VrfEntry> vrfEntryList = Collections.singletonList(vrfEntry);
         InstanceIdentifierBuilder<VrfTables> idBuilder =
