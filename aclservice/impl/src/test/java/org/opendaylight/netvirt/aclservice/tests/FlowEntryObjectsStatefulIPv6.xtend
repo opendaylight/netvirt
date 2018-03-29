@@ -95,7 +95,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
            ],
            new FlowEntityBuilder >> [
                 dpnId = 123bi
-               cookie = 110100481bi
+               cookie = 1085218086715393bi
                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                flowName = "ACL"
                instructionInfoList = #[
@@ -157,7 +157,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
-                cookie = 110100481bi
+                cookie = 1085218086715393bi
                 flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -231,7 +231,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
              ],
              new FlowEntityBuilder >> [
                 dpnId = 123bi
-                 cookie = 110100481bi
+                 cookie = 1085218086715393bi
                  flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                  flowName = "ACL"
                  instructionInfoList = #[
@@ -271,7 +271,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
-                cookie = 110100481bi
+                cookie = 1085218086715393bi
                 flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -344,7 +344,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
-                cookie = 110100481bi
+                cookie = 1085218086715393bi
                 flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -383,7 +383,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
-                cookie = 110100481bi
+                cookie = 1085218086715393bi
                 flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -400,7 +400,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
-                cookie = 110100481bi
+                cookie = 1085218086715393bi
                 flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -1255,7 +1255,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 ],
                 new FlowEntityBuilder >> [
                     dpnId = 123bi
-                    cookie = 110100481bi
+                    cookie = 1085218086715393bi
                     flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                     flowName = "ACL"
                     instructionInfoList = #[
