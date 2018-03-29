@@ -66,6 +66,7 @@ import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -759,7 +760,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                         label, localNextHopInfo.getVpnInterfaceName(), lri.getDpnId());
                                 if (vpnExtraRoutes.isEmpty()) {
                                     BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP,
-                                            vpnId, rd, vrfEntry, lri.getParentVpnid(), null, vpnExtraRoutes);
+                                            vpnId, rd, vrfEntry, lri.getParentVpnid(), null /*vpnExtraRoute*/,
+                                            vpnExtraRoutes);
                                     returnLocalDpnId.add(dpnId);
                                 } else {
                                     for (Routes extraRoutes : vpnExtraRoutes) {
@@ -807,13 +809,18 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         + " FIB processing", vrfEntry.getDestPrefix(), vpnId, rd, dpnId);
                 return dpnId;
             }
+            if (!isVpnPresentInDpn(rd, dpnId)) {
+                LOG.error("checkCreateLocalFibEntry: The VPN with id {} rd {} is not available on dpn {}",
+                        vpnId, rd, dpnId.toString());
+                return BigInteger.ZERO;
+            }
             String jobKey = FibUtil.getCreateLocalNextHopJobKey(vpnId, dpnId, vrfEntry.getDestPrefix());
             String interfaceName = localNextHopInfo.getVpnInterfaceName();
             String prefix = vrfEntry.getDestPrefix();
             String gwMacAddress = vrfEntry.getGatewayMacAddress();
             //The loadbalancing group is created only if the extra route has multiple nexthops
             //to avoid loadbalancing the discovered routes
-            if (vpnExtraRoutes != null) {
+            if (vpnExtraRoutes != null && routes != null) {
                 if (isIpv4Address(routes.getNexthopIpList().get(0))) {
                     localNextHopIP = routes.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX;
                 } else {
@@ -889,6 +896,15 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         LOG.error("localNextHopInfo received is null for prefix {} on rd {} on vpn {}", vrfEntry.getDestPrefix(), rd,
                 vpnName);
         return BigInteger.ZERO;
+    }
+
+    private boolean isVpnPresentInDpn(String rd, BigInteger dpnId)  {
+        InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(rd, dpnId);
+        Optional<VpnToDpnList> dpnInVpn = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        if (dpnInVpn.isPresent()) {
+            return true;
+        }
+        return false;
     }
 
     private LabelRouteInfo getLabelRouteInfo(Long label) {
