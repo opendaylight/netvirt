@@ -284,7 +284,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
         syncFlow(port.getDpId(), getAclFilterCumDispatcherTable(), flowId, AclConstants.ACE_LAST_REMOTE_ACL_PRIORITY,
-                "ACL", 0, 0, AclConstants.COOKIE_ACL_DROP_FLOW, matches, instructions, addOrRemove);
+                "ACL", 0, 0, AclServiceUtils.getDropFlowCookie(port.getLPortTag()), matches, instructions, addOrRemove);
     }
 
     private void programAcl(AclInterface port, Action action, int addOrRemove) {
@@ -884,7 +884,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
         String flowId = this.directionString + "_Fixed_Conntrk_Drop" + dpId + "_" + lportTag + "_Tracked_Invalid";
         syncFlow(dpId, getAclFilterCumDispatcherTable(), flowId, AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, "ACL",
-                0, 0, AclConstants.COOKIE_ACL_DROP_FLOW, matches, instructions, addOrRemove);
+                0, 0, AclServiceUtils.getDropFlowCookie(lportTag), matches, instructions, addOrRemove);
     }
 
     /**
@@ -901,7 +901,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
         String flowId = this.directionString + "_Fixed_Acl_Rule_Miss_Drop_" + dpId + "_" + lportTag;
         syncFlow(dpId, getAclFilterCumDispatcherTable(), flowId, AclConstants.ACL_PORT_SPECIFIC_DROP_PRIORITY, "ACL", 0,
-                0, AclConstants.COOKIE_ACL_DROP_FLOW, matches, instructions, addOrRemove);
+                0, AclServiceUtils.getDropFlowCookie(lportTag), matches, instructions, addOrRemove);
     }
 
     /**

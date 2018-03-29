@@ -55,7 +55,7 @@ public final class AclLiveStatisticsHelper {
     private static final Logger LOG = LoggerFactory.getLogger(AclLiveStatisticsHelper.class);
 
     /** The Constant COOKIE_ACL_DROP_FLOW_MASK. */
-    static final BigInteger COOKIE_ACL_DROP_FLOW_MASK = new BigInteger("FFFFFFF", 16);
+    static final BigInteger COOKIE_ACL_DROP_FLOW_MASK = new BigInteger("FFFFFFFFFFFFFFFF", 16);
 
     private AclLiveStatisticsHelper() {
         throw new IllegalStateException("Utility class");
@@ -76,7 +76,6 @@ public final class AclLiveStatisticsHelper {
         List<AclPortStats> lstAclPortStats = new ArrayList<>();
 
         Short tableId = getTableId(direction);
-        FlowCookie aclDropFlowCookie = new FlowCookie(AclConstants.COOKIE_ACL_DROP_FLOW);
         FlowCookie aclDropFlowCookieMask = new FlowCookie(COOKIE_ACL_DROP_FLOW_MASK);
 
         for (String interfaceName : interfaceNames) {
@@ -97,11 +96,11 @@ public final class AclLiveStatisticsHelper {
 
             NodeRef nodeRef = buildNodeRef(dpId);
             Integer lportTag = interfaceState.getIfIndex();
-            Match metadataMatch = buildMetadataMatch(lportTag);
+            FlowCookie aclDropFlowCookie = new FlowCookie(AclServiceUtils.getDropFlowCookie(lportTag));
 
             GetFlowStatisticsInputBuilder input =
                     new GetFlowStatisticsInputBuilder().setNode(nodeRef).setCookie(aclDropFlowCookie)
-                            .setCookieMask(aclDropFlowCookieMask).setMatch(metadataMatch).setStoreStats(false);
+                            .setCookieMask(aclDropFlowCookieMask).setStoreStats(false);
             if (direction != Direction.Both) {
                 input.setTableId(tableId);
             }
