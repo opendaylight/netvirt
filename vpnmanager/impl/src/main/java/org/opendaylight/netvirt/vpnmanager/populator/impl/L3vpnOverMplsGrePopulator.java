@@ -91,7 +91,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
                 if (vpnRd != null) {
                     fibManager.addOrUpdateFibEntry(vpnRd, null /*macAddress*/,
                             nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
-                            0 /*l3vni*/, input.getGatewayMac(), null /*parentVpnRd*/, RouteOrigin.SELF_IMPORTED,
+                            0 /*l3vni*/, input.getGatewayMac(), primaryRd, RouteOrigin.SELF_IMPORTED,
                             writeConfigTxn);
                     LOG.info("populateFib: Exported route with rd {} prefix {} nexthop {} label {}"
                             + " to VPN {} for interface {} on dpn {}", vpnRd, nextHop.getIpAddress(), nextHopIp, label,
