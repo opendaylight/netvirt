@@ -759,7 +759,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                         label, localNextHopInfo.getVpnInterfaceName(), lri.getDpnId());
                                 if (vpnExtraRoutes.isEmpty()) {
                                     BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP,
-                                            vpnId, rd, vrfEntry, lri.getParentVpnid(), null, vpnExtraRoutes);
+                                            vpnId, rd, vrfEntry, lri.getParentVpnid(), null /*vpnExtraRoute*/,
+                                            vpnExtraRoutes);
                                     returnLocalDpnId.add(dpnId);
                                 } else {
                                     for (Routes extraRoutes : vpnExtraRoutes) {
@@ -797,6 +798,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             long groupId;
             long localGroupId;
             final BigInteger dpnId = localNextHopInfo.getDpnId();
+            if (!isVpnPresentInDpn(rd, dpnId)) {
+                LOG.error("checkCreateLocalFibEntry: The VPN with id {} rd {} is not available on dpn {}",
+                        vpnId, rd, dpnId.toString());
+                return BigInteger.ZERO;
+            }
             if (Prefixes.PrefixCue.Nat.equals(localNextHopInfo.getPrefixCue())) {
                 LOG.debug("checkCreateLocalFibEntry: NAT Prefix {} with vpnId {} rd {}. Skip local dpn {}"
                         + " FIB processing", vrfEntry.getDestPrefix(), vpnId, rd, dpnId);
@@ -813,7 +819,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             String gwMacAddress = vrfEntry.getGatewayMacAddress();
             //The loadbalancing group is created only if the extra route has multiple nexthops
             //to avoid loadbalancing the discovered routes
-            if (vpnExtraRoutes != null) {
+            if (vpnExtraRoutes != null && routes != null) {
                 if (isIpv4Address(routes.getNexthopIpList().get(0))) {
                     localNextHopIP = routes.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX;
                 } else {
