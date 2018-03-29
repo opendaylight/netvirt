@@ -152,10 +152,14 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                         fibUtil.getVpnNameFromId(vpnId), usedRds, vrfEntry.getDestPrefix());
                 if (vpnExtraRoutes.isEmpty()) {
                     Prefixes prefixInfo = fibUtil.getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
-                    // We don't want to provide an adjacencyList for an extra-route-prefix.
-                    if (prefixInfo == null) {
-                        LOG.debug("The extra route {} in rd {} for vpn {} has been removed from all the next hops",
-                                vrfEntry.getDestPrefix(), rd, vpnId);
+                    /* We don't want to provide an adjacencyList for
+                     * (1) an extra-route-prefix or,
+                     * (2) for a local route without prefix-to-interface.
+                     * Allow only self-imported routes in such cases */
+                    if (prefixInfo == null && !FibHelper
+                            .isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
+                        LOG.debug("The prefix {} in rd {} for vpn {} does not have a valid extra-route or"
+                                + " prefix-to-interface entry in the data-store", vrfEntry.getDestPrefix(), rd, vpnId);
                         return adjacencyList;
                     }
                     prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
