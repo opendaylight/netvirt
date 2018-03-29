@@ -16,6 +16,24 @@
       "revId": "95f41b41c3fabadf8b20233d3a996b28eee17415",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da413279_1e07c5e6",
+        "filename": "elanmanager/impl/pom.xml",
+        "patchSetId": 18
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2018-03-29T04:11:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c7867cae_6c40889b",
+      "revId": "95f41b41c3fabadf8b20233d3a996b28eee17415",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
