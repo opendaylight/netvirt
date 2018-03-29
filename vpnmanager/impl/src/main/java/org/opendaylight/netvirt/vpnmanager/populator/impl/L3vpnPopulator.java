@@ -111,7 +111,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
             List<VpnInstanceOpDataEntry> vpnsToImportRoute = VpnUtil.getVpnsImportingMyRoute(broker, vpnName);
             if (vpnsToImportRoute.size() > 0) {
                 VrfEntry importingVrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop,
-                        RouteOrigin.SELF_IMPORTED, networkName).addAugmentation(SubnetRoute.class, route).build();
+                        RouteOrigin.SELF_IMPORTED, rd).addAugmentation(SubnetRoute.class, route).build();
                 List<VrfEntry> importingVrfEntryList = Collections.singletonList(importingVrfEntry);
                 for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
                     String importingRd = vpnInstance.getVrfId();

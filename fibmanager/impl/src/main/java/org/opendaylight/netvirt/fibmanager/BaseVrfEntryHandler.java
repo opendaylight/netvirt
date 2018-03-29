@@ -73,6 +73,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.Vpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.VpnKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.ExtraRoutes;
@@ -152,10 +153,14 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                         fibUtil.getVpnNameFromId(vpnId), usedRds, vrfEntry.getDestPrefix());
                 if (vpnExtraRoutes.isEmpty()) {
                     Prefixes prefixInfo = fibUtil.getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
-                    // We don't want to provide an adjacencyList for an extra-route-prefix.
-                    if (prefixInfo == null) {
-                        LOG.debug("The extra route {} in rd {} for vpn {} has been removed from all the next hops",
-                                vrfEntry.getDestPrefix(), rd, vpnId);
+                    /* We don't want to provide an adjacencyList for
+                     * (1) an extra-route-prefix or,
+                     * (2) for a local route without prefix-to-interface.
+                     * Allow only self-imported routes in such cases */
+                    if (prefixInfo == null && FibHelper
+                            .isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
+                        LOG.debug("The prefix {} in rd {} for vpn {} does not have a valid extra-route or"
+                                + " prefix-to-interface entry in the data-store", vrfEntry.getDestPrefix(), rd, vpnId);
                         return adjacencyList;
                     }
                     prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
@@ -340,10 +345,16 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         // FIXME vxlan vni bit set is not working properly with OVS.need to
         // revisit
         if (tunnelType.equals(TunnelTypeVxlan.class)) {
-            prefixInfo = fibUtil.getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
-            //For extra route, the prefixInfo is fetched from the primary adjacency
-            if (prefixInfo == null) {
-                prefixInfo = fibUtil.getPrefixToInterface(vpnId, adjacencyResult.getPrefix());
+            if (FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
+                prefixInfo = fibUtil.getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
+                //For extra route, the prefixInfo is fetched from the primary adjacency
+                if (prefixInfo == null) {
+                    prefixInfo = fibUtil.getPrefixToInterface(vpnId, adjacencyResult.getPrefix());
+                }
+            } else {
+                //Imported Route. Get Prefix Info from parent RD
+                VpnInstanceOpDataEntry parentVpn =  fibUtil.getVpnInstance(vrfEntry.getParentVpnRd());
+                prefixInfo = fibUtil.getPrefixToInterface(parentVpn.getVpnId(), adjacencyResult.getPrefix());
             }
             // Internet VPN VNI will be used as tun_id for NAT use-cases
             if (Prefixes.PrefixCue.Nat.equals(prefixInfo.getPrefixCue())) {
