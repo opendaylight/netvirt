@@ -16,6 +16,24 @@
       "revId": "9f6f325dce0858c0917613f8b3ea95c687ea3c12",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26fc30cb_02b95e05",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-03-29T00:20:56Z",
+      "side": 1,
+      "message": "Sorry the causal analysis in the bug report is incorrect. However the fix is still applied.\n\nRevised analysis:\n\nI found that the problem ocurs only when:\n- NAT conntract mode is used.\n- The deleted FIP VM is on the NAPT switch.\n\nThe vpn-to-dpn-list for the external subnet on each compute dpn contains single IP address -\nthe FIP. The external router GW interface is contained in the vpn-to-dpn-list on the control node.\n\nIf the FIP on the NAPT switch is deleted, since it is the last address on the\nvpn-to-dpn-list. fibManager.cleanUpDpnForVpn is invoked and the PNF flows will be\nremoved from the dpn as a result.\n\nNAPT controller mode doesn\u0027t have this issue because the external router GW interface IP is\ncontained in the vpn-to-dpn-list of the NAPT switch. Thus deleting the last FIP will not\ninvoke fibManager.cleanUpDpnForVpn since the router GW interface IP still exists in the dpn.\n\nPlease see the updated details in the bug report",
+      "parentUuid": "a244ff26_a2601e05",
+      "revId": "9f6f325dce0858c0917613f8b3ea95c687ea3c12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
