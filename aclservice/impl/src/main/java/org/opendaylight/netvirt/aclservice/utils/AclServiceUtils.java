@@ -607,6 +607,10 @@ public final class AclServiceUtils {
         return remoteAclTag.shiftLeft(4);
     }
 
+    public static BigInteger getDropFlowCookie(int lport) {
+        return MetaDataUtil.getLportTagMetaData(lport).or(AclConstants.COOKIE_ACL_DROP_FLOW);
+    }
+
     /**
      * Does IPv4 address exists in the list of allowed address pair.
      *

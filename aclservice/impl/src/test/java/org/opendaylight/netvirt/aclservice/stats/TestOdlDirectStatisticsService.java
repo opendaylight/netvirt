@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.Future;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
+import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Counter64;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetFlowStatisticsInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetFlowStatisticsOutput;
@@ -41,7 +42,6 @@ public abstract class TestOdlDirectStatisticsService implements OpendaylightDire
 
     private static final Logger LOG = LoggerFactory.getLogger(TestOdlDirectStatisticsService.class);
 
-    protected FlowCookie aclDropFlowCookie = new FlowCookie(AclConstants.COOKIE_ACL_DROP_FLOW);
     protected FlowCookie aclDropFlowCookieMask = new FlowCookie(AclLiveStatisticsHelper.COOKIE_ACL_DROP_FLOW_MASK);
 
     @Override
@@ -99,6 +99,7 @@ public abstract class TestOdlDirectStatisticsService implements OpendaylightDire
     private FlowAndStatisticsMapList buildFlowStats(short tableId, Integer priority, Integer lportTag, long byteCount,
             long packetCount) {
         Match metadataMatch = AclLiveStatisticsHelper.buildMetadataMatch(lportTag);
+        FlowCookie aclDropFlowCookie = new FlowCookie(AclServiceUtils.getDropFlowCookie(lportTag));
 
         return new FlowAndStatisticsMapListBuilder().setTableId(tableId).setCookie(aclDropFlowCookie)
                 .setCookieMask(aclDropFlowCookieMask).setMatch(metadataMatch).setPriority(priority)
