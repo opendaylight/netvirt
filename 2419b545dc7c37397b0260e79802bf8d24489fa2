@@ -22,6 +22,30 @@
       "revId": "2419b545dc7c37397b0260e79802bf8d24489fa2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba56917a_7ba42352",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-03-30T00:52:00Z",
+      "side": 1,
+      "message": "\"this approach will potentially keeps a stale subnet-route flows on all the DPN where External subnet VPN has its footprint earlier until external-subnet is deleted\"\n\nVinh\u003e For external subnet the subnet-route flows are installed when the external subnet is created (not when the FIP is associated), so I think it makes sense to remove them when the external subnet is removed.\nSecondly, the subnet-route flows exist in all DPNs before the FIP is associated, so one would expect the flows remain after the FIP is disassociated.\n\n\"we need to see why the below externalFixedIps entry is missing for Napt Switch DPN in vpn-instance-op-data(with conntrack-based-snat) as we see it in controller-based snat\"\n\nVinh\u003e I thought about this but I think the inconsistency of flows mentioned above could be a bigger issue than issue of inconsistency of internal data.",
+      "parentUuid": "41298bf9_7645d429",
+      "range": {
+        "startLine": 358,
+        "startChar": 38,
+        "endLine": 359,
+        "endChar": 31
+      },
+      "revId": "2419b545dc7c37397b0260e79802bf8d24489fa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
