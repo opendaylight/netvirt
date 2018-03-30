@@ -837,14 +837,16 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         if (!optionalVpnInterface.isPresent()) {
             return;
         }
-        LOG.trace("withdraw adjacencies for Port: {} subnet {}", port.getUuid().getValue(),
-                sn != null ? sn.getSubnetIp() : "null");
+        LOG.trace("withdraw adjacencies for Port: {} subnet {}", port.getUuid().getValue(), sn.getSubnetIp());
+        LOG.info(">>>> PORT {}", port.toString());
+        LOG.info(">>>> OpVpnIface {}", optionalVpnInterface.toString());
         List<Adjacency> vpnAdjsList = optionalVpnInterface.get().getAugmentation(Adjacencies.class).getAdjacency();
         List<Adjacency> updatedAdjsList = new ArrayList<>();
         boolean isIpFromAnotherSubnet = false;
         for (Adjacency adj : vpnAdjsList) {
             String adjString = FibHelper.getIpFromPrefix(adj.getIpAddress());
-            if (sn == null || !Objects.equals(adj.getSubnetId(), sn.getId())) {
+            LOG.info(">>>>> adjString <<<<< {}", adjString);
+            if (Objects.equals(adj.getSubnetId(), sn.getId())) {
                 if (adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
                     isIpFromAnotherSubnet = true;
                 }
@@ -852,7 +854,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 continue;
             }
             if (adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
-                LOG.error("withdrawPortIpFromVpnIface: suppressing primaryAdjacency {} FixedIp for vpnId {}",
+                LOG.debug("withdrawPortIpFromVpnIface: suppressing primaryAdjacency {} FixedIp for vpnId {}",
                       adjString, vpnId);
                 if (vpnId != null) {
                     neutronvpnUtils.removeVpnPortFixedIpToPort(vpnId.getValue(),
@@ -873,32 +875,30 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 extraRoutesToRemove.add(rt);
                             }
                         }
-                        if (vpnId != null) {
-                            LOG.error("withdrawPortIpFromVpnIface: suppressing extraRoute {} for vpnId {}",
+                        LOG.debug("withdrawPortIpFromVpnIface: suppressing extraRoute {} for vpnId {}",
                                   extraRoutesToRemove, vpnId);
                             removeAdjacencyforExtraRoute(vpnId, extraRoutesToRemove);
+                            /* removeAdjacencyforExtraRoute done also for internet-vpn-id, in previous call */
                         }
-                        /* removeAdjacencyforExtraRoute done also for internet-vpn-id, in previous call */
                     }
                 }
             }
-        }
-        Adjacencies adjacencies = new AdjacenciesBuilder().setAdjacency(updatedAdjsList).build();
-        if (vpnId != null) {
-            updateVpnInterfaceWithAdjacencies(vpnId, infName, adjacencies, wrtConfigTxn);
-        }
-        if (internetVpnId != null) {
-            updateVpnInterfaceWithAdjacencies(internetVpnId, infName, adjacencies, wrtConfigTxn);
-        }
-        if (!isIpFromAnotherSubnet) {
-            // no more subnetworks for neutron port
-            if (sn != null && sn.getRouterId() != null) {
-                removeFromNeutronRouterInterfacesMap(sn.getRouterId(), port.getUuid().getValue());
+            Adjacencies adjacencies = new AdjacenciesBuilder().setAdjacency(updatedAdjsList).build();
+            if (vpnId != null) {
+                updateVpnInterfaceWithAdjacencies(vpnId, infName, adjacencies, wrtConfigTxn);
             }
-            deleteVpnInterface(infName, null /* vpn-id */, wrtConfigTxn);
+            if (internetVpnId != null) {
+                updateVpnInterfaceWithAdjacencies(internetVpnId, infName, adjacencies, wrtConfigTxn);
+            }
+            if (!isIpFromAnotherSubnet) {
+                // no more subnetworks for neutron port
+                if (sn.getRouterId() != null) {
+                    removeFromNeutronRouterInterfacesMap(sn.getRouterId(), port.getUuid().getValue());
+                }
+                deleteVpnInterface(infName, null /* vpn-id */, wrtConfigTxn);
+                return;
+            }
             return;
-        }
-        return;
     }
 
     // TODO Clean up the exception handling
@@ -1425,6 +1425,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         int warningcount = 0;
         List<Uuid> vpns = input.getId();
         for (Uuid vpn : vpns) {
+            LOG.info(">>>>> deleteL3VPN RPC: VPN {}", vpn.getValue());
             RpcError error;
             String msg;
             try {
@@ -1592,7 +1593,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 return;
             }
         }
-        if (vpnInstance != null && isVpnOfTypeL2(vpnInstance)) {
+        if (isVpnOfTypeL2(vpnInstance)) {
             neutronEvpnUtils.updateElanAndVpn(vpnInstance, sn.getNetworkId().getValue(),
                     NeutronEvpnUtils.Operation.DELETE);
         }
@@ -2147,20 +2148,26 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     public void removeVpn(Uuid id) {
         // read VPNMaps
+        LOG.info(">>>>> removeVpn {}", id.getValue());
         VpnMap vpnMap = neutronvpnUtils.getVpnMap(id);
+        LOG.info(">>>>> removeVpn: VPNMAP {}", vpnMap.toString());
         Uuid router = vpnMap != null ? vpnMap.getRouterId() : null;
         // dissociate router
         if (router != null) {
+            LOG.info(">>>>> removeVpn: dissociate router");
             dissociateRouterFromVpn(id, router);
         }
         // dissociate networks
         if (!id.equals(router) && vpnMap.getNetworkIds() != null) {
+            LOG.info(">>>>> removeVpn: dissociate networks");
             dissociateNetworksFromVpn(id, vpnMap.getNetworkIds());
         }
+        LOG.info(">>>>> removeVpn: call deleteVpnMapsNode");
         // remove entire vpnMaps node
         deleteVpnMapsNode(id);
 
         // remove vpn-instance
+        LOG.info(">>>>> removeVpn: call deleteVpnInstance");
         deleteVpnInstance(id);
     }
 

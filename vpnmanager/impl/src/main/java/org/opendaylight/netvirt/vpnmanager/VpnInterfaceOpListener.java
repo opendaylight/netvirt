@@ -76,13 +76,14 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
         return VpnInterfaceOpListener.this;
     }
 
-
     @Override
     protected void remove(final InstanceIdentifier<VpnInterfaceOpDataEntry> identifier,
             final VpnInterfaceOpDataEntry del) {
         final VpnInterfaceOpDataEntryKey key = identifier.firstKeyOf(VpnInterfaceOpDataEntry.class,
                 VpnInterfaceOpDataEntryKey.class);
         final String interfaceName = key.getName();
+        LOG.info("+++++> VpnInterfaceOpListener: remove: interface {} on dpn {} vpn {}", del.getName(), del.getDpnId(),
+                 del.getVpnInstanceName());
         jobCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
             () -> {
                 WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
@@ -102,7 +103,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
         String interfaceName = key.getName();
         String vpnName = del.getVpnInstanceName();
 
-        LOG.info("postProcessVpnInterfaceRemoval: interface name {} vpnName {} dpn {}", interfaceName, vpnName,
+        LOG.info("====> postProcessVpnInterfaceRemoval: IFACE {} vpnName {} dpn {}", interfaceName, vpnName,
                 del.getDpnId());
         //decrement the vpn interface count in Vpn Instance Op Data
         Optional<VpnInstance> vpnInstance = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,

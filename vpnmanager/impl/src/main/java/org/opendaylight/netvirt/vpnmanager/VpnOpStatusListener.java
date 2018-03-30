@@ -87,6 +87,9 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
     protected void update(InstanceIdentifier<VpnInstanceOpDataEntry> identifier,
                           VpnInstanceOpDataEntry original, VpnInstanceOpDataEntry update) {
         LOG.info("update: Processing update for vpn {} with rd {}", update.getVpnInstanceName(), update.getVrfId());
+        LOG.info("update: >>> STATE {}", update.getVpnState().toString());
+        LOG.info("update: >>> ORIGINAL {}", original.toString());
+        LOG.info("update: >>> UPDATE {}", update.toString());
         if (update.getVpnState() == VpnInstanceOpDataEntry.VpnState.PendingDelete
                 && vpnFootprintService.isVpnFootPrintCleared(update)) {
             //Cleanup VPN data

@@ -80,7 +80,9 @@ public class FibManagerImpl implements IFibManager {
     @Override
     public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
                                  FutureCallback<List<Void>> callback) {
+        LOG.info(">>>>>> FibManagerImpl: call vrfEntryListener.cleanUpDpnForVpn");
         vrfEntryListener.cleanUpDpnForVpn(dpnId, vpnId, rd, callback);
+        LOG.info(">>>>>> FibManagerImpl: returning");
     }
 
     @Override
