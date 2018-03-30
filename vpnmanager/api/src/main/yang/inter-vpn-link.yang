@@ -7,8 +7,6 @@ module inter-vpn-link {
 
   import ietf-yang-types { prefix yang; revision-date "2013-07-15"; }
 
-  import config { prefix config; revision-date 2013-04-05; }
-
   description
     "Service definition for inter-vpn-link project";
 
