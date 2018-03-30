@@ -1736,9 +1736,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     public void cleanUpDpnForVpn(final BigInteger dpnId, final long vpnId, final String rd,
                                  final FutureCallback<List<Void>> callback) {
-        LOG.trace("cleanUpDpnForVpn: Remove dpn {} for vpn {} : cleanUpDpnForVpn", dpnId, rd);
+        LOG.trace("==== cleanUpDpnForVpn: Remove dpn {} for vpn {} rd {}: cleanUpDpnForVpn", dpnId, vpnId,
+                  rd);
         InstanceIdentifier<VrfTables> id = buildVrfId(rd);
         final VpnInstanceOpDataEntry vpnInstance = fibUtil.getVpnInstance(rd);
+        LOG.trace("==== VpnInstanceOpDataEntry {}", vpnInstance.toString());
         List<SubTransaction> txnObjects =  new ArrayList<>();
         final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         jobCoordinator.enqueueJob(FibUtil.getJobKeyForVpnIdDpnId(vpnId, dpnId),
@@ -1756,6 +1758,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                     baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null,
                                             NwConstants.DEL_FLOW, tx, null);
                                     List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
+				    LOG.info("ROUTEPATH: {}", routePaths.toString());
+				    LOG.trace("SUBNETROUTE: cleanUpDpnForVpn: Cleaning subnetroute {} on dpn {}"
+					      + " for vpn {}", vrfEntry.getDestPrefix(), dpnId, rd);
                                     if (routePaths != null) {
                                         for (RoutePaths routePath : routePaths) {
                                             makeLFibTableEntry(dpnId, routePath.getLabel(), null,
@@ -1799,7 +1804,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                 // to which prefix is attached at this point
                                 List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker,
                                         vpnInstance.getVpnId(), vrfEntry.getDestPrefix());
-                                String vpnName = fibUtil.getVpnNameFromId(vpnInstance.getVpnId());
+                                LOG.info("==== usedRds {}", usedRds.toString());
+				String vpnName = fibUtil.getVpnNameFromId(vpnInstance.getVpnId());
                                 Optional<Routes> extraRouteOptional;
                                 //Is this fib route an extra route? If yes, get the nexthop which would be
                                 //an adjacency in the vpn
@@ -1810,15 +1816,19 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                     } else {
                                         extraRouteOptional = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker, vpnName,
                                                 usedRds.get(0), vrfEntry.getDestPrefix());
+					LOG.info("==== extraRouteOptional {}", extraRouteOptional.toString());
 
                                     }
                                 } else {
                                     extraRouteOptional = Optional.absent();
                                 }
                                 if (RouteOrigin.BGP.getValue().equals(vrfEntry.getOrigin())) {
-                                    bgpRouteVrfEntryHandler.deleteRemoteRoute(null, dpnId, vpnId,
+                                    LOG.info(">>>>> bgpRouteVrfEntryHandler.deleteRemoteRoute with txnObjects {}",
+				             txnObjects.toString());
+				    bgpRouteVrfEntryHandler.deleteRemoteRoute(null, dpnId, vpnId,
                                             vrfTable.get().getKey(), vrfEntry, extraRouteOptional, tx, txnObjects);
                                 } else {
+				    LOG.info(">>>>> bgpRouteVrfEntryHandler.deleteRemoteRoute");
                                     baseVrfEntryHandler.deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().getKey(),
                                             vrfEntry, extraRouteOptional, tx);
                                 }

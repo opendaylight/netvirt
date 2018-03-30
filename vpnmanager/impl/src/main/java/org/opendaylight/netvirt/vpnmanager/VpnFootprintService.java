@@ -82,8 +82,11 @@ public class VpnFootprintService implements IVpnFootprintService {
     @Override
     public void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String primaryRd, String interfaceName,
             ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, boolean add) {
+        LOG.info("====> updateVpnToDpnMapping with dpId {}, vpnName {}, primaryRd {}, interfaceName {}, add {}",
+                 dpId.toString(), vpnName, primaryRd.toString(), interfaceName, add);
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
         if (!dpId.equals(BigInteger.ZERO)) {
+            LOG.info("====> updateVpnToDpnMapping: dbId ZERO");
             if (add) {
                 // Considering the possibility of VpnInstanceOpData not being ready yet cause
                 // the VPN is
@@ -106,6 +109,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                     removeOrUpdateVpnToDpnListForInterfaceName(vpnId, primaryRd, dpId, interfaceName, vpnName);
                     publishInterfaceRemovedFromVpnNotification(interfaceName, dpId, vpnName, vpnId);
                 } else {
+                    LOG.info("====> removeOrUpdateVpnToDpnListForIpAddress: ");
                     removeOrUpdateVpnToDpnListForIpAddress(vpnId, primaryRd, dpId, ipAddressSourceValuePair, vpnName);
                 }
             }
@@ -304,6 +308,8 @@ public class VpnFootprintService implements IVpnFootprintService {
     private void removeOrUpdateVpnToDpnListForIpAddress(long vpnId, String rd, BigInteger dpnId,
             ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, String vpnName) {
         Boolean lastDpnOnVpn = Boolean.FALSE;
+        LOG.info(">>>>> removeOrUpdateVpnToDpnListForIpAddress: vpnId {}, rd {}, dpnId {}, ipAddressSourceValuePair {}, vpnName {}",
+                vpnId, rd.toString(), dpnId.intValue(), ipAddressSourceValuePair.toString(), vpnName);
         synchronized (vpnName.intern()) {
             InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(rd, dpnId);
             VpnToDpnList dpnInVpn = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id).orNull();
@@ -312,31 +318,38 @@ public class VpnFootprintService implements IVpnFootprintService {
                         + " and dpnId={}", vpnName, rd, id, dpnId);
                 return;
             }
+            LOG.info(">>>>> VpnToDpnList: {}", dpnInVpn.toString());
             List<IpAddresses> ipAddresses = dpnInVpn.getIpAddresses();
             if (ipAddresses == null) {
                 LOG.info("Could not find ipAddresses for DpnInVpn map for VPN=[name={} rd={} id={}] and dpnId={}",
                         vpnName, rd, id, dpnId);
                 return;
             }
-
+            LOG.info(">>>>> ipAddresses: {}", ipAddresses.toString());
             IpAddresses currIpAddress = new IpAddressesBuilder()
                     .setKey(new IpAddressesKey(ipAddressSourceValuePair.getValue()))
                     .setIpAddressSource(ipAddressSourceValuePair.getKey()).build();
             if (ipAddresses.remove(currIpAddress)) {
+                LOG.info(">>>>> removed currIpAddress from ipAddresses: currIpAddress {}", currIpAddress.toString());
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                 if (ipAddresses.isEmpty()) {
+                    LOG.info(">>>>> ipAddresses {}", ipAddresses.toString());
                     List<VpnInterfaces> vpnInterfaces = dpnInVpn.getVpnInterfaces();
+                    LOG.info(">>>>> vpnInterfaces {}", vpnInterfaces.toString());
                     VpnToDpnListBuilder dpnInVpnBuilder = new VpnToDpnListBuilder(dpnInVpn).setIpAddresses(null);
                     if (vpnInterfaces == null || vpnInterfaces.isEmpty()) {
                         dpnInVpnBuilder.setDpnState(VpnToDpnList.DpnState.Inactive);
                         lastDpnOnVpn = Boolean.TRUE;
+                        LOG.info(">>>>> dpnInVpnBuilder {}", dpnInVpnBuilder.toString());
+                        LOG.info(">>>>> lastDpnOnVpn {}", lastDpnOnVpn.toString());
                     } else {
-                        LOG.warn("ip addresses are empty but vpn interfaces are present for the vpn {} in dpn {}",
+                        LOG.warn(">>>> ip addresses are empty but vpn interfaces are present for the vpn {} in dpn {}",
                                 vpnName, dpnId);
                     }
                     writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, dpnInVpnBuilder.build(), true);
 
                 } else {
+                    LOG.info(">>>>>  writeTxn.delete ipAddressSourceValuePair {}", ipAddressSourceValuePair.toString());
                     writeTxn.delete(LogicalDatastoreType.OPERATIONAL,
                             id.child(IpAddresses.class, new IpAddressesKey(ipAddressSourceValuePair.getValue())));
                 }
@@ -351,7 +364,7 @@ public class VpnFootprintService implements IVpnFootprintService {
         } // Ends synchronized block
 
         if (lastDpnOnVpn) {
-            LOG.debug("Sending cleanup event for dpn {} in VPN {}", dpnId, vpnName);
+            LOG.debug(">>>>>> Sending cleanup event for dpn {} in VPN {} lastDpnOnVpn {}", dpnId, vpnName, lastDpnOnVpn);
             fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd,
                     new DpnEnterExitVpnWorker(dpnId, vpnName, rd, false /* exited */));
         }
@@ -443,7 +456,7 @@ public class VpnFootprintService implements IVpnFootprintService {
 
             @Override
             public void onSuccess(Object arg) {
-                LOG.trace("publishInterfaceAddedToVpnNotification: Successful in notifying listeners for removing"
+                LOG.trace("====> NOTIFY: publishInterfaceAddedToVpnNotification: Successful in notifying listeners for removing"
                         + " interface {} from dpn {} in vpn {} event ", interfaceName, dpnId, vpnName);
             }
         }, MoreExecutors.directExecutor());
@@ -496,6 +509,13 @@ public class VpnFootprintService implements IVpnFootprintService {
     }
 
     boolean isVpnFootPrintCleared(VpnInstanceOpDataEntry vpnInstanceOpData) {
+        LOG.info(">>>>>>>>>>>> in isVpnFootPrintCleared:");
+        if (vpnInstanceOpData.getVpnToDpnList() == null) {
+            LOG.info(">>>>>>>>>>>> VpnToDpnList is null");
+        } else if (vpnInstanceOpData.getVpnToDpnList().isEmpty()) {
+            LOG.info(">>>>>>>>>>>> VpnToDpnList is empty");
+        }
+        LOG.info(">>>>>>>>>>>> in isVpnFootPrintCleared: returning");
         return vpnInstanceOpData.getVpnToDpnList() == null || vpnInstanceOpData.getVpnToDpnList().isEmpty();
     }
 }

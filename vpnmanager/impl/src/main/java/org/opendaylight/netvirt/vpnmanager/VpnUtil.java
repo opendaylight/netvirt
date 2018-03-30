@@ -893,13 +893,14 @@ public final class VpnUtil {
         InstanceIdentifier<T> path, T data) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.merge(datastoreType, path, data, true);
-
+        LOG.info("++++> in syncUpdate");
         try {
             tx.submit().get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("syncUpdate: Error writing to datastore (path, data) : ({}, {})", path, data);
             throw new RuntimeException(e.getMessage(), e);
         }
+        LOG.info("++++> in syncUpdate: returning +++++");
     }
 
     public static long getRemoteBCGroup(long elanTag) {
@@ -1093,15 +1094,18 @@ public final class VpnUtil {
         }
     }
 
-    public static void scheduleVpnInterfaceForRemoval(DataBroker broker,String interfaceName, BigInteger dpnId,
+    public static void scheduleVpnInterfaceForRemoval(DataBroker broker, String interfaceName, BigInteger dpnId,
                                                       String vpnInstanceName, Boolean isScheduledToRemove,
                                                       WriteTransaction writeOperTxn) {
         InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
             VpnUtil.getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnInstanceName);
+        LOG.info("scheduleVpnInterfaceForRemoval: interfaceName {}, vpnInstanceName {}", interfaceName,
+                 vpnInstanceName);
         VpnInterfaceOpDataEntry interfaceToUpdate =
             new VpnInterfaceOpDataEntryBuilder().setKey(new VpnInterfaceOpDataEntryKey(interfaceName,
             vpnInstanceName)).setName(interfaceName).setDpnId(dpnId).setVpnInstanceName(vpnInstanceName)
             .setScheduledForRemove(isScheduledToRemove).build();
+        LOG.info("++++++> VpnInterfaceOpDataEntryBuilder with removing iface: {}", interfaceToUpdate.toString());
         if (writeOperTxn != null) {
             writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate, true);
         } else {
