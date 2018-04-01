@@ -87,6 +87,8 @@ public final class NeutronUtils {
             return false;
         }
 
+        LOG.debug("writePortStatus: operational port status for {} set to {}", uuid, portStatus);
+
         return true;
     }
 
