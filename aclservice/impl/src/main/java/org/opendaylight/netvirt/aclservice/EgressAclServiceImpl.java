@@ -124,12 +124,12 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             egressAclDhcpv6DropServerTraffic(dpid, lportTag, addOrRemove);
             egressAclIcmpv6DropRouterAdvts(dpid, lportTag, addOrRemove);
             egressAclIcmpv6AllowedList(dpid, lportTag, addOrRemove);
-            programL2BroadcastAllowRule(port, addOrRemove);
         }
         List<AllowedAddressPairs> filteredAAPs = AclServiceUtils.excludeMulticastAAPs(allowedAddresses);
+        programL2BroadcastAllowRule(port, filteredAAPs, addOrRemove);
 
-        egressAclDhcpAllowClientTraffic(dpid, filteredAAPs, lportTag, addOrRemove);
-        egressAclDhcpv6AllowClientTraffic(dpid, filteredAAPs, lportTag, addOrRemove);
+        egressAclDhcpAllowClientTraffic(port, filteredAAPs, lportTag, addOrRemove);
+        egressAclDhcpv6AllowClientTraffic(port, filteredAAPs, lportTag, addOrRemove);
         programArpRule(dpid, filteredAAPs, lportTag, addOrRemove);
     }
 
@@ -237,14 +237,18 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
 
     /**
      * Add rule to ensure only DHCP server traffic from the specified mac is allowed.
-     *
-     * @param dpId the dpid
+     * @param port the Acl Interface port
      * @param allowedAddresses the allowed addresses
      * @param lportTag the lport tag
      * @param addOrRemove whether to add or remove the flow
      */
-    private void egressAclDhcpAllowClientTraffic(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
+    private void egressAclDhcpAllowClientTraffic(AclInterface port, List<AllowedAddressPairs> allowedAddresses,
             int lportTag, int addOrRemove) {
+        // if there is a duplicate mac with different aap, do not delete the Dhcp Allow rule.
+        if (hasDuplicateMac(port.getAllowedAddressPairs(), allowedAddresses)) {
+            return;
+        }
+        BigInteger dpId = port.getDpId();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
         for (AllowedAddressPairs aap : allowedAddresses) {
             if (!AclServiceUtils.isIPv4Address(aap)) {
@@ -265,14 +269,18 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     /**
      * Add rule to ensure only DHCPv6 server traffic from the specified mac is
      * allowed.
-     *
-     * @param dpId the dpid
+     * @param port the Acl Interface port
      * @param allowedAddresses the allowed addresses
      * @param lportTag the lport tag
      * @param addOrRemove whether to add or remove the flow
      */
-    private void egressAclDhcpv6AllowClientTraffic(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
+    private void egressAclDhcpv6AllowClientTraffic(AclInterface port, List<AllowedAddressPairs> allowedAddresses,
             int lportTag, int addOrRemove) {
+        // if there is a duplicate mac with different aap, do not delete the Dhcp Allow rule.
+        if (hasDuplicateMac(port.getAllowedAddressPairs(), allowedAddresses)) {
+            return;
+        }
+        BigInteger dpId = port.getDpId();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
         for (AllowedAddressPairs aap : allowedAddresses) {
             if (AclServiceUtils.isIPv4Address(aap)) {
@@ -333,20 +341,25 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      */
     @Override
     protected void programBroadcastRules(AclInterface port, int addOrRemove) {
-        programL2BroadcastAllowRule(port, addOrRemove);
+        programL2BroadcastAllowRule(port, AclServiceUtils.excludeMulticastAAPs(port.getAllowedAddressPairs()),
+                addOrRemove);
     }
 
     /**
      * Programs Non-IP broadcast rules.
-     *
      * @param port the Acl Interface port
+     * @param filteredAAPs the filtered AAPs list
      * @param addOrRemove whether to delete or add flow
      */
-    private void programL2BroadcastAllowRule(AclInterface port, int addOrRemove) {
+    private void programL2BroadcastAllowRule(AclInterface port, List<AllowedAddressPairs> filteredAAPs,
+          int addOrRemove) {
+        // if there is a duplicate mac with different aap, do not delete the Broadcast rule.
+        if (hasDuplicateMac(port.getAllowedAddressPairs(), filteredAAPs)) {
+            return;
+        }
         BigInteger dpId = port.getDpId();
         int lportTag = port.getLPortTag();
-        List<AllowedAddressPairs> allowedAddresses = port.getAllowedAddressPairs();
-        Set<MacAddress> macs = allowedAddresses.stream().map(aap -> aap.getMacAddress()).collect(Collectors.toSet());
+        Set<MacAddress> macs = filteredAAPs.stream().map(aap -> aap.getMacAddress()).collect(Collectors.toSet());
         for (MacAddress mac : macs) {
             List<MatchInfoBase> matches = new ArrayList<>();
             matches.add(new MatchEthernetSource(mac));
@@ -358,6 +371,21 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_L2BROADCAST_TRAFFIC_MATCH_PRIORITY,
                     "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         }
+    }
+
+    private boolean hasDuplicateMac(List<AllowedAddressPairs> allowedAddresses,
+            List<AllowedAddressPairs> filteredAAPs) {
+        // Do not proceed further if VM delete or Port down event.
+        if (allowedAddresses.size() == filteredAAPs.size()) {
+            return false;
+        }
+        //exclude filteredAAP entries from port's AAP's before comparison
+        List<AllowedAddressPairs> filteredAllowedAddressed = allowedAddresses.stream().filter(
+            aap -> !filteredAAPs.contains(aap)).collect(Collectors.toList());
+        Set<MacAddress> macs = filteredAAPs.stream().map(aap -> aap.getMacAddress()).collect(Collectors.toSet());
+        List<AllowedAddressPairs> aapWithDuplicateMac = filteredAllowedAddressed.stream()
+            .filter(entry -> macs.contains(entry.getMacAddress())).collect(Collectors.toList());
+        return !aapWithDuplicateMac.isEmpty();
     }
 
     @Override
