@@ -1016,7 +1016,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         List<BigInteger> returnLocalDpnId = new ArrayList<>();
         Prefixes localNextHopInfo = fibUtil.getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
         String vpnName = fibUtil.getVpnNameFromId(vpnId);
-        boolean isExtraroute = false;
+        boolean shouldUpdateNonEcmpLocalNextHop = true;
         if (localNextHopInfo == null) {
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
             if (usedRds.size() > 1) {
@@ -1029,7 +1029,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             Optional<Routes> extraRouteOptional = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker,
                     vpnName, rd, vrfEntry.getDestPrefix());
             if (extraRouteOptional.isPresent()) {
-                isExtraroute = true;
                 Routes extraRoute = extraRouteOptional.get();
                 String ipPrefix;
                 if (isIpv4Address(extraRoute.getNexthopIpList().get(0))) {
@@ -1037,11 +1036,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 } else {
                     ipPrefix = extraRoute.getNexthopIpList().get(0) + NwConstants.IPV6PREFIX;
                 }
+                if (extraRoute.getNexthopIpList().size() > 1) {
+                    shouldUpdateNonEcmpLocalNextHop = false;
+                }
                 localNextHopInfo = fibUtil.getPrefixToInterface(vpnId, ipPrefix);
                 if (localNextHopInfo != null) {
                     String localNextHopIP = localNextHopInfo.getIpAddress();
                     BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
-                            vpnId, rd, vrfEntry, isExtraroute, vpnId /*parentVpnId*/);
+                            vpnId, rd, vrfEntry, shouldUpdateNonEcmpLocalNextHop, vpnId /*parentVpnId*/);
                     if (!dpnId.equals(BigInteger.ZERO)) {
                         LOG.trace("Deleting ECMP group for prefix {}, dpn {}", vrfEntry.getDestPrefix(), dpnId);
                         nextHopManager.setupLoadBalancingNextHop(vpnId, dpnId,
@@ -1066,7 +1068,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         PrefixesBuilder prefixBuilder = new PrefixesBuilder();
                         prefixBuilder.setDpnId(lri.getDpnId());
                         BigInteger dpnId = checkDeleteLocalFibEntry(prefixBuilder.build(), nextHopAddressList.get(0),
-                                vpnId, rd, vrfEntry, isExtraroute, lri.getParentVpnid());
+                                vpnId, rd, vrfEntry, shouldUpdateNonEcmpLocalNextHop, lri.getParentVpnid());
                         if (!dpnId.equals(BigInteger.ZERO)) {
                             returnLocalDpnId.add(dpnId);
                         }
@@ -1078,7 +1080,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             LOG.debug("Obtained prefix to interface for rd {} prefix {}", rd, vrfEntry.getDestPrefix());
             String localNextHopIP = localNextHopInfo.getIpAddress();
             BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
-                vpnId, rd, vrfEntry, isExtraroute, vpnId /*parentVpnId*/);
+                vpnId, rd, vrfEntry, shouldUpdateNonEcmpLocalNextHop, vpnId /*parentVpnId*/);
             if (!dpnId.equals(BigInteger.ZERO)) {
                 returnLocalDpnId.add(dpnId);
             }
@@ -1089,7 +1091,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     private BigInteger checkDeleteLocalFibEntry(Prefixes localNextHopInfo, final String localNextHopIP,
                                                 final Long vpnId, final String rd, final VrfEntry vrfEntry,
-                                                boolean isExtraroute, final Long parentVpnId) {
+                                                boolean shouldUpdateNonEcmpLocalNextHop, final Long parentVpnId) {
         if (localNextHopInfo != null) {
             final BigInteger dpnId = localNextHopInfo.getDpnId();
             if (Prefixes.PrefixCue.Nat.equals(localNextHopInfo.getPrefixCue())) {
@@ -1124,7 +1126,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 });
             //TODO: verify below adjacency call need to be optimized (?)
             //In case of the removal of the extra route, the loadbalancing group is updated
-            if (!isExtraroute) {
+            if (shouldUpdateNonEcmpLocalNextHop) {
                 baseVrfEntryHandler.deleteLocalAdjacency(dpnId, parentVpnId, localNextHopIP, vrfEntry.getDestPrefix());
             }
             return dpnId;
