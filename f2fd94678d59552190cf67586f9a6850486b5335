@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9d720ee_b6086ca0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-02T09:15:10Z",
+      "side": 1,
+      "message": "avoid using keyword \u0027CSS\u0027 in upstream reviews.  Please use \u0027OVS\u0027 instead.",
+      "range": {
+        "startLine": 42,
+        "startChar": 54,
+        "endLine": 42,
+        "endChar": 55
+      },
+      "revId": "f2fd94678d59552190cf67586f9a6850486b5335",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
