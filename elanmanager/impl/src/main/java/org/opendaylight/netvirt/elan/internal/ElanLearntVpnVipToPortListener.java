@@ -185,11 +185,11 @@ public class ElanLearntVpnVipToPortListener extends
             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
             if (macEntry != null && interfaceInfo != null) {
                 elanUtils.deleteMacFlows(elanInstanceCache.get(elanName).orNull(), interfaceInfo, macEntry, flowTx);
+                interfaceTx.delete(LogicalDatastoreType.OPERATIONAL,
+                        ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress));
+                interfaceTx.delete(LogicalDatastoreType.OPERATIONAL,
+                        ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress));
             }
-            interfaceTx.delete(LogicalDatastoreType.OPERATIONAL,
-                    ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress));
-            interfaceTx.delete(LogicalDatastoreType.OPERATIONAL,
-                    ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress));
         }
     }
 
