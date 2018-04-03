@@ -1,0 +1,441 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96ba8fa0_496402b3",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "Again, I think this is not the right block of code to fetch the ipv4 router attached to the vpn.\nRoutes refer to the static routes, which are optionally configured for a router. We need to determine what kind of subnets are attached to the router irrespective of whether static routes are configured or not\nPlease use a different way to fetch the v4 router.",
+      "range": {
+        "startLine": 576,
+        "startChar": 16,
+        "endLine": 586,
+        "endChar": 17
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1084c622_dc33ee29",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 601,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "You can use Preconditions",
+      "range": {
+        "startLine": 599,
+        "startChar": 8,
+        "endLine": 601,
+        "endChar": 9
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "385f03ac_aace6151",
+        "filename": "neutronvpn/api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "If a copy of this method is already present in NeutronvpnUtils, please remove this from here.",
+      "range": {
+        "startLine": 220,
+        "startChar": 3,
+        "endLine": 226,
+        "endChar": 5
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "58c219a8_0c5ff1b6",
+        "filename": "neutronvpn/api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 86
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "list of router-ids to be associated with the vpn",
+      "range": {
+        "startLine": 318,
+        "startChar": 28,
+        "endLine": 318,
+        "endChar": 85
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b5a77be_e3527f53",
+        "filename": "neutronvpn/api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 86
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "list of router-ids to be dissociated from the vpn",
+      "range": {
+        "startLine": 337,
+        "startChar": 28,
+        "endLine": 337,
+        "endChar": 84
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a24f539e_f4386d4a",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 656,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "Is it possible to import this class, instead of writing the full package name in this code block?",
+      "range": {
+        "startLine": 655,
+        "startChar": 21,
+        "endLine": 656,
+        "endChar": 56
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6431d43b_6b1d1ab0",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 660,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "move this outside the if..else block, since its a common statement",
+      "range": {
+        "startLine": 658,
+        "startChar": 20,
+        "endLine": 660,
+        "endChar": 85
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6668b45a_c34df2ca",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "This case should never happen. An already existing router will not be tried to associate to vpn again, based on the checks in handleRoutersUpdate().\nIf on a router association, you have seen cases where a router already exists in bgpvpn and you are trying to associate it again, the a dissociation might have failed:)",
+      "range": {
+        "startLine": 662,
+        "startChar": 28,
+        "endLine": 662,
+        "endChar": 75
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0568b31_b71594b0",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 1263,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "is this step required? Why not directly iterate over vpn.getRouterIds(), and do a routerId.getrouter()whereever required?",
+      "range": {
+        "startLine": 1263,
+        "startChar": 15,
+        "endLine": 1263,
+        "endChar": 91
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a29cf8f5_c34e4354",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 1310,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "You already have this information in line 1263.\nAlso, please consider my other comment on line 1263 too.",
+      "range": {
+        "startLine": 1310,
+        "startChar": 24,
+        "endLine": 1310,
+        "endChar": 91
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "88a798be_2749a065",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 2185,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "Same comment as in :1263",
+      "range": {
+        "startLine": 2185,
+        "startChar": 16,
+        "endLine": 2185,
+        "endChar": 55
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f25bbc98_397f6022",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 2575,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "Please consider the comment in :1263, in all places where the code to collect the routerUUIDs from yang-defined router-ids list is being done.",
+      "range": {
+        "startLine": 2575,
+        "startChar": 31,
+        "endLine": 2575,
+        "endChar": 86
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43e12c5d_12b03310",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 2577,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "Catch IllegalArgument and NPE",
+      "range": {
+        "startLine": 2576,
+        "startChar": 8,
+        "endLine": 2577,
+        "endChar": 79
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a6ada90_7d6c89f0",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 2710,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "Similar comments to associateRouter",
+      "range": {
+        "startLine": 2710,
+        "startChar": 35,
+        "endLine": 2710,
+        "endChar": 50
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "14f595a6_dd8b5efe",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "if(routerIdsList.contains(routerId)) instead of the for..if combination?",
+      "range": {
+        "startLine": 272,
+        "startChar": 17,
+        "endLine": 273,
+        "endChar": 49
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d3e71f9a_5a035f4d",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 1590,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "I hope this returns an empty list worstcase, and not a null.",
+      "range": {
+        "startLine": 1590,
+        "startChar": 27,
+        "endLine": 1590,
+        "endChar": 43
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "74df57c0_1ce475ae",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 1676,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "remove static from all the newly introduced methods in this review.\nUse injected object neutronVpnUtils to call these methods instead.",
+      "range": {
+        "startLine": 1676,
+        "startChar": 11,
+        "endLine": 1676,
+        "endChar": 17
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "faf2ae7b_87786292",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 1677,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "Please see if you can import this class and not use the entire package name in the methods.",
+      "range": {
+        "startLine": 1677,
+        "startChar": 8,
+        "endLine": 1677,
+        "endChar": 54
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bb5cdb99_f93f7599",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 86
+      },
+      "lineNbr": 1782,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-03T08:58:12Z",
+      "side": 1,
+      "message": "This block does not seem right.\nShould this method not return the router involved in ipv6 internet vpn so that the fallback rules can be added/removed?",
+      "range": {
+        "startLine": 1767,
+        "startChar": 16,
+        "endLine": 1782,
+        "endChar": 17
+      },
+      "revId": "7c4b3802b06522b56eea896d98366974e9454d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
