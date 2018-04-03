@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07b979e9_90100d57",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-04-03T10:58:43Z",
+      "side": 1,
+      "message": "Remove re-assigning of internalIpAddress and internalPort as the value is already available.",
+      "revId": "0b532d82ed7416660e02eab8cfa5848ff059ef59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
