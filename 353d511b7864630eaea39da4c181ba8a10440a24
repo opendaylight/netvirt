@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f8044f1_3d5b12f0",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2018-04-03T11:47:21Z",
+      "side": 1,
+      "message": "Duplicate MAC check is also needed for DHCPv6 flows",
+      "range": {
+        "startLine": 132,
+        "startChar": 8,
+        "endLine": 132,
+        "endChar": 41
+      },
+      "revId": "353d511b7864630eaea39da4c181ba8a10440a24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2e1b9038_9fad623a",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2018-04-03T11:47:21Z",
+      "side": 1,
+      "message": "hasDuplicateMac() check can be used during ADD_FLOW action as well",
+      "range": {
+        "startLine": 248,
+        "startChar": 8,
+        "endLine": 248,
+        "endChar": 50
+      },
+      "revId": "353d511b7864630eaea39da4c181ba8a10440a24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ea5f3631_af6cea94",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/EgressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2018-04-03T11:47:21Z",
+      "side": 1,
+      "message": "Same comment as above",
+      "range": {
+        "startLine": 355,
+        "startChar": 8,
+        "endLine": 355,
+        "endChar": 50
+      },
+      "revId": "353d511b7864630eaea39da4c181ba8a10440a24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
