@@ -36,3 +36,4 @@ maven-metadata-local.xml
 .recommenders
 /.gitignore
 .fbExcludeFilterFile
+xtend-gen
