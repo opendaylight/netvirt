@@ -108,12 +108,17 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 String elanInstanceName = elanTagInfo.getName();
                 LOG.info("Deleting the Mac-Entry:{} present on ElanInstance:{}", macEntry, elanInstanceName);
                 if (macEntry != null && interfaceInfo != null) {
+                    deleteSmacAndDmacFlows(srcMacAddress, elanFutures, macEntry, interfaceInfo, elanInstanceName);
+                } else if (macEntry == null) { //Remove flow of src flow entry only for MAC movement
+                    MacEntry macEntryOfElanForwarding = elanUtils.getMacEntryForElanInstance(elanTagInfo.getName(),
+                            physAddress).orNull();
+                    String macAddress = macEntryOfElanForwarding.getMacAddress().getValue();
                     ListenableFuture<Void> result = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                        tx -> elanUtils.deleteMacFlows(elanInstanceCache.get(elanInstanceName).orNull(),
-                                interfaceInfo, macEntry, tx));
+                        tx -> elanUtils.deleteSmacFlowOnly(elanInstanceCache.get(elanInstanceName).orNull(),
+                                    interfaceInfo, macAddress));
                     elanFutures.add(result);
                     addCallBack(result, srcMacAddress);
-                }
+                } 
                 InstanceIdentifier<MacEntry> macEntryIdForElanInterface = ElanUtils
                         .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
                 Optional<MacEntry> existingInterfaceMacEntry = ElanUtils.read(broker,
@@ -136,6 +141,15 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 return elanFutures;
             }, ElanConstants.JOB_MAX_RETRIES);
         }
+    }
+
+    private void deleteSmacAndDmacFlows(String srcMacAddress, List<ListenableFuture<Void>> elanFutures,
+                                        MacEntry macEntry, InterfaceInfo interfaceInfo, String elanInstanceName) {
+        ListenableFuture<Void> result = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> elanUtils.deleteMacFlows(elanInstanceCache.get(elanInstanceName).orNull(),
+                        interfaceInfo, macEntry, tx));
+        elanFutures.add(result);
+        addCallBack(result, srcMacAddress);
     }
 
     private void addCallBack(ListenableFuture<Void> writeResult, String srcMacAddress) {
