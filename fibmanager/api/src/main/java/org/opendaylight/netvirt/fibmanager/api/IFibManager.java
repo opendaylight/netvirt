@@ -65,6 +65,8 @@ public interface IFibManager {
     void updateRoutePathForFibEntry(String rd, String prefix, String nextHop,
                                     long label, boolean nextHopAdd, WriteTransaction writeConfigTxn);
 
+    void addVrfTable(String rd, WriteTransaction writeConfigTxn);
+
     void removeVrfTable(String rd, WriteTransaction writeConfigTxn);
 
     void removeInterVPNLinkRouteFlows(String interVpnLinkName,
