@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "60fcec5e_97f74b6d",
+        "filename": "docs/user-guide/FAQ.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-04-04T17:54:40Z",
+      "side": 1,
+      "message": "Changed to single mappings.",
+      "parentUuid": "3dd6e3b2_d623438f",
+      "revId": "62d3c02859ce0b432a36c5835a09eb26fe530143",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d869e8cf_9c2fce66",
         "filename": "docs/user-guide/FAQ.rst",
         "patchSetId": 1
@@ -84,6 +102,24 @@
       "side": 1,
       "message": "I would maybe just mention what I noted above, that Carbon was on an older, unsynced release schedule. But, after Carbon we made the\ndecision to try and line up with OpenStack. We can probably try to find some TSC notes to give credence to that if we wanted to give it\nmore weight.",
       "parentUuid": "d869e8cf_9c2fce66",
+      "revId": "62d3c02859ce0b432a36c5835a09eb26fe530143",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "118cef13_44a866f9",
+        "filename": "docs/user-guide/FAQ.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-04-04T17:54:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a42fb1e3_f89d8889",
       "revId": "62d3c02859ce0b432a36c5835a09eb26fe530143",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -125,6 +161,30 @@
       "side": 1,
       "message": "yes, just like everything else - we will list a minimum set of compatible versions as tested. Anything outside that list is best-effort support. But agreed, this text here isn\u0027t really saying that - this is saying what the expected minimums will be.\n\nAswin, can we update this to say current and final, maybe add *? Meaning we don\u0027t support 2.9 yet since the devstack is not pulling that in, so we are still using 2.7",
       "parentUuid": "5f1453c2_bc23693b",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 35,
+        "endChar": 20
+      },
+      "revId": "62d3c02859ce0b432a36c5835a09eb26fe530143",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "daf45562_72229e46",
+        "filename": "docs/user-guide/FAQ.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-04-04T17:54:40Z",
+      "side": 1,
+      "message": "Added a comment to indicate the current issue.",
+      "parentUuid": "2689be16_3cc4e0df",
       "range": {
         "startLine": 34,
         "startChar": 4,
