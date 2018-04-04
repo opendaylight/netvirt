@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97f7d53b_81fbccc3",
+        "filename": "docs/user-guide/releases.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2018-04-04T17:57:06Z",
+      "side": 1,
+      "message": "Any\n\nand remove whitespace",
+      "range": {
+        "startLine": 26,
+        "startChar": 83,
+        "endLine": 26,
+        "endChar": 92
+      },
+      "revId": "91d7b416ca3b04bbe07f5100baaea7ac3f947d2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
