@@ -650,7 +650,7 @@ public class ElanUtils {
         return new FlowEntityBuilder()
             .setDpnId(dpId)
             .setTableId(NwConstants.ELAN_SMAC_TABLE)
-            .setFlowId(getKnownDynamicmacFlowRef(NwConstants.ELAN_SMAC_TABLE, dpId, lportTag, macAddress, elanTag))
+            .setFlowId(getKnownDynamicmacFlowRef(elanTag, macAddress))
             .setPriority(20)
             .setFlowName(elanInfo.getDescription())
             .setIdleTimeOut((int) macTimeout)
@@ -873,6 +873,11 @@ public class ElanUtils {
         }
     }
 
+    public static String getKnownDynamicmacFlowRef(long elanTag, String macAddress) {
+        return new StringBuffer().append(elanTag).append(macAddress)
+                .toString();
+    }
+
     public static String getKnownDynamicmacFlowRef(short tableId, BigInteger dpId, long lporTag, String macAddress,
             long elanTag) {
         return String.valueOf(tableId) + elanTag + dpId + lporTag + macAddress;
@@ -925,7 +930,7 @@ public class ElanUtils {
         List<Action> actions = getEgressActionsForInterface(ifName, /* tunnelKey */ null);
         mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
-                getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, ifTag, macAddress, elanTag), 20,
+                getKnownDynamicmacFlowRef(elanTag, macAddress), 20,
                 elanInfo.getElanInstanceName(), 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(
                         BigInteger.valueOf(elanTag)), mkMatches, mkInstructions);
 
@@ -1021,7 +1026,7 @@ public class ElanUtils {
         }
 
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
-                getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, srcDpId, destDpId, macAddress, elanTag),
+                getKnownDynamicmacFlowRef(elanTag, macAddress),
                 20, /* prio */
                 displayName, 0, /* idleTimeout */
                 0, /* hardTimeout */
@@ -1084,7 +1089,7 @@ public class ElanUtils {
             mdsalManager
                     .removeFlowToTx(dstDpId,
                             MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE, getKnownDynamicmacFlowRef(
-                                    NwConstants.ELAN_DMAC_TABLE, dstDpId, srcdpId, macAddress, elanTag)),
+                                    elanTag, macAddress)),
                             deleteFlowGroupTx);
             LOG.debug("Dmac flow entry deleted for elan:{}, logical interface port:{} and mac address:{} on dpn:{}",
                     elanInstanceName, interfaceInfo.getPortName(), macAddress, dstDpId);
@@ -1092,22 +1097,34 @@ public class ElanUtils {
         return isFlowsRemovedInSrcDpn;
     }
 
+    public void deleteSmacFlowOnly(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress) {
+        BigInteger srcdpId = interfaceInfo.getDpId();
+        Long elanTag = elanInfo.getElanTag();
+        LOG.debug("Deleting SMAC flow with id {}", getKnownDynamicmacFlowRef(elanTag, macAddress));
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> {
+                Flow flowToRemove = MDSALUtil.buildFlow(NwConstants.ELAN_SMAC_TABLE,
+                        getKnownDynamicmacFlowRef(elanTag, macAddress));
+                InstanceIdentifier<Flow> flowInstanceId = ElanUtils.getFlowIid(flowToRemove, srcdpId);
+                tx.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
+            }), LOG, "Error while deleting SMAC flow for elan {} for mac {} on dpn {}", elanInfo, macAddress, srcdpId);
+    }
+
     private void deleteSmacAndDmacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
             boolean deleteSmac, WriteTransaction deleteFlowGroupTx) {
         String elanInstanceName = elanInfo.getElanInstanceName();
-        long ifTag = interfaceInfo.getInterfaceTag();
         BigInteger srcdpId = interfaceInfo.getDpId();
         Long elanTag = elanInfo.getElanTag();
         if (deleteSmac) {
             mdsalManager
                     .removeFlowToTx(srcdpId,
                             MDSALUtil.buildFlow(NwConstants.ELAN_SMAC_TABLE, getKnownDynamicmacFlowRef(
-                                    NwConstants.ELAN_SMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)),
+                                    elanTag, macAddress)),
                             deleteFlowGroupTx);
         }
         mdsalManager.removeFlowToTx(srcdpId,
                 MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE,
-                        getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)),
+                        getKnownDynamicmacFlowRef(elanTag, macAddress)),
                 deleteFlowGroupTx);
         LOG.debug("All the required flows deleted for elan:{}, logical Interface port:{} and MAC address:{} on dpn:{}",
                 elanInstanceName, interfaceInfo.getPortName(), macAddress, srcdpId);
