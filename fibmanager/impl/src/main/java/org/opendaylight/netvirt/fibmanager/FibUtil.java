@@ -64,6 +64,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
@@ -472,6 +473,20 @@ public class FibUtil {
                 }
                 LOG.info("Removed routepath with nextHop {} for prefix {} and rd {}.", nextHop, prefix, rd);
             }
+        }
+    }
+
+    public void addVrfTable(String rd, WriteTransaction writeConfigTxn) {
+        LOG.debug("Adding vrf table for rd {}", rd);
+        InstanceIdentifier.InstanceIdentifierBuilder<VrfTables> idBuilder =
+            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
+        InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
+        VrfTablesBuilder vrfTablesBuilder = new VrfTablesBuilder().setKey(new VrfTablesKey(rd))
+            .setRouteDistinguisher(rd).setVrfEntry(new ArrayList<>());
+        if (writeConfigTxn != null) {
+            writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTablesBuilder.build());
+        } else {
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTablesBuilder.build());
         }
     }
 
