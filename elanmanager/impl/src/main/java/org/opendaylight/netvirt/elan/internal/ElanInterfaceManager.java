@@ -501,8 +501,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         mdsalManager
                 .removeFlow(dpId,
                         MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE,
-                                ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, currentDpId,
-                                        mac.getMacAddress().getValue(), elanTag)));
+                                ElanUtils.getKnownDynamicmacFlowRef(elanTag, mac.getMacAddress().getValue())));
     }
 
     /*
