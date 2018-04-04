@@ -158,6 +158,11 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
+    public void addVrfTable(String rd, WriteTransaction writeConfigTxn) {
+        fibUtil.addVrfTable(rd, writeConfigTxn);
+    }
+
+    @Override
     public boolean isVPNConfigured() {
         return this.vpnmanager.isVPNConfigured();
     }
