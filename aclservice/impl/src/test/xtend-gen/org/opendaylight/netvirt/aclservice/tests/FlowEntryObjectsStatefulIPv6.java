@@ -121,7 +121,7 @@ public class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
     FlowEntityBuilder _flowEntityBuilder_2 = new FlowEntityBuilder();
     final Procedure1<FlowEntityBuilder> _function_2 = (FlowEntityBuilder it) -> {
       it.setDpnId(BigInteger.valueOf(123L));
-      it.setCookie(BigInteger.valueOf(110100481L));
+      it.setCookie(BigInteger.valueOf(1085218086715393L));
       it.setFlowId("Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid");
       it.setFlowName("ACL");
       ActionDrop _actionDrop = new ActionDrop();
@@ -189,7 +189,7 @@ public class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
     FlowEntityBuilder _flowEntityBuilder_1 = new FlowEntityBuilder();
     final Procedure1<FlowEntityBuilder> _function_1 = (FlowEntityBuilder it) -> {
       it.setDpnId(BigInteger.valueOf(123L));
-      it.setCookie(BigInteger.valueOf(110100481L));
+      it.setCookie(BigInteger.valueOf(1085218086715393L));
       it.setFlowId("Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid");
       it.setFlowName("ACL");
       ActionDrop _actionDrop = new ActionDrop();
@@ -263,7 +263,7 @@ public class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
     FlowEntityBuilder _flowEntityBuilder_2 = new FlowEntityBuilder();
     final Procedure1<FlowEntityBuilder> _function_2 = (FlowEntityBuilder it) -> {
       it.setDpnId(BigInteger.valueOf(123L));
-      it.setCookie(BigInteger.valueOf(110100481L));
+      it.setCookie(BigInteger.valueOf(1085218086715393L));
       it.setFlowId("Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid");
       it.setFlowName("ACL");
       ActionDrop _actionDrop = new ActionDrop();
@@ -303,7 +303,7 @@ public class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
     FlowEntityBuilder _flowEntityBuilder_1 = new FlowEntityBuilder();
     final Procedure1<FlowEntityBuilder> _function_1 = (FlowEntityBuilder it) -> {
       it.setDpnId(BigInteger.valueOf(123L));
-      it.setCookie(BigInteger.valueOf(110100481L));
+      it.setCookie(BigInteger.valueOf(1085218086715393L));
       it.setFlowId("Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid");
       it.setFlowName("ACL");
       ActionDrop _actionDrop = new ActionDrop();
@@ -377,7 +377,7 @@ public class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
     FlowEntityBuilder _flowEntityBuilder_2 = new FlowEntityBuilder();
     final Procedure1<FlowEntityBuilder> _function_2 = (FlowEntityBuilder it) -> {
       it.setDpnId(BigInteger.valueOf(123L));
-      it.setCookie(BigInteger.valueOf(110100481L));
+      it.setCookie(BigInteger.valueOf(1085218086715393L));
       it.setFlowId("Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid");
       it.setFlowName("ACL");
       ActionDrop _actionDrop = new ActionDrop();
@@ -417,7 +417,7 @@ public class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
     FlowEntityBuilder _flowEntityBuilder_1 = new FlowEntityBuilder();
     final Procedure1<FlowEntityBuilder> _function_1 = (FlowEntityBuilder it) -> {
       it.setDpnId(BigInteger.valueOf(123L));
-      it.setCookie(BigInteger.valueOf(110100481L));
+      it.setCookie(BigInteger.valueOf(1085218086715393L));
       it.setFlowId("Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid");
       it.setFlowName("ACL");
       ActionDrop _actionDrop = new ActionDrop();
@@ -434,7 +434,7 @@ public class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
     FlowEntityBuilder _flowEntityBuilder_2 = new FlowEntityBuilder();
     final Procedure1<FlowEntityBuilder> _function_2 = (FlowEntityBuilder it) -> {
       it.setDpnId(BigInteger.valueOf(123L));
-      it.setCookie(BigInteger.valueOf(110100481L));
+      it.setCookie(BigInteger.valueOf(1085218086715393L));
       it.setFlowId("Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid");
       it.setFlowName("ACL");
       ActionDrop _actionDrop = new ActionDrop();
@@ -1393,7 +1393,7 @@ public class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
     FlowEntityBuilder _flowEntityBuilder_1 = new FlowEntityBuilder();
     final Procedure1<FlowEntityBuilder> _function_1 = (FlowEntityBuilder it) -> {
       it.setDpnId(BigInteger.valueOf(123L));
-      it.setCookie(BigInteger.valueOf(110100481L));
+      it.setCookie(BigInteger.valueOf(1085218086715393L));
       it.setFlowId("Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid");
       it.setFlowName("ACL");
       ActionDrop _actionDrop = new ActionDrop();
