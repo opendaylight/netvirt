@@ -166,7 +166,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                  *
                  */
                 for (Prefixes pref : prefixToInterface) {
-                    if (isMatchedPrefixToInterface(pref, del)) {
+                    if (VpnUtil.isMatchedPrefixToInterface(pref, del)) {
                         if (writeOperTxn != null) {
                             writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
                                     VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(), pref.getIpAddress()));
@@ -191,18 +191,6 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                     del.getDpnId());
         }
         notifyTaskIfRequired(interfaceName);
-    }
-
-    private boolean isMatchedPrefixToInterface(Prefixes prefix, VpnInterfaceOpDataEntry vpnInterface) {
-        if (prefix != null && vpnInterface != null) {
-            if (prefix.getDpnId() != null && vpnInterface.getDpnId() != null) {
-                if (prefix.getVpnInterfaceName() != null && vpnInterface.getName() != null) {
-                    return prefix.getDpnId().equals(vpnInterface.getDpnId())
-                            && prefix.getVpnInterfaceName().equalsIgnoreCase(vpnInterface.getName());
-                }
-            }
-        }
-        return false;
     }
 
     private void notifyTaskIfRequired(String intfName) {
