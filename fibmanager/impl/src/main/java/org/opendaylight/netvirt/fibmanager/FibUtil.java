@@ -551,6 +551,10 @@ public class FibUtil {
         return "FIB-" + rd + "-" + prefix;
     }
 
+    public static String getRemoteJobKeyForRdPrefix(String rd, String prefix) {
+        return "FIB-remote-" + rd + "-" + prefix;
+    }
+
     public static String getJobKeyForVpnIdDpnId(Long vpnId, BigInteger dpnId) {
         return "FIB-" + vpnId.toString() + "-" + dpnId.toString() ;
     }

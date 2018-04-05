@@ -49,7 +49,7 @@ public class FibManagerImpl implements IFibManager {
 
         GlobalEventExecutor.INSTANCE.execute(() -> {
             final WaitingServiceTracker<IVpnManager> tracker = WaitingServiceTracker.create(
-                IVpnManager.class, bundleContext);
+                    IVpnManager.class, bundleContext);
             vpnmanager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
             LOG.info("FibManagerImpl initialized. IVpnManager={}", vpnmanager);
         });
@@ -66,7 +66,7 @@ public class FibManagerImpl implements IFibManager {
                                             String rd, String localNextHopIp,
                                             String remoteNextHopIp) {
         vrfEntryListener.populateExternalRoutesOnDpn(localDpnId, vpnId, rd,
-            localNextHopIp, remoteNextHopIp);
+                localNextHopIp, remoteNextHopIp);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class FibManagerImpl implements IFibManager {
                                            String rd, String localNextHopIp,
                                            String remoteNextHopIp) {
         vrfEntryListener.cleanUpExternalRoutesOnDpn(dpnId, vpnId, rd,
-            localNextHopIp, remoteNextHopIp);
+                localNextHopIp, remoteNextHopIp);
     }
 
     @Override
@@ -121,23 +121,23 @@ public class FibManagerImpl implements IFibManager {
 
     @Override
     public void addOrUpdateFibEntry(String rd, String macAddress, String prefix,
-            List<String> nextHopList, VrfEntry.EncapType encapType, long label,
-            long l3vni, String gwMacAddress, String parentVpnRd, RouteOrigin origin,
-            WriteTransaction writeConfigTxn) {
-        fibUtil.addOrUpdateFibEntry(rd, macAddress, prefix, nextHopList , encapType, label, l3vni, gwMacAddress,
+                                    List<String> nextHopList, VrfEntry.EncapType encapType, long label,
+                                    long l3vni, String gwMacAddress, String parentVpnRd, RouteOrigin origin,
+                                    WriteTransaction writeConfigTxn) {
+        fibUtil.addOrUpdateFibEntry(rd, macAddress, prefix, nextHopList, encapType, label, l3vni, gwMacAddress,
                 parentVpnRd, origin, writeConfigTxn);
     }
 
     @Override
     public void addFibEntryForRouterInterface(String rd, String prefix,
-            RouterInterface routerInterface, long label,
-            WriteTransaction writeConfigTxn) {
+                                              RouterInterface routerInterface, long label,
+                                              WriteTransaction writeConfigTxn) {
         fibUtil.addFibEntryForRouterInterface(rd, prefix, routerInterface, label, writeConfigTxn);
     }
 
     @Override
     public void removeOrUpdateFibEntry(String rd, String prefix,
-            String nextHopToRemove, WriteTransaction writeConfigTxn) {
+                                       String nextHopToRemove, WriteTransaction writeConfigTxn) {
         fibUtil.removeOrUpdateFibEntry(rd, prefix, nextHopToRemove, writeConfigTxn);
     }
 
@@ -148,7 +148,7 @@ public class FibManagerImpl implements IFibManager {
 
     @Override
     public void updateRoutePathForFibEntry(String rd, String prefix, String nextHop,
-            long label, boolean nextHopAdd, WriteTransaction writeConfigTxn) {
+                                           long label, boolean nextHopAdd, WriteTransaction writeConfigTxn) {
         fibUtil.updateRoutePathForFibEntry(rd, prefix, nextHop, label, nextHopAdd, writeConfigTxn);
     }
 
@@ -169,25 +169,55 @@ public class FibManagerImpl implements IFibManager {
         Optional<InterVpnLinkDataComposite> optInterVpnLink = interVpnLinkCache.getInterVpnLinkByName(interVpnLinkName);
         if (!optInterVpnLink.isPresent()) {
             LOG.warn("Could not find InterVpnLink with name {}. InterVpnLink route flows wont be removed",
-                     interVpnLinkName);
+                    interVpnLinkName);
             return;
         }
         InterVpnLinkDataComposite interVpnLink = optInterVpnLink.get();
         String vpnName = isVpnFirstEndPoint ? interVpnLink.getFirstEndpointVpnUuid().get()
-                                              : interVpnLink.getSecondEndpointVpnUuid().get();
+                : interVpnLink.getSecondEndpointVpnUuid().get();
 
         vrfEntryListener.removeInterVPNLinkRouteFlows(interVpnLink, vpnName, vrfEntry);
     }
 
     @Override
     public void programDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
-            String destinationIp, int addRemoveOrUpdate, boolean isTunnelUp) {
+                                              String destinationIp, int addRemoveOrUpdate, boolean isTunnelUp) {
         nexthopManager.programDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp,
-            addRemoveOrUpdate, isTunnelUp);
+                addRemoveOrUpdate, isTunnelUp);
     }
 
     @Override
     public void refreshVrfEntry(String rd, String prefix) {
         vrfEntryListener.refreshFibTables(rd, prefix);
+    }
+
+    @Override
+    public void createOrUpdateVrfEntry(VrfEntryContext vrfEntryContext,
+                                VpnContext vpnContext,
+                                WriteTransaction writeConfigTxn,
+                                WriteTransaction writeOperTxn,
+                                WriteTransaction writeInvTxn) {
+        // Create a local vrf entry that is already scheduled for a write into datastore
+        VrfEntry vrfEntry = addOrUpdateFibEntry(vrfEntryContext, writeConfigTxn);
+
+        if (VrfEntry.EncapType.Vxlan.equals(vrfEntry.getEncapType())) {
+            LOG.info("EVPN flows need to be programmed.");
+            EvpnVrfEntryHandler evpnVrfEntryHandler = new EvpnVrfEntryHandler(dataBroker, this, bgpRouteVrfEntryHandler,
+                    nextHopManager, jobCoordinator, elanManager, fibUtil);
+            evpnVrfEntryHandler.createNewFlows(vrfEntryId, vrfEntry, vpnContext);
+            return;
+        }
+
+        createNewFibEntries();
+
+    }
+
+    @Override
+    public void deleteVrfEntry(VrfEntryContext vrfEntryContext,
+                                VpnContext vpnContext,
+                                WriteTransaction writeConfigTxn,
+                                WriteTransaction writeOperTxn,
+                                WriteTransaction writeInvTxn) {
+
     }
 }

@@ -64,6 +64,8 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
         this.elanManager = elanManager;
     }
 
+    // TODO(vivek): This old method of managing flows is retained as NAT prefixes
+    // will continue to use this method to create flows.
     @Override
     public void createFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         LOG.info("Initiating creation of Evpn Flows");
@@ -168,7 +170,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                                                  final Long vpnId, final String rd,
                                                  final VrfEntry vrfEntry) {
         final BigInteger dpnId = localNextHopInfo.getDpnId();
-        String jobKey = "FIB-" + vpnId.toString() + "-" + dpnId.toString() + "-" + vrfEntry.getDestPrefix();
+        String jobKey = getFibUtil().getCreateLocalNextHopJobKey(vpnId, dpnId, vrfEntry.getDestPrefix());
         final long groupId = nexthopManager.createLocalNextHop(vpnId, dpnId,
             localNextHopInfo.getVpnInterfaceName(), localNextHopIP, vrfEntry.getDestPrefix(),
             vrfEntry.getGatewayMacAddress(), jobKey);
@@ -178,8 +180,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
         final List<InstructionInfo> instructions = Collections.singletonList(
             new InstructionApplyActions(
                 Collections.singletonList(new ActionGroup(groupId))));
-        jobCoordinator.enqueueJob("FIB-" + vpnId.toString() + "-" + dpnId.toString()
-                + "-" + vrfEntry.getDestPrefix(),
+        jobCoordinator.enqueueJob(jobKey,
             () -> {
                 WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                 makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx, null);
@@ -196,7 +197,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             vrfEntry.getDestPrefix(), rd, vrfEntry.getRoutePaths(), vrfEntry.getL3vni());
         List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
         if (vpnToDpnList != null) {
-            jobCoordinator.enqueueJob("FIB" + rd + vrfEntry.getDestPrefix(),
+            jobCoordinator.enqueueJob(getFibUtil().getRemoteJobKeyForRdPrefix(rd, vrfEntry.getDestPrefix()),
                 () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -278,7 +279,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
         List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
         List<SubTransaction> subTxns =  new ArrayList<>();
         if (vpnToDpnList != null) {
-            jobCoordinator.enqueueJob("FIB" + rd + vrfEntry.getDestPrefix(),
+            jobCoordinator.enqueueJob("FIB-remote-" + rd + '-' + vrfEntry.getDestPrefix(),
                 () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                     final Optional<Routes> extraRouteOptional = Optional.absent();
@@ -334,11 +335,90 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                     makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx, null);
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    futures.add(tx.submit());
+                    futures.add(tx.submit()df);
                     return futures;
                 });
             //TODO: verify below adjacency call need to be optimized (?)
             deleteLocalAdjacency(dpnId, vpnId, vrfEntry.getDestPrefix(), vrfEntry.getDestPrefix());
+            returnLocalDpnId.add(dpnId);
+        }
+        return returnLocalDpnId;
+    }
+
+    // THE NEW API SET STARTS FROM HERE.  THIS DOES NOT CORRECT/TOUCH ANY OF THE EXISTING METHODS
+    // THESE NEW APIs WILL BE THE ONLY ONES INVOKED BY THE NEW FLOW
+    @Override
+    public void newCreateFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, VpnContext vpnContext) {
+        LOG.info("Initiating creation of Evpn Flows");
+        final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
+        final VpnInstanceOpDataEntry vpnInstance = getFibUtil().getVpnInstanceOpData(vrfTableKey.getRouteDistinguisher());
+        Long vpnId = vpnInstance.getVpnId();
+        String rd = vpnInstance.getVrfId();
+        Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + vrfTableKey.getRouteDistinguisher());
+        Preconditions.checkNotNull(vpnId, "Vpn Instance with rd " + vpnInstance.getVrfId()
+                + " has null vpnId!");
+        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.CONNECTED) {
+            SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
+            final List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+            final long elanTag = subnetRoute.getElantag();
+            LOG.trace("SubnetRoute augmented vrfentry found for rd {} prefix {} with elantag {}",
+                    rd, vrfEntry.getDestPrefix(), elanTag);
+            if (vpnToDpnList != null) {
+                jobCoordinator.enqueueJob(getFibUtil().getRemoteJobKeyForRdPrefix(rd , vrfEntry.getDestPrefix()),
+                        () -> {
+                            WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+                            for (final VpnToDpnList curDpn : vpnToDpnList) {
+                                if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                                    vrfEntryListener.installSubnetRouteInFib(curDpn.getDpnId(), elanTag, rd,
+                                            vpnId, vrfEntry, tx);
+                                }
+                            }
+                            List<ListenableFuture<Void>> futures = new ArrayList<>();
+                            futures.add(tx.submit());
+                            return futures;
+                        });
+            }
+            return;
+        }
+        Prefixes localNextHopInfo = vpnContext.getPrefixToInterface(vpnInstance.getVpnId(),
+                vrfEntry.getDestPrefix());
+        List<BigInteger> localDpnId = new ArrayList<>();
+        localDpnId = createLocalEvpnFlows(vpnInstance.getVpnId(), rd, vrfEntry,
+                    localNextHopInfo);
+        createRemoteEvpnFlows(rd, vrfEntry, vpnInstance, localDpnId, vrfTableKey, false);
+    }
+
+    @Override
+    public void newRemoveFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, VpnContext vpnContext) {
+        final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
+        final VpnInstanceOpDataEntry vpnInstance = getFibUtil().getVpnInstanceOpData(
+                vrfTableKey.getRouteDistinguisher()).get();
+        if (vpnInstance == null) {
+            LOG.error("VPN Instance for rd {} is not available from VPN Op Instance Datastore", rd);
+            return;
+        }
+        VpnNexthop localNextHopInfo = nexthopManager.getVpnNexthop(vpnInstance.getVpnId(),
+                vrfEntry.getDestPrefix());
+        List<BigInteger> localDpnId = newCheckDeleteLocalEvpnFlows(vpnInstance.getVpnId(), rd, vrfEntry, localNextHopInfo);
+        deleteRemoteEvpnFlows(rd, vrfEntry, vpnInstance, vrfTableKey, localDpnId);
+        vrfEntryListener.cleanUpOpDataForFib(vpnInstance.getVpnId(), rd, vrfEntry);
+    }
+
+    private List<BigInteger> newCheckDeleteLocalEvpnFlows(long vpnId, String rd, VrfEntry vrfEntry,
+                                                       VpnNexthop localNextHopInfo) {
+        List<BigInteger> returnLocalDpnId = new ArrayList<>();
+        if (localNextHopInfo == null) {
+            //Handle extra routes and imported routes
+        } else {
+            final BigInteger dpnId = localNextHopInfo.getDpnId();
+            jobCoordinator.enqueueJob(getFibUtil().getCreateLocalNextHopJobKey(rd, dpnId, vrfEntry.getDestPrefix()),
+                    () -> {
+                        WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+                        makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx, null);
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
+                        futures.add(tx.submit());
+                        return futures;
+                    });
             returnLocalDpnId.add(dpnId);
         }
         return returnLocalDpnId;
