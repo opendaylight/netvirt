@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2558cf77_537bac53",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2018-04-05T10:29:07Z",
+      "side": 1,
+      "message": "This might work if mac movement happens across DPNs. what if it happens within DPN (not a VM migration, but there could be some other use case that i can\u0027t think of right now). \nshouldn\u0027t you use lportTag for flow ref ?",
+      "revId": "0b4442033f3ee57de6cbe58af0bbf4cbeeda23f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c40b9956_6b23d716",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanSmacFlowEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2018-04-05T10:29:07Z",
+      "side": 1,
+      "message": "when this else loop needed ?",
+      "revId": "0b4442033f3ee57de6cbe58af0bbf4cbeeda23f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd7e1c09_49baddb8",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1105,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2018-04-05T10:29:07Z",
+      "side": 1,
+      "message": "use txRunner to delete this flow entry",
+      "revId": "0b4442033f3ee57de6cbe58af0bbf4cbeeda23f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
