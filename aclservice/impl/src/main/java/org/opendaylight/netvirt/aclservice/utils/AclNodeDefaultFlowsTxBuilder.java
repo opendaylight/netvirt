@@ -144,7 +144,8 @@ public class AclNodeDefaultFlowsTxBuilder {
     }
 
     private void addIngressDropFlows() {
-        List<InstructionInfo> dropInstructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        List<InstructionInfo> dropInstructions = AclServiceUtils
+                .addGotoInstructionForAdditionalAntiSpoofStatFlow(NwConstants.INGRESS_ACL_COMMITTER_TABLE );
         List<MatchInfoBase> arpDropMatches = new ArrayList<>();
         arpDropMatches.add(MatchEthernetType.ARP);
         addFlowToTx(NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE, "Ingress_ACL_Table_ARP_Drop_Flow",
@@ -165,7 +166,15 @@ public class AclNodeDefaultFlowsTxBuilder {
         List<MatchInfo> matches = Collections.emptyList();
         List<InstructionInfo> instructions;
         if (config.getDefaultBehavior() == DefaultBehavior.Deny) {
-            instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+            if(tableId == NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE) {
+                instructions = AclServiceUtils
+                        .addGotoInstructionForAdditionalAntiSpoofStatFlow(NwConstants.EGRESS_ACL_COMMITTER_TABLE );
+            } else if (tableId == NwConstants.INGRESS_ACL_COMMITTER_TABLE) {
+                instructions = AclServiceUtils
+                        .addGotoInstructionForAdditionalAntiSpoofStatFlow(NwConstants.INGRESS_ACL_COMMITTER_TABLE );
+            } else {
+                instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+            }
         } else {
             instructions = getGotoOrResubmitInstructions(tableId, nextTableId);
         }

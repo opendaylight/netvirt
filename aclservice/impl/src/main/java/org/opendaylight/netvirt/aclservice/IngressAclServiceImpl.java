@@ -7,10 +7,6 @@
  */
 package org.opendaylight.netvirt.aclservice;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -22,6 +18,8 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
@@ -43,6 +41,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Provides the implementation for ingress (w.r.t VM) ACL service.
@@ -127,6 +130,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         BigInteger dpid = port.getDpId();
         int lportTag = port.getLPortTag();
         if (action == Action.ADD || action == Action.REMOVE) {
+            programAdditionalAntiSpoofDropStatFlow(dpid, lportTag, addOrRemove);
             ingressAclDhcpAllowServerTraffic(dpid, lportTag, addOrRemove);
             ingressAclDhcpv6AllowServerTraffic(dpid, lportTag, addOrRemove);
             ingressAclIcmpv6AllowedTraffic(dpid, lportTag, addOrRemove);
@@ -134,6 +138,19 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             programArpRule(dpid, lportTag, addOrRemove);
             programIpv4BroadcastRule(port, addOrRemove);
         }
+    }
+
+    private void programAdditionalAntiSpoofDropStatFlow(BigInteger dpId, int lportTag, int addOrRemove) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        BigInteger metaData = MetaDataUtil.getLportTagMetaData(lportTag)
+                .or(AclServiceUtils.getAddtionalAntiSpoofDropStatFlowMetaData(AclConstants.ANTI_SPOOF_CLASSIFIER_TYPE));
+        BigInteger metaDataMask =
+                MetaDataUtil.METADATA_MASK_LPORT_TAG.or(AclServiceUtils.METADATA_ADDTIONAL_ANTI_SPOOF_DROP_STAT);
+        matches.add(new MatchMetadata(metaData, metaDataMask));
+        String flowName = "Ingress_ANTI_SPOOF_STAT_FLOW" + dpId + "_" + lportTag + "_Drop_";
+        syncFlow(dpId, getAclCommitterTable(), flowName, AclConstants.ADDITIONAL_ANTI_SPOOF_DROP_STAT_MATCH_PRIORITY,
+                "ACL", 0, 0, AclServiceUtils.getDropFlowCookie(lportTag), matches, instructions, addOrRemove);
     }
 
     @Override
