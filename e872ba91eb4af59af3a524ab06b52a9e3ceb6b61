@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c85bbd92_0359f99b",
+        "filename": "aclservice/api/src/main/yang/aclservice.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-04-05T11:57:40Z",
+      "side": 1,
+      "message": "It may not a good idea to import neutron constants as we do have non-neutron usecaes.",
+      "revId": "e872ba91eb4af59af3a524ab06b52a9e3ceb6b61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
