@@ -31,6 +31,8 @@ public interface VpnConstants {
     int ELAN_GID_MIN = 200000;
     int INVALID_LABEL = 0;
     String ARP_MONITORING_ENTITY = "arpmonitoring";
+    int MERGE_METHOD_INDEX = 1;
+    int PUT_METHOD_INDEX = 2;
 
     // An IdPool for Pseudo LPort tags, that is, lportTags that are no related to an interface.
     // These lportTags must be higher than 170000 to avoid collision with interface LportTags and
