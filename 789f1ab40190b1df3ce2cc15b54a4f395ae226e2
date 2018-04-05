@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "538ea353_49bd9a32",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-05T16:42:33Z",
+      "side": 1,
+      "message": "this read is not required.",
+      "revId": "789f1ab40190b1df3ce2cc15b54a4f395ae226e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6697400_9b66d347",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-05T16:42:33Z",
+      "side": 1,
+      "message": "please remove prefix-to-interface and l3nexthops before attempting to remove vpninstanceopdata.",
+      "revId": "789f1ab40190b1df3ce2cc15b54a4f395ae226e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
