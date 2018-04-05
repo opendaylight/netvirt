@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0724a31a_b37897d3",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2018-04-05T10:41:08Z",
+      "side": 1,
+      "message": "Okay, Looks this is being used to replace existing dmac flow entry and this flow ref makes sense. ignore this comment.",
+      "parentUuid": "2558cf77_537bac53",
+      "revId": "0b4442033f3ee57de6cbe58af0bbf4cbeeda23f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c40b9956_6b23d716",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanSmacFlowEventListener.java",
         "patchSetId": 3
