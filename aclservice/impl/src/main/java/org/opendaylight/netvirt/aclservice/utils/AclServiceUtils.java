@@ -722,12 +722,21 @@ public final class AclServiceUtils {
 
     public static InstructionWriteMetadata getWriteMetadataForAclClassifierType(
             AclConntrackClassifierType conntrackClassifierType) {
+
         return new InstructionWriteMetadata(
                 MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(conntrackClassifierType.getValue()),
                 MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE);
     }
 
+    public static InstructionWriteMetadata getWriteMetadataForAntiSpoofDropStatFlow(
+            BigInteger antiSpoofClassifierType) {
+
+        return new InstructionWriteMetadata(MetaDataUtil.getAntiSpoofDropStatFlowMetaData(antiSpoofClassifierType),
+                MetaDataUtil.METADATA_ANTI_SPOOF_DROP_STAT);
+    }
+
     public static InstructionWriteMetadata getWriteMetadataForRemoteAclTag(Integer remoteAclTag) {
+
         return new InstructionWriteMetadata(getRemoteAclTagMetadata(BigInteger.valueOf(remoteAclTag)),
                 MetaDataUtil.METADATA_MASK_REMOTE_ACL_TAG);
     }
