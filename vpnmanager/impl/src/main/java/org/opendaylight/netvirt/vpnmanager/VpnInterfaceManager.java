@@ -1514,8 +1514,29 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         }
                         for (Adjacency adj : copyOldAdjs) {
                             if (!isBgpVpnInternetVpn || VpnUtil.isAdjacencyEligibleToVpnInternet(dataBroker, adj)) {
-                                delAdjFromVpnInterface(vpnInterfaceOpIdentifier, adj, dpnId,
-                                       writeOperTxn, writeConfigTxn);
+                                if (adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency
+                                        && !adj.isPhysNetworkFunc()) {
+                                    delAdjFromVpnInterface(vpnInterfaceOpIdentifier, adj, dpnId,
+                                            writeOperTxn, writeConfigTxn);
+                                    Optional<VpnInterfaceOpDataEntry> optVpnInterface = VpnUtil.read(dataBroker,
+                                            LogicalDatastoreType.OPERATIONAL, vpnInterfaceOpIdentifier);
+                                    VpnInterfaceOpDataEntry vpnInterfaceOpDataEntry = optVpnInterface.get();
+                                    long vpnId = VpnUtil.getVpnId(dataBroker, newVpnName);
+                                    VpnUtil.removePrefixToInterfaceAdj(dataBroker, adj, vpnId, vpnInterfaceOpDataEntry,
+                                            writeOperTxn);
+                                    //remove FIB entry
+                                    String vpnRd = VpnUtil.getVpnRd(dataBroker, newVpnName);
+                                    LOG.debug("update: remove prefix {} from the FIB and BGP entry "
+                                            + "for the Vpn-Rd {} ", adj.getIpAddress(), vpnRd);
+                                    //remove BGP entry
+                                    fibManager.removeFibEntry(vpnRd, adj.getIpAddress(), writeConfigTxn);
+                                    if (vpnRd != null && !vpnRd.equalsIgnoreCase(newVpnName)) {
+                                        bgpManager.withdrawPrefix(vpnRd, adj.getIpAddress());
+                                    }
+                                } else {
+                                    delAdjFromVpnInterface(vpnInterfaceOpIdentifier, adj, dpnId,
+                                            writeOperTxn, writeConfigTxn);
+                                }
                             }
                             LOG.info("update: Adjacency {} with nextHop {} label {} subnet {} removed from"
                                 + " vpn interface {} on vpn {}", adj.getIpAddress(), adj.getNextHopIpList(),
@@ -1660,7 +1681,20 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             L3vpnInput input = new L3vpnInput().setNextHop(adj).setVpnName(vpnName)
                     .setInterfaceName(currVpnIntf.getName()).setPrimaryRd(primaryRd).setRd(primaryRd);
             Adjacency operationalAdjacency = null;
-            if (adj.getNextHopIpList() != null && !adj.getNextHopIpList().isEmpty()) {
+            //Handling dual stack neutron port primary adjacency
+            if (adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency && !adj.isPhysNetworkFunc()) {
+                LOG.trace("addNewAdjToVpnInterface: Adding prefix {} to existing interface {} for vpn {}", prefix,
+                        currVpnIntf.getName(), vpnName);
+                Interface interfaceState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker,
+                        currVpnIntf.getName());
+                if (interfaceState != null) {
+                    processVpnInterfaceAdjacencies(dpnId, currVpnIntf.getLportTag().intValue(), vpnName, primaryRd,
+                            currVpnIntf.getName(),
+                            vpnId, writeConfigTxn, writeOperTxn, null, interfaceState);
+                }
+            }
+            if (adj.getNextHopIpList() != null && !adj.getNextHopIpList().isEmpty()
+                    && adj.getAdjacencyType() != AdjacencyType.PrimaryAdjacency) {
                 RouteOrigin origin = adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency ? RouteOrigin.LOCAL
                         : RouteOrigin.STATIC;
                 String nh = adj.getNextHopIpList().get(0);
