@@ -22,6 +22,8 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
@@ -127,6 +129,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         BigInteger dpid = port.getDpId();
         int lportTag = port.getLPortTag();
         if (action == Action.ADD || action == Action.REMOVE) {
+            programAntiSpoofDropStatFlow(dpid, lportTag, addOrRemove);
             ingressAclDhcpAllowServerTraffic(dpid, lportTag, addOrRemove);
             ingressAclDhcpv6AllowServerTraffic(dpid, lportTag, addOrRemove);
             ingressAclIcmpv6AllowedTraffic(dpid, lportTag, addOrRemove);
@@ -134,6 +137,19 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             programArpRule(dpid, lportTag, addOrRemove);
             programIpv4BroadcastRule(port, addOrRemove);
         }
+    }
+
+    private void programAntiSpoofDropStatFlow(BigInteger dpId, int lportTag, int addOrRemove) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        BigInteger metaData = MetaDataUtil.getLportTagMetaData(lportTag)
+                .or(AclServiceUtils.getAntiSpoofDropStatFlowMetaData(AclConstants.ANTI_SPOOF_CLASSIFIER_TYPE));
+        BigInteger metaDataMask =
+                MetaDataUtil.METADATA_MASK_LPORT_TAG.or(AclServiceUtils.METADATA_ANTI_SPOOF_DROP_STAT);
+        matches.add(new MatchMetadata(metaData, metaDataMask));
+        String flowName = "Ingress_ANTI_SPOOF_STAT_FLOW" + dpId + "_" + lportTag + "_Drop_";
+        syncFlow(dpId, getAclCommitterTable(), flowName, AclConstants.ANTI_SPOOF_DROP_STAT_MATCH_PRIORITY,
+                "ACL", 0, 0, AclServiceUtils.getDropFlowCookie(lportTag), matches, instructions, addOrRemove);
     }
 
     @Override
