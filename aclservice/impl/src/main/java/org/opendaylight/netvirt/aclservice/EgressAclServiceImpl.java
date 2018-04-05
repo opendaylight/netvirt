@@ -25,6 +25,8 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSha;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
@@ -120,6 +122,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         BigInteger dpid = port.getDpId();
         int lportTag = port.getLPortTag();
         if (action != Action.UPDATE) {
+            programAntiSpoofDropStatFlow(dpid, lportTag, addOrRemove);
             egressAclDhcpDropServerTraffic(dpid, lportTag, addOrRemove);
             egressAclDhcpv6DropServerTraffic(dpid, lportTag, addOrRemove);
             egressAclIcmpv6DropRouterAdvts(dpid, lportTag, addOrRemove);
@@ -131,6 +134,29 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         egressAclDhcpAllowClientTraffic(dpid, filteredAAPs, lportTag, addOrRemove);
         egressAclDhcpv6AllowClientTraffic(dpid, filteredAAPs, lportTag, addOrRemove);
         programArpRule(dpid, filteredAAPs, lportTag, addOrRemove);
+    }
+
+    private void programAntiSpoofDropStatFlow(BigInteger dpId, int lportTag, int addOrRemove) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        BigInteger metaData = MetaDataUtil.getLportTagMetaData(lportTag)
+                .or(AclServiceUtils.getAntiSpoofDropStatFlowMetaData(AclConstants.ANTI_SPOOF_CLASSIFIER_TYPE));
+        BigInteger metaDataMask =
+                MetaDataUtil.METADATA_MASK_LPORT_TAG.or(AclServiceUtils.METADATA_ANTI_SPOOF_DROP_STAT);
+
+        matches.add(new MatchMetadata(metaData, metaDataMask));
+
+        String flowName = "Egress_ANTI_SPOOF_STAT_FLOW" + dpId + "_" + lportTag + "_Drop_";
+        syncFlow(dpId, getAclCommitterTable(), flowName, AclConstants.ANTI_SPOOF_DROP_STAT_MATCH_PRIORITY,
+                "ACL", 0, 0, AclServiceUtils.getDropFlowCookie(lportTag), matches, instructions, addOrRemove);
+    }
+
+    private List<InstructionInfo> addGotoInstructionForAntiSpoofStatFlow(short nextTableId) {
+        InstructionInfo writeMetatdata = AclServiceUtils
+                .getWriteMetadataForAntiSpoofDropStatFlow(AclConstants.ANTI_SPOOF_CLASSIFIER_TYPE);
+        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(nextTableId);
+        instructions.add(writeMetatdata);
+        return instructions;
     }
 
     @Override
@@ -179,10 +205,12 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     protected void egressAclDhcpDropServerTraffic(BigInteger dpId, int lportTag, int addOrRemove) {
         List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
                 AclConstants.DHCP_CLIENT_PORT_IPV4, lportTag, serviceMode);
+        List<InstructionInfo> instructions
+                = addGotoInstructionForAntiSpoofStatFlow(NwConstants.INGRESS_ACL_COMMITTER_TABLE );
 
         String flowName = "Egress_DHCP_Server_v4" + dpId + "_" + lportTag + "_Drop_";
         syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY,
-                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, Collections.emptyList(), addOrRemove);
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
     /**
@@ -195,10 +223,12 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     protected void egressAclDhcpv6DropServerTraffic(BigInteger dpId, int lportTag, int addOrRemove) {
         List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_SERVER_PORT_IPV6,
                 AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag, serviceMode);
+        List<InstructionInfo> instructions
+                = addGotoInstructionForAntiSpoofStatFlow(NwConstants.INGRESS_ACL_COMMITTER_TABLE );
 
         String flowName = "Egress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_Drop_";
         syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY,
-                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, Collections.emptyList(), addOrRemove);
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
     /**
@@ -211,10 +241,12 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     private void egressAclIcmpv6DropRouterAdvts(BigInteger dpId, int lportTag, int addOrRemove) {
         List<MatchInfoBase> matches =
                 AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_RA, 0, lportTag, serviceMode);
+        List<InstructionInfo> instructions
+                = addGotoInstructionForAntiSpoofStatFlow(NwConstants.INGRESS_ACL_COMMITTER_TABLE );
 
         String flowName = "Egress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_RA + "_Drop_";
         syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_IPV6_DROP_PRIORITY, "ACL", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, matches, Collections.emptyList(), addOrRemove);
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
     /**
