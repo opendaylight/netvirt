@@ -17,6 +17,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -27,6 +28,11 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort;
+import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtMark;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
@@ -73,12 +79,14 @@ public class AclNodeDefaultFlowsTxBuilder {
     private void addStatefulIngressDefaultFlows() {
         addIngressAclTableMissFlows();
         addIngressDropFlows();
+        addIngressCommitterTableDropFlow();
         addIngressConntrackClassifierFlows();
         addIngressConntrackStateRules();
     }
 
     private void addStatefulEgressDefaultFlows() {
         addEgressAclTableMissFlows();
+        addEgressCommitterTableDropFlow();
         addEgressConntrackClassifierFlows();
         addEgressConntrackStateRules();
         addEgressAllowBroadcastFlow();
@@ -144,28 +152,111 @@ public class AclNodeDefaultFlowsTxBuilder {
     }
 
     private void addIngressDropFlows() {
-        List<InstructionInfo> dropInstructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        InstructionInfo writeMetatdata = AclServiceUtils
+                .getWriteMetadataForDropStatFlow(AclConstants.DROP_TYPE);
+        List<InstructionInfo> gotoInstructions = AclServiceOFFlowBuilder
+                .getGotoInstructionInfo(NwConstants.INGRESS_ACL_COMMITTER_TABLE);
+        gotoInstructions.add(writeMetatdata);
+
         List<MatchInfoBase> arpDropMatches = new ArrayList<>();
         arpDropMatches.add(MatchEthernetType.ARP);
         addFlowToTx(NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE, "Ingress_ACL_Table_ARP_Drop_Flow",
-                AclConstants.PROTO_ARP_TRAFFIC_DROP_PRIORITY, arpDropMatches, dropInstructions);
+                AclConstants.PROTO_ARP_TRAFFIC_DROP_PRIORITY, arpDropMatches, gotoInstructions);
 
         List<MatchInfoBase> ipDropMatches = new ArrayList<>();
         ipDropMatches.add(MatchEthernetType.IPV4);
         addFlowToTx(NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE, "Ingress_ACL_Table_IP_Drop_Flow",
-                AclConstants.PROTO_IP_TRAFFIC_DROP_PRIORITY, ipDropMatches, dropInstructions);
+                AclConstants.PROTO_IP_TRAFFIC_DROP_PRIORITY, ipDropMatches, gotoInstructions);
 
         List<MatchInfoBase> ipv6DropMatches = new ArrayList<>();
         ipv6DropMatches.add(MatchEthernetType.IPV6);
         addFlowToTx(NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE, "Ingress_ACL_Table_IPv6_Drop_Flow",
-                AclConstants.PROTO_IP_TRAFFIC_DROP_PRIORITY, ipv6DropMatches, dropInstructions);
+                AclConstants.PROTO_IP_TRAFFIC_DROP_PRIORITY, ipv6DropMatches, gotoInstructions);
+
+        addIngressAclDhcpDropServerTraffic(gotoInstructions);
+        addIngressAclDhcpv6DropServerTraffic(gotoInstructions);
+        addIngressAclIcmpv6DropRouterAdvts(gotoInstructions);
+    }
+
+    private void addIngressAclDhcpDropServerTraffic(List<InstructionInfo> gotoInstructions) {
+
+        List<MatchInfoBase> matches = new ArrayList<>(4);
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(MatchIpProtocol.UDP);
+        matches.add(new MatchUdpDestinationPort(AclConstants.DHCP_CLIENT_PORT_IPV4));
+        matches.add(new MatchUdpSourcePort(AclConstants.DHCP_SERVER_PORT_IPV4));
+
+        addFlowToTx(NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE, "Egress_DHCP_Server_v4_Drop",
+                AclConstants.PROTO_MATCH_PRIORITY, matches, gotoInstructions);
+    }
+
+    private void addIngressAclDhcpv6DropServerTraffic(List<InstructionInfo> gotoInstructions) {
+
+        List<MatchInfoBase> matches = new ArrayList<>(5);
+        matches.add(MatchEthernetType.IPV6);
+        matches.add(MatchIpProtocol.UDP);
+        matches.add(new MatchUdpDestinationPort(AclConstants.DHCP_CLIENT_PORT_IPV6));
+        matches.add(new MatchUdpSourcePort(AclConstants.DHCP_SERVER_PORT_IPV6));
+
+        addFlowToTx(NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE, "Egress_DHCP_Server_v6_Drop",
+                AclConstants.PROTO_MATCH_PRIORITY, matches, gotoInstructions);
+    }
+
+    private void addIngressAclIcmpv6DropRouterAdvts(List<InstructionInfo> gotoInstructions) {
+
+        List<MatchInfoBase> matches = new ArrayList<>(6);
+        matches.add(MatchEthernetType.IPV6);
+        matches.add(MatchIpProtocol.ICMPV6);
+        matches.add(new MatchIcmpv6((short) AclConstants.ICMPV6_TYPE_RA, (short) 0));
+
+        addFlowToTx(NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE,
+                "Egress_ICMPv6_" + AclConstants.ICMPV6_TYPE_RA + "_Drop",
+                AclConstants.PROTO_IPV6_DROP_PRIORITY, matches, gotoInstructions);
+    }
+
+    private void addIngressCommitterTableDropFlow() {
+        List<InstructionInfo> dropInstructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        List<MatchInfoBase> matches = new ArrayList<>();
+        BigInteger metaData = MetaDataUtil.METADATA_MASK_ACL_DROP_TYPE
+                .and(AclConstants.DROP_TYPE.shiftLeft(2));
+        BigInteger metaDataMask =
+                MetaDataUtil.METADATA_MASK_ACL_DROP_TYPE
+                        .and(AclConstants.DROP_TYPE.shiftLeft(2));
+
+        matches.add(new MatchMetadata(metaData, metaDataMask));
+        addFlowToTx(NwConstants.INGRESS_ACL_COMMITTER_TABLE, "Ingress_Committer_Drop_Flow",
+                AclConstants.COMMITTER_DROP_MISS_PRIORITY, matches, dropInstructions);
+    }
+
+    private void addEgressCommitterTableDropFlow() {
+        List<InstructionInfo> dropInstructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        List<MatchInfoBase> matches = new ArrayList<>();
+        BigInteger metaData = MetaDataUtil.METADATA_MASK_ACL_DROP_TYPE
+                .and(AclConstants.DROP_TYPE.shiftLeft(2));
+        BigInteger metaDataMask =
+                MetaDataUtil.METADATA_MASK_ACL_DROP_TYPE
+                        .and(AclConstants.DROP_TYPE.shiftLeft(2));
+        matches.add(new MatchMetadata(metaData, metaDataMask));
+        addFlowToTx(NwConstants.EGRESS_ACL_COMMITTER_TABLE, "Egress_Committer_Drop_Flow",
+                AclConstants.COMMITTER_DROP_MISS_PRIORITY, matches, dropInstructions);
     }
 
     private void addDropOrAllowTableMissFlow(short tableId, short nextTableId) {
         List<MatchInfo> matches = Collections.emptyList();
         List<InstructionInfo> instructions;
         if (config.getDefaultBehavior() == DefaultBehavior.Deny) {
-            instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+            if (tableId == NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE) {
+                instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(NwConstants.EGRESS_ACL_COMMITTER_TABLE);
+                instructions.add(AclServiceUtils
+                        .getWriteMetadataForDropStatFlow(AclConstants.DROP_TYPE));
+
+            } else if (tableId == NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE) {
+                instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(NwConstants.INGRESS_ACL_COMMITTER_TABLE);
+                instructions.add(AclServiceUtils
+                        .getWriteMetadataForDropStatFlow(AclConstants.DROP_TYPE));
+            } else {
+                instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+            }
         } else {
             instructions = getGotoOrResubmitInstructions(tableId, nextTableId);
         }

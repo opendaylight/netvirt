@@ -17,11 +17,13 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
@@ -127,6 +129,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         BigInteger dpid = port.getDpId();
         int lportTag = port.getLPortTag();
         if (action == Action.ADD || action == Action.REMOVE) {
+            programCommitterDropFlow(dpid, lportTag, addOrRemove);
             ingressAclDhcpAllowServerTraffic(dpid, lportTag, addOrRemove);
             ingressAclDhcpv6AllowServerTraffic(dpid, lportTag, addOrRemove);
             ingressAclIcmpv6AllowedTraffic(dpid, lportTag, addOrRemove);
@@ -134,6 +137,19 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             programArpRule(dpid, lportTag, addOrRemove);
             programIpv4BroadcastRule(port, addOrRemove);
         }
+    }
+
+    private void programCommitterDropFlow(BigInteger dpId, int lportTag, int addOrRemove) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        BigInteger metaData = MetaDataUtil.getLportTagMetaData(lportTag)
+                .or(MetaDataUtil.getDropMetaData(AclConstants.DROP_TYPE));
+        BigInteger metaDataMask =
+                MetaDataUtil.METADATA_MASK_LPORT_TAG.or(MetaDataUtil.METADATA_MASK_ACL_DROP_TYPE);
+        matches.add(new MatchMetadata(metaData, metaDataMask));
+        String flowName = "Ingress_" + dpId + "_" + lportTag + "_Drop";
+        syncFlow(dpId, getAclCommitterTable(), flowName, AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY,
+                "ACL", 0, 0, AclServiceUtils.getDropFlowCookie(lportTag), matches, instructions, addOrRemove);
     }
 
     @Override
