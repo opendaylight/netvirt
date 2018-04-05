@@ -1104,133 +1104,83 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 priority = 63010
                 tableId = 210 as short
             ],
-                new FlowEntityBuilder >> [
-                    dpnId = 123bi
-                    cookie = 110100480bi
-                    flowId = "Egress_DHCP_Server_v4123_987_Drop_"
-                    flowName = "ACL"
-                    instructionInfoList = #[
-                    ]
-                    matchInfoList = #[
-                        new MatchEthernetType(2048L),
-                        new MatchIpProtocol(17 as short),
-                        new MatchUdpDestinationPort(68),
-                        new MatchUdpSourcePort(67),
-                        new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
-                    ]
-                    priority = 63010
-                    tableId = 210 as short
-                ],
-                new FlowEntityBuilder >> [
-                    dpnId = 123bi
-                    cookie = 110100480bi
-                    flowId = "Egress_DHCP_Server_v6_123_987_Drop_"
-                    flowName = "ACL"
-                    instructionInfoList = #[
-                    ]
-                    matchInfoList = #[
-                        new MatchEthernetType(34525L),
-                        new MatchIpProtocol(17 as short),
-                        new MatchUdpDestinationPort(546),
-                        new MatchUdpSourcePort(547),
-                        new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
-                    ]
-                    priority = 63010
-                    tableId = 210 as short
-                ],
-                new FlowEntityBuilder >> [
-                    dpnId = 123bi
-                    cookie = 110100480bi
-                    flowId = "Egress_ICMPv6_123_987_134_Drop_"
-                    flowName = "ACL"
-                    instructionInfoList = #[
-                    ]
-                    matchInfoList = #[
-                        new MatchEthernetType(34525L),
-                        new MatchIpProtocol(58 as short),
-                        new MatchIcmpv6(134 as short, 0 as short),
-                        new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
-                    ]
-                    priority = 63020
-                    tableId = 210 as short
-                ],
-                new FlowEntityBuilder >> [
-                    dpnId = 123bi
-                    cookie = 110100480bi
-                    flowId = "Egress_ICMPv6_123_987_133_Permit_"
-                    flowName = "ACL"
-                    instructionInfoList = #[
-                        new InstructionApplyActions(#[
-                            new ActionNxResubmit(17 as short)
-                        ])
-                    ]
-                    matchInfoList = #[
-                        new MatchEthernetType(34525L),
-                        new MatchIpProtocol(58 as short),
-                        new MatchIcmpv6(133 as short, 0 as short),
-                        new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
-                    ]
-                    priority = 63010
-                    tableId = 210 as short
-                ],
-                new FlowEntityBuilder >> [
-                    dpnId = 123bi
-                    cookie = 110100480bi
-                    flowId = "Egress_ICMPv6_123_987_135_Permit_"
-                    flowName = "ACL"
-                    instructionInfoList = #[
-                        new InstructionApplyActions(#[
-                            new ActionNxResubmit(17 as short)
-                        ])
-                    ]
-                    matchInfoList = #[
-                        new MatchEthernetType(34525L),
-                        new MatchIpProtocol(58 as short),
-                        new MatchIcmpv6(135 as short, 0 as short),
-                        new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
-                    ]
-                    priority = 63010
-                    tableId = 210 as short
-                ],
-                new FlowEntityBuilder >> [
-                    dpnId = 123bi
-                    cookie = 110100480bi
-                    flowId = "Egress_ICMPv6_123_987_136_Permit_"
-                    flowName = "ACL"
-                    instructionInfoList = #[
-                        new InstructionApplyActions(#[
-                            new ActionNxResubmit(17 as short)
-                        ])
-                    ]
-                    matchInfoList = #[
-                        new MatchEthernetType(34525L),
-                        new MatchIpProtocol(58 as short),
-                        new MatchIcmpv6(136 as short, 0 as short),
-                        new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
-                    ]
-                    priority = 63010
-                    tableId = 210 as short
-                ],
-                new FlowEntityBuilder >> [
-                    dpnId = 123bi
-                    cookie = 110100480bi
-                    flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F510.0.0.3/32"
-                    flowName = "ACL"
-                    instructionInfoList = #[
-                        new InstructionApplyActions(#[
-                            new ActionNxResubmit(17 as short)
-                        ])
-                    ]
-                    matchInfoList = #[
-                        new MatchEthernetType(2054L),
-                        new MatchArpSha(new MacAddress("0D:AA:D8:42:30:F5")),
-                        new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F5")),
-                        new MatchArpSpa(new Ipv4Prefix("10.0.0.3/32")),
-                        new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
-                    ]
-                    priority = 63010
-                    tableId = 210 as short
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_ICMPv6_123_987_133_Permit_"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
                 ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(58 as short),
+                    new MatchIcmpv6(133 as short, 0 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 63010
+                tableId = 210 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_ICMPv6_123_987_135_Permit_"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(58 as short),
+                    new MatchIcmpv6(135 as short, 0 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 63010
+                tableId = 210 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_ICMPv6_123_987_136_Permit_"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(58 as short),
+                    new MatchIcmpv6(136 as short, 0 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 63010
+                tableId = 210 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F510.0.0.3/32"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2054L),
+                    new MatchArpSha(new MacAddress("0D:AA:D8:42:30:F5")),
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F5")),
+                    new MatchArpSpa(new Ipv4Prefix("10.0.0.3/32")),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 63010
+                tableId = 210 as short
+            ]
         ]
     }
 

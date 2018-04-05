@@ -75,7 +75,6 @@ public final class AclLiveStatisticsHelper {
         LOG.trace("Get ACL port stats for direction {} and interfaces {}", direction, interfaceNames);
         List<AclPortStats> lstAclPortStats = new ArrayList<>();
 
-        Short tableId = getTableId(direction);
         FlowCookie aclDropFlowCookieMask = new FlowCookie(COOKIE_ACL_DROP_FLOW_MASK);
 
         for (String interfaceName : interfaceNames) {
@@ -101,9 +100,6 @@ public final class AclLiveStatisticsHelper {
             GetFlowStatisticsInputBuilder input =
                     new GetFlowStatisticsInputBuilder().setNode(nodeRef).setCookie(aclDropFlowCookie)
                             .setCookieMask(aclDropFlowCookieMask).setStoreStats(false);
-            if (direction != Direction.Both) {
-                input.setTableId(tableId);
-            }
 
             Future<RpcResult<GetFlowStatisticsOutput>> rpcResultFuture =
                     odlDirectStatsService.getFlowStatistics(input.build());
@@ -233,6 +229,18 @@ public final class AclLiveStatisticsHelper {
                     }
                     // TODO: Update stats for other drops
                     break;
+                case NwConstants.INGRESS_ACL_COMMITTER_TABLE:
+                    if (flowStats.getPriority().equals(AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY)) {
+                        portEgressBytesBuilder.setAntiSpoofDropCount(flowStats.getByteCount().getValue());
+                        portEgressPacketsBuilder.setAntiSpoofDropCount(flowStats.getPacketCount().getValue());
+                    }
+                    break;
+                case NwConstants.EGRESS_ACL_COMMITTER_TABLE:
+                    if (flowStats.getPriority().equals(AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY)) {
+                        portIngressBytesBuilder.setAntiSpoofDropCount(flowStats.getByteCount().getValue());
+                        portIngressPacketsBuilder.setAntiSpoofDropCount(flowStats.getPacketCount().getValue());
+                    }
+                    break;
 
                 default:
                     LOG.warn("Invalid table ID filtered for Acl flow stats: {}", flowStats);
@@ -246,17 +254,50 @@ public final class AclLiveStatisticsHelper {
 
         List<AclDropStats> lstAclDropStats = new ArrayList<>();
         if (direction == Direction.Egress || direction == Direction.Both) {
+            updateTotalDropCount(portEgressBytesBuilder,portEgressPacketsBuilder);
             AclDropStats aclEgressDropStats = new AclDropStatsBuilder().setDirection(Direction.Egress)
                     .setBytes(portEgressBytesBuilder.build()).setPackets(portEgressPacketsBuilder.build()).build();
             lstAclDropStats.add(aclEgressDropStats);
         }
 
         if (direction == Direction.Ingress || direction == Direction.Both) {
+            updateTotalDropCount(portIngressBytesBuilder,portIngressPacketsBuilder);
             AclDropStats aclIngressDropStats = new AclDropStatsBuilder().setDirection(Direction.Ingress)
                     .setBytes(portIngressBytesBuilder.build()).setPackets(portIngressPacketsBuilder.build()).build();
             lstAclDropStats.add(aclIngressDropStats);
         }
         aclStatsBuilder.setAclDropStats(lstAclDropStats);
+    }
+
+    private static void updateTotalDropCount(BytesBuilder portBytesBuilder, PacketsBuilder portPacketsBuilder) {
+        BigInteger dropCountByt = BigInteger.ZERO;
+        BigInteger invalidDropCountByt = BigInteger.ZERO;
+        BigInteger antispoofDropCountByt = BigInteger.ZERO;
+        BigInteger dropCountPkt = BigInteger.ZERO;
+        BigInteger invalidDropCountPkt = BigInteger.ZERO;
+        BigInteger antispoofDropCountPkt = BigInteger.ZERO;
+
+        if (portBytesBuilder.getDropCount() != null) {
+            dropCountByt = portBytesBuilder.getDropCount();
+        }
+        if (portPacketsBuilder.getDropCount() != null) {
+            dropCountPkt = portPacketsBuilder.getDropCount();
+        }
+        if (portBytesBuilder.getDropCount() != null) {
+            invalidDropCountByt = portBytesBuilder.getInvalidDropCount();
+        }
+        if (portPacketsBuilder.getDropCount() != null) {
+            invalidDropCountPkt = portPacketsBuilder.getInvalidDropCount();
+        }
+        if (portBytesBuilder.getDropCount() != null) {
+            antispoofDropCountByt = portBytesBuilder.getAntiSpoofDropCount();
+        }
+        if (portPacketsBuilder.getDropCount() != null) {
+            antispoofDropCountPkt = portPacketsBuilder.getAntiSpoofDropCount();
+        }
+        portBytesBuilder.setTotalDropCount(antispoofDropCountByt.add(dropCountByt.add(invalidDropCountByt)));
+        portPacketsBuilder.setTotalDropCount(antispoofDropCountPkt.add(dropCountPkt.add(invalidDropCountPkt)));
+
     }
 
     /**
@@ -282,23 +323,6 @@ public final class AclLiveStatisticsHelper {
         Metadata metadata = new MetadataBuilder().setMetadata(MetaDataUtil.getLportTagMetaData(lportTag))
                 .setMetadataMask(MetaDataUtil.METADATA_MASK_LPORT_TAG).build();
         return new MatchBuilder().setMetadata(metadata).build();
-    }
-
-    /**
-     * Gets the table id.
-     *
-     * @param direction the direction
-     * @return the table id
-     */
-    private static Short getTableId(Direction direction) {
-        Short tableId;
-        if (direction == Direction.Egress) {
-            tableId = NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE;
-        } else {
-            // in case of ingress
-            tableId = NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE;
-        }
-        return tableId;
     }
 
     /**
