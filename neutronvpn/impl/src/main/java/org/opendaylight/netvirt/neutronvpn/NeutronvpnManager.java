@@ -774,19 +774,20 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (sn != null && !FibHelper.doesPrefixBelongToSubnet(ipPrefix, sn.getSubnetIp(), false)) {
                 continue;
             }
-            Adjacency vmAdj = new AdjacencyBuilder().setKey(new AdjacencyKey(ipPrefix)).setIpAddress(ipPrefix)
-                    .setMacAddress(port.getMacAddress().getValue()).setAdjacencyType(AdjacencyType.PrimaryAdjacency)
-                    .setSubnetId(ip.getSubnetId()).build();
-            if (!adjList.contains(vmAdj)) {
-                adjList.add(vmAdj);
-            }
             Subnetmap snTemp = sn != null ? sn : neutronvpnUtils.getSubnetmap(ip.getSubnetId());
-            Uuid routerId = snTemp != null ? snTemp.getRouterId() : null;
             Uuid vpnId = snTemp != null ? snTemp.getVpnId() : null;
             if (vpnId != null) {
                 neutronvpnUtils.createVpnPortFixedIpToPort(vpnId.getValue(), ipValue,
-                    infName, port.getMacAddress().getValue(), isRouterInterface, wrtConfigTxn);
+                        infName, port.getMacAddress().getValue(), isRouterInterface, wrtConfigTxn);
+                //Create Neutron port adjacency if VPN presence is existing for subnet
+                Adjacency vmAdj = new AdjacencyBuilder().setKey(new AdjacencyKey(ipPrefix)).setIpAddress(ipPrefix)
+                        .setMacAddress(port.getMacAddress().getValue()).setAdjacencyType(AdjacencyType.PrimaryAdjacency)
+                        .setSubnetId(ip.getSubnetId()).build();
+                if (!adjList.contains(vmAdj)) {
+                    adjList.add(vmAdj);
+                }
             }
+            Uuid routerId = snTemp != null ? snTemp.getRouterId() : null;
             if (snTemp != null && snTemp.getInternetVpnId() != null) {
                 neutronvpnUtils.createVpnPortFixedIpToPort(sn.getInternetVpnId().getValue(),
                     ipValue, infName, port.getMacAddress().getValue(), isRouterInterface, wrtConfigTxn);
