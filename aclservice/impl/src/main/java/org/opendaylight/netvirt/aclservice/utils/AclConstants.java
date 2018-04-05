@@ -34,6 +34,7 @@ public interface AclConstants {
     Integer PROTO_MATCH_PRIORITY = 61010;
     Integer PROTO_IP_TRAFFIC_DROP_PRIORITY = 61009;
     Integer PROTO_PREFIX_MATCH_PRIORITY = 61008;
+    Integer COMMITTER_DROP_MISS_PRIORITY = 62019;
 
     Integer CT_STATE_UNTRACKED_PRIORITY = 340;
     Integer CT_STATE_TRACKED_EXIST_PRIORITY = 62030;
@@ -57,6 +58,7 @@ public interface AclConstants {
 
     BigInteger COOKIE_ACL_BASE = new BigInteger("6900000", 16);
     BigInteger COOKIE_ACL_DROP_FLOW = new BigInteger("6900001", 16);
+    BigInteger DROP_FLAG = BigInteger.ONE;
 
     int TRACKED_EST_CT_STATE = 0x22;
     int TRACKED_REL_CT_STATE = 0x24;
