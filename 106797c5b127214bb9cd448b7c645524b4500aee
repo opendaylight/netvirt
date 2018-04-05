@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6184d7c9_44831a3a",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-04-05T07:11:27Z",
+      "side": 1,
+      "message": "When will this added entry will be deleted with conntrack-based. with controller-based, this is taken care as part of adding and removing fib entry.\n\nref : ExternalRouterListener(fibService.removeFibEntry(input), fibService.createFibEntry(input))",
+      "range": {
+        "startLine": 112,
+        "startChar": 15,
+        "endLine": 112,
+        "endChar": 51
+      },
+      "revId": "106797c5b127214bb9cd448b7c645524b4500aee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
