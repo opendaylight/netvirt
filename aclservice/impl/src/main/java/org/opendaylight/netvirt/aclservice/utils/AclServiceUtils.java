@@ -726,6 +726,25 @@ public final class AclServiceUtils {
                 MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(conntrackClassifierType.getValue()),
                 MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE);
     }
+    public static InstructionWriteMetadata getWriteMetadataForAdditionalAntiSpoofDropStatFlow(
+            BigInteger antiSpoofClassifierType) {
+        return new InstructionWriteMetadata(getAddtionalAntiSpoofDropStatFlowMetaData(antiSpoofClassifierType),
+                METADATA_ADDTIONAL_ANTI_SPOOF_DROP_STAT);
+    }
+
+    public static List<InstructionInfo> addGotoInstructionForAdditionalAntiSpoofStatFlow(short nextTableId) {
+        InstructionInfo writeMetatdata = AclServiceUtils
+                .getWriteMetadataForAdditionalAntiSpoofDropStatFlow(AclConstants.ANTI_SPOOF_CLASSIFIER_TYPE);
+        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(nextTableId);
+        instructions.add(writeMetatdata);
+        return instructions;
+    }
+
+    /* Move this to MetaDataUtil class in genius*/
+    public static final BigInteger  METADATA_ADDTIONAL_ANTI_SPOOF_DROP_STAT = new BigInteger("0000000000000004", 16);
+    public static BigInteger getAddtionalAntiSpoofDropStatFlowMetaData(BigInteger antiSpoofClassifierType) {
+        return METADATA_ADDTIONAL_ANTI_SPOOF_DROP_STAT.and(antiSpoofClassifierType.shiftLeft(2));
+    }
 
     public static InstructionWriteMetadata getWriteMetadataForRemoteAclTag(Integer remoteAclTag) {
         return new InstructionWriteMetadata(getRemoteAclTagMetadata(BigInteger.valueOf(remoteAclTag)),
