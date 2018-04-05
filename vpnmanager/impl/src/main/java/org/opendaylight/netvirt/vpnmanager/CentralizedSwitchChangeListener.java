@@ -45,12 +45,15 @@ public class CentralizedSwitchChangeListener
 
     private final DataBroker dataBroker;
     private final IVpnManager vpnManager;
+    private final ExternalRouterDataUtil externalRouterDataUtil;
 
     @Inject
-    public CentralizedSwitchChangeListener(final DataBroker dataBroker, final IVpnManager vpnManager) {
+    public CentralizedSwitchChangeListener(final DataBroker dataBroker, final IVpnManager vpnManager,
+            ExternalRouterDataUtil externalRouterDataUtil) {
         super(RouterToNaptSwitch.class, CentralizedSwitchChangeListener.class);
         this.dataBroker = dataBroker;
         this.vpnManager = vpnManager;
+        this.externalRouterDataUtil = externalRouterDataUtil;
     }
 
     @Override
@@ -101,7 +104,13 @@ public class CentralizedSwitchChangeListener
     }
 
     private void setupRouterGwFlows(RouterToNaptSwitch routerToNaptSwitch, WriteTransaction writeTx, int addOrRemove) {
-        Routers router = VpnUtil.getExternalRouter(dataBroker, routerToNaptSwitch.getRouterName());
+        Routers router = null;
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            router = VpnUtil.getExternalRouter(dataBroker, routerToNaptSwitch.getRouterName());
+        }
+        else {
+            router = externalRouterDataUtil.getRouter(routerToNaptSwitch.getRouterName());
+        }
         if (router == null) {
             LOG.warn("No router data found for router id {}", routerToNaptSwitch.getRouterName());
             return;
@@ -123,12 +132,14 @@ public class CentralizedSwitchChangeListener
             vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName,
                     VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
                     extGwMacAddress, primarySwitchId, extNetworkId, writeTx);
+            externalRouterDataUtil.addtoRouterMap(router);
         } else {
             vpnManager.removeRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId,
                     subnetVpnName.getValue(), writeTx);
             vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerName,
                     VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
                     extGwMacAddress, primarySwitchId, extNetworkId);
+            externalRouterDataUtil.removeFromRouterMap(router);
         }
     }
 }
