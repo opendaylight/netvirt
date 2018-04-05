@@ -14,19 +14,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
-import org.opendaylight.genius.mdsalutil.MatchInfoBase;
-import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.*;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxCtClear;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtMark;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
@@ -73,12 +68,14 @@ public class AclNodeDefaultFlowsTxBuilder {
     private void addStatefulIngressDefaultFlows() {
         addIngressAclTableMissFlows();
         addIngressDropFlows();
+        addIngressAntiSpoofDropMissFlow();
         addIngressConntrackClassifierFlows();
         addIngressConntrackStateRules();
     }
 
     private void addStatefulEgressDefaultFlows() {
         addEgressAclTableMissFlows();
+        addEgressAntiSpoofDropMissFlow();
         addEgressConntrackClassifierFlows();
         addEgressConntrackStateRules();
         addEgressAllowBroadcastFlow();
@@ -144,7 +141,8 @@ public class AclNodeDefaultFlowsTxBuilder {
     }
 
     private void addIngressDropFlows() {
-        List<InstructionInfo> dropInstructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        List<InstructionInfo> dropInstructions = AclServiceUtils
+                .addGotoInstructionForAntiSpoofStatFlow(NwConstants.INGRESS_ACL_COMMITTER_TABLE );
         List<MatchInfoBase> arpDropMatches = new ArrayList<>();
         arpDropMatches.add(MatchEthernetType.ARP);
         addFlowToTx(NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE, "Ingress_ACL_Table_ARP_Drop_Flow",
@@ -161,11 +159,46 @@ public class AclNodeDefaultFlowsTxBuilder {
                 AclConstants.PROTO_IP_TRAFFIC_DROP_PRIORITY, ipv6DropMatches, dropInstructions);
     }
 
+    private void addIngressAntiSpoofDropMissFlow() {
+        List<InstructionInfo> dropInstructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        List<MatchInfoBase> matches = new ArrayList<>();
+        BigInteger metaData = AclServiceUtils.METADATA_ANTI_SPOOF_DROP_STAT
+                .and(AclConstants.ANTI_SPOOF_CLASSIFIER_TYPE.shiftLeft(2));
+        BigInteger metaDataMask =
+                AclServiceUtils.METADATA_ANTI_SPOOF_DROP_STAT
+                        .and(AclConstants.ANTI_SPOOF_CLASSIFIER_TYPE.shiftLeft(2));
+
+        matches.add(new MatchMetadata(metaData, metaDataMask));
+        addFlowToTx(NwConstants.INGRESS_ACL_COMMITTER_TABLE, "Ingress_ACL_Anti_Spoof_Stats_ARP_Drop_Flow",
+                AclConstants.ANTI_SPOOF_DROP_MISS_PRIORITY, matches, dropInstructions);
+    }
+
+    private void addEgressAntiSpoofDropMissFlow() {
+        List<InstructionInfo> dropInstructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        List<MatchInfoBase> matches = new ArrayList<>();
+        BigInteger metaData = AclServiceUtils.METADATA_ANTI_SPOOF_DROP_STAT
+                .and(AclConstants.ANTI_SPOOF_CLASSIFIER_TYPE.shiftLeft(2));
+        BigInteger metaDataMask =
+                AclServiceUtils.METADATA_ANTI_SPOOF_DROP_STAT
+                        .and(AclConstants.ANTI_SPOOF_CLASSIFIER_TYPE.shiftLeft(2));
+        matches.add(new MatchMetadata(metaData, metaDataMask));
+        addFlowToTx(NwConstants.EGRESS_ACL_COMMITTER_TABLE, "Egress_ACL_Anti_Spoof_Stats_ARP_Drop_Flow",
+                AclConstants.ANTI_SPOOF_DROP_MISS_PRIORITY, matches, dropInstructions);
+    }
+
     private void addDropOrAllowTableMissFlow(short tableId, short nextTableId) {
         List<MatchInfo> matches = Collections.emptyList();
         List<InstructionInfo> instructions;
         if (config.getDefaultBehavior() == DefaultBehavior.Deny) {
-            instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+            if(tableId == NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE) {
+                instructions = AclServiceUtils
+                        .addGotoInstructionForAntiSpoofStatFlow(NwConstants.EGRESS_ACL_COMMITTER_TABLE );
+            } else if (tableId == NwConstants.INGRESS_ACL_COMMITTER_TABLE) {
+                instructions = AclServiceUtils
+                        .addGotoInstructionForAntiSpoofStatFlow(NwConstants.INGRESS_ACL_COMMITTER_TABLE );
+            } else {
+                instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+            }
         } else {
             instructions = getGotoOrResubmitInstructions(tableId, nextTableId);
         }
