@@ -727,6 +727,12 @@ public final class AclServiceUtils {
                 MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE);
     }
 
+    public static InstructionWriteMetadata getWriteMetadataForDropStatFlow(
+            BigInteger dropFlag) {
+        return new InstructionWriteMetadata(MetaDataUtil.getAclDropMetaData(dropFlag),
+                MetaDataUtil.METADATA_MASK_ACL_DROP);
+    }
+
     public static InstructionWriteMetadata getWriteMetadataForRemoteAclTag(Integer remoteAclTag) {
         return new InstructionWriteMetadata(getRemoteAclTagMetadata(BigInteger.valueOf(remoteAclTag)),
                 MetaDataUtil.METADATA_MASK_REMOTE_ACL_TAG);

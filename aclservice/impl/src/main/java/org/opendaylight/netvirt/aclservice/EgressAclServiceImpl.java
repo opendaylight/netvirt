@@ -19,12 +19,15 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSha;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
@@ -43,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,9 +124,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         BigInteger dpid = port.getDpId();
         int lportTag = port.getLPortTag();
         if (action != Action.UPDATE) {
-            egressAclDhcpDropServerTraffic(dpid, lportTag, addOrRemove);
-            egressAclDhcpv6DropServerTraffic(dpid, lportTag, addOrRemove);
-            egressAclIcmpv6DropRouterAdvts(dpid, lportTag, addOrRemove);
+            programCommitterDropFlow(dpid, lportTag, addOrRemove);
             egressAclIcmpv6AllowedList(dpid, lportTag, addOrRemove);
         }
         List<AllowedAddressPairs> filteredAAPs = AclServiceUtils.excludeMulticastAAPs(allowedAddresses);
@@ -131,6 +133,24 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         egressAclDhcpAllowClientTraffic(port, filteredAAPs, lportTag, addOrRemove);
         egressAclDhcpv6AllowClientTraffic(port, filteredAAPs, lportTag, addOrRemove);
         programArpRule(dpid, filteredAAPs, lportTag, addOrRemove);
+    }
+
+    private void programCommitterDropFlow(BigInteger dpId, int lportTag, int addOrRemove) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+
+        BigInteger metaData = MetaDataUtil.METADATA_MASK_ACL_DROP
+                .and(AclConstants.DROP_FLAG.shiftLeft(2));
+        BigInteger metaDataMask =
+                MetaDataUtil.METADATA_MASK_ACL_DROP
+                        .and(AclConstants.DROP_FLAG.shiftLeft(2));
+        matches.add(new NxMatchRegister(NxmNxReg6.class, MetaDataUtil.getLportTagForReg6(lportTag).longValue(),
+                MetaDataUtil.getLportTagMaskForReg6()));
+
+        matches.add(new MatchMetadata(metaData, metaDataMask));
+        String flowName = "Egress_" + dpId + "_" + lportTag + "_Drop";
+        syncFlow(dpId, getAclCommitterTable(), flowName, AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY,
+                "ACL", 0, 0, AclServiceUtils.getDropFlowCookie(lportTag), matches, instructions, addOrRemove);
     }
 
     @Override
@@ -167,54 +187,6 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                     AclConstants.COOKIE_ACL_BASE, matches, gotoInstructions, addOrRemove);
         }
-    }
-
-    /**
-     * Anti-spoofing rule to block the Ipv4 DHCP server traffic from the port.
-     *
-     * @param dpId the dpId
-     * @param lportTag the lport tag
-     * @param addOrRemove add/remove the flow.
-     */
-    protected void egressAclDhcpDropServerTraffic(BigInteger dpId, int lportTag, int addOrRemove) {
-        List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
-                AclConstants.DHCP_CLIENT_PORT_IPV4, lportTag, serviceMode);
-
-        String flowName = "Egress_DHCP_Server_v4" + dpId + "_" + lportTag + "_Drop_";
-        syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY,
-                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, Collections.emptyList(), addOrRemove);
-    }
-
-    /**
-     * Anti-spoofing rule to block the Ipv6 DHCP server traffic from the port.
-     *
-     * @param dpId the dpId
-     * @param lportTag the lport tag
-     * @param addOrRemove add/remove the flow.
-     */
-    protected void egressAclDhcpv6DropServerTraffic(BigInteger dpId, int lportTag, int addOrRemove) {
-        List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_SERVER_PORT_IPV6,
-                AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag, serviceMode);
-
-        String flowName = "Egress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_Drop_";
-        syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY,
-                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, Collections.emptyList(), addOrRemove);
-    }
-
-    /**
-     * Anti-spoofing rule to block the Ipv6 Router Advts from the VM port.
-     *
-     * @param dpId the dpId
-     * @param lportTag the lport tag
-     * @param addOrRemove add/remove the flow.
-     */
-    private void egressAclIcmpv6DropRouterAdvts(BigInteger dpId, int lportTag, int addOrRemove) {
-        List<MatchInfoBase> matches =
-                AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_RA, 0, lportTag, serviceMode);
-
-        String flowName = "Egress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_RA + "_Drop_";
-        syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_IPV6_DROP_PRIORITY, "ACL", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, matches, Collections.emptyList(), addOrRemove);
     }
 
     /**
