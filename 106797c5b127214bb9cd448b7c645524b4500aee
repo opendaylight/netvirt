@@ -22,6 +22,30 @@
       "revId": "106797c5b127214bb9cd448b7c645524b4500aee",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98a6fb56_cd1a6641",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-04-05T17:32:07Z",
+      "side": 1,
+      "message": "This entry will be added/deleted when:\n\n1) The external subnet associates/disassociates with the router. In this case the call trace follows:\nCentralizedSwitchScheduler::scheduleCentralizedSwitch-\u003e\n  SnatCentralizedSwitchChangeListener::add/remove -\u003e\n    SnatServiceManager::notify -\u003e\n      AbstractSnatService::handleSnatAllSwitch -\u003e\n        AbstractSnatService::handleSnat -\u003e\n          AbstractSnatService::installSnatSpecificEntriesForNaptSwitch\n            ConntrackBasedSnatService::installSnatSpecificEntriesForNaptSwitch\n\n2) The internal subnet associates/disassociates with router with external subnet assoiciate:\n\nCentralizedSwitchScheduler::updateCentralizedSwitch-\u003e\n  RouterDpnChangeListener::add/remove\n    SnatServiceManager::notify -\u003e\n      AbstractSnatService::handleSnat -\u003e\n         AbstractSnatService::installSnatSpecificEntriesForNaptSwitch\n           \nConntrackBasedSnatService::installSnatSpecificEntriesForNaptSwitch\n\nIn conntrack-based, this fib entry is added/removed in AbstractSnatService::installSnatCommonEntriesForNaptSwitch-\u003einstallInboundFibEntry.\nhttps://github.com/opendaylight/netvirt/blob/master/natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java#L150\n\nI choose to put the code to add the missing ExternalFixedIP entry in installSnatSpecificEntriesForNaptSwitch because only FlatVlanConntrackBasedSnatService needs to be fixed. VxlanGreConntrackBasedSnatService doesn\u0027t need it because  it does call ExternalRouterListener(fibService.removeFibEntry(input), fibService.createFibEntry(input)) via \nhttps://github.com/opendaylight/netvirt/blob/master/natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VxlanGreConntrackBasedSnatService.java#L135",
+      "parentUuid": "6184d7c9_44831a3a",
+      "range": {
+        "startLine": 112,
+        "startChar": 15,
+        "endLine": 112,
+        "endChar": 51
+      },
+      "revId": "106797c5b127214bb9cd448b7c645524b4500aee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
