@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev14
 
 import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
 import org.opendaylight.netvirt.aclservice.utils.AclConstants
+import java.math.BigInteger
 import java.util.Collections
 
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata
@@ -1882,56 +1883,6 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_DHCP_Server_v4123_987_Drop_"
-                flowName = "ACL"
-                instructionInfoList = #[
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchIpProtocol(17 as short),
-                    new MatchUdpDestinationPort(68 as short),
-                    new MatchUdpSourcePort(67 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
-                ]
-                priority = 63010
-                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
-            ],
-            new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
-                flowId = "Egress_DHCP_Server_v6_123_987_Drop_"
-                flowName = "ACL"
-                instructionInfoList = #[
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(34525L),
-                    new MatchIpProtocol(17 as short),
-                    new MatchUdpDestinationPort(546 as short),
-                    new MatchUdpSourcePort(547 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
-                ]
-                priority = 63010
-                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
-            ],
-            new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
-                flowId = "Egress_ICMPv6_123_987_134_Drop_"
-                flowName = "ACL"
-                instructionInfoList = #[
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(34525L),
-                    new MatchIpProtocol(58 as short),
-                    new MatchIcmpv6(134 as short, 0 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
-                ]
-                priority = 63020
-                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
-            ],
-            new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -2212,6 +2163,22 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Egress_123_987_Drop"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                   new MatchMetadata(1085217976614916bi, new BigInteger("0FFFFF0000000004", 16))
+                ]
+                priority = 62020
+                tableId = 217 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_Acl_Commit_Non_Conntrack_123_987"
                 flowName = "ACL"
@@ -2225,6 +2192,23 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchMetadata(2bi, 2bi)
                 ]
                 priority = 100
+                tableId = 247 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Ingress_123_987_Drop"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new MatchMetadata(4bi, 4bi)
+                ]
+                priority = 62020
                 tableId = 247 as short
             ],
             new FlowEntityBuilder >> [
@@ -2377,6 +2361,22 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 priority = 100
                 tableId = 217 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Egress_123_987_Drop"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614916bi, new BigInteger("0FFFFF0000000004", 16))
+                ]
+                priority = 62020
+                tableId = 217 as short
             ]
         ]
     }
@@ -2400,6 +2400,23 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                      ]
                  priority = 100
                  tableId = 247 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Ingress_123_987_Drop"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new MatchMetadata(4bi, 4bi)
+                ]
+                priority = 62020
+                tableId = 247 as short
             ]
         ]
     }

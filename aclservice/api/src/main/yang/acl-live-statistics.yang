@@ -26,6 +26,12 @@ module acl-live-statistics {
         leaf invalid-drop-count {
             type uint64;
         }
+        leaf anti-spoof-drop-count {
+            type uint64;
+        }
+        leaf total-drop-count {
+            type uint64;
+        }
     }
 
     grouping acl-stats-output {
