@@ -1346,7 +1346,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             null/*writeCfgTxn*/);
                 } else {
                     String rd = nextHop.getVrfId();
-                    LOG.info("removeAdjacenciesFromVpn: RD", rd);
+                    LOG.info("removeAdjacenciesFromVpn: RD {}", rd);
                     List<String> nhList;
                     if (nextHop.getAdjacencyType() != AdjacencyType.PrimaryAdjacency) {
                         nhList = getNextHopForNonPrimaryAdjacency(nextHop, vpnName, dpnId, interfaceName);
@@ -1415,6 +1415,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         List<VpnInstanceOpDataEntry> vpnsToImportRoute =
                 VpnUtil.getVpnsImportingMyRoute(dataBroker, vpnName);
         LOG.info("removeAdjacencyFromBgpvpn: nhList {}", nhList);
+        LOG.info(">>>> removeAdjacencyFromBgpvpn: interfaceName {}, vpnsToImportRoute {}", interfaceName,
+                 vpnsToImportRoute.toString());
         nhList.forEach((nh) -> {
             //IRT: remove routes from other vpns importing it
             vpnManager.removePrefixFromBGP(primaryRd, rd, vpnName, nextHop.getIpAddress(),
