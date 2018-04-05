@@ -1688,8 +1688,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                 routerName);
                         return futures;
                     } else {
-                        NatUtil.installRouterGwFlows(dataBroker, vpnManager, router, primarySwitchId,
-                                NwConstants.DEL_FLOW);
                         Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
                         handleDisableSnat(router, networkUuid, externalIps, true, null, primarySwitchId,
                                 routerId, removeFlowInvTx);
