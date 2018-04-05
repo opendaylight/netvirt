@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b974460_df4bad9b",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 487,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-05T16:42:33Z",
+      "side": 1,
+      "message": "this kind of put can create many issues on a cluster reboot..\n\nPlease see another downstream fix that uses writeConfigTxn.merge from Hanumant here.",
+      "revId": "3bcf69b64a94573d6370b9e969a9c7fbdf886c41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb1edc78_3e25857c",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-05T16:42:33Z",
+      "side": 1,
+      "message": "am not sure if this is necessary here?",
+      "revId": "3bcf69b64a94573d6370b9e969a9c7fbdf886c41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
