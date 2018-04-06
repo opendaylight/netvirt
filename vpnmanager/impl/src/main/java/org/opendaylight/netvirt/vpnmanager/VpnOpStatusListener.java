@@ -25,11 +25,16 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
+import org.opendaylight.netvirt.vpnmanager.VpnInterfaceOpListener;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.Vpn;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -44,12 +49,15 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
     private final IFibManager fibManager;
     private final IMdsalApiManager mdsalManager;
     private final VpnFootprintService vpnFootprintService;
+    private final VpnInterfaceOpListener vpnInterfaceOpListener;
     private final JobCoordinator jobCoordinator;
 
     @Inject
     public VpnOpStatusListener(final DataBroker dataBroker, final IBgpManager bgpManager,
                                final IdManagerService idManager, final IFibManager fibManager,
-                               final IMdsalApiManager mdsalManager, final VpnFootprintService vpnFootprintService,
+                               final IMdsalApiManager mdsalManager,
+                               final VpnFootprintService vpnFootprintService,
+                               final VpnInterfaceOpListener vpnInterfaceOpListener,
                                final JobCoordinator jobCoordinator) {
         super(VpnInstanceOpDataEntry.class, VpnOpStatusListener.class);
         this.dataBroker = dataBroker;
@@ -58,6 +66,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
         this.fibManager = fibManager;
         this.mdsalManager = mdsalManager;
         this.vpnFootprintService = vpnFootprintService;
+        this.vpnInterfaceOpListener = vpnInterfaceOpListener;
         this.jobCoordinator = jobCoordinator;
     }
 
@@ -87,19 +96,42 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
     protected void update(InstanceIdentifier<VpnInstanceOpDataEntry> identifier,
                           VpnInstanceOpDataEntry original, VpnInstanceOpDataEntry update) {
         LOG.info("update: Processing update for vpn {} with rd {}", update.getVpnInstanceName(), update.getVrfId());
-        if (update.getVpnState() == VpnInstanceOpDataEntry.VpnState.PendingDelete
-                && vpnFootprintService.isVpnFootPrintCleared(update)) {
+        final String vpnName = update.getVpnInstanceName();
+        String primaryRd = update.getVrfId();
+        if (update.getVpnState() == VpnInstanceOpDataEntry.VpnState.PendingDelete) {
+            if  (!vpnFootprintService.isVpnFootPrintCleared(update)) {
+                // remove staled vpnIfaces, hence update again VpnInstanceOpDataEntry
+                List<VpnInterfaces> staledIfaces = new ArrayList<>();
+                List<VpnToDpnList> vpnToDpnList = update.getVpnToDpnList();
+                for (VpnToDpnList vpnToDpn: vpnToDpnList) {
+                    if (vpnToDpn.getVpnInterfaces() != null) {
+                        staledIfaces.addAll(vpnToDpn.getVpnInterfaces());
+                    }
+                }
+                if (!staledIfaces.isEmpty()) {
+                    for (VpnInterfaces vpnIface: staledIfaces) {
+                        String ifaceName = vpnIface.getInterfaceName();
+                        LOG.warn("update: remove staled vpnInterface {}", ifaceName);
+                        Optional<VpnInterfaceOpDataEntry> vpnIfaceOpDataEntry =
+                                VpnUtil.getVpnInterfaceOpDataEntry(dataBroker, ifaceName, vpnName);
+                        InstanceIdentifier<VpnInterfaceOpDataEntry> ifaceOpEntryId =
+                                VpnUtil.getVpnInterfaceOpDataEntryIdentifier(ifaceName, vpnName);
+                        vpnInterfaceOpListener.remove(ifaceOpEntryId, vpnIfaceOpDataEntry.get());
+                    }
+                    // need to return, because suppression of staled ifaces has already triggered
+                    // another update VpnInstanceOpDataEntry event
+                    return;
+                }
+            }
             //Cleanup VPN data
-            final String vpnName = update.getVpnInstanceName();
             final List<String> rds = update.getRd();
-            String primaryRd = update.getVrfId();
             final long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
             jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                 // Clean up VpnInstanceToVpnId from Config DS
                 VpnUtil.removeVpnIdToVpnInstance(dataBroker, vpnId, writeTxn);
                 VpnUtil.removeVpnInstanceToVpnId(dataBroker, vpnName, writeTxn);
-                LOG.trace("Removed vpnIdentifier for  rd{} vpnname {}", primaryRd, vpnName);
+                LOG.trace("Removed vpnIdentifier for rd {} vpnname {}", primaryRd, vpnName);
                 // Clean up FIB Entries Config DS
                 fibManager.removeVrfTable(primaryRd, null);
                 // Clean up VPNExtraRoutes Operational DS
@@ -141,9 +173,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 return futures;
             }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         } else if (update.getVpnState() == VpnInstanceOpDataEntry.VpnState.Created) {
-            final String vpnName = update.getVpnInstanceName();
             final List<String> rds = update.getRd();
-            String primaryRd = update.getVrfId();
             if (!VpnUtil.isBgpVpn(vpnName, primaryRd)) {
                 return;
             }
