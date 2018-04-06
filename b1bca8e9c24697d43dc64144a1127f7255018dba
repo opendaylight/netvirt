@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d71ab77b_070591ce",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/CentralizedSwitchChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-04-06T07:23:38Z",
+      "side": 1,
+      "message": "Hi Aswin,\n\n Already in ExternalRoutersListener.remove() method is taking care of removing ROUTER_GW (table\u003d19) and ARP_RESPONDER(Table\u003d81) Flows. What is the point of keeping this removal action here also. This may be the duplicate of the code calling the same function.\n\nExternalRoutersListener.remove() \n\nNatUtil.installRouterGwFlows(dataBroker, vpnManager, router, primarySwitchId, NwConstants.DEL_FLOW);\n\nTHanks,\nKarthikeyan.",
+      "range": {
+        "startLine": 135,
+        "startChar": 12,
+        "endLine": 135,
+        "endChar": 34
+      },
+      "revId": "b1bca8e9c24697d43dc64144a1127f7255018dba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
