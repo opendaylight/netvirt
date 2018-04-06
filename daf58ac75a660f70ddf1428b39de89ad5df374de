@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "379bbb9c_f19011e3",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-04-06T11:47:45Z",
+      "side": 1,
+      "message": "extra space",
+      "range": {
+        "startLine": 102,
+        "startChar": 15,
+        "endLine": 102,
+        "endChar": 16
+      },
+      "revId": "daf58ac75a660f70ddf1428b39de89ad5df374de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3d71987d_b47d822c",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-04-06T11:47:45Z",
+      "side": 1,
+      "message": "stale",
+      "range": {
+        "startLine": 104,
+        "startChar": 36,
+        "endLine": 104,
+        "endChar": 42
+      },
+      "revId": "daf58ac75a660f70ddf1428b39de89ad5df374de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "759aca50_e3214fd1",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-04-06T11:47:45Z",
+      "side": 1,
+      "message": "Doesn\u0027t seem like this should be warn.",
+      "range": {
+        "startLine": 114,
+        "startChar": 28,
+        "endLine": 114,
+        "endChar": 32
+      },
+      "revId": "daf58ac75a660f70ddf1428b39de89ad5df374de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9630478f_2d943b13",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-04-06T11:47:45Z",
+      "side": 1,
+      "message": "Could this be not present?",
+      "range": {
+        "startLine": 115,
+        "startChar": 58,
+        "endLine": 115,
+        "endChar": 77
+      },
+      "revId": "daf58ac75a660f70ddf1428b39de89ad5df374de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "764d5822_b0651e50",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-04-06T11:47:45Z",
+      "side": 1,
+      "message": "It seems a bit odd to manually invoke (ie fake) a remove event on another DTCL - the VpnInterfaceOpDataEntry still exists in the DS. Does the VpnInterfaceOpDataEntry eventually get deleted and trigger the other DTCL?",
+      "revId": "daf58ac75a660f70ddf1428b39de89ad5df374de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d0fcb90f_7dc76a9b",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-04-06T11:47:45Z",
+      "side": 1,
+      "message": "This changes the prior logic when isVpnFootPrintCleared \u003d\u003d true, now it will fall thru to line 127 if there\u0027s no stale interfaces. Not sure if that\u0027s intended...",
+      "revId": "daf58ac75a660f70ddf1428b39de89ad5df374de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "840e40ce_bfdd5e80",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-04-06T11:47:45Z",
+      "side": 1,
+      "message": "This method is already too big - perhaps split this into its own method - this would be a start at least although it would be nice to refactor the rest of it.",
+      "revId": "daf58ac75a660f70ddf1428b39de89ad5df374de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
