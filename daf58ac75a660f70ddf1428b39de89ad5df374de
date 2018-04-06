@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cd9d98d2_f42dca23",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-06T15:09:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "379bbb9c_f19011e3",
+      "range": {
+        "startLine": 102,
+        "startChar": 15,
+        "endLine": 102,
+        "endChar": 16
+      },
+      "revId": "daf58ac75a660f70ddf1428b39de89ad5df374de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3d71987d_b47d822c",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-04-06T11:47:45Z",
       "side": 1,
       "message": "stale",
+      "range": {
+        "startLine": 104,
+        "startChar": 36,
+        "endLine": 104,
+        "endChar": 42
+      },
+      "revId": "daf58ac75a660f70ddf1428b39de89ad5df374de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "71d9d10e_26686dc7",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-06T15:09:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d71987d_b47d822c",
       "range": {
         "startLine": 104,
         "startChar": 36,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "6568495d_6d7e180e",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-06T15:09:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "759aca50_e3214fd1",
+      "range": {
+        "startLine": 114,
+        "startChar": 28,
+        "endLine": 114,
+        "endChar": 32
+      },
+      "revId": "daf58ac75a660f70ddf1428b39de89ad5df374de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9630478f_2d943b13",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2018-04-06T11:47:45Z",
       "side": 1,
       "message": "Could this be not present?",
+      "range": {
+        "startLine": 115,
+        "startChar": 58,
+        "endLine": 115,
+        "endChar": 77
+      },
+      "revId": "daf58ac75a660f70ddf1428b39de89ad5df374de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "16d25ba5_16693230",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-06T15:09:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9630478f_2d943b13",
       "range": {
         "startLine": 115,
         "startChar": 58,
@@ -111,6 +207,24 @@
     },
     {
       "key": {
+        "uuid": "6e52d381_027b2085",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-06T15:09:11Z",
+      "side": 1,
+      "message": "No, in the normal use-case, we should not have here eventual deletions of any VpnInterfaceOpDataEntry, because we\u0027ve already entered in VpnOpStatusListener.update() method body with VpnInstanceOpDataEntry.VpnState.PendingDelete and that means, that all routerDissociate and networkDissociate calls have already processed \u003d\u003e VpnInstanceOpDataEntry normally should not contain any VpnInterfaces in its  VpnToDpnList structure. \n\nNETVIRT-1106 issue shows us, that sometimes (mostly in dualstack cases) it\u0027s not so, we have a VpnInterfaceOpDataEntry ready to be deleted (VpnState.PendingDelete), but it still contains VpnInterfaces. I suppose, that it is provoked by a random race condition in VpnUtil.scheduleVpnInterfaceForRemoval() --\u003e VpnUtil.syncUpdate.  \n\nSo, as workaround, to ensure, that VpnInterfaceOpDataEntry with VpnInstanceOpDataEntry.VpnState.PendingDelete will be delete, I need to recheck again its VpnInterfaces list and clean it if needed, that is why I fake a remove event on vpnInterfaceOpListener.\n\nI hope, that it isn\u0027t very ugly, because vpnInterfaceOpListener.remove allows to remove staled VpnInterfaceOpDataEntry properly and triggers again an update event for VpnInstanceOpDataEntry in its turn. This second VpnInstanceOpDataEntry update event will be proceeded untill the end, so all trained VPN data will be finally cleared and VpnId will be released.",
+      "parentUuid": "764d5822_b0651e50",
+      "revId": "daf58ac75a660f70ddf1428b39de89ad5df374de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d0fcb90f_7dc76a9b",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
         "patchSetId": 2
@@ -128,6 +242,24 @@
     },
     {
       "key": {
+        "uuid": "620b7f06_bb16fa13",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-06T15:09:11Z",
+      "side": 1,
+      "message": "In the older version we had:\n\nif (update.getVpnState() \u003d\u003d VpnInstanceOpDataEntry.VpnState.PendingDelete\n                \u0026\u0026 vpnFootprintService.isVpnFootPrintCleared(update)) {\n\nSo we will never delete VpnInstanceOpDataEntry if it still contains VpnInterfacesOpDataEntries. To unlock this case, now we explicitly clean VpnInterfaces list of a given VpnInstanceOpDataEntry, we call vpnInterfaceOpListener.remove() for each found staled VpnInterfaceOpDataEntry and only then we delete VpnInstanceOpDataEntry and release its Id.",
+      "parentUuid": "d0fcb90f_7dc76a9b",
+      "revId": "daf58ac75a660f70ddf1428b39de89ad5df374de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "840e40ce_bfdd5e80",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
         "patchSetId": 2
@@ -139,6 +271,24 @@
       "writtenOn": "2018-04-06T11:47:45Z",
       "side": 1,
       "message": "This method is already too big - perhaps split this into its own method - this would be a start at least although it would be nice to refactor the rest of it.",
+      "revId": "daf58ac75a660f70ddf1428b39de89ad5df374de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7e25f3e8_43f84eec",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-06T15:09:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "840e40ce_bfdd5e80",
       "revId": "daf58ac75a660f70ddf1428b39de89ad5df374de",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
