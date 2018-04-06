@@ -37,8 +37,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.Vpn;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -53,12 +57,15 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
     private final IFibManager fibManager;
     private final IMdsalApiManager mdsalManager;
     private final VpnFootprintService vpnFootprintService;
+    private final VpnInterfaceOpListener vpnInterfaceOpListener;
     private final JobCoordinator jobCoordinator;
 
     @Inject
     public VpnOpStatusListener(final DataBroker dataBroker, final IBgpManager bgpManager,
                                final IdManagerService idManager, final IFibManager fibManager,
-                               final IMdsalApiManager mdsalManager, final VpnFootprintService vpnFootprintService,
+                               final IMdsalApiManager mdsalManager,
+                               final VpnFootprintService vpnFootprintService,
+                               final VpnInterfaceOpListener vpnInterfaceOpListener,
                                final JobCoordinator jobCoordinator) {
         super(VpnInstanceOpDataEntry.class, VpnOpStatusListener.class);
         this.dataBroker = dataBroker;
@@ -67,6 +74,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
         this.fibManager = fibManager;
         this.mdsalManager = mdsalManager;
         this.vpnFootprintService = vpnFootprintService;
+        this.vpnInterfaceOpListener = vpnInterfaceOpListener;
         this.jobCoordinator = jobCoordinator;
     }
 
@@ -91,161 +99,180 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
         LOG.info("remove: Ignoring vpn Op {} with rd {}", value.getVpnInstanceName(), value.getVrfId());
     }
 
+    private void processStaleVpnIfaces(String vpnName, List<VpnToDpnList> vpnToDpnList) {
+        for (VpnToDpnList vpnToDpn: vpnToDpnList) {
+            List<VpnInterfaces> ifaces = vpnToDpn.getVpnInterfaces();
+            if ((ifaces == null) || (ifaces.isEmpty())) {
+                continue;
+            }
+            for (VpnInterfaces vpnIface: ifaces) {
+                String ifaceName = vpnIface.getInterfaceName();
+                Optional<VpnInterfaceOpDataEntry> vpnIfaceOpDataEntry =
+                        VpnUtil.getVpnInterfaceOpDataEntry(dataBroker, ifaceName, vpnName);
+                InstanceIdentifier<VpnInterfaceOpDataEntry> ifaceOpEntryId =
+                        VpnUtil.getVpnInterfaceOpDataEntryIdentifier(ifaceName, vpnName);
+                if ((vpnIfaceOpDataEntry.isPresent()) && (ifaceOpEntryId != null)) {
+                    LOG.debug("update: remove staled vpnInterface {}", ifaceName);
+                    vpnInterfaceOpListener.remove(ifaceOpEntryId, vpnIfaceOpDataEntry.get());
+                }
+            }
+        }
+    }
+
+    private void processPendingDeleteState(VpnInstanceOpDataEntry update) {
+        final String vpnName = update.getVpnInstanceName();
+        String primaryRd = update.getVrfId();
+        if (!vpnFootprintService.isVpnFootPrintCleared(update)) {
+            // remove staled vpnIfaces, hence update again VpnInstanceOpDataEntry
+            processStaleVpnIfaces(vpnName, update.getVpnToDpnList());
+            // need to return, because suppression of staled ifaces has already triggered
+            // another update VpnInstanceOpDataEntry event
+            return;
+        }
+        //Cleanup VPN data
+        final List<String> rds = update.getRd();
+        final long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+        jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
+            WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+            // Clean up VpnInstanceToVpnId from Config DS
+            VpnUtil.removeVpnIdToVpnInstance(dataBroker, vpnId, writeConfigTxn);
+            VpnUtil.removeVpnInstanceToVpnId(dataBroker, vpnName, writeConfigTxn);
+            LOG.trace("Removed vpnIdentifier for rd {} vpnname {}", primaryRd, vpnName);
+            // Clean up FIB Entries Config DS
+            fibManager.removeVrfTable(primaryRd, null);
+            // Clean up VPNExtraRoutes Operational DS
+            if (VpnUtil.isBgpVpn(vpnName, primaryRd)) {
+                if (update.getType() == VpnInstanceOpDataEntry.Type.L2) {
+                    rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false, AddressFamily.L2VPN));
+                }
+                if (update.isIpv4Configured()) {
+                    rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false, AddressFamily.IPV4));
+                }
+                if (update.isIpv6Configured()) {
+                    rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false, AddressFamily.IPV6));
+                }
+            }
+            InstanceIdentifier<Vpn> vpnToExtraroute = VpnExtraRouteHelper.getVpnToExtrarouteVpnIdentifier(vpnName);
+            Optional<Vpn> optVpnToExtraroute = VpnUtil.read(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
+            if (optVpnToExtraroute.isPresent()) {
+                VpnUtil.removeVpnExtraRouteForVpn(dataBroker, vpnName, writeOperTxn);
+            }
+
+            // Clean up PrefixToInterface Operational DS
+            Optional<VpnIds> optPrefixToIntf = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                                            VpnUtil.getPrefixToInterfaceIdentifier(vpnId));
+            if (optPrefixToIntf.isPresent()) {
+                VpnUtil.removePrefixToInterfaceForVpnId(dataBroker, vpnId, writeOperTxn);
+            }
+
+            // Clean up L3NextHop Operational DS
+            InstanceIdentifier<VpnNexthops> vpnNextHops = InstanceIdentifier.builder(L3nexthop.class).child(
+                VpnNexthops.class, new VpnNexthopsKey(vpnId)).build();
+            Optional<VpnNexthops> optL3nexthopForVpnId = VpnUtil.read(dataBroker,
+                                                                      LogicalDatastoreType.OPERATIONAL,
+                                                                      vpnNextHops);
+            if (optL3nexthopForVpnId.isPresent()) {
+                VpnUtil.removeL3nexthopForVpnId(dataBroker, vpnId, writeOperTxn);
+            }
+
+            // Clean up VPNInstanceOpDataEntry
+            VpnUtil.removeVpnOpInstance(dataBroker, primaryRd, writeOperTxn);
+
+            // Note: Release the of VpnId will happen in PostDeleteVpnInstancWorker only if
+            // operationalTxn/Config succeeds.
+
+            CheckedFuture<Void, TransactionCommitFailedException> checkFutures = writeOperTxn.submit();
+            try {
+                checkFutures.get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Error deleting vpn {} ", vpnName);
+                writeConfigTxn.cancel();
+                throw new RuntimeException(e);
+            }
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(writeConfigTxn.submit());
+            ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
+            Futures.addCallback(listenableFuture, new VpnOpStatusListener.PostDeleteVpnInstanceWorker(vpnName));
+            LOG.info("Removed vpn data for vpnname {}", vpnName);
+            return futures;
+        }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
+    }
+
+    private void processCreatedState(VpnInstanceOpDataEntry original, VpnInstanceOpDataEntry update) {
+        final String vpnName = update.getVpnInstanceName();
+        String primaryRd = update.getVrfId();
+        if (!VpnUtil.isBgpVpn(vpnName, primaryRd)) {
+            return;
+        }
+        if (original == null) {
+            LOG.error("VpnOpStatusListener.update: vpn {} with RD {}. add() handler already called",
+                   vpnName, primaryRd);
+            return;
+        }
+        if (update.getVpnTargets() == null) {
+            LOG.error("VpnOpStatusListener.update: vpn {} with RD {} vpnTargets not ready",
+                   vpnName, primaryRd);
+            return;
+        }
+        List<VpnTarget> vpnTargetList = update.getVpnTargets().getVpnTarget();
+        List<String> ertList = new ArrayList<>();
+        List<String> irtList = new ArrayList<>();
+        if (vpnTargetList != null) {
+            for (VpnTarget vpnTarget : vpnTargetList) {
+                if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
+                    ertList.add(vpnTarget.getVrfRTValue());
+                }
+                if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ImportExtcommunity) {
+                    irtList.add(vpnTarget.getVrfRTValue());
+                }
+                if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.Both) {
+                    ertList.add(vpnTarget.getVrfRTValue());
+                    irtList.add(vpnTarget.getVrfRTValue());
+                }
+            }
+        } else {
+            LOG.error("VpnOpStatusListener.update: vpn target list is empty, cannot add BGP"
+                  + " VPN {} RD {}", vpnName, primaryRd);
+            return;
+        }
+        final List<String> rds = update.getRd();
+        jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
+            rds.parallelStream().filter(rd -> {
+                LOG.info("VpnOpStatusListener.update: updating BGPVPN for vpn {} with RD {}"
+                        + " Type is {}, IPv4 is {}, IPv6 is {}", vpnName, primaryRd, update.getType(),
+                        update.isIpv4Configured(), update.isIpv6Configured());
+                if (update.getType() == VpnInstanceOpDataEntry.Type.L2) {
+                    bgpManager.addVrf(rd, irtList, ertList, AddressFamily.L2VPN);
+                } else {
+                    bgpManager.deleteVrf(rd, false, AddressFamily.L2VPN);
+                }
+                if (!original.isIpv4Configured() && update.isIpv4Configured()) {
+                    bgpManager.addVrf(rd, irtList, ertList, AddressFamily.IPV4);
+                } else if (original.isIpv4Configured() && !update.isIpv4Configured()) {
+                    bgpManager.deleteVrf(rd, false, AddressFamily.IPV4);
+                }
+                if (!original.isIpv6Configured() && update.isIpv6Configured()) {
+                    bgpManager.addVrf(rd, irtList, ertList, AddressFamily.IPV6);
+                } else if (original.isIpv6Configured() && !update.isIpv6Configured()) {
+                    bgpManager.deleteVrf(rd, false, AddressFamily.IPV6);
+                }
+                return false;
+            }).count();
+            return Collections.emptyList();
+        });
+    }
+
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void update(InstanceIdentifier<VpnInstanceOpDataEntry> identifier,
                           VpnInstanceOpDataEntry original, VpnInstanceOpDataEntry update) {
         LOG.info("update: Processing update for vpn {} with rd {}", update.getVpnInstanceName(), update.getVrfId());
-        if (update.getVpnState() == VpnInstanceOpDataEntry.VpnState.PendingDelete
-                && vpnFootprintService.isVpnFootPrintCleared(update)) {
-            //Cleanup VPN data
-            final String vpnName = update.getVpnInstanceName();
-            final List<String> rds = update.getRd();
-            String primaryRd = update.getVrfId();
-            final long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-            jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
-                WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-                WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-                // Clean up VpnInstanceToVpnId from Config DS
-                VpnUtil.removeVpnIdToVpnInstance(dataBroker, vpnId, writeConfigTxn);
-                VpnUtil.removeVpnInstanceToVpnId(dataBroker, vpnName, writeConfigTxn);
-                LOG.trace("Removed vpnIdentifier for  rd{} vpnname {}", primaryRd, vpnName);
-
-                // Clean up FIB Entries Config DS
-                synchronized (vpnName.intern()) {
-                    fibManager.removeVrfTable(primaryRd, null);
-                }
-
-                // Clean up VPNExtraRoutes Operational DS
-                if (VpnUtil.isBgpVpn(vpnName, primaryRd)) {
-                    if (update.getType() == VpnInstanceOpDataEntry.Type.L2) {
-                        rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false, AddressFamily.L2VPN));
-                    }
-                    if (update.isIpv4Configured()) {
-                        rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false, AddressFamily.IPV4));
-                    }
-                    if (update.isIpv6Configured()) {
-                        rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false, AddressFamily.IPV6));
-                    }
-                }
-                InstanceIdentifier<Vpn> vpnToExtraroute = VpnExtraRouteHelper.getVpnToExtrarouteVpnIdentifier(vpnName);
-                Optional<Vpn> optVpnToExtraroute = VpnUtil.read(dataBroker,
-                        LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
-                if (optVpnToExtraroute.isPresent()) {
-                    VpnUtil.removeVpnExtraRouteForVpn(dataBroker, vpnName, writeOperTxn);
-                }
-
-                if (VpnUtil.isL3VpnOverVxLan(update.getL3vni())) {
-                    VpnUtil.removeExternalTunnelDemuxFlows(vpnName, dataBroker, mdsalManager);
-                }
-
-                // Clean up PrefixToInterface Operational DS
-                Optional<VpnIds> optPrefixToIntf = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                                                                VpnUtil.getPrefixToInterfaceIdentifier(vpnId));
-                if (optPrefixToIntf.isPresent()) {
-                    VpnUtil.removePrefixToInterfaceForVpnId(dataBroker, vpnId, writeOperTxn);
-                }
-
-                // Clean up L3NextHop Operational DS
-                InstanceIdentifier<VpnNexthops> vpnNextHops = InstanceIdentifier.builder(L3nexthop.class).child(
-                    VpnNexthops.class, new VpnNexthopsKey(vpnId)).build();
-                Optional<VpnNexthops> optL3nexthopForVpnId = VpnUtil.read(dataBroker,
-                                                                          LogicalDatastoreType.OPERATIONAL,
-                                                                          vpnNextHops);
-                if (optL3nexthopForVpnId.isPresent()) {
-                    VpnUtil.removeL3nexthopForVpnId(dataBroker, vpnId, writeOperTxn);
-                }
-
-                // Clean up VPNInstanceOpDataEntry
-                VpnUtil.removeVpnOpInstance(dataBroker, primaryRd, writeOperTxn);
-
-                // Note: Release the of VpnId will happen in PostDeleteVpnInstancWorker only if
-                // operationalTxn/Config succeeds.
-
-                CheckedFuture<Void, TransactionCommitFailedException> checkFutures = writeOperTxn.submit();
-                try {
-                    checkFutures.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    LOG.error("Error deleting vpn {} ", vpnName);
-                    writeConfigTxn.cancel();
-                    throw new RuntimeException(e);
-                }
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                futures.add(writeConfigTxn.submit());
-                ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
-                Futures.addCallback(listenableFuture, new VpnOpStatusListener.PostDeleteVpnInstanceWorker(vpnName));
-                LOG.info("Removed vpn data for vpnname {}", vpnName);
-                return futures;
-            }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
+        if (update.getVpnState() == VpnInstanceOpDataEntry.VpnState.PendingDelete) {
+            processPendingDeleteState(update);
         } else if (update.getVpnState() == VpnInstanceOpDataEntry.VpnState.Created) {
-            final String vpnName = update.getVpnInstanceName();
-            final List<String> rds = update.getRd();
-            String primaryRd = update.getVrfId();
-            if (!VpnUtil.isBgpVpn(vpnName, primaryRd)) {
-                return;
-            }
-            if (original == null) {
-                LOG.error("VpnOpStatusListener.update: vpn {} with RD {}. add() handler already called",
-                       vpnName, primaryRd);
-                return;
-            }
-            if (update.getVpnTargets() == null) {
-                LOG.error("VpnOpStatusListener.update: vpn {} with RD {} vpnTargets not ready",
-                       vpnName, primaryRd);
-                return;
-            }
-            List<VpnTarget> vpnTargetList = update.getVpnTargets().getVpnTarget();
-            List<String> ertList = new ArrayList<>();
-            List<String> irtList = new ArrayList<>();
-            if (vpnTargetList != null) {
-                for (VpnTarget vpnTarget : vpnTargetList) {
-                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
-                        ertList.add(vpnTarget.getVrfRTValue());
-                    }
-                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ImportExtcommunity) {
-                        irtList.add(vpnTarget.getVrfRTValue());
-                    }
-                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.Both) {
-                        ertList.add(vpnTarget.getVrfRTValue());
-                        irtList.add(vpnTarget.getVrfRTValue());
-                    }
-                }
-            } else {
-                LOG.error("VpnOpStatusListener.update: vpn target list is empty, cannot add BGP"
-                      + " VPN {} RD {}", vpnName, primaryRd);
-                return;
-            }
-            jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
-                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                long primaryRdAddFailed = rds.parallelStream().filter(rd -> {
-                    try {
-                        LOG.info("VpnOpStatusListener.update: updating BGPVPN for vpn {} with RD {}"
-                                + " Type is {}, IPv4 is {}, IPv6 is {}", vpnName, primaryRd, update.getType(),
-                                update.isIpv4Configured(), update.isIpv6Configured());
-                        if (update.getType() == VpnInstanceOpDataEntry.Type.L2) {
-                            bgpManager.addVrf(rd, irtList, ertList, AddressFamily.L2VPN);
-                        } else {
-                            bgpManager.deleteVrf(rd, false, AddressFamily.L2VPN);
-                        }
-                        if (!original.isIpv4Configured() && update.isIpv4Configured()) {
-                            bgpManager.addVrf(rd, irtList, ertList, AddressFamily.IPV4);
-                        } else if (original.isIpv4Configured() && !update.isIpv4Configured()) {
-                            bgpManager.deleteVrf(rd, false, AddressFamily.IPV4);
-                        }
-                        if (!original.isIpv6Configured() && update.isIpv6Configured()) {
-                            bgpManager.addVrf(rd, irtList, ertList, AddressFamily.IPV6);
-                        } else if (original.isIpv6Configured() && !update.isIpv6Configured()) {
-                            bgpManager.deleteVrf(rd, false, AddressFamily.IPV6);
-                        }
-                    } catch (Exception e) {
-                        LOG.error("VpnOpStatusListener.update: Exception when updating VRF to BGP"
-                               + " for vpn {} rd {}", vpnName, rd);
-                        return false;
-                    }
-                    return false;
-                }).count();
-                return Collections.emptyList();
-            });
+            processCreatedState(original, update);
         }
     }
 
