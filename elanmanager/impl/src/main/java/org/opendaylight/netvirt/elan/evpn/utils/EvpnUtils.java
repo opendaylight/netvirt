@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -308,6 +309,7 @@ public class EvpnUtils {
                 .builder(ExternalTunnelList.class).build();
     }
 
+    @SuppressFBWarnings(value = "NP_NULL_PARAM_DEREF", justification = "Unrecognised NullableDecl")
     public Optional<ExternalTunnelList> getExternalTunnelList() {
         InstanceIdentifier<ExternalTunnelList> externalTunnelListId = getExternaTunnelListIdentifier();
         ExternalTunnelList externalTunnelList = null;
@@ -325,6 +327,7 @@ public class EvpnUtils {
                 .builder(DcGatewayIpList.class).build();
     }
 
+    @SuppressFBWarnings(value = "NP_NULL_PARAM_DEREF", justification = "Unrecognised NullableDecl")
     public Optional<DcGatewayIpList> getDcGatewayIpList() {
         InstanceIdentifier<DcGatewayIpList> dcGatewayIpListInstanceIdentifier = getDcGatewayIpListIdentifier();
         DcGatewayIpList dcGatewayIpListConfig = null;
