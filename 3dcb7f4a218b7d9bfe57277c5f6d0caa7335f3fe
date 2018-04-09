@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "298fd201_c48abc25",
+        "filename": "elanmanager/api/src/main/java/org/opendaylight/netvirt/elan/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-09T16:02:18Z",
+      "side": 1,
+      "message": "Thats okay.",
+      "parentUuid": "d0a0e83f_5b9e7c8f",
+      "range": {
+        "startLine": 472,
+        "startChar": 12,
+        "endLine": 472,
+        "endChar": 94
+      },
+      "revId": "3dcb7f4a218b7d9bfe57277c5f6d0caa7335f3fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9e89770b_d53ed495",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/EvpnVrfEntryHandler.java",
         "patchSetId": 7
@@ -143,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "79d7d49d_f1d3589d",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-09T16:02:18Z",
+      "side": 1,
+      "message": "I understand. But, why is an itm flag exposed through interface-manager?",
+      "parentUuid": "708f7032_ada1273c",
+      "range": {
+        "startLine": 250,
+        "startChar": 39,
+        "endLine": 250,
+        "endChar": 78
+      },
+      "revId": "3dcb7f4a218b7d9bfe57277c5f6d0caa7335f3fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b0d9ed8_49a78ac6",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 7
@@ -190,6 +238,30 @@
     },
     {
       "key": {
+        "uuid": "23b7fd8d_3bbf02c3",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-09T16:02:18Z",
+      "side": 1,
+      "message": "Nope. I think this needs to be fixed before merging this review, since this will fail a few test cases.\nPlease refer to Edwin\u0027s downstream reviews to understand what change needs to be done here.",
+      "parentUuid": "63e8a8b8_c2f4719b",
+      "range": {
+        "startLine": 909,
+        "startChar": 22,
+        "endLine": 909,
+        "endChar": 56
+      },
+      "revId": "3dcb7f4a218b7d9bfe57277c5f6d0caa7335f3fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ed7e2d47_21390df3",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 7
@@ -225,6 +297,30 @@
       "side": 1,
       "message": "Kiran, \ni checked in other parts of code as well like in Elan,\nThis RPC is part of OdlInterfaceRpcService now.",
       "parentUuid": "ed7e2d47_21390df3",
+      "range": {
+        "startLine": 1011,
+        "startChar": 20,
+        "endLine": 1011,
+        "endChar": 94
+      },
+      "revId": "3dcb7f4a218b7d9bfe57277c5f6d0caa7335f3fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ef38f9a0_dfa0fa2f",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1011,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-09T16:02:18Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "e59ac934_e166e7d2",
       "range": {
         "startLine": 1011,
         "startChar": 20,
