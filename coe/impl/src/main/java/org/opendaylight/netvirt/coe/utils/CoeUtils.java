@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -22,6 +23,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
@@ -53,6 +55,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev17061
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.coe.Pods;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlanBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfoKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.meta.rev180118.PodidentifierInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.meta.rev180118.podidentifier.info.PodIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.meta.rev180118.podidentifier.info.PodIdentifierBuilder;
@@ -428,4 +436,13 @@ public final class CoeUtils {
         return new AdjacenciesBuilder().setAdjacency(adjList).build();
     }
 
+    public static InstanceIdentifier<BoundServices> buildKubeProxyServicesIId(String interfaceName) {
+        return InstanceIdentifier.builder(ServiceBindings.class)
+                .child(ServicesInfo.class, new ServicesInfoKey(interfaceName, ServiceModeIngress.class))
+                .child(BoundServices.class, new BoundServicesKey(NwConstants.COE_KUBE_PROXY_SERVICE_INDEX)).build();
+    }
+
+    public static void unbindKubeProxyService(String interfaceName, WriteTransaction tx) {
+        tx.delete(LogicalDatastoreType.CONFIGURATION, buildKubeProxyServicesIId(interfaceName));
+    }
 }

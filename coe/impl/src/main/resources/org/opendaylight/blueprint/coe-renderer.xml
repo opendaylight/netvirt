@@ -18,4 +18,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                interface="org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar"/>
     <reference id="cacheProvider"
                interface="org.opendaylight.infrautils.caches.CacheProvider"/>
+    <reference id="iMdsalApiManager"
+               interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager"/>
 </blueprint>
