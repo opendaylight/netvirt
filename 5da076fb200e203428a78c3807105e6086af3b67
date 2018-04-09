@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3517d02d_94c25723",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-04-09T07:49:33Z",
+      "side": 1,
+      "message": "Will having a local cache with Natservice will be better here ? There is chance that the interface could be deleted from VpnInterfaceOpDataEntry as well right? Local cache can further optimize the datastore lookup.",
+      "revId": "5da076fb200e203428a78c3807105e6086af3b67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
