@@ -2,6 +2,121 @@
   "comments": [
     {
       "key": {
+        "uuid": "cb2bad63_e91c6f45",
+        "filename": "elanmanager/api/src/main/java/org/opendaylight/netvirt/elan/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-09T12:06:45Z",
+      "side": 1,
+      "message": "whats the difference between geEgressActionsForInterface() and getInterfaceEgressActions() in IFM RPC? :)\nI see two potentially identical RPCs used in different places, one here and the other in NextHopManager.",
+      "range": {
+        "startLine": 472,
+        "startChar": 12,
+        "endLine": 472,
+        "endChar": 94
+      },
+      "revId": "3dcb7f4a218b7d9bfe57277c5f6d0caa7335f3fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9e89770b_d53ed495",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/EvpnVrfEntryHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-09T12:06:45Z",
+      "side": 1,
+      "message": "This is for a tunnel interface. so, \"true\"",
+      "range": {
+        "startLine": 262,
+        "startChar": 28,
+        "endLine": 262,
+        "endChar": 35
+      },
+      "revId": "3dcb7f4a218b7d9bfe57277c5f6d0caa7335f3fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3f6596c7_fe473980",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-09T12:06:45Z",
+      "side": 1,
+      "message": "why is there an itm configuration parameter in interfaceManager?",
+      "range": {
+        "startLine": 250,
+        "startChar": 39,
+        "endLine": 250,
+        "endChar": 78
+      },
+      "revId": "3dcb7f4a218b7d9bfe57277c5f6d0caa7335f3fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b0d9ed8_49a78ac6",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-09T12:06:45Z",
+      "side": 1,
+      "message": "I remember that this had to be moved to itmRPC, since ifm ds wont contain any tunnel interfaces",
+      "range": {
+        "startLine": 909,
+        "startChar": 22,
+        "endLine": 909,
+        "endChar": 56
+      },
+      "revId": "3dcb7f4a218b7d9bfe57277c5f6d0caa7335f3fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ed7e2d47_21390df3",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1011,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-09T12:06:45Z",
+      "side": 1,
+      "message": "this one is used for external tunnels. So, I guess we will have to still keep using ifm RPC, like you have done here",
+      "range": {
+        "startLine": 1011,
+        "startChar": 20,
+        "endLine": 1011,
+        "endChar": 94
+      },
+      "revId": "3dcb7f4a218b7d9bfe57277c5f6d0caa7335f3fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8825745_eb2217a1",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 7
