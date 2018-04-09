@@ -1361,7 +1361,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 String ip = nextHop.getIpAddress().split("/")[0];
                 LearntVpnVipToPort vpnVipToPort = VpnUtil.getLearntVpnVipToPort(dataBroker, vpnName, ip);
                 if (vpnVipToPort != null) {
-                    VpnUtil.removeLearntVpnVipToPort(dataBroker, vpnName, ip);
+                    VpnUtil.removeLearntVpnVipToPort(dataBroker, vpnName, ip, null);
                     LOG.info("removeAdjacenciesFromVpn: VpnInterfaceManager removed adjacency for Interface {}"
                                     + " ip {} on dpn {} for vpn {} from VpnPortData Entry", vpnVipToPort.getPortName(),
                             ip, dpnId, vpnName);
