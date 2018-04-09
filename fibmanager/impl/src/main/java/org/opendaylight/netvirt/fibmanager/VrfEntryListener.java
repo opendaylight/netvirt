@@ -1571,23 +1571,21 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     public void populateFibOnNewDpn(final BigInteger dpnId, final long vpnId, final String rd,
                                     final FutureCallback<List<Void>> callback) {
         LOG.trace("New dpn {} for vpn {} : populateFibOnNewDpn", dpnId, rd);
-        InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-        final VpnInstanceOpDataEntry vpnInstance = fibUtil.getVpnInstance(rd);
-        final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
-        List<SubTransaction> txnObjects =  new ArrayList<>();
-        if (!vrfTable.isPresent()) {
-            LOG.info("populateFibOnNewDpn: dpn: {}: VRF Table not yet available for RD {}", dpnId, rd);
-            if (callback != null) {
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
-                Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
-            }
-            return;
-        }
-
         jobCoordinator.enqueueJob(FibUtil.getJobKeyForVpnIdDpnId(vpnId, dpnId),
             () -> {
+                InstanceIdentifier<VrfTables> id = buildVrfId(rd);
+                final VpnInstanceOpDataEntry vpnInstance = fibUtil.getVpnInstance(rd);
+                final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, id);
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
+                if (!vrfTable.isPresent()) {
+                    LOG.info("populateFibOnNewDpn: dpn: {}: VRF Table not yet available for RD {}", dpnId, rd);
+                    if (callback != null) {
+                        ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
+                        Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+                    }
+                    return futures;
+                }
                 synchronized (vpnInstance.getVpnInstanceName().intern()) {
                     futures.add(retryingTxRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
                         for (final VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
@@ -1627,6 +1625,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             if (shouldCreateRemoteFibEntry) {
                                 LOG.trace("Will create remote FIB entry for vrfEntry {} on DPN {}", vrfEntry, dpnId);
                                 if (RouteOrigin.BGP.getValue().equals(vrfEntry.getOrigin())) {
+                                    List<SubTransaction> txnObjects =  new ArrayList<>();
                                     bgpRouteVrfEntryHandler.createRemoteFibEntry(dpnId, vpnId,
                                             vrfTable.get().getRouteDistinguisher(), vrfEntry, tx, txnObjects);
                                 } else {
@@ -1734,12 +1733,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     public void cleanUpDpnForVpn(final BigInteger dpnId, final long vpnId, final String rd,
                                  final FutureCallback<List<Void>> callback) {
         LOG.trace("cleanUpDpnForVpn: Remove dpn {} for vpn {} : cleanUpDpnForVpn", dpnId, rd);
-        InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-        final VpnInstanceOpDataEntry vpnInstance = fibUtil.getVpnInstance(rd);
-        List<SubTransaction> txnObjects =  new ArrayList<>();
-        final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         jobCoordinator.enqueueJob(FibUtil.getJobKeyForVpnIdDpnId(vpnId, dpnId),
             () -> {
+                InstanceIdentifier<VrfTables> id = buildVrfId(rd);
+                final VpnInstanceOpDataEntry vpnInstance = fibUtil.getVpnInstance(rd);
+                List<SubTransaction> txnObjects =  new ArrayList<>();
+                final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, id);
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 if (vrfTable.isPresent()) {
                     synchronized (vpnInstance.getVpnInstanceName().intern()) {
@@ -1826,6 +1826,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
                         Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
                     }
+                } else {
+                    LOG.error("cleanUpDpnForVpn: No vrf table found for rd {} vpnId {} dpn {}", rd, vpnId, dpnId);
                 }
                 return futures;
             });
