@@ -217,6 +217,7 @@ public class PodListener implements DataTreeChangeListener<Pods> {
                 CoeUtils.deleteElanInterface(podInterfaceName, tx);
                 LOG.info("interface deletion for pod {}", podInterfaceName);
                 CoeUtils.deleteOfPortInterface(podInterfaceName, tx);
+                CoeUtils.unbindKubeProxyService(podInterfaceName, tx);
                 // TODO delete elan-instance if this is the last pod in the host
                 // TODO delete vpn-instance if this is the last pod in the network
             }));
