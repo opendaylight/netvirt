@@ -54,7 +54,7 @@ public class ArpMonitorEventListener implements AlivenessMonitorListener {
             LearntVpnVipToPort vpnVipToPort = VpnUtil.getLearntVpnVipToPort(dataBroker, vpnName, learntIp);
             if (vpnVipToPort != null && macEntry.getCreatedTime().equals(vpnVipToPort.getCreationTime())) {
                 jobCoordinator.enqueueJob(ArpMonitoringHandler.buildJobKey(macEntry.getIpAddress().getHostAddress(),
-                        macEntry.getVpnName()), new ArpMonitorStopTask(macEntry, dataBroker, alivenessManager));
+                        macEntry.getVpnName()), new ArpMonitorStopTask(macEntry, dataBroker, alivenessManager, Boolean.TRUE));
             }
 
         }
