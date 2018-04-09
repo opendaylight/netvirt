@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d0a0e83f_5b9e7c8f",
+        "filename": "elanmanager/api/src/main/java/org/opendaylight/netvirt/elan/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5987
+      },
+      "writtenOn": "2018-04-09T13:21:13Z",
+      "side": 1,
+      "message": "Hmm ,yes true, albeit with a different set of arguments.\nThe former is a wrapper on top of the latter one.\nWe can take care of this in subsequent commits. Let me know if its ok.",
+      "parentUuid": "cb2bad63_e91c6f45",
+      "range": {
+        "startLine": 472,
+        "startChar": 12,
+        "endLine": 472,
+        "endChar": 94
+      },
+      "revId": "3dcb7f4a218b7d9bfe57277c5f6d0caa7335f3fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9e89770b_d53ed495",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/EvpnVrfEntryHandler.java",
         "patchSetId": 7
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "708f7032_ada1273c",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5987
+      },
+      "writtenOn": "2018-04-09T13:21:13Z",
+      "side": 1,
+      "message": "Hi Kiran,\nThis option just tells us whether the tunnels are going to be handled by IFM or ITM and this config parameter is kept in IFM after lot of deliberation, hence its there.",
+      "parentUuid": "3f6596c7_fe473980",
+      "range": {
+        "startLine": 250,
+        "startChar": 39,
+        "endLine": 250,
+        "endChar": 78
+      },
+      "revId": "3dcb7f4a218b7d9bfe57277c5f6d0caa7335f3fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b0d9ed8_49a78ac6",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 7
@@ -94,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "63e8a8b8_c2f4719b",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 5987
+      },
+      "writtenOn": "2018-04-09T13:21:13Z",
+      "side": 1,
+      "message": "Hi Kiran,\nWe can take care of this comment in subsequent commits since Edwin is out of town and travelling to Bangalore.\nLet me know if its ok.",
+      "parentUuid": "4b0d9ed8_49a78ac6",
+      "range": {
+        "startLine": 909,
+        "startChar": 22,
+        "endLine": 909,
+        "endChar": 56
+      },
+      "revId": "3dcb7f4a218b7d9bfe57277c5f6d0caa7335f3fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ed7e2d47_21390df3",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 7
@@ -105,6 +177,30 @@
       "writtenOn": "2018-04-09T12:06:45Z",
       "side": 1,
       "message": "this one is used for external tunnels. So, I guess we will have to still keep using ifm RPC, like you have done here",
+      "range": {
+        "startLine": 1011,
+        "startChar": 20,
+        "endLine": 1011,
+        "endChar": 94
+      },
+      "revId": "3dcb7f4a218b7d9bfe57277c5f6d0caa7335f3fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e59ac934_e166e7d2",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1011,
+      "author": {
+        "id": 5987
+      },
+      "writtenOn": "2018-04-09T13:21:13Z",
+      "side": 1,
+      "message": "Kiran, \ni checked in other parts of code as well like in Elan,\nThis RPC is part of OdlInterfaceRpcService now.",
+      "parentUuid": "ed7e2d47_21390df3",
       "range": {
         "startLine": 1011,
         "startChar": 20,
