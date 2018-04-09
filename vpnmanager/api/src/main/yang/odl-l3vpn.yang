@@ -699,4 +699,36 @@ module odl-l3vpn {
             leaf-list nexthop-key { type string; }
         }
     }
+
+    typedef learnt-vpn-vip-to-port-event-action {
+         type enumeration {
+             enum add {
+                 value "0";
+                 description
+                 "Event to add a learnt vip to CSC FIB";
+             }
+             enum delete {
+                 value "1";
+                 description
+                 "Event to remove a learnt vip from CSC FIB";
+             }
+         }
+         description
+          "This value represents the action of an event on learnt-vpn-vip-to-port.
+           The possible actions supported are only ADD, DELETE";
+    }
+
+    container learnt-vpn-vip-to-port-event-data {
+        config false;
+        list learnt-vpn-vip-to-port-event {
+            key "learnt-vpn-vip-event-id";
+            leaf vpn-name { type string; }
+            leaf src-fixedip { type string; }
+            leaf dest-fixedip { type string; }
+            leaf port-name { type string; }
+            leaf mac-address { type string; }
+            leaf event-action { type learnt-vpn-vip-to-port-event-action; }
+            leaf learnt-vpn-vip-event-id { type string; }
+        }
+    }
 }
