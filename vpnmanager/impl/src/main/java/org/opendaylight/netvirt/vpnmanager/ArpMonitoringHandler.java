@@ -162,19 +162,12 @@ public class ArpMonitoringHandler
                     return;
                 }
                 String vpnName =  value.getVpnName();
-                String learntIp = srcInetAddr.getHostAddress();
-                LearntVpnVipToPort vpnVipToPort = VpnUtil.getLearntVpnVipToPort(dataBroker, vpnName, learntIp);
-                if (vpnVipToPort != null && !vpnVipToPort.getCreationTime().equals(value.getCreationTime())) {
-                    LOG.warn("The MIP {} over vpn {} has been learnt again and processed. "
-                            + "Ignoring this remove event.", learntIp, vpnName);
-                    return;
-                }
                 MacAddress srcMacAddress = MacAddress.getDefaultInstance(value.getMacAddress());
                 String interfaceName =  value.getPortName();
                 MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, interfaceName,
                         value.getCreationTime());
                 jobCoordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
-                        new ArpMonitorStopTask(macEntry, dataBroker, alivenessManager));
+                        new ArpMonitorStopTask(macEntry, dataBroker, alivenessManager, Boolean.FALSE));
             } catch (UnknownHostException e) {
                 LOG.error("Error in deserializing packet {} with exception", value, e);
             }
@@ -187,7 +180,8 @@ public class ArpMonitoringHandler
     }
 
     static String buildJobKey(String ip, String vpnName) {
-        return new StringBuilder(ArpConstants.ARPJOB).append(ip).append(vpnName).toString();
+        return new StringBuilder(ArpConstants.ARPJOB).append('-').append(vpnName).append('-').append(ip).toString();
     }
+
 }
 
