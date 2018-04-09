@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.coe.listeners;
 
-import com.google.common.util.concurrent.ListenableFuture;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,16 +16,28 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.tools.mdsal.listener.AbstractSyncDataTreeChangeListener;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.coe.caches.PodsCache;
 import org.opendaylight.netvirt.coe.utils.CoeUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.coe.Pods;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceTypeFlowBased;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflowBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -75,21 +87,23 @@ public class TerminationPointStateListener extends
                 LOG.debug("Detected external interface-id {} and attached mac address {} for {}", interfaceName,
                         macAddress, tpNew.getName());
                 eventCallbacks.onAddOrUpdate(LogicalDatastoreType.OPERATIONAL,
-                    CoeUtils.getPodMetaInstanceId(interfaceName), (unused, alsoUnused) -> {
+                        CoeUtils.getPodMetaInstanceId(interfaceName), (unused, alsoUnused) -> {
                         LOG.info("Pod configuration {} detected for termination-point {},"
-                            + "proceeding with l2 and l3 configurations", interfaceName, tpNew.getName());
-                        List<ListenableFuture<Void>> futures = new ArrayList<>();
-                        futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
-                            InstanceIdentifier<Pods> instanceIdentifier = CoeUtils.getPodUUIDforPodName(interfaceName,
-                                    tx);
+                                    + "proceeding with l2 and l3 configurations", interfaceName, tpNew.getName());
+                        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+                            InstanceIdentifier<Pods> instanceIdentifier = CoeUtils.getPodUUIDforPodName(
+                                        interfaceName, tx);
                             Pods pods = podsCache.get(instanceIdentifier).get();
                             if (pods != null) {
                                 IpAddress podIpAddress = pods.getInterface().get(0).getIpAddress();
                                 CoeUtils.createVpnInterface(pods.getNetworkNS(), pods, interfaceName, macAddress,
                                         false, tx);
-                                CoeUtils.updateElanInterfaceWithStaticMac(macAddress, podIpAddress, interfaceName, tx);
+                                CoeUtils.updateElanInterfaceWithStaticMac(macAddress, podIpAddress,
+                                        interfaceName, tx);
+                                LOG.debug("Bind Kube Proxy Service for {}", interfaceName);
+                                bindKubeProxyService(tx, interfaceName);
                             }
-                        }));
+                        }), LOG, "Error handling pod configuration for termination-point");
                         return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
                     });
             }
@@ -99,5 +113,31 @@ public class TerminationPointStateListener extends
     @Override
     public void add(OvsdbTerminationPointAugmentation tpNew) {
         update(null, tpNew);
+    }
+
+    private static void bindKubeProxyService(ReadWriteTransaction tx, String interfaceName) {
+        int priority = ServiceIndex.getIndex(NwConstants.COE_KUBE_PROXY_SERVICE_NAME,
+                NwConstants.COE_KUBE_PROXY_SERVICE_INDEX);
+        int instructionKey = 0;
+        List<Instruction> instructions = new ArrayList<>();
+        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(
+                NwConstants.COE_KUBE_PROXY_TABLE, ++instructionKey));
+        BoundServices serviceInfo =
+                getBoundServices(String.format("%s.%s", NwConstants.COE_KUBE_PROXY_SERVICE_NAME, interfaceName),
+                        ServiceIndex.getIndex(NwConstants.COE_KUBE_PROXY_SERVICE_NAME,
+                                NwConstants.COE_KUBE_PROXY_SERVICE_INDEX),
+                        priority, NwConstants.COOKIE_COE_KUBE_PROXY_TABLE, instructions);
+        InstanceIdentifier<BoundServices> boundServicesInstanceIdentifier =
+                CoeUtils.buildKubeProxyServicesIId(interfaceName);
+        tx.put(LogicalDatastoreType.CONFIGURATION, boundServicesInstanceIdentifier, serviceInfo,true);
+    }
+
+    private static BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
+                                                 BigInteger cookie, List<Instruction> instructions) {
+        StypeOpenflowBuilder augBuilder = new StypeOpenflowBuilder().setFlowCookie(cookie).setFlowPriority(flowPriority)
+                .setInstruction(instructions);
+        return new BoundServicesBuilder().withKey(new BoundServicesKey(servicePriority)).setServiceName(serviceName)
+                .setServicePriority(servicePriority).setServiceType(ServiceTypeFlowBased.class)
+                .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
 }
