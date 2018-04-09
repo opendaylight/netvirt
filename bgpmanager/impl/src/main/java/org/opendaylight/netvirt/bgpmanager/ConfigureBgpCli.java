@@ -339,8 +339,30 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
             }
         }
         if (addressFamily != null) {
+            if (!addressFamily.equals("lu") && !addressFamily.equals("vpnv4")
+                    && !addressFamily.equals("vpnv6")
+                    && !addressFamily.equals("evpn")) {
+                session.getConsole().println("error: Address family must be lu/evpn/vpnv4/vpnv6 ");
+                return;
+            }
             try {
                 af_safi.valueOf(addressFamily);
+                af_afi afi;
+                af_safi safi;
+                if (addressFamily.equals("vpnv6")) {
+                    afi = af_afi.findByValue(2);
+                    safi = af_safi.findByValue(5);
+                } else if (addressFamily.equals("evpn")) {
+                    afi = af_afi.findByValue(3);
+                    safi = af_safi.findByValue(6);
+                } else if (addressFamily.equals("lu")) {
+                    afi = af_afi.findByValue(1);
+                    safi = af_safi.findByValue(4);
+                } else { // vpnv4
+                    afi = af_afi.findByValue(1);
+                    safi = af_safi.findByValue(5);
+                }
+                bgpManager.addAddressFamily(ip, afi, safi);
             } catch (IllegalArgumentException e) {
                 session.getConsole().println(
                         "invalid addressFamily valid values SAFI_IPV4_LABELED_UNICAST | SAFI_MPLS_VPN");
