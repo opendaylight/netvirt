@@ -52,6 +52,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <module>artifacts</module>
         <module>bgpmanager</module>
         <module>cache</module>
+        <module>checkstyle</module>
         <module>cloud-servicechain</module>
         <module>coe</module>
         <module>commons</module>
