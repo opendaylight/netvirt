@@ -117,6 +117,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.ext
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.RemoveTerminatingServiceActionsInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.RemoveTerminatingServiceActionsInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.GroupKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -1664,6 +1667,25 @@ public class ElanUtils {
         LOG.info("Removing the ARP responder flow on DPN {} of Interface {} with IP {}", dpnId, ingressInterfaceName,
                 ipAddress);
         ArpResponderUtil.removeFlow(mdsalManager, dpnId, ArpResponderUtil.getFlowId(lportTag, ipAddress));
+    }
+
+    public void syncUpdateGroup(BigInteger dpnId, Group group) {
+        Node nodeDpn = buildDpnNode(dpnId);
+        long groupIdInfo = group.getGroupId().getValue();
+        GroupKey groupKey = new GroupKey(new GroupId(groupIdInfo));
+        InstanceIdentifier<Group> groupInstanceId = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                .child(Group.class, groupKey).build();
+        LOG.trace("Performing merge operation for remote BC group for node {} with group {}", nodeDpn, group);
+        MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, groupInstanceId, group);
+    }
+
+    protected  Node buildDpnNode(BigInteger dpnId) {
+        org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId nodeId =
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819
+                        .NodeId("openflow:" + dpnId);
+        Node nodeDpn = new NodeBuilder().setId(nodeId).setKey(new NodeKey(nodeId)).build();
+        return nodeDpn;
     }
 }
 

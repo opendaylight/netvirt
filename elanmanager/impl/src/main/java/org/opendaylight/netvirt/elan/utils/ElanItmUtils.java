@@ -170,7 +170,7 @@ public class ElanItmUtils {
         if (tunnelIfaceName != null && !tunnelIfaceName.isEmpty()) {
             return buildItmEgressActions(tunnelIfaceName, tunnelKey);
         }
-
+        LOG.debug("Returning empty response for tunnelIfName {} , tunnelKey {}", tunnelIfaceName, tunnelIfaceName);
         return Collections.emptyList();
     }
 
