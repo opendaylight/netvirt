@@ -81,6 +81,15 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         neutronvpnUtils.addToRouterCache(input);
         // Create internal VPN
         nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, input.getUuid(), null);
+        if (input.getRoutes() != null && !input.getRoutes().isEmpty()) {
+            Uuid routerId = input.getUuid();
+            Uuid vpnId = neutronvpnUtils.getVpnForRouter(routerId, true);
+            // internal vpn always present in case external vpn not found
+            if (vpnId == null) {
+                vpnId = routerId;
+            }
+            handleChangedRoutes(vpnId, input.getRoutes(), NwConstants.ADD_FLOW);
+        }
         jobCoordinator.enqueueJob(input.getUuid().toString(), () -> {
             nvpnNatManager.handleExternalNetworkForRouter(null, input);
             return Collections.emptyList();
@@ -107,7 +116,6 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         //will be removed from VPN by invocations from NeutronPortChangeListener
         List<Uuid> routerSubnetIds = new ArrayList<>();
         nvpnManager.handleNeutronRouterDeleted(routerId, routerSubnetIds);
-
         neutronvpnUtils.removeFromRouterCache(input);
     }
 
