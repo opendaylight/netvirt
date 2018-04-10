@@ -16,6 +16,29 @@
       "revId": "e872ba91eb4af59af3a524ab06b52a9e3ceb6b61",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb6b0451_f474ffd0",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1516,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-10T08:54:32Z",
+      "side": 1,
+      "message": "Lets not add another check for ipv6-address-mode, I feel the current one (i.e., getIPv6RaMode \u003d\u003d null) is fine because we need RA even for dhcpv6-stateless/stateful subnets.\n\nRef: https://docs.openstack.org/newton/networking-guide/config-ipv6.html",
+      "range": {
+        "startLine": 1516,
+        "startChar": 27,
+        "endLine": 1516,
+        "endChar": 61
+      },
+      "revId": "e872ba91eb4af59af3a524ab06b52a9e3ceb6b61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
