@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright © 2018 Red Hat, Inc. and others.
+
+This program and the accompanying materials are made available under the
+terms of the Eclipse Public License v1.0 which accompanies this distribution,
+and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.opendaylight.netvirt</groupId>
+        <artifactId>binding-parent</artifactId>
+        <version>0.7.0-SNAPSHOT</version>
+        <relativePath>../binding-parent</relativePath>
+    </parent>
+
+    <!-- This is a temporary parent, enforcing checks against the use of unmanaged transactions.
+         Once all of NetVirt can enforce this, the configuration will be merged into binding-parent. -->
+    <groupId>org.opendaylight.netvirt</groupId>
+    <artifactId>managed-tx-parent</artifactId>
+    <version>0.7.0-SNAPSHOT</version>
+    <name>ODL :: netvirt :: ${project.artifactId}</name>
+    <packaging>pom</packaging>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.opendaylight.netvirt</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <version>0.7.0-SNAPSHOT</version>
+                        </dependency>
+                    </dependencies>
+                    <executions>
+                        <execution>
+                            <id>check-databroker</id>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <phase>process-sources</phase>
+                            <configuration>
+                                <configLocation>databroker-checks.xml</configLocation>
+                                <includeResources>false</includeResources>
+                                <includeTestSourceDirectory>false</includeTestSourceDirectory>
+                                <includeTestResources>false</includeTestResources>
+                                <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+                                <failsOnError>true</failsOnError>
+                                <consoleOutput>true</consoleOutput>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>
