@@ -74,7 +74,7 @@ public class Router extends OsgiCommandSupport {
                     session.getConsole().println("error: " + AS + " is needed");
                     return null;
                 }
-                if (!Commands.isValid(session.getConsole(), asNum, Commands.Validators.INT, AS)) {
+                if (!Commands.isValid(session.getConsole(), asNum, Commands.Validators.ASNUM, AS)) {
                     return null;
                 }
                 asn = Long.parseLong(asNum);
