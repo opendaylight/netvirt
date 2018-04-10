@@ -773,6 +773,7 @@ public class NeutronvpnUtils {
 
         if (sn.isPresent()) {
             subnet = sn.get();
+            addToSubnetCache(subnet);
         }
         return subnet;
     }
@@ -1783,5 +1784,25 @@ public class NeutronvpnUtils {
         InstanceIdentifier<Router> routerInstanceIdentifier = InstanceIdentifier.create(Neutron.class)
              .child(Routers.class).child(Router.class, new RouterKey(routerUuid));
         return routerInstanceIdentifier;
+    }
+
+    List<Subnetmap> getSubnetmapListFromNetworkId(Uuid networkId) {
+        List<Uuid> subnetIdList = getSubnetIdsFromNetworkId(networkId);
+        if (subnetIdList != null) {
+            List<Subnetmap> subnetmapList = new ArrayList<>();
+            for (Uuid subnetId : subnetIdList) {
+                Subnetmap subnetmap = getSubnetmap(subnetId);
+                if (subnetmap != null) {
+                    subnetmapList.add(subnetmap);
+                } else {
+                    LOG.error("getSubnetmapListFromNetworkId: subnetmap is null for subnet {} belonging to network {}",
+                            subnetId.getValue(), networkId.getValue());
+                }
+            }
+            return subnetmapList;
+        }
+        LOG.error("getSubnetmapListFromNetworkId: Failed as subnetIdList is null for network {}",
+                networkId.getValue());
+        return null;
     }
 }
