@@ -327,8 +327,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     protected void addTunnelInterfaceActions(AdjacencyResult adjacencyResult, long vpnId, VrfEntry vrfEntry,
                                            List<ActionInfo> actionInfos, String rd) {
         Class<? extends TunnelTypeBase> tunnelType =
-                VpnExtraRouteHelper.getTunnelType(nextHopManager.getInterfaceManager(),
-                        adjacencyResult.getInterfaceName());
+                VpnExtraRouteHelper.getTunnelType(nextHopManager.getItmManager(), adjacencyResult.getInterfaceName());
         if (tunnelType == null) {
             LOG.debug("Tunnel type not found for vrfEntry {}", vrfEntry);
             return;
@@ -400,7 +399,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                 addRewriteDstMacAction(vpnId, vrfEntry, null, actionInfos);
             }
             List<ActionInfo> egressActions = nextHopManager.getEgressActionsForInterface(egressInterface,
-                    actionInfos.size());
+                    actionInfos.size(), true);
             if (egressActions.isEmpty()) {
                 LOG.error(
                         "Failed to retrieve egress action for prefix {} route-paths {} interface {}. "
