@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3b60fd93_8a095b0f",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 62
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-10T16:51:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7429bbca_3cc9ef8a",
+      "range": {
+        "startLine": 221,
+        "startChar": 24,
+        "endLine": 221,
+        "endChar": 81
+      },
+      "revId": "4899f73aef0f643268588c71694d7495538a1294",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "91445eaf_0289b496",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 62
@@ -36,6 +60,30 @@
       "writtenOn": "2018-04-03T12:03:54Z",
       "side": 1,
       "message": "One log is enough",
+      "range": {
+        "startLine": 332,
+        "startChar": 15,
+        "endLine": 335,
+        "endChar": 89
+      },
+      "revId": "4899f73aef0f643268588c71694d7495538a1294",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67c62944_23278284",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 62
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-10T16:51:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "91445eaf_0289b496",
       "range": {
         "startLine": 332,
         "startChar": 15,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "336fe281_90773e59",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 62
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-10T16:51:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7281a2ab_12978b38",
+      "range": {
+        "startLine": 342,
+        "startChar": 14,
+        "endLine": 343,
+        "endChar": 68
+      },
+      "revId": "4899f73aef0f643268588c71694d7495538a1294",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33214078_5e81274a",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 62
@@ -82,6 +154,30 @@
       "writtenOn": "2018-04-03T12:03:54Z",
       "side": 1,
       "message": "This will lead to binding services twice on a Vpn Interface. Once in here, and the other in addVpnInterface()",
+      "range": {
+        "startLine": 568,
+        "startChar": 20,
+        "endLine": 568,
+        "endChar": 77
+      },
+      "revId": "4899f73aef0f643268588c71694d7495538a1294",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81db3501_3c2f8c98",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 62
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-10T16:51:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33214078_5e81274a",
       "range": {
         "startLine": 568,
         "startChar": 20,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "4d3d9156_446da373",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 62
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-10T16:51:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d05a0638_38a2e9db",
+      "range": {
+        "startLine": 617,
+        "startChar": 19,
+        "endLine": 617,
+        "endChar": 66
+      },
+      "revId": "4899f73aef0f643268588c71694d7495538a1294",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0df2d247_bdd07aa6",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 62
@@ -128,6 +248,30 @@
       "writtenOn": "2018-04-03T12:03:54Z",
       "side": 1,
       "message": "Please use a similar logic as in addBindServices() to remove bind services, i.,e first unbind v4 and/or v6 services from interface in a loop, and the ncall the removeVpnInterfaceCall() in a new loop",
+      "range": {
+        "startLine": 1328,
+        "startChar": 16,
+        "endLine": 1328,
+        "endChar": 25
+      },
+      "revId": "4899f73aef0f643268588c71694d7495538a1294",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc15d49f_30582427",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 62
+      },
+      "lineNbr": 1328,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-10T16:51:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0df2d247_bdd07aa6",
       "range": {
         "startLine": 1328,
         "startChar": 16,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "98369aac_c413b15b",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 62
+      },
+      "lineNbr": 1464,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-10T16:51:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b50a2fbc_8dd60704",
+      "range": {
+        "startLine": 1464,
+        "startChar": 12,
+        "endLine": 1464,
+        "endChar": 57
+      },
+      "revId": "4899f73aef0f643268588c71694d7495538a1294",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dc062e0c_25868cf1",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 62
@@ -174,6 +342,30 @@
       "writtenOn": "2018-04-03T12:03:54Z",
       "side": 1,
       "message": "Not required, since unbind is already donw in remove()",
+      "range": {
+        "startLine": 1481,
+        "startChar": 11,
+        "endLine": 1484,
+        "endChar": 13
+      },
+      "revId": "4899f73aef0f643268588c71694d7495538a1294",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f4c7e6f9_3d37bef7",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 62
+      },
+      "lineNbr": 1484,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-10T16:51:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc062e0c_25868cf1",
       "range": {
         "startLine": 1481,
         "startChar": 11,
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "2e652c43_af2f0528",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 62
+      },
+      "lineNbr": 1758,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-10T16:51:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d4f21ba8_02888c2f",
+      "range": {
+        "startLine": 1758,
+        "startChar": 23,
+        "endLine": 1758,
+        "endChar": 33
+      },
+      "revId": "4899f73aef0f643268588c71694d7495538a1294",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "23586520_38bbc3a2",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 62
@@ -220,6 +436,30 @@
       "writtenOn": "2018-04-03T12:03:54Z",
       "side": 1,
       "message": "I think there is already a utility to fetch vpnInstanceOpDataEntry.",
+      "range": {
+        "startLine": 1904,
+        "startChar": 8,
+        "endLine": 1908,
+        "endChar": 67
+      },
+      "revId": "4899f73aef0f643268588c71694d7495538a1294",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "adde3aff_d4558243",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 62
+      },
+      "lineNbr": 1908,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-04-10T16:51:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23586520_38bbc3a2",
       "range": {
         "startLine": 1904,
         "startChar": 8,
