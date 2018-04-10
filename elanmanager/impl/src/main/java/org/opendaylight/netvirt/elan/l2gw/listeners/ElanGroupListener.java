@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
@@ -134,7 +136,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         }
         if (updateGroup) {
             List<Bucket> bucketList = elanL2GatewayMulticastUtils.getRemoteBCGroupBuckets(elanInstance, null, dpnId, 0,
-                    elanInstance.getElanTag());
+                    elanInstance.getElanTag(), new MutableInt());
             expectedElanFootprint--;//remove local bcgroup bucket
             if (bucketList.size() != expectedElanFootprint) {
                 //no point in retrying if not able to meet expected foot print

@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -227,12 +228,14 @@ public class ElanL2GatewayMulticastUtils {
 
     public void updateRemoteBroadcastGroupForAllElanDpns(ElanInstance elanInfo) {
         List<DpnInterfaces> dpns = elanUtils.getInvolvedDpnsInElan(elanInfo.getElanInstanceName());
+        LOG.debug("Invoking method ELAN Broadcast Groups for ELAN {}", elanInfo);
         for (DpnInterfaces dpn : dpns) {
             setupElanBroadcastGroups(elanInfo, dpn.getDpId());
         }
     }
 
     public void setupElanBroadcastGroups(ElanInstance elanInfo, BigInteger dpnId) {
+        LOG.debug("Setting up ELAN Broadcast Group for ELAN Instance {} for DPN {} ", elanInfo, dpnId);
         setupElanBroadcastGroups(elanInfo, null, dpnId);
     }
 
@@ -243,6 +246,7 @@ public class ElanL2GatewayMulticastUtils {
 
     public void setupStandardElanBroadcastGroups(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId) {
         List<Bucket> listBucket = new ArrayList<>();
+        final MutableInt remoteBCGrpTunnelBucketSize = new MutableInt();
         int bucketId = 0;
         int actionKey = 0;
         Long elanTag = elanInfo.getElanTag();
@@ -250,14 +254,32 @@ public class ElanL2GatewayMulticastUtils {
         listAction.add(new ActionGroup(ElanUtils.getElanLocalBCGId(elanTag)).buildAction(++actionKey));
         listBucket.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                 MDSALUtil.WATCH_GROUP));
+        LOG.debug("Configured ELAN Broadcast Group with Action {} ", listAction);
         bucketId++;
-        List<Bucket> listBucketInfoRemote = getRemoteBCGroupBuckets(elanInfo, dpnInterfaces, dpnId, bucketId, elanTag);
+        List<Bucket> listBucketInfoRemote = getRemoteBCGroupBuckets(elanInfo, dpnInterfaces, dpnId, bucketId, elanTag,
+                remoteBCGrpTunnelBucketSize);
         listBucket.addAll(listBucketInfoRemote);
         long groupId = ElanUtils.getElanRemoteBCGId(elanTag);
         Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                 MDSALUtil.buildBucketLists(listBucket));
         LOG.trace("Installing the remote BroadCast Group:{}", group);
+        if (isRemoteBCGrpTunnelBucketSizeEqualToTotalDpnInterfaces(remoteBCGrpTunnelBucketSize, elanInfo)) {
+            LOG.trace("Performing write operation for remote BC group for dpn {} with group {}", dpnId, group);
+            mdsalManager.syncInstallGroup(dpnId, group);
+        } else {
+            elanUtils.syncUpdateGroup(dpnId, group);
+        }
         mdsalManager.syncInstallGroup(dpnId, group);
+    }
+
+    //This method ensures group buckets are not removed during cluster reboot
+    private boolean isRemoteBCGrpTunnelBucketSizeEqualToTotalDpnInterfaces(MutableInt bucketSize,
+                                                                           ElanInstance elanInfo) {
+        List<DpnInterfaces> dpnInterfaces = elanUtils.getInvolvedDpnsInElan(elanInfo.getElanInstanceName());
+        if (bucketSize != null && !dpnInterfaces.isEmpty()) {
+            return (bucketSize.getValue().intValue() == dpnInterfaces.size());
+        }
+        return false;
     }
 
     public void setupLeavesEtreeBroadcastGroups(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId) {
@@ -273,7 +295,7 @@ public class ElanL2GatewayMulticastUtils {
                     MDSALUtil.WATCH_GROUP));
             bucketId++;
             List<Bucket> listBucketInfoRemote = getRemoteBCGroupBuckets(elanInfo, dpnInterfaces, dpnId, bucketId,
-                    etreeLeafTag);
+                    etreeLeafTag, new MutableInt());
             listBucket.addAll(listBucketInfoRemote);
             long groupId = ElanUtils.getEtreeLeafRemoteBCGId(etreeLeafTag);
             Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
@@ -291,6 +313,7 @@ public class ElanL2GatewayMulticastUtils {
                 }
             }
         }
+        LOG.debug("DPN {} missing in DpnInterfaces list {}", dpnId, elanDpns);
         return null;
     }
 
@@ -299,6 +322,7 @@ public class ElanL2GatewayMulticastUtils {
         DpnInterfaces currDpnInterfaces = dpnInterfaces != null ? dpnInterfaces : getDpnInterfaces(elanDpns, dpnId);
         if (currDpnInterfaces == null || !elanUtils.isDpnPresent(currDpnInterfaces.getDpId())
                 || currDpnInterfaces.getInterfaces() == null || currDpnInterfaces.getInterfaces().isEmpty()) {
+            LOG.debug("Returning empty Bucket list for DPN {}", dpnId);
             return emptyList();
         }
         List<Bucket> listBucketInfo = new ArrayList<>();
@@ -312,19 +336,20 @@ public class ElanL2GatewayMulticastUtils {
                 }
             }
         }
+        LOG.debug("Configured RemoteBCGroupExternalPortBuckets {} for DPN {}", listBucketInfo, dpnId);
         return listBucketInfo;
     }
 
     @Nonnull
     public List<Bucket> getRemoteBCGroupBuckets(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId,
-                                                int bucketId, long elanTag) {
+                                                int bucketId, long elanTag, MutableInt remoteBCGrpTunnelBucketSize) {
         List<Bucket> listBucketInfo = new ArrayList<>();
         ElanDpnInterfacesList elanDpns = elanUtils.getElanDpnInterfacesList(elanInfo.getElanInstanceName());
 
         if (isVxlanNetworkOrVxlanSegment(elanInfo)) {
             listBucketInfo.addAll(getRemoteBCGroupTunnelBuckets(elanDpns, dpnId, bucketId,
                     elanUtils.isOpenstackVniSemanticsEnforced()
-                            ? elanUtils.getVxlanSegmentationId(elanInfo) : elanTag));
+                            ? elanUtils.getVxlanSegmentationId(elanInfo) : elanTag, remoteBCGrpTunnelBucketSize));
         }
         listBucketInfo.addAll(getRemoteBCGroupExternalPortBuckets(elanDpns, dpnInterfaces, dpnId,
                 getNextAvailableBucketId(listBucketInfo.size())));
@@ -342,6 +367,8 @@ public class ElanL2GatewayMulticastUtils {
             String interfaceName = elanItmUtils.getExternalTunnelInterfaceName(String.valueOf(dpnId),
                     device.getHwvtepNodeId());
             if (interfaceName == null) {
+                LOG.debug("RPC returned with empty response for getExternalTunnelInterfaceName {}"
+                        + " for DPN {}, bucketID {} ",elanInfo.getElanInstanceName() ,dpnId, bucketId);
                 continue;
             }
             List<Action> listActionInfo = elanItmUtils.buildTunnelItmEgressActions(interfaceName,
@@ -350,6 +377,8 @@ public class ElanL2GatewayMulticastUtils {
                     MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
             bucketId++;
         }
+        LOG.debug("Configured RemoteBCGroupBucketsOfElanL2GwDevices {} for DPN {} of ELAN {}",
+                listBucketInfo, dpnId, bucketId);
         return listBucketInfo;
     }
 
@@ -396,7 +425,7 @@ public class ElanL2GatewayMulticastUtils {
 
     @SuppressWarnings("checkstyle:IllegalCatch")
     private List<Bucket> getRemoteBCGroupTunnelBuckets(ElanDpnInterfacesList elanDpns, BigInteger dpnId, int bucketId,
-            long elanTagOrVni) {
+            long elanTagOrVni, MutableInt bucketListSize) {
         List<Bucket> listBucketInfo = new ArrayList<>();
         if (elanDpns != null) {
             for (DpnInterfaces dpnInterface : elanDpns.getDpnInterfaces()) {
@@ -406,18 +435,24 @@ public class ElanL2GatewayMulticastUtils {
                         List<Action> listActionInfo = elanItmUtils.getInternalTunnelItmEgressAction(dpnId,
                                 dpnInterface.getDpId(), elanTagOrVni);
                         if (listActionInfo.isEmpty()) {
+                            LOG.debug("getInternalTunnelItmEgressAction for src DPN {} "
+                                            + "and dest DPN {} for ELAN Tag or VNI {} returned empty",
+                                    dpnId, dpnInterface.getDpId(), elanTagOrVni);
                             continue;
                         }
                         listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
                                 MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
                         bucketId++;
                     } catch (Exception ex) {
-                        LOG.error("Logical Group Interface not found between source Dpn - {}, destination Dpn - {} ",
-                                dpnId, dpnInterface.getDpId(), ex);
+                        LOG.error("Logical Group Interface not found between source Dpn - "
+                                + "{}, destination Dpn - {} with exception {} ", dpnId, dpnInterface.getDpId(), ex);
                     }
                 }
             }
         }
+        LOG.debug("Configured RemoteBCGroupTunnelBuckets Info {} for DPN {} for ELAN Tag or VNI{}",
+                listBucketInfo, dpnId, elanTagOrVni);
+        bucketListSize.setValue(listBucketInfo.size());
         return listBucketInfo;
     }
 
