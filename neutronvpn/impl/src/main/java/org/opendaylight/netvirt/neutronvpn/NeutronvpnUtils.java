@@ -32,6 +32,8 @@ import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import com.google.common.net.InetAddresses;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -44,6 +46,8 @@ import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
@@ -100,6 +104,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetsAssociatedToRouteTargets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
@@ -108,6 +113,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnets.associated.to.route.targets.RouteTarget;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnets.associated.to.route.targets.RouteTargetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnets.associated.to.route.targets.route.target.AssociatedSubnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnets.associated.to.route.targets.route.target.AssociatedSubnetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnets.associated.to.route.targets.route.target.associated.subnet.AssociatedVpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnets.associated.to.route.targets.route.target.associated.subnet.AssociatedVpnBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnets.associated.to.route.targets.route.target.associated.subnet.AssociatedVpnKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
@@ -732,6 +744,7 @@ public class NeutronvpnUtils {
 
         if (sn.isPresent()) {
             subnet = sn.get();
+            addToSubnetCache(subnet);
         }
         return subnet;
     }
@@ -1682,5 +1695,351 @@ public class NeutronvpnUtils {
         InstanceIdentifier<Router> routerInstanceIdentifier = InstanceIdentifier.create(Neutron.class)
              .child(Routers.class).child(Router.class, new RouterKey(routerUuid));
         return routerInstanceIdentifier;
+    }
+
+    Set<VpnTarget> getRtListForVpn(String vpnName) {
+        Set<VpnTarget> rtList = new HashSet<>();
+        InstanceIdentifier<VpnInstance> vpnInstanceId = InstanceIdentifier.builder(VpnInstances.class)
+                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+        Optional<VpnInstance> vpnInstanceOptional = read(LogicalDatastoreType.CONFIGURATION, vpnInstanceId);
+        if (vpnInstanceOptional.isPresent()) {
+            VpnTargets vpnTargets = vpnInstanceOptional.get().getIpv4Family().getVpnTargets();
+            if (vpnTargets != null & vpnTargets.getVpnTarget() != null) {
+                rtList.addAll(vpnTargets.getVpnTarget());
+            }
+        }
+        else {
+            LOG.error("getRtListForVpn: Vpn Instance {} not present in config DS", vpnName);
+        }
+        return rtList;
+    }
+
+    InstanceIdentifier<AssociatedVpn> getAssociatedSubnetAndVpnIdentifier(String rt, RouteTarget.RtType rtType,
+                                                                          String cidr, String vpnName) {
+        return InstanceIdentifier.builder(SubnetsAssociatedToRouteTargets.class).child(RouteTarget.class,
+                new RouteTargetKey(rt, rtType)).child(AssociatedSubnet.class, new AssociatedSubnetKey(cidr))
+                .child(AssociatedVpn.class, new AssociatedVpnKey(vpnName)).build();
+    }
+
+    InstanceIdentifier<AssociatedSubnet> getAssociatedSubnetIdentifier(String rt, RouteTarget.RtType rtType,
+                                                                              String cidr) {
+        return InstanceIdentifier.builder(SubnetsAssociatedToRouteTargets.class).child(RouteTarget.class,
+                new RouteTargetKey(rt, rtType)).child(AssociatedSubnet.class, new AssociatedSubnetKey(cidr)).build();
+    }
+
+    AssociatedVpn buildAssociatedSubnetAndVpn(String vpnName) {
+        return new AssociatedVpnBuilder().setName(vpnName).build();
+    }
+
+    InstanceIdentifier<RouteTarget> getRouteTargetsIdentifier(String rt, RouteTarget.RtType rtType) {
+        return InstanceIdentifier.builder(SubnetsAssociatedToRouteTargets.class)
+                .child(RouteTarget.class, new RouteTargetKey(rt, rtType)).build();
+    }
+
+    boolean doesExistingVpnsHaveConflictingSubnet(Set<VpnTarget> routeTargets, String subnetCidr) {
+        Set<RouteTarget> routeTargetSet = getRouteTargetSet(routeTargets);
+        for (RouteTarget routerTarget : routeTargetSet) {
+            if (routerTarget.getAssociatedSubnet() != null) {
+                for (int i=0; i<routerTarget.getAssociatedSubnet().size(); i++) {
+                    AssociatedSubnet associatedSubnet = routerTarget.getAssociatedSubnet().get(i);
+                    if (areSubnetsOverlapping(associatedSubnet.getCidr(), subnetCidr)) {
+                        return true;
+                    }
+                    if (routerTarget.getRtType() == RouteTarget.RtType.ERT) {
+                        /* Check if there are multiple exports for the input iRT value (iRT in routeTargets)
+                         *  Example : (1) iRT=A eRT=B subnet-range=S1; OK
+                         *            (2) iRT=A eRT=B subnet-range=S1; OK
+                         *            (3) iRT=B eRT=A subnet-range=S2; NOK
+                         * Check if (1) and (2) are importing the same subnet-range routes to (3) */
+                        List<AssociatedVpn> multipleAssociatedVpn = associatedSubnet.getAssociatedVpn();
+                        if (multipleAssociatedVpn != null && multipleAssociatedVpn.size() > 1) {
+                            LOG.error("doesExistingVpnsHaveConflictingSubnet: There is an indirect complete  overlap"
+                                    + " for subnet CIDR {} for rt {} rtType {}", subnetCidr, routerTarget.getRt(),
+                                    routerTarget.getRtType());
+                            return true;
+                        }
+                        for (int j=i+1; j<routerTarget.getAssociatedSubnet().size(); j++) {
+                            if (areSubnetsOverlapping(associatedSubnet.getCidr(),
+                                    routerTarget.getAssociatedSubnet().get(j).getCidr())) {
+                                LOG.error("doesExistingVpnsHaveConflictingSubnet: There is an indirect paartial"
+                                        + " overlap for subnet CIDR {} for rt {} rtType {}", subnetCidr,
+                                        routerTarget.getRt(), routerTarget.getRtType());
+                                return true;
+                            }
+                        }
+                    }
+                }
+                /* Check if there are indirect EXPORTS for the eRT value (eRT in routeTargets)
+                 *  Example : (1) iRT=A eRT=B subnet-range=S1; OK
+                 *            (2) iRT=B eRT=A subnet-range=S2; OK
+                 *            (3) iRT=A eRT=B subnet-range=S1; NOK
+                 * If associatedSubnet is non-null for a routeTarget in (2), it may have already imported routes from (1) */
+                if (routerTarget.getRtType() == RouteTarget.RtType.IRT) {
+                    Optional<RouteTarget> indirectRts = read(LogicalDatastoreType.OPERATIONAL,
+                            getRouteTargetsIdentifier(routerTarget.getRt(), RouteTarget.RtType.ERT));
+                    if (indirectRts.isPresent() && routerTarget.getAssociatedSubnet() != null) {
+                        for (AssociatedSubnet associatedSubnet : indirectRts.get().getAssociatedSubnet()) {
+                            if (areSubnetsOverlapping(associatedSubnet.getCidr(), subnetCidr)) {
+                                LOG.error("doesExistingVpnsHaveConflictingSubnet: There is an indirect overlap for"
+                                        + " subnet CIDR {} for rt {} rtType {}", subnetCidr, routerTarget.getRt(),
+                                        routerTarget.getRtType());
+                                return true;
+                            }
+                        }
+                    }
+                }
+            } else {
+                LOG.info("doesExistingVpnsHaveConflictingSubnet: No prior associated subnets for rtVal {} rtType {}",
+                        routerTarget.getRt(), routerTarget.getRtType());
+            }
+        }
+        return false;
+    }
+
+    Set<RouteTarget> getRouteTargetSet(Set<VpnTarget> vpnTargets) {
+        Set<RouteTarget> routeTargetSet = new HashSet<>();
+        for (VpnTarget rt : vpnTargets) {
+            String rtValue = rt.getVrfRTValue();
+            switch (rt.getVrfRTType()) {
+                case ImportExtcommunity: {
+                    Optional<RouteTarget> exportRouteTargetOptional = read(LogicalDatastoreType.OPERATIONAL,
+                            getRouteTargetsIdentifier(rtValue, RouteTarget.RtType.ERT));
+                    if (exportRouteTargetOptional.isPresent()) {
+                        routeTargetSet.add(exportRouteTargetOptional.get());
+                    }
+                    break;
+                }
+                case ExportExtcommunity: {
+                    Optional<RouteTarget> importRouteTargetOptional = read(LogicalDatastoreType.OPERATIONAL,
+                            getRouteTargetsIdentifier(rtValue, RouteTarget.RtType.IRT));
+                    if (importRouteTargetOptional.isPresent()) {
+                        routeTargetSet.add(importRouteTargetOptional.get());
+                    }
+                    break;
+                }
+                case Both: {
+                    Optional<RouteTarget> exportRouteTargetOptional = read(LogicalDatastoreType.OPERATIONAL,
+                            getRouteTargetsIdentifier(rtValue, RouteTarget.RtType.ERT));
+                    if (exportRouteTargetOptional.isPresent()) {
+                        routeTargetSet.add(exportRouteTargetOptional.get());
+                    }
+                    Optional<RouteTarget> importRouteTargetOptional = read(LogicalDatastoreType.OPERATIONAL,
+                            getRouteTargetsIdentifier(rtValue, RouteTarget.RtType.IRT));
+                    if (importRouteTargetOptional.isPresent()) {
+                        routeTargetSet.add(importRouteTargetOptional.get());
+                    }
+                    break;
+                }
+            }
+        }
+        return routeTargetSet;
+    }
+
+    void updateRouteTargetsToSubnetAssociation(DataBroker dataBroker, Set<VpnTarget> routeTargets, String cidr,
+                                               String vpnName) {
+        WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
+        for (VpnTarget rt : routeTargets) {
+            String rtValue = rt.getVrfRTValue();
+            switch (rt.getVrfRTType()) {
+                case ImportExtcommunity:
+                    addSubnetAssociationOperationToTx(rtValue, RouteTarget.RtType.IRT, cidr,  vpnName,
+                            writeTransaction, false/*isAssociationRemoved*/);
+                    break;
+                case ExportExtcommunity:
+                    addSubnetAssociationOperationToTx(rtValue, RouteTarget.RtType.ERT, cidr, vpnName,
+                            writeTransaction, false/*isAssociationRemoved*/);
+                    break;
+                case Both:
+                    addSubnetAssociationOperationToTx(rtValue, RouteTarget.RtType.IRT, cidr, vpnName,
+                            writeTransaction, false/*isAssociationRemoved*/);
+                    addSubnetAssociationOperationToTx(rtValue, RouteTarget.RtType.ERT, cidr, vpnName,
+                            writeTransaction, false/*isAssociationRemoved*/);
+                    break;
+            }
+        }
+        writeTransaction.submit();
+        LOG.info("updateRouteTargetsToSubnetAssociation: Updated RT to subnet association for vpn {} cidr {}",
+                vpnName, cidr);
+    }
+
+    void addSubnetAssociationOperationToTx(String rt, RouteTarget.RtType rtType, String cidr,
+                                            String vpnName, WriteTransaction writeOpTx, boolean isAssociationRemoved) {
+        if (isAssociationRemoved) {
+            //Remove RT-Subnet-Vpn Association
+            Optional<AssociatedSubnet> associatedSubnet = read(LogicalDatastoreType.OPERATIONAL,
+                    getAssociatedSubnetIdentifier(rt, rtType, cidr));
+            boolean deleteParent =false;
+            if (associatedSubnet.isPresent()) {
+                List<AssociatedVpn> associatedVpns = associatedSubnet.get().getAssociatedVpn();
+                if (associatedVpns == null || associatedVpns.isEmpty()) {
+                    deleteParent = true;
+                } else {
+                    for (Iterator<AssociatedVpn> iterator = associatedVpns.iterator(); iterator.hasNext();) {
+                        AssociatedVpn associatedVpn = (AssociatedVpn) iterator.next();
+                        if (associatedVpn.getName().equals(vpnName)) {
+                            iterator.remove();
+                            break;
+                        }
+                    }
+                    if (associatedVpns.isEmpty()) {
+                        deleteParent = true;
+                    }
+                }
+            }
+            if (deleteParent) {
+                deleteParentForSubnetToVpnAssocication(rt, rtType, cidr, writeOpTx);
+            } else {
+                //Some other VPNs are also part of this rtVal, rtType and subnetCidr combination.
+                //Delete only this AssociatedVpn Object
+                writeOpTx.delete(LogicalDatastoreType.OPERATIONAL,
+                        getAssociatedSubnetAndVpnIdentifier(rt, rtType, cidr, vpnName));
+                LOG.debug("addSubnetAssocOperationToTx: Removed vpn {} from association rt {} rtType {} cidr {}",
+                        vpnName, rt, rtType, cidr);
+            }
+        } else {
+            //Add RT-Subnet-Vpn Association
+            writeOpTx.put(LogicalDatastoreType.OPERATIONAL,
+                    getAssociatedSubnetAndVpnIdentifier(rt, rtType, cidr, vpnName),
+                    buildAssociatedSubnetAndVpn(vpnName), true);
+        }
+    }
+
+    void deleteParentForSubnetToVpnAssocication(String rt, RouteTarget.RtType rtType,
+                                                       String cidr, WriteTransaction writeOpTx) {
+        //Check if you need to delete rtVal+rtType or just the subnetCidr
+        InstanceIdentifier<RouteTarget> rtIdentifier = InstanceIdentifier
+                .builder(SubnetsAssociatedToRouteTargets.class).child(RouteTarget.class,
+                        new RouteTargetKey(rt, rtType)).build();
+        Optional<RouteTarget> rtToSubnetsAssociation = read(LogicalDatastoreType.OPERATIONAL,
+                rtIdentifier);
+        if (rtToSubnetsAssociation.isPresent()) {
+            List<AssociatedSubnet> associatedSubnets = rtToSubnetsAssociation.get().getAssociatedSubnet();
+            if (associatedSubnets != null && !associatedSubnets.isEmpty()) {
+                for (Iterator<AssociatedSubnet> iterator = associatedSubnets.iterator(); iterator.hasNext(); ) {
+                    if (iterator.next().getCidr().equals(cidr)) {
+                        iterator.remove();
+                        break;
+                    }
+                }
+                if (associatedSubnets.isEmpty()) {
+                    //The entire rt to subnet association is empty
+                    //Delete the RouteTarget object
+                    writeOpTx.delete(LogicalDatastoreType.OPERATIONAL, rtIdentifier);
+                    LOG.debug("deleteParentForSubnetToVpnAssocication: Removed rt {} rtType {} from association,",
+                            rt, rtType);
+                } else {
+                    //Some other VPNs are also part of this rtVal, rtType combination
+                    //Delete only this AssociatedSubnet
+                    writeOpTx.delete(LogicalDatastoreType.OPERATIONAL, getAssociatedSubnetIdentifier(rt,
+                            rtType, cidr));
+                    LOG.debug("deleteParentForSubnetToVpnAssocication: Removed cidr {} from association rt {}"
+                            + " rtType {}", cidr, rt, rtType);
+                }
+            }
+        }
+    }
+
+    void removeRouteTargetsToSubnetAssociation(DataBroker dataBroker, Set<VpnTarget> routeTargets, String cidr,
+                                                      String vpnName) {
+        WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
+        for (VpnTarget rt : routeTargets) {
+            String rtValue = rt.getVrfRTValue();
+            switch (rt.getVrfRTType()) {
+                case ImportExtcommunity:
+                    addSubnetAssociationOperationToTx(rtValue, RouteTarget.RtType.IRT, cidr, vpnName, writeTransaction,
+                            true/*isAssociationRemoved*/);
+                    break;
+                case ExportExtcommunity:
+                    addSubnetAssociationOperationToTx(rtValue, RouteTarget.RtType.ERT, cidr, vpnName, writeTransaction,
+                            true/*isAssociationRemoved*/);
+                    break;
+                case Both:
+                    addSubnetAssociationOperationToTx(rtValue, RouteTarget.RtType.IRT, cidr, vpnName, writeTransaction,
+                            true/*isAssociationRemoved*/);
+                    addSubnetAssociationOperationToTx(rtValue, RouteTarget.RtType.ERT, cidr, vpnName, writeTransaction,
+                            true/*isAssociationRemoved*/);
+                    break;
+            }
+        }
+        writeTransaction.submit();
+        LOG.info("removeRouteTargetsToSubnetAssociation: vpn {} cidr {}", vpnName, cidr);
+    }
+
+    /*
+    TODO: (vivek/kiran): Subnet overlap in a VPN detection logic should use subnet allocation pools if available
+           rather than only CIDR.
+           Also the Subnet overlap in a VPN detection logic to be addressed for router-based-l3vpns.
+    */
+    boolean areSubnetsOverlapping(String cidr1, String cidr2) {
+        String[] ipaddressValues1 = cidr1.split("/");
+        int address1 = InetAddresses.coerceToInteger(InetAddresses.forString(ipaddressValues1[0]));
+        int cidrPart1 = Integer.parseInt(ipaddressValues1[1]);
+        String[] ipaddressValues2 = cidr2.split("/");
+        int address2 = InetAddresses.coerceToInteger(InetAddresses.forString(ipaddressValues2[0]));
+        int cidrPart2 = Integer.parseInt(ipaddressValues2[1]);
+        int comparedValue = 0;
+        int netmask = 0;
+        if (cidrPart1 <= cidrPart2) {
+            for (int j = 0; j < cidrPart1; ++j) {
+                netmask |= (1 << 31 - j);
+            }
+            int prefix = address2 & netmask;
+            comparedValue = address1 ^ prefix;
+        } else {
+            for (int j = 0; j < cidrPart2; ++j) {
+                netmask |= (1 << 31 - j);
+            }
+            int prefix = address1 & netmask;
+            comparedValue = address2 ^ prefix;
+        }
+        if (comparedValue == 0) {
+            return  true;
+        } else {
+            return false;
+        }
+    }
+
+    boolean checkForOverlappingSubnets(DataBroker dataBroker, Uuid network, List<Subnetmap> subnetmapList, Uuid vpn,
+                                              Set<VpnTarget> routeTargets, List<String> failedNwList) {
+        for (int i = 0; i < subnetmapList.size(); i++) {
+            String cidrI = String.valueOf(subnetmapList.get(i).getSubnetIp());
+            //Check if any other subnet that is already part of a different vpn with same rt, has overlapping CIDR
+            if (checkExistingSubnetWithSameRoutTargets(routeTargets, vpn, subnetmapList.get(i), failedNwList)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boolean checkExistingSubnetWithSameRoutTargets(Set<VpnTarget> routeTargets, Uuid vpn, Subnetmap subnetmap,
+                                                   List<String> failedNwList) {
+        String cidr = String.valueOf(subnetmap.getSubnetIp());
+        boolean subnetExistsWithSameRt = doesExistingVpnsHaveConflictingSubnet(routeTargets, cidr);
+        if (subnetExistsWithSameRt) {
+            failedNwList.add(String.format("Another subnet with the same/overlapping cidr %s as subnet %s"
+                            + " is already associated to a vpn with routeTargets %s. Ignoring subnet addition to vpn"
+                    + " %s", cidr, subnetmap.getId().getValue(), routeTargets.toString(), vpn.getValue()));
+        }
+        return subnetExistsWithSameRt;
+    }
+
+    List<Subnetmap> getSubnetmapListFromNetworkId(Uuid networkId) {
+        List<Uuid> subnetIdList = getSubnetIdsFromNetworkId(networkId);
+        if (subnetIdList != null) {
+            List<Subnetmap> subnetmapList = new ArrayList<>();
+            for (Uuid subnetId : subnetIdList) {
+                Subnetmap subnetmap = getSubnetmap(subnetId);
+                if (subnetmap != null) {
+                    subnetmapList.add(subnetmap);
+                } else {
+                    LOG.error("getSubnetmapListFromNetworkId: subnetmap is null for subnet {} belonging to network {}",
+                            subnetId.getValue(), networkId.getValue());
+                }
+            }
+            return subnetmapList;
+        }
+        LOG.error("getSubnetmapListFromNetworkId: Failed as subnetIdList is null for network {}",
+                networkId.getValue());
+        return null;
     }
 }

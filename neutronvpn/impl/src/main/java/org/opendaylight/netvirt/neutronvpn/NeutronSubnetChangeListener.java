@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.neutronvpn;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -19,12 +20,14 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
@@ -98,7 +101,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                     subnetId.getValue(), network);
             return;
         }
-        handleNeutronSubnetDeleted(subnetId, networkId);
+        handleNeutronSubnetDeleted(subnetId, networkId, String.valueOf(input.getCidr().getValue()));
         externalSubnetHandler.handleExternalSubnetRemoved(network, subnetId);
         neutronvpnUtils.removeFromSubnetCache(input);
     }
@@ -121,10 +124,23 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         createSubnetToNetworkMapping(subnetId, networkId);
     }
 
-    private void handleNeutronSubnetDeleted(Uuid subnetId, Uuid networkId) {
+    private void handleNeutronSubnetDeleted(Uuid subnetId, Uuid networkId, String subnetCidr) {
         Uuid vpnId = neutronvpnUtils.getVpnForNetwork(networkId);
         if (vpnId != null) {
-            nvpnManager.removeSubnetFromVpn(vpnId, subnetId, null /* internet-vpn-id */);
+            LOG.warn("Subnet {} deleted without disassociating network {} from VPN {}. Ideally, please disassociate "
+                    + "network from VPN before deleting neutron subnet.", subnetId.getValue(), networkId.getValue(),
+                    vpnId.getValue());
+            Subnetmap subnetmap = neutronvpnUtils.getSubnetmap(subnetId);
+            if (subnetmap != null) {
+                nvpnManager.removeSubnetFromVpn(vpnId, subnetId, null /* internet-vpn-id */);
+            } else {
+                LOG.error("Subnetmap for subnet {} not found", subnetId.getValue());
+            }
+            Set<VpnTarget> routeTargets = neutronvpnUtils.getRtListForVpn(vpnId.getValue());
+            if (!routeTargets.isEmpty()) {
+                neutronvpnUtils.removeRouteTargetsToSubnetAssociation(dataBroker, routeTargets,
+                        subnetCidr, subnetId.getValue());
+            }
         }
         if (networkId != null) {
             deleteSubnetToNetworkMapping(subnetId, networkId);
