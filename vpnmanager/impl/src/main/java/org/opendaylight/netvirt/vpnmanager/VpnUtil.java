@@ -167,6 +167,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rou
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry.VpnInterfaceState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -252,12 +253,13 @@ public final class VpnUtil {
         return vpnInterface.isPresent() ? vpnInterface.get() : null;
     }
 
-    static VpnInterfaceOpDataEntry getVpnInterfaceOpDataEntry(String intfName, String vpnName,
-                                        AdjacenciesOp aug, BigInteger dpnId,
-                                        Boolean isSheduledForRemove, long lportTag, String gwMac) {
+    static VpnInterfaceOpDataEntry getVpnInterfaceOpDataEntry(String intfName, String vpnName, AdjacenciesOp aug,
+            BigInteger dpnId, Boolean isSheduledForRemove, long lportTag, String gwMac, VpnInterfaceState ifaceState) {
         return new VpnInterfaceOpDataEntryBuilder().setKey(new VpnInterfaceOpDataEntryKey(intfName, vpnName))
-            .setDpnId(dpnId).setScheduledForRemove(isSheduledForRemove).addAugmentation(AdjacenciesOp.class, aug)
-                .setLportTag(lportTag).setGatewayMacAddress(gwMac).build();
+            .setVpnInstanceName(vpnName).setDpnId(dpnId).setVpnInterfaceState(ifaceState)
+            .setScheduledForRemove(isSheduledForRemove).addAugmentation(AdjacenciesOp.class, aug).setLportTag(lportTag)
+            .setGatewayMacAddress(gwMac)
+            .build();
     }
 
     static Optional<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntry(DataBroker broker,
