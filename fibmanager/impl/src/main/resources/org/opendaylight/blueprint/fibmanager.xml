@@ -18,6 +18,8 @@
   <reference id="interVpnLinkCache"
              interface="org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache"
              availability="optional"/>
+  <reference id="iInterfaceManager"
+             interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService"/>
