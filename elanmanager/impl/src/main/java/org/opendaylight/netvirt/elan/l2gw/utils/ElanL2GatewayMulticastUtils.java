@@ -345,7 +345,7 @@ public class ElanL2GatewayMulticastUtils {
                 continue;
             }
             List<Action> listActionInfo = elanItmUtils.buildTunnelItmEgressActions(interfaceName,
-                    ElanUtils.getVxlanSegmentationId(elanInfo));
+                    ElanUtils.getVxlanSegmentationId(elanInfo), true);
             listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
                     MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
             bucketId++;
@@ -382,7 +382,7 @@ public class ElanL2GatewayMulticastUtils {
                 continue;
             }
             List<Action> listActionInfo = elanItmUtils.buildTunnelItmEgressActions(interfaceName,
-                    elanUtils.getVxlanSegmentationId(elanInfo));
+                    elanUtils.getVxlanSegmentationId(elanInfo), false);
             listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
                     MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
             bucketId++;

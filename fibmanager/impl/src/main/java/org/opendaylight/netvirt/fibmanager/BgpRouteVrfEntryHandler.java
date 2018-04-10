@@ -387,9 +387,8 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
     @Override
     protected void addTunnelInterfaceActions(NexthopManager.AdjacencyResult adjacencyResult, long vpnId,
             VrfEntry vrfEntry, List<ActionInfo> actionInfos, String rd) {
-        Class<? extends TunnelTypeBase> tunnelType =
-                VpnExtraRouteHelper.getTunnelType(getNextHopManager().getInterfaceManager(),
-                        adjacencyResult.getInterfaceName());
+        Class<? extends TunnelTypeBase> tunnelType = VpnExtraRouteHelper
+                .getTunnelType(getNextHopManager().getItmManager(), adjacencyResult.getInterfaceName());
         if (tunnelType == null) {
             LOG.debug("Tunnel type not found for vrfEntry {}", vrfEntry);
             return;

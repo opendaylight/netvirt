@@ -588,7 +588,7 @@ public class DhcpExternalTunnelManager {
         builder.setDpId(dpnId).setInterfaceName(interfaceName).setSpa(dhcpIpAddress).setSha(dhcpMacAddress)
                 .setLportTag(lportTag);
         builder.setInstructions(ArpResponderUtil.getInterfaceInstructions(interfaceManager, interfaceName,
-                dhcpIpAddress, dhcpMacAddress));
+                dhcpIpAddress, dhcpMacAddress, itmRpcService));
         elanService.addExternalTunnelArpResponderFlow(builder.buildForInstallFlow(), elanInstanceName);
     }
 

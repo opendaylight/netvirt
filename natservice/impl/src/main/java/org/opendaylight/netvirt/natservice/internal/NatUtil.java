@@ -32,6 +32,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
@@ -88,6 +89,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Dpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -1265,60 +1269,87 @@ public final class NatUtil {
     }
 
     @Nonnull
-    public static List<ActionInfo> getEgressActionsForInterface(OdlInterfaceRpcService interfaceManager, String ifName,
+    public static List<ActionInfo> getEgressActionsForInterface(OdlInterfaceRpcService odlInterfaceRpcService,
+                                                                ItmRpcService itmRpcService,
+                                                                IInterfaceManager interfaceManager, String ifName,
                                                                 Long tunnelKey) {
-        return getEgressActionsForInterface(interfaceManager, ifName, tunnelKey, 0);
+        return getEgressActionsForInterface(odlInterfaceRpcService, itmRpcService, interfaceManager,
+                ifName, tunnelKey, 0);
     }
 
     @Nonnull
-    public static List<ActionInfo> getEgressActionsForInterface(OdlInterfaceRpcService interfaceManager, String ifName,
-                                                                Long tunnelKey, int pos) {
+    public static List<ActionInfo> getEgressActionsForInterface(OdlInterfaceRpcService odlInterfaceRpcService,
+                                                                ItmRpcService itmRpcService,
+                                                                IInterfaceManager interfaceManager,
+                                                                String ifName, Long tunnelKey, int pos) {
         LOG.debug("getEgressActionsForInterface : called for interface {}", ifName);
-        GetEgressActionsForInterfaceInputBuilder egressActionsBuilder = new GetEgressActionsForInterfaceInputBuilder()
+        GetEgressActionsForInterfaceInputBuilder egressActionsIfmBuilder =
+                new GetEgressActionsForInterfaceInputBuilder().setIntfName(ifName);
+        GetEgressActionsForTunnelInputBuilder egressActionsItmBuilder = new GetEgressActionsForTunnelInputBuilder()
             .setIntfName(ifName);
         if (tunnelKey != null) {
-            egressActionsBuilder.setTunnelKey(tunnelKey);
+            egressActionsIfmBuilder.setTunnelKey(tunnelKey);
+            egressActionsItmBuilder.setTunnelKey(tunnelKey);
         }
 
-        List<ActionInfo> listActionInfo = new ArrayList<>();
         try {
-            Future<RpcResult<GetEgressActionsForInterfaceOutput>> result = interfaceManager
-                .getEgressActionsForInterface(egressActionsBuilder.build());
-            RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
-            if (!rpcResult.isSuccessful()) {
-                LOG.error("getEgressActionsForInterface : RPC Call to Get egress actions for interface {} "
-                        + "returned with Errors {}", ifName, rpcResult.getErrors());
+            RpcResult<GetEgressActionsForTunnelOutput> rpcResultItm = null;
+            RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = null;
+            List<Action> actions = Collections.emptyList();
+            if (interfaceManager.isItmDirectTunnelsEnabled()) {
+                rpcResultItm =
+                        itmRpcService.getEgressActionsForTunnel(egressActionsItmBuilder.build()).get();
             } else {
-                List<Action> actions = rpcResult.getResult().getAction();
-                for (Action action : actions) {
-                    org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action
-                        actionClass = action.getAction();
-                    if (actionClass instanceof OutputActionCase) {
-                        listActionInfo.add(new ActionOutput(pos++,
-                            ((OutputActionCase) actionClass).getOutputAction().getOutputNodeConnector()));
-                    } else if (actionClass instanceof PushVlanActionCase) {
-                        listActionInfo.add(new ActionPushVlan(pos++));
-                    } else if (actionClass instanceof SetFieldCase) {
-                        if (((SetFieldCase) actionClass).getSetField().getVlanMatch() != null) {
-                            int vlanVid = ((SetFieldCase) actionClass).getSetField().getVlanMatch().getVlanId()
-                                .getVlanId().getValue();
-                            listActionInfo.add(new ActionSetFieldVlanVid(pos++, vlanVid));
-                        }
-                    } else if (actionClass instanceof NxActionResubmitRpcAddGroupCase) {
-                        Short tableId = ((NxActionResubmitRpcAddGroupCase) actionClass).getNxResubmit().getTable();
-                        listActionInfo.add(new ActionNxResubmit(pos++, tableId));
-                    } else if (actionClass instanceof NxActionRegLoadNodesNodeTableFlowApplyActionsCase) {
-                        NxRegLoad nxRegLoad =
-                            ((NxActionRegLoadNodesNodeTableFlowApplyActionsCase) actionClass).getNxRegLoad();
-                        listActionInfo.add(new ActionRegLoad(pos++, NxmNxReg6.class, nxRegLoad.getDst().getStart(),
-                            nxRegLoad.getDst().getEnd(), nxRegLoad.getValue().longValue()));
-                    }
+                rpcResult =
+                        odlInterfaceRpcService.getEgressActionsForInterface(egressActionsIfmBuilder.build()).get();
+            }
+
+            if (!interfaceManager.isItmDirectTunnelsEnabled() && rpcResult != null) {
+                if (!rpcResult.isSuccessful()) {
+                    LOG.error("getEgressActionsForInterface : RPC Call to Get egress actions for interface {} "
+                            + "returned with Errors {}", ifName, rpcResult.getErrors());
+                } else {
+                    actions = rpcResult.getResult().getAction();
+                }
+            } else if (interfaceManager.isItmDirectTunnelsEnabled() && rpcResultItm != null) {
+                if (!rpcResultItm.isSuccessful()) {
+                    LOG.error("getEgressActionsForTunnels : RPC Call to Get egress actions for Tunnels {} "
+                            + "returned with Errors {}", ifName, rpcResultItm.getErrors());
+                } else {
+                    actions = rpcResultItm.getResult().getAction();
                 }
             }
+            List<ActionInfo> listActionInfo = new ArrayList<>();
+            for (Action action : actions) {
+                org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action
+                    actionClass = action.getAction();
+                if (actionClass instanceof OutputActionCase) {
+                    listActionInfo.add(new ActionOutput(pos++,
+                        ((OutputActionCase) actionClass).getOutputAction().getOutputNodeConnector()));
+                } else if (actionClass instanceof PushVlanActionCase) {
+                    listActionInfo.add(new ActionPushVlan(pos++));
+                } else if (actionClass instanceof SetFieldCase) {
+                    if (((SetFieldCase) actionClass).getSetField().getVlanMatch() != null) {
+                        int vlanVid = ((SetFieldCase) actionClass).getSetField().getVlanMatch().getVlanId()
+                            .getVlanId().getValue();
+                        listActionInfo.add(new ActionSetFieldVlanVid(pos++, vlanVid));
+                    }
+                } else if (actionClass instanceof NxActionResubmitRpcAddGroupCase) {
+                    Short tableId = ((NxActionResubmitRpcAddGroupCase) actionClass).getNxResubmit().getTable();
+                    listActionInfo.add(new ActionNxResubmit(pos++, tableId));
+                } else if (actionClass instanceof NxActionRegLoadNodesNodeTableFlowApplyActionsCase) {
+                    NxRegLoad nxRegLoad =
+                        ((NxActionRegLoadNodesNodeTableFlowApplyActionsCase) actionClass).getNxRegLoad();
+                    listActionInfo.add(new ActionRegLoad(pos++, NxmNxReg6.class, nxRegLoad.getDst().getStart(),
+                        nxRegLoad.getDst().getEnd(), nxRegLoad.getValue().longValue()));
+                }
+            }
+            return listActionInfo;
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Exception when egress actions for interface {}", ifName, e);
         }
-        return listActionInfo;
+        LOG.error("Error when getting egress actions for interface {}", ifName);
+        return Collections.emptyList();
     }
 
     public static Port getNeutronPortForRouterGetewayIp(DataBroker broker, IpAddress targetIP) {

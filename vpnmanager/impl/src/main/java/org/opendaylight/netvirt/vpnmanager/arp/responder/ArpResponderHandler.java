@@ -19,6 +19,7 @@ import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,11 @@ public class ArpResponderHandler {
     private final IInterfaceManager interfaceManager;
 
     /**
+     * RPC to access ITM APIs.
+     */
+    private final ItmRpcService itmRpcService;
+
+    /**
      * Constructor.
      *
      * @param dataBroker
@@ -59,10 +65,12 @@ public class ArpResponderHandler {
      *
      */
     @Inject
-    public ArpResponderHandler(DataBroker dataBroker, IElanService elanService, IInterfaceManager interfaceManager) {
+    public ArpResponderHandler(DataBroker dataBroker, IElanService elanService, IInterfaceManager interfaceManager,
+                               ItmRpcService itmRpcService) {
         this.dataBroker = dataBroker;
         this.elanService = elanService;
         this.interfaceManager = interfaceManager;
+        this.itmRpcService = itmRpcService;
     }
 
     /**
@@ -86,8 +94,8 @@ public class ArpResponderHandler {
         LOG.trace("Creating the ARP Responder flow for VPN Interface {}", interfaceName);
         ArpReponderInputBuilder builder = new ArpReponderInputBuilder();
         builder.setDpId(dpnId).setInterfaceName(interfaceName).setSpa(gatewayIp).setSha(mac).setLportTag(lportTag);
-        builder.setInstructions(
-                ArpResponderUtil.getInterfaceInstructions(interfaceManager, interfaceName, gatewayIp, mac));
+        builder.setInstructions(ArpResponderUtil
+                .getInterfaceInstructions(interfaceManager, interfaceName, gatewayIp, mac, itmRpcService));
         elanService.addArpResponderFlow(builder.buildForInstallFlow());
     }
 

@@ -19,6 +19,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
@@ -32,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.slf4j.Logger;
@@ -44,20 +46,26 @@ public class ExternalNetworkGroupInstaller {
     private final IMdsalApiManager mdsalManager;
     private final IElanService elanService;
     private final IdManagerService idManager;
-    private final OdlInterfaceRpcService interfaceManager;
+    private final OdlInterfaceRpcService odlInterfaceRpcService;
     private final JobCoordinator coordinator;
+    private final ItmRpcService itmRpcService;
+    private final  IInterfaceManager interfaceManager;
 
     @Inject
     public ExternalNetworkGroupInstaller(final DataBroker broker, final IMdsalApiManager mdsalManager,
-                                     final IElanService elanService, final IdManagerService idManager,
-                                     final OdlInterfaceRpcService interfaceManager,
-                                     final JobCoordinator coordinator) {
+                                         final IElanService elanService, final IdManagerService idManager,
+                                         final OdlInterfaceRpcService odlInterfaceRpcService,
+                                         final JobCoordinator coordinator, final ItmRpcService itmRpcService,
+                                         final IInterfaceManager interfaceManager) {
+
         this.broker = broker;
         this.mdsalManager = mdsalManager;
         this.elanService = elanService;
         this.idManager = idManager;
-        this.interfaceManager = interfaceManager;
+        this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.coordinator = coordinator;
+        this.itmRpcService = itmRpcService;
+        this.interfaceManager = interfaceManager;
     }
 
     public void installExtNetGroupEntries(Subnetmap subnetMap) {
@@ -136,7 +144,7 @@ public class ExternalNetworkGroupInstaller {
         LOG.info("installExtNetGroupEntries : Installing ext-net group {} entry for subnet {} with macAddress {} "
                 + "(extInterfaces: {})", groupId, subnetName, macAddress, Arrays.toString(extInterfaces.toArray()));
         for (String extInterface : extInterfaces) {
-            BigInteger dpId = NatUtil.getDpnForInterface(interfaceManager, extInterface);
+            BigInteger dpId = NatUtil.getDpnForInterface(odlInterfaceRpcService, extInterface);
             if (BigInteger.ZERO.equals(dpId)) {
                 LOG.info("installExtNetGroupEntries: No DPN for interface {}. NAT ext-net flow will not be installed "
                     + "for subnet {}", extInterface, subnetName);
@@ -211,8 +219,8 @@ public class ExternalNetworkGroupInstaller {
         final int setFieldEthDestActionPos = 0;
         List<ActionInfo> egressActionList = new ArrayList<>();
         if (extInterface != null) {
-            egressActionList = NatUtil.getEgressActionsForInterface(interfaceManager, extInterface, null,
-                setFieldEthDestActionPos + 1);
+            egressActionList = NatUtil.getEgressActionsForInterface(odlInterfaceRpcService, itmRpcService,
+                    interfaceManager, extInterface, null, setFieldEthDestActionPos + 1);
         }
         if (Strings.isNullOrEmpty(macAddress) || egressActionList.isEmpty()) {
             if (Strings.isNullOrEmpty(macAddress)) {
@@ -238,7 +246,7 @@ public class ExternalNetworkGroupInstaller {
     }
 
     private GroupEntity buildEmptyExtNetGroupEntity(String subnetName, long groupId, String extInterface) {
-        BigInteger dpId = NatUtil.getDpnForInterface(interfaceManager, extInterface);
+        BigInteger dpId = NatUtil.getDpnForInterface(odlInterfaceRpcService, extInterface);
         if (BigInteger.ZERO.equals(dpId)) {
             LOG.error("buildEmptyExtNetGroupEntity: No DPN for interface {}. NAT ext-net flow will not be installed "
                     + "for subnet {}", extInterface, subnetName);
