@@ -59,6 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
@@ -91,6 +92,7 @@ public class VpnManagerImpl implements IVpnManager {
     private final InterVpnLinkCache interVpnLinkCache;
     private final DataTreeEventCallbackRegistrar eventCallbacks;
     private final UpgradeState upgradeState;
+    private final ItmRpcService itmRpcService;
 
     @Inject
     public VpnManagerImpl(final DataBroker dataBroker,
@@ -105,7 +107,8 @@ public class VpnManagerImpl implements IVpnManager {
                           final IBgpManager bgpManager,
                           final InterVpnLinkCache interVpnLinkCache,
                           final DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar,
-                          final UpgradeState upgradeState) {
+                          final UpgradeState upgradeState,
+                          final ItmRpcService itmRpcService) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = idManagerService;
@@ -120,6 +123,7 @@ public class VpnManagerImpl implements IVpnManager {
         this.interVpnLinkCache = interVpnLinkCache;
         this.eventCallbacks = dataTreeEventCallbackRegistrar;
         this.upgradeState = upgradeState;
+        this.itmRpcService = itmRpcService;
     }
 
     @PostConstruct
@@ -672,7 +676,8 @@ public class VpnManagerImpl implements IVpnManager {
         instructions.add(
                 new InstructionWriteMetadata(BigInteger.ZERO, MetaDataUtil.METADATA_MASK_SH_FLAG).buildInstruction(1));
         instructions.addAll(
-                ArpResponderUtil.getExtInterfaceInstructions(interfaceManager, extInterfaceName, fixedIp, macAddress));
+                ArpResponderUtil.getExtInterfaceInstructions(interfaceManager, itmRpcService, extInterfaceName,
+                        fixedIp, macAddress));
         ArpReponderInputBuilder builder = new ArpReponderInputBuilder().setDpId(dpnId)
                 .setInterfaceName(extInterfaceName).setSpa(fixedIp).setSha(macAddress).setLportTag(lportTag);
         builder.setInstructions(instructions);
