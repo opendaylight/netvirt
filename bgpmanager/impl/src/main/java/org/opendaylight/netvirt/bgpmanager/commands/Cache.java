@@ -149,7 +149,7 @@ public class Cache extends OsgiCommandSupport {
         }
         AsId asId = config.getAsId();
         if (asId != null) {
-            int asNum = asId.getLocalAs().intValue();
+            long asNum = asId.getLocalAs().longValue();
             IpAddress routerId = asId.getRouterId();
             Long spt = asId.getStalepathTime();
             Boolean afb = asId.isAnnounceFbit();
