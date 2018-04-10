@@ -11,9 +11,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
   <parent>
     <groupId>org.opendaylight.netvirt</groupId>
-    <artifactId>binding-parent</artifactId>
+    <artifactId>managed-tx-parent</artifactId>
     <version>0.7.0-SNAPSHOT</version>
-    <relativePath>../../commons/binding-parent</relativePath>
+    <relativePath>../../commons/managed-tx-parent</relativePath>
   </parent>
 
   <artifactId>bgpmanager-api</artifactId>
