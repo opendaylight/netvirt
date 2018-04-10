@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8dd9f0d1_0d2f3ecd",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-04-10T14:25:51Z",
+      "side": 1,
+      "message": "1. whitespace, there are other places in this file with trailing whitespace\n2. The header/footer needs to be the same length as the text",
+      "revId": "358c9b15a904fe94dcef8cdd368b342fcf85de96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd354553_4c4e899d",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-04-10T14:25:51Z",
+      "side": 1,
+      "message": "controller or compute?",
+      "range": {
+        "startLine": 75,
+        "startChar": 69,
+        "endLine": 75,
+        "endChar": 79
+      },
+      "revId": "358c9b15a904fe94dcef8cdd368b342fcf85de96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09010596_2f0e5759",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-04-10T14:25:51Z",
+      "side": 1,
+      "message": "does it matter if the full dualstack code is not implemented yet?",
+      "range": {
+        "startLine": 85,
+        "startChar": 26,
+        "endLine": 85,
+        "endChar": 35
+      },
+      "revId": "358c9b15a904fe94dcef8cdd368b342fcf85de96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97a4bc5d_8cd5e395",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-04-10T14:25:51Z",
+      "side": 1,
+      "message": "Could Michael, Stephen and Tom review this section? Some things to look for, but not limited to: new genius and infrautils tools, not reintroducing deprecated patterns,",
+      "revId": "358c9b15a904fe94dcef8cdd368b342fcf85de96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
