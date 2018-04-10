@@ -99,7 +99,7 @@ public class Neighbor extends OsgiCommandSupport {
                     return null;
                 }
                 if (asNum != null) {
-                    if (!Commands.isValid(session.getConsole(), asNum, Commands.Validators.INT, AS)) {
+                    if (!Commands.isValid(session.getConsole(), asNum, Commands.Validators.ASNUM, AS)) {
                         return null;
                     } else {
                         asn = Long.parseLong(asNum);
