@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "992277ec_658fc4ba",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-04-10T10:46:21Z",
+      "side": 1,
+      "message": "I\u0027m afraid this is not right.\nVpnOpStatusListener.update() is triggered on every removal of the vpn-interface from vpn-to-dpn-list within vpn-instance-op-data.\nIf you take one of the this.update() call, it might so happen that not all footprint is cleared, but they are certainly in execution and will finish in sometime. In such cases, its not right to assume that the footprint existing in that instant is stale.\n\n*THE REASON BEHIND HAVING THE isVpnFootprintCleared() CHECK WAS TO WAIT FOR ALL THE FOOTPRINT TO CLEAR BEFORE CLEANING UP THE VPN INSTANCE DATA.\n\nIt;s better to identify what is causing the stale and fix that, instead of processStaleVpnInterfaces() here.",
+      "range": {
+        "startLine": 125,
+        "startChar": 8,
+        "endLine": 131,
+        "endChar": 9
+      },
+      "revId": "73d6f2ce251ccef148feb8adf9b9444ad0cf6db2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
