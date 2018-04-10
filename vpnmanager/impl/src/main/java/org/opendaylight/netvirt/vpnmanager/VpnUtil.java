@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterators;
+import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
@@ -153,6 +154,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Lea
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetsAssociatedToRouteTargets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInterfaceOpData;
@@ -173,6 +175,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.pre
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.RouteTarget;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.RouteTargetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.route.target.AssociatedSubnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.route.target.AssociatedSubnetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.route.target.associated.subnet.AssociatedVpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.route.target.associated.subnet.AssociatedVpnBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.route.target.associated.subnet.AssociatedVpnKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryKey;
@@ -2020,6 +2029,125 @@ public final class VpnUtil {
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to send NS packet to ELAN group, input={}", input, e);
+        }
+    }
+
+    Set<org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget>
+        getRtListForVpn(String vpnName) {
+        Set<org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets
+                .VpnTarget> rtList = new HashSet<>();
+        InstanceIdentifier<VpnInstance> vpnInstanceId = InstanceIdentifier.builder(VpnInstances.class)
+                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+        Optional<VpnInstance> vpnInstanceOptional = read(LogicalDatastoreType.CONFIGURATION, vpnInstanceId);
+        if (vpnInstanceOptional.isPresent()) {
+            org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets
+                    vpnTargets = vpnInstanceOptional.get().getIpv4Family().getVpnTargets();
+            if (vpnTargets != null && vpnTargets.getVpnTarget() != null) {
+                rtList.addAll(vpnTargets.getVpnTarget());
+            }
+        }
+        else {
+            LOG.error("getRtListForVpn: Vpn Instance {} not present in config DS", vpnName);
+        }
+        return rtList;
+    }
+
+    static InstanceIdentifier<AssociatedVpn> getAssociatedSubnetAndVpnIdentifier(String rt, RouteTarget.RtType rtType,
+                                                                                 String cidr, String vpnName) {
+        return InstanceIdentifier.builder(SubnetsAssociatedToRouteTargets.class).child(RouteTarget.class,
+                new RouteTargetKey(rt, rtType)).child(AssociatedSubnet.class, new AssociatedSubnetKey(cidr))
+                .child(AssociatedVpn.class, new AssociatedVpnKey(vpnName)).build();
+    }
+
+    static InstanceIdentifier<AssociatedSubnet> getAssociatedSubnetIdentifier(String rt, RouteTarget.RtType rtType,
+                                                                       String cidr) {
+        return InstanceIdentifier.builder(SubnetsAssociatedToRouteTargets.class).child(RouteTarget.class,
+                new RouteTargetKey(rt, rtType)).child(AssociatedSubnet.class, new AssociatedSubnetKey(cidr)).build();
+    }
+
+    static AssociatedVpn buildAssociatedSubnetAndVpn(String vpnName) {
+        return new AssociatedVpnBuilder().setName(vpnName).build();
+    }
+
+    static InstanceIdentifier<RouteTarget> getRouteTargetsIdentifier(String rt, RouteTarget.RtType rtType) {
+        return InstanceIdentifier.builder(SubnetsAssociatedToRouteTargets.class)
+                .child(RouteTarget.class, new RouteTargetKey(rt, rtType)).build();
+    }
+
+    Set<RouteTarget> getRouteTargetSet(Set<org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815
+            .vpn.af.config.vpntargets.VpnTarget> vpnTargets) {
+        Set<RouteTarget> routeTargetSet = new HashSet<>();
+        for (org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets
+                .VpnTarget rt : vpnTargets) {
+            String rtValue = rt.getVrfRTValue();
+            switch (rt.getVrfRTType()) {
+                case ImportExtcommunity: {
+                    Optional<RouteTarget> exportRouteTargetOptional = read(LogicalDatastoreType.OPERATIONAL,
+                            getRouteTargetsIdentifier(rtValue, RouteTarget.RtType.ERT));
+                    if (exportRouteTargetOptional.isPresent()) {
+                        routeTargetSet.add(exportRouteTargetOptional.get());
+                    }
+                    break;
+                }
+                case ExportExtcommunity: {
+                    Optional<RouteTarget> importRouteTargetOptional = read(LogicalDatastoreType.OPERATIONAL,
+                            getRouteTargetsIdentifier(rtValue, RouteTarget.RtType.IRT));
+                    if (importRouteTargetOptional.isPresent()) {
+                        routeTargetSet.add(importRouteTargetOptional.get());
+                    }
+                    break;
+                }
+                case Both: {
+                    Optional<RouteTarget> exportRouteTargetOptional = read(LogicalDatastoreType.OPERATIONAL,
+                            getRouteTargetsIdentifier(rtValue, RouteTarget.RtType.ERT));
+                    if (exportRouteTargetOptional.isPresent()) {
+                        routeTargetSet.add(exportRouteTargetOptional.get());
+                    }
+                    Optional<RouteTarget> importRouteTargetOptional = read(LogicalDatastoreType.OPERATIONAL,
+                            getRouteTargetsIdentifier(rtValue, RouteTarget.RtType.IRT));
+                    if (importRouteTargetOptional.isPresent()) {
+                        routeTargetSet.add(importRouteTargetOptional.get());
+                    }
+                    break;
+                }
+                default:
+                    LOG.error("getRouteTargetSet: Invalid rt-type {}", rt.getVrfRTType());
+            }
+        }
+        return routeTargetSet;
+    }
+
+    /*
+    TODO: (vivek/kiran): Subnet overlap in a VPN detection logic should use subnet allocation pools if available
+           rather than only CIDR.
+           Also the Subnet overlap in a VPN detection logic to be addressed for router-based-l3vpns.
+    */
+    static boolean areSubnetsOverlapping(String cidr1, String cidr2) {
+        String[] ipaddressValues1 = cidr1.split("/");
+        int address1 = InetAddresses.coerceToInteger(InetAddresses.forString(ipaddressValues1[0]));
+        int cidrPart1 = Integer.parseInt(ipaddressValues1[1]);
+        String[] ipaddressValues2 = cidr2.split("/");
+        int address2 = InetAddresses.coerceToInteger(InetAddresses.forString(ipaddressValues2[0]));
+        int cidrPart2 = Integer.parseInt(ipaddressValues2[1]);
+        int comparedValue = 0;
+        int netmask = 0;
+        if (cidrPart1 <= cidrPart2) {
+            for (int j = 0; j < cidrPart1; ++j) {
+                netmask |= (1 << 31 - j);
+            }
+            int prefix = address2 & netmask;
+            comparedValue = address1 ^ prefix;
+        } else {
+            for (int j = 0; j < cidrPart2; ++j) {
+                netmask |= (1 << 31 - j);
+            }
+            int prefix = address1 & netmask;
+            comparedValue = address2 ^ prefix;
+        }
+        if (comparedValue == 0) {
+            return  true;
+        } else {
+            return false;
         }
     }
 }

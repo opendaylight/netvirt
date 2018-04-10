@@ -12,6 +12,7 @@ import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,6 +21,8 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -38,14 +41,16 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
     private final DataBroker dataBroker;
     private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
     private final VpnUtil vpnUtil;
+    private final IVpnManager vpnManager;
 
     @Inject
     public SubnetmapChangeListener(final DataBroker dataBroker, final VpnSubnetRouteHandler vpnSubnetRouteHandler,
-                                   VpnUtil vpnUtil) {
+                                   VpnUtil vpnUtil, IVpnManager vpnManager) {
         super(Subnetmap.class, SubnetmapChangeListener.class);
         this.dataBroker = dataBroker;
         this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
         this.vpnUtil = vpnUtil;
+        this.vpnManager = vpnManager;
     }
 
     @PostConstruct
@@ -96,11 +101,21 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
                       elanInstanceName, subnetId.getValue());
             return;
         }
-        if (subnetmap.getVpnId() != null) {
-            boolean isBgpVpn = !subnetmap.getVpnId().equals(subnetmap.getRouterId());
+        Uuid vpnId = subnetmap.getVpnId();
+        if (vpnId != null) {
+            boolean isBgpVpn = !vpnId.equals(subnetmap.getRouterId());
             LOG.info("SubnetMapChangeListener:add: subnetmap {} with elanTag {} to VPN {}", subnetmap, elanTag,
-                     subnetmap.getVpnId());
+                     vpnId);
             vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn, elanTag);
+            if (isBgpVpn && subnetmap.getRouterId() == null) {
+                Set<VpnTarget> routeTargets = vpnManager.getRtListForVpn(vpnId.getValue());
+                if (!routeTargets.isEmpty()) {
+                    synchronized (subnetmap.getSubnetIp().intern()) {
+                        vpnManager.updateRouteTargetsToSubnetAssociation(routeTargets, subnetmap.getSubnetIp(),
+                                vpnId.getValue());
+                    }
+                }
+            }
         }
     }
 
