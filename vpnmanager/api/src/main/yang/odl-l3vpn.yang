@@ -740,4 +740,31 @@ module odl-l3vpn {
             leaf learnt-vpn-vip-event-id { type string; }
         }
     }
+
+    /* rt to subnets map */
+    container subnets-associated-to-route-targets {
+        config false;
+        list route-target {
+            key "rt rt-type";
+            leaf rt { type string; }
+            leaf rt-type {
+                type enumeration {
+                    enum iRT {
+                        value "0";
+                    }
+                    enum eRT {
+                        value "1";
+                    }
+                }
+            }
+            list associated-subnet {
+                key cidr;
+                leaf cidr { type string; }
+                list associated-vpn {
+                    key "name";
+                    leaf name  { type string; }
+                }
+            }
+        }
+    }
 }

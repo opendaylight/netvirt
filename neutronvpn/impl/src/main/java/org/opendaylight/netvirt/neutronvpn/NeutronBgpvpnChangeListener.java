@@ -234,24 +234,39 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                     //clear removed networks
                     if (!oldNetworks.isEmpty()) {
                         LOG.trace("Removing old networks {} ", oldNetworks);
-                        nvpnManager.dissociateNetworksFromVpn(vpnId, oldNetworks);
+                        List<String> errorMessages = nvpnManager.dissociateNetworksFromVpn(vpnId, oldNetworks);
+                        if (!errorMessages.isEmpty()) {
+                            LOG.error("handleNetworksUpdate: dissociate old Networks not part of bgpvpn update,"
+                                    + " from vpn {} failed due to {}", vpnId.getValue(), errorMessages);
+                        }
                     }
 
                     //add new (Delta) Networks
                     if (!newNetworks.isEmpty()) {
                         LOG.trace("Adding delta New networks {} ", newNetworks);
-                        nvpnManager.associateNetworksToVpn(vpnId, newNetworks);
+                        List<String> errorMessages = nvpnManager.associateNetworksToVpn(vpnId, newNetworks);
+                        if (!errorMessages.isEmpty()) {
+                            LOG.error("handleNetworksUpdate: associate new Networks not part of original bgpvpn,"
+                                    + " to vpn {} failed due to {}", vpnId.getValue(), errorMessages);
+                        }
                     }
                 }
             } else {
                 //add new Networks
                 LOG.trace("Adding New networks {} ", newNetworks);
-                nvpnManager.associateNetworksToVpn(vpnId, newNetworks);
+                List<String> errorMessages = nvpnManager.associateNetworksToVpn(vpnId, newNetworks);
+                if (!errorMessages.isEmpty()) {
+                    LOG.error("handleNetworksUpdate: associate new Networks to vpn {} failed due to {}",
+                            vpnId.getValue(), errorMessages);
+                }
             }
         } else if (oldNetworks != null && !oldNetworks.isEmpty()) {
             LOG.trace("Removing old networks {} ", oldNetworks);
-            nvpnManager.dissociateNetworksFromVpn(vpnId, oldNetworks);
-
+            List<String> errorMessages = nvpnManager.dissociateNetworksFromVpn(vpnId, oldNetworks);
+            if (!errorMessages.isEmpty()) {
+                LOG.error("handleNetworksUpdate: dissociate old Networks from vpn {} failed due to {}",
+                        vpnId.getValue(), errorMessages);
+            }
         }
     }
 
