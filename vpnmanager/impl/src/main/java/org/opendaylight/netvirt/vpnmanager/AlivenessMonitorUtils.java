@@ -64,9 +64,9 @@ public final class AlivenessMonitorUtils {
             return;
         }
         Optional<IpAddress> gatewayIpOptional =
-            VpnUtil.getGatewayIpAddressFromInterface(macEntry.getInterfaceName(), neutronVpnService);
+            VpnUtil.getIpv4GatewayAddressFromInterface(macEntry.getInterfaceName(), neutronVpnService);
         if (!gatewayIpOptional.isPresent()) {
-            LOG.error("Error while retrieving GatewayIp for interface{}", macEntry.getInterfaceName());
+            LOG.info("Interface{} does not have an IPv4 GatewayIp", macEntry.getInterfaceName());
             return;
         }
         final IpAddress gatewayIp = gatewayIpOptional.get();
