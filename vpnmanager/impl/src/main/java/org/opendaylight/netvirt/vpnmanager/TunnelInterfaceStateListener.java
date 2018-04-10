@@ -334,7 +334,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 interfaces = interfacelistIter.next();
                 if (!L2vlan.class.equals(interfaces.getInterfaceType())) {
                     LOG.info("handleTunnelEventForDPN: Interface {} not of type L2Vlan", interfaces.getInterfaceName());
-                    return;
+                    continue;
                 }
                 intfName = interfaces.getInterfaceName();
                 VpnInterface vpnInterface =
@@ -357,7 +357,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 interfaces = interfacelistIter.next();
                 if (!L2vlan.class.equals(interfaces.getInterfaceType())) {
                     LOG.info("handleTunnelEventForDPN: Interface {} not of type L2Vlan", interfaces.getInterfaceName());
-                    return;
+                    continue;
                 }
                 intfName = interfaces.getInterfaceName();
                 VpnInterface vpnInterface =

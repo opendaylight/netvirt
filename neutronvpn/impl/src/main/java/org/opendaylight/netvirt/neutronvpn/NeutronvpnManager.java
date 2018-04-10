@@ -189,6 +189,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     private final NeutronEvpnUtils neutronEvpnUtils;
     private final JobCoordinator jobCoordinator;
     private final NeutronvpnUtils neutronvpnUtils;
+    private final IVpnManager vpnManager;
     private final ConcurrentHashMap<Uuid, Uuid> unprocessedPortsMap = new ConcurrentHashMap<>();
     private final NeutronvpnAlarms neutronvpnAlarm = new NeutronvpnAlarms();
     private final KeyedLocks<Uuid> vpnLock = new KeyedLocks<>();
@@ -212,6 +213,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         neutronEvpnUtils = new NeutronEvpnUtils(dataBroker, vpnManager, jobCoordinator);
         this.jobCoordinator = jobCoordinator;
         this.neutronvpnUtils = neutronvpnUtils;
+        this.vpnManager = vpnManager;
 
         configureFeatures();
     }
@@ -2295,6 +2297,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                                + "associated with", vpnId.getValue()));
                 return failedNwList;
             }
+            Set<VpnTarget> routeTargets = vpnManager.getRtListForVpn(vpnId.getValue());
             for (Uuid nw : networkList) {
                 Network network = neutronvpnUtils.getNeutronNetwork(nw);
                 if (network == null) {
@@ -2326,29 +2329,35 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                             nw.getValue(), vpnId.getValue()));
                     continue;
                 }
-                List<Uuid> networkSubnets = neutronvpnUtils.getSubnetIdsFromNetworkId(nw);
-                if (networkSubnets == null) {
+                List<Subnetmap> subnetmapList = neutronvpnUtils.getSubnetmapListFromNetworkId(nw);
+                if (subnetmapList == null || subnetmapList.isEmpty()) {
                     passedNwList.add(nw);
                     continue;
                 }
-                for (Uuid subnet : networkSubnets) {
-                    Uuid subnetVpnId = neutronvpnUtils.getVpnForSubnet(subnet);
+                if (vpnManager.checkForOverlappingSubnets(nw, subnetmapList, vpnId, routeTargets, failedNwList)) {
+                    continue;
+                }
+                for (Subnetmap subnetmap : subnetmapList) {
+                    Uuid subnetId = subnetmap.getId();
+                    Uuid subnetVpnId = neutronvpnUtils.getVpnForSubnet(subnetId);
                     if (subnetVpnId != null) {
-                        LOG.error("associateNetworksToVpn: Failed to associate subnet {} with VPN {} as it is already "
-                                  + "associated", subnet.getValue(), subnetVpnId.getValue());
-                        failedNwList.add(String.format("Failed to associate subnet %s with VPN %s as it is already "
-                                                       + "associated", subnet.getValue(), vpnId.getValue()));
+                        LOG.error("associateNetworksToVpn: Failed to associate subnet {} with VPN {}"
+                                + " as it is already associated", subnetId.getValue(), subnetVpnId.getValue());
+                        failedNwList.add(String.format("Failed to associate subnet %s with VPN %s"
+                                + " as it is already associated", subnetId.getValue(), vpnId.getValue()));
                         continue;
                     }
-                    Subnetmap sm = neutronvpnUtils.getSubnetmap(subnet);
-                    if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToAdd(sm, vpnId)) {
+                    if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToAdd(subnetmap, vpnId)) {
                         neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(),
-                                NeutronvpnUtils.getIpVersionFromString(sm.getSubnetIp()), true);
+                                NeutronvpnUtils.getIpVersionFromString(subnetmap.getSubnetIp()), true);
                     }
                     if (!neutronvpnUtils.getIsExternal(network)) {
-                        LOG.debug("associateNetworksToVpn: Add subnet {} to VPN {}", subnet.getValue(),
+                        LOG.debug("associateNetworksToVpn: Add subnet {} to VPN {}", subnetId.getValue(),
                                 vpnId.getValue());
-                        addSubnetToVpn(vpnId, subnet, null);
+                        addSubnetToVpn(vpnId, subnetId, null);
+                        vpnManager.updateRouteTargetsToSubnetAssociation(routeTargets, subnetmap.getSubnetIp(),
+                                vpnId.getValue());
+                        passedNwList.add(nw);
                     }
                 }
                 passedNwList.add(nw);
@@ -2411,6 +2420,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             return failedNwList;
         }
         for (Uuid nw : networkList) {
+            List<Uuid> networkSubnets = neutronvpnUtils.getSubnetIdsFromNetworkId(nw);
+            if (networkSubnets == null) {
+                passedNwList.add(nw);
+                continue;
+            }
             Network network = neutronvpnUtils.getNeutronNetwork(nw);
             if (network == null) {
                 LOG.error("dissociateNetworksFromVpn: Network {} not found in ConfigDS");
@@ -2445,22 +2459,20 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     continue;
                 }
             }
-            List<Uuid> networkSubnets = neutronvpnUtils.getSubnetIdsFromNetworkId(nw);
-            if (networkSubnets == null) {
-                passedNwList.add(nw);
-                continue;
-            }
+            Set<VpnTarget> routeTargets = vpnManager.getRtListForVpn(vpnId.getValue());
             for (Uuid subnet : networkSubnets) {
-                Subnetmap sm = neutronvpnUtils.getSubnetmap(subnet);
-                if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToRemove(sm, vpnId)) {
+                Subnetmap subnetmap = neutronvpnUtils.getSubnetmap(subnet);
+                if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToRemove(subnetmap, vpnId)) {
                     IpVersionChoice ipVersionsToRemove = IpVersionChoice.UNDEFINED;
-                    IpVersionChoice ipVersion = NeutronvpnUtils.getIpVersionFromString(sm.getSubnetIp());
+                    IpVersionChoice ipVersion = neutronvpnUtils.getIpVersionFromString(subnetmap.getSubnetIp());
                     neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(),
                         ipVersionsToRemove.addVersion(ipVersion), false);
                 }
                 LOG.debug("dissociateNetworksFromVpn: Withdraw subnet {} from VPN {}", subnet.getValue(),
                           vpnId.getValue());
                 removeSubnetFromVpn(vpnId, subnet, null);
+                vpnManager.removeRouteTargetsToSubnetAssociation(routeTargets, subnetmap.getSubnetIp(),
+                        vpnId.getValue());
                 passedNwList.add(nw);
             }
         }
