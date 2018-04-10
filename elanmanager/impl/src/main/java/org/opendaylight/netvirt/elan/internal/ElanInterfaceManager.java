@@ -28,6 +28,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -557,6 +558,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     @Override
     protected void add(InstanceIdentifier<ElanInterface> identifier, ElanInterface elanInterfaceAdded) {
+        LOG.debug("Init for ELAN interface Add {}", elanInterfaceAdded);
         ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
             String elanInstanceName = elanInterfaceAdded.getElanInstanceName();
             String interfaceName = elanInterfaceAdded.getName();
@@ -870,6 +872,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             } catch (InterruptedException e1) {
                 LOG.warn("Error while waiting for local BC group for ELAN {} to install", elanInfo);
             }
+            LOG.debug("Setting up Remote BC Group for ELAN Instance {} and DpnInterfaces {} for DPN {}",
+                    elanInfo, dpnInterfaces, dpId);
             elanL2GatewayMulticastUtils.setupElanBroadcastGroups(elanInfo, dpnInterfaces, dpId);
             try {
                 Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
@@ -920,7 +924,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private List<Bucket> getRemoteBCGroupBucketInfos(ElanInstance elanInfo, int bucketKeyStart,
                                                      InterfaceInfo interfaceInfo, long elanTag) {
         return elanL2GatewayMulticastUtils.getRemoteBCGroupBuckets(elanInfo, null, interfaceInfo.getDpId(),
-                bucketKeyStart, elanTag);
+                bucketKeyStart, elanTag, new MutableInt());
     }
 
     private void setElanAndEtreeBCGrouponOtherDpns(ElanInstance elanInfo, BigInteger dpId) {
