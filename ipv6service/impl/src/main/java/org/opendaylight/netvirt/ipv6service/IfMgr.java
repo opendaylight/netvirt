@@ -57,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.config.rev180409.Ipv6serviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -82,19 +83,21 @@ public class IfMgr implements ElementCache, AutoCloseable {
     private final DataBroker dataBroker;
     private final Ipv6ServiceEosHandler ipv6ServiceEosHandler;
     private final PacketProcessingService packetService;
+    private final Ipv6serviceConfig ipv6ServiceConfig;
     private final Ipv6PeriodicTrQueue ipv6Queue = new Ipv6PeriodicTrQueue(this::transmitUnsolicitedRA);
     private final Ipv6TimerWheel timer = new Ipv6TimerWheel();
 
     @Inject
     public IfMgr(DataBroker dataBroker, IElanService elanProvider, OdlInterfaceRpcService interfaceManagerRpc,
             PacketProcessingService packetService, Ipv6ServiceUtils ipv6ServiceUtils,
-            Ipv6ServiceEosHandler ipv6ServiceEosHandler) {
+            Ipv6ServiceEosHandler ipv6ServiceEosHandler, Ipv6serviceConfig ipv6ServiceConfig) {
         this.dataBroker = dataBroker;
         this.elanProvider = elanProvider;
         this.interfaceManagerRpc = interfaceManagerRpc;
         this.packetService = packetService;
         this.ipv6ServiceUtils = ipv6ServiceUtils;
         this.ipv6ServiceEosHandler = ipv6ServiceEosHandler;
+        this.ipv6ServiceConfig = ipv6ServiceConfig;
         LOG.info("IfMgr is enabled");
     }
 
@@ -277,7 +280,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
 
         if (newIntf) {
             LOG.debug("start the periodic RA Timer for routerIntf {}", portId);
-            transmitUnsolicitedRA(intf);
+            transmitUnsolicitedRA(intf, ipv6ServiceConfig.getIpv6RouterReachableTime());
         }
     }
 
@@ -391,7 +394,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
-    private VirtualPort getPort(Uuid portId) {
+    public VirtualPort getPort(Uuid portId) {
         return portId != null ? vintfs.get(portId) : null;
     }
 
@@ -480,7 +483,8 @@ public class IfMgr implements ElementCache, AutoCloseable {
                 for (Ipv6Address ipv6Address: intf.getIpv6Addresses()) {
                     programIcmpv6NSPuntFlowForAddress(intf, ipv6Address, Ipv6Constants.DEL_FLOW);
                 }
-                transmitRouterAdvertisement(intf, Ipv6RtrAdvertType.CEASE_ADVERTISEMENT);
+                transmitRouterAdvertisement(intf, Ipv6RtrAdvertType.CEASE_ADVERTISEMENT,
+                        ipv6ServiceConfig.getIpv6RouterReachableTime());
                 timer.cancelPeriodicTransmissionTimeout(intf.getPeriodicTimeout());
                 intf.resetPeriodicTimeout();
                 LOG.debug("Reset the periodic RA Timer for intf {}", intf.getIntfUUID());
@@ -679,8 +683,8 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
-    private void transmitRouterAdvertisement(VirtualPort intf, Ipv6RtrAdvertType advType) {
-        Ipv6RouterAdvt ipv6RouterAdvert = new Ipv6RouterAdvt(packetService);
+    public void transmitRouterAdvertisement(VirtualPort intf, Ipv6RtrAdvertType advType, long ipv6RouterReachableTime) {
+        Ipv6RouterAdvt ipv6RouterAdvert = new Ipv6RouterAdvt(packetService, ipv6ServiceConfig);
 
         LOG.debug("in transmitRouterAdvertisement for {}", advType);
         VirtualNetwork vnet = getNetwork(intf.getNetworkID());
@@ -701,7 +705,8 @@ public class IfMgr implements ElementCache, AutoCloseable {
                     ncRefList.add(new NodeConnectorRef(outPortId));
                 }
                 if (!ncRefList.isEmpty()) {
-                    ipv6RouterAdvert.transmitRtrAdvertisement(advType, intf, ncRefList, null);
+                    ipv6RouterAdvert.transmitRtrAdvertisement(advType, intf, ncRefList, null,
+                            ipv6RouterReachableTime);
                 }
             }
         }
@@ -711,16 +716,16 @@ public class IfMgr implements ElementCache, AutoCloseable {
         VirtualPort port = getPort(portId);
         LOG.debug("in transmitUnsolicitedRA for {}, port {}", portId, port);
         if (port != null) {
-            transmitUnsolicitedRA(port);
+            transmitUnsolicitedRA(port, ipv6ServiceConfig.getIpv6RouterReachableTime());
         }
     }
 
-    public void transmitUnsolicitedRA(VirtualPort port) {
+    public void transmitUnsolicitedRA(VirtualPort port, long ipv6RouterReachableTime) {
         if (ipv6ServiceEosHandler.isClusterOwner()) {
             /* Only the Cluster Owner would be sending out the Periodic RAs.
                However, the timer is configured on all the nodes to handle cluster fail-over scenarios.
              */
-            transmitRouterAdvertisement(port, Ipv6RtrAdvertType.UNSOLICITED_ADVERTISEMENT);
+            transmitRouterAdvertisement(port, Ipv6RtrAdvertType.UNSOLICITED_ADVERTISEMENT, ipv6RouterReachableTime);
         }
         Timeout portTimeout = timer.setPeriodicTransmissionTimeout(port.getPeriodicTimer(),
                                                                    Ipv6Constants.PERIODIC_RA_INTERVAL,

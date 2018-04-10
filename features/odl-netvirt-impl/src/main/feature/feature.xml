@@ -36,5 +36,8 @@
         <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-vpnmanager-config.xml">
             mvn:org.opendaylight.netvirt/vpnmanager-impl/${project.version}/xml/config
         </configfile>
+		<configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-ipv6service-config.xml">
+            mvn:org.opendaylight.netvirt/ipv6service-impl/${project.version}/xml/config
+        </configfile>
     </feature>
 </features>

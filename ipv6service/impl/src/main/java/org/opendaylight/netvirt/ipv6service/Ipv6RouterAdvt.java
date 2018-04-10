@@ -12,6 +12,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants.Ipv6RtrAdvertType;
@@ -23,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.config.rev180409.Ipv6serviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.RouterAdvertisementPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.RouterAdvertisementPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.RouterSolicitationPacket;
@@ -38,15 +41,22 @@ import org.slf4j.LoggerFactory;
 public class Ipv6RouterAdvt {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6RouterAdvt.class);
     private final PacketProcessingService packetService;
+    private final long ipv6RouterReachableTime;
 
-    public Ipv6RouterAdvt(PacketProcessingService packetService) {
+    public Ipv6RouterAdvt(PacketProcessingService packetService, Ipv6serviceConfig config) {
         this.packetService = packetService;
+        if (config != null) {
+            this.ipv6RouterReachableTime = TimeUnit.MINUTES.toMillis(config.getIpv6RouterReachableTime());
+        } else {
+            this.ipv6RouterReachableTime = Ipv6Constants.IPV6_RA_REACHABLE_TIME;
+        }
     }
 
     public boolean transmitRtrAdvertisement(Ipv6RtrAdvertType raType, VirtualPort routerPort,
-                                            List<NodeConnectorRef> outportList, RouterSolicitationPacket rsPdu) {
+                                            List<NodeConnectorRef> outportList, RouterSolicitationPacket rsPdu,
+                                            long ipv6RouterReachableTime) {
         RouterAdvertisementPacketBuilder raPacket = new RouterAdvertisementPacketBuilder();
-        updateRAResponse(raType, rsPdu, raPacket, routerPort);
+        updateRAResponse(raType, rsPdu, raPacket, routerPort, ipv6RouterReachableTime);
         // Serialize the response packet
         byte[] txPayload = fillRouterAdvertisementPacket(raPacket.build());
         for (NodeConnectorRef outport: outportList) {
@@ -62,7 +72,7 @@ public class Ipv6RouterAdvt {
 
     private void updateRAResponse(Ipv6RtrAdvertType raType, RouterSolicitationPacket pdu,
                                   RouterAdvertisementPacketBuilder raPacket,
-                                  VirtualPort routerPort) {
+                                  VirtualPort routerPort, long ipv6RouterReachableTime) {
         short icmpv6RaFlags = 0;
         String gatewayMac = null;
         IpAddress gatewayIp;
@@ -130,7 +140,7 @@ public class Ipv6RouterAdvt {
         } else {
             raPacket.setRouterLifetime(Ipv6Constants.IPV6_ROUTER_LIFETIME);
         }
-        raPacket.setReachableTime((long) Ipv6Constants.IPV6_RA_REACHABLE_TIME);
+        raPacket.setReachableTime(ipv6RouterReachableTime);
         raPacket.setRetransTime((long) 0);
 
         raPacket.setOptionSourceAddr((short)1);

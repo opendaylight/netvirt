@@ -1,0 +1,26 @@
+module ipv6service-config {
+    yang-version 1;
+    namespace "urn:opendaylight:netvirt:ipv6service:config";
+    prefix ipv6service-config;
+
+    description
+            "Configuration for IPv6 Service";
+
+        revision "2018-04-09" {
+            description
+                    "Initial revision.";
+        }
+
+        container ipv6service-config {
+            config true;
+            leaf ipv6-router-reachable-time {
+                type uint16  {
+                range "2..60";
+                }
+                default "2";
+                units minutes;
+                 description
+                          "The IPv6 Router Reachable Time (Minutes) in ICMPv6 Packet Type 134 (Router Advertisement)";
+            }
+       }
+}

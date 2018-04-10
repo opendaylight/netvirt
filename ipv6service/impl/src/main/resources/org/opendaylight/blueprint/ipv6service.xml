@@ -23,4 +23,10 @@
   <odl:notification-listener ref="ipv6PktHandler" />
 
   <service ref="ifMgr" interface="org.opendaylight.netvirt.ipv6service.api.ElementCache" />
+
+  <odl:clustered-app-config id="ipv6ServiceConfig"
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.config.rev180409.Ipv6serviceConfig"
+                            default-config-file-name="netvirt-ipv6service-config.xml"
+                            update-strategy="none">
+  </odl:clustered-app-config>
 </blueprint>

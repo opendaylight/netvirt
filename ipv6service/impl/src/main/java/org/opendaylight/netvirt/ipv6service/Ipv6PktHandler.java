@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.config.rev180409.Ipv6serviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.Ipv6Header;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.NeighborAdvertisePacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.NeighborAdvertisePacketBuilder;
@@ -55,12 +56,15 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
     private final AtomicLong pktProccessedCounter = new AtomicLong(0);
     private final PacketProcessingService pktService;
     private final IfMgr ifMgr;
+    private final Ipv6serviceConfig ipv6ServiceConfig;
     private final ExecutorService packetProcessor = Executors.newCachedThreadPool();
 
     @Inject
-    public Ipv6PktHandler(PacketProcessingService pktService, IfMgr ifMgr) {
+    public Ipv6PktHandler(PacketProcessingService pktService, IfMgr ifMgr,
+                          Ipv6serviceConfig ipv6ServiceConfig) {
         this.pktService = pktService;
         this.ifMgr = ifMgr;
+        this.ipv6ServiceConfig = ipv6ServiceConfig;
     }
 
     @Override
@@ -319,11 +323,12 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
                 LOG.warn("Port for networkId {} is not associated to a Router, skipping.", port.getNetworkID());
                 return;
             }
-            Ipv6RouterAdvt ipv6RouterAdvert = new Ipv6RouterAdvt(pktService);
+            Ipv6RouterAdvt ipv6RouterAdvert = new Ipv6RouterAdvt(pktService, ipv6ServiceConfig);
             List<NodeConnectorRef> ncRefList = new ArrayList<>();
             ncRefList.add(packet.getIngress());
             ipv6RouterAdvert.transmitRtrAdvertisement(Ipv6RtrAdvertType.SOLICITED_ADVERTISEMENT,
-                                                      routerPort, ncRefList, rsPdu);
+                                                      routerPort, ncRefList, rsPdu,
+                                                      ipv6ServiceConfig.getIpv6RouterReachableTime());
             pktProccessedCounter.incrementAndGet();
         }
 
