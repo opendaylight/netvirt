@@ -496,6 +496,13 @@ public class VpnFootprintService implements IVpnFootprintService {
     }
 
     boolean isVpnFootPrintCleared(VpnInstanceOpDataEntry vpnInstanceOpData) {
+        if (vpnInstanceOpData.getVpnToDpnList() == null) {
+            LOG.warn("VPNMANAGER: getVpnToDpnList null");
+        }
+        if (vpnInstanceOpData.getVpnToDpnList().isEmpty()) {
+            LOG.warn("VPNMANAGER: getVpnToDpnList is Empty");
+        }
+        LOG.warn("VPNMANAGER: vpnInstanceOpData.getVpnToDpnList {}", vpnInstanceOpData.getVpnToDpnList().toString());
         return vpnInstanceOpData.getVpnToDpnList() == null || vpnInstanceOpData.getVpnToDpnList().isEmpty();
     }
 }

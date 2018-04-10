@@ -738,6 +738,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         } else {
             LOG.error("VPN : {} not found", vpnId.getValue());
         }
+        LOG.warn(">>> NEUTRONVPN: Clear from VPNMaps DS successful for VPN {} ", vpnId.getValue());
         LOG.debug("Clear from VPNMaps DS successful for VPN {} ", vpnId.getValue());
     }
 
@@ -1562,6 +1563,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected void removeSubnetFromVpn(final Uuid vpnId, Uuid subnet, Uuid internetVpnId) {
         Preconditions.checkArgument(vpnId != null || internetVpnId != null,
                 "removeSubnetFromVpn: at least one VPN must be not null");
+        LOG.warn(">>> NEUTRONVPN: remove subnet from VPN: SUBNET {}", subnet.getValue());
         LOG.debug("Removing subnet {} from vpn {}/{}", subnet.getValue(),
                   vpnId, internetVpnId);
         Subnetmap sn = neutronvpnUtils.getSubnetmap(subnet);
@@ -2155,12 +2157,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
         // dissociate networks
         if (!id.equals(router) && vpnMap.getNetworkIds() != null) {
+            LOG.warn(">>> NEUTRONVPN: removeVpn, networkIds {}", vpnMap.getNetworkIds().toString());
             dissociateNetworksFromVpn(id, vpnMap.getNetworkIds());
         }
         // remove entire vpnMaps node
         deleteVpnMapsNode(id);
-
+        LOG.warn(">>> NEUTRONVPN: deleteVpnMapsNode id {}", id.toString());
         // remove vpn-instance
+        LOG.warn(">>> NEUTRONVPN: deleteVpnInstance id {}", id.toString());
         deleteVpnInstance(id);
     }
 
@@ -2439,6 +2443,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
                 LOG.debug("dissociateNetworksFromVpn: Withdraw subnet {} from VPN {}", subnet.getValue(),
                           vpnId.getValue());
+                LOG.warn(">>> NEUTRONVPN: dissociateNetworksFromVpn: subnet {}", subnet.getValue().toString());
                 removeSubnetFromVpn(vpnId, subnet, null);
                 passedNwList.add(nw);
             }
