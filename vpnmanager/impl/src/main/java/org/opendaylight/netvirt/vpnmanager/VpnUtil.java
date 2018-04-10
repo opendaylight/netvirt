@@ -208,6 +208,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
@@ -215,7 +216,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.SchemaValidationFailedException;
 import org.slf4j.Logger;
@@ -1339,16 +1339,21 @@ public final class VpnUtil {
         }
     }
 
-    static Optional<IpAddress> getGatewayIpAddressFromInterface(String srcInterface,
+    static Optional<IpAddress> getIpv4GatewayAddressFromInterface(String srcInterface,
             INeutronVpnManager neutronVpnService) {
         Optional<IpAddress> gatewayIp = Optional.absent();
         if (neutronVpnService != null) {
             //TODO(Gobinath): Need to fix this as assuming port will belong to only one Subnet would be incorrect"
             Port port = neutronVpnService.getNeutronPort(srcInterface);
-            if (port != null && port.getFixedIps() != null && port.getFixedIps().get(0) != null
-                && port.getFixedIps().get(0).getSubnetId() != null) {
-                gatewayIp = Optional.of(
-                    neutronVpnService.getNeutronSubnet(port.getFixedIps().get(0).getSubnetId()).getGatewayIp());
+            if (port != null && port.getFixedIps() != null) {
+                for (FixedIps portIp: port.getFixedIps()) {
+                    if (portIp.getIpAddress().getIpv6Address() != null) {
+                        // Skip IPv6 address
+                        continue;
+                    }
+                    gatewayIp = Optional.of(
+                            neutronVpnService.getNeutronSubnet(portIp.getSubnetId()).getGatewayIp());
+                }
             }
         } else {
             LOG.error("getGatewayIpAddressFromInterface: neutron vpn service is not configured."
