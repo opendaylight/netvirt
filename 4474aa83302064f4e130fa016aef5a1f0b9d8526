@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e31c5615_474c6458",
+        "filename": "docs/user-guide/releases.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-04-10T09:12:01Z",
+      "side": 1,
+      "message": "should think of better title. Netvirt Support Matrix?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 8
+      },
+      "revId": "4474aa83302064f4e130fa016aef5a1f0b9d8526",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6820c22d_a04ab52c",
+        "filename": "docs/user-guide/releases.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-04-10T09:12:01Z",
+      "side": 1,
+      "message": "Retitle to something like \u0027OpenDaylight OpenStack Matrix\u0027 titles work better without propositions",
+      "range": {
+        "startLine": 4,
+        "startChar": 1,
+        "endLine": 4,
+        "endChar": 55
+      },
+      "revId": "4474aa83302064f4e130fa016aef5a1f0b9d8526",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "781fc767_642707ec",
+        "filename": "docs/user-guide/releases.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-04-10T09:12:01Z",
+      "side": 1,
+      "message": "This should be better captured in table above itself. Maybe something like this: https://pastebin.com/aQbb0rrB",
+      "range": {
+        "startLine": 21,
+        "startChar": 5,
+        "endLine": 22,
+        "endChar": 52
+      },
+      "revId": "4474aa83302064f4e130fa016aef5a1f0b9d8526",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e496d49e_f11794e6",
+        "filename": "docs/user-guide/releases.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-04-10T09:12:01Z",
+      "side": 1,
+      "message": "same as above, \u0027OpenDaylight Open vSwitch Matrix\u0027",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 58
+      },
+      "revId": "4474aa83302064f4e130fa016aef5a1f0b9d8526",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "61522ff4_79d01eeb",
+        "filename": "docs/user-guide/releases.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-04-10T09:12:01Z",
+      "side": 1,
+      "message": "\u0027OpenDaylight OVS Feature Support Matrix\u0027. should we also have similar for OpenDaylight OpenStack Features? e.g. IPv6, upcoming QoS etc?",
+      "range": {
+        "startLine": 39,
+        "startChar": 1,
+        "endLine": 39,
+        "endChar": 69
+      },
+      "revId": "4474aa83302064f4e130fa016aef5a1f0b9d8526",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
