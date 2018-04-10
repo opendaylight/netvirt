@@ -79,6 +79,41 @@
       "revId": "358c9b15a904fe94dcef8cdd368b342fcf85de96",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bc2e8c68_11ffb462",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-04-10T14:35:31Z",
+      "side": 1,
+      "message": "This seems rather high level, and so I don\u0027t see a (direct) connection re. \"genius and infrautils tools, not reintroducing deprecated patterns\".  Of course, I would invite the implementating code to use the latest and greatest genius and infrautils tools, if and where applicable.",
+      "parentUuid": "97a4bc5d_8cd5e395",
+      "revId": "358c9b15a904fe94dcef8cdd368b342fcf85de96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b2af41ce_d79e17cd",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-04-10T14:35:31Z",
+      "side": 1,
+      "message": "+1 ;)",
+      "revId": "358c9b15a904fe94dcef8cdd368b342fcf85de96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
