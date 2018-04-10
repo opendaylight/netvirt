@@ -149,7 +149,7 @@ public class Cache extends OsgiCommandSupport {
         }
         AsId asId = config.getAsId();
         if (asId != null) {
-            int asNum = asId.getLocalAs().intValue();
+            long asNum = asId.getLocalAs().longValue();
             IpAddress routerId = asId.getRouterId();
             Long spt = asId.getStalepathTime();
             Boolean afb = asId.isAnnounceFbit();
@@ -179,7 +179,7 @@ public class Cache extends OsgiCommandSupport {
             ps.printf("%nNeighbors%n");
             for (Neighbors nbr : neighbors) {
                 ps.printf("\t%s%n\t\t%-16s  %d%n", nbr.getAddress().getValue(),
-                        ASSTR, nbr.getRemoteAs().intValue());
+                        ASSTR, nbr.getRemoteAs().longValue());
                 EbgpMultihop en = nbr.getEbgpMultihop();
                 if (en != null) {
                     ps.printf("\t\t%-16s  %d%n", EBSTR, en.getNhops().intValue());

@@ -99,11 +99,11 @@ public class Neighbor extends OsgiCommandSupport {
                     return null;
                 }
                 if (asNum != null) {
-                    if (!Commands.isValid(session.getConsole(), asNum, Commands.Validators.INT, AS)) {
+                    if (!Commands.isValid(session.getConsole(), asNum, Commands.Validators.ASNUM, AS)) {
                         return null;
-                    } else {
-                        asn = Long.parseLong(asNum);
                     }
+                    asn = Long.parseLong(asNum);
+
                 }
                 TcpMd5SignaturePasswordType md5Secret = null;
                 if (md5PasswordOption != null) {
