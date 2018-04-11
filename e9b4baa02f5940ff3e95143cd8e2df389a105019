@@ -1,0 +1,280 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b705032e_71cb427a",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-11T08:53:13Z",
+      "side": 1,
+      "message": "Number these instead of bulleting. It is easy for the reader to look for the numbered item, when you refer it below (O(1)) time. Else, one is required to count from top, which is O(N)",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 1
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebe74fdb_2e5108b4",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-11T08:53:13Z",
+      "side": 1,
+      "message": "This may require more explanation. VIP learning is done by GARP messages. I fail to understand why rapid VIP movement fails because the VPN engine is interface driven.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 1
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "589499e1_feb4157b",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-11T08:53:13Z",
+      "side": 1,
+      "message": "This also requires more explanation. Kindly provide clarity on why it requires movement across two VPNs (specifically, what use case drives this). Normally, when network/router is associated to VPN, we expect only routes getting advertised in the control plane. There must not be any changes to the programmed FIB routes. \n\nAlso, request clarity on whether we need to move away from the specific use case that is forcing this behavior.",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 6
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df286e32_eed2829d",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-11T08:53:13Z",
+      "side": 1,
+      "message": "Like the above mentioned items, it would be good to articulate the exact failure scenarios.",
+      "range": {
+        "startLine": 50,
+        "startChar": 1,
+        "endLine": 54,
+        "endChar": 65
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f642b5f_b507579c",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-11T08:53:13Z",
+      "side": 1,
+      "message": "Do we also consider the case where a single dualstack VM residing on two different VPNs (two router solution)?",
+      "range": {
+        "startLine": 84,
+        "startChar": 1,
+        "endLine": 86,
+        "endChar": 1
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "713930e9_5e271c34",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-11T08:53:13Z",
+      "side": 1,
+      "message": "This use case should normally not cause the swap to be triggered. Is it possible to fix the VPN engine to not trigger the swap\n\nOTOH, we should cover the use case where the orchestrator associates and disassociates a router to a set of subnets back to back.",
+      "range": {
+        "startLine": 127,
+        "startChar": 0,
+        "endLine": 130,
+        "endChar": 1
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d43b89e5_1053bd0f",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-11T08:53:13Z",
+      "side": 1,
+      "message": "These are the routes held in the routing stack. From ODL perspective, there is no restriction on which routing stack is connected to ODL so long as the thrift contract is honored.",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 97
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "318b6855_44fe135c",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-11T08:53:13Z",
+      "side": 1,
+      "message": "This should be already supported right? Or is this use case not supported in ODL today?\nAlso the work flow does not contain any details on the orchestration of secondary IPs.",
+      "range": {
+        "startLine": 147,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 1
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed97db14_95df9fa6",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-11T08:53:13Z",
+      "side": 1,
+      "message": "Same comment as above. Please provide clarity on what is broken in ODL today?",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 171,
+        "endChar": 103
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92863ee9_05babb51",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-11T08:53:13Z",
+      "side": 1,
+      "message": "I do not understand this use case. What is the purpose of creating multiple networks with overlapping CIDRs and associating them to the same VPN?",
+      "range": {
+        "startLine": 195,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 74
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "565a324e_be652c3d",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-11T08:53:13Z",
+      "side": 1,
+      "message": "I do not completely understand this. If we are using POJO to convey \"full information\" across modules, why would we also need synchronization to eliminate backpull? Isn\u0027t the use of POJO with full information sufficient to avoid backpulls?\n\nMaybe if we have a diagram/work flow with an example of VPN deletion would help.",
+      "range": {
+        "startLine": 411,
+        "startChar": 3,
+        "endLine": 420,
+        "endChar": 38
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1177ea04_c8d08674",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-11T08:53:13Z",
+      "side": 1,
+      "message": "wouldn\u0027t there be a similar container for ipv6 entries?",
+      "range": {
+        "startLine": 530,
+        "startChar": 12,
+        "endLine": 535,
+        "endChar": 10
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
