@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3d7b36af_7ad1f4be",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/BaseVrfEntryHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 6233
+      },
+      "writtenOn": "2018-04-11T08:58:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e649a5c1_30a58217",
+      "range": {
+        "startLine": 328,
+        "startChar": 68,
+        "endLine": 328,
+        "endChar": 71
+      },
+      "revId": "b6a81d8c862b64317e17b20c64c3be0a842c929e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "493d1170_f9284096",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2018-04-11T07:07:02Z",
       "side": 1,
       "message": "Itm",
+      "range": {
+        "startLine": 209,
+        "startChar": 29,
+        "endLine": 209,
+        "endChar": 31
+      },
+      "revId": "b6a81d8c862b64317e17b20c64c3be0a842c929e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4cf42119_b710ea57",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 6233
+      },
+      "writtenOn": "2018-04-11T08:58:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "493d1170_f9284096",
       "range": {
         "startLine": 209,
         "startChar": 29,
