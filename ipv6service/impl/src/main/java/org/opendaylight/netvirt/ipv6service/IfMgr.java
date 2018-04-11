@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import com.google.common.net.InetAddresses;
+
 import io.netty.util.Timeout;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -57,12 +58,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.config.rev180411.Ipv6serviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 @Singleton
 public class IfMgr implements ElementCache, AutoCloseable {
@@ -76,6 +79,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
     private final ConcurrentMap<Uuid, VirtualPort> vrouterv6IntfMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Uuid, List<VirtualPort>> unprocessedRouterIntfs = new ConcurrentHashMap<>();
     private final ConcurrentMap<Uuid, List<VirtualPort>> unprocessedSubnetIntfs = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Long> routerReachableTimeMap = new ConcurrentHashMap<>();
     private final OdlInterfaceRpcService interfaceManagerRpc;
     private final IElanService elanProvider;
     private final Ipv6ServiceUtils ipv6ServiceUtils;
@@ -87,14 +91,20 @@ public class IfMgr implements ElementCache, AutoCloseable {
 
     @Inject
     public IfMgr(DataBroker dataBroker, IElanService elanProvider, OdlInterfaceRpcService interfaceManagerRpc,
-            PacketProcessingService packetService, Ipv6ServiceUtils ipv6ServiceUtils,
-            Ipv6ServiceEosHandler ipv6ServiceEosHandler) {
+                 PacketProcessingService packetService, Ipv6ServiceUtils ipv6ServiceUtils,
+                 Ipv6ServiceEosHandler ipv6ServiceEosHandler, Ipv6serviceConfig ipv6serviceConfig) {
         this.dataBroker = dataBroker;
         this.elanProvider = elanProvider;
         this.interfaceManagerRpc = interfaceManagerRpc;
         this.packetService = packetService;
         this.ipv6ServiceUtils = ipv6ServiceUtils;
         this.ipv6ServiceEosHandler = ipv6ServiceEosHandler;
+        if (ipv6serviceConfig != null) {
+            routerReachableTimeMap.put(Ipv6Constants.IPV6_RA_REACHABLE_KEY,
+                    TimeUnit.SECONDS.toMillis(ipv6serviceConfig.getIpv6RouterReachableTime()));
+        } else {
+            routerReachableTimeMap.put(Ipv6Constants.IPV6_RA_REACHABLE_KEY, Ipv6Constants.IPV6_RA_REACHABLE_TIME);
+        }
         LOG.info("IfMgr is enabled");
     }
 
@@ -107,8 +117,8 @@ public class IfMgr implements ElementCache, AutoCloseable {
     /**
      * Add router.
      *
-     * @param rtrUuid router uuid
-     * @param rtrName router name
+     * @param rtrUuid  router uuid
+     * @param rtrName  router name
      * @param tenantId tenant id
      */
     public void addRouter(Uuid rtrUuid, String rtrName, Uuid tenantId) {
@@ -155,14 +165,14 @@ public class IfMgr implements ElementCache, AutoCloseable {
     /**
      * Add Subnet.
      *
-     * @param snetId subnet id
-     * @param name subnet name
-     * @param tenantId tenant id
-     * @param gatewayIp gateway ip address
-     * @param ipVersion IP Version "IPv4 or IPv6"
-     * @param subnetCidr subnet CIDR
+     * @param snetId          subnet id
+     * @param name            subnet name
+     * @param tenantId        tenant id
+     * @param gatewayIp       gateway ip address
+     * @param ipVersion       IP Version "IPv4 or IPv6"
+     * @param subnetCidr      subnet CIDR
      * @param ipV6AddressMode Address Mode of IPv6 Subnet
-     * @param ipV6RaMode RA Mode of IPv6 Subnet.
+     * @param ipV6RaMode      RA Mode of IPv6 Subnet.
      */
     public void addSubnet(Uuid snetId, String name, Uuid tenantId,
                           IpAddress gatewayIp, String ipVersion, IpPrefix subnetCidr,
@@ -225,7 +235,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
                               Uuid networkId, IpAddress fixedIp, String macAddress,
                               String deviceOwner) {
         LOG.debug("addRouterIntf portId {}, rtrId {}, snetId {}, networkId {}, ip {}, mac {}",
-            portId, rtrId, snetId, networkId, fixedIp, macAddress);
+                portId, rtrId, snetId, networkId, fixedIp, macAddress);
         //Save the interface ipv6 address in its fully expanded format
         Ipv6Address addr = new Ipv6Address(InetAddresses
                 .forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
@@ -277,7 +287,8 @@ public class IfMgr implements ElementCache, AutoCloseable {
 
         if (newIntf) {
             LOG.debug("start the periodic RA Timer for routerIntf {}", portId);
-            transmitUnsolicitedRA(intf);
+            transmitUnsolicitedRA(intf, routerReachableTimeMap.get(Ipv6Constants.IPV6_RA_REACHABLE_KEY),
+                    false);
         }
     }
 
@@ -338,12 +349,12 @@ public class IfMgr implements ElementCache, AutoCloseable {
          or removed from the router port. Depending on subnet added/removed, we add/remove
          the corresponding flows from IPV6_TABLE(45).
          */
-        for (Ipv6Address ipv6Address: newlyAddedIpv6AddressList) {
+        for (Ipv6Address ipv6Address : newlyAddedIpv6AddressList) {
             // Some v6 subnets are associated to the routerPort add the corresponding NS Flows.
             programIcmpv6NSPuntFlowForAddress(intf, ipv6Address, Ipv6Constants.ADD_FLOW);
         }
 
-        for (Ipv6Address ipv6Address: existingIPv6AddressList) {
+        for (Ipv6Address ipv6Address : existingIPv6AddressList) {
             // Some v6 subnets are disassociated from the routerPort, remove the corresponding NS Flows.
             programIcmpv6NSPuntFlowForAddress(intf, ipv6Address, Ipv6Constants.DEL_FLOW);
         }
@@ -356,7 +367,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
     public void addHostIntf(Uuid portId, Uuid snetId, Uuid networkId,
                             IpAddress fixedIp, String macAddress, String deviceOwner) {
         LOG.debug("addHostIntf portId {}, snetId {}, networkId {}, ip {}, mac {}",
-            portId, snetId, networkId, fixedIp, macAddress);
+                portId, snetId, networkId, fixedIp, macAddress);
 
         //Save the interface ipv6 address in its fully expanded format
         Ipv6Address addr = new Ipv6Address(InetAddresses
@@ -391,7 +402,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
-    private VirtualPort getPort(Uuid portId) {
+    protected VirtualPort getPort(Uuid portId) {
         return portId != null ? vintfs.get(portId) : null;
     }
 
@@ -429,7 +440,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
 
     public void updateDpnInfo(Uuid portId, BigInteger dpId, Long ofPort) {
         LOG.info("In updateDpnInfo portId {}, dpId {}, ofPort {}",
-            portId, dpId, ofPort);
+                portId, dpId, ofPort);
         VirtualPort intf = getPort(portId);
         if (intf != null) {
             intf.setDpId(dpId);
@@ -477,7 +488,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
                 the dpnIds which were hosting the VMs on the network.
                  */
                 programIcmpv6RSPuntFlows(intf, Ipv6Constants.DEL_FLOW);
-                for (Ipv6Address ipv6Address: intf.getIpv6Addresses()) {
+                for (Ipv6Address ipv6Address : intf.getIpv6Addresses()) {
                     programIcmpv6NSPuntFlowForAddress(intf, ipv6Address, Ipv6Constants.DEL_FLOW);
                 }
                 transmitRouterAdvertisement(intf, Ipv6RtrAdvertType.CEASE_ADVERTISEMENT);
@@ -602,7 +613,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
                         vnet.setRSPuntFlowStatusOnDpnId(dpId, Ipv6Constants.FLOWS_CONFIGURED);
                     }
 
-                    for (Ipv6Address ipv6Address: routerPort.getIpv6Addresses()) {
+                    for (Ipv6Address ipv6Address : routerPort.getIpv6Addresses()) {
                         if (!dpnInfo.ndTargetFlowsPunted.contains(ipv6Address)) {
                             ipv6ServiceUtils.installIcmpv6NsPuntFlow(NwConstants.IPV6_TABLE, dpId,
                                     elanTag, ipv6Address.getValue(), Ipv6Constants.ADD_FLOW);
@@ -679,10 +690,11 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
-    private void transmitRouterAdvertisement(VirtualPort intf, Ipv6RtrAdvertType advType) {
+    protected void transmitRouterAdvertisement(VirtualPort intf, Ipv6RtrAdvertType advType) {
         Ipv6RouterAdvt ipv6RouterAdvert = new Ipv6RouterAdvt(packetService);
 
-        LOG.debug("in transmitRouterAdvertisement for {}", advType);
+        LOG.debug("in transmitRouterAdvertisement for {} with router reachable time {}", advType,
+                routerReachableTimeMap.get(Ipv6Constants.IPV6_RA_REACHABLE_KEY));
         VirtualNetwork vnet = getNetwork(intf.getNetworkID());
         if (vnet != null) {
             String nodeName;
@@ -691,7 +703,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
             for (VirtualNetwork.DpnInterfaceInfo dpnIfaceInfo : dpnIfaceList) {
                 nodeName = Ipv6Constants.OPENFLOW_NODE_PREFIX + dpnIfaceInfo.getDpId();
                 List<NodeConnectorRef> ncRefList = new ArrayList<>();
-                for (Long ofPort: dpnIfaceInfo.ofPortList) {
+                for (Long ofPort : dpnIfaceInfo.ofPortList) {
                     outPort = nodeName + ":" + ofPort;
                     LOG.debug("Transmitting RA {} for node {}, port {}", advType, nodeName, outPort);
                     InstanceIdentifier<NodeConnector> outPortId = InstanceIdentifier.builder(Nodes.class)
@@ -701,7 +713,8 @@ public class IfMgr implements ElementCache, AutoCloseable {
                     ncRefList.add(new NodeConnectorRef(outPortId));
                 }
                 if (!ncRefList.isEmpty()) {
-                    ipv6RouterAdvert.transmitRtrAdvertisement(advType, intf, ncRefList, null);
+                    ipv6RouterAdvert.transmitRtrAdvertisement(advType, intf, ncRefList, null,
+                            routerReachableTimeMap.get(Ipv6Constants.IPV6_RA_REACHABLE_KEY));
                 }
             }
         }
@@ -711,29 +724,36 @@ public class IfMgr implements ElementCache, AutoCloseable {
         VirtualPort port = getPort(portId);
         LOG.debug("in transmitUnsolicitedRA for {}, port {}", portId, port);
         if (port != null) {
-            transmitUnsolicitedRA(port);
+            transmitUnsolicitedRA(port, routerReachableTimeMap.get(Ipv6Constants.IPV6_RA_REACHABLE_KEY),
+                    false);
         }
     }
 
-    public void transmitUnsolicitedRA(VirtualPort port) {
+    public void transmitUnsolicitedRA(VirtualPort port, long ipv6RouterReachableTime,
+                                      Boolean isRouterReachableTimeConfigured) {
         if (ipv6ServiceEosHandler.isClusterOwner()) {
             /* Only the Cluster Owner would be sending out the Periodic RAs.
                However, the timer is configured on all the nodes to handle cluster fail-over scenarios.
              */
+            if (Boolean.TRUE.equals(isRouterReachableTimeConfigured)) {
+                routerReachableTimeMap.put(Ipv6Constants.IPV6_RA_REACHABLE_KEY, ipv6RouterReachableTime);
+            }
             transmitRouterAdvertisement(port, Ipv6RtrAdvertType.UNSOLICITED_ADVERTISEMENT);
         }
-        Timeout portTimeout = timer.setPeriodicTransmissionTimeout(port.getPeriodicTimer(),
-                                                                   Ipv6Constants.PERIODIC_RA_INTERVAL,
-                                                                   TimeUnit.SECONDS);
-        port.setPeriodicTimeout(portTimeout);
-        LOG.debug("re-started periodic RA Timer for routerIntf {}, int {}s", port.getIntfUUID(),
-                   Ipv6Constants.PERIODIC_RA_INTERVAL);
+        if (!Boolean.TRUE.equals(isRouterReachableTimeConfigured)) {
+            Timeout portTimeout = timer.setPeriodicTransmissionTimeout(port.getPeriodicTimer(),
+                    Ipv6Constants.PERIODIC_RA_INTERVAL,
+                    TimeUnit.SECONDS);
+            port.setPeriodicTimeout(portTimeout);
+            LOG.debug("re-started periodic RA Timer for routerIntf {}, int {}s", port.getIntfUUID(),
+                    Ipv6Constants.PERIODIC_RA_INTERVAL);
+        }
     }
 
     @Override
     public List<IVirtualPort> getInterfaceCache() {
         List<IVirtualPort> virtualPorts = new ArrayList<>();
-        for (VirtualPort vport: vintfs.values()) {
+        for (VirtualPort vport : vintfs.values()) {
             virtualPorts.add(vport);
         }
         return virtualPorts;
@@ -742,7 +762,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
     @Override
     public List<IVirtualNetwork> getNetworkCache() {
         List<IVirtualNetwork> virtualNetworks = new ArrayList<>();
-        for (VirtualNetwork vnet: vnetworks.values()) {
+        for (VirtualNetwork vnet : vnetworks.values()) {
             virtualNetworks.add(vnet);
         }
         return virtualNetworks;
@@ -751,7 +771,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
     @Override
     public List<IVirtualSubnet> getSubnetCache() {
         List<IVirtualSubnet> virtualSubnets = new ArrayList<>();
-        for (VirtualSubnet vsubnet: vsubnets.values()) {
+        for (VirtualSubnet vsubnet : vsubnets.values()) {
             virtualSubnets.add(vsubnet);
         }
         return virtualSubnets;
@@ -760,9 +780,41 @@ public class IfMgr implements ElementCache, AutoCloseable {
     @Override
     public List<IVirtualRouter> getRouterCache() {
         List<IVirtualRouter> virtualRouter = new ArrayList<>();
-        for (VirtualRouter vrouter: vrouters.values()) {
+        for (VirtualRouter vrouter : vrouters.values()) {
             virtualRouter.add(vrouter);
         }
         return virtualRouter;
+    }
+
+    public void transmitUnsolicitedNA(VirtualPort port) {
+        Ipv6UnsolicitedNeighborAdvt ipv6UnsolicitedNbrAdvt = new Ipv6UnsolicitedNeighborAdvt(packetService);
+        Ipv6Address srcIpv6Address = Ipv6ServiceUtils.getIpv6LinkLocalAddressFromMac(
+                new MacAddress(port.getMacAddress()));
+
+        VirtualNetwork vnet = getNetwork(port.getNetworkID());
+        if (vnet != null) {
+            String nodeName;
+            String outPort;
+            Collection<VirtualNetwork.DpnInterfaceInfo> dpnIfaceList = vnet.getDpnIfaceList();
+            for (VirtualNetwork.DpnInterfaceInfo dpnIfaceInfo : dpnIfaceList) {
+                nodeName = Ipv6Constants.OPENFLOW_NODE_PREFIX + dpnIfaceInfo.getDpId();
+                List<NodeConnectorRef> ncRefList = new ArrayList<>();
+                for (Long ofPort : dpnIfaceInfo.ofPortList) {
+                    outPort = nodeName + ":" + ofPort;
+                    InstanceIdentifier<NodeConnector> outPortId = InstanceIdentifier.builder(Nodes.class)
+                            .child(Node.class, new NodeKey(new NodeId(nodeName)))
+                            .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(outPort)))
+                            .build();
+                    ncRefList.add(new NodeConnectorRef(outPortId));
+                }
+                if (!ncRefList.isEmpty()) {
+                    LOG.debug("in transmitUnsolicitedNA for router port {}, IPv6 Address {} from network {} on DPN {}",
+                            port, srcIpv6Address, port.getNetworkID(), dpnIfaceInfo.getDpId());
+                    ipv6UnsolicitedNbrAdvt.transmitUnsolicitedNeighborAdvt(ncRefList,
+                            new MacAddress(port.getMacAddress()), srcIpv6Address,
+                            Ipv6ServiceUtils.ALL_NODES_MCAST_ADDR);
+                }
+            }
+        }
     }
 }
