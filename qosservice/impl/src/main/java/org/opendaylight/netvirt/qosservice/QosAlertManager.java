@@ -8,9 +8,6 @@
 
 package org.opendaylight.netvirt.qosservice;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map.Entry;
@@ -26,8 +23,11 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetNodeConnectorStatisticsInputBuilder;
@@ -44,7 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.qosalert.config.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.node.connector.statistics.and.port.number.map.NodeConnectorStatisticsAndPortNumberMap;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -55,25 +54,12 @@ import org.slf4j.LoggerFactory;
 public final class QosAlertManager implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(QosAlertManager.class);
 
-    private static final FutureCallback<Void> DEFAULT_FUTURE_CALLBACK = new FutureCallback<Void>() {
-        @Override
-        public void onSuccess(Void result) {
-            LOG.debug("Datastore operation completed successfully");
-        }
-
-        @Override
-        public void onFailure(Throwable error) {
-            LOG.error("Error in datastore operation {}", error);
-        }
-
-    };
-
     private volatile boolean alertEnabled;
     private volatile int pollInterval;
     private volatile Thread thread;
     private volatile boolean statsPollThreadStart;
 
-    private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final QosalertConfig defaultConfig;
     private final OpendaylightDirectStatisticsService odlDirectStatisticsService;
     private final QosNeutronUtils qosNeutronUtils;
@@ -90,7 +76,7 @@ public final class QosAlertManager implements Runnable {
             final INeutronVpnManager neutronVpnManager) {
 
         LOG.debug("{} created",  getClass().getSimpleName());
-        this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.odlDirectStatisticsService = odlDirectStatisticsService;
         this.defaultConfig = defaultConfig;
         this.qosNeutronUtils = qosNeutronUtils;
@@ -312,14 +298,6 @@ public final class QosAlertManager implements Runnable {
         }
     }
 
-    private static <T extends DataObject> void asyncWrite(LogicalDatastoreType datastoreType,
-                                                          InstanceIdentifier<T> path, T data, DataBroker broker,
-                                                          FutureCallback<Void> callback) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.put(datastoreType, path, data, WriteTransaction.CREATE_MISSING_PARENTS);
-        Futures.addCallback(tx.submit(), callback, MoreExecutors.directExecutor());
-    }
-
     private void writeConfigDataStore(boolean qosAlertEnabled, short dropPacketThreshold, int alertPollInterval) {
 
         InstanceIdentifier<QosalertConfig> path = InstanceIdentifier.builder(QosalertConfig.class).build();
@@ -330,8 +308,9 @@ public final class QosAlertManager implements Runnable {
                 .setQosAlertPollInterval(alertPollInterval)
                 .build();
 
-        asyncWrite(LogicalDatastoreType.CONFIGURATION, path, qosAlertConfig, dataBroker,
-                DEFAULT_FUTURE_CALLBACK);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.put(LogicalDatastoreType.CONFIGURATION, path, qosAlertConfig,
+                    WriteTransaction.CREATE_MISSING_PARENTS)), LOG, "Error writing to the config data store");
     }
 
     private void pollDirectStatisticsForAllNodes() {
