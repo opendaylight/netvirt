@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bd6ebb73_be8272e8",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-11T10:25:50Z",
+      "side": 1,
+      "message": "Good idea !",
+      "parentUuid": "b705032e_71cb427a",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 1
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ebe74fdb_2e5108b4",
         "filename": "docs/specs/l3vpn-robustness.rst",
         "patchSetId": 13
@@ -36,6 +60,30 @@
       "writtenOn": "2018-04-11T08:53:13Z",
       "side": 1,
       "message": "This may require more explanation. VIP learning is done by GARP messages. I fail to understand why rapid VIP movement fails because the VPN engine is interface driven.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 1
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4c9cd0e_273a38f0",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-11T10:25:50Z",
+      "side": 1,
+      "message": "When you haven an interface driven engine (similar to elan) rather than an ip-driven engine, and the VRRP IP moves, two threads will be triggered:\n\none thread keyed on vpninterface1 will try to remove the MIP FIB Entry referring old next hop.\nanother thread keyed on new vpninterfac2 where MIP landed will try to add a FIB Entry referring to new next hop.\nThese two threads would end up racing and first would end up running after the second eventually flushing out the MIP from the flows as well as the DC-GW.",
+      "parentUuid": "ebe74fdb_2e5108b4",
       "range": {
         "startLine": 44,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "061e7f05_818e45c9",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-11T10:25:50Z",
+      "side": 1,
+      "message": "vpn engine is exposing APIs that enables you to tell the vpnInstance and the vpnInterfaces that belong in them.\n\nWhen a router-association to a vpn is made, the vpn-interfaces in the config are moved from the router-instance to the vpn-instance.\n\nThis triggers a whole band of workflows where we need to serialized per vpn-interface basis, so that we donot end up with bind/unbind racing scenarios.  The bind/unbind racing scenarios happen because L3 is just one service-binding for an Interface regardless of whether the interface is in a BGPVPN or plain router.",
+      "parentUuid": "589499e1_feb4157b",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 6
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "df286e32_eed2829d",
         "filename": "docs/specs/l3vpn-robustness.rst",
         "patchSetId": 13
@@ -82,6 +154,30 @@
       "writtenOn": "2018-04-11T08:53:13Z",
       "side": 1,
       "message": "Like the above mentioned items, it would be good to articulate the exact failure scenarios.",
+      "range": {
+        "startLine": 50,
+        "startChar": 1,
+        "endLine": 54,
+        "endChar": 65
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bf5af91_06326ea5",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-11T10:25:50Z",
+      "side": 1,
+      "message": "At this point, we have bugs failed on some failures.   Constantly repeating heat templates like above makes ODL go out of sync with the currently tagged active vpn instance in openstack.  That is the problem the below use-cases will trigger and this spec will address.",
+      "parentUuid": "df286e32_eed2829d",
       "range": {
         "startLine": 50,
         "startChar": 1,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "7518fa3a_1a45c82a",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-11T10:25:50Z",
+      "side": 1,
+      "message": "no we are not considering that case as Dual Router is still in review here and we donot have an understanding of the same yet fully.",
+      "parentUuid": "9f642b5f_b507579c",
+      "range": {
+        "startLine": 84,
+        "startChar": 1,
+        "endLine": 86,
+        "endChar": 1
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "713930e9_5e271c34",
         "filename": "docs/specs/l3vpn-robustness.rst",
         "patchSetId": 13
@@ -128,6 +248,30 @@
       "writtenOn": "2018-04-11T08:53:13Z",
       "side": 1,
       "message": "This use case should normally not cause the swap to be triggered. Is it possible to fix the VPN engine to not trigger the swap\n\nOTOH, we should cover the use case where the orchestrator associates and disassociates a router to a set of subnets back to back.",
+      "range": {
+        "startLine": 127,
+        "startChar": 0,
+        "endLine": 130,
+        "endChar": 1
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "849f9c88_645edd0c",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-11T10:25:50Z",
+      "side": 1,
+      "message": "Please first freeze the VPN APIs officially before requesting the router swap should not be triggered.\n\nVPN APIs allow random networks and routers to co-exist on the same VPN , which makes us trigger the swap.  If we officially endorse the the VPN api that we support in ODL will either accept only one router (or) accept only multiple networks, then we can definitely avoid the swap , which is the most expensive operation today :(",
+      "parentUuid": "713930e9_5e271c34",
       "range": {
         "startLine": 127,
         "startChar": 0,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "cfd9e83a_d86f3226",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-11T10:25:50Z",
+      "side": 1,
+      "message": "correct.  But for folks who don\u0027t have idea on what is RIB and FIB being referred below in the implementor steps, it would be useful so I dropped these lines.",
+      "parentUuid": "d43b89e5_1053bd0f",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 97
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "318b6855_44fe135c",
         "filename": "docs/specs/l3vpn-robustness.rst",
         "patchSetId": 13
@@ -174,6 +342,30 @@
       "writtenOn": "2018-04-11T08:53:13Z",
       "side": 1,
       "message": "This should be already supported right? Or is this use case not supported in ODL today?\nAlso the work flow does not contain any details on the orchestration of secondary IPs.",
+      "range": {
+        "startLine": 147,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 1
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67de4a88_52c6b694",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-11T10:25:50Z",
+      "side": 1,
+      "message": "The intent is not to provide a complete testplan in the specification.  The CSIT for this spec can extend this UC and add a secondary MIP to the VMs on Network1.\n\nThe focus of the spec is more on how the customer will use heat templates to orchestrate BGPVPNs.  And more important how when such heat templates are ordered and run could cause havoc in the ODL system.",
+      "parentUuid": "318b6855_44fe135c",
       "range": {
         "startLine": 147,
         "startChar": 0,
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "f25ea883_263444e3",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-11T10:25:50Z",
+      "side": 1,
+      "message": "It is not like UCs here are all broken.   The UCs here has not been excited at all yet in ODL..  They may break or might not, regardless we need to provide a design that will work reliably for these use-cases.",
+      "parentUuid": "ed97db14_95df9fa6",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 171,
+        "endChar": 103
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "92863ee9_05babb51",
         "filename": "docs/specs/l3vpn-robustness.rst",
         "patchSetId": 13
@@ -220,6 +436,30 @@
       "writtenOn": "2018-04-11T08:53:13Z",
       "side": 1,
       "message": "I do not understand this use case. What is the purpose of creating multiple networks with overlapping CIDRs and associating them to the same VPN?",
+      "range": {
+        "startLine": 195,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 74
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd5ceeed_518cf8ae",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-11T10:25:50Z",
+      "side": 1,
+      "message": "This is a public cloud case where a given CIDR is available and is offerered to different tenants on different days. First a tenant is allotted that CIDR with Network1.  Initially he uses that CIDR in network1 and puts them into VPN1.  After couple days that tenant moves out and a new tenant is reallotted that same CIDR which goes into network2 and network2 is moved by vpn admin into the same VPN.",
+      "parentUuid": "92863ee9_05babb51",
       "range": {
         "startLine": 195,
         "startChar": 0,
@@ -266,6 +506,30 @@
       "writtenOn": "2018-04-11T08:53:13Z",
       "side": 1,
       "message": "wouldn\u0027t there be a similar container for ipv6 entries?",
+      "range": {
+        "startLine": 530,
+        "startChar": 12,
+        "endLine": 535,
+        "endChar": 10
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc7db772_f2e56cba",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-11T10:25:50Z",
+      "side": 1,
+      "message": "This bunch is maintained by NATService .  Since for IPv6 no NATing is required, we donot need equivalent IPv6 bunch.",
+      "parentUuid": "1177ea04_c8d08674",
       "range": {
         "startLine": 530,
         "startChar": 12,
