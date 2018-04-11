@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.qosservice;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +26,8 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -116,6 +117,7 @@ public class QosNeutronUtils {
     private final INeutronVpnManager neutronVpnManager;
     private final OdlInterfaceRpcService odlInterfaceRpcService;
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IMdsalApiManager mdsalUtils;
     private final JobCoordinator jobCoordinator;
 
@@ -127,6 +129,7 @@ public class QosNeutronUtils {
         this.neutronVpnManager = neutronVpnManager;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalUtils = mdsalUtils;
         this.jobCoordinator = jobCoordinator;
     }
@@ -199,22 +202,19 @@ public class QosNeutronUtils {
 
         QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
 
-        jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            // handle Bandwidth Limit Rules update
-            if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
-                    && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
-                setPortBandwidthLimits(port, qosPolicy.getBandwidthLimitRules().get(0), wrtConfigTxn);
-            }
-            // handle DSCP Mark Rules update
-            if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
-                    && !qosPolicy.getDscpmarkingRules().isEmpty()) {
-                setPortDscpMarking(port, qosPolicy.getDscpmarkingRules().get(0));
-            }
-            futures.add(wrtConfigTxn.submit());
-            return futures;
-        });
+        jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(),
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                // handle Bandwidth Limit Rules update
+                if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
+                        && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
+                    setPortBandwidthLimits(port, qosPolicy.getBandwidthLimitRules().get(0), tx);
+                }
+                // handle DSCP Mark Rules update
+                if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
+                        && !qosPolicy.getDscpmarkingRules().isEmpty()) {
+                    setPortDscpMarking(port, qosPolicy.getDscpmarkingRules().get(0));
+                }
+            })));
     }
 
     public void handleNeutronPortQosUpdate(Port port, Uuid qosUuidNew, Uuid qosUuidOld) {
@@ -223,35 +223,32 @@ public class QosNeutronUtils {
         QosPolicy qosPolicyNew = qosPolicyMap.get(qosUuidNew);
         QosPolicy qosPolicyOld = qosPolicyMap.get(qosUuidOld);
 
-        jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            // handle Bandwidth Limit Rules update
-            if (qosPolicyNew != null && qosPolicyNew.getBandwidthLimitRules() != null
-                    && !qosPolicyNew.getBandwidthLimitRules().isEmpty()) {
-                setPortBandwidthLimits(port, qosPolicyNew.getBandwidthLimitRules().get(0), wrtConfigTxn);
-            } else {
-                if (qosPolicyOld != null && qosPolicyOld.getBandwidthLimitRules() != null
-                        && !qosPolicyOld.getBandwidthLimitRules().isEmpty()) {
-                    BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
-                    setPortBandwidthLimits(port, bwLimitBuilder
-                            .setMaxBurstKbps(BigInteger.ZERO)
-                            .setMaxKbps(BigInteger.ZERO).build(), wrtConfigTxn);
+        jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(),
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                // handle Bandwidth Limit Rules update
+                if (qosPolicyNew != null && qosPolicyNew.getBandwidthLimitRules() != null
+                        && !qosPolicyNew.getBandwidthLimitRules().isEmpty()) {
+                    setPortBandwidthLimits(port, qosPolicyNew.getBandwidthLimitRules().get(0), tx);
+                } else {
+                    if (qosPolicyOld != null && qosPolicyOld.getBandwidthLimitRules() != null
+                            && !qosPolicyOld.getBandwidthLimitRules().isEmpty()) {
+                        BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
+                        setPortBandwidthLimits(port, bwLimitBuilder
+                                .setMaxBurstKbps(BigInteger.ZERO)
+                                .setMaxKbps(BigInteger.ZERO).build(), tx);
+                    }
                 }
-            }
-            //handle DSCP Mark Rules update
-            if (qosPolicyNew != null && qosPolicyNew.getDscpmarkingRules() != null
-                    && !qosPolicyNew.getDscpmarkingRules().isEmpty()) {
-                setPortDscpMarking(port, qosPolicyNew.getDscpmarkingRules().get(0));
-            } else {
-                if (qosPolicyOld != null && qosPolicyOld.getDscpmarkingRules() != null
-                        && !qosPolicyOld.getDscpmarkingRules().isEmpty()) {
-                    unsetPortDscpMark(port);
+                //handle DSCP Mark Rules update
+                if (qosPolicyNew != null && qosPolicyNew.getDscpmarkingRules() != null
+                        && !qosPolicyNew.getDscpmarkingRules().isEmpty()) {
+                    setPortDscpMarking(port, qosPolicyNew.getDscpmarkingRules().get(0));
+                } else {
+                    if (qosPolicyOld != null && qosPolicyOld.getDscpmarkingRules() != null
+                            && !qosPolicyOld.getDscpmarkingRules().isEmpty()) {
+                        unsetPortDscpMark(port);
+                    }
                 }
-            }
-            futures.add(wrtConfigTxn.submit());
-            return futures;
-        });
+            })));
     }
 
     public void handleNeutronPortQosRemove(Port port, Uuid qosUuid) {
@@ -267,25 +264,22 @@ public class QosNeutronUtils {
         } else {
             QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
 
-            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                // handle Bandwidth Limit Rules removal
-                if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
-                        && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
-                    BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
-                    setPortBandwidthLimits(port, bwLimitBuilder
-                            .setMaxBurstKbps(BigInteger.ZERO)
-                            .setMaxKbps(BigInteger.ZERO).build(), wrtConfigTxn);
-                }
-                // handle DSCP MArk Rules removal
-                if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
-                        && !qosPolicy.getDscpmarkingRules().isEmpty()) {
-                    unsetPortDscpMark(port);
-                }
-                futures.add(wrtConfigTxn.submit());
-                return futures;
-            });
+            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(),
+                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                    // handle Bandwidth Limit Rules removal
+                    if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
+                            && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
+                        BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
+                        setPortBandwidthLimits(port, bwLimitBuilder
+                                .setMaxBurstKbps(BigInteger.ZERO)
+                                .setMaxKbps(BigInteger.ZERO).build(), tx);
+                    }
+                    // handle DSCP MArk Rules removal
+                    if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
+                            && !qosPolicy.getDscpmarkingRules().isEmpty()) {
+                        unsetPortDscpMark(port);
+                    }
+                })));
         }
     }
 
@@ -294,15 +288,12 @@ public class QosNeutronUtils {
         QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
 
         jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
             //check if any DSCP rule in the policy
             if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
                     && !qosPolicy.getDscpmarkingRules().isEmpty()) {
                 unsetPortDscpMark(port);
             }
-            futures.add(wrtConfigTxn.submit());
-            return futures;
+            return Collections.emptyList();
         });
     }
 
@@ -311,14 +302,11 @@ public class QosNeutronUtils {
         QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
 
         jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
             if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
                     && !qosPolicy.getDscpmarkingRules().isEmpty()) {
                 unsetPortDscpMark(port, intrf);
             }
-            futures.add(wrtConfigTxn.submit());
-            return futures;
+            return Collections.emptyList();
         });
     }
 
@@ -339,20 +327,17 @@ public class QosNeutronUtils {
                 Port port = neutronVpnManager.getNeutronPort(portId);
                 if (port != null && (port.getAugmentation(QosPortExtension.class) == null
                         || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
-                    jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
-                        WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                        List<ListenableFuture<Void>> futures = new ArrayList<>();
-                        if (qosPolicy.getBandwidthLimitRules() != null
-                                && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
-                            setPortBandwidthLimits(port, qosPolicy.getBandwidthLimitRules().get(0),
-                                    wrtConfigTxn);
-                        }
-                        if (qosPolicy.getDscpmarkingRules() != null && !qosPolicy.getDscpmarkingRules().isEmpty()) {
-                            setPortDscpMarking(port, qosPolicy.getDscpmarkingRules().get(0));
-                        }
-                        futures.add(wrtConfigTxn.submit());
-                        return futures;
-                    });
+                    jobCoordinator.enqueueJob("QosPort-" + portId.getValue(),
+                        () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                            if (qosPolicy.getBandwidthLimitRules() != null
+                                    && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
+                                setPortBandwidthLimits(port, qosPolicy.getBandwidthLimitRules().get(0), tx);
+                            }
+                            if (qosPolicy.getDscpmarkingRules() != null
+                                    && !qosPolicy.getDscpmarkingRules().isEmpty()) {
+                                setPortDscpMarking(port, qosPolicy.getDscpmarkingRules().get(0));
+                            }
+                        })));
                 }
             }
         }
@@ -369,23 +354,20 @@ public class QosNeutronUtils {
                 Port port = neutronVpnManager.getNeutronPort(portId);
                 if (port != null && (port.getAugmentation(QosPortExtension.class) == null
                         || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
-                    jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
-                        WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                        List<ListenableFuture<Void>> futures = new ArrayList<>();
-                        if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
-                                && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
-                            BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
-                            setPortBandwidthLimits(port, bwLimitBuilder
-                                    .setMaxBurstKbps(BigInteger.ZERO)
-                                    .setMaxKbps(BigInteger.ZERO).build(), null);
-                        }
-                        if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
-                                && !qosPolicy.getDscpmarkingRules().isEmpty()) {
-                            unsetPortDscpMark(port);
-                        }
-                        futures.add(wrtConfigTxn.submit());
-                        return futures;
-                    });
+                    jobCoordinator.enqueueJob("QosPort-" + portId.getValue(),
+                        () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                            if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
+                                    && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
+                                BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
+                                setPortBandwidthLimits(port, bwLimitBuilder
+                                        .setMaxBurstKbps(BigInteger.ZERO)
+                                        .setMaxKbps(BigInteger.ZERO).build(), tx);
+                            }
+                            if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
+                                    && !qosPolicy.getDscpmarkingRules().isEmpty()) {
+                                unsetPortDscpMark(port);
+                            }
+                        })));
                 }
             }
         }
@@ -402,13 +384,9 @@ public class QosNeutronUtils {
                 Port port = neutronVpnManager.getNeutronPort(portId);
                 if (port != null && (port.getAugmentation(QosPortExtension.class) == null
                         || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
-                    jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
-                        WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                        List<ListenableFuture<Void>> futures = new ArrayList<>();
-                        setPortBandwidthLimits(port, zeroBwLimitRule, wrtConfigTxn);
-                        futures.add(wrtConfigTxn.submit());
-                        return futures;
-                    });
+                    jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> Collections.singletonList(
+                            txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                                tx -> setPortBandwidthLimits(port, zeroBwLimitRule, tx))));
                 }
             }
         }
@@ -426,11 +404,8 @@ public class QosNeutronUtils {
                 if (port != null && (port.getAugmentation(QosPortExtension.class) == null
                         || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
                     jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
-                        WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                        List<ListenableFuture<Void>> futures = new ArrayList<>();
                         unsetPortDscpMark(port);
-                        futures.add(wrtConfigTxn.submit());
-                        return futures;
+                        return Collections.emptyList();
                     });
                 }
             }
