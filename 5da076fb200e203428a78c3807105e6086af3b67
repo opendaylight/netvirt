@@ -16,6 +16,24 @@
       "revId": "5da076fb200e203428a78c3807105e6086af3b67",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7ea9dd91_bbd5b974",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-04-11T05:30:20Z",
+      "side": 1,
+      "message": "Hi Ashwin,\n\nunlike the issue observed with CentralizedSwitchChangeListener(when remove is called, ext-routers entity is deleted from DS), here NatUtil.getDpIdFromInterface(intrf) will get the dpnid directly from Interface-state(lower-layer-if) for which NatInterfaceStateListener.remove() been called. \n\n{\n \"admin-status\": \"up\",\n \"if-index\": 38,\n \"lower-layer-if\": [\n     \"openflow:80064037799262:12\"\n ],\n \"name\": \"40a1247f-c589-4dbd-b7b9-a84dcf802aae\",\n \"oper-status\": \"up\",\n \"phys-address\": \"fe:16:3e:38:0d:7a\",\n \"statistics\": {\n      \"discontinuity-time\": \"2018-03-27T10:46:43.333Z\"\n },\n \"type\": \"iana-if-type:l2vlan\"\n }\n\n\nI don\u0027t see when we can an have interface-state entry for interface with missing lower-layer-if data. \n\nWe have plans to implement cache-based mechanism in NAT going forward. Would take to consider the approach during this(or faced with really missing dpnid value in lower-layer-if)",
+      "parentUuid": "3517d02d_94c25723",
+      "revId": "5da076fb200e203428a78c3807105e6086af3b67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
