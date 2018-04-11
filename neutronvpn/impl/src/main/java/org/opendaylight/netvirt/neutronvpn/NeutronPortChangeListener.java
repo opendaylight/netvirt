@@ -566,7 +566,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         final String portName = port.getUuid().getValue();
         final Uuid portId = port.getUuid();
         final List<FixedIps> portIpAddrsList = port.getFixedIps();
-        if (NeutronConstants.IS_ODL_DHCP_PORT.test(port)) {
+        if (NeutronConstants.IS_ODL_DHCP_PORT.test(port) || NeutronConstants.IS_DHCP_PORT.test(port)) {
             return;
         }
         jobCoordinator.enqueueJob("PORT- " + portName, () -> {
