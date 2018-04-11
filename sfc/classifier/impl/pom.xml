@@ -118,6 +118,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-binding-broker-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava-testlib</artifactId>
         </dependency>
