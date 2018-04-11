@@ -7,10 +7,10 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,12 +19,14 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.srm.RecoverableListener;
 import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.neutronvpn.api.utils.ChangeUtils;
 import org.opendaylight.netvirt.qosservice.recovery.QosServiceRecoveryHandler;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -49,6 +51,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
                                                 QosPolicyChangeListener> implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(QosPolicyChangeListener.class);
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final QosAlertManager qosAlertManager;
     private final QosNeutronUtils qosNeutronUtils;
     private final JobCoordinator jobCoordinator;
@@ -60,6 +63,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
                                    final QosServiceRecoveryHandler qosServiceRecoveryHandler) {
         super(QosPolicy.class, QosPolicyChangeListener.class);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.qosAlertManager = qosAlertManager;
         this.qosNeutronUtils = qosNeutronUtils;
         this.jobCoordinator = jobCoordinator;
@@ -170,13 +174,9 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
             qosAlertManager.addToQosAlertCache(port);
-            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                qosNeutronUtils.setPortBandwidthLimits(port, input, wrtConfigTxn);
-                futures.add(wrtConfigTxn.submit());
-                return futures;
-            });
+            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> Collections.singletonList(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                        tx -> qosNeutronUtils.setPortBandwidthLimits(port, input, tx))));
         }
     }
 
@@ -191,11 +191,8 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
             jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 qosNeutronUtils.setPortDscpMarking(port, input);
-                futures.add(wrtConfigTxn.submit());
-                return futures;
+                return Collections.emptyList();
             });
         }
     }
@@ -221,13 +218,9 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
             qosAlertManager.removeFromQosAlertCache(port);
-            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                qosNeutronUtils.setPortBandwidthLimits(port, zeroBwLimitRule, wrtConfigTxn);
-                futures.add(wrtConfigTxn.submit());
-                return futures;
-            });
+            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> Collections.singletonList(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                        tx -> qosNeutronUtils.setPortBandwidthLimits(port, zeroBwLimitRule, tx))));
         }
     }
 
@@ -242,11 +235,8 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
             jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 qosNeutronUtils.unsetPortDscpMark(port);
-                futures.add(wrtConfigTxn.submit());
-                return futures;
+                return Collections.emptyList();
             });
         }
     }
@@ -287,13 +277,9 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
         }
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
-            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                qosNeutronUtils.setPortBandwidthLimits(port, update, wrtConfigTxn);
-                futures.add(wrtConfigTxn.submit());
-                return futures;
-            });
+            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> Collections.singletonList(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                        tx -> qosNeutronUtils.setPortBandwidthLimits(port, update, tx))));
         }
     }
 
@@ -312,11 +298,8 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
             jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 qosNeutronUtils.setPortDscpMarking(port, update);
-                futures.add(wrtConfigTxn.submit());
-                return futures;
+                return Collections.emptyList();
             });
         }
     }
@@ -329,15 +312,12 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
         value.add(getRuleTypes("dscp_marking_rules"));
 
         qrtBuilder.setRuleTypes(value);
-        final WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
 
-        InstanceIdentifier instanceIdentifier = InstanceIdentifier.create(Neutron.class).child(QosRuleTypes.class);
-
-        writeTx.merge(LogicalDatastoreType.OPERATIONAL, instanceIdentifier, qrtBuilder.build());
-        writeTx.submit();
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            InstanceIdentifier instanceIdentifier = InstanceIdentifier.create(Neutron.class).child(QosRuleTypes.class);
+            tx.merge(LogicalDatastoreType.OPERATIONAL, instanceIdentifier, qrtBuilder.build());
+        }), LOG, "Error setting up supported QoS rule types");
     }
-
-
 
     private RuleTypes getRuleTypes(String ruleType) {
         RuleTypesBuilder rtBuilder = new RuleTypesBuilder();
