@@ -31,7 +31,7 @@ public interface Ipv6Constants {
     int IPV6_ROUTER_LIFETIME = 4500;
     int IPV6_RA_VALID_LIFETIME = 2592000;
     int IPV6_RA_PREFERRED_LIFETIME = 604800;
-    int IPV6_RA_REACHABLE_TIME = 120000;
+    long IPV6_RA_REACHABLE_TIME = 120000;
 
     short ICMP_V6_TYPE = 58;
     short ICMP_V6_RS_CODE = 133;
@@ -73,6 +73,7 @@ public interface Ipv6Constants {
     String DEF_MCAST_MAC = "33:33:00:00:00:01";
     //default periodic RA transmission interval. timeunit in sec
     long PERIODIC_RA_INTERVAL = 60;
+    String IPV6_RA_REACHABLE_KEY = "ipv6RouterReachableTime";
 
     enum Ipv6RtrAdvertType {
         UNSOLICITED_ADVERTISEMENT,

@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -33,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.config.rev180411.Ipv6serviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.Ipv6Header;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.NeighborAdvertisePacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.NeighborAdvertisePacketBuilder;
@@ -56,11 +58,17 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
     private final PacketProcessingService pktService;
     private final IfMgr ifMgr;
     private final ExecutorService packetProcessor = Executors.newCachedThreadPool();
+    private final long ipv6RouterReachableTime;
 
     @Inject
-    public Ipv6PktHandler(PacketProcessingService pktService, IfMgr ifMgr) {
+    public Ipv6PktHandler(PacketProcessingService pktService, IfMgr ifMgr, Ipv6serviceConfig ipv6serviceConfig) {
         this.pktService = pktService;
         this.ifMgr = ifMgr;
+        if (ipv6serviceConfig != null) {
+            ipv6RouterReachableTime = TimeUnit.SECONDS.toMillis(ipv6serviceConfig.getIpv6RouterReachableTime());
+        } else {
+            ipv6RouterReachableTime = Ipv6Constants.IPV6_RA_REACHABLE_TIME;
+        }
     }
 
     @Override
@@ -323,7 +331,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             List<NodeConnectorRef> ncRefList = new ArrayList<>();
             ncRefList.add(packet.getIngress());
             ipv6RouterAdvert.transmitRtrAdvertisement(Ipv6RtrAdvertType.SOLICITED_ADVERTISEMENT,
-                                                      routerPort, ncRefList, rsPdu);
+                                                      routerPort, ncRefList, rsPdu, ipv6RouterReachableTime);
             pktProccessedCounter.incrementAndGet();
         }
 
