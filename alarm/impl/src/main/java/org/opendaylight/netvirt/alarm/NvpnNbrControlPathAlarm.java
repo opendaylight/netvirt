@@ -30,9 +30,9 @@ public class NvpnNbrControlPathAlarm extends NotificationBroadcasterSupport impl
 
     private static final Logger LOG = LoggerFactory.getLogger(NvpnNbrControlPathAlarm.class);
 
-    private AtomicInteger sequenceNumber = new AtomicInteger(0);
+    private final AtomicInteger sequenceNumber = new AtomicInteger(0);
 
-    private ConcurrentMap<String, List<String>> raiseAlarmObjectMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, List<String>> raiseAlarmObjectMap = new ConcurrentHashMap<>();
 
     @Override
     public void raiseAlarm(String alarmName, String additionalText, String source, String detailsInfo) {
@@ -78,7 +78,7 @@ public class NvpnNbrControlPathAlarm extends NotificationBroadcasterSupport impl
 
     @Override
     public void handleNotification(NotificationListener listener, Notification notif, Object handback) {
-        AttributeChangeNotification attrib = null;
+        AttributeChangeNotification attrib;
         try {
             attrib = (AttributeChangeNotification) notif;
         } catch (ClassCastException e) {
