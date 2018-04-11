@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "851a6eef_1d9ea511",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-11T07:46:54Z",
+      "side": 1,
+      "message": "Please wrap these lines (something like 80 chars). Its difficult to read/review in the current state.",
+      "range": {
+        "startLine": 9,
+        "startChar": 13,
+        "endLine": 9,
+        "endChar": 72
+      },
+      "revId": "58e45e64dec1a88fa817f5ca00da64ebbb89e36a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
