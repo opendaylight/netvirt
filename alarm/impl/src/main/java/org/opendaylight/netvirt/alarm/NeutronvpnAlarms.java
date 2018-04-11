@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public class NeutronvpnAlarms {
 
     private static final Logger LOG = LoggerFactory.getLogger(NeutronvpnAlarms.class);
-    protected NvpnJMXAlarmAgent alarmAgent = new NvpnJMXAlarmAgent();
+    protected final NvpnJMXAlarmAgent alarmAgent = new NvpnJMXAlarmAgent();
     private static final String ALARM_TEXT = "ExtraRouteConfigFaultAlarm";
     private static final String ALARM_ID = "NeutronvpnControlPathFailure";
     private static final String SOURCE_START = "neutronvpn:";

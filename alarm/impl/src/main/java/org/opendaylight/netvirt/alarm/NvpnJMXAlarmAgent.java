@@ -30,9 +30,9 @@ public class NvpnJMXAlarmAgent {
     public static final String OP_CLEARALARM = "clearAlarm";
     private static final Logger LOG = LoggerFactory.getLogger(NvpnJMXAlarmAgent.class);
 
-    public MBeanServer mbs = null;
+    private MBeanServer mbs;
     private ObjectName alarmName = null;
-    private NvpnNbrControlPathAlarm alarmBean = new NvpnNbrControlPathAlarm();
+    private final NvpnNbrControlPathAlarm alarmBean = new NvpnNbrControlPathAlarm();
 
     public NvpnJMXAlarmAgent() {
         mbs = ManagementFactory.getPlatformMBeanServer();
