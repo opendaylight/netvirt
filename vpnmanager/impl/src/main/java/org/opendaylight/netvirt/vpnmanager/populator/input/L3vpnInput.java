@@ -8,6 +8,9 @@
 package org.opendaylight.netvirt.vpnmanager.populator.input;
 
 import java.math.BigInteger;
+import java.util.List;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
@@ -16,7 +19,7 @@ public class L3vpnInput {
     private String rd;
     private String primaryRd;
     private Adjacency nextHop;
-    private String nextHopIp;
+    private List<Pair<String, String>> nextHopRdPair;
     private String gatewayMac;
     private String subnetGatewayMacAddress;
     private Long l3vni;
@@ -29,6 +32,8 @@ public class L3vpnInput {
     private Long label;
     private Long elanTag;
     private String networkName;
+    private String ipAddress;
+    private String macAddress;
 
     public String getRd() {
         return rd;
@@ -42,8 +47,8 @@ public class L3vpnInput {
         return nextHop;
     }
 
-    public String getNextHopIp() {
-        return nextHopIp;
+    public List<Pair<String, String>> getNextHopRdPair() {
+        return nextHopRdPair;
     }
 
     public String getGatewayMac() {
@@ -94,6 +99,14 @@ public class L3vpnInput {
         return subnetIp;
     }
 
+    public String getIpAddress() {
+        return  ipAddress;
+    }
+
+    public String getMacAddress() {
+        return  macAddress;
+    }
+
     public L3vpnInput setPrimaryRd(String primaryRd) {
         this.primaryRd = primaryRd;
         return this;
@@ -109,8 +122,8 @@ public class L3vpnInput {
         return this;
     }
 
-    public L3vpnInput setNextHopIp(String nextHopIp) {
-        this.nextHopIp = nextHopIp;
+    public L3vpnInput setNextHopRdPair(List<Pair<String, String>> nextHopRdPair) {
+        this.nextHopRdPair = nextHopRdPair;
         return this;
     }
 
@@ -171,6 +184,16 @@ public class L3vpnInput {
 
     public L3vpnInput setNetworkName(String networkName) {
         this.networkName = networkName;
+        return this;
+    }
+
+    public L3vpnInput setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+        return this;
+    }
+
+    public L3vpnInput setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
         return this;
     }
 }

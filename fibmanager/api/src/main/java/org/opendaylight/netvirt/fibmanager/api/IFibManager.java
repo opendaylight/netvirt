@@ -60,6 +60,9 @@ public interface IFibManager {
     void removeOrUpdateFibEntry(String rd, String prefix, String nextHopToRemove,
                                 WriteTransaction writeConfigTxn);
 
+    void removeOrUpdateFibEntry(String rd, String prefix, List<String> nextHopsToRemove,
+                                WriteTransaction writeConfigTxn);
+
     void removeFibEntry(String rd, String prefix, WriteTransaction writeConfigTxn);
 
     void updateRoutePathForFibEntry(String rd, String prefix, String nextHop,

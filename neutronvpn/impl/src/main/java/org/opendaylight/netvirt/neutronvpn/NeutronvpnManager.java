@@ -1935,6 +1935,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     LOG.warn("updateExtraRouteAdjacency: NextHop interface not available for extra-route"
                             + " destination {} on VPN {} with nexthop {}", destination, vpnName.getValue(), nextHop);
                 }
+
                 InstanceIdentifier<NextHop> nextHopId = InstanceIdentifier.builder(ExtraRouteAdjacency.class)
                         .child(Vpn.class, new VpnKey(vpnName.getValue())).child(Destination.class,
                                 new DestinationKey(vpnName.getValue())).child(NextHop.class,
@@ -1970,6 +1971,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                     interfaceName);
                             SingleTransactionDataBroker.syncDelete(dataBroker, OPERATIONAL, nextHopId);
                         }
+                        default:
+                            LOG.error("updateExtraRouteAdjacency: Unknown value provided for switch case");
                         break;
                         default: {
                             LOG.warn("updateExtraRouteAdjacency: Wrong value provided for switch case {} destination"
