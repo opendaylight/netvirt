@@ -22,15 +22,21 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.TaskRetryLooper;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.infrautils.metrics.Counter;
+import org.opendaylight.infrautils.metrics.Labeled;
+import org.opendaylight.infrautils.metrics.MetricDescriptor;
+import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.netvirt.elan.l2gw.ha.BatchedTransaction;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Managers;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +50,27 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
     private final ListenerRegistration<HwvtepNodeBaseListener> registration;
     private final DataBroker dataBroker;
     private final HwvtepNodeHACache hwvtepNodeHACache;
+    private final MetricProvider metricProvider;
+    private final LogicalDatastoreType datastoreType;
+
+    Labeled<Labeled<Labeled<Labeled<Counter>>>> childModCounter;//config.add.remoteUcast.nodeid
+    Labeled<Labeled<Labeled<Counter>>> nodeModCounter;//config.add.nodeid
+    private final boolean updateCounter;
 
     public HwvtepNodeBaseListener(LogicalDatastoreType datastoreType, DataBroker dataBroker,
-            HwvtepNodeHACache hwvtepNodeHACache) throws Exception {
+                                  HwvtepNodeHACache hwvtepNodeHACache, MetricProvider metricProvider,
+                                  boolean updateCounter) throws Exception {
         this.dataBroker = dataBroker;
+        this.datastoreType = datastoreType;
         this.hwvtepNodeHACache = hwvtepNodeHACache;
-
+        this.metricProvider = metricProvider;
+        this.updateCounter = updateCounter;
+        this.childModCounter = metricProvider.newCounter(
+                MetricDescriptor.builder().anchor(this).project("netvirt").module("l2gw").id("child").build(),
+                "datastore", "modification",  "class", "nodeid");
+        this.nodeModCounter = metricProvider.newCounter(
+                MetricDescriptor.builder().anchor(this).project("netvirt").module("l2gw").id("node").build(),
+                "datastore", "modification", "nodeid");
         final DataTreeIdentifier<Node> treeId = new DataTreeIdentifier<>(datastoreType, getWildcardPath());
         TaskRetryLooper looper = new TaskRetryLooper(STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);
         registration = looper.loopUntilNoException(() ->
@@ -121,11 +142,30 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             String nodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
             Node updated = HwvtepHAUtil.getUpdated(mod);
             Node original = HwvtepHAUtil.getOriginal(mod);
+            Collection<DataObjectModification<? extends DataObject>> childModCollection = null;
+            DataObjectModification subMod = null;
             if (updated != null && original != null) {
                 if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
                     onGlobalNodeUpdate(key, updated, original, mod, tx);
+                    subMod = change.getRootNode().getModifiedAugmentation(HwvtepGlobalAugmentation.class);
                 } else {
                     onPsNodeUpdate(updated, original, mod, tx);
+                    subMod = change.getRootNode().getModifiedAugmentation(PhysicalSwitchAugmentation.class);
+                }
+                if (subMod != null) {
+                    childModCollection = subMod.getModifiedChildren();
+                }
+                if (childModCollection != null) {
+                    childModCollection.forEach(childMod -> {
+                        String childClsName = childMod.getDataType().getClass().getSimpleName();
+                        String modificationType = childMod.getModificationType().toString();
+                        if (updateCounter) {
+                            childModCounter.label(datastoreType.name())
+                                    .label(modificationType)
+                                    .label(childClsName)
+                                    .label(nodeId);
+                        }
+                    });
                 }
             }
         }
@@ -141,6 +181,9 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             Node deleted = HwvtepHAUtil.getRemoved(mod);
             String nodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
             if (deleted != null) {
+                if (updateCounter) {
+                    nodeModCounter.label(datastoreType.name()).label("delete").label(nodeId).increment();
+                }
                 if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
                     LOG.trace("Handle global node delete {}", deleted.getNodeId().getValue());
                     onGlobalNodeDelete(key, deleted, tx);
@@ -161,6 +204,9 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             Node node = HwvtepHAUtil.getCreated(mod);
             String nodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
             if (node != null) {
+                if (updateCounter) {
+                    nodeModCounter.label(datastoreType.name()).label("add").label(nodeId).increment();
+                }
                 if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
                     LOG.trace("Handle global node add {}", node.getNodeId().getValue());
                     onGlobalNodeAdd(key, node, tx);
