@@ -10,10 +10,13 @@ package org.opendaylight.netvirt.vpnmanager.populator.impl;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -58,13 +61,15 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
         }
         String rd = input.getRd();
         String primaryRd = input.getPrimaryRd();
-        Adjacency nextHop = input.getNextHop();
-        LOG.info("populateFib : Found Interface Adjacency with prefix {} rd {}", nextHop.getIpAddress(), primaryRd);
+        String ipAddress = input.getIpAddress();
+        List<Pair<String, String>> nexthopRdPair = input.getNextHopRdPair();
+        List<String> nextHopIp = nexthopRdPair.stream().map(pair -> pair.getLeft())
+                .collect(Collectors.toList());
+        LOG.info("populateFib : Found Interface Adjacency with prefix {} rd {}", ipAddress, primaryRd);
         if (!rd.equalsIgnoreCase(input.getVpnName()) && !rd.equals(input.getNetworkName())) {
             Objects.requireNonNull(input.getRouteOrigin(), "populateFib: RouteOrigin is mandatory");
-            addPrefixToBGP(rd, primaryRd, nextHop.getMacAddress(), nextHop.getIpAddress(), input.getNextHopIp(),
-                    input.getEncapType(), 0 /*label*/, input.getL3vni(), input.getGatewayMac(),
-                    input.getRouteOrigin(), writeConfigTxn);
+            addPrefixToBGP(rd, primaryRd, input.getMacAddress(), ipAddress, nexthopRdPair, input.getEncapType(),
+                    0 /*label*/, input.getL3vni(), input.getGatewayMac(), input.getRouteOrigin(), writeConfigTxn);
         } else {
             LOG.error("Internal VPN for L3 Over VxLAN is not supported. Aborting.");
             return;
@@ -74,12 +79,12 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
     @Override
     public Adjacency createOperationalAdjacency(L3vpnInput input) {
         Adjacency nextHop = input.getNextHop();
-        String nextHopIp = input.getNextHopIp();
+        List<String> nextHopIp = input.getNextHopRdPair().stream().map(pair -> pair.getLeft())
+                .collect(Collectors.toList());
         String rd = input.getRd();
         String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
         List<String> adjNextHop = nextHop.getNextHopIpList();
-        List<String> nextHopList = adjNextHop != null && !adjNextHop.isEmpty() ? adjNextHop
-                : nextHopIp == null ? Collections.emptyList() : Collections.singletonList(nextHopIp);
+        List<String> nextHopList = adjNextHop != null && !adjNextHop.isEmpty() ? adjNextHop : nextHopIp;
 
         return new AdjacencyBuilder(nextHop).setNextHopIpList(nextHopList).setIpAddress(prefix).setVrfId(rd)
                 .setKey(new AdjacencyKey(prefix)).setAdjacencyType(nextHop.getAdjacencyType())

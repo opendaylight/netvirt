@@ -142,6 +142,12 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
+    public void removeOrUpdateFibEntry(String rd, String prefix,
+                                       List<String> nextHopsToRemove, WriteTransaction writeConfigTxn) {
+        fibUtil.removeOrUpdateFibEntry(rd, prefix, nextHopsToRemove, writeConfigTxn);
+    }
+
+    @Override
     public void removeFibEntry(String rd, String prefix, WriteTransaction writeConfigTxn) {
         fibUtil.removeFibEntry(rd, prefix, writeConfigTxn);
     }
