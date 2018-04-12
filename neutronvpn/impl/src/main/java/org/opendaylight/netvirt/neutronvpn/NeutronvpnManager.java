@@ -81,10 +81,16 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.ExtraRouteAdjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency.AdjacencyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.Destination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.DestinationKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.destination.NextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.destination.NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.destination.NextHopKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry.BgpvpnType;
@@ -1979,6 +1985,64 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 } else {
                     LOG.error("Unable to find VPN NextHop interface to apply extra-route destination {} on VPN {} "
                         + "with nexthop {}", destination, vpnId.getValue(), nextHop);
+                }
+            }
+        }
+    }
+
+    protected void updateExtraRouteAdjacency(Uuid vpnName, List<Routes> routesList, int addOrRemove) {
+        for (Routes route : routesList) {
+            if (route == null || route.getNexthop() == null || route.getDestination() == null) {
+                LOG.error("Incorrect input received for extra route. {}", route);
+            } else {
+                String nextHop = String.valueOf(route.getNexthop().getValue());
+                String destination = String.valueOf(route.getDestination().getValue());
+                String interfaceName = neutronvpnUtils.getNeutronPortNameFromVpnPortFixedIp(vpnName.getValue(),
+                        nextHop);
+                if (interfaceName != null) {
+                    InstanceIdentifier<NextHop> nextHopId = InstanceIdentifier.builder(ExtraRouteAdjacency.class)
+                            .child(Destination.class, new DestinationKey(vpnName.getValue(), destination))
+                            .child(NextHop.class, new NextHopKey(nextHop)).build();
+                    try {
+                        switch (addOrRemove) {
+                            case 1 /*add*/ : {
+                                LOG.info("Updating extra route for destination {} onto vpn {} with nexthop {} and "
+                                        + "infName {}", destination, vpnName.getValue(), nextHop, interfaceName);
+                                InstanceIdentifier<VpnInterface> identifier = InstanceIdentifier
+                                        .builder(VpnInterfaces.class).child(VpnInterface.class,
+                                                new VpnInterfaceKey(interfaceName)).build();
+                                InstanceIdentifier<Adjacency> path = identifier.augmentation(Adjacencies.class)
+                                        .child(Adjacency.class, new AdjacencyKey(destination));
+                                Optional<Adjacency> existingAdjacency = SingleTransactionDataBroker
+                                        .syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
+                                if (existingAdjacency.isPresent()) {
+                                    LOG.error("The route with destination {} nextHop {} is already present as primary"
+                                                    + " adjacency for interface {}. Skipping adjacency addition.",
+                                            destination, nextHop, interfaceName);
+                                } else {
+                                    NextHop nextHopObject = new NextHopBuilder().setNextHopIp(nextHop)
+                                            .setInterfaceName(interfaceName).build();
+                                    SingleTransactionDataBroker.syncWrite(dataBroker,
+                                            LogicalDatastoreType.OPERATIONAL, nextHopId, nextHopObject);
+                                }
+                            }
+                            break;
+                            case 0 /*remove*/ : {
+                                LOG.info("Removing extra route for destination {} onto vpn {} with nexthop {} and "
+                                        + "infName  {}", destination, vpnName.getValue(), nextHop, interfaceName);
+                                SingleTransactionDataBroker.syncDelete(dataBroker, OPERATIONAL, nextHopId);
+                            }
+                            break;
+                        }
+                    } catch (ReadFailedException e) {
+                        LOG.error("Exception on reading data-store ", e);
+                    } catch (TransactionCommitFailedException e) {
+                        LOG.error("exception in updating extra route with destination: {}, next hop: {}",
+                                destination, nextHop, e);
+                    }
+                } else {
+                    LOG.error("Unable to find VPN NextHop interface to apply extra-route destination {} on VPN {} "
+                            + "with nexthop {}", destination, vpnName.getValue(), nextHop);
                 }
             }
         }
