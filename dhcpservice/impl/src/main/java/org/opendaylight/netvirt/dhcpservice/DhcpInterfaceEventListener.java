@@ -96,12 +96,12 @@ public class DhcpInterfaceEventListener
             return;
         }
         if ((original.getOperStatus().getIntValue() ^ update.getOperStatus().getIntValue()) == 0) {
-            LOG.trace("Interface operstatus {} is same", update.getOperStatus());
+            LOG.trace("Interface operstatus is same orig {} updated {}", original, update);
             return;
         }
 
         if (original.getOperStatus().equals(OperStatus.Unknown) || update.getOperStatus().equals(OperStatus.Unknown)) {
-            LOG.trace("New/old interface state is unknown not handling");
+            LOG.trace("New/old interface state is unknown not handling orig {} updated {}", original, update);
             return;
         }
 
@@ -129,11 +129,13 @@ public class DhcpInterfaceEventListener
         if (ofportIds == null || ofportIds.isEmpty()) {
             return;
         }
-        Port port = dhcpManager.getNeutronPort(interfaceName);
-        if (NeutronConstants.IS_DHCP_PORT.test(port)) {
-            return;
+        if (!Tunnel.class.equals(add.getType())) {
+            Port port = dhcpManager.getNeutronPort(interfaceName);
+            if (NeutronConstants.IS_DHCP_PORT.test(port)) {
+                return;
+            }
+            dhcpPortCache.put(interfaceName, port);
         }
-        dhcpPortCache.put(interfaceName, port);
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
         BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         DhcpInterfaceAddJob job = new DhcpInterfaceAddJob(dhcpManager, dhcpExternalTunnelManager, dataBroker,
