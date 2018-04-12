@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77aed3e5_7806cb0f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2018-04-12T12:26:58Z",
+      "side": 1,
+      "message": "same comments as in https://git.opendaylight.org/gerrit/#/c/70278/6//COMMIT_MSG@9",
+      "revId": "0e09baea8be80807d181f24769c63a305acf3725",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0da89515_cb31f564",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayMulticastUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2018-04-12T12:26:58Z",
+      "side": 1,
+      "message": "isn\u0027t it always false ? Because setupElanBroadcastGroups is invoked after updating DpnInterfaces when first elaninterface comes up on a compute. \nI don\u0027t quite understand the issue either.",
+      "revId": "0e09baea8be80807d181f24769c63a305acf3725",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e6b1f39_2b8cef7d",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayMulticastUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2018-04-12T12:26:58Z",
+      "side": 1,
+      "message": "have two flavor of this method with and without remoteBCGrpTunnelBucketSize as i see some callers may not need remoteBCGrpTunnelBucketSize.",
+      "revId": "0e09baea8be80807d181f24769c63a305acf3725",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad92e733_e40b65aa",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1689,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2018-04-12T12:26:58Z",
+      "side": 1,
+      "message": "Did you check genius code ? we should have same kind utility methods to reuse.",
+      "range": {
+        "startLine": 1672,
+        "startChar": 0,
+        "endLine": 1689,
+        "endChar": 5
+      },
+      "revId": "0e09baea8be80807d181f24769c63a305acf3725",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
