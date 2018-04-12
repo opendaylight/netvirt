@@ -32,6 +32,8 @@
              interface="org.opendaylight.genius.srm.ServiceRecoveryRegistry"/>
   <reference id="hwvtepNodeHACache"
              interface="org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache"/>
+  <reference id="metricProvider"
+             interface="org.opendaylight.infrautils.metrics.MetricProvider"/>
 
   <odl:rpc-service id="odlInterfaceRpcService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
