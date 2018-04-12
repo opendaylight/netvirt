@@ -34,6 +34,24 @@
       "revId": "5da076fb200e203428a78c3807105e6086af3b67",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a341fed1_a11dfae0",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-04-12T04:44:49Z",
+      "side": 1,
+      "message": "Ok,I understand, Thanks.",
+      "parentUuid": "7ea9dd91_bbd5b974",
+      "revId": "5da076fb200e203428a78c3807105e6086af3b67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
