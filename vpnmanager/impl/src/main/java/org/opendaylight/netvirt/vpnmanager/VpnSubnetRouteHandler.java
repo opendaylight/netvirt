@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -829,8 +831,9 @@ public class VpnSubnetRouteHandler {
         LOG.info("{} addSubnetRouteToFib: Adding SubnetRoute fib entry for vpnName {}, subnetIP {}, elanTag {}",
                 LOGGING_PREFIX, vpnName, subnetIp, elanTag);
         L3vpnInput input = new L3vpnInput().setRouteOrigin(RouteOrigin.CONNECTED).setRd(rd).setVpnName(vpnName)
-                .setSubnetIp(subnetIp).setNextHopIp(nextHopIp).setL3vni(l3vni).setLabel(label).setElanTag(elanTag)
-                .setDpnId(nhDpnId).setEncapType(encapType).setNetworkName(networkName).setPrimaryRd(rd);
+                .setSubnetIp(subnetIp).setNextHopRdPair(Collections.singletonList(new ImmutablePair<>(nextHopIp, rd)))
+                .setL3vni(l3vni).setLabel(label).setElanTag(elanTag).setDpnId(nhDpnId).setEncapType(encapType)
+                .setNetworkName(networkName).setPrimaryRd(rd);
         if (!isBgpVpn) {
             vpnPopulator.populateFib(input, null /*writeCfgTxn*/);
             return true;
