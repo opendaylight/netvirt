@@ -699,4 +699,19 @@ module odl-l3vpn {
             leaf-list nexthop-key { type string; }
         }
     }
+
+    /* Extra-route Adjacency container*/
+    container extra-route-adjacency {
+        config false;
+        list destination {
+            key "destination-ip";
+            leaf destination-ip { type string; }
+            leaf vpn-name { type string; }
+            list next-hop {
+                key "next-hop-ip";
+                leaf next-hop-ip { type string; }
+                leaf interface-name { type string; }
+            }
+        }
+    }
 }
