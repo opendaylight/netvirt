@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41b6c99e_191533b5",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanSmacFlowEventListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2018-04-12T11:53:56Z",
+      "side": 1,
+      "message": "remove this else, it\u0027s not needed.",
+      "revId": "85f5958547e925d7fe5667670d62de5136c06b27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
