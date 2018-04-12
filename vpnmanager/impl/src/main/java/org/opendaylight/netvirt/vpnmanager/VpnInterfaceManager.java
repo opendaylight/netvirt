@@ -819,8 +819,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             RouteOrigin origin = nextHop.getAdjacencyType() == AdjacencyType.PrimaryAdjacency ? RouteOrigin.LOCAL
                     : RouteOrigin.STATIC;
             L3vpnInput input = new L3vpnInput().setNextHop(nextHop).setRd(rd).setVpnName(vpnName)
-                .setInterfaceName(interfaceName).setNextHopIp(nextHopIp).setPrimaryRd(primaryRd)
-                .setSubnetGatewayMacAddress(vpnInterfaceSubnetGwMacAddress).setRouteOrigin(origin);
+                .setInterfaceName(interfaceName).setNextHopIp(Collections.singletonList(nextHopIp))
+                    .setPrimaryRd(primaryRd).setSubnetGatewayMacAddress(vpnInterfaceSubnetGwMacAddress)
+                    .setRouteOrigin(origin);
             Adjacency operationalAdjacency = null;
             try {
                 operationalAdjacency = registeredPopulator.createOperationalAdjacency(input);
@@ -841,8 +842,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         addVpnInterfaceToOperational(vpnName, interfaceName, dpnId, aug, lportTag,
                 gwMac.isPresent() ? gwMac.get() : null, writeOperTxn);
 
-        L3vpnInput input = new L3vpnInput().setNextHopIp(nextHopIp).setL3vni(l3vni).setPrimaryRd(primaryRd)
-                .setGatewayMac(gwMac.orNull()).setInterfaceName(interfaceName)
+        L3vpnInput input = new L3vpnInput().setNextHopIp(Collections.singletonList(nextHopIp)).setL3vni(l3vni)
+                .setPrimaryRd(primaryRd).setGatewayMac(gwMac.orNull()).setInterfaceName(interfaceName)
                 .setVpnName(vpnName).setDpnId(dpnId).setEncapType(encapType);
 
         for (Adjacency nextHop : aug.getAdjacency()) {
@@ -850,7 +851,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             if (nextHop.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
                 RouteOrigin origin = nextHop.getAdjacencyType() == AdjacencyType.PrimaryAdjacency ? RouteOrigin.LOCAL
                         : RouteOrigin.STATIC;
-                input.setNextHop(nextHop).setRd(nextHop.getVrfId()).setRouteOrigin(origin);
+                input.setIpAddress(nextHop.getIpAddress()).setRd(nextHop.getVrfId()).setRouteOrigin(origin)
+                        .setLabel(nextHop.getLabel()).setMacAddress(nextHop.getMacAddress());
                 registeredPopulator.populateFib(input, writeConfigTxn);
             }
         }

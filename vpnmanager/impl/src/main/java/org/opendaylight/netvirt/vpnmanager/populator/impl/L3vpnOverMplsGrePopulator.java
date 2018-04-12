@@ -11,10 +11,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -63,56 +66,56 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
             addSubnetRouteFibEntry(input);
             return;
         }
-        Adjacency nextHop = input.getNextHop();
-        long label = nextHop.getLabel();
+        String ipAddress = input.getIpAddress();
+        long label = input.getLabel();
         String vpnName = input.getVpnName();
         String primaryRd = input.getPrimaryRd();
         String rd = input.getRd();
-        String nextHopIp = input.getNextHopIp();
+        List<Pair<String, String>> nextHopRdPair = input.getNextHopRdPair();
+        List<String> nextHopIp = nextHopRdPair.stream().map((pair) -> pair.getLeft()).collect(Collectors.toList());
         VrfEntry.EncapType encapType = input.getEncapType();
-        LOG.info("populateFib : Found Interface Adjacency with prefix {} rd {}", nextHop.getIpAddress(), primaryRd);
+        LOG.info("populateFib : Found Interface Adjacency with prefix {} rd {}", ipAddress, primaryRd);
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = VpnUtil.getVpnsImportingMyRoute(broker, vpnName);
         long vpnId = VpnUtil.getVpnId(broker, vpnName);
-        String nextHopIpAddress = nextHop.getIpAddress(); // it is a valid case for nextHopIpAddress to be null
         // Not advertising the prefix to BGP for InternalVpn (where rd is vpnName),
         // transparentInternetVpn (where rd is Network name)
         // and internalVpnForExtraRoute (where rd is DpnId)
         if (VpnUtil.isEligibleForBgp(primaryRd, input.getVpnName(), input.getDpnId(), input.getNetworkName())) {
             // the DpnId is set as rd in case of extra routes present in router based VPN
-            addToLabelMapper(label, input.getDpnId(), nextHopIpAddress,
-                    Arrays.asList(nextHopIp), vpnId, input.getInterfaceName(), null,false,
+            addToLabelMapper(label, input.getDpnId(), ipAddress,
+                    nextHopIp, vpnId, input.getInterfaceName(), null,false,
                     primaryRd);
             Objects.requireNonNull(input.getRouteOrigin(), "RouteOrigin is mandatory");
-            addPrefixToBGP(rd, primaryRd, null /*macAddress*/, nextHopIpAddress, nextHopIp, encapType,
+            addPrefixToBGP(rd, primaryRd, null /*macAddress*/, ipAddress, nextHopRdPair, encapType,
                     label, 0 /*l3vni*/, input.getGatewayMac(), input.getRouteOrigin(), writeConfigTxn);
             //TODO: ERT - check for VPNs importing my route
             for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                 String vpnRd = vpn.getVrfId();
                 if (vpnRd != null) {
                     fibManager.addOrUpdateFibEntry(vpnRd, null /*macAddress*/,
-                            nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
+                            ipAddress, nextHopIp, encapType, (int) label,
                             0 /*l3vni*/, input.getGatewayMac(), primaryRd, RouteOrigin.SELF_IMPORTED,
                             writeConfigTxn);
                     LOG.info("populateFib: Exported route with rd {} prefix {} nexthop {} label {}"
-                            + " to VPN {} for interface {} on dpn {}", vpnRd, nextHop.getIpAddress(), nextHopIp, label,
+                            + " to VPN {} for interface {} on dpn {}", vpnRd, ipAddress, nextHopIp, label,
                             vpn, input.getInterfaceName(), input.getDpnId());
                 }
             }
         } else {
             // ### add FIB route directly
-            fibManager.addOrUpdateFibEntry(vpnName, null /*macAddress*/,
-                    nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
-                    0 /*l3vni*/, input.getGatewayMac(), null /*parentVpnRd*/, input.getRouteOrigin(), writeConfigTxn);
-            LOG.info("populateFib: Added internal FIB entry for prefix {} nexthop {} label {}"
-                    + " to VPN {} for interface {} on dpn {}", nextHop.getIpAddress(), nextHopIp, label, vpnName,
-                    input.getInterfaceName(), input.getDpnId());
+            fibManager.addOrUpdateFibEntry(vpnName, null /*macAddress*/, ipAddress, nextHopIp,
+                    encapType, (int) label, 0 /*l3vni*/, input.getGatewayMac(), null /*parentVpnRd*/,
+                    input.getRouteOrigin(), writeConfigTxn);
+            LOG.info("populateFib: Added internal FIB entry for prefix {} nexthop {} label {} to VPN {} for"
+                    + " interface {} on dpn {}", ipAddress, nextHopIp, label, vpnName, input.getInterfaceName(),
+                    input.getDpnId());
         }
     }
 
     @Override
     public Adjacency createOperationalAdjacency(L3vpnInput input) {
         Adjacency nextHop = input.getNextHop();
-        String nextHopIp = input.getNextHopIp();
+        List<Pair<String, String>> nextHopRdPair = input.getNextHopRdPair();
         String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
         List<String> adjNextHop = nextHop.getNextHopIpList();
         String rd = input.getRd();
@@ -125,8 +128,8 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
                     + "vpn interface adjacency " + prefix + "for vpn " + vpnName;
             throw new NullPointerException(error);
         }
-        List<String> nextHopList = adjNextHop != null && !adjNextHop.isEmpty() ? adjNextHop
-                : nextHopIp == null ? Collections.emptyList() : Collections.singletonList(nextHopIp);
+        List<String> nextHopIp = nextHopRdPair.stream().map((pair) -> pair.getLeft()).collect(Collectors.toList());
+        List<String> nextHopList = adjNextHop != null && !adjNextHop.isEmpty() ? adjNextHop : nextHopIp;
 
         return new AdjacencyBuilder(nextHop).setLabel(label).setNextHopIpList(nextHopList)
                 .setIpAddress(prefix).setVrfId(rd).setKey(new AdjacencyKey(prefix))
