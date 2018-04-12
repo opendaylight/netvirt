@@ -8,8 +8,12 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 import javax.annotation.PreDestroy;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
@@ -22,15 +26,24 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.TaskRetryLooper;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.infrautils.metrics.Counter;
+import org.opendaylight.infrautils.metrics.Labeled;
+import org.opendaylight.infrautils.metrics.MetricDescriptor;
+import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.netvirt.elan.l2gw.ha.BatchedTransaction;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Managers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,16 +57,47 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
     private final ListenerRegistration<HwvtepNodeBaseListener> registration;
     private final DataBroker dataBroker;
     private final HwvtepNodeHACache hwvtepNodeHACache;
+    private final MetricProvider metricProvider;
+    private final LogicalDatastoreType datastoreType;
+    private final Function<DataObject, String> noLogicalSwitch = (data) -> "No_Ls";
+
+    private final Labeled<Labeled<Labeled<Labeled<Labeled<Counter>>>>> childModCounter;
+    private final Labeled<Labeled<Labeled<Counter>>> nodeModCounter;
+    private final boolean updateCounter;
+
+    private final Map<Class, Function<DataObject, String>> logicalSwitchExtractor = Collections.unmodifiableMap(
+            new HashMap<Class, Function<DataObject, String>>() {
+                {
+                    put(LogicalSwitches.class, data -> ((LogicalSwitches) data).getHwvtepNodeName().getValue());
+                    put(RemoteMcastMacs.class, data -> {
+                        return logicalSwitchNameFromIid(((RemoteMcastMacs) data).getKey().getLogicalSwitchRef()
+                                .getValue());
+                    });
+                    put(RemoteUcastMacs.class, data -> {
+                        return logicalSwitchNameFromIid(((RemoteUcastMacs) data).getKey().getLogicalSwitchRef()
+                                .getValue());
+                    });
+                }
+            });
 
     public HwvtepNodeBaseListener(LogicalDatastoreType datastoreType, DataBroker dataBroker,
-            HwvtepNodeHACache hwvtepNodeHACache) throws Exception {
+                                  HwvtepNodeHACache hwvtepNodeHACache, MetricProvider metricProvider,
+                                  boolean updateCounter) throws Exception {
         this.dataBroker = dataBroker;
+        this.datastoreType = datastoreType;
         this.hwvtepNodeHACache = hwvtepNodeHACache;
-
+        this.metricProvider = metricProvider;
+        this.updateCounter = updateCounter;
+        this.childModCounter = metricProvider.newCounter(
+                MetricDescriptor.builder().anchor(this).project("netvirt").module("l2gw").id("child").build(),
+                "datastore", "modification", "class", "nodeid", "logicalswitch");
+        this.nodeModCounter = metricProvider.newCounter(
+                MetricDescriptor.builder().anchor(this).project("netvirt").module("l2gw").id("node").build(),
+                "datastore", "modification", "nodeid");
         final DataTreeIdentifier<Node> treeId = new DataTreeIdentifier<>(datastoreType, getWildcardPath());
         TaskRetryLooper looper = new TaskRetryLooper(STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);
         registration = looper.loopUntilNoException(() ->
-            dataBroker.registerDataTreeChangeListener(treeId, HwvtepNodeBaseListener.this));
+                dataBroker.registerDataTreeChangeListener(treeId, HwvtepNodeBaseListener.this));
     }
 
     protected DataBroker getDataBroker() {
@@ -72,7 +116,7 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
      * @param beforeChildNode non-ha node before updated to HA node
      */
     protected void addToHACacheIfBecameHAChild(InstanceIdentifier<Node> childPath, Node updatedChildNode,
-            Node beforeChildNode) {
+                                               Node beforeChildNode) {
         HwvtepGlobalAugmentation updatedAugmentaion = updatedChildNode.getAugmentation(HwvtepGlobalAugmentation.class);
         HwvtepGlobalAugmentation beforeAugmentaion = null;
         if (beforeChildNode != null) {
@@ -121,26 +165,64 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             String nodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
             Node updated = HwvtepHAUtil.getUpdated(mod);
             Node original = HwvtepHAUtil.getOriginal(mod);
+            updateCounters(nodeId, mod.getModifiedChildren());
             if (updated != null && original != null) {
+                DataObjectModification subMod;
                 if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
                     onGlobalNodeUpdate(key, updated, original, mod, tx);
+                    subMod = change.getRootNode().getModifiedAugmentation(HwvtepGlobalAugmentation.class);
                 } else {
                     onPsNodeUpdate(updated, original, mod, tx);
+                    subMod = change.getRootNode().getModifiedAugmentation(PhysicalSwitchAugmentation.class);
+                }
+                if (subMod != null) {
+                    updateCounters(nodeId, subMod.getModifiedChildren());
                 }
             }
         }
     }
 
+    private String logicalSwitchNameFromChildMod(DataObjectModification<? extends DataObject> childMod) {
+        DataObject data = childMod.getDataAfter() != null ? childMod.getDataAfter() : childMod.getDataBefore();
+        return logicalSwitchExtractor.getOrDefault(childMod.getModificationType().getClass(), noLogicalSwitch)
+                .apply(data);
+    }
+
+    private String logicalSwitchNameFromIid(InstanceIdentifier input) {
+        InstanceIdentifier<LogicalSwitches> iid = (InstanceIdentifier<LogicalSwitches>)input;
+        return iid.firstKeyOf(LogicalSwitches.class).getHwvtepNodeName().getValue();
+    }
+
+    private void updateCounters(String nodeId,
+                                Collection<DataObjectModification<? extends DataObject>> childModCollection) {
+        if (childModCollection == null || !updateCounter) {
+            return;
+        }
+        childModCollection.forEach(childMod -> {
+            String childClsName = childMod.getDataType().getClass().getSimpleName();
+            String modificationType = childMod.getModificationType().toString();
+            String logicalSwitchName = logicalSwitchNameFromChildMod(childMod);
+            childModCounter.label(datastoreType.name())
+                    .label(modificationType)
+                    .label(childClsName)
+                    .label(nodeId)
+                    .label(logicalSwitchName).increment();
+        });
+    }
+
     private void processDisconnectedNodes(Collection<DataTreeModification<Node>> changes,
                                           ReadWriteTransaction tx)
             throws InterruptedException, ExecutionException, ReadFailedException {
-
         for (DataTreeModification<Node> change : changes) {
             final InstanceIdentifier<Node> key = change.getRootPath().getRootIdentifier();
             final DataObjectModification<Node> mod = change.getRootNode();
             Node deleted = HwvtepHAUtil.getRemoved(mod);
             String nodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
             if (deleted != null) {
+                if (updateCounter) {
+                    nodeModCounter.label(datastoreType.name())
+                            .label(DataObjectModification.ModificationType.DELETE.name()).label(nodeId).increment();
+                }
                 if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
                     LOG.trace("Handle global node delete {}", deleted.getNodeId().getValue());
                     onGlobalNodeDelete(key, deleted, tx);
@@ -161,6 +243,10 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             Node node = HwvtepHAUtil.getCreated(mod);
             String nodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
             if (node != null) {
+                if (updateCounter) {
+                    nodeModCounter.label(datastoreType.name())
+                            .label(DataObjectModification.ModificationType.WRITE.name()).label(nodeId).increment();
+                }
                 if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
                     LOG.trace("Handle global node add {}", node.getNodeId().getValue());
                     onGlobalNodeAdd(key, node, tx);
