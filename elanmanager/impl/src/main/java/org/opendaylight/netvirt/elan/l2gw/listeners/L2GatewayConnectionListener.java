@@ -28,9 +28,14 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.infrautils.metrics.Counter;
+import org.opendaylight.infrautils.metrics.Labeled;
+import org.opendaylight.infrautils.metrics.MetricDescriptor;
+import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.utils.Scheduler;
@@ -82,15 +87,19 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
     private final Scheduler scheduler;
     private final L2GatewayCache l2GatewayCache;
+    private final Labeled<Labeled<Counter>> elanConnectionsCounter;
 
     @Inject
     public L2GatewayConnectionListener(final DataBroker db, L2GatewayConnectionUtils l2GatewayConnectionUtils,
-                                       Scheduler scheduler, L2GatewayCache l2GatewayCache) {
+                                       Scheduler scheduler, L2GatewayCache l2GatewayCache,
+                                       MetricProvider metricProvider) {
         super(L2gatewayConnection.class, L2GatewayConnectionListener.class);
         this.broker = db;
         this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
         this.scheduler = scheduler;
         this.l2GatewayCache = l2GatewayCache;
+        this.elanConnectionsCounter = metricProvider.newCounter(MetricDescriptor.builder()
+        .anchor(this).project("netvirt").module("l2gw").id("connections").build(), "modification", "elan");
     }
 
     @PostConstruct
@@ -101,7 +110,9 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
     @Override
     protected void add(final InstanceIdentifier<L2gatewayConnection> identifier, final L2gatewayConnection input) {
         LOG.trace("Adding L2gatewayConnection: {}", input);
-
+        elanConnectionsCounter
+                .label(DataObjectModification.ModificationType.WRITE.name())
+                .label(input.getNetworkId().getValue()).increment();
         // Get associated L2GwId from 'input'
         // Create logical switch in each of the L2GwDevices part of L2Gw
         // Logical switch name is network UUID
@@ -112,7 +123,9 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
     @Override
     protected void remove(InstanceIdentifier<L2gatewayConnection> identifier, L2gatewayConnection input) {
         LOG.trace("Removing L2gatewayConnection: {}", input);
-
+        elanConnectionsCounter
+                .label(DataObjectModification.ModificationType.DELETE.name())
+                .label(input.getNetworkId().getValue()).increment();
         l2GatewayConnectionUtils.deleteL2GatewayConnection(input);
     }
 
