@@ -35,13 +35,13 @@ public class AclServiceRecoveryHandler implements ServiceRecoveryInterface {
     private void deregisterListeners() {
         Queue<RecoverableListener> recoverableListeners =
                 serviceRecoveryRegistry.getRecoverableListeners(AclServiceUtils.getRecoverServiceRegistryKey());
-        recoverableListeners.forEach((recoverableListener -> recoverableListener.deregisterListener()));
+        recoverableListeners.forEach((RecoverableListener::deregisterListener));
     }
 
     private void registerListeners() {
         Queue<RecoverableListener> recoverableListeners =
                 serviceRecoveryRegistry.getRecoverableListeners(AclServiceUtils.getRecoverServiceRegistryKey());
-        recoverableListeners.forEach((recoverableListener -> recoverableListener.registerListener()));
+        recoverableListeners.forEach((RecoverableListener::registerListener));
     }
 
     @Override

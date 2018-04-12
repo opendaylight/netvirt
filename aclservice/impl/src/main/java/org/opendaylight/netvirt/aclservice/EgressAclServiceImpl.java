@@ -365,7 +365,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         }
         BigInteger dpId = port.getDpId();
         int lportTag = port.getLPortTag();
-        Set<MacAddress> macs = filteredAAPs.stream().map(aap -> aap.getMacAddress()).collect(Collectors.toSet());
+        Set<MacAddress> macs = filteredAAPs.stream().map(AllowedAddressPairs::getMacAddress)
+                .collect(Collectors.toSet());
         for (MacAddress mac : macs) {
             List<MatchInfoBase> matches = new ArrayList<>();
             matches.add(new MatchEthernetSource(mac));
@@ -388,7 +389,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         //exclude filteredAAP entries from port's AAP's before comparison
         List<AllowedAddressPairs> filteredAllowedAddressed = allowedAddresses.stream().filter(
             aap -> !filteredAAPs.contains(aap)).collect(Collectors.toList());
-        Set<MacAddress> macs = filteredAAPs.stream().map(aap -> aap.getMacAddress()).collect(Collectors.toSet());
+        Set<MacAddress> macs = filteredAAPs.stream().map(AllowedAddressPairs::getMacAddress)
+                .collect(Collectors.toSet());
         List<AllowedAddressPairs> aapWithDuplicateMac = filteredAllowedAddressed.stream()
             .filter(entry -> macs.contains(entry.getMacAddress())).collect(Collectors.toList());
         return !aapWithDuplicateMac.isEmpty();

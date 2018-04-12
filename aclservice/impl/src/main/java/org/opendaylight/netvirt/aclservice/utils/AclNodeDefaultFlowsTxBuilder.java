@@ -321,14 +321,13 @@ public class AclNodeDefaultFlowsTxBuilder {
 
     private void addFlowToTx(short tableId, String flowId, int priority, List<? extends MatchInfoBase> matches,
             List<InstructionInfo> instructions) {
-        String flowName = flowId;
         int idleTimeOut = 0;
         int hardTimeOut = 0;
         BigInteger cookie = AclConstants.COOKIE_ACL_BASE;
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(this.dpId, tableId, flowId, priority, flowName, idleTimeOut,
-                hardTimeOut, cookie, matches, instructions);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(this.dpId, tableId, flowId, priority, flowId, idleTimeOut,
+                                                          hardTimeOut, cookie, matches, instructions);
         LOG.trace("Installing Acl default Flow:: DpnId: {}, flowId: {}, flowName: {}, tableId: {}", dpId, flowId,
-                flowName, tableId);
+                  flowId, tableId);
         mdsalManager.addFlowToTx(flowEntity, tx);
     }
 

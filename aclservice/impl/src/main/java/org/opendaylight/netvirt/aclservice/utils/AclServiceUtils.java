@@ -963,9 +963,8 @@ public final class AclServiceUtils {
      * @return the integer
      */
     public Integer allocateAclTag(String aclName) {
-        Integer aclTag = AclServiceUtils.allocateId(this.idManager, AclConstants.ACL_TAG_POOL_NAME, aclName,
-                AclConstants.INVALID_ACL_TAG);
-        return aclTag;
+        return AclServiceUtils.allocateId(this.idManager, AclConstants.ACL_TAG_POOL_NAME, aclName,
+                                          AclConstants.INVALID_ACL_TAG);
     }
 
     /**
