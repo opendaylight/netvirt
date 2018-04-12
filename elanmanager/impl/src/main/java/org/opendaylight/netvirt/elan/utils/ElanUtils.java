@@ -1454,6 +1454,13 @@ public class ElanUtils {
         }
     }
 
+    public void addDmacRedirectToDispatcherFlows(WriteTransaction confTx, Long elanTag, String displayName,
+            String macAddress, List<BigInteger> dpnIds) {
+        for (BigInteger dpId : dpnIds) {
+            mdsalManager.addFlowToTx(buildDmacRedirectToDispatcherFlow(dpId, macAddress, displayName, elanTag), confTx);
+        }
+    }
+
     public void removeDmacRedirectToDispatcherFlows(Long elanTag, String macAddress, List<BigInteger> dpnIds) {
         for (BigInteger dpId : dpnIds) {
             String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, macAddress, elanTag);

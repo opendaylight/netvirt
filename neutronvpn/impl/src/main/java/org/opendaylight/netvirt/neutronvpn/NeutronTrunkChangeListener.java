@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,9 +15,10 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
@@ -45,6 +45,7 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
     private static final Logger LOG = LoggerFactory.getLogger(NeutronTrunkChangeListener.class);
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IInterfaceManager ifMgr;
     private final JobCoordinator jobCoordinator;
 
@@ -52,6 +53,7 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
     public NeutronTrunkChangeListener(final DataBroker dataBroker, final IInterfaceManager ifMgr,
             final JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.ifMgr = ifMgr;
         this.jobCoordinator = jobCoordinator;
     }
@@ -123,76 +125,72 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
         InstanceIdentifier<Interface> interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(portName);
 
         // Should we use parentName?
-        jobCoordinator.enqueueJob("PORT- " + portName, () -> {
-            Interface iface = ifMgr.getInterfaceInfoFromConfigDataStore(portName);
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            if (iface == null) {
+        jobCoordinator.enqueueJob("PORT- " + portName,
+            () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(confTx -> {
+                Interface iface = ifMgr.getInterfaceInfoFromConfigDataStore(confTx, portName);
+                if (iface == null) {
+                    /*
+                     * Trunk creation requires NeutronPort to be present, by this time interface
+                     * should've been created. In controller restart use case Interface would already be present.
+                     * Clustering consideration:
+                     *      This being same shard as NeutronPort, interface creation will be triggered on the same
+                     *      node as this one. Use of DSJC helps ensure the order.
+                     */
+                    LOG.warn("Interface not present for Trunk SubPort: {}", subPort);
+                    return;
+                }
+                IfL2vlan ifL2vlan = new IfL2vlanBuilder().setL2vlanMode(IfL2vlan.L2vlanMode.TrunkMember)
+                        .setVlanId(new VlanId(subPort.getSegmentationId().intValue())).build();
+                ParentRefs parentRefs = new ParentRefsBuilder().setParentInterface(parentName).build();
+                SplitHorizon splitHorizon = new SplitHorizonBuilder().setOverrideSplitHorizonProtection(true).build();
+                Interface newIface = new InterfaceBuilder()
+                        .setName(portName)
+                        .setType(L2vlan.class)
+                        .addAugmentation(IfL2vlan.class, ifL2vlan)
+                        .addAugmentation(ParentRefs.class, parentRefs)
+                        .addAugmentation(SplitHorizon.class, splitHorizon)
+                        .build();
                 /*
-                 * Trunk creation requires NeutronPort to be present, by this time interface
-                 * should've been created. In controller restart use case Interface would already be present.
-                 * Clustering consideration:
-                 *      This being same shard as NeutronPort, interface creation will be triggered on the same
-                 *      node as this one. Use of DSJC helps ensure the order.
+                 * Interface is already created for parent NeutronPort. We're updating parent refs
+                 * and VLAN Information
                  */
-                LOG.warn("Interface not present for Trunk SubPort: {}", subPort);
-                return futures;
-            }
-            InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
-            IfL2vlan ifL2vlan = new IfL2vlanBuilder().setL2vlanMode(IfL2vlan.L2vlanMode.TrunkMember)
-                .setVlanId(new VlanId(subPort.getSegmentationId().intValue())).build();
-            ParentRefs parentRefs = new ParentRefsBuilder().setParentInterface(parentName).build();
-            SplitHorizon splitHorizon = new SplitHorizonBuilder().setOverrideSplitHorizonProtection(true).build();
-            interfaceBuilder.setName(portName).setType(L2vlan.class).addAugmentation(IfL2vlan.class, ifL2vlan)
-                .addAugmentation(ParentRefs.class, parentRefs).addAugmentation(SplitHorizon.class, splitHorizon);
-            iface = interfaceBuilder.build();
-            /*
-             * Interface is already created for parent NeutronPort. We're updating parent refs
-             * and VLAN Information
-             */
-            WriteTransaction txn = dataBroker.newWriteOnlyTransaction();
-            txn.merge(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, iface);
-            LOG.trace("Creating trunk member interface {}", iface);
-            futures.add(txn.submit());
-            return futures;
-        });
+                confTx.merge(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, newIface);
+                LOG.trace("Creating trunk member interface {}", newIface);
+            })));
     }
 
     private void deleteSubPortInterface(SubPorts subPort) {
         String portName = subPort.getPortId().getValue();
         InstanceIdentifier<Interface> interfaceIdentifier =
                         NeutronvpnUtils.buildVlanInterfaceIdentifier(subPort.getPortId().getValue());
-        jobCoordinator.enqueueJob("PORT- " + portName, () -> {
-            Interface iface = ifMgr.getInterfaceInfoFromConfigDataStore(portName);
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            if (iface == null) {
-                LOG.warn("Interface not present for SubPort {}", subPort);
-                return futures;
-            }
-            /*
-             * We'll reset interface back to way it was? Can IFM handle parentRef delete?
-             */
-            InterfaceBuilder interfaceBuilder = new InterfaceBuilder(iface);
-            // Reset augmentations
-            interfaceBuilder.removeAugmentation(IfL2vlan.class).removeAugmentation(ParentRefs.class)
-                .removeAugmentation(SplitHorizon.class);
-            IfL2vlan ifL2vlan = new IfL2vlanBuilder().setL2vlanMode(IfL2vlan.L2vlanMode.Trunk).build();
-            interfaceBuilder.addAugmentation(IfL2vlan.class, ifL2vlan);
-            iface = interfaceBuilder.build();
-            /*
-             * There is no means to do an update to remove elements from a node.
-             * Our solution is to get existing iface, remove parentRef and VlanId,
-             * and do a put to replace existing entry. This works out better as put
-             * has better performance than merge.
-             * Only drawback is any in-flight changes might be lost, but that is a corner case
-             * and this being subport delete path, don't expect any significant changes to
-             * corresponding Neutron Port. Deletion of NeutronPort should follow soon enough.
-             */
-            WriteTransaction txn = dataBroker.newWriteOnlyTransaction();
-            txn.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, iface);
-            LOG.trace("Resetting trunk member interface {}", iface);
-            futures.add(txn.submit());
-            return futures;
-        });
-
+        jobCoordinator.enqueueJob("PORT- " + portName,
+            () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(confTx -> {
+                Interface iface = ifMgr.getInterfaceInfoFromConfigDataStore(confTx, portName);
+                if (iface == null) {
+                    LOG.warn("Interface not present for SubPort {}", subPort);
+                    return;
+                }
+                /*
+                 * We'll reset interface back to way it was? Can IFM handle parentRef delete?
+                 */
+                InterfaceBuilder interfaceBuilder = new InterfaceBuilder(iface);
+                // Reset augmentations
+                interfaceBuilder.removeAugmentation(IfL2vlan.class).removeAugmentation(ParentRefs.class)
+                        .removeAugmentation(SplitHorizon.class);
+                IfL2vlan ifL2vlan = new IfL2vlanBuilder().setL2vlanMode(IfL2vlan.L2vlanMode.Trunk).build();
+                interfaceBuilder.addAugmentation(IfL2vlan.class, ifL2vlan);
+                iface = interfaceBuilder.build();
+                /*
+                 * There is no means to do an update to remove elements from a node.
+                 * Our solution is to get existing iface, remove parentRef and VlanId,
+                 * and do a put to replace existing entry. This works out better as put
+                 * has better performance than merge.
+                 * Only drawback is any in-flight changes might be lost, but that is a corner case
+                 * and this being subport delete path, don't expect any significant changes to
+                 * corresponding Neutron Port. Deletion of NeutronPort should follow soon enough.
+                 */
+                confTx.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, iface);
+                LOG.trace("Resetting trunk member interface {}", iface);
+            })));
     }
 }

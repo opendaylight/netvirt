@@ -12,6 +12,7 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
@@ -75,6 +76,8 @@ public interface IElanService extends IEtreeService {
     void handleKnownL3DmacAddress(String macAddress, String elanInstanceName, int addOrRemove);
 
     void addKnownL3DmacAddress(String macAddress, String elanInstanceName);
+
+    void addKnownL3DmacAddress(WriteTransaction confTx, String macAddress, String elanInstanceName);
 
     void removeKnownL3DmacAddress(String macAddress, String elanInstanceName);
 
