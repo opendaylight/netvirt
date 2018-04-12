@@ -26,8 +26,8 @@ import org.opendaylight.genius.mdsalutil.internal.MDSALManager;
 import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.genius.testutils.itm.ItmRpcTestImpl;
-import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
+import org.opendaylight.genius.utils.hwvtep.internal.HwvtepNodeHACacheImpl;
 import org.opendaylight.infrautils.diagstatus.DiagStatusService;
 import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Module;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
@@ -73,7 +73,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
                 .thenReturn(Optional.of(mockedEntityOwnershipState));
         bind(EntityOwnershipService.class).toInstance(mockedEntityOwnershipService);
         bind(L2GatewayCache.class).to(L2GatewayCacheImpl.class);
-        bind(HwvtepNodeHACache.class).to(HwvtepHACache.class);
+        bind(HwvtepNodeHACache.class).to(HwvtepNodeHACacheImpl.class);
         bind(ServiceRecoveryRegistry.class).toInstance(Mockito.mock(ServiceRecoveryRegistry.class));
         bind(INeutronVpnManager.class).toInstance(Mockito.mock(NeutronvpnManagerImpl.class));
         IVpnManager ivpnManager = Mockito.mock(VpnManagerTestImpl.class, CALLS_REAL_METHODS);
