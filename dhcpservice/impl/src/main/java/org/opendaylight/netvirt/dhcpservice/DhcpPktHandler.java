@@ -36,6 +36,10 @@ import org.opendaylight.genius.mdsalutil.packet.IEEE8021Q;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
+import org.opendaylight.infrautils.metrics.Counter;
+import org.opendaylight.infrautils.metrics.Labeled;
+import org.opendaylight.infrautils.metrics.MetricDescriptor;
+import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.dhcpservice.api.DHCP;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPConstants;
@@ -75,6 +79,17 @@ public class DhcpPktHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpPktHandler.class);
 
+    private static String UNKNOWN_LABEL = "unknown";
+
+    private enum PktDropReason {
+        INTERFACE_NAME_NOT_FOUND,
+        INTERFACE_INFO_NOT_FOUND,
+        SUBNET_NOT_FOUND,
+        EGRESS_ACTIONS_NOT_FOUND,
+        EXCEPTION,
+        PKT_DESERIALIZATION_ERROR
+    }
+
     private final DhcpManager dhcpMgr;
     private final OdlInterfaceRpcService interfaceManagerRpc;
     private final PacketProcessingService pktService;
@@ -83,6 +98,8 @@ public class DhcpPktHandler implements PacketProcessingListener {
     private final DhcpserviceConfig config;
     private final DhcpAllocationPoolManager dhcpAllocationPoolMgr;
     private final DataBroker broker;
+    private final Labeled<Labeled<Labeled<Counter>>> pktDropCounter;
+    private final Labeled<Counter> pktInCounter;
 
     @Inject
     public DhcpPktHandler(final DhcpManager dhcpManager,
@@ -92,7 +109,8 @@ public class DhcpPktHandler implements PacketProcessingListener {
                           final IInterfaceManager interfaceManager,
                           final DhcpserviceConfig config,
                           final DhcpAllocationPoolManager dhcpAllocationPoolMgr,
-                          final DataBroker dataBroker) {
+                          final DataBroker dataBroker,
+                          final MetricProvider metricProvider) {
         this.interfaceManagerRpc = interfaceManagerRpc;
         this.pktService = pktService;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
@@ -101,11 +119,36 @@ public class DhcpPktHandler implements PacketProcessingListener {
         this.config = config;
         this.dhcpAllocationPoolMgr = dhcpAllocationPoolMgr;
         this.broker = dataBroker;
+        this.pktDropCounter = metricProvider.newCounter(buildDhcpMetricDescriptor("packet_drop"),
+                "mac", "interface", "reason");
+        this.pktInCounter = metricProvider.newCounter(buildDhcpMetricDescriptor("packet_in"), "mac");
     }
 
-    //TODO: Handle this in a separate thread
+    private MetricDescriptor buildDhcpMetricDescriptor(String id) {
+        return MetricDescriptor.builder().anchor(this).project("netvirt").module("dhcpservice").id(id).build();
+    }
+
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void onPacketReceived(PacketReceived packet) {
+        try {
+            onPacketReceivedInternal(packet);
+        } catch (Exception e) {
+            Ethernet ethPkt = new Ethernet();
+            try {
+                byte[] inPayload = packet.getPayload();
+                ethPkt.deserialize(inPayload, 0, inPayload.length * NetUtils.NUM_BITS_IN_A_BYTE);
+                String macAddress = DHCPUtils.byteArrayToString(ethPkt.getSourceMACAddress());
+                pktDropCounter.label(macAddress).label(UNKNOWN_LABEL).label(PktDropReason.EXCEPTION.name()).increment();
+            } catch (PacketException pktException) {
+                pktDropCounter.label(UNKNOWN_LABEL).label(UNKNOWN_LABEL).label(
+                        PktDropReason.PKT_DESERIALIZATION_ERROR.name()).increment();
+            }
+            LOG.error("Failed to handle dhcp packet in ", e);
+        }
+    }
+
+    public void onPacketReceivedInternal(PacketReceived packet) {
         if (!config.isControllerDhcpEnabled()) {
             return;
         }
@@ -130,13 +173,20 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 BigInteger metadata = packet.getMatch().getMetadata().getMetadata();
                 long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
                 String macAddress = DHCPUtils.byteArrayToString(ethPkt.getSourceMACAddress());
+                pktInCounter.label(macAddress).increment();
                 BigInteger tunnelId =
                         packet.getMatch().getTunnel() == null ? null : packet.getMatch().getTunnel().getTunnelId();
                 String interfaceName = getInterfaceNameFromTag(portTag);
+                if (interfaceName == null) {
+                    pktDropCounter.label(macAddress).label(UNKNOWN_LABEL).label(
+                            PktDropReason.INTERFACE_NAME_NOT_FOUND.name()).increment();
+                }
                 InterfaceInfo interfaceInfo =
                         interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
                 if (interfaceInfo == null) {
                     LOG.error("Failed to get interface info for interface name {}", interfaceName);
+                    pktDropCounter.label(macAddress).label(interfaceName).label(
+                            PktDropReason.INTERFACE_INFO_NOT_FOUND.name()).increment();
                     return;
                 }
                 Port port;
@@ -161,8 +211,13 @@ public class DhcpPktHandler implements PacketProcessingListener {
                         // DHCP Neutron Port not found for this network
                         LOG.error("Neutron DHCP port is not available for the Subnet {} and port {}.", subnet.getUuid(),
                                 port.getUuid());
+                        pktDropCounter.label(macAddress).label(interfaceName).label(
+                                PktDropReason.SUBNET_NOT_FOUND.name()).increment();
                         return;
                     }
+                } else {
+                    pktDropCounter.label(macAddress).label(interfaceName).label(
+                            PktDropReason.SUBNET_NOT_FOUND.name()).increment();
                 }
                 DHCP replyPkt = handleDhcpPacket(pktIn, interfaceName, macAddress, port, subnet, serverIp);
                 if (replyPkt == null) {
@@ -170,13 +225,19 @@ public class DhcpPktHandler implements PacketProcessingListener {
                     return;
                 }
                 byte[] pktOut = getDhcpPacketOut(replyPkt, ethPkt, serverMacAddress);
-                sendPacketOut(pktOut, interfaceInfo.getDpId(), interfaceName, tunnelId);
+                sendPacketOut(pktOut, macAddress, interfaceInfo.getDpId(), interfaceName, tunnelId);
             }
         }
     }
 
-    private void sendPacketOut(byte[] pktOut, BigInteger dpnId, String interfaceName, BigInteger tunnelId) {
+    private void sendPacketOut(byte[] pktOut, String mac, BigInteger dpnId, String interfaceName,
+                               BigInteger tunnelId) {
         List<Action> action = getEgressAction(interfaceName, tunnelId);
+        if (action == null) {
+            pktDropCounter.label(mac).label(interfaceName).label(
+                    PktDropReason.EGRESS_ACTIONS_NOT_FOUND.name()).increment();
+            return;
+        }
         TransmitPacketInput output = MDSALUtil.getPacketOut(action, pktOut, dpnId);
         LOG.trace("Transmitting packet: {}", output);
         JdkFutures.addErrorLogging(pktService.transmitPacket(output), LOG, "Transmit packet");
