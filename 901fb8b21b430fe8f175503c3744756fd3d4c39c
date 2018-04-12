@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d8e03cf_aeec0462",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 569,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-12T06:56:51Z",
+      "side": 1,
+      "message": "I\u0027m afraid, this is not the right fix. AFAIU this will unconditionally remove the FIB entry for the dhcp-port.\n\nUnlike ODL DHCP Server, Neutron dhcp-agent is a \"real tap interface in a namespace\", so external-servers/VMs-in-other-network should be able to reach dhcp-port (if necessary). \n\nThe Original issue was that when we did not associate a router to the subnet, FIB entry should not be present. The patch should solve it and not unconditionally remove the entry. Also please update the bug description.",
+      "range": {
+        "startLine": 569,
+        "startChar": 57,
+        "endLine": 569,
+        "endChar": 99
+      },
+      "revId": "901fb8b21b430fe8f175503c3744756fd3d4c39c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
