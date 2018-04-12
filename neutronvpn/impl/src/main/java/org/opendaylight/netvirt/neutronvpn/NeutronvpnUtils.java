@@ -30,10 +30,12 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -201,6 +203,11 @@ public class NeutronvpnUtils {
         return null;
     }
 
+    protected static Optional<Subnetmap> getSubnetmap(ReadTransaction configTx, Uuid subnetId)
+            throws ReadFailedException {
+        return configTx.read(LogicalDatastoreType.CONFIGURATION, buildSubnetMapIdentifier(subnetId)).checkedGet();
+    }
+
     public VpnMap getVpnMap(Uuid id) {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
                 new VpnMapKey(id)).build();
@@ -247,6 +254,30 @@ public class NeutronvpnUtils {
             return optionalSubnetMap.get().getNetworkId();
         }
         LOG.error("getNetworkForSubnet: Failed as subnetMap DS is absent for subnet {}", subnetId.getValue());
+        return null;
+    }
+
+    @Nullable
+    protected static Uuid getExternalVpnForRouter(ReadTransaction configTx, @Nullable Uuid routerId)
+            throws ReadFailedException {
+        if (routerId == null) {
+            return null;
+        }
+
+        InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
+        Optional<VpnMaps> optionalVpnMaps =
+                configTx.read(LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier).checkedGet();
+        if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
+            List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
+            for (VpnMap vpnMap : allMaps) {
+                if (routerId.equals(vpnMap.getRouterId())) {
+                    if (!routerId.equals(vpnMap.getVpnId())) {
+                        return vpnMap.getVpnId();
+                    }
+                }
+            }
+        }
+        LOG.debug("getExternalVpnForRouter: Failed for router {} as no VPN present in VPNMaps DS", routerId.getValue());
         return null;
     }
 
@@ -1430,15 +1461,31 @@ public class NeutronvpnUtils {
         return true;
     }
 
+    public static boolean shouldVpnHandleIpVersionChangeToRemove(ReadTransaction configTx, @Nullable Subnetmap sm,
+            Uuid vpnId) throws ReadFailedException {
+        if (sm == null) {
+            return false;
+        }
+        InstanceIdentifier<Subnetmaps> subnetMapsId = InstanceIdentifier.builder(Subnetmaps.class).build();
+        Optional<Subnetmaps> allSubnetMapsOpt =
+                configTx.read(LogicalDatastoreType.CONFIGURATION, subnetMapsId).checkedGet();
+        return allSubnetMapsOpt.isPresent() && shouldVpnHandleIpVersionChangeToRemove(sm, vpnId,
+                allSubnetMapsOpt.get());
+    }
+
     public boolean shouldVpnHandleIpVersionChangeToRemove(Subnetmap sm, Uuid vpnId) {
         if (sm == null) {
             return false;
         }
         InstanceIdentifier<Subnetmaps> subnetMapsId = InstanceIdentifier.builder(Subnetmaps.class).build();
-        Optional<Subnetmaps> allSubnetMaps = read(LogicalDatastoreType.CONFIGURATION, subnetMapsId);
+        Optional<Subnetmaps> allSubnetMapsOpt = read(LogicalDatastoreType.CONFIGURATION, subnetMapsId);
+        return shouldVpnHandleIpVersionChangeToRemove(sm, vpnId, allSubnetMapsOpt.get());
+    }
+
+    private static boolean shouldVpnHandleIpVersionChangeToRemove(Subnetmap sm, Uuid vpnId, Subnetmaps allSubnetMaps) {
         // calculate and store in list IpVersion for each subnetMap, belonging to current VpnInstance
         List<IpVersionChoice> snIpVersions = new ArrayList<>();
-        for (Subnetmap snMap: allSubnetMaps.get().getSubnetmap()) {
+        for (Subnetmap snMap: allSubnetMaps.getSubnetmap()) {
             if (snMap.getId().equals(sm.getId())) {
                 continue;
             }
@@ -1450,10 +1497,7 @@ public class NeutronvpnUtils {
             }
         }
         IpVersionChoice ipVersion = getIpVersionFromString(sm.getSubnetIp());
-        if (!snIpVersions.contains(ipVersion)) {
-            return true;
-        }
-        return false;
+        return !snIpVersions.contains(ipVersion);
     }
 
     public void updateVpnInstanceWithIpFamily(String vpnName, IpVersionChoice ipVersion, boolean add) {
