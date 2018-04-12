@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e920a9cd_1b34a684",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-04-12T10:23:58Z",
+      "side": 1,
+      "message": "just curious what the comment here means?  Perhaps this is something you would like to instead put e.g. into the description(\"\") of the MetricDescriptor?",
+      "revId": "f90d0e207c21dcc24250b08c3e6771e07806353e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "42679233_1b197b60",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-04-12T10:23:58Z",
+      "side": 1,
+      "message": "you can remove \"\u003d null\" here",
+      "revId": "f90d0e207c21dcc24250b08c3e6771e07806353e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "15b797e5_32790a6e",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-04-12T10:23:58Z",
+      "side": 1,
+      "message": "you can, and should, remove \"\u003d null\" here, because in both paths below you are assigning it",
+      "revId": "f90d0e207c21dcc24250b08c3e6771e07806353e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f243e563_c3dca9d2",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-04-12T10:23:58Z",
+      "side": 1,
+      "message": "you can remove if (subMod !\u003d null) here",
+      "revId": "f90d0e207c21dcc24250b08c3e6771e07806353e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "59fc7655_ab3e423e",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-04-12T10:23:58Z",
+      "side": 1,
+      "message": "you can remove if (childModCollection !\u003d null) here",
+      "revId": "f90d0e207c21dcc24250b08c3e6771e07806353e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a4c453b1_11473547",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-04-12T10:23:58Z",
+      "side": 1,
+      "message": "put both of this inside the  if (updateCounter), to save a few microseconds",
+      "revId": "f90d0e207c21dcc24250b08c3e6771e07806353e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d7439a0_4403b5d8",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-04-12T10:23:58Z",
+      "side": 1,
+      "message": "do not hard-code \"delete\" here (AKA \"stringly-typed\"), but use the equivalent strongly typed",
+      "revId": "f90d0e207c21dcc24250b08c3e6771e07806353e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b890faf6_20e980f6",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-04-12T10:23:58Z",
+      "side": 1,
+      "message": "not \"add\", but as above",
+      "revId": "f90d0e207c21dcc24250b08c3e6771e07806353e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ad4c9ff_76a94391",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/L2GatewayConnectionListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-04-12T10:23:58Z",
+      "side": 1,
+      "message": "as in the other class",
+      "revId": "f90d0e207c21dcc24250b08c3e6771e07806353e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e7eaa46f_fc1f35bd",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/L2GatewayConnectionListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-04-12T10:23:58Z",
+      "side": 1,
+      "message": "as above",
+      "revId": "f90d0e207c21dcc24250b08c3e6771e07806353e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
