@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -441,6 +442,58 @@ public class FibUtil {
         } else {
             LOG.warn("Could not find VrfEntry for Route-Distinguisher {} prefix {} nexthop {}", rd, prefix,
                     nextHopToRemove);
+        }
+    }
+
+    /**
+     * Removes multiple nexthops from a VrfEntry. If all nextHops are removed, then the fibEntries are deleted
+     * @param rd              Route-Distinguisher to which the VrfEntry belongs to
+     * @param prefix          Destination of the route
+     * @param nextHopsToRemove nexthops within the Route to be removed.
+     */
+    public void removeOrUpdateFibEntry(String rd, String prefix, List<String> nextHopsToRemove,
+                                       WriteTransaction writeConfigTxn) {
+
+        LOG.debug("removeOrUpdateFibEntry: Removing fib entry with destination prefix {} from vrf table for rd {}" +
+                " nextHop {}", prefix, rd, nextHopsToRemove);
+
+        // Looking for existing prefix in MDSAL database
+        InstanceIdentifier<VrfEntry> vrfEntryId =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
+                        .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+        Optional<VrfEntry> entry = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        if (entry.isPresent()) {
+            final List<RoutePaths> routePaths = entry.get().getRoutePaths();
+            if (routePaths == null || routePaths.isEmpty()) {
+                LOG.warn("removeOrUpdateFibEntry: routePaths is null/empty for given rd {}, prefix {}", rd, prefix);
+                return;
+            }
+
+            List<RoutePaths> filteredRoutePaths = routePaths.stream()
+                    .filter(routePath -> !nextHopsToRemove.contains(routePath.getNexthopAddress()))
+                    .collect(Collectors.toList());
+
+            if (filteredRoutePaths.isEmpty()) {
+                if (writeConfigTxn != null) {
+                    writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                } else {
+                    MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                }
+                LOG.info("removeOrUpdateFibEntry: Removed Fib Entry rd {} prefix {} nextHop {}", rd, prefix,
+                        nextHopsToRemove);
+            } else {
+                VrfEntry filteredVrfEntry = new VrfEntryBuilder(entry.get()).setRoutePaths(filteredRoutePaths).build();
+                if (writeConfigTxn != null) {
+                    writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vrfEntryId, filteredVrfEntry);
+                } else {
+                    MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, filteredVrfEntry);
+                }
+                LOG.info("removeOrUpdateFibEntry: Updated Fib Entry rd {} prefix {} nextHop {}", rd, prefix,
+                        nextHopsToRemove);
+            }
+        } else {
+            LOG.warn("removeOrUpdateFibEntry: Could not find VrfEntry for Route-Distinguisher {} prefix {} nexthop {}",
+                    rd, prefix, nextHopsToRemove);
         }
     }
 
