@@ -30,6 +30,8 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.internal.HwvtepNodeHACacheImpl;
 import org.opendaylight.infrautils.diagstatus.DiagStatusService;
 import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Module;
+import org.opendaylight.infrautils.metrics.MetricProvider;
+import org.opendaylight.infrautils.metrics.testimpl.TestMetricProviderImpl;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.mdsal.eos.common.api.EntityOwnershipState;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -84,6 +86,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         bind(LockManagerService.class).to(LockManagerServiceImpl.class);
         bind(ElanConfig.class).toInstance(new ElanConfigBuilder().setIntBridgeGenMac(true)
                         .setTempSmacLearnTimeout(10).build());
+        bind(MetricProvider.class).toInstance(new TestMetricProviderImpl());
 
         // Bindings of all listeners (which are not directly referenced in the code)
         // This is required to be explicit here, because these are referenced neither from src/main nor src/test
