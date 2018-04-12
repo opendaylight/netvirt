@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "1f3b2076_dfcf57d6",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-04-12T10:35:03Z",
+      "side": 1,
+      "message": "How this null check can be removed ?\nIt should not be removed in my opinion.\nIf the termination point is changed under the node then\nthese augmentations will return null",
+      "parentUuid": "f243e563_c3dca9d2",
+      "revId": "f90d0e207c21dcc24250b08c3e6771e07806353e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "59fc7655_ab3e423e",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
         "patchSetId": 3
@@ -81,6 +99,24 @@
       "writtenOn": "2018-04-12T10:23:58Z",
       "side": 1,
       "message": "you can remove if (childModCollection !\u003d null) here",
+      "revId": "f90d0e207c21dcc24250b08c3e6771e07806353e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "76fbe04e_5b52816c",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-04-12T10:35:03Z",
+      "side": 1,
+      "message": "Again not sure if this check can be removed\nif simply some node attribute is changed then this may be null.",
+      "parentUuid": "59fc7655_ab3e423e",
       "revId": "f90d0e207c21dcc24250b08c3e6771e07806353e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
