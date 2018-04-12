@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8cc5b965_56fe8720",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-04-12T11:50:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6aff446_6ab819be",
+      "revId": "3fcab0be9cc94e4481184ac209a41b4f9310582d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "75559a0a_1a845b74",
         "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2018-04-12T09:51:53Z",
       "side": 1,
       "message": "would module(\"dhcpservice\") not be more consistent, or is that too technical / low-level, and everyone \u0027functionally\u0027 refers to this just as \"dhcp\", always? Then fine with me, just thought it would be worth pointing out that this is not the bundle\u0027s name, like everywhere else.",
+      "revId": "3fcab0be9cc94e4481184ac209a41b4f9310582d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7995fa60_b466d680",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-04-12T11:50:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75559a0a_1a845b74",
       "revId": "3fcab0be9cc94e4481184ac209a41b4f9310582d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
