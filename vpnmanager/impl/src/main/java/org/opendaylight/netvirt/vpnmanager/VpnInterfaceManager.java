@@ -850,7 +850,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             if (nextHop.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
                 RouteOrigin origin = nextHop.getAdjacencyType() == AdjacencyType.PrimaryAdjacency ? RouteOrigin.LOCAL
                         : RouteOrigin.STATIC;
-                input.setNextHop(nextHop).setRd(nextHop.getVrfId()).setRouteOrigin(origin);
+                input.setIpAddress(nextHop.getIpAddress()).setRd(nextHop.getVrfId()).setRouteOrigin(origin)
+                        .setLabel(nextHop.getLabel());
                 registeredPopulator.populateFib(input, writeConfigTxn);
             }
         }

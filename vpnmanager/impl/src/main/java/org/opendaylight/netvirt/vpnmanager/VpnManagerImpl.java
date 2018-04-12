@@ -242,9 +242,10 @@ public class VpnManagerImpl implements IVpnManager {
                     // If nhList is greater than one for vpnextraroute, a call to populatefib doesn't update vrfentry.
                     fibManager.refreshVrfEntry(primaryRd, destination);
                 } else {
-                    L3vpnInput input = new L3vpnInput().setNextHop(operationalAdj).setNextHopIp(nextHop).setL3vni(l3vni)
-                            .setPrimaryRd(primaryRd).setVpnName(vpnName).setDpnId(dpnId)
-                            .setEncapType(encapType).setRd(rd).setRouteOrigin(origin);
+                    L3vpnInput input = new L3vpnInput().setIpAddress(operationalAdj.getIpAddress())
+                            .setLabel(operationalAdj.getLabel()).setNextHopIp(nextHop).setL3vni(l3vni)
+                            .setPrimaryRd(primaryRd).setVpnName(vpnName).setDpnId(dpnId).setEncapType(encapType)
+                            .setRd(rd).setRouteOrigin(origin);
                     L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(input, writeConfigTxn);
                 }
             }

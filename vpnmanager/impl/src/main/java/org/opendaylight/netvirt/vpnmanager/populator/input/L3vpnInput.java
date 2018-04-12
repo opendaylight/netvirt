@@ -29,6 +29,7 @@ public class L3vpnInput {
     private Long label;
     private Long elanTag;
     private String networkName;
+    private String ipAddress;
 
     public String getRd() {
         return rd;
@@ -92,6 +93,10 @@ public class L3vpnInput {
 
     public String getSubnetIp() {
         return subnetIp;
+    }
+
+    public String getIpAddress() {
+        return  ipAddress;
     }
 
     public L3vpnInput setPrimaryRd(String primaryRd) {
@@ -171,6 +176,11 @@ public class L3vpnInput {
 
     public L3vpnInput setNetworkName(String networkName) {
         this.networkName = networkName;
+        return this;
+    }
+
+    public L3vpnInput setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
         return this;
     }
 }
