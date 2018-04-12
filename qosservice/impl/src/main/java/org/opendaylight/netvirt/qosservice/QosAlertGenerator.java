@@ -55,7 +55,7 @@ public class QosAlertGenerator {
     }
 
     private Map<String, Object> getPropertyMap(String pid) throws IOException {
-        Map<String, Object> propertyMap = null;
+        Map<String, Object> propertyMap;
         Configuration configurationInit = getConfig(pid);
         Dictionary<String, Object> config = configurationInit.getProperties();
         propertyMap = new HashMap<>(config.size());

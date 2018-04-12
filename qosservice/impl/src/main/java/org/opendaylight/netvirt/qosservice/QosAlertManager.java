@@ -147,7 +147,7 @@ public final class QosAlertManager implements Runnable {
         alertEnabled = defaultConfig.isQosAlertEnabled();
         pollInterval = defaultConfig.getQosAlertPollInterval();
 
-        alertThresholdSupplier.set(defaultConfig.getQosDropPacketThreshold().shortValue());
+        alertThresholdSupplier.set(defaultConfig.getQosDropPacketThreshold());
     }
 
     public void setQosalertConfig(QosalertConfig config) {
