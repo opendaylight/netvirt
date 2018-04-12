@@ -20,6 +20,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.neutronvpn.api.enums.Action;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
@@ -189,9 +190,10 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
 
         if (addedOrRemoved == NwConstants.ADD_FLOW) {
             nvpnManager.addInterVpnRoutes(vpnName, interVpnLinkRoutes, nexthopsXinterVpnLinks);
-            nvpnManager.updateVpnInterfaceWithExtraRouteAdjacency(vpnName, otherRoutes);
+            nvpnManager.checkAlarmExtraRoutes(vpnName, otherRoutes);
+            nvpnManager.updateExtraRouteAdjacency(vpnName, otherRoutes, Action.ADD);
         } else {
-            nvpnManager.removeAdjacencyforExtraRoute(vpnName, otherRoutes);
+            nvpnManager.updateExtraRouteAdjacency(vpnName, otherRoutes, Action.REMOVE);
             nvpnManager.removeInterVpnRoutes(vpnName, interVpnLinkRoutes, nexthopsXinterVpnLinks);
         }
     }
