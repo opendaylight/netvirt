@@ -12,7 +12,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,17 +21,18 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.netvirt.elanmanager.api.IL2gwService;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
@@ -54,6 +55,7 @@ import org.slf4j.LoggerFactory;
 public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<L2gateway, L2GatewayListener> {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayListener.class);
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final ItmRpcService itmRpcService;
     private final IL2gwService l2gwService;
     private final EntityOwnershipUtils entityOwnershipUtils;
@@ -65,6 +67,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
                              final ItmRpcService itmRpcService, final IL2gwService l2gwService,
                              final JobCoordinator jobCoordinator, final L2GatewayCache l2GatewayCache) {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
         this.itmRpcService = itmRpcService;
         this.l2gwService = l2gwService;
@@ -99,24 +102,18 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
         LOG.info("Removing L2gateway with ID: {}", input.getUuid());
         List<L2gatewayConnection> connections = l2gwService
                 .getL2GwConnectionsByL2GatewayId(input.getUuid());
-        try {
-            ReadWriteTransaction tx = this.dataBroker.newReadWriteTransaction();
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
             for (L2gatewayConnection connection : connections) {
                 InstanceIdentifier<L2gatewayConnection> iid = InstanceIdentifier.create(Neutron.class)
                         .child(L2gatewayConnections.class).child(L2gatewayConnection.class, connection.getKey());
                 tx.delete(LogicalDatastoreType.CONFIGURATION, iid);
             }
-            tx.submit().checkedGet();
-        } catch (TransactionCommitFailedException e) {
-            LOG.error("Failed to delete associated l2gwconnection while deleting l2gw {} with id beacause of {}",
-                    input.getUuid(), e.getLocalizedMessage());
-            //TODO :retry
-        }
-        List<Devices> l2Devices = input.getDevices();
-        for (Devices l2Device : l2Devices) {
-            LOG.trace("Removing L2gateway device: {}", l2Device);
-            removeL2Device(l2Device, input);
-        }
+            List<Devices> l2Devices = input.getDevices();
+            for (Devices l2Device : l2Devices) {
+                LOG.trace("Removing L2gateway device: {}", l2Device);
+                removeL2Device(tx, l2Device, input);
+            }
+        }), LOG, "Failed to delete associated l2gwconnection while deleting l2gw {}", input.getUuid());
     }
 
     @Override
@@ -134,44 +131,43 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
             return;
         }
         jobCoordinator.enqueueJob("l2gw.update", () -> {
-            ReadWriteTransaction transaction = dataBroker.newReadWriteTransaction();
             DeviceInterfaces updatedDeviceInterfaces = new DeviceInterfaces(update);
-            List<ListenableFuture<Void>> fts = new ArrayList<>();
-            original.getDevices()
-                    .stream()
-                    .filter((originalDevice) -> originalDevice.getInterfaces() != null)
-                    .forEach((originalDevice) -> {
-                        String deviceName = originalDevice.getDeviceName();
-                        L2GatewayDevice l2GwDevice = l2GatewayCache.get(deviceName);
-                        NodeId physicalSwitchNodeId = HwvtepSouthboundUtils.createManagedNodeId(
-                                new NodeId(l2GwDevice.getHwvtepNodeId()), deviceName);
-                        originalDevice.getInterfaces()
-                                .stream()
-                                .filter((intf) -> !updatedDeviceInterfaces.containsInterface(
-                                        deviceName, intf.getInterfaceName()))
-                                .forEach((intf) -> connections.forEach((connection) -> {
-                                    Integer vlanId = connection.getSegmentId();
-                                    if (intf.getSegmentationIds() != null
-                                            && !intf.getSegmentationIds().isEmpty()) {
-                                        for (Integer vlan : intf.getSegmentationIds()) {
-                                            HwvtepUtils.deleteVlanBinding(transaction,
-                                                    physicalSwitchNodeId, intf.getInterfaceName(), vlan);
+            ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(transaction -> {
+                original.getDevices()
+                        .stream()
+                        .filter((originalDevice) -> originalDevice.getInterfaces() != null)
+                        .forEach((originalDevice) -> {
+                            String deviceName = originalDevice.getDeviceName();
+                            L2GatewayDevice l2GwDevice = l2GatewayCache.get(deviceName);
+                            NodeId physicalSwitchNodeId = HwvtepSouthboundUtils.createManagedNodeId(
+                                    new NodeId(l2GwDevice.getHwvtepNodeId()), deviceName);
+                            originalDevice.getInterfaces()
+                                    .stream()
+                                    .filter((intf) -> !updatedDeviceInterfaces.containsInterface(
+                                            deviceName, intf.getInterfaceName()))
+                                    .forEach((intf) -> connections.forEach((connection) -> {
+                                        Integer vlanId = connection.getSegmentId();
+                                        if (intf.getSegmentationIds() != null
+                                                && !intf.getSegmentationIds().isEmpty()) {
+                                            for (Integer vlan : intf.getSegmentationIds()) {
+                                                HwvtepUtils.deleteVlanBinding(transaction,
+                                                        physicalSwitchNodeId, intf.getInterfaceName(), vlan);
+                                            }
+                                        } else {
+                                            LOG.debug("Deleting vlan binding {} {} {}",
+                                                    physicalSwitchNodeId, intf.getInterfaceName(), vlanId);
+                                            HwvtepUtils.deleteVlanBinding(transaction, physicalSwitchNodeId,
+                                                    intf.getInterfaceName(), vlanId);
                                         }
-                                    } else {
-                                        LOG.debug("Deleting vlan binding {} {} {}",
-                                                physicalSwitchNodeId, intf.getInterfaceName(), vlanId);
-                                        HwvtepUtils.deleteVlanBinding(transaction, physicalSwitchNodeId,
-                                                intf.getInterfaceName(), vlanId);
-                                    }
-                                }));
-                    });
-            fts.add(transaction.submit());
-            Futures.addCallback(fts.get(0), new FutureCallback<Void>() {
+                                    }));
+                        });
+            });
+            Futures.addCallback(future, new FutureCallback<Void>() {
                 @Override
                 public void onSuccess(Void success) {
                     LOG.debug("Successfully deleted vlan bindings for l2gw update {}", update);
-                        connections.forEach((l2GwConnection) ->
-                                l2gwService.addL2GatewayConnection(l2GwConnection, null, update));
+                    connections.forEach((l2GwConnection) ->
+                            l2gwService.addL2GatewayConnection(l2GwConnection, null, update));
                 }
 
                 @Override
@@ -179,7 +175,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
                     LOG.error("Failed to delete vlan bindings as part of l2gw udpate {}", update);
                 }
             }, MoreExecutors.directExecutor());
-            return fts;
+            return Collections.singletonList(future);
         }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
     }
 
@@ -197,7 +193,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
         }
     }
 
-    private void removeL2Device(Devices l2Device, L2gateway input) {
+    private void removeL2Device(WriteTransaction tx, Devices l2Device, L2gateway input) {
         final String l2DeviceName = l2Device.getDeviceName();
         L2GatewayDevice l2GwDevice = l2GatewayCache.get(l2DeviceName);
         if (l2GwDevice != null) {
@@ -230,9 +226,9 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
                     NodeId nodeId = new NodeId(l2GwDevice.getHwvtepNodeId());
                     NodeId psNodeId = HwvtepSouthboundUtils.createManagedNodeId(nodeId, l2DeviceName);
                     //FIXME: These should be removed
-                    MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    tx.delete(LogicalDatastoreType.CONFIGURATION,
                             HwvtepSouthboundUtils.createInstanceIdentifier(nodeId));
-                    MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    tx.delete(LogicalDatastoreType.CONFIGURATION,
                             HwvtepSouthboundUtils.createInstanceIdentifier(psNodeId));
 
                 }

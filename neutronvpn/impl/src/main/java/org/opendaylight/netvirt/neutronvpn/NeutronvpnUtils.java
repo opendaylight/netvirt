@@ -30,16 +30,22 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -177,6 +183,7 @@ public class NeutronvpnUtils {
     private final ConcurrentMap<Uuid, HashMap<Uuid, Network>> qosNetworksMap = new ConcurrentHashMap<>();
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IdManagerService idManager;
     private final JobCoordinator jobCoordinator;
     private IPV6InternetDefaultRouteProgrammer ipV6InternetDefRt;
@@ -185,6 +192,7 @@ public class NeutronvpnUtils {
     public NeutronvpnUtils(final DataBroker dataBroker, final IdManagerService idManager,
             final JobCoordinator jobCoordinator, final IPV6InternetDefaultRouteProgrammer ipV6InternetDefRt) {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = idManager;
         this.jobCoordinator = jobCoordinator;
         this.ipV6InternetDefRt = ipV6InternetDefRt;
@@ -201,6 +209,11 @@ public class NeutronvpnUtils {
         return null;
     }
 
+    protected static Optional<Subnetmap> getSubnetmap(ReadTransaction confTx, Uuid subnetId)
+            throws ReadFailedException {
+        return confTx.read(LogicalDatastoreType.CONFIGURATION, buildSubnetMapIdentifier(subnetId)).checkedGet();
+    }
+
     public VpnMap getVpnMap(Uuid id) {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
                 new VpnMapKey(id)).build();
@@ -212,11 +225,38 @@ public class NeutronvpnUtils {
         return null;
     }
 
+    protected static Uuid getVpnForNetwork(ReadTransaction confTx, Uuid network) throws ReadFailedException {
+        InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
+        Optional<VpnMaps> optionalVpnMaps =
+                confTx.read(LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier).checkedGet();
+        if (optionalVpnMaps.isPresent()) {
+            Uuid vpn = getVpnForNetwork(optionalVpnMaps.get(), network);
+            if (vpn != null) {
+                return vpn;
+            }
+        }
+        LOG.debug("getVpnForNetwork: Failed for network {} as no VPN present in VPNMaps DS", network.getValue());
+        return null;
+    }
+
+    @Deprecated
     protected Uuid getVpnForNetwork(Uuid network) {
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
         Optional<VpnMaps> optionalVpnMaps = read(LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
-        if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
-            List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
+        if (optionalVpnMaps.isPresent()) {
+            Uuid vpn = getVpnForNetwork(optionalVpnMaps.get(), network);
+            if (vpn != null) {
+                return vpn;
+            }
+        }
+        LOG.debug("getVpnForNetwork: Failed for network {} as no VPN present in VPNMaps DS", network.getValue());
+        return null;
+    }
+
+    @Nullable
+    private static Uuid getVpnForNetwork(VpnMaps vpnMaps, Uuid network) {
+        if (vpnMaps.getVpnMap() != null) {
+            List<VpnMap> allMaps = vpnMaps.getVpnMap();
             for (VpnMap vpnMap : allMaps) {
                 List<Uuid> netIds = vpnMap.getNetworkIds();
                 if (netIds != null && netIds.contains(network)) {
@@ -224,7 +264,6 @@ public class NeutronvpnUtils {
                 }
             }
         }
-        LOG.debug("getVpnForNetwork: Failed for network {} as no VPN present in VPNMaps DS", network.getValue());
         return null;
     }
 
@@ -247,6 +286,30 @@ public class NeutronvpnUtils {
             return optionalSubnetMap.get().getNetworkId();
         }
         LOG.error("getNetworkForSubnet: Failed as subnetMap DS is absent for subnet {}", subnetId.getValue());
+        return null;
+    }
+
+    @Nullable
+    protected static Uuid getExternalVpnForRouter(ReadTransaction confTx, @Nullable Uuid routerId)
+            throws ReadFailedException {
+        if (routerId == null) {
+            return null;
+        }
+
+        InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
+        Optional<VpnMaps> optionalVpnMaps =
+                confTx.read(LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier).checkedGet();
+        if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
+            List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
+            for (VpnMap vpnMap : allMaps) {
+                if (routerId.equals(vpnMap.getRouterId())) {
+                    if (!routerId.equals(vpnMap.getVpnId())) {
+                        return vpnMap.getVpnId();
+                    }
+                }
+            }
+        }
+        LOG.debug("getExternalVpnForRouter: Failed for router {} as no VPN present in VPNMaps DS", routerId.getValue());
         return null;
     }
 
@@ -348,6 +411,7 @@ public class NeutronvpnUtils {
         return null;
     }
 
+    @Nullable
     protected Router getNeutronRouter(Uuid routerId) {
         Router router = routerMap.get(routerId);
         if (router != null) {
@@ -355,27 +419,40 @@ public class NeutronvpnUtils {
         }
         InstanceIdentifier<Router> inst = InstanceIdentifier.create(Neutron.class).child(Routers.class).child(Router
                 .class, new RouterKey(routerId));
-        Optional<Router> rtr = read(LogicalDatastoreType.CONFIGURATION, inst);
-        if (rtr.isPresent()) {
-            router = rtr.get();
+        return read(LogicalDatastoreType.CONFIGURATION, inst).orNull();
+    }
+
+    @Nullable
+    protected Router getNeutronRouter(ReadTransaction confTx, Uuid routerId) throws ReadFailedException {
+        Router router = routerMap.get(routerId);
+        if (router != null) {
+            return router;
         }
-        return router;
+        InstanceIdentifier<Router> inst = InstanceIdentifier.create(Neutron.class).child(Routers.class).child(Router
+                .class, new RouterKey(routerId));
+        return confTx.read(LogicalDatastoreType.CONFIGURATION, inst).checkedGet().orNull();
     }
 
     protected Network getNeutronNetwork(Uuid networkId) {
-        Network network = null;
-        network = networkMap.get(networkId);
+        Network network = networkMap.get(networkId);
         if (network != null) {
             return network;
         }
         LOG.debug("getNeutronNetwork for {}", networkId.getValue());
         InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class).child(Networks.class)
             .child(Network.class, new NetworkKey(networkId));
-        Optional<Network> net = read(LogicalDatastoreType.CONFIGURATION, inst);
-        if (net.isPresent()) {
-            network = net.get();
+        return read(LogicalDatastoreType.CONFIGURATION, inst).orNull();
+    }
+
+    protected Network getNeutronNetwork(ReadTransaction confTx, Uuid networkId) throws ReadFailedException {
+        Network network = networkMap.get(networkId);
+        if (network != null) {
+            return network;
         }
-        return network;
+        LOG.debug("getNeutronNetwork for {}", networkId.getValue());
+        InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class).child(Networks.class)
+                .child(Network.class, new NetworkKey(networkId));
+        return confTx.read(LogicalDatastoreType.CONFIGURATION, inst).checkedGet().orNull();
     }
 
     protected Port getNeutronPort(Uuid portId) {
@@ -1331,11 +1408,28 @@ public class NeutronvpnUtils {
      *
      * @return the route-distinguisher of the VPN
      */
+    @Nullable
+    @Deprecated
     public String getVpnRd(String vpnName) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
             .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                        .VpnInstance::getVrfId).orElse(null);
+    }
+
+    /**
+     * Retrieves the VPN Route Distinguisher searching by its Vpn instance name.
+     * @param vpnName Name of the VPN
+     *
+     * @return the route-distinguisher of the VPN
+     */
+    @Nullable
+    public static String getVpnRd(ReadTransaction confTx, String vpnName) throws ReadFailedException {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
+                .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
+        return confTx.read(LogicalDatastoreType.CONFIGURATION, id).checkedGet().toJavaUtil().map(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
                         .VpnInstance::getVrfId).orElse(null);
     }
@@ -1373,6 +1467,8 @@ public class NeutronvpnUtils {
         return IpVersionChoice.UNDEFINED;
     }
 
+    @Nullable
+    @Deprecated
     public VpnInstanceOpDataEntry getVpnInstanceOpDataEntryFromVpnId(String vpnName) {
         String primaryRd = getVpnRd(vpnName);
         if (primaryRd == null) {
@@ -1389,7 +1485,26 @@ public class NeutronvpnUtils {
         return vpnInstanceOpDataEntryOptional.get();
     }
 
-    protected InstanceIdentifier<VpnInstanceOpDataEntry> getVpnOpDataIdentifier(String primaryRd) {
+    @Nullable
+    public static VpnInstanceOpDataEntry getVpnInstanceOpDataEntryFromVpnId(ReadTransaction confTx, String vpnName)
+            throws ReadFailedException {
+        String primaryRd = getVpnRd(confTx, vpnName);
+        if (primaryRd == null) {
+            LOG.error("getVpnInstanceOpDataEntryFromVpnId: Vpn Instance {} "
+                    + "Primary RD not found", vpnName);
+            return null;
+        }
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnOpDataIdentifier(primaryRd);
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
+                confTx.read(LogicalDatastoreType.OPERATIONAL, id).checkedGet();
+        if (!vpnInstanceOpDataEntryOptional.isPresent()) {
+            LOG.error("getVpnInstanceOpDataEntryFromVpnId: VpnInstance {} not found", primaryRd);
+            return null;
+        }
+        return vpnInstanceOpDataEntryOptional.get();
+    }
+
+    protected static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnOpDataIdentifier(String primaryRd) {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
     }
@@ -1402,8 +1517,20 @@ public class NeutronvpnUtils {
         return shouldVpnHandleIpVersionChoiceChangeToAdd(ipVersion, vpnId);
     }
 
+    @Deprecated
     public boolean shouldVpnHandleIpVersionChoiceChangeToAdd(IpVersionChoice ipVersion, Uuid vpnId) {
         VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnId.getValue());
+        return shouldVpnHandleIpVersionChoiceChangeToAdd(ipVersion, vpnId, vpnInstanceOpDataEntry);
+    }
+
+    public static boolean shouldVpnHandleIpVersionChoiceChangeToAdd(ReadTransaction confTx, IpVersionChoice ipVersion,
+            Uuid vpnId) throws ReadFailedException {
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(confTx, vpnId.getValue());
+        return shouldVpnHandleIpVersionChoiceChangeToAdd(ipVersion, vpnId, vpnInstanceOpDataEntry);
+    }
+
+    private static boolean shouldVpnHandleIpVersionChoiceChangeToAdd(IpVersionChoice ipVersion, Uuid vpnId,
+            VpnInstanceOpDataEntry vpnInstanceOpDataEntry) {
         if (vpnInstanceOpDataEntry == null) {
             return false;
         }
@@ -1430,15 +1557,31 @@ public class NeutronvpnUtils {
         return true;
     }
 
+    public static boolean shouldVpnHandleIpVersionChangeToRemove(ReadTransaction confTx, @Nullable Subnetmap sm,
+            Uuid vpnId) throws ReadFailedException {
+        if (sm == null) {
+            return false;
+        }
+        InstanceIdentifier<Subnetmaps> subnetMapsId = InstanceIdentifier.builder(Subnetmaps.class).build();
+        Optional<Subnetmaps> allSubnetMapsOpt =
+                confTx.read(LogicalDatastoreType.CONFIGURATION, subnetMapsId).checkedGet();
+        return allSubnetMapsOpt.isPresent() && shouldVpnHandleIpVersionChangeToRemove(sm, vpnId,
+                allSubnetMapsOpt.get());
+    }
+
     public boolean shouldVpnHandleIpVersionChangeToRemove(Subnetmap sm, Uuid vpnId) {
         if (sm == null) {
             return false;
         }
         InstanceIdentifier<Subnetmaps> subnetMapsId = InstanceIdentifier.builder(Subnetmaps.class).build();
-        Optional<Subnetmaps> allSubnetMaps = read(LogicalDatastoreType.CONFIGURATION, subnetMapsId);
+        Optional<Subnetmaps> allSubnetMapsOpt = read(LogicalDatastoreType.CONFIGURATION, subnetMapsId);
+        return shouldVpnHandleIpVersionChangeToRemove(sm, vpnId, allSubnetMapsOpt.get());
+    }
+
+    private static boolean shouldVpnHandleIpVersionChangeToRemove(Subnetmap sm, Uuid vpnId, Subnetmaps allSubnetMaps) {
         // calculate and store in list IpVersion for each subnetMap, belonging to current VpnInstance
         List<IpVersionChoice> snIpVersions = new ArrayList<>();
-        for (Subnetmap snMap: allSubnetMaps.get().getSubnetmap()) {
+        for (Subnetmap snMap: allSubnetMaps.getSubnetmap()) {
             if (snMap.getId().equals(sm.getId())) {
                 continue;
             }
@@ -1450,12 +1593,73 @@ public class NeutronvpnUtils {
             }
         }
         IpVersionChoice ipVersion = getIpVersionFromString(sm.getSubnetIp());
-        if (!snIpVersions.contains(ipVersion)) {
-            return true;
-        }
-        return false;
+        return !snIpVersions.contains(ipVersion);
     }
 
+    public void addVpnInstanceWithIpFamily(ReadTransaction confTx, String vpnName, IpVersionChoice ipVersion)
+            throws ReadFailedException {
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(confTx, vpnName);
+        if (vpnInstanceOpDataEntry == null) {
+            return;
+        }
+        if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
+            LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}."
+                            + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnName,
+                    ipVersion.toString());
+            return;
+        }
+        jobCoordinator.enqueueJob("VPN-" + vpnName, () -> {
+            VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
+            if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
+                builder.setIpv4Configured(true);
+            }
+            if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+                builder.setIpv6Configured(true);
+            }
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
+                InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+                        .child(VpnInstanceOpDataEntry.class,
+                                new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
+                operTx.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
+                LOG.info("updateVpnInstanceWithIpFamily: Successfully added {} to Vpn {}",
+                        ipVersion.toString(), vpnName);
+            }));
+        });
+    }
+
+    public void removeVpnInstanceWithIpFamily(ReadTransaction confTx, String vpnName, IpVersionChoice ipVersion)
+            throws ReadFailedException {
+        boolean add = false;
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(confTx, vpnName);
+        if (vpnInstanceOpDataEntry == null) {
+            return;
+        }
+        if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
+            LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}."
+                            + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnName,
+                    ipVersion.toString());
+            return;
+        }
+        jobCoordinator.enqueueJob("VPN-" + vpnName, () -> {
+            VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
+            if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
+                builder.setIpv4Configured(false);
+            }
+            if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+                builder.setIpv6Configured(false);
+            }
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
+                InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+                        .child(VpnInstanceOpDataEntry.class,
+                                new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
+                operTx.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
+                LOG.info("updateVpnInstanceWithIpFamily: Successfully removed {} from Vpn {}",
+                        ipVersion.toString(), vpnName);
+            }));
+        });
+    }
+
+    @Deprecated
     public void updateVpnInstanceWithIpFamily(String vpnName, IpVersionChoice ipVersion, boolean add) {
         VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName);
         if (vpnInstanceOpDataEntry == null) {
@@ -1467,12 +1671,10 @@ public class NeutronvpnUtils {
                     ipVersion.toString());
             return;
         }
-        final boolean isFinalVpnInstanceIpv6Changed = ipVersion
-                .isIpVersionChosen(IpVersionChoice.IPV6) ? true : false;
-        final boolean isFinalVpnInstanceIpv4Changed = ipVersion
-                .isIpVersionChosen(IpVersionChoice.IPV4) ? true : false;
-        final boolean finalIsIpv4Configured = ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) ? add : false;
-        final boolean finalIsIpv6Configured = ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) ? add : false;
+        final boolean isFinalVpnInstanceIpv6Changed = ipVersion.isIpVersionChosen(IpVersionChoice.IPV6);
+        final boolean isFinalVpnInstanceIpv4Changed = ipVersion.isIpVersionChosen(IpVersionChoice.IPV4);
+        final boolean finalIsIpv4Configured = ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) && add;
+        final boolean finalIsIpv6Configured = ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) && add;
         jobCoordinator.enqueueJob("VPN-" + vpnName, () -> {
             VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
             if (isFinalVpnInstanceIpv4Changed) {
@@ -1481,17 +1683,16 @@ public class NeutronvpnUtils {
             if (isFinalVpnInstanceIpv6Changed) {
                 builder.setIpv6Configured(finalIsIpv6Configured);
             }
-            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-            InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
-                    .child(VpnInstanceOpDataEntry.class,
-                            new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
-            writeTxn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
-            LOG.info("updateVpnInstanceWithIpFamily: Successfully {} {} to Vpn {}",
-                    add ? "added" : "removed",
-                    ipVersion.toString(), vpnName);
-            return Collections.singletonList(writeTxn.submit());
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
+                InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+                        .child(VpnInstanceOpDataEntry.class,
+                                new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
+                operTx.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
+                LOG.info("updateVpnInstanceWithIpFamily: Successfully {} {} to Vpn {}",
+                        add ? "added" : "removed",
+                        ipVersion.toString(), vpnName);
+            }));
         });
-        return;
     }
 
     /**
@@ -1516,6 +1717,8 @@ public class NeutronvpnUtils {
      * @param routerId the Uuid of the router which you try to reach the external network
      * @return Uuid of externalNetwork or null if is not exist
      */
+    @Nullable
+    @Deprecated
     protected Uuid getExternalNetworkUuidAttachedFromRouterUuid(@Nonnull Uuid routerId) {
         LOG.debug("getExternalNetworkUuidAttachedFromRouterUuid for {}", routerId.getValue());
         Uuid externalNetworkUuid = null;
@@ -1526,12 +1729,35 @@ public class NeutronvpnUtils {
         return externalNetworkUuid;
     }
 
+    /**
+     *Get the Uuid of external network of the router (remember you that one router have only one external network).
+     * @param routerId the Uuid of the router which you try to reach the external network
+     * @return Uuid of externalNetwork or null if is not exist
+     */
+    @Nullable
+    protected Uuid getExternalNetworkUuidAttachedFromRouterUuid(ReadTransaction confTx, @Nonnull Uuid routerId)
+            throws ReadFailedException {
+        LOG.debug("getExternalNetworkUuidAttachedFromRouterUuid for {}", routerId.getValue());
+        Uuid externalNetworkUuid = null;
+        Router router = getNeutronRouter(confTx, routerId);
+        if (router != null && router.getExternalGatewayInfo() != null) {
+            externalNetworkUuid = router.getExternalGatewayInfo().getExternalNetworkId();
+        }
+        return externalNetworkUuid;
+    }
+
+    @Nullable
+    @Deprecated
     public Uuid getInternetvpnUuidBoundToRouterId(@Nonnull Uuid routerId) {
         Uuid netId = getExternalNetworkUuidAttachedFromRouterUuid(routerId);
-        if (netId == null) {
-            return netId;
-        }
-        return getVpnForNetwork(netId);
+        return netId != null ? getVpnForNetwork(netId) : null;
+    }
+
+    @Nullable
+    public Uuid getInternetvpnUuidBoundToRouterId(ReadTransaction confTx, @Nonnull Uuid routerId)
+            throws ReadFailedException {
+        Uuid netId = getExternalNetworkUuidAttachedFromRouterUuid(confTx, routerId);
+        return netId != null ? getVpnForNetwork(confTx, netId) : null;
     }
 
     /**
@@ -1579,6 +1805,29 @@ public class NeutronvpnUtils {
         return getSubnetsforVpn(router.getUuid());
     }
 
+    public void addVpnInstanceWithFallback(ReadWriteTransaction confTx, String vpnName) throws ReadFailedException {
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(confTx, vpnName);
+        if (vpnInstanceOpDataEntry == null) {
+            // BGPVPN context not found
+            return;
+        }
+        String routerIdUuid = getRouterIdfromVpnInstance(vpnInstanceOpDataEntry.getVrfId());
+        if (routerIdUuid != null) {
+            List<BigInteger> dpnIds = getDpnsForRouter(routerIdUuid);
+            if (!dpnIds.isEmpty()) {
+                Long vpnId = vpnInstanceOpDataEntry.getVpnId();
+                VpnInstanceOpDataEntry vpnOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(confTx, routerIdUuid);
+                Long routerIdAsLong = vpnOpDataEntry.getVpnId();
+                if (routerIdAsLong == null) {
+                    return;
+                }
+                for (BigInteger dpnId : dpnIds) {
+                    ipV6InternetDefRt.installDefaultRoute(dpnId, vpnId, routerIdAsLong);
+                }
+            }
+        }
+    }
+
     public void updateVpnInstanceWithFallback(String vpnName, boolean add) {
         VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName);
         if (vpnInstanceOpDataEntry == null) {
@@ -1616,30 +1865,26 @@ public class NeutronvpnUtils {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
               .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
 
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
-            read(LogicalDatastoreType.OPERATIONAL, id);
-        if (!vpnInstanceOpDataEntryOptional.isPresent()) {
-            LOG.debug("updateVpnInstanceOpWithType: Update BgpvpnType {} for {}."
-                    + "VpnInstanceOpDataEntry not found", choice, vpn.getValue());
-            return;
-        }
-        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnInstanceOpDataEntryOptional.get();
-        if (vpnInstanceOpDataEntry.getBgpvpnType().equals(choice)) {
-            LOG.debug("updateVpnInstanceOpWithType: Update BgpvpnType {} for {}."
-                    + "VpnInstanceOpDataEntry already set", choice, vpn.getValue());
-            return;
-        }
-        VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
-        builder.setBgpvpnType(choice);
-        WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-        writeTxn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
-        LOG.debug("updateVpnInstanceOpWithType: sent merge to operDS BgpvpnType {} for {}", choice, vpn.getValue());
-        try {
-            writeTxn.submit().get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("updateVpnInstanceOpWithType: on merge execution, error:  {}", e);
-        }
-        return;
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(operTx -> {
+            Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
+                    operTx.read(LogicalDatastoreType.OPERATIONAL, id).checkedGet();
+            if (!vpnInstanceOpDataEntryOptional.isPresent()) {
+                LOG.debug("updateVpnInstanceOpWithType: Update BgpvpnType {} for {}."
+                        + "VpnInstanceOpDataEntry not found", choice, vpn.getValue());
+                return;
+            }
+            VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnInstanceOpDataEntryOptional.get();
+            if (vpnInstanceOpDataEntry.getBgpvpnType().equals(choice)) {
+                LOG.debug("updateVpnInstanceOpWithType: Update BgpvpnType {} for {}."
+                        + "VpnInstanceOpDataEntry already set", choice, vpn.getValue());
+                return;
+            }
+            VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
+            builder.setBgpvpnType(choice);
+            operTx.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(),
+                    WriteTransaction.FAIL_ON_MISSING_PARENTS);
+            LOG.debug("updateVpnInstanceOpWithType: sent merge to operDS BgpvpnType {} for {}", choice, vpn.getValue());
+        }), LOG, "Error updating VPN instance {} with type {}", vpn, choice);
     }
 
     @Nonnull
