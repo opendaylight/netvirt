@@ -980,7 +980,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         if (extNwProvType == ProviderTypes.VXLAN) {
             WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
             evpnSnatFlowProgrammer.evpnAdvToBgpAndInstallFibAndTsFlows(dpnId, tableId, externalIp, vpnName, rd,
-                    nextHopIp, writeTx, routerId, routerName, writeFlowInvTx);
+                    nextHopIp, writeTx, routerId, routerName, extNetworkId, writeFlowInvTx);
             return;
         }
         //Generate VPN label for the external IP
