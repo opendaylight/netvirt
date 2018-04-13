@@ -8,6 +8,8 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -47,6 +49,28 @@ public class InterfaceStateChangeListener
     private final VpnInterfaceManager vpnInterfaceManager;
     private final JobCoordinator jobCoordinator;
 
+    Table<OperStatus, OperStatus, IntfTransitionState> stateTable = HashBasedTable.create();
+
+    enum IntfTransitionState {
+        STATE_UP,
+        STATE_DOWN,
+        STATE_IGNORE
+    }
+
+    private void initialize() {
+        //  Interface State Transition Table
+        //               Up                Down            Unknown
+        // ---------------------------------------------------------------
+        /* Up       { STATE_IGNORE,   STATE_DOWN,     STATE_IGNORE }, */
+        /* Down     { STATE_UP,       STATE_IGNORE,   STATE_IGNORE }, */
+        /* Unknown  { STATE_UP,       STATE_DOWN,     STATE_IGNORE }, */
+
+        stateTable.put(Interface.OperStatus.Up, Interface.OperStatus.Down, IntfTransitionState.STATE_DOWN);
+        stateTable.put(Interface.OperStatus.Down, Interface.OperStatus.Up, IntfTransitionState.STATE_UP);
+        stateTable.put(Interface.OperStatus.Unknown, Interface.OperStatus.Up, IntfTransitionState.STATE_UP);
+        stateTable.put(Interface.OperStatus.Unknown, Interface.OperStatus.Down, IntfTransitionState.STATE_DOWN);
+    }
+
     @Inject
     public InterfaceStateChangeListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager,
             final JobCoordinator jobCoordinator) {
@@ -55,6 +79,7 @@ public class InterfaceStateChangeListener
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.jobCoordinator = jobCoordinator;
+        initialize();
     }
 
     @PostConstruct
@@ -219,15 +244,6 @@ public class InterfaceStateChangeListener
                     Interface original, Interface update) {
         final String ifName = update.getName();
         try {
-            OperStatus originalOperStatus = original.getOperStatus();
-            OperStatus updateOperStatus = update.getOperStatus();
-            if (originalOperStatus.equals(Interface.OperStatus.Unknown)
-                  || updateOperStatus.equals(Interface.OperStatus.Unknown)) {
-                LOG.debug("Interface {} state change is from/to null/UNKNOWN. Ignoring the update event.",
-                        ifName);
-                return;
-            }
-
             if (update.getIfIndex() == null) {
                 return;
             }
@@ -250,7 +266,15 @@ public class InterfaceStateChangeListener
                                         LOG.error("remove: Unable to retrieve dpnId for interface {}", ifName, e);
                                         return;
                                     }
-                                    if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
+                                    IntfTransitionState state = getTransitionState(original.getOperStatus(),
+                                            update.getOperStatus());
+                                    if (state.equals(IntfTransitionState.STATE_IGNORE)) {
+                                        LOG.info("InterfaceStateChangeListener: Interface {} state original {}"
+                                                        + "updated {} not handled", ifName, original.getOperStatus(),
+                                                update.getOperStatus());
+                                        return;
+                                    }
+                                    if (state.equals(IntfTransitionState.STATE_UP)) {
                                         for (VpnInstanceNames vpnInterfaceVpnInstance : vpnIf.getVpnInstanceNames()) {
                                             String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                             String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
@@ -268,7 +292,7 @@ public class InterfaceStateChangeListener
                                                         update, vpnName);
                                             }
                                         }
-                                    } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
+                                    } else if (state.equals(IntfTransitionState.STATE_DOWN)) {
                                         for (VpnInstanceNames vpnInterfaceVpnInstance : vpnIf.getVpnInstanceNames()) {
                                             String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                             LOG.info("VPN Interface update event - intfName {} onto vpnName {}"
@@ -334,5 +358,14 @@ public class InterfaceStateChangeListener
                 VpnUtil.unsetScheduledToRemoveForVpnInterface(dataBroker, interfaceName);
             }
         }
+    }
+
+    private IntfTransitionState getTransitionState(Interface.OperStatus original , Interface.OperStatus updated) {
+        IntfTransitionState transitionState = stateTable.get(original, updated);
+
+        if (transitionState == null) {
+            return IntfTransitionState.STATE_IGNORE;
+        }
+        return transitionState;
     }
 }
