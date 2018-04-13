@@ -318,7 +318,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
         String ipPrefix = externalIp + "/32";
         NatUtil.addPrefixToInterface(dataBroker, NatUtil.getVpnId(dataBroker, subNetId),
-                null, ipPrefix, dpnId, new Uuid(subNetId), Prefixes.PrefixCue.Nat);
+                null, ipPrefix, externalNetId, new Uuid(subNetId), dpnId, Prefixes.PrefixCue.Nat);
 
         fibManager.addOrUpdateFibEntry(rd, routerMac, ipPrefix,
                 Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, extSubnetId,
