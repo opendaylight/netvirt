@@ -858,8 +858,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                 baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions,
                         NwConstants.ADD_FLOW, tx, null);
-                if (!fibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(localNextHopInfo.getSubnetId(),
-                        vpnName, rd)) {
+                if (!fibUtil.enforceVxlanDatapathSemantics(localNextHopInfo.getSubnetId())) {
                     optLabel.ifPresent(label -> {
                         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
                             LOG.debug("Installing LFIB and tunnel table entry on dpn {} for interface {} with label "
@@ -1105,8 +1104,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                     baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null,
                             NwConstants.DEL_FLOW, tx, null);
-                    if (!fibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(localNextHopInfo.getSubnetId(),
-                            vpnId, rd)) {
+                    if (!fibUtil.enforceVxlanDatapathSemantics(localNextHopInfo.getSubnetId())) {
                         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
                             FibUtil.getLabelFromRoutePaths(vrfEntry).ifPresent(label -> {
                                 makeLFibTableEntry(dpnId, label, null /* instructions */, DEFAULT_FIB_FLOW_PRIORITY,
