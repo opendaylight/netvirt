@@ -679,10 +679,22 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     .getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId);
             Optional<DpnInterfaces> existingElanDpnInterfaces = ElanUtils.read(broker,
                     LogicalDatastoreType.OPERATIONAL, elanDpnInterfaces);
-            if (!existingElanDpnInterfaces.isPresent()) {
-                isFirstInterfaceInDpn = true;
+            if (ElanUtils.isVlan(elanInstance)) {
+                isFirstInterfaceInDpn =  checkIfFirstInterface(interfaceName,
+                        elanInstanceName, existingElanDpnInterfaces);
+            } else {
+                isFirstInterfaceInDpn = !existingElanDpnInterfaces.isPresent();
+            }
+            if (isFirstInterfaceInDpn) {
                 // ELAN's 1st ElanInterface added to this DPN
-                dpnInterfaces = createElanInterfacesList(elanInstanceName, interfaceName, dpId, tx);
+                if (!existingElanDpnInterfaces.isPresent()) {
+                    dpnInterfaces = createElanInterfacesList(elanInstanceName, interfaceName, dpId, tx);
+                } else {
+                    List<String> elanInterfaces = existingElanDpnInterfaces.get().getInterfaces();
+                    elanInterfaces.add(interfaceName);
+                    dpnInterfaces = updateElanDpnInterfacesList(elanInstanceName, dpId,
+                            elanInterfaces, tx);
+                }
                 // The 1st ElanInterface in a DPN must program the Ext Tunnel
                 // table, but only if Elan has VNI
                 if (isVxlanNetworkOrVxlanSegment(elanInstance)) {
@@ -814,6 +826,21 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 .setKey(new MacEntryKey(physAddress)).build();
         elanForwardingEntriesHandler.deleteElanInterfaceForwardingEntries(
                 elanInstanceCache.get(elanInstanceName).orNull(), interfaceInfo, macEntry);
+    }
+
+    private boolean checkIfFirstInterface(String elanInterface, String elanInstanceName,
+            Optional<DpnInterfaces> existingElanDpnInterfaces) {
+        String routerPortUuid = ElanUtils.getRouterPordIdFromElanInstance(broker, elanInstanceName);
+        if (!existingElanDpnInterfaces.isPresent()) {
+            return true;
+        }
+        DpnInterfaces dpnInterfaces = existingElanDpnInterfaces.get();
+
+        if (dpnInterfaces.getInterfaces().size() ==  0 || (dpnInterfaces.getInterfaces().size() == 1
+                && dpnInterfaces.getInterfaces().contains(routerPortUuid))) {
+            return true;
+        }
+        return false;
     }
 
     private InstanceIdentifier<MacEntry> getMacEntryOperationalDataPath(String elanName, PhysAddress physAddress) {

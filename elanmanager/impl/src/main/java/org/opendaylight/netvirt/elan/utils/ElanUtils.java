@@ -165,6 +165,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagNameKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -1650,6 +1652,28 @@ public class ElanUtils {
         LOG.info("Removing the ARP responder flow on DPN {} of Interface {} with IP {}", dpnId, ingressInterfaceName,
                 ipAddress);
         ArpResponderUtil.removeFlow(mdsalManager, dpnId, ArpResponderUtil.getFlowId(lportTag, ipAddress));
+    }
+
+    public static String getRouterPordIdFromElanInstance(DataBroker dataBroker, String elanInstanceName) {
+        Optional<Subnetmaps> subnetMapsData =
+                read(dataBroker, LogicalDatastoreType.CONFIGURATION, buildSubnetMapsWildCardPath());
+        if (subnetMapsData.isPresent()) {
+            List<Subnetmap> subnetMapList = subnetMapsData.get().getSubnetmap();
+            if (subnetMapList != null && !subnetMapList.isEmpty()) {
+                for (Subnetmap subnet : subnetMapList) {
+                    if (subnet.getNetworkId().getValue().equals(elanInstanceName)) {
+                        if (subnet.getRouterInterfacePortId() != null) {
+                            return subnet.getRouterInterfacePortId().getValue();
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    static InstanceIdentifier<Subnetmaps> buildSubnetMapsWildCardPath() {
+        return InstanceIdentifier.create(Subnetmaps.class);
     }
 }
 

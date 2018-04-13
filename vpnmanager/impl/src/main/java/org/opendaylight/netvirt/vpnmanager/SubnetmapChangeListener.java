@@ -22,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes.NetworkType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
@@ -73,6 +74,11 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             LOG.error("SubnetMapChangeListener:add: network was not found for subnetId {}", subnetId.getValue());
             return;
         }
+        if (subnetmap.getVpnId() != null) {
+            if (subnetmap.getNetworkType().equals(NetworkType.VLAN)) {
+                VpnUtil.addRouterPortToElanDpnListForVlaninAllDpn(subnetmap.getVpnId().getValue(), dataBroker);
+            }
+        }
         if (VpnUtil.getIsExternal(network)) {
             LOG.debug("SubnetmapListener:add: provider subnetwork {} is handling in "
                       + "ExternalSubnetVpnInstanceListener", subnetId.getValue());
@@ -111,16 +117,18 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             LOG.error("SubnetMapChangeListener:update: network was not found for subnetId {}", subnetId.getValue());
             return;
         }
-        if (VpnUtil.getIsExternal(network)) {
-            LOG.debug("SubnetMapChangeListener:update: provider subnetwork {} is handling in "
-                      + "ExternalSubnetVpnInstanceListener", subnetId.getValue());
-            return;
-        }
         String elanInstanceName = subnetmapUpdate.getNetworkId().getValue();
         long elanTag = getElanTag(elanInstanceName);
         if (elanTag == 0L) {
             LOG.error("SubnetMapChangeListener:update: unable to fetch elantag from ElanInstance {} for subnetId {}",
                       elanInstanceName, subnetId);
+            return;
+        }
+        updateVlanDataEntry(subnetmapOriginal.getVpnId(), subnetmapUpdate.getVpnId(), subnetmapUpdate,
+                subnetmapOriginal, elanTag, elanInstanceName);
+        if (VpnUtil.getIsExternal(network)) {
+            LOG.debug("SubnetMapChangeListener:update: provider subnetwork {} is handling in "
+                      + "ExternalSubnetVpnInstanceListener", subnetId.getValue());
             return;
         }
         // update on BGPVPN or InternalVPN change
@@ -186,6 +194,21 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         // subnet updated in VPN
         if (vpnIdOld != null && vpnIdNew != null && (!vpnIdNew.equals(vpnIdOld))) {
             vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmapUpdate, elanTag);
+        }
+    }
+
+    private void updateVlanDataEntry(Uuid vpnIdOld, Uuid vpnIdNew, Subnetmap subnetmapUpdate,
+            Subnetmap subnetmapOriginal, Long elanTag, String  elanInstanceName) {
+        if (vpnIdNew != null && vpnIdOld == null) {
+            if (elanInstanceName != null && subnetmapUpdate.getNetworkType().equals(NetworkType.VLAN)) {
+                VpnUtil.addRouterPortToElanDpnListForVlaninAllDpn(vpnIdNew.getValue(), dataBroker);
+            }
+        }
+        if (vpnIdOld != null && vpnIdNew == null) {
+            if (subnetmapOriginal.getNetworkType().equals(NetworkType.VLAN)) {
+                VpnUtil.removeRouterPortFromElanDpnListForVlanInAllDpn(elanInstanceName, subnetmapOriginal
+                        .getRouterInterfacePortId().getValue(), vpnIdOld.getValue(), dataBroker);
+            }
         }
     }
 
