@@ -8,9 +8,9 @@ from robotfiles import RobotFiles
 # - running tests will create job dir, unzip, parse and format output
 
 class TestRobotFiles(unittest.TestCase):
-    DATAPATH = "/tmp/output_l3.xml.gz"
+    DATAPATH = "/tmp/output_01_l2.xml.gz"
     JOBPATH = "/tmp"
-    JOBTAG = "testjob51"
+    JOBTAG = "testjob435"
 
     def test_mkdir_job_path(self):
         self.robotfile = RobotFiles(self.DATAPATH, self.JOBPATH, self.JOBTAG)
@@ -24,7 +24,7 @@ class TestRobotFiles(unittest.TestCase):
         self.assertTrue(os.path.isfile(self.robotfile.datafilepath))
 
     def test_parse_xml_data_file(self):
-        self.robotfile = RobotFiles("/tmp/testjob51/output_l3.xml", self.JOBPATH, self.JOBTAG)
+        self.robotfile = RobotFiles("/tmp/testjob435/output_01_l2.xml", self.JOBPATH, self.JOBTAG)
         self.robotfile.print_config()
         self.robotfile.parse_xml_data_file()
 

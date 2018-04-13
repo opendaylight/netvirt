@@ -11,8 +11,19 @@ from subprocess import Popen
 #sys.path.append(path.dirname( path.dirname( path.abspath(__file__))))
 
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# logging.basicConfig(level=logging.DEBUG)
+# logger = logging.getLogger(__name__)
+logger = logging.getLogger("robotfiles")
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(levelname).3s - %(name)s - %(lineno)04d - %(message)s')
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+fh = logging.FileHandler("/tmp/robotfiles.txt", "w")
+fh.setLevel(logging.DEBUG)
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 
 class RobotFiles:
@@ -29,12 +40,14 @@ class RobotFiles:
         self.outdir = "{}/{}".format(outdir, jobtag)
         self.datafilepath = infile
         self.pdata = {}
+        self.set_log_level(logging.INFO)
         self.re_normalize_text = re.compile(r"( \n)|(\[A\[C.*)")
         self.re_uri = re.compile(r"uri=(?P<uri>.*),")
         self.re_model = re.compile(r"uri=(?P<uri>.*),")
 
-    def set_log_level(self, level):
-        logger.setLevel(level)
+    @staticmethod
+    def set_log_level(level):
+        ch.setLevel(level)
 
     def gunzip_output_file(self):
         infile = self.datafilepath
@@ -95,6 +108,10 @@ class RobotFiles:
     def print_config(self):
         logger.info("datafilepath: %s, outdir: %s", self.datafilepath, self.outdir)
 
+    # scan until test id= is seen that indicates the start of a new test -> state=test
+    # - scan until Get Test Teardown Debugs -> state=debugs
+    #   - scan until Get DumpFlows And Ovsconfig -> state=nodes
+    #   - scan until Get Model Dump -> state=models
     def process_element(self, state, event, element):
         tag = element.tag
         text = element.text
@@ -113,6 +130,7 @@ class RobotFiles:
 
         if event == "start" and state.state == "init":
             # <test id="s1-s1-s1-t1" name="Create VLAN Network (l2_network_1)">
+            # <test id="s1-t1" name="Create VLAN Network net_1">
             if element.tag == "test":
                 state.test_id = element.get("id")
                 state.pdata["name"] = element.get("name")
@@ -123,10 +141,10 @@ class RobotFiles:
                 state.state = "debugs"
         elif event == "start" and state.state == "debugs":
             # <arg>Get DumpFlows And Ovsconfig</arg>
-            if element.tag == "arg" and element.text == "Get DumpFlows And Ovsconfig":
+            if element.tag == "kw" and element.get("name") == "Get DumpFlows And Ovsconfig":
                 state.state = "nodes"
             # <arg>Get Model Dump</arg>
-            if element.tag == "arg" and element.text == "Get Model Dump":
+            if element.tag == "kw" and element.get("name") == "Get Model Dump":
                 state.state = "models"
         elif event == "start" and state.state == "nodes":
             # <arg>${OS_CONTROL_NODE_IP}</arg>
@@ -195,7 +213,8 @@ class RobotFiles:
         elif state.state == "dump":
             if element.tag == "msg" and element.text is not None:
                 state.models[state.command] = element.text
-                if state.command == "restconf/operational/rendered-service-path:rendered-service-path":
+                # if state.command == "restconf/operational/rendered-service-path:rendered-service-path":
+                if state.command == "restconf/operational/opendaylight-inventory:nodes":
                     state.state = "done"
                 else:
                     state.state = "models"
@@ -208,7 +227,8 @@ class RobotFiles:
             for event, element in iterparser:
                 self.process_element(state, event, element)
                 element.clear()
-                # if "s1-s1-s1-t1" in self.pdata:
+                # debugging code to stop after the named test case is processed
+                # if "s1-t2" in self.pdata:
                 #    break
             root.clear()
 
@@ -266,6 +286,11 @@ def create_parser():
     parser.add_argument("-o", "--outdir")
     parser.add_argument("-j", "--jobtag")
     parser.add_argument("-g", "--gunzip", action="store_true")
+    parser.add_argument("-v", "--verbose", dest="verbose", action="count", default=logging.INFO,
+                        help="Output more information about what's going on")
+    parser.add_argument("-V", "--version", action="version",
+                        version="%s version %s" %
+                                (os.path.split(sys.argv[0])[-1], 0.1))
     parser.set_defaults(func=run)
 
     return parser
