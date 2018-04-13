@@ -110,9 +110,10 @@ public class VpnElanInterfaceChangeListener
         List<VpnInstanceNames> listVpn = new ArrayList<>();
         listVpn.add(vpnInstance);
         VpnInterface vpnInterface = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName))
-            .setVpnInstanceNames(listVpn)
-            .setScheduledForRemove(Boolean.FALSE)
-            .build();
+                .setVpnInstanceNames(listVpn)
+                .setScheduledForRemove(Boolean.FALSE)
+                .build();
+
         InstanceIdentifier<VpnInterface> vpnInterfaceIdentifier = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
         VpnUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vpnInterfaceIdentifier, vpnInterface);
         LOG.info("add: Added VPN interface {} with VPN-id {} elanInstance {}", interfaceName, vpnId.getValue(),

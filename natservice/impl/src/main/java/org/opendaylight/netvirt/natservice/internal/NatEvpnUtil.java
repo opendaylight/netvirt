@@ -179,7 +179,7 @@ public final class NatEvpnUtil {
                 return;
             }
             NatUtil.addPrefixToInterface(broker, NatUtil.getVpnId(broker, vpnName), interfaceName, prefix, dpId,
-                    null /* subnet-id */, Prefixes.PrefixCue.Nat);
+                    Prefixes.PrefixCue.Nat);
 
             fibManager.addOrUpdateFibEntry(rd, null /*macAddress*/, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE,
