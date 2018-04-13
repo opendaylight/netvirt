@@ -141,6 +141,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NetworkParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RouterInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetOpData;
@@ -289,6 +290,14 @@ public final class VpnUtil {
     }
 
     static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix, Uuid subnetId,
+            Uuid networkId, NetworkType networkType, Long segmentationId, Prefixes.PrefixCue prefixCue) {
+        return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(
+            vpnInterfaceName).setIpAddress(ipPrefix).setSubnetId(subnetId)
+                .setNetworkId(networkId).setNetworkType(networkType).setSegmentationId(segmentationId)
+                .setPrefixCue(prefixCue).build();
+    }
+
+    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix, Uuid subnetId,
             Prefixes.PrefixCue prefixCue) {
         return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(
             vpnInterfaceName).setIpAddress(ipPrefix).setSubnetId(subnetId).setPrefixCue(prefixCue).build();
@@ -414,6 +423,17 @@ public final class VpnUtil {
         if (adjacencies.isPresent()) {
             List<Adjacency> nextHops = adjacencies.get().getAdjacency();
             return nextHops;
+        }
+        return null;
+    }
+
+    static NetworkParameters getNetworkParamsForVpnInterfaceFromConfig(DataBroker broker, String intfName) {
+        final InstanceIdentifier<VpnInterface> identifier = getVpnInterfaceIdentifier(intfName);
+        InstanceIdentifier<NetworkParameters> networkParamsPath = identifier.augmentation(NetworkParameters.class);
+        Optional<NetworkParameters> networkParams = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
+                networkParamsPath);
+        if (networkParams.isPresent()) {
+            return networkParams.get();
         }
         return null;
     }
