@@ -1054,7 +1054,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         if (extNwProvType == ProviderTypes.VXLAN) {
             ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 tx -> evpnSnatFlowProgrammer.evpnAdvToBgpAndInstallFibAndTsFlows(dpnId, tableId, externalIp,
-                        vpnName, rd, nextHopIp, tx, routerId, routerName, writeFlowInvTx)), LOG,
+                        vpnName, rd, nextHopIp, tx, routerId, routerName, extNetworkId, writeFlowInvTx)), LOG,
                 "Error installing FIB and TS flows");
             return;
         }

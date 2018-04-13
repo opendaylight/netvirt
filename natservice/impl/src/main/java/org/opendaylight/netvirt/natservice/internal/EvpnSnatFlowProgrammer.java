@@ -29,6 +29,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -74,6 +75,7 @@ public class EvpnSnatFlowProgrammer {
                                                     final String externalIp, final String vpnName, final String rd,
                                                     final String nextHopIp, final WriteTransaction writeTx,
                                                     final long routerId, final String routerName,
+                                                    final Uuid extNetworkId,
                                                     WriteTransaction writeFlowInvTx) {
      /*
       * 1) Install the flow INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44)
@@ -119,7 +121,8 @@ public class EvpnSnatFlowProgrammer {
          */
         //Inform to BGP
         NatEvpnUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, vpnName, rd, externalIp,
-                nextHopIp, l3Vni, null /*InterfaceName*/, gwMacAddress, writeTx, RouteOrigin.STATIC, dpnId);
+                nextHopIp, l3Vni, null /*InterfaceName*/, gwMacAddress, writeTx, RouteOrigin.STATIC,
+                dpnId, extNetworkId);
 
         //Install custom FIB routes - FIB table.
         List<Instruction> customInstructions = new ArrayList<>();

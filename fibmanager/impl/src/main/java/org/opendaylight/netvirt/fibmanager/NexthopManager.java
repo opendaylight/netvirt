@@ -59,7 +59,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
@@ -124,7 +123,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpi
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.lb.nexthops.Nexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionRegLoadNodesNodeTableFlowApplyActionsCase;
@@ -753,12 +751,8 @@ public class NexthopManager implements AutoCloseable {
         ElanInstance elanInstance = null;
         Prefixes prefix = fibUtil.getPrefixToInterface(vpnId, prefixIp);
         if (prefix != null) {
-            Uuid subnetId = prefix.getSubnetId();
-            if (subnetId != null) {
-                Subnetmap subnetMap = fibUtil.getSubnetMap(subnetId);
-                if (subnetMap != null && subnetMap.getNetworkId() != null) {
-                    elanInstance = elanService.getElanInstance(subnetMap.getNetworkId().getValue());
-                }
+            if (prefix.getNetworkId() != null) {
+                elanInstance = elanService.getElanInstance(prefix.getNetworkId().getValue());
             }
         }
 
@@ -927,16 +921,11 @@ public class NexthopManager implements AutoCloseable {
                 return;
             }
             BigInteger tunnelId;
-            if (fibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(prefixInfo.getSubnetId(), vpnId,
-                    rd)) {
-                java.util.Optional<Long> optionalVni = fibUtil.getVniForVxlanNetwork(prefixInfo.getSubnetId());
-                if (!optionalVni.isPresent()) {
-                    LOG.error("VNI not found for nexthop {} vrfEntry {} with subnetId {}", nextHopIp,
-                            vrfEntry, prefixInfo.getSubnetId());
-                    return;
-                }
-                tunnelId = BigInteger.valueOf(optionalVni.get());
+            if (FibUtil.isVxlanNetwork(prefixInfo.getNetworkType())) {
+                tunnelId = BigInteger.valueOf(prefixInfo.getSegmentationId());
             } else {
+                LOG.warn("Network is not of type VXLAN for prefix {}."
+                        + "Going with default Lport Tag.", prefixInfo.toString());
                 tunnelId = BigInteger.valueOf(label);
             }
             List<ActionInfo> actionInfos = new ArrayList<>();

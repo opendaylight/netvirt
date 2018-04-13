@@ -75,11 +75,6 @@ module odl-l3vpn {
         uses adjacency-list;
     }
 
-    augment "/l3vpn:vpn-interfaces/l3vpn:vpn-interface" {
-        ext:augment-identifier "opState";
-        leaf stateUp {type boolean; config false;}
-    }
-
     /* Operational DS containers for reverse lookups*/
     container prefix-to-interface {
         config false;
@@ -95,9 +90,10 @@ module odl-l3vpn {
               leaf vpn-interface-name {
                   type string;
               }
-              leaf subnet-id {
+			  leaf subnet-id {
                   type yang:uuid;
               }
+              uses nvpn:network-attributes;
               leaf prefix-cue {
                   type enumeration {
                       enum none {
