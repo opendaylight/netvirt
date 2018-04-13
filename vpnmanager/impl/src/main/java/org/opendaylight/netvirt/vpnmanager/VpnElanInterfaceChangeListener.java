@@ -27,7 +27,14 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames.AssociatedSubnetType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeFlat;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes.NetworkType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,10 +116,30 @@ public class VpnElanInterfaceChangeListener
             .getVpnInterfaceVpnInstanceNames(vpnId.getValue(), AssociatedSubnetType.V4AndV6Subnets);
         List<VpnInstanceNames> listVpn = new ArrayList<>();
         listVpn.add(vpnInstance);
-        VpnInterface vpnInterface = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName))
-            .setVpnInstanceNames(listVpn)
-            .setScheduledForRemove(Boolean.FALSE)
-            .build();
+        VpnInterfaceBuilder vpnIfaceBuilder = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName))
+                .setVpnInstanceNames(listVpn)
+                .setNetworkId(networkId)
+                .setScheduledForRemove(Boolean.FALSE);
+
+        ElanInstance elanInstance = VpnUtil.getElanInstanceByName(broker, networkId.getValue());
+        if (elanInstance != null) {
+            vpnIfaceBuilder.setNetworkId(networkId);
+            if (elanInstance.getSegmentType() != null) {
+                if (elanInstance.getSegmentType().isAssignableFrom(SegmentTypeVlan.class)) {
+                    vpnIfaceBuilder.setNetworkType(NetworkType.VLAN);
+                    vpnIfaceBuilder.setSegmentationId(elanInstance.getSegmentationId());
+                } else if (elanInstance.getSegmentType().isAssignableFrom(SegmentTypeFlat.class)) {
+                    vpnIfaceBuilder.setNetworkType(NetworkType.FLAT);
+                } else if (elanInstance.getSegmentType().isAssignableFrom(SegmentTypeVxlan.class)) {
+                    vpnIfaceBuilder.setNetworkType(NetworkType.VXLAN);
+                    vpnIfaceBuilder.setSegmentationId(elanInstance.getSegmentationId());
+                } else if (elanInstance.getSegmentType().isAssignableFrom(SegmentTypeGre.class)) {
+                    vpnIfaceBuilder.setNetworkType(NetworkType.GRE);
+                }
+            }
+        }
+        VpnInterface vpnInterface = vpnIfaceBuilder.build();
+
         InstanceIdentifier<VpnInterface> vpnInterfaceIdentifier = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
         VpnUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vpnInterfaceIdentifier, vpnInterface);
         LOG.info("add: Added VPN interface {} with VPN-id {} elanInstance {}", interfaceName, vpnId.getValue(),
