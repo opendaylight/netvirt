@@ -92,6 +92,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.lea
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry.BgpvpnType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
@@ -823,7 +824,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         Adjacencies adjs = createPortIpAdjacencies(port, isRouterInterface, wrtConfigTxn, null, null);
         String infName = port.getUuid().getValue();
         LOG.trace("createVpnInterface for Port: {}, isRouterInterface: {}", infName, isRouterInterface);
-        writeVpnInterfaceToDs(vpnIds, infName, adjs, isRouterInterface, wrtConfigTxn);
+        writeVpnInterfaceToDs(vpnIds, infName, adjs, port.getNetworkId(), isRouterInterface, wrtConfigTxn);
     }
 
     protected void withdrawPortIpFromVpnIface(Uuid vpnId, Uuid internetVpnId,
@@ -1550,7 +1551,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 listVpn.add(internetId);
                             }
                             writeVpnInterfaceToDs(listVpn,
-                                     vpnInfName, portAdj, isRouterInterface, wrtConfigTxn);
+                                     vpnInfName, portAdj, port.getNetworkId(), isRouterInterface, wrtConfigTxn);
                             if (sn.getRouterId() != null) {
                                 addToNeutronRouterInterfacesMap(sn.getRouterId(),portId.getValue());
                             }
@@ -2939,22 +2940,22 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     private void createExternalVpnInterface(Uuid vpnId, String infName, WriteTransaction wrtConfigTxn) {
-        writeVpnInterfaceToDs(Collections.singletonList(vpnId), infName, null,
+        writeVpnInterfaceToDs(Collections.singletonList(vpnId), infName, null, vpnId /* external network id */,
                 false /* not a router iface */, wrtConfigTxn);
     }
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void writeVpnInterfaceToDs(@Nonnull Collection<Uuid> vpnIdList, String infName, Adjacencies adjacencies,
-            Boolean isRouterInterface, WriteTransaction wrtConfigTxn) {
+            Uuid networkUuid, Boolean isRouterInterface, WriteTransaction wrtConfigTxn) {
         if (vpnIdList.isEmpty() || infName == null) {
-            LOG.error("vpn id or interface is null");
+            LOG.error("vpnid is empty or interface({}) is null", infName);
             return;
         }
         if (wrtConfigTxn == null) {
             ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                tx -> writeVpnInterfaceToDs(vpnIdList, infName, adjacencies, isRouterInterface, tx)), LOG,
-                "Error writing VPN interface");
+                tx -> writeVpnInterfaceToDs(vpnIdList, infName, adjacencies, networkUuid, isRouterInterface, tx)),
+                    LOG, "Error writing VPN interface :" + infName);
             return;
         }
         List<VpnInstanceNames> vpnIdListStruct = new ArrayList<>();
@@ -2969,6 +2970,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 .setName(infName)
                 .setVpnInstanceNames(vpnIdListStruct)
                 .setRouterInterface(isRouterInterface);
+        LOG.info("Network Id is {}", networkUuid);
+        if (networkUuid != null) {
+            Network portNetwork = neutronvpnUtils.getNeutronNetwork(networkUuid);
+            ProviderTypes providerType = NeutronvpnUtils.getProviderNetworkType(portNetwork);
+            NetworkAttributes.NetworkType networkType = (providerType != null)
+                    ? NetworkAttributes.NetworkType.valueOf(providerType.getName()) : null;
+            String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(portNetwork);
+            vpnb.setNetworkId(networkUuid).setNetworkType(networkType)
+                .setSegmentationId(segmentationId != null ? Long.parseLong(segmentationId) : 0L);
+        }
+
         if (adjacencies != null) {
             vpnb.addAugmentation(Adjacencies.class, adjacencies);
         }

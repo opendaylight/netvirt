@@ -324,7 +324,19 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             LOG.debug("Failed to get VPN name for vpnId {}", vpnId);
             return;
         }
-        String macAddress = fibUtil.getMacAddressFromPrefix(ifName, vpnName, ipPrefix);
+        String macAddress = null;
+        if (vrfEntry.getParentVpnRd() != null) {
+            // Handling iRT/eRT use-case for missing destination mac address in Remote FIB flow
+            Optional<VpnInstanceOpDataEntry> vpnInstance = fibUtil.getVpnInstanceOpData(vrfEntry.getParentVpnRd());
+            if (vpnInstance.isPresent()) {
+                macAddress = fibUtil.getMacAddressFromPrefix(ifName, vpnInstance.get().getVpnInstanceName(), ipPrefix);
+            } else {
+                LOG.warn("VpnInstance missing for Parent Rd {} value for prefix {}", vrfEntry.getParentVpnRd(),
+                        vrfEntry.getDestPrefix());
+            }
+        } else {
+            macAddress = fibUtil.getMacAddressFromPrefix(ifName, vpnName, ipPrefix);
+        }
         if (macAddress == null) {
             LOG.warn("No MAC address found for VPN interface {} prefix {}", ifName, ipPrefix);
             return;
@@ -372,16 +384,11 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                     tunnelId = BigInteger.valueOf(vrfEntry.getL3vni());
                 }
             } else {
-                if (fibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(prefixInfo.getSubnetId(), vpnId,
-                        rd)) {
-                    java.util.Optional<Long> optionalVni = fibUtil.getVniForVxlanNetwork(prefixInfo.getSubnetId());
-                    if (!optionalVni.isPresent()) {
-                        LOG.error("VNI not found for nexthop {} vrfEntry {} with subnetId {}", nextHopIp,
-                                vrfEntry, prefixInfo.getSubnetId());
-                        return;
-                    }
-                    tunnelId = BigInteger.valueOf(optionalVni.get());
+                if (FibUtil.isVxlanNetwork(prefixInfo.getNetworkType())) {
+                    tunnelId = BigInteger.valueOf(prefixInfo.getSegmentationId());
                 } else {
+                    LOG.warn("Network is not of type VXLAN for prefix {}."
+                            + "Going with default Lport Tag.", prefixInfo.toString());
                     tunnelId = BigInteger.valueOf(label);
                 }
             }

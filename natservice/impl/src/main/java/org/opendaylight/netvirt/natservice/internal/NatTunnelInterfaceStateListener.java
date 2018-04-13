@@ -732,7 +732,7 @@ public class NatTunnelInterfaceStateListener
                         + "having nextHopIp {}", externalIp, nextHopIp);
                 NatEvpnUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, externalVpnName, rd,
                         externalIp, nextHopIp, l3Vni, tunnelName, gwMacAddress, writeFlowInvTx, RouteOrigin.STATIC,
-                        srcDpnId);
+                        srcDpnId, networkId);
                 serviceId = l3Vni;
             } else {
 
@@ -881,7 +881,7 @@ public class NatTunnelInterfaceStateListener
                             + "having nextHopIp {}", externalIp, nextHopIp);
                     NatEvpnUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, vpnName, rd,
                             externalIp, nextHopIp, l3Vni, interfaceName, gwMacAddress, writeFlowInvTx,
-                            RouteOrigin.STATIC, fipCfgdDpnId);
+                            RouteOrigin.STATIC, fipCfgdDpnId, extNwId);
                     serviceId = l3Vni;
                 } else {
                     long label = floatingIPListener.getOperationalIpMapping(routerName, interfaceName, internalIp);

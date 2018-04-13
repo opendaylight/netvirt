@@ -323,10 +323,19 @@ public final class VpnUtil {
         return new VpnIdsBuilder().withKey(new VpnIdsKey(vpnId)).setVpnId(vpnId).build();
     }
 
-    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix, Uuid subnetId,
+    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix,
+            Uuid networkId, NetworkType networkType, Long segmentationId, Prefixes.PrefixCue prefixCue) {
+        return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(
+            vpnInterfaceName).setIpAddress(ipPrefix)//.setSubnetId(subnetId)
+                .setNetworkId(networkId).setNetworkType(networkType).setSegmentationId(segmentationId)
+                .setPrefixCue(prefixCue).build();
+    }
+
+    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix,
             Prefixes.PrefixCue prefixCue) {
         return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(
-            vpnInterfaceName).setIpAddress(ipPrefix).setSubnetId(subnetId).setPrefixCue(prefixCue).build();
+            vpnInterfaceName).setIpAddress(ipPrefix)//.setSubnetId(subnetId)
+                .setPrefixCue(prefixCue).build();
     }
 
     static Optional<Prefixes> getPrefixToInterface(DataBroker broker, long vpnId, String ipPrefix) {

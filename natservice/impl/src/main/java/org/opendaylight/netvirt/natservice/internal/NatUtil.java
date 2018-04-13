@@ -651,8 +651,8 @@ public final class NatUtil {
                 return;
             }
 
-            addPrefixToInterface(broker, getVpnId(broker, vpnName), null /*interfaceName*/,prefix, dpId,
-                    subnetId, Prefixes.PrefixCue.Nat);
+            addPrefixToInterface(broker, getVpnId(broker, vpnName), null /*interfaceName*/,prefix, parentVpnRd,
+                    subnetId, dpId, Prefixes.PrefixCue.Nat);
             fibManager.addOrUpdateFibEntry(rd, macAddress, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, l3vni /*l3vni*/,
                     null /*gatewayMacAddress*/, parentVpnRd, origin, null /*writeTxn*/);
@@ -671,7 +671,7 @@ public final class NatUtil {
     }
 
     static void addPrefixToInterface(DataBroker broker, long vpnId, String interfaceName, String ipPrefix,
-                                     BigInteger dpId, Uuid subnetId, Prefixes.PrefixCue prefixCue) {
+                                     String networkId, Uuid subnetId, BigInteger dpId, Prefixes.PrefixCue prefixCue) {
         InstanceIdentifier<Prefixes> prefixId = InstanceIdentifier.builder(PrefixToInterface.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface
                         .VpnIds.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix
@@ -679,6 +679,7 @@ public final class NatUtil {
                 .child(Prefixes.class, new PrefixesKey(ipPrefix)).build();
         PrefixesBuilder prefixBuilder = new PrefixesBuilder().setDpnId(dpId).setIpAddress(ipPrefix);
         prefixBuilder.setVpnInterfaceName(interfaceName).setSubnetId(subnetId).setPrefixCue(prefixCue);
+        prefixBuilder.setNetworkId(new Uuid(networkId));
         try {
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, prefixId,
                     prefixBuilder.build());

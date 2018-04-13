@@ -38,7 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
@@ -103,9 +102,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes.NetworkType;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -662,12 +659,6 @@ public class FibUtil {
         }
     }
 
-    public Subnetmap getSubnetMap(Uuid subnetId) {
-        InstanceIdentifier<Subnetmap> subnetmapId = InstanceIdentifier.builder(Subnetmaps.class)
-            .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
-        return MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetmapId).orNull();
-    }
-
     public static String getGreLbGroupKey(List<String> availableDcGws) {
         Preconditions.checkNotNull(availableDcGws, "AvailableDcGws is null");
         return "gre-" + availableDcGws.stream().sorted().collect(joining(":"));
@@ -743,33 +734,11 @@ public class FibUtil {
         return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
-    boolean isVxlanNetworkAndInternalRouterVpn(Uuid subnetId, String
-            vpnInstanceName, String rd) {
-        if (rd.equals(vpnInstanceName)) {
-            Subnetmap subnetmap = getSubnetMap(subnetId);
-            if (subnetmap != null) {
-                return subnetmap.getNetworkType() == NetworkAttributes.NetworkType.VXLAN;
-            }
+    static boolean isVxlanNetwork(NetworkType networkType) {
+        if (networkType != null) {
+            return networkType == NetworkAttributes.NetworkType.VXLAN;
         }
         return false;
-    }
-
-    java.util.Optional<Long> getVniForVxlanNetwork(Uuid subnetId) {
-        Subnetmap subnetmap = getSubnetMap(subnetId);
-        if (subnetmap != null && subnetmap.getNetworkType() == NetworkAttributes.NetworkType.VXLAN) {
-            return java.util.Optional.of(subnetmap.getSegmentationId());
-        }
-        return java.util.Optional.empty();
-    }
-
-    boolean enforceVxlanDatapathSemanticsforInternalRouterVpn(Uuid subnetId, long vpnId, String rd) {
-        return elanManager.isOpenStackVniSemanticsEnforced()
-                && isVxlanNetworkAndInternalRouterVpn(subnetId, getVpnNameFromId(vpnId), rd);
-    }
-
-    boolean enforceVxlanDatapathSemanticsforInternalRouterVpn(Uuid subnetId, String vpnName, String rd) {
-        return elanManager.isOpenStackVniSemanticsEnforced()
-                && isVxlanNetworkAndInternalRouterVpn(subnetId, vpnName, rd);
     }
 
     static NodeRef buildNodeRef(BigInteger dpId) {

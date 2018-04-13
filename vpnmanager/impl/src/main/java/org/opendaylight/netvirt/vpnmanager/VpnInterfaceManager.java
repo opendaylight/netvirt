@@ -102,6 +102,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes.NetworkType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -705,19 +706,28 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                   Interface interfaceState) {
         InstanceIdentifier<VpnInterface> identifier = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
         // Read NextHops
-        InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
-        Optional<Adjacencies> adjacencies = Optional.absent();
+        Optional<VpnInterface> vpnInteface = Optional.absent();
         try {
-            adjacencies = SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                    path);
+            vpnInteface = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+            LogicalDatastoreType.CONFIGURATION, identifier);
         } catch (ReadFailedException e) {
             LOG.error("processVpnInterfaceAdjacencies: Failed to read data store for interface {} vpn {} rd {}"
                     + "dpn {}", interfaceName, vpnName, primaryRd, dpnId);
         }
-        if (!adjacencies.isPresent()) {
-            addVpnInterfaceToOperational(vpnName, interfaceName, dpnId, null/*adjacencies*/, lportTag,
-                    null/*gwMac*/, writeOperTxn);
-            return;
+        Uuid intfnetworkUuid = null;
+        NetworkType networkType = null;
+        Long segmentationId = Long.valueOf(-1);
+        Adjacencies adjacencies = null;
+        if (vpnInteface.isPresent()) {
+            intfnetworkUuid = vpnInteface.get().getNetworkId();
+            networkType = vpnInteface.get().getNetworkType();
+            segmentationId = vpnInteface.get().getSegmentationId();
+            adjacencies = vpnInteface.get().augmentation(Adjacencies.class);
+            if (adjacencies == null) {
+                addVpnInterfaceToOperational(vpnName, interfaceName, dpnId, null/*adjacencies*/, lportTag,
+                        null/*gwMac*/, writeOperTxn);
+                return;
+            }
         }
         // Get the rd of the vpn instance
         String nextHopIp = null;
@@ -740,7 +750,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         boolean isL3VpnOverVxLan = VpnUtil.isL3VpnOverVxLan(l3vni);
         VrfEntry.EncapType encapType = isL3VpnOverVxLan ? VrfEntry.EncapType.Vxlan : VrfEntry.EncapType.Mplsgre;
         VpnPopulator registeredPopulator = L3vpnRegistry.getRegisteredPopulator(encapType);
-        List<Adjacency> nextHops = adjacencies.get().getAdjacency();
+        List<Adjacency> nextHops = (adjacencies != null) ? adjacencies.getAdjacency() : Collections.emptyList();
         List<Adjacency> value = new ArrayList<>();
         for (Adjacency nextHop : nextHops) {
             String rd = primaryRd;
@@ -759,12 +769,15 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         ? Prefixes.PrefixCue.PhysNetFunc : Prefixes.PrefixCue.None;
                 LOG.debug("processVpnInterfaceAdjacencies: Adding prefix {} to interface {} with nextHops {} on dpn {}"
                         + " for vpn {}", prefix, interfaceName, nhList, dpnId, vpnName);
+
+                Prefixes prefixes = (intfnetworkUuid != null)
+                    ? VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix, intfnetworkUuid ,networkType,
+                            segmentationId, prefixCue) :
+                    VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix, prefixCue);
                 writeOperTxn.merge(
                     LogicalDatastoreType.OPERATIONAL,
                     VpnUtil.getPrefixToInterfaceIdentifier(
-                        VpnUtil.getVpnId(dataBroker, vpnName), prefix),
-                    VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix, nextHop.getSubnetId(),
-                            prefixCue), true);
+                        VpnUtil.getVpnId(dataBroker, vpnName), prefix), prefixes , true);
                 final Uuid subnetId = nextHop.getSubnetId();
 
                 String gatewayIp = nextHop.getSubnetGatewayIp();
@@ -1782,14 +1795,24 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     LOG.trace("addNewAdjToVpnInterface: Adding prefix {} to interface {} for vpn {}", prefix,
                             currVpnIntf.getName(), vpnName);
 
+                    InstanceIdentifier<VpnInterface> vpnIfaceConfigidentifier = VpnUtil
+                            .getVpnInterfaceIdentifier(currVpnIntf.getName());
+                    Optional<VpnInterface> vpnIntefaceConfig = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                            LogicalDatastoreType.CONFIGURATION, vpnIfaceConfigidentifier);
+                    Prefixes pnfPrefix = VpnUtil.getPrefixToInterface(BigInteger.ZERO, currVpnIntf.getName(), prefix,
+                            Prefixes.PrefixCue.PhysNetFunc);
+                    if (vpnIntefaceConfig.isPresent()) {
+                        pnfPrefix = VpnUtil.getPrefixToInterface(BigInteger.ZERO, currVpnIntf.getName(), prefix,
+                                vpnIntefaceConfig.get().getNetworkId(), vpnIntefaceConfig.get().getNetworkType(),
+                                vpnIntefaceConfig.get().getSegmentationId(), Prefixes.PrefixCue.PhysNetFunc);
+                    }
+
                     String parentVpnRd = getParentVpnRdForExternalSubnet(adj);
 
                     writeOperTxn.merge(
                             LogicalDatastoreType.OPERATIONAL,
                             VpnUtil.getPrefixToInterfaceIdentifier(VpnUtil.getVpnId(dataBroker,
-                                    adj.getSubnetId().getValue()), prefix),
-                            VpnUtil.getPrefixToInterface(BigInteger.ZERO, currVpnIntf.getName(), prefix,
-                                    adj.getSubnetId(), Prefixes.PrefixCue.PhysNetFunc), true);
+                                    adj.getSubnetId().getValue()), prefix), pnfPrefix, true);
 
                     fibManager.addOrUpdateFibEntry(adj.getSubnetId().getValue(), adj.getMacAddress(),
                             adj.getIpAddress(), Collections.emptyList(), null /* EncapType */, 0 /* label */,
