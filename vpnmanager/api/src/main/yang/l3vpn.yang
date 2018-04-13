@@ -23,6 +23,11 @@ module l3vpn {
     //RFC6991
   }
 
+  import neutronvpn {
+    prefix nvpn;
+    revision-date "2015-06-02";
+  }
+
   description
     "This YANG module defines the generic configuration data for L3VPN service.
 
@@ -840,6 +845,7 @@ module l3vpn {
       leaf router-interface {
           type boolean;
       }
+      uses nvpn:network-attributes;
     }
   }
 
