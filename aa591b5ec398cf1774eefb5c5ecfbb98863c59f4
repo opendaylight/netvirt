@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac332fcb_2637fa52",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-04-13T06:17:17Z",
+      "side": 1,
+      "message": "initialize with mod.getModifiedChildren",
+      "range": {
+        "startLine": 145,
+        "startChar": 94,
+        "endLine": 145,
+        "endChar": 95
+      },
+      "revId": "aa591b5ec398cf1774eefb5c5ecfbb98863c59f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d2ce550_ab99c952",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-04-13T06:17:17Z",
+      "side": 1,
+      "message": "This check can be moved above",
+      "range": {
+        "startLine": 160,
+        "startChar": 43,
+        "endLine": 160,
+        "endChar": 44
+      },
+      "revId": "aa591b5ec398cf1774eefb5c5ecfbb98863c59f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
