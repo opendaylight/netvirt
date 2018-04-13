@@ -172,7 +172,8 @@ public final class NatEvpnUtil {
                                                  String interfaceName,
                                                  String gwMacAddress,
                                                  TypedWriteTransaction<Configuration> writeTx,
-                                                 RouteOrigin origin, BigInteger dpId) {
+                                                 RouteOrigin origin, BigInteger dpId,
+                                                 Uuid networkId) {
         try {
             LOG.info("addRoutesForVxLanProvType : Adding Fib entry rd {} prefix {} nextHop {} l3Vni {}",
                     rd, prefix, nextHopIp, l3Vni);
@@ -181,8 +182,8 @@ public final class NatEvpnUtil {
                         prefix);
                 return;
             }
-            NatUtil.addPrefixToInterface(broker, NatUtil.getVpnId(broker, vpnName), interfaceName, prefix, dpId,
-                    null /* subnet-id */, Prefixes.PrefixCue.Nat);
+            NatUtil.addPrefixToInterface(broker, NatUtil.getVpnId(broker, vpnName), interfaceName, prefix,
+                    networkId.getValue(), null, dpId, Prefixes.PrefixCue.Nat);
 
             fibManager.addOrUpdateFibEntry(rd, null /*macAddress*/, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE,

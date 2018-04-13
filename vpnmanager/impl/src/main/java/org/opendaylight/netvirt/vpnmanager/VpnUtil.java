@@ -347,10 +347,18 @@ public final class VpnUtil {
         return InstanceIdentifier.builder(PrefixToInterface.class).child(VpnIds.class, new VpnIdsKey(vpnId)).build();
     }
 
-    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix, Uuid subnetId,
+    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix,
+            Uuid networkId, NetworkType networkType, Long segmentationId, Prefixes.PrefixCue prefixCue) {
+        return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(
+            vpnInterfaceName).setIpAddress(ipPrefix)//.setSubnetId(subnetId)
+                .setNetworkId(networkId).setNetworkType(networkType).setSegmentationId(segmentationId)
+                .setPrefixCue(prefixCue).build();
+    }
+
+    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix,
             Prefixes.PrefixCue prefixCue) {
         return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(vpnInterfaceName).setIpAddress(ipPrefix)
-                .setSubnetId(subnetId).setPrefixCue(prefixCue).build();
+                .setPrefixCue(prefixCue).build();
     }
 
     Optional<Prefixes> getPrefixToInterface(long vpnId, String ipPrefix) {
