@@ -23,10 +23,6 @@ eliminating it completely is a large redesign and can be pursued incrementally l
 This spec is the first step in the direction of enforcing datapath semantics that uses tenant
 supplied VNI values on VxLAN Type networks created by tenants in OpenStack Neutron.
 
-**Note**: The existing L3 BGPVPN control-path and data-path semantics will continue to use L3
-labels on the wire as well as inside the OVS datapaths of the hypervisor to realize both intra-dc
-and inter-dc connectivity.
-
 
 Problem description
 ===================
@@ -79,8 +75,8 @@ Since VNIs are provisioned only for VxLAN based underlays, this feature has in i
 use-cases pertaining to **intra-DC connectivity over internal VxLAN tunnels only**.
 
 On the cloud data network wire, all the VxLAN traffic for basic L2 switching within a VxLAN
-network and L3 forwarding across VxLAN-type networks using routers will use tenant supplied VNI
-values for such VXLAN networks.
+network and L3 forwarding across VxLAN-type networks using routers and bgpvpns will use tenant
+supplied VNI values for such VXLAN networks.
 
 Inter-DC connectivity over external VxLAN tunnels is covered by the EVPN_RT5_ spec.
 
@@ -93,9 +89,7 @@ Out of Scope
 * Complete removal of use of ``ELAN tags`` everywhere in ODL: Use of ``ELAN tags`` within the OVS
   Datapath to handle local/remote L2 broadcasts (note: not on the wire) will be retained
 * Complete removal of use of ``MPLS labels`` everywhere in ODL: Use of ``MPLS labels`` for
-  realizing an L3 BGPVPN (regardless of type of networks put into such BGPVPN that may include
-  networks of type VxLAN) both on the wire and within the OVS Datapaths will be retained.
-* Addressing or testing IPv6 use-cases
+  realizing an inter-dc communication over BGPVPN will be retained.
 * Intra DC NAT usecase where no explicit Internet VPN is created for VxLAN based external provider
   networks: Detailed further in Intra DC subsection in NAT section below.
 
@@ -124,7 +118,22 @@ L3 forwarding use cases
    the network)
 #. Router updated with one or more extra route(s) to an existing VM.
 #. Router updated to remove previously added one/more extra routes.
-
+#. Network associated BGPVPNs.
+   * intra DC - Destination network VNI to be used over Vxlan tunnel.
+   * inter DC - MPLS Label of Destination IP to be used over GRE tunnel.
+#. Router associated BGPVPNs.
+   * intra DC - Destination network VNI to be used over Vxlan tunnel.
+   * inter DC - MPLS Label of Destination IP to be used over GRE tunnel.
+#. Dual-Stack routing with Router associated BGPVPN.
+   * intra DC - IPv4 and IPv6 packets over VXLAN tunnels carry VNI enforced by Openstack.
+   * inter DC - MPLS Label of Destination IP to be used over GRE tunnel.
+#. Router associated BGPVPNs with import/export Route Targets of other VPN.
+#. Traffic between Trunk port and Subport over a BGPVPN will carry VNI enforced
+   on the respective networks to which Trunk and Subports belong.  This will be
+   applied universally regardless of whether such trunk ports and subports were
+   network-associated and/or router-associated to the bgpvpn.
+#. For Multi-Segment networks that have one of them as VXLAN network, the VNI in
+   such networks will be enforced in the dataplane over VXLAN tunnels
 
 NAT use cases
 +++++++++++++
@@ -347,6 +356,9 @@ The modifications in flows and groups on the ingress OVS are illustrated below:
    cookie=0x8000001, duration=123.456s, table=17, n_packets=17, n_bytes=1554, priority=5,metadata=0x5000050000000000/0xffffff0000000000 actions=write_metadata:0x60000500000222e0/0xfffffffffffffffe,goto_table:19
    cookie=0x8000009, duration=124.815s, table=19, n_packets=15, n_bytes=1470, priority=20,metadata=0x222e0/0xfffffffe,dl_dst=fa:16:3e:51:da:ee actions=goto_table:21
    cookie=0x8000003, duration=125.568s, table=21, n_packets=9, n_bytes=882, priority=42,ip,metadata=0x222e0/0xfffffffe,nw_dst=12.1.0.3 actions=**set_field:0x710->tun_id**,set_field:fa:16:3e:31:fb:91->eth_dst,output:1
+
+The Ingress OVS traffic flows will remain same as above for Router Associated and
+Network Associated VPNs.
 
 VM receiving the traffic (Egress OVS)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -838,6 +850,7 @@ Other contributors:
   Chetan Arakere Gowdru <chetan.arakere@altencalsoftlabs.com>
   Karthikeyan Krishnan <karthikeyan.k@altencalsoftlabs.com>
   Yugandhar Sarraju <yugandhar.s@altencalsoftlabs.com>
+  Shaik Zakir Basha<shaik.b@altencalsoftlabs.com>
 
 Work Items
 ----------
@@ -866,7 +879,8 @@ There won't be any Integration tests provided for this feature.
 
 CSIT
 ----
-No new testcases to be added, existing ones should continue to succeed.
+New testcases will be added to validate the functionality for L2 Switching, L3 Forwarding and
+NAT with Openstack Semantics Set.
 
 Documentation Impact
 ====================
@@ -882,3 +896,6 @@ References
 * http://docs.opendaylight.org/en/latest/documentation.html
 * https://wiki.opendaylight.org/view/Genius:Carbon_Release_Plan
 * `EVPN_RT5 <https://tools.ietf.org/html/draft-ietf-bess-evpn-prefix-advertisement-03>`_
+* `Dual Stack <http://docs.opendaylight.org/en/stable-nitrogen/submodules/netvirt/docs/specs/l3vpn-dual-stack-vms.html>`_
+* `Multi-segment L2 configuration <https://docs.openstack.org/newton/networking-guide/config-routed-networks.html>`_
+* `Trunk/Sub-Port Support <https://docs.openstack.org/neutron/pike/admin/config-trunking.html>`_
