@@ -75,6 +75,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.Vpn;
@@ -318,8 +319,16 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
         String macAddress = fibUtil.getMacAddressFromPrefix(ifName, vpnName, ipPrefix);
         if (macAddress == null) {
-            LOG.warn("No MAC address found for VPN interface {} prefix {}", ifName, ipPrefix);
-            return;
+            // Handling iRT/eRT use-case for missing destination mac address in Remote FIB flow
+            InstanceIdentifier<Adjacency> adjId = FibUtil.getAdjacencyIdentifier(ifName, ipPrefix);
+            Optional<Adjacency> adjacency = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, adjId);
+            if (adjacency.isPresent()) {
+                macAddress = adjacency.get().getMacAddress();
+            }
+            if (macAddress == null) {
+                LOG.warn("No MAC address found for VPN interface {} prefix {}", ifName, ipPrefix);
+                return;
+            }
         }
         actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(), new MacAddress(macAddress)));
     }
@@ -364,16 +373,11 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                     tunnelId = BigInteger.valueOf(vrfEntry.getL3vni());
                 }
             } else {
-                if (fibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(prefixInfo.getSubnetId(), vpnId,
-                        rd)) {
-                    java.util.Optional<Long> optionalVni = fibUtil.getVniForVxlanNetwork(prefixInfo.getSubnetId());
-                    if (!optionalVni.isPresent()) {
-                        LOG.error("VNI not found for nexthop {} vrfEntry {} with subnetId {}", nextHopIp,
-                                vrfEntry, prefixInfo.getSubnetId());
-                        return;
-                    }
-                    tunnelId = BigInteger.valueOf(optionalVni.get());
+                if (fibUtil.isVxlanNetwork(prefixInfo.getNetworkType()) && prefixInfo.getSegmentationId() != -1) {
+                      tunnelId = BigInteger.valueOf(prefixInfo.getSegmentationId());
                 } else {
+                    LOG.warn("Either Network is not of type VXLAN or Network's segmentation id is missing for {}."
+                            + "Going with default Lport Tag.", prefixInfo.toString());
                     tunnelId = BigInteger.valueOf(label);
                 }
             }
