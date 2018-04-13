@@ -659,6 +659,7 @@ public final class NatUtil {
 
     static void addPrefixToInterface(DataBroker broker, long vpnId, String interfaceName, String ipPrefix,
                                      BigInteger dpId, Uuid subnetId, Prefixes.PrefixCue prefixCue) {
+        Subnetmap subnetMap = getSubnetMap(broker, subnetId);
         InstanceIdentifier<Prefixes> prefixId = InstanceIdentifier.builder(PrefixToInterface.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface
                         .VpnIds.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix
@@ -666,6 +667,8 @@ public final class NatUtil {
                 .child(Prefixes.class, new PrefixesKey(ipPrefix)).build();
         PrefixesBuilder prefixBuilder = new PrefixesBuilder().setDpnId(dpId).setIpAddress(ipPrefix);
         prefixBuilder.setVpnInterfaceName(interfaceName).setSubnetId(subnetId).setPrefixCue(prefixCue);
+        prefixBuilder.setNetworkId(subnetMap.getNetworkId())
+            .setNetworkType(subnetMap.getNetworkType()).setSegmentationId(subnetMap.getSegmentationId());
         try {
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, prefixId,
                     prefixBuilder.build());

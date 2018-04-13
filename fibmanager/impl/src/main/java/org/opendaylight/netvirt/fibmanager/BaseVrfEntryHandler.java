@@ -364,9 +364,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                     tunnelId = BigInteger.valueOf(vrfEntry.getL3vni());
                 }
             } else {
-                if (fibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(prefixInfo.getSubnetId(), vpnId,
-                        rd)) {
-                    java.util.Optional<Long> optionalVni = fibUtil.getVniForVxlanNetwork(prefixInfo.getSubnetId());
+                if (fibUtil.enforceVxlanDatapathSemantics(prefixInfo)) {
+                    java.util.Optional<Long> optionalVni = java.util.Optional.of(prefixInfo.getSegmentationId());
                     if (!optionalVni.isPresent()) {
                         LOG.error("VNI not found for nexthop {} vrfEntry {} with subnetId {}", nextHopIp,
                                 vrfEntry, prefixInfo.getSubnetId());

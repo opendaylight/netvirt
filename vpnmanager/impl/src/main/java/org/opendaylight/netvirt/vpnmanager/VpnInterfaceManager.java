@@ -106,6 +106,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.slf4j.Logger;
@@ -736,6 +737,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             }
             if (nextHop.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
                 String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
+                Subnetmap subnetMap = VpnUtil.getSubnetmapFromItsUuid(dataBroker, nextHop.getSubnetId());
                 Prefixes.PrefixCue prefixCue = nextHop.isPhysNetworkFunc()
                         ? Prefixes.PrefixCue.PhysNetFunc : Prefixes.PrefixCue.None;
                 LOG.debug("processVpnInterfaceAdjacencies: Adding prefix {} to interface {} with nextHops {} on dpn {}"
@@ -744,7 +746,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     LogicalDatastoreType.OPERATIONAL,
                     VpnUtil.getPrefixToInterfaceIdentifier(
                         VpnUtil.getVpnId(dataBroker, vpnName), prefix),
-                    VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix, nextHop.getSubnetId(),
+                    VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix, nextHop.getSubnetId(), subnetMap,
                             prefixCue), true);
                 final Uuid subnetId = nextHop.getSubnetId();
 
@@ -1744,13 +1746,13 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         currVpnIntf.getName(), vpnName);
 
                 String parentVpnRd = getParentVpnRdForExternalSubnet(adj);
-
+                Subnetmap subnetMap = VpnUtil.getSubnetmapFromItsUuid(dataBroker, adj.getSubnetId());
                 writeOperTxn.merge(
                         LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getPrefixToInterfaceIdentifier(VpnUtil.getVpnId(dataBroker,
                                 adj.getSubnetId().getValue()), prefix),
                         VpnUtil.getPrefixToInterface(BigInteger.ZERO, currVpnIntf.getName(), prefix,
-                                adj.getSubnetId(), Prefixes.PrefixCue.PhysNetFunc), true);
+                                adj.getSubnetId(), subnetMap, Prefixes.PrefixCue.PhysNetFunc), true);
 
                 fibManager.addOrUpdateFibEntry(adj.getSubnetId().getValue(), adj.getMacAddress(),
                         adj.getIpAddress(), Collections.emptyList(), null /* EncapType */, 0 /* label */, 0 /*l3vni*/,

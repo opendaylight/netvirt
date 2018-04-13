@@ -89,6 +89,7 @@ module odl-l3vpn {
               leaf subnet-id {
                   type yang:uuid;
               }
+              uses nvpn:network-attributes;
               leaf prefix-cue {
                   type enumeration {
                       enum none {

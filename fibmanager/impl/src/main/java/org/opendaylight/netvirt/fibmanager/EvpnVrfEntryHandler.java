@@ -229,7 +229,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             if (vrfEntry.getOrigin().equals(RouteOrigin.BGP.getValue()) || isNatPrefix) {
                 tunnelId = BigInteger.valueOf(vrfEntry.getL3vni());
             } else if (elanManager.isOpenStackVniSemanticsEnforced()) {
-                tunnelId = BigInteger.valueOf(getFibUtil().getVniForVxlanNetwork(prefixInfo.getSubnetId()).get());
+                tunnelId = BigInteger.valueOf(prefixInfo.getSegmentationId());
             } else {
                 Interface interfaceState = getFibUtil().getInterfaceStateFromOperDS(interfaceName);
                 tunnelId = BigInteger.valueOf(interfaceState.getIfIndex());

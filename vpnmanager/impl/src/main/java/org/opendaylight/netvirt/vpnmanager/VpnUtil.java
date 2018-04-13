@@ -289,9 +289,13 @@ public final class VpnUtil {
     }
 
     static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix, Uuid subnetId,
-            Prefixes.PrefixCue prefixCue) {
+            Subnetmap subnetMap, Prefixes.PrefixCue prefixCue) {
         return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(
-            vpnInterfaceName).setIpAddress(ipPrefix).setSubnetId(subnetId).setPrefixCue(prefixCue).build();
+            vpnInterfaceName).setIpAddress(ipPrefix).setSubnetId(subnetId)
+                .setNetworkId(subnetMap.getNetworkId())
+                .setNetworkType(subnetMap.getNetworkType())
+                .setSegmentationId(subnetMap.getSegmentationId())
+                .setPrefixCue(prefixCue).build();
     }
 
     static Optional<Prefixes> getPrefixToInterface(DataBroker broker, long vpnId, String ipPrefix) {
@@ -2026,7 +2030,7 @@ public final class VpnUtil {
     }
 
     public static Set<BigInteger> getDpnInElan(DataBroker dataBroker,  Map<String,String> elanInstanceRouterPortMap) {
-        Set<BigInteger> dpnIdSet = new HashSet<BigInteger>();
+        Set<BigInteger> dpnIdSet = new HashSet<>();
         for (String elanInstanceName : elanInstanceRouterPortMap.keySet()) {
             InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationalDataPath(
                     elanInstanceName);
@@ -2170,7 +2174,7 @@ public final class VpnUtil {
     }
 
     public static Map<String, String> getElanInstanceRouterPortMap(DataBroker dataBroker, String vpnName) {
-        Map<String, String> elanInstanceRouterPortMap = new HashMap<String, String>();
+        Map<String, String> elanInstanceRouterPortMap = new HashMap<>();
         Optional<Subnetmaps> subnetMapsData =
                 read(dataBroker, LogicalDatastoreType.CONFIGURATION, buildSubnetMapsWildCardPath());
         if (subnetMapsData.isPresent()) {

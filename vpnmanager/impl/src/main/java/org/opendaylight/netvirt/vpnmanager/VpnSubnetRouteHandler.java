@@ -836,9 +836,10 @@ public class VpnSubnetRouteHandler {
             return true;
         }
         Preconditions.checkNotNull(nextHopIp, LOGGING_PREFIX + "NextHopIp cannot be null or empty!");
+        Subnetmap subnetMap = VpnUtil.getSubnetmapFromItsUuid(dataBroker, subnetId);
         VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, VpnUtil
                 .getPrefixToInterfaceIdentifier(VpnUtil.getVpnId(dataBroker, vpnName), subnetIp), VpnUtil
-                .getPrefixToInterface(nhDpnId, subnetId.getValue(), subnetIp, subnetId,
+                .getPrefixToInterface(nhDpnId, subnetId.getValue(), subnetIp, subnetId, subnetMap,
                         Prefixes.PrefixCue.SubnetRoute));
         vpnPopulator.populateFib(input, null /*writeCfgTxn*/);
         try {

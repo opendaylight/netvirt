@@ -660,12 +660,6 @@ public class FibUtil {
         }
     }
 
-    public Subnetmap getSubnetMap(Uuid subnetId) {
-        InstanceIdentifier<Subnetmap> subnetmapId = InstanceIdentifier.builder(Subnetmaps.class)
-            .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
-        return MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetmapId).orNull();
-    }
-
     public static String getGreLbGroupKey(List<String> availableDcGws) {
         Preconditions.checkNotNull(availableDcGws, "AvailableDcGws is null");
         return "gre-" + availableDcGws.stream().sorted().collect(joining(":"));
@@ -741,33 +735,16 @@ public class FibUtil {
         return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
-    boolean isVxlanNetworkAndInternalRouterVpn(Uuid subnetId, String
-            vpnInstanceName, String rd) {
-        if (rd.equals(vpnInstanceName)) {
-            Subnetmap subnetmap = getSubnetMap(subnetId);
-            if (subnetmap != null) {
-                return subnetmap.getNetworkType() == NetworkAttributes.NetworkType.VXLAN;
-            }
+    boolean isVxlanNetwork(Prefixes prefixInfo) {
+        if (prefixInfo != null) {
+            return prefixInfo.getNetworkType() == NetworkAttributes.NetworkType.VXLAN;
         }
         return false;
     }
 
-    java.util.Optional<Long> getVniForVxlanNetwork(Uuid subnetId) {
-        Subnetmap subnetmap = getSubnetMap(subnetId);
-        if (subnetmap != null && subnetmap.getNetworkType() == NetworkAttributes.NetworkType.VXLAN) {
-            return java.util.Optional.of(subnetmap.getSegmentationId());
-        }
-        return java.util.Optional.empty();
-    }
-
-    boolean enforceVxlanDatapathSemanticsforInternalRouterVpn(Uuid subnetId, long vpnId, String rd) {
+    boolean enforceVxlanDatapathSemantics(Prefixes prefixInfo) {
         return elanManager.isOpenStackVniSemanticsEnforced()
-                && isVxlanNetworkAndInternalRouterVpn(subnetId, getVpnNameFromId(vpnId), rd);
-    }
-
-    boolean enforceVxlanDatapathSemanticsforInternalRouterVpn(Uuid subnetId, String vpnName, String rd) {
-        return elanManager.isOpenStackVniSemanticsEnforced()
-                && isVxlanNetworkAndInternalRouterVpn(subnetId, vpnName, rd);
+                && isVxlanNetwork(prefixInfo);
     }
 
     static NodeRef buildNodeRef(BigInteger dpId) {
