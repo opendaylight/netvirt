@@ -895,8 +895,7 @@ public class NexthopManager implements AutoCloseable {
             Long label = FibUtil.getLabelFromRoutePaths(vrfEntry).get();
             Prefixes prefixInfo = fibUtil.getPrefixToInterface(vpnId, nextHopPrefixIp);
             BigInteger tunnelId;
-            if (fibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(prefixInfo.getSubnetId(), vpnId,
-                    rd)) {
+            if (fibUtil.enforceVxlanDatapathSemantics(prefixInfo.getSubnetId())) {
                 java.util.Optional<Long> optionalVni = fibUtil.getVniForVxlanNetwork(prefixInfo.getSubnetId());
                 if (!optionalVni.isPresent()) {
                     LOG.error("VNI not found for nexthop {} vrfEntry {} with subnetId {}", nextHopIp,

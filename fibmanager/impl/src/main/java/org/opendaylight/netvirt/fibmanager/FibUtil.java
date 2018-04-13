@@ -741,13 +741,10 @@ public class FibUtil {
         return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
-    boolean isVxlanNetworkAndInternalRouterVpn(Uuid subnetId, String
-            vpnInstanceName, String rd) {
-        if (rd.equals(vpnInstanceName)) {
-            Subnetmap subnetmap = getSubnetMap(subnetId);
-            if (subnetmap != null) {
-                return subnetmap.getNetworkType() == NetworkAttributes.NetworkType.VXLAN;
-            }
+    boolean isVxlanNetwork(Uuid subnetId) {
+        Subnetmap subnetmap = getSubnetMap(subnetId);
+        if (subnetmap != null) {
+            return subnetmap.getNetworkType() == NetworkAttributes.NetworkType.VXLAN;
         }
         return false;
     }
@@ -760,14 +757,9 @@ public class FibUtil {
         return java.util.Optional.empty();
     }
 
-    boolean enforceVxlanDatapathSemanticsforInternalRouterVpn(Uuid subnetId, long vpnId, String rd) {
+    boolean enforceVxlanDatapathSemantics(Uuid subnetId) {
         return elanManager.isOpenStackVniSemanticsEnforced()
-                && isVxlanNetworkAndInternalRouterVpn(subnetId, getVpnNameFromId(vpnId), rd);
-    }
-
-    boolean enforceVxlanDatapathSemanticsforInternalRouterVpn(Uuid subnetId, String vpnName, String rd) {
-        return elanManager.isOpenStackVniSemanticsEnforced()
-                && isVxlanNetworkAndInternalRouterVpn(subnetId, vpnName, rd);
+                && isVxlanNetwork(subnetId);
     }
 
     static NodeRef buildNodeRef(BigInteger dpId) {
