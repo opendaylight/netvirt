@@ -83,13 +83,13 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
                     Arrays.asList(nextHopIp), vpnId, input.getInterfaceName(), null,false,
                     primaryRd);
             Objects.requireNonNull(input.getRouteOrigin(), "RouteOrigin is mandatory");
-            addPrefixToBGP(rd, primaryRd, null /*macAddress*/, nextHopIpAddress, nextHopIp, encapType,
+            addPrefixToBGP(vpnName, rd, primaryRd, null /*macAddress*/, nextHopIpAddress, nextHopIp, encapType,
                     label, 0 /*l3vni*/, input.getGatewayMac(), input.getRouteOrigin(), writeConfigTxn);
             //TODO: ERT - check for VPNs importing my route
             for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                 String vpnRd = vpn.getVrfId();
                 if (vpnRd != null) {
-                    fibManager.addOrUpdateFibEntry(vpnRd, null /*macAddress*/,
+                    fibManager.addOrUpdateFibEntry(vpn.getVpnInstanceName(), vpnRd, null /*macAddress*/,
                             nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
                             0 /*l3vni*/, input.getGatewayMac(), primaryRd, RouteOrigin.SELF_IMPORTED,
                             writeConfigTxn);
@@ -100,7 +100,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
             }
         } else {
             // ### add FIB route directly
-            fibManager.addOrUpdateFibEntry(vpnName, null /*macAddress*/,
+            fibManager.addOrUpdateFibEntry(vpnName, vpnName, null /*macAddress*/,
                     nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
                     0 /*l3vni*/, input.getGatewayMac(), null /*parentVpnRd*/, input.getRouteOrigin(), writeConfigTxn);
             LOG.info("populateFib: Added internal FIB entry for prefix {} nexthop {} label {}"
