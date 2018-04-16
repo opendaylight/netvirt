@@ -31,8 +31,8 @@ import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
@@ -69,8 +69,9 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
     public void createFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         LOG.info("Initiating creation of Evpn Flows");
         final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
+        final VpnInstanceNamesKey vpnKey = identifier.firstKeyOf(VpnInstanceNames.class);
         final VpnInstanceOpDataEntry vpnInstance = getFibUtil().getVpnInstanceOpData(
-                vrfTableKey.getRouteDistinguisher()).get();
+                vpnKey.getVpnInstanceName()).get();
         Long vpnId = vpnInstance.getVpnId();
         Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + vrfTableKey.getRouteDistinguisher());
         Preconditions.checkNotNull(vpnId, "Vpn Instance with rd " + vpnInstance.getVrfId()
@@ -86,8 +87,8 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                     () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                         for (final VpnToDpnList curDpn : vpnToDpnList) {
                             if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                                vrfEntryListener.installSubnetRouteInFib(curDpn.getDpnId(), elanTag, rd,
-                                        vpnId, vrfEntry, tx);
+                                vrfEntryListener.installSubnetRouteInFib(curDpn.getDpnId(), elanTag,
+                                        vpnKey.getVpnInstanceName(), rd, vpnId, vrfEntry, tx);
                             }
                         }
                     })));
@@ -112,8 +113,9 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
     @Override
     public void removeFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
+        final VpnInstanceNamesKey vpnKey = identifier.firstKeyOf(VpnInstanceNames.class);
         final VpnInstanceOpDataEntry vpnInstance = getFibUtil().getVpnInstanceOpData(
-                vrfTableKey.getRouteDistinguisher()).get();
+                vpnKey.getVpnInstanceName()).get();
         if (vpnInstance == null) {
             LOG.error("VPN Instance for rd {} is not available from VPN Op Instance Datastore", rd);
             return;
@@ -122,7 +124,8 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                 vrfEntry.getDestPrefix());
         List<BigInteger> localDpnId = checkDeleteLocalEvpnFLows(vpnInstance.getVpnId(), rd, vrfEntry, localNextHopInfo);
         deleteRemoteEvpnFlows(rd, vrfEntry, vpnInstance, vrfTableKey, localDpnId);
-        vrfEntryListener.cleanUpOpDataForFib(vpnInstance.getVpnId(), rd, vrfEntry);
+        vrfEntryListener.cleanUpOpDataForFib(vpnInstance.getVpnId(), vpnInstance.getVpnInstanceName(),
+                rd, vrfEntry);
     }
 
     @Override

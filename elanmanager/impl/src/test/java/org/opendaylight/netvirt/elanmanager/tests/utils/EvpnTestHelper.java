@@ -35,17 +35,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnRdToNetworks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetwork;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetworkBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetworkKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnToNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.to.networks.EvpnToNetwork;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.to.networks.EvpnToNetworkBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.to.networks.EvpnToNetworkKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,17 +65,18 @@ public class EvpnTestHelper  {
     }
 
     public void updateRdtoNetworks(ElanInstance actualElanInstances) throws TransactionCommitFailedException {
-        EvpnRdToNetworkBuilder evpnRdToNetworkBuilder = new EvpnRdToNetworkBuilder().setKey(new EvpnRdToNetworkKey(RD));
-        evpnRdToNetworkBuilder.setRd(RD);
-        evpnRdToNetworkBuilder.setNetworkId(ELAN1);
+        EvpnToNetworkBuilder evpnToNetworkBuilder = new EvpnToNetworkBuilder().setKey(new EvpnToNetworkKey(RD));
+        evpnToNetworkBuilder.setVpnInstanceName(EVPN1);
+        evpnToNetworkBuilder.setRd(RD);
+        evpnToNetworkBuilder.setNetworkId(ELAN1);
         LOG.info("updating Evpn {} with elaninstance {} and rd {}", "evpn1", actualElanInstances, RD);
-        singleTxdataBroker.syncWrite(LogicalDatastoreType.CONFIGURATION, getRdToNetworkIdentifier(RD),
-                evpnRdToNetworkBuilder.build());
+        singleTxdataBroker.syncWrite(LogicalDatastoreType.CONFIGURATION, getEvpnToNetworkIdentifier(EVPN1),
+                evpnToNetworkBuilder.build());
     }
 
-    public InstanceIdentifier<EvpnRdToNetwork> getRdToNetworkIdentifier(String vrfId) {
-        return InstanceIdentifier.builder(EvpnRdToNetworks.class)
-                .child(EvpnRdToNetwork.class, new EvpnRdToNetworkKey(vrfId)).build();
+    public InstanceIdentifier<EvpnToNetwork> getEvpnToNetworkIdentifier(String vpnName) {
+        return InstanceIdentifier.builder(EvpnToNetworks.class)
+                .child(EvpnToNetwork.class, new EvpnToNetworkKey(vpnName)).build();
     }
 
     public void updateEvpnNameInElan(String elanInstanceName, String evpnName)
@@ -103,10 +106,10 @@ public class EvpnTestHelper  {
 
     public void deleteRdtoNetworks() throws TransactionCommitFailedException {
         LOG.info("deleting  rd {}", "evpn1", RD);
-        singleTxdataBroker.syncDelete(LogicalDatastoreType.CONFIGURATION, getRdToNetworkIdentifier(RD));
+        singleTxdataBroker.syncDelete(LogicalDatastoreType.CONFIGURATION, getEvpnToNetworkIdentifier(EVPN1));
     }
 
-    public void addMacVrfEntryToDS(String rd, String macAddress, String prefix,
+    public void addMacVrfEntryToDS(String vpnName, String rd, String macAddress, String prefix,
                                    List<String> nextHopList, VrfEntry.EncapType encapType,
                                    long l2vni, String gatewayMacAddress, RouteOrigin origin)
             throws TransactionCommitFailedException {
@@ -117,15 +120,18 @@ public class EvpnTestHelper  {
         macEntryBuilder.setDestPrefix(prefix);
         InstanceIdentifier<MacVrfEntry> macEntryId =
                 InstanceIdentifier.builder(FibEntries.class)
+                        .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnName))
                         .child(VrfTables.class, new VrfTablesKey(rd))
                         .child(MacVrfEntry.class, new MacVrfEntryKey(macAddress)).build();
 
         singleTxdataBroker.syncWrite(LogicalDatastoreType.CONFIGURATION, macEntryId, macEntryBuilder.build());
     }
 
-    public void deleteMacVrfEntryToDS(String rd, String macAddress) throws TransactionCommitFailedException {
+    public void deleteMacVrfEntryToDS(String vpnName,
+                                      String rd, String macAddress) throws TransactionCommitFailedException {
         InstanceIdentifier<MacVrfEntry> macEntryId =
                 InstanceIdentifier.builder(FibEntries.class)
+                        .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnName))
                         .child(VrfTables.class, new VrfTablesKey(rd))
                         .child(MacVrfEntry.class, new MacVrfEntryKey(macAddress)).build();
 
@@ -163,12 +169,13 @@ public class EvpnTestHelper  {
     public void handleEvpnRt2Recvd(String macRecvd, String prefixRecvd) throws TransactionCommitFailedException {
         List<String> nextHopList = new ArrayList<>();
         nextHopList.add(DCGW_TEPIP);
-        addMacVrfEntryToDS(RD, macRecvd, prefixRecvd, nextHopList, VrfEntry.EncapType.Vxlan,
+        addMacVrfEntryToDS(EVPN1, RD, macRecvd, prefixRecvd, nextHopList, VrfEntry.EncapType.Vxlan,
                 ELAN1_SEGMENT_ID, null, RouteOrigin.BGP);
     }
 
     public InstanceIdentifier<MacVrfEntry> buildMacVrfEntryIid(String mac)  {
         return InstanceIdentifier.builder(FibEntries.class)
+                .child(VpnInstanceNames.class, new VpnInstanceNamesKey(EVPN1))
                 .child(VrfTables.class, new VrfTablesKey(RD))
                 .child(MacVrfEntry.class, new MacVrfEntryKey(mac)).build();
     }
