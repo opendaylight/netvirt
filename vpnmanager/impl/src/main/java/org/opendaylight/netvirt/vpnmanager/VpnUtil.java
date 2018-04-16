@@ -129,8 +129,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.dest.prefixes.AllocatedRdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.dest.prefixes.AllocatedRdsKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.L3nexthop;
@@ -306,9 +306,12 @@ public final class VpnUtil {
      * @param rd Route-Distinguisher
      * @return VrfTables that holds the list of VrfEntries of the specified rd
      */
-    public static VrfTables getVrfTable(DataBroker broker, String rd) {
-        InstanceIdentifier<VrfTables> id =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
+    @SuppressWarnings("checkstyle:LineLength")
+    public static VrfTables getVrfTable(DataBroker broker, String vpnName, String rd) {
+        InstanceIdentifier<VrfTables> id = InstanceIdentifier.builder(FibEntries.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey(vpnName))
+                .child(VrfTables.class, new VrfTablesKey(rd)).build();
         Optional<VrfTables> vrfTable = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         return vrfTable.isPresent() ? vrfTable.get() : null;
     }
@@ -322,10 +325,10 @@ public final class VpnUtil {
      * @param originsToConsider Only entries whose origin is included in this list will be considered
      * @return the list of VrfEntries
      */
-    public static List<VrfEntry> getVrfEntriesByOrigin(DataBroker broker, String rd,
+    public static List<VrfEntry> getVrfEntriesByOrigin(DataBroker broker, String vpnName, String rd,
         List<RouteOrigin> originsToConsider) {
         List<VrfEntry> result = new ArrayList<>();
-        List<VrfEntry> allVpnVrfEntries = getAllVrfEntries(broker, rd);
+        List<VrfEntry> allVpnVrfEntries = getAllVrfEntries(broker, vpnName, rd);
         for (VrfEntry vrfEntry : allVpnVrfEntries) {
             if (originsToConsider.contains(RouteOrigin.value(vrfEntry.getOrigin()))) {
                 result.add(vrfEntry);
@@ -350,8 +353,8 @@ public final class VpnUtil {
      * @param rd Route-distinguisher of the VPN
      * @return the list of VrfEntries
      */
-    public static List<VrfEntry> getAllVrfEntries(DataBroker broker, String rd) {
-        VrfTables vrfTables = VpnUtil.getVrfTable(broker, rd);
+    public static List<VrfEntry> getAllVrfEntries(DataBroker broker, String vpnName, String rd) {
+        VrfTables vrfTables = VpnUtil.getVrfTable(broker, vpnName, rd);
         return vrfTables != null ? vrfTables.getVrfEntry() : new ArrayList<>();
     }
 
@@ -390,14 +393,17 @@ public final class VpnUtil {
                 vpnConfig.getRouteDistinguisher()) : new ArrayList<>();
     }
 
-    static VrfEntry getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
+    @SuppressWarnings("checkstyle:LineLength")
+    static VrfEntry getVrfEntry(DataBroker broker, String vpnName, String rd, String ipPrefix) {
 
-        VrfTables vrfTable = getVrfTable(broker, rd);
+        VrfTables vrfTable = getVrfTable(broker, vpnName, rd);
         // TODO: why check VrfTables if we later go for the specific VrfEntry?
         if (vrfTable != null) {
-            InstanceIdentifier<VrfEntry> vrfEntryId =
-                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(
-                    VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
+            InstanceIdentifier<VrfEntry> vrfEntryId = InstanceIdentifier.builder(FibEntries.class)
+                    .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames.class,
+                            new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey(vpnName))
+                    .child(VrfTables.class, new VrfTablesKey(rd))
+                    .child(VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
             Optional<VrfEntry> vrfEntry = read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
             if (vrfEntry.isPresent()) {
                 return vrfEntry.get();
@@ -595,9 +601,13 @@ public final class VpnUtil {
      * @param rd Route Distinguisher
      * @param origin Origin of the Routes to be removed (see {@link RouteOrigin})
      */
-    public static void removeVrfEntriesByOrigin(DataBroker broker, String rd, RouteOrigin origin) {
-        InstanceIdentifier<VrfTables> vpnVrfTableIid =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
+    @SuppressWarnings("checkstyle:LineLength")
+    public static void removeVrfEntriesByOrigin(DataBroker broker, String vpnName,
+                                                String rd, RouteOrigin origin) {
+        InstanceIdentifier<VrfTables> vpnVrfTableIid = InstanceIdentifier.builder(FibEntries.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey(vpnName))
+                .child(VrfTables.class, new VrfTablesKey(rd)).build();
         Optional<VrfTables> vrfTablesOpc = read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid);
         if (vrfTablesOpc.isPresent()) {
             VrfTables vrfTables = vrfTablesOpc.get();
@@ -612,9 +622,13 @@ public final class VpnUtil {
         }
     }
 
-    public static List<VrfEntry> findVrfEntriesByNexthop(DataBroker broker, String rd, String nexthop) {
-        InstanceIdentifier<VrfTables> vpnVrfTableIid =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
+    @SuppressWarnings("checkstyle:LineLength")
+    public static List<VrfEntry> findVrfEntriesByNexthop(DataBroker broker, String vpnName,
+                                                         String rd, String nexthop) {
+        InstanceIdentifier<VrfTables> vpnVrfTableIid = InstanceIdentifier.builder(FibEntries.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey(vpnName))
+                .child(VrfTables.class, new VrfTablesKey(rd)).build();
         Optional<VrfTables> vrfTablesOpc = read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid);
         List<VrfEntry> matches = new ArrayList<>();
 
@@ -630,9 +644,13 @@ public final class VpnUtil {
         return matches;
     }
 
-    public static void removeVrfEntries(DataBroker broker, String rd, List<VrfEntry> vrfEntries) {
-        InstanceIdentifier<VrfTables> vpnVrfTableIid =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
+    @SuppressWarnings("checkstyle:LineLength")
+    public static void removeVrfEntries(DataBroker broker, String vpnName,
+                                        String rd, List<VrfEntry> vrfEntries) {
+        InstanceIdentifier<VrfTables> vpnVrfTableIid = InstanceIdentifier.builder(FibEntries.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey(vpnName))
+                .child(VrfTables.class, new VrfTablesKey(rd)).build();
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         for (VrfEntry vrfEntry : vrfEntries) {
             tx.delete(LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid.child(VrfEntry.class, vrfEntry.getKey()));
@@ -711,9 +729,9 @@ public final class VpnUtil {
         return vpnName;
     }
 
-    public static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String rd) {
+    public static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String vpnName) {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
-            .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
+            .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(vpnName)).build();
     }
 
     static InstanceIdentifier<RouterInterface> getRouterInterfaceId(String interfaceName) {
@@ -726,8 +744,8 @@ public final class VpnUtil {
             .setInterfaceName(interfaceName).setRouterName(routerName).build();
     }
 
-    public static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) {
-        InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
+    public static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String vpnInstanceName) {
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(vpnInstanceName);
         return read(broker, LogicalDatastoreType.OPERATIONAL, id).orNull();
     }
 
@@ -1053,18 +1071,22 @@ public final class VpnUtil {
     }
 
     // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressWarnings({"checkstyle:IllegalCatch", "checkstyle:LineLength"})
     public static void removeVrfTableForVpn(DataBroker broker, String vpnName, WriteTransaction writeTxn) {
         // Clean up FIB Entries Config DS
         try {
             if (writeTxn != null) {
                 writeTxn.delete(LogicalDatastoreType.CONFIGURATION,
-                    InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class,
-                        new VrfTablesKey(vpnName)).build());
+                    InstanceIdentifier.builder(FibEntries.class)
+                            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames.class,
+                                    new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey(vpnName))
+                            .child(VrfTables.class, new VrfTablesKey(vpnName)).build());
             } else {
                 delete(broker, LogicalDatastoreType.CONFIGURATION,
-                    InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class,
-                        new VrfTablesKey(vpnName)).build(),
+                    InstanceIdentifier.builder(FibEntries.class)
+                            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames.class,
+                                    new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey(vpnName))
+                            .child(VrfTables.class, new VrfTablesKey(vpnName)).build(),
                     DEFAULT_CALLBACK);
             }
         } catch (Exception e) {

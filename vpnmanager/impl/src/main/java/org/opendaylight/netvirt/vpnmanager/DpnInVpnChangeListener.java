@@ -56,7 +56,7 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
         LOG.trace("Remove Dpn Event notification received for rd {} VpnName {} DpnId {}", rd, vpnName, dpnId);
 
         synchronized (vpnName.intern()) {
-            InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
+            InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(vpnName);
             Optional<VpnInstanceOpDataEntry> vpnOpValue =
                 VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
 
