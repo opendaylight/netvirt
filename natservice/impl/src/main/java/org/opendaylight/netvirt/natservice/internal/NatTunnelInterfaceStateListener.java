@@ -674,7 +674,7 @@ public class NatTunnelInterfaceStateListener
         for (String externalIp : externalIps) {
             String rd = NatUtil.getVpnRd(dataBroker, externalVpnName);
             LOG.debug("hndlTepAddOnNaptSwitch : Removing Fib entry rd {} prefix {}", rd, externalIp);
-            fibManager.removeFibEntry(rd, externalIp, null);
+            fibManager.removeFibEntry(externalVpnName, rd, externalIp, null);
         }
 
         /*
