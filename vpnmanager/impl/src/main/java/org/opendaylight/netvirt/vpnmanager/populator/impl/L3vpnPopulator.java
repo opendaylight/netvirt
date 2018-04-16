@@ -32,9 +32,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.label.route.map.LabelRouteInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.label.route.map.LabelRouteInfoBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.label.route.map.LabelRouteInfoKey;
@@ -83,6 +85,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
         LOG.debug("Created vrfEntry for {} nexthop {} label {} and elantag {}", prefix, nextHop, label, elantag);
         InstanceIdentifier<VrfEntry> vrfEntryId =
                 InstanceIdentifier.builder(FibEntries.class)
+                        .child(VpnInstanceNames.class, new VpnInstanceNamesKey(rd))
                         .child(VrfTables.class, new VrfTablesKey(rd))
                         .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
         Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
@@ -91,7 +94,9 @@ public abstract class L3vpnPopulator implements VpnPopulator {
             List<VrfEntry> vrfEntryList = Collections.singletonList(vrfEntry);
 
             InstanceIdentifier.InstanceIdentifierBuilder<VrfTables> idBuilder =
-                    InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
+                    InstanceIdentifier.builder(FibEntries.class)
+                            .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnName))
+                            .child(VrfTables.class, new VrfTablesKey(rd));
             InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
 
             VrfTables vrfTableNew = new VrfTablesBuilder().setRouteDistinguisher(rd).setVrfEntry(vrfEntryList).build();
@@ -116,8 +121,9 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                 for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
                     String importingRd = vpnInstance.getVrfId();
                     InstanceIdentifier<VrfTables> importingVrfTableId =
-                            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class,
-                                    new VrfTablesKey(importingRd)).build();
+                            InstanceIdentifier.builder(FibEntries.class)
+                                    .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnInstance.getVpnInstanceName()))
+                                    .child(VrfTables.class, new VrfTablesKey(importingRd)).build();
                     VrfTables importingVrfTable = new VrfTablesBuilder().setRouteDistinguisher(importingRd)
                             .setVrfEntry(importingVrfEntryList).build();
                     VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, importingVrfTableId,
@@ -191,14 +197,14 @@ public abstract class L3vpnPopulator implements VpnPopulator {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void addPrefixToBGP(String rd, String primaryRd, String macAddress, String prefix, String nextHopIp,
+    protected void addPrefixToBGP(String vpnName, String rd, String primaryRd, String macAddress, String prefix, String nextHopIp,
                                   VrfEntry.EncapType encapType, long label, long l3vni, String gatewayMac,
                                   RouteOrigin origin, WriteTransaction writeConfigTxn) {
         try {
             List<String> nextHopList = Collections.singletonList(nextHopIp);
             LOG.info("ADD: addPrefixToBGP: Adding Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,
                     nextHopList, label, gatewayMac);
-            fibManager.addOrUpdateFibEntry(primaryRd, macAddress, prefix, nextHopList,
+            fibManager.addOrUpdateFibEntry(vpnName, primaryRd, macAddress, prefix, nextHopList,
                     encapType, (int)label, l3vni, gatewayMac, null /*parentVpnRd*/, origin, writeConfigTxn);
             LOG.info("ADD: addPrefixToBGP: Added Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,
                     nextHopList, label, gatewayMac);

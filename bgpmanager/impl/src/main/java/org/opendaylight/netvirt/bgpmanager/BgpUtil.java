@@ -43,14 +43,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTepsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTepsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnRdToNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnToNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetwork;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetworkKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.to.networks.EvpnToNetwork;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.to.networks.EvpnToNetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -186,34 +188,34 @@ public class BgpUtil implements AutoCloseable {
         return null;
     }
 
-    public static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String rd) {
+    public static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String vpnName) {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
-                .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
+                .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(vpnName)).build();
     }
 
-    private String getElanNamefromRd(String rd)  {
-        InstanceIdentifier<EvpnRdToNetwork> id = getEvpnRdToNetworkIdentifier(rd);
-        Optional<EvpnRdToNetwork> evpnRdToNetworkOpData = MDSALUtil.read(dataBroker,
+    private String getElanNamefromRd(String vpnName)  {
+        InstanceIdentifier<EvpnToNetwork> id = getEvpnToNetworkIdentifier(vpnName);
+        Optional<EvpnToNetwork> evpnToNetworkOpData = MDSALUtil.read(dataBroker,
                 LogicalDatastoreType.CONFIGURATION, id);
-        if (evpnRdToNetworkOpData.isPresent()) {
-            return evpnRdToNetworkOpData.get().getNetworkId();
+        if (evpnToNetworkOpData.isPresent()) {
+            return evpnToNetworkOpData.get().getNetworkId();
         }
         return null;
     }
 
-    private static InstanceIdentifier<EvpnRdToNetwork> getEvpnRdToNetworkIdentifier(String rd) {
-        return InstanceIdentifier.builder(EvpnRdToNetworks.class)
-                .child(EvpnRdToNetwork.class, new EvpnRdToNetworkKey(rd)).build();
+    private static InstanceIdentifier<EvpnToNetwork> getEvpnToNetworkIdentifier(String vpnName) {
+        return InstanceIdentifier.builder(EvpnToNetworks.class)
+                .child(EvpnToNetwork.class, new EvpnToNetworkKey(vpnName)).build();
     }
 
-    public void addTepToElanInstance(String rd, String tepIp) {
-        if (rd == null || tepIp == null) {
+    public void addTepToElanInstance(String vpnName, String tepIp) {
+        if (vpnName == null || tepIp == null) {
             LOG.error("addTepToElanInstance : Null parameters returning");
             return;
         }
-        String elanName = getElanNamefromRd(rd);
+        String elanName = getElanNamefromRd(vpnName);
         if (elanName == null) {
-            LOG.error("Elan null while processing RT2 for RD {}", rd);
+            LOG.error("Elan null while processing RT2 for vpnName {}", vpnName);
             return;
         }
         LOG.debug("Adding tepIp {} to elan {}", tepIp, elanName);
@@ -281,12 +283,14 @@ public class BgpUtil implements AutoCloseable {
         return layerTypeValue;
     }
 
-    public void removeVrfEntry(String rd, VrfEntry vrfEntry) {
-        LOG.debug("removeVrfEntry : vrf {} prefix {}", rd, vrfEntry.getDestPrefix());
+    public void removeVrfEntry(String vpnName, String rd, VrfEntry vrfEntry) {
+        LOG.debug("removeVrfEntry : vpn {} vrf {} prefix {}", vpnName,
+                rd, vrfEntry.getDestPrefix());
         InstanceIdentifier<VrfEntry> vrfEntryId =
                    InstanceIdentifier.builder(FibEntries.class)
-                   .child(VrfTables.class, new VrfTablesKey(rd))
-                   .child(VrfEntry.class, new VrfEntryKey(vrfEntry.getDestPrefix())).build();
+                           .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnName))
+                           .child(VrfTables.class, new VrfTablesKey(rd))
+                           .child(VrfEntry.class, new VrfEntryKey(vrfEntry.getDestPrefix())).build();
         delete(vrfEntryId);
     }
 }

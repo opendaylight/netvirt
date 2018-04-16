@@ -65,6 +65,9 @@ module fib-rpc {
             leaf vpn-id {
                 type uint32;
             }
+            leaf vpn-instance-name {
+                type string;
+            }
             leaf rd {
                 type string;
             }
@@ -79,6 +82,9 @@ module fib-rpc {
             }
             leaf vpn-id {
                 type uint32;
+            }
+            leaf vpn-instance-name {
+                type string;
             }
             leaf rd {
                 type string;

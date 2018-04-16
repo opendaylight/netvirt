@@ -66,12 +66,13 @@ public class InterVpnLinkCleanedCheckerTask implements Callable<List<ListenableF
         }
 
         LOG.debug("InterVpnLink {} State has been removed. Now checking leaked routes", interVpnLinkToCheck.getName());
-        String vpn1Rd = VpnUtil.getVpnRd(dataBroker, interVpnLinkToCheck.getFirstEndpoint().getVpnUuid().getValue());
+        String vpn1Uuid = interVpnLinkToCheck.getFirstEndpoint().getVpnUuid().getValue();
+        String vpn1Rd = VpnUtil.getVpnRd(dataBroker, vpn1Uuid);
         List<VrfEntry> leakedVrfEntries =
-            VpnUtil.getVrfEntriesByOrigin(dataBroker, vpn1Rd, Collections.singletonList(RouteOrigin.INTERVPN));
+            VpnUtil.getVrfEntriesByOrigin(dataBroker, vpn1Uuid, vpn1Rd, Collections.singletonList(RouteOrigin.INTERVPN));
 
         while (!leakedVrfEntries.isEmpty() && t0 - elapsedTime < MAX_WAIT_FOR_REMOVAL) {
-            leakedVrfEntries = VpnUtil.getVrfEntriesByOrigin(dataBroker, vpn1Rd,
+            leakedVrfEntries = VpnUtil.getVrfEntriesByOrigin(dataBroker, vpn1Uuid, vpn1Rd,
                 Collections.singletonList(RouteOrigin.INTERVPN));
             elapsedTime = System.currentTimeMillis();
         }
