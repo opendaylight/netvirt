@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ffc02977_37c69b0b",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-16T13:15:21Z",
+      "side": 1,
+      "message": "It is applicable for both the usecases: VMs in different subnet and traffic coming from DC-GW.\nI have updated the spec accordingly now.",
+      "parentUuid": "44b0957a_c7d6c37b",
+      "range": {
+        "startLine": 66,
+        "startChar": 2,
+        "endLine": 71,
+        "endChar": 20
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f0aec93e_472d9b7b",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 2
@@ -256,6 +280,30 @@
     },
     {
       "key": {
+        "uuid": "e41d7b1b_0527e8a5",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-16T13:15:21Z",
+      "side": 1,
+      "message": "Corrected the description, please check.",
+      "parentUuid": "6accca6f_471015c9",
+      "range": {
+        "startLine": 227,
+        "startChar": 26,
+        "endLine": 227,
+        "endChar": 44
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5136f730_5e87bbac",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 2
@@ -267,6 +315,30 @@
       "writtenOn": "2018-04-16T07:42:17Z",
       "side": 1,
       "message": "The subnet route table will not have IPv6 entries? Isn\u0027t that correct?",
+      "range": {
+        "startLine": 228,
+        "startChar": 30,
+        "endLine": 228,
+        "endChar": 53
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84221991_ec94c4b0",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-16T13:15:21Z",
+      "side": 1,
+      "message": "The flow mentioned in subnet route table (22) punts both IPv4 and IPv6 traffic to the controller.\n\nI have updated the spec as part of the previous comment which should provide better clarity, please check.",
+      "parentUuid": "5136f730_5e87bbac",
       "range": {
         "startLine": 228,
         "startChar": 30,
