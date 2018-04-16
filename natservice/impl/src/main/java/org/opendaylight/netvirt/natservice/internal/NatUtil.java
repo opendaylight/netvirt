@@ -636,7 +636,7 @@ public final class NatUtil {
 
             addPrefixToInterface(broker, getVpnId(broker, vpnName), null /*interfaceName*/,prefix, dpId,
                     subnetId, Prefixes.PrefixCue.Nat);
-            fibManager.addOrUpdateFibEntry(rd, macAddress, prefix,
+            fibManager.addOrUpdateFibEntry(vpnName, rd, macAddress, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, l3vni /*l3vni*/,
                     null /*gatewayMacAddress*/, parentVpnRd, origin, null /*writeTxn*/);
             if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
@@ -759,7 +759,7 @@ public final class NatUtil {
                                            String rd, String prefix, String vpnName, Logger log) {
         try {
             LOG.debug("removePrefixFromBGP: Removing Fib entry rd {} prefix {}", rd, prefix);
-            fibManager.removeFibEntry(rd, prefix, null);
+            fibManager.removeFibEntry(vpnName, rd, prefix, null);
             if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
                 bgpManager.withdrawPrefix(rd, prefix);
             }

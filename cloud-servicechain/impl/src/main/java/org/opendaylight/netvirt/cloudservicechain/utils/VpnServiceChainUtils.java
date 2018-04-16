@@ -49,8 +49,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev160711.vpn.to.pseudo.port.list.VpnToPseudoPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev160711.vpn.to.pseudo.port.list.VpnToPseudoPortDataKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
@@ -94,28 +96,21 @@ public final class VpnServiceChainUtils {
                                  .build();
     }
 
-    /**
-     * Retrieves from MDSAL the Operational Data of the VPN specified by its
-     * Route-Distinguisher.
-     *
-     * @param rd Route-Distinguisher of the VPN
-     *
-     * @return the Operational Data of the VPN or absent if no VPN could be
-     *         found for the given RD or if the VPN does not have operational
-     *         data.
-     */
-    public static Optional<VpnInstanceOpDataEntry> getVpnInstanceOpData(DataBroker broker, String rd) {
-        InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnServiceChainUtils.getVpnInstanceOpDataIdentifier(rd);
+    public static Optional<VpnInstanceOpDataEntry> getVpnInstanceOpData(DataBroker broker, String vpnName) {
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnServiceChainUtils.getVpnInstanceOpDataIdentifier(vpnName);
         return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
-    public static InstanceIdentifier<VrfTables> buildVrfId(String rd) {
-        return InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
+    public static InstanceIdentifier<VrfTables> buildVrfId(String vpnName, String rd) {
+        return InstanceIdentifier.builder(FibEntries.class)
+                .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnName))
+                .child(VrfTables.class, new VrfTablesKey(rd)).build();
     }
 
-    public static InstanceIdentifier<VpnToDpnList> getVpnToDpnListIdentifier(String rd, BigInteger dpnId) {
+    public static InstanceIdentifier<VpnToDpnList> getVpnToDpnListIdentifier(String vpnName,
+                                                                             String rd, BigInteger dpnId) {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
-            .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd))
+            .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(vpnName))
             .child(VpnToDpnList.class, new VpnToDpnListKey(dpnId)).build();
     }
 
@@ -196,9 +191,11 @@ public final class VpnServiceChainUtils {
      * @param rd Route-distinguisher of the VPN
      * @return the list of the matching VrfEntries
      */
-    public static List<VrfEntry> getAllVrfEntries(DataBroker broker, String rd) {
+    public static List<VrfEntry> getAllVrfEntries(DataBroker broker, String vpnName, String rd) {
         InstanceIdentifier<VrfTables> vpnVrfTables =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
+            InstanceIdentifier.builder(FibEntries.class)
+                    .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnName))
+                    .child(VrfTables.class, new VrfTablesKey(rd)).build();
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTables).toJavaUtil().map(
                 VrfTables::getVrfEntry).orElse(new ArrayList<>());
     }

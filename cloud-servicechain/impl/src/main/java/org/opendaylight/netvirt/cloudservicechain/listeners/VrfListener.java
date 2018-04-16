@@ -24,7 +24,8 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnPseudoPortCache;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -61,7 +62,9 @@ public class VrfListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfLi
 
     @Override
     protected InstanceIdentifier<VrfEntry> getWildCardPath() {
-        return InstanceIdentifier.create(FibEntries.class).child(VrfTables.class).child(VrfEntry.class);
+        return InstanceIdentifier.create(FibEntries.class)
+                .child(VpnInstanceNames.class)
+                .child(VrfTables.class).child(VrfEntry.class);
     }
 
 
@@ -69,8 +72,9 @@ public class VrfListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfLi
     protected void remove(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntryDeleted) {
         LOG.debug("VrfEntry removed: id={}  vrfEntry=[ destination={}, route-paths=[{}]]",
                   identifier, vrfEntryDeleted.getDestPrefix(), vrfEntryDeleted.getRoutePaths());
+        String vpnName = identifier.firstKeyOf(VpnInstanceNames.class).getVpnInstanceName();
         String vpnRd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
-        programLabelInAllVpnDpns(vpnRd, vrfEntryDeleted, NwConstants.DEL_FLOW);
+        programLabelInAllVpnDpns(vpnName, vpnRd, vrfEntryDeleted, NwConstants.DEL_FLOW);
     }
 
     @Override
@@ -89,8 +93,9 @@ public class VrfListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfLi
     protected void add(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntryAdded) {
         LOG.debug("VrfEntry added: id={}  vrfEntry=[ destination={}, route-paths=[{}]]",
                   identifier, vrfEntryAdded.getDestPrefix(), vrfEntryAdded.getRoutePaths());
+        String vpnName = identifier.firstKeyOf(VpnInstanceNames.class).getVpnInstanceName();
         String vpnRd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
-        programLabelInAllVpnDpns(vpnRd, vrfEntryAdded, NwConstants.ADD_FLOW);
+        programLabelInAllVpnDpns(vpnName, vpnRd, vrfEntryAdded, NwConstants.ADD_FLOW);
     }
 
     /**
@@ -100,14 +105,14 @@ public class VrfListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfLi
      * @param vrfEntry The route to add or remove
      * @param addOrRemove States if the route must be added or removed
      */
-    protected void programLabelInAllVpnDpns(String vpnRd, VrfEntry vrfEntry, int addOrRemove) {
+    protected void programLabelInAllVpnDpns(String vpnName, String vpnRd, VrfEntry vrfEntry, int addOrRemove) {
         Long vpnPseudoLPortTag = vpnPseudoPortCache.get(vpnRd);
         if (vpnPseudoLPortTag == null) {
             LOG.debug("Vpn with rd={} not related to any VpnPseudoPort", vpnRd);
             return;
         }
 
-        Optional<VpnInstanceOpDataEntry> vpnOpData = VpnServiceChainUtils.getVpnInstanceOpData(broker, vpnRd);
+        Optional<VpnInstanceOpDataEntry> vpnOpData = VpnServiceChainUtils.getVpnInstanceOpData(broker, vpnName);
         if (! vpnOpData.isPresent()) {
             if (addOrRemove == NwConstants.ADD_FLOW) {
                 LOG.error("VrfEntry added: Could not find operational data for VPN with RD={}", vpnRd);

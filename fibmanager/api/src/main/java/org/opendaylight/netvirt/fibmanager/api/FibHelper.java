@@ -23,8 +23,10 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
@@ -78,9 +80,11 @@ public final class FibHelper {
         return getVrfEntryBuilder(vrfEntry.getDestPrefix(), routePaths, origin, parentvpnRd);
     }
 
-    public static InstanceIdentifier<RoutePaths> buildRoutePathId(String rd, String prefix, String nextHop) {
+    public static InstanceIdentifier<RoutePaths> buildRoutePathId(String vpnInstanceName,
+                                                                  String rd, String prefix, String nextHop) {
         InstanceIdentifierBuilder<RoutePaths> idBuilder =
                 InstanceIdentifier.builder(FibEntries.class)
+                        .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnInstanceName))
                         .child(VrfTables.class, new VrfTablesKey(rd))
                         .child(VrfEntry.class, new VrfEntryKey(prefix))
                         .child(RoutePaths.class, new RoutePathsKey(nextHop));
@@ -115,8 +119,10 @@ public final class FibHelper {
         }
     }
 
-    public static InstanceIdentifier<RoutePaths> getRoutePathsIdentifier(String rd, String prefix, String nh) {
+    public static InstanceIdentifier<RoutePaths> getRoutePathsIdentifier(String vpnInstanceName,
+                                                                         String rd, String prefix, String nh) {
         return InstanceIdentifier.builder(FibEntries.class)
+                .child(VpnInstanceNames.class,new VpnInstanceNamesKey(vpnInstanceName))
                 .child(VrfTables.class,new VrfTablesKey(rd)).child(VrfEntry.class,new VrfEntryKey(prefix))
                 .child(RoutePaths.class, new RoutePathsKey(nh)).build();
     }
@@ -131,8 +137,10 @@ public final class FibHelper {
                 .collect(Collectors.toList());
     }
 
-    public static com.google.common.base.Optional<VrfEntry> getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
+    public static com.google.common.base.Optional<VrfEntry> getVrfEntry(DataBroker broker,
+                                                                        String vpnInstanceName, String rd, String ipPrefix) {
         InstanceIdentifier<VrfEntry> vrfEntryId = InstanceIdentifier.builder(FibEntries.class)
+            .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnInstanceName))
             .child(VrfTables.class, new VrfTablesKey(rd))
             .child(VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
         return read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);

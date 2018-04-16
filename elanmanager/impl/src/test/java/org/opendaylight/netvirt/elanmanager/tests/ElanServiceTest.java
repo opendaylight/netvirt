@@ -384,8 +384,8 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         awaitForData(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildMacVrfEntryIid(EVPNRECVMAC2));
 
         // withdraw RT2 received from Peer
-        evpnTestHelper.deleteMacVrfEntryToDS(RD, EVPNRECVMAC1);
-        evpnTestHelper.deleteMacVrfEntryToDS(RD, EVPNRECVMAC2);
+        evpnTestHelper.deleteMacVrfEntryToDS(EVPN1, RD, EVPNRECVMAC1);
+        evpnTestHelper.deleteMacVrfEntryToDS(EVPN1, RD, EVPNRECVMAC2);
 
         // verify successful un-installation of DMAC flow for recvd rt2
         awaitForDataDelete(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildMacVrfEntryIid(EVPNRECVMAC1));
