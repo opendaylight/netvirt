@@ -174,7 +174,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                     return;
                 }
             }
-            fibManager.populateFibOnNewDpn(dpnId, vpnId, primaryRd,
+            fibManager.populateFibOnNewDpn(dpnId, vpnId, vpnName, primaryRd,
                     new DpnEnterExitVpnWorker(dpnId, vpnName, primaryRd, true /* entered */));
             LOG.info("createOrUpdateVpnToDpnList: Sent populateFib event for new dpn {} in VPN {} for interface {}",
                     dpnId, vpnName, intfName);
@@ -234,7 +234,7 @@ public class VpnFootprintService implements IVpnFootprintService {
          */
         if (newDpnOnVpn) {
             LOG.debug("Sending populateFib event for new dpn {} in VPN {}", dpnId, vpnName);
-            fibManager.populateFibOnNewDpn(dpnId, vpnId, primaryRd,
+            fibManager.populateFibOnNewDpn(dpnId, vpnId, vpnName, primaryRd,
                     new DpnEnterExitVpnWorker(dpnId, vpnName, primaryRd, true /* entered */));
         }
     }
@@ -294,7 +294,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 + " on dpn {}", vpnName, vpnName, intfName, dpnId);
 
         if (lastDpnOnVpn) {
-            fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd,
+            fibManager.cleanUpDpnForVpn(dpnId, vpnId, vpnName, rd,
                     new DpnEnterExitVpnWorker(dpnId, vpnName, rd, false /* exited */));
             LOG.info("removeOrUpdateVpnToDpnList: Sent cleanup event for dpn {} in VPN {} vpnId {} interface {}", dpnId,
                     vpnName, vpnId, intfName);
@@ -352,7 +352,7 @@ public class VpnFootprintService implements IVpnFootprintService {
 
         if (lastDpnOnVpn) {
             LOG.debug("Sending cleanup event for dpn {} in VPN {}", dpnId, vpnName);
-            fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd,
+            fibManager.cleanUpDpnForVpn(dpnId, vpnId, vpnName, rd,
                     new DpnEnterExitVpnWorker(dpnId, vpnName, rd, false /* exited */));
         }
     }
