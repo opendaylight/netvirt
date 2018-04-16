@@ -24,8 +24,10 @@ import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -64,7 +66,7 @@ public class FibManagerTest {
 
     private void setupMocks() {
         dpn = BigInteger.valueOf(100000L);
-        identifier = buildVrfEntryId(TEST_RD, PREFIX);
+        identifier = buildVrfEntryId(TEST_VPN_INSTANCE_NAME, TEST_RD, PREFIX);
         vrfEntry = FibHelper.getVrfEntryBuilder(PREFIX, LABEL, NEXTHOP, origin, null).build();
         when(vrfTableKey.getRouteDistinguisher()).thenReturn(TEST_RD);
     }
@@ -80,17 +82,20 @@ public class FibManagerTest {
         //Mockito.verify(mdsalManager, Mockito.times(2)).installFlow(any(FlowEntity.class));
     }
 
-    public static InstanceIdentifier<VrfTables> buildVrfTableId(String rd) {
+    public static InstanceIdentifier<VrfTables> buildVrfTableId(String vpnInstanceName, String rd) {
         InstanceIdentifierBuilder<VrfTables> idBuilder =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
+            InstanceIdentifier.builder(FibEntries.class).child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnInstanceName)).
+                    child(VrfTables.class, new VrfTablesKey(rd));
         InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
         return vrfTableId;
     }
 
-    public static InstanceIdentifier<VrfEntry> buildVrfEntryId(String rd, String prefix) {
+    public static InstanceIdentifier<VrfEntry> buildVrfEntryId(String vpnInstanceName, String rd, String prefix) {
         InstanceIdentifierBuilder<VrfEntry> idBuilder =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
-                .child(VrfEntry.class, new VrfEntryKey(prefix));
+            InstanceIdentifier.builder(FibEntries.class)
+                    .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnInstanceName))
+                    .child(VrfTables.class, new VrfTablesKey(rd))
+                    .child(VrfEntry.class, new VrfEntryKey(prefix));
         InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
         return vrfEntryId;
     }

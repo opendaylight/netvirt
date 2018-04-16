@@ -56,31 +56,31 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd,
-                                    FutureCallback<List<Void>> callback) {
-        vrfEntryListener.populateFibOnNewDpn(dpnId, vpnId, rd, callback);
+    public void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String vpnInstanceName,
+                                    String rd, FutureCallback<List<Void>> callback) {
+        vrfEntryListener.populateFibOnNewDpn(dpnId, vpnId, vpnInstanceName, rd, callback);
     }
 
     @Override
     public void populateExternalRoutesOnDpn(BigInteger localDpnId, long vpnId,
-                                            String rd, String localNextHopIp,
+                                            String vpnInstanceName, String rd, String localNextHopIp,
                                             String remoteNextHopIp) {
-        vrfEntryListener.populateExternalRoutesOnDpn(localDpnId, vpnId, rd,
-            localNextHopIp, remoteNextHopIp);
+        vrfEntryListener.populateExternalRoutesOnDpn(localDpnId, vpnId, vpnInstanceName,
+                rd, localNextHopIp, remoteNextHopIp);
     }
 
     @Override
     public void cleanUpExternalRoutesOnDpn(BigInteger dpnId, long vpnId,
-                                           String rd, String localNextHopIp,
-                                           String remoteNextHopIp) {
-        vrfEntryListener.cleanUpExternalRoutesOnDpn(dpnId, vpnId, rd,
-            localNextHopIp, remoteNextHopIp);
+                                           String vpnInstanceName, String rd,
+                                           String localNextHopIp, String remoteNextHopIp) {
+        vrfEntryListener.cleanUpExternalRoutesOnDpn(dpnId, vpnId, vpnInstanceName,
+                rd, localNextHopIp, remoteNextHopIp);
     }
 
     @Override
-    public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
+    public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String vpnInstanceName, String rd,
                                  FutureCallback<List<Void>> callback) {
-        vrfEntryListener.cleanUpDpnForVpn(dpnId, vpnId, rd, callback);
+        vrfEntryListener.cleanUpDpnForVpn(dpnId, vpnId, vpnInstanceName, rd, callback);
     }
 
     @Override
@@ -112,54 +112,58 @@ public class FibManagerImpl implements IFibManager {
     public void manageRemoteRouteOnDPN(boolean action,
                                        BigInteger dpnId,
                                        long vpnId,
+                                       String vpnInstanceName,
                                        String rd,
                                        String destPrefix,
                                        String destTepIp,
                                        long label) {
-        vrfEntryListener.manageRemoteRouteOnDPN(action, dpnId, vpnId, rd, destPrefix, destTepIp, label);
+        vrfEntryListener.manageRemoteRouteOnDPN(action, dpnId, vpnId, vpnInstanceName, rd, destPrefix, destTepIp, label);
     }
 
     @Override
-    public void addOrUpdateFibEntry(String rd, String macAddress, String prefix,
+    public void addOrUpdateFibEntry(String vpnInstanceName, String rd, String macAddress, String prefix,
             List<String> nextHopList, VrfEntry.EncapType encapType, long label,
             long l3vni, String gwMacAddress, String parentVpnRd, RouteOrigin origin,
             WriteTransaction writeConfigTxn) {
-        fibUtil.addOrUpdateFibEntry(rd, macAddress, prefix, nextHopList , encapType, label, l3vni, gwMacAddress,
+        fibUtil.addOrUpdateFibEntry(vpnInstanceName, rd, macAddress, prefix, nextHopList ,
+                encapType, label, l3vni, gwMacAddress,
                 parentVpnRd, origin, writeConfigTxn);
     }
 
     @Override
-    public void addFibEntryForRouterInterface(String rd, String prefix,
+    public void addFibEntryForRouterInterface(String vpnInstanceName, String rd, String prefix,
             RouterInterface routerInterface, long label,
             WriteTransaction writeConfigTxn) {
-        fibUtil.addFibEntryForRouterInterface(rd, prefix, routerInterface, label, writeConfigTxn);
+        fibUtil.addFibEntryForRouterInterface(vpnInstanceName, rd, prefix, routerInterface, label, writeConfigTxn);
     }
 
     @Override
-    public void removeOrUpdateFibEntry(String rd, String prefix,
+    public void removeOrUpdateFibEntry(String vpnInstanceName, String rd, String prefix,
             String nextHopToRemove, WriteTransaction writeConfigTxn) {
-        fibUtil.removeOrUpdateFibEntry(rd, prefix, nextHopToRemove, writeConfigTxn);
+        fibUtil.removeOrUpdateFibEntry(vpnInstanceName, rd, prefix, nextHopToRemove, writeConfigTxn);
     }
 
     @Override
-    public void removeFibEntry(String rd, String prefix, WriteTransaction writeConfigTxn) {
-        fibUtil.removeFibEntry(rd, prefix, writeConfigTxn);
+    public void removeFibEntry(String vpnInstanceName, String rd, String prefix,
+                               WriteTransaction writeConfigTxn) {
+        fibUtil.removeFibEntry(vpnInstanceName, rd, prefix, writeConfigTxn);
     }
 
     @Override
-    public void updateRoutePathForFibEntry(String rd, String prefix, String nextHop,
-            long label, boolean nextHopAdd, WriteTransaction writeConfigTxn) {
-        fibUtil.updateRoutePathForFibEntry(rd, prefix, nextHop, label, nextHopAdd, writeConfigTxn);
+    public void updateRoutePathForFibEntry(String vpnInstanceName, String rd, String prefix,
+                                           String nextHop, long label, boolean nextHopAdd,
+                                           WriteTransaction writeConfigTxn) {
+        fibUtil.updateRoutePathForFibEntry(vpnInstanceName, rd, prefix, nextHop, label, nextHopAdd, writeConfigTxn);
     }
 
     @Override
-    public void removeVrfTable(String rd, WriteTransaction writeConfigTxn) {
-        fibUtil.removeVrfTable(rd, writeConfigTxn);
+    public void removeVrfTable(String vpnInstanceName, String rd, WriteTransaction writeConfigTxn) {
+        fibUtil.removeVrfTable(vpnInstanceName, rd, writeConfigTxn);
     }
 
     @Override
-    public void addVrfTable(String rd, WriteTransaction writeConfigTxn) {
-        fibUtil.addVrfTable(rd, writeConfigTxn);
+    public void addVrfTable(String vpnInstanceName, String rd, WriteTransaction writeConfigTxn) {
+        fibUtil.addVrfTable(vpnInstanceName, rd, writeConfigTxn);
     }
 
     @Override
@@ -192,7 +196,7 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void refreshVrfEntry(String rd, String prefix) {
-        vrfEntryListener.refreshFibTables(rd, prefix);
+    public void refreshVrfEntry(String vpnInstanceName, String rd, String prefix) {
+        vrfEntryListener.refreshFibTables(vpnInstanceName, rd, prefix);
     }
 }

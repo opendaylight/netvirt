@@ -69,9 +69,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
@@ -273,9 +275,10 @@ public class FibUtil {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void addOrUpdateFibEntry(String rd, String macAddress, String prefix, List<String> nextHopList,
-            VrfEntry.EncapType encapType, long label, long l3vni, String gwMacAddress, String parentVpnRd,
-            RouteOrigin origin, WriteTransaction writeConfigTxn) {
+    public void addOrUpdateFibEntry(String vpnInstanceName, String rd, String macAddress, String prefix,
+                                    List<String> nextHopList, VrfEntry.EncapType encapType, long label,
+                                    long l3vni, String gwMacAddress, String parentVpnRd,
+                                    RouteOrigin origin, WriteTransaction writeConfigTxn) {
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
@@ -286,8 +289,9 @@ public class FibUtil {
         try {
             InstanceIdentifier<VrfEntry> vrfEntryId =
                 InstanceIdentifier.builder(FibEntries.class)
-                    .child(VrfTables.class, new VrfTablesKey(rd))
-                    .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+                        .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnInstanceName))
+                        .child(VrfTables.class, new VrfTablesKey(rd))
+                        .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
 
             writeFibEntryToDs(vrfEntryId, prefix, nextHopList, label, l3vni, encapType, origin, macAddress,
                     gwMacAddress, parentVpnRd, writeConfigTxn);
@@ -317,8 +321,9 @@ public class FibUtil {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void addFibEntryForRouterInterface(String rd, String prefix, RouterInterface routerInterface, long label,
-            WriteTransaction writeConfigTxn) {
+    public void addFibEntryForRouterInterface(String vpnInstanceName, String rd, String prefix,
+                                              RouterInterface routerInterface, long label,
+                                              WriteTransaction writeConfigTxn) {
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
@@ -327,8 +332,9 @@ public class FibUtil {
         try {
             InstanceIdentifier<VrfEntry> vrfEntryId =
                 InstanceIdentifier.builder(FibEntries.class)
-                    .child(VrfTables.class, new VrfTablesKey(rd))
-                    .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+                        .child(VpnInstanceNames.class, new VpnInstanceNamesKey(rd))
+                        .child(VrfTables.class, new VrfTablesKey(rd))
+                        .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
 
             // Filling the nextHop with dummy nextHopAddress
             VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, label,
@@ -367,7 +373,7 @@ public class FibUtil {
         builder.setRoutePaths(routePaths);
     }
 
-    public void removeFibEntry(String rd, String prefix, WriteTransaction writeConfigTxn) {
+    public void removeFibEntry(String vpnInstanceName, String rd, String prefix, WriteTransaction writeConfigTxn) {
 
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
@@ -378,7 +384,8 @@ public class FibUtil {
 
         InstanceIdentifier.InstanceIdentifierBuilder<VrfEntry> idBuilder =
             InstanceIdentifier.builder(FibEntries.class)
-                .child(VrfTables.class, new VrfTablesKey(rd)).child(VrfEntry.class, new VrfEntryKey(prefix));
+                    .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnInstanceName))
+                    .child(VrfTables.class, new VrfTablesKey(rd)).child(VrfEntry.class, new VrfEntryKey(prefix));
         InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
         if (writeConfigTxn != null) {
             writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
@@ -396,16 +403,18 @@ public class FibUtil {
      * @param nextHopToRemove Specific nexthop within the Route to be removed.
      *                        If null or empty, then the whole VrfEntry is removed
      */
-    public void removeOrUpdateFibEntry(String rd, String prefix, String nextHopToRemove,
-            WriteTransaction writeConfigTxn) {
+    public void removeOrUpdateFibEntry(String vpnInstanceName, String rd, String prefix,
+                                       String nextHopToRemove, WriteTransaction writeConfigTxn) {
 
         LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {} nextHop {}", prefix, rd,
                 nextHopToRemove);
 
         // Looking for existing prefix in MDSAL database
         InstanceIdentifier<VrfEntry> vrfEntryId =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
-                .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+            InstanceIdentifier.builder(FibEntries.class)
+                    .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnInstanceName))
+                    .child(VrfTables.class, new VrfTablesKey(rd))
+                    .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
         Optional<VrfEntry> entry = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
         if (entry.isPresent()) {
             final List<RoutePaths> routePaths = entry.get().getRoutePaths();
@@ -432,7 +441,7 @@ public class FibUtil {
                 LOG.info("Removed Fib Entry rd {} prefix {} nextHop {}", rd, prefix, nextHopToRemove);
             } else {
                 InstanceIdentifier<RoutePaths> routePathsId =
-                        FibHelper.buildRoutePathId(rd, prefix, routePath.getNexthopAddress());
+                        FibHelper.buildRoutePathId(vpnInstanceName, rd, prefix, routePath.getNexthopAddress());
                 // Remove route
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, routePathsId);
                 LOG.info("Removed Route Path rd {} prefix {}, nextHop {}, label {}", rd, prefix,
@@ -447,12 +456,14 @@ public class FibUtil {
     /**
      * Adds or removes nextHop from routePath based on the flag nextHopAdd.
      */
-    public void updateRoutePathForFibEntry(String rd, String prefix, String nextHop, long label,
-            boolean nextHopAdd, WriteTransaction writeConfigTxn) {
+    public void updateRoutePathForFibEntry(String vpnInstanceName, String rd, String prefix,
+                                           String nextHop, long label, boolean nextHopAdd,
+                                           WriteTransaction writeConfigTxn) {
 
         LOG.debug("Updating fib entry for prefix {} with nextHop {} for rd {}.", prefix, nextHop, rd);
 
-        InstanceIdentifier<RoutePaths> routePathId = FibHelper.buildRoutePathId(rd, prefix, nextHop);
+        InstanceIdentifier<RoutePaths> routePathId = FibHelper.buildRoutePathId(vpnInstanceName, rd,
+                prefix, nextHop);
         String routePathKey = rd + prefix + nextHop;
         synchronized (routePathKey.intern()) {
             if (nextHopAdd) {
@@ -482,10 +493,12 @@ public class FibUtil {
         }
     }
 
-    public void addVrfTable(String rd, WriteTransaction writeConfigTxn) {
+    public void addVrfTable(String vpnInstanceName, String rd, WriteTransaction writeConfigTxn) {
         LOG.debug("Adding vrf table for rd {}", rd);
         InstanceIdentifier.InstanceIdentifierBuilder<VrfTables> idBuilder =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
+            InstanceIdentifier.builder(FibEntries.class)
+                    .child(VpnInstanceNames.class, new VpnInstanceNamesKey(rd))
+                    .child(VrfTables.class, new VrfTablesKey(rd));
         InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
         VrfTablesBuilder vrfTablesBuilder = new VrfTablesBuilder().setKey(new VrfTablesKey(rd))
             .setRouteDistinguisher(rd).setVrfEntry(new ArrayList<VrfEntry>());
@@ -497,10 +510,12 @@ public class FibUtil {
         }
     }
 
-    public void removeVrfTable(String rd, WriteTransaction writeConfigTxn) {
+    public void removeVrfTable(String vpnInstanceName, String rd, WriteTransaction writeConfigTxn) {
         LOG.debug("Removing vrf table for rd {}", rd);
         InstanceIdentifier.InstanceIdentifierBuilder<VrfTables> idBuilder =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
+            InstanceIdentifier.builder(FibEntries.class)
+                    .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnInstanceName))
+                    .child(VrfTables.class, new VrfTablesKey(rd));
         InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
 
         if (writeConfigTxn != null) {
@@ -645,13 +660,14 @@ public class FibUtil {
         return Tunnel.class.equals(adjacencyResult.getInterfaceType());
     }
 
-    public static InstanceIdentifier<VrfEntry> getNextHopIdentifier(String rd, String prefix) {
+    public static InstanceIdentifier<VrfEntry> getNextHopIdentifier(String vpnInstanceName, String rd, String prefix) {
         return InstanceIdentifier.builder(FibEntries.class)
+                .child(VpnInstanceNames.class,new VpnInstanceNamesKey(rd))
                 .child(VrfTables.class,new VrfTablesKey(rd)).child(VrfEntry.class,new VrfEntryKey(prefix)).build();
     }
 
-    public List<String> getNextHopAddresses(String rd, String prefix) {
-        InstanceIdentifier<VrfEntry> vrfEntryId = getNextHopIdentifier(rd, prefix);
+    public List<String> getNextHopAddresses(String vpnInstanceName, String rd, String prefix) {
+        InstanceIdentifier<VrfEntry> vrfEntryId = getNextHopIdentifier(vpnInstanceName, rd, prefix);
         Optional<VrfEntry> vrfEntry = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
         if (vrfEntry.isPresent()) {
             return FibHelper.getNextHopListFromRoutePaths(vrfEntry.get());
