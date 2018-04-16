@@ -1504,15 +1504,6 @@ public class ElanUtils {
         return elanMacKey.intern();
     }
 
-    // TODO This should return a collection of futures
-    public static void addToListenableFutureIfTxException(RuntimeException exception,
-            List<ListenableFuture<Void>> futures) {
-        Throwable cause = exception.getCause();
-        if (cause != null && cause instanceof TransactionCommitFailedException) {
-            futures.add(Futures.immediateFailedCheckedFuture((TransactionCommitFailedException) cause));
-        }
-    }
-
     public static List<PhysAddress> getPhysAddress(List<String> macAddress) {
         Preconditions.checkNotNull(macAddress, "macAddress cannot be null");
         List<PhysAddress> physAddresses = new ArrayList<>();
