@@ -124,7 +124,8 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -2691,26 +2692,32 @@ public class BgpConfigurationManager {
             Optional<FibEntries> fibEntries = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, id);
             if (fibEntries.isPresent()) {
-                List<VrfTables> staleVrfTables = fibEntries.get().getVrfTables();
-                for (VrfTables vrfTable : staleVrfTables) {
-                    Map<String, Long> staleFibEntMap = new HashMap<>();
-                    for (VrfEntry vrfEntry : vrfTable.getVrfEntry()) {
-                        if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
-                            //Stale marking and cleanup is only meant for the routes learned through BGP.
-                            continue;
-                        }
-                        if (Thread.interrupted()) {
-                            break;
-                        }
-                        totalStaledCount++;
-                        //Create MAP from staleVrfTables.
-                        vrfEntry.getRoutePaths()
-                                .forEach(
-                                    routePath -> staleFibEntMap.put(
-                                            appendNextHopToPrefix(vrfEntry.getDestPrefix(),
-                                                    routePath.getNexthopAddress()), routePath.getLabel()));
+                List<VpnInstanceNames> staleVpnInstances = fibEntries.get().getVpnInstanceNames();
+                for (VpnInstanceNames vpnInstanceName : staleVpnInstances) {
+                    List<VrfTables> vrfTablesList = vpnInstanceName.getVrfTables();
+                    if (vrfTablesList == null || vrfTablesList.isEmpty()) {
+                        continue;
                     }
-                    staledFibEntriesMap.put(vrfTable.getRouteDistinguisher(), staleFibEntMap);
+                    for (VrfTables vrfTable : vrfTablesList) {
+                        Map<String, Long> staleFibEntMap = new HashMap<>();
+                        for (VrfEntry vrfEntry : vrfTable.getVrfEntry()) {
+                            if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
+                                //Stale marking and cleanup is only meant for the routes learned through BGP.
+                                continue;
+                            }
+                            if (Thread.interrupted()) {
+                                break;
+                            }
+                            totalStaledCount++;
+                            //Create MAP from staleVrfTables.
+                            vrfEntry.getRoutePaths()
+                                    .forEach(
+                                            routePath -> staleFibEntMap.put(
+                                                    appendNextHopToPrefix(vrfEntry.getDestPrefix(),
+                                                            routePath.getNexthopAddress()), routePath.getLabel()));
+                        }
+                        staledFibEntriesMap.put(vrfTable.getRouteDistinguisher(), staleFibEntMap);
+                    }
                 }
             } else {
                 LOG.error("createStaleFibMap:: FIBentries.class is not present");
@@ -2734,35 +2741,41 @@ public class BgpConfigurationManager {
             Optional<FibEntries> fibEntries = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, id);
             if (fibEntries.isPresent()) {
-                if (fibEntries.get().getVrfTables() == null) {
+                if (fibEntries.get().getVpnInstanceNames() == null) {
                     LOG.error("deleteExternalFibRoutes::getVrfTables is null");
                     return;
                 }
-                List<VrfTables> staleVrfTables = fibEntries.get().getVrfTables();
-                for (VrfTables vrfTable : staleVrfTables) {
-                    String rd = vrfTable.getRouteDistinguisher();
-                    if (vrfTable.getVrfEntry() != null) {
-                        for (VrfEntry vrfEntry : vrfTable.getVrfEntry()) {
-                            if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
-                                //route cleanup is only meant for the routes learned through BGP.
-                                continue;
+                List<VpnInstanceNames> staleVpnInstances = fibEntries.get().getVpnInstanceNames();
+                for (VpnInstanceNames vpnInstanceName : staleVpnInstances) {
+                    List<VrfTables> vrfTablesList = vpnInstanceName.getVrfTables();
+                    if (vrfTablesList == null || vrfTablesList.isEmpty()) {
+                        continue;
+                    }
+                    for (VrfTables vrfTable : vrfTablesList) {
+                        String rd = vrfTable.getRouteDistinguisher();
+                        if (vrfTable.getVrfEntry() != null) {
+                            for (VrfEntry vrfEntry : vrfTable.getVrfEntry()) {
+                                if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
+                                    //route cleanup is only meant for the routes learned through BGP.
+                                    continue;
+                                }
+                                totalExternalRoutes++;
+                                fibDSWriter.removeFibEntryFromDS(rd, vrfEntry.getDestPrefix());
                             }
-                            totalExternalRoutes++;
-                            fibDSWriter.removeFibEntryFromDS(rd, vrfEntry.getDestPrefix());
-                        }
-                    } else if (vrfTable.getMacVrfEntry() != null) {
-                        for (MacVrfEntry macEntry : vrfTable.getMacVrfEntry()) {
-                            if (RouteOrigin.value(macEntry.getOrigin()) != RouteOrigin.BGP) {
-                                //route cleanup is only meant for the routes learned through BGP.
-                                continue;
+                        } else if (vrfTable.getMacVrfEntry() != null) {
+                            for (MacVrfEntry macEntry : vrfTable.getMacVrfEntry()) {
+                                if (RouteOrigin.value(macEntry.getOrigin()) != RouteOrigin.BGP) {
+                                    //route cleanup is only meant for the routes learned through BGP.
+                                    continue;
+                                }
+                                totalExternalMacRoutes++;
+                                fibDSWriter.removeMacEntryFromDS(rd, macEntry.getMac());
                             }
-                            totalExternalMacRoutes++;
-                            fibDSWriter.removeMacEntryFromDS(rd, macEntry.getMac());
                         }
                     }
                 }
             } else {
-                LOG.error("deleteExternalFibRoutes:: FIBentries.class is not present");
+                 LOG.error("deleteExternalFibRoutes:: FIBentries.class is not present");
             }
         } catch (ReadFailedException e) {
             LOG.error("deleteExternalFibRoutes:: error ", e);

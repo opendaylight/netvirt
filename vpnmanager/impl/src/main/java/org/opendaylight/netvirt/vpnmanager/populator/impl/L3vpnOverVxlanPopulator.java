@@ -57,12 +57,13 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
             return;
         }
         String rd = input.getRd();
+        String vpnName = input.getVpnName();
         String primaryRd = input.getPrimaryRd();
         Adjacency nextHop = input.getNextHop();
         LOG.info("populateFib : Found Interface Adjacency with prefix {} rd {}", nextHop.getIpAddress(), primaryRd);
         if (!rd.equalsIgnoreCase(input.getVpnName()) && !rd.equals(input.getNetworkName())) {
             Objects.requireNonNull(input.getRouteOrigin(), "populateFib: RouteOrigin is mandatory");
-            addPrefixToBGP(rd, primaryRd, nextHop.getMacAddress(), nextHop.getIpAddress(), input.getNextHopIp(),
+            addPrefixToBGP(vpnName, rd, primaryRd, nextHop.getMacAddress(), nextHop.getIpAddress(), input.getNextHopIp(),
                     input.getEncapType(), 0 /*label*/, input.getL3vni(), input.getGatewayMac(),
                     input.getRouteOrigin(), writeConfigTxn);
         } else {
