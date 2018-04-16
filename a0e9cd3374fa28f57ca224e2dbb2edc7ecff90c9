@@ -25,6 +25,190 @@
     },
     {
       "key": {
+        "uuid": "f0aec93e_472d9b7b",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-16T09:13:41Z",
+      "side": 1,
+      "message": "I hope when you say \"ND message\", you are talking about \"Neighbor Solicitation\"?",
+      "range": {
+        "startLine": 97,
+        "startChar": 6,
+        "endLine": 97,
+        "endChar": 16
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7699fb20_2b9da38e",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-16T09:13:41Z",
+      "side": 1,
+      "message": "Last time when we implemented the periodic IPv6 RA, we could find an API that could broadcast a RA (i.e., single packet) from the controller to all the VMs on the network.\n\nCan you please elaborate how you plan to do this?",
+      "range": {
+        "startLine": 97,
+        "startChar": 6,
+        "endLine": 97,
+        "endChar": 31
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "38968563_074b7229",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-16T09:13:41Z",
+      "side": 1,
+      "message": "Today we are \"punting only NAs\" that are destined to the Neutron Router interface. Does this patch change the behavior?",
+      "range": {
+        "startLine": 98,
+        "startChar": 30,
+        "endLine": 98,
+        "endChar": 95
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "878ba3cd_62ae750f",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-16T09:13:41Z",
+      "side": 1,
+      "message": "Please elaborate what you mean by \"DC-GW advt\".",
+      "range": {
+        "startLine": 100,
+        "startChar": 18,
+        "endLine": 100,
+        "endChar": 46
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d494cdb_e15adea6",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-16T09:13:41Z",
+      "side": 1,
+      "message": "How does ODL figure out that a Hidden IPv6 address is moved from one VM to another? Will the subnet-route flows have any timeouts?",
+      "range": {
+        "startLine": 118,
+        "startChar": 30,
+        "endLine": 118,
+        "endChar": 92
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "99960a50_9145d243",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-16T09:13:41Z",
+      "side": 1,
+      "message": "The subnet-routes could point to the local VM (i.e., output port) that is hosting the Hidden IP right? I\u0027m a bit confused here, can you please clarify.",
+      "range": {
+        "startLine": 130,
+        "startChar": 38,
+        "endLine": 130,
+        "endChar": 94
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4a8e6ec8_feefb59a",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-16T09:13:41Z",
+      "side": 1,
+      "message": "Will the subnet-route feature work even for FLAT/VLAN based provider networks or is it only for L3VPN/EVPN?",
+      "range": {
+        "startLine": 132,
+        "startChar": 6,
+        "endLine": 132,
+        "endChar": 60
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc86a11f_68b498e7",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-16T09:13:41Z",
+      "side": 1,
+      "message": "Is this same as DEFERRED?",
+      "range": {
+        "startLine": 145,
+        "startChar": 38,
+        "endLine": 145,
+        "endChar": 50
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6accca6f_471015c9",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 2
@@ -36,6 +220,30 @@
       "writtenOn": "2018-04-16T07:42:17Z",
       "side": 1,
       "message": "This is not clear. The first packet from outside the DC-GW need not be NS packet. It can be any unicast packet belonging to a Hidden IP. As such, it is not clear why we need a rule to punt NS packets to the controller. \n\nThe rule should be for NA packet to be punted to the controller. This is described below.",
+      "range": {
+        "startLine": 227,
+        "startChar": 26,
+        "endLine": 227,
+        "endChar": 44
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4305d6a_0a183005",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-16T09:13:41Z",
+      "side": 1,
+      "message": "I have couple of question here which are applicable for FLAT/VLAN provider network. But I\u0027m not sure if this SPEC supports that use-case or not. So, I\u0027ll wait for @Som to confirm this.\n\nBut in the meantime, regarding your question about the \"first packet from outside of DC-GW being a unicast packet\" - how will the external VM know the MAC of the hosting IP to send the unicast packet?",
+      "parentUuid": "6accca6f_471015c9",
       "range": {
         "startLine": 227,
         "startChar": 26,
@@ -68,6 +276,52 @@
       "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b60ff60e_0a4dab56",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-16T09:13:41Z",
+      "side": 1,
+      "message": "This would send \"all the NAs\" in the network (including NAs of Neutron allocated ports) to the controller. IMHO, this does not scale and will put tooo much of stress on the controller. Please take a relook at this flow.",
+      "range": {
+        "startLine": 240,
+        "startChar": 89,
+        "endLine": 240,
+        "endChar": 129
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "16f83d25_2336685b",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-16T09:13:41Z",
+      "side": 1,
+      "message": "But in a dual-stack VM the VM would still have both IPv4/IPv6 address. Please clarify when would this situation arise?",
+      "range": {
+        "startLine": 264,
+        "startChar": 23,
+        "endLine": 264,
+        "endChar": 100
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
