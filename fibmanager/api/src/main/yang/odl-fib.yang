@@ -100,11 +100,15 @@ module odl-fib {
 
     container fibEntries {
         config true;
-        list vrfTables{
-            key "routeDistinguisher";
-            leaf routeDistinguisher {type string;}
-            uses vrfEntries;
-            uses macVrfEntries;
+        list vpnInstanceNames {
+            key vpnInstanceName;
+            leaf vpnInstanceName {type string;}
+            list vrfTables{
+                key "routeDistinguisher";
+                leaf routeDistinguisher {type string;}
+                uses vrfEntries;
+                uses macVrfEntries;
+            }
         }
 
         container ipv4Table{
