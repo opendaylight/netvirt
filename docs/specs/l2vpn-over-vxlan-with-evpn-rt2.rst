@@ -1,9 +1,9 @@
 .. contents:: Table of Contents
       :depth: 5
 
-=======================================================
+=========================================================
 Support of VXLAN based L2 connectivity across Datacenters
-=======================================================
+=========================================================
 
 https://git.opendaylight.org/gerrit/#/q/topic:EVPN_RT2
 
@@ -20,7 +20,7 @@ This spec attempts to enhance the BGPVPN service in NetVirt to
 embrace inter-DC L2 connectivity over external VXLAN tunnels.
 
 In scope
----------
+--------
 
 The scope primarily includes providing ability to support intra-subnet
 connectivity across DataCenters over VXLAN tunnels using BGP EVPN with type L2.
