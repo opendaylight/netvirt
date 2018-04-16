@@ -171,10 +171,10 @@ Discussion of the various setups solutions
 In all cases, the following happens:
 
 - All subnetworks from external network will be imported into the VPN as before.
-In our case, as we have an IPv4 provider network, the IPv4 public IP address will be imported.
+  In our case, as we have an IPv4 provider network, the IPv4 public IP address will be imported.
 
 - Second, all IPv6 subnets attached to the router that use that external network will be imported in that internet VPN.
-Note that in the case of a dual stack router, IPv4 subnets are not concerned, since those IPv4 subnets are private.
+  Note that in the case of a dual stack router, IPv4 subnets are not concerned, since those IPv4 subnets are private.
 
 - Note that it is not necessary to configure a default gateway IP, because all traffic is encapsulated into MPLSoGRE tunnel.
 
@@ -287,13 +287,13 @@ The changes consist in :
 - extending the neutronvpn.yang subnet structure so as to link the internet vpn to the private subnetwork.
 
 - each existing external sub-network is imported to the internet VPN. This is the case for
-IPv4 subnetwork, as it has been described above. This can also be the case for IPv6 sub-networks.
+  IPv4 subnetwork, as it has been described above. This can also be the case for IPv6 sub-networks.
 
 - for each new VM, extra route, subnet new to the private network or the private VPN, only the IPv6 information
-is imported to the internet VPN.
+  is imported to the internet VPN.
 
 - providing a fallback rule that says that no other rules in routing table of the virtual router is available, then
-a default route is conveyed to that external network.
+  a default route is conveyed to that external network.
 
 For doing L3 forwarding, the packet will be transported to either the neutron router, or the private VPN.
 In both cases, the packet will reach table 17, for L3forwarding.

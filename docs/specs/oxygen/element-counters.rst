@@ -1,5 +1,5 @@
 .. contents:: Table of Contents
-                        :depth: 3
+   :depth: 3
 
 ==============================================================
 Element Counters
@@ -271,7 +271,7 @@ Usage
 
 Run the following to get interface ids:
 
-.. code-block:: json
+.. code-block:: none
 
     http://10.0.77.135:8181/restconf/operational/ietf-interfaces:interfaces-state/
 
@@ -281,74 +281,97 @@ Assuming VM A IP = 1.1.1.1, VM B IP = 2.2.2.2
 Acquire counter request handler:
 
 .. code-block:: json
+   :caption: 10.0.77.135:8181/restconf/operations/statistics-plugin:acquireElementCountersRequestHandler
 
-    10.0.77.135:8181/restconf/operations/statistics-plugin:acquireElementCountersRequestHandler, {"input":{"portId":"4073b4fe-a3d5-47c0-b37d-4fb9db4be9b1", "incomingTraffic":{"filters":{"ipFilter":{"ip":"1.1.3.9"}}}}}, headers={Authorization=Basic YWRtaW46YWRtaW4=, Cache-Control=no-cache, Content-Type=application/json}]
+    {
+        "input": {
+            "portId":"4073b4fe-a3d5-47c0-b37d-4fb9db4be9b1",
+            "incomingTraffic": {
+                "filters": {
+                    "ipFilter": {
+                        "ip":"1.1.3.9"
+                    }
+                }
+            }
+        }
+    }
 
 Release handler:
 
 .. code-block:: json
+   :caption: 10.0.77.135:8181/restconf/operations/statistics-plugin:releaseElementCountersRequestHandler
 
-    10.0.77.135:8181/restconf/operations/statistics-plugin:releaseElementCountersRequestHandler, input={"input":{"handler":"1"}}, headers={Authorization=Basic YWRtaW46YWRtaW4=, Cache-Control=no-cache, Content-Type=application/json}]
+    {
+        "input": {
+            "handler":"1"
+        }
+    }
 
 Get counters:
 
 .. code-block:: json
+   :caption: 10.0.77.135:8181/restconf/operations/statistics-plugin:getElementCountersByHandler
 
-    10.0.77.135:8181/restconf/operations/statistics-plugin:getElementCountersByHandler, input={"input":{"handler":"1"}}, headers={Authorization=Basic YWRtaW46YWRtaW4=, Cache-Control=no-cache, Content-Type=application/json}]
+    {
+        "input": {
+            "handler":"1"
+        }
+    }
 
 Example counters output:
 
 .. code-block:: json
 
     {
-  "output": {
-    "counterResult": [
-      {
-        "id": "SOME UNIQUE ID",
-        "groups": [
-          {
-            "name": "Duration",
-            "counters": [
-              {
-                "name": "durationNanoSecondCount",
-                "value": 298000000
-              },
-              {
-                "name": "durationSecondCount",
-                "value": 10369
-              }
+        "output": {
+            "counterResult": [
+                {
+                    "id": "SOME UNIQUE ID",
+                    "groups": [
+                        {
+                            "name": "Duration",
+                            "counters": [
+                                {
+                                    "name": "durationNanoSecondCount",
+                                    "value": 298000000
+                                },
+                                {
+                                "name": "durationSecondCount",
+                                "value": 10369
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Bytes",
+                            "counters": [
+                                {
+                                    "name": "bytesTransmittedCount",
+                                    "value": 648
+                                },
+                                {
+                                    "name": "bytesReceivedCount",
+                                    "value": 0
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Packets",
+                            "counters": [
+                                {
+                                    "name": "packetsTransmittedCount",
+                                    "value": 8
+                                },
+                                {
+                                    "name": "packetsReceivedCount",
+                                    "value": 0
+                                }
+                            ]
+                        }
+                    ]
+                }
             ]
-          },
-          {
-            "name": "Bytes",
-            "counters": [
-              {
-                "name": "bytesTransmittedCount",
-                "value": 648
-              },
-              {
-                "name": "bytesReceivedCount",
-                "value": 0
-              }
-            ]
-          },
-          {
-            "name": "Packets",
-            "counters": [
-              {
-                "name": "packetsTransmittedCount",
-                "value": 8
-              },
-              {
-                "name": "packetsReceivedCount",
-                "value": 0
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
+        }
+    }
 
 Features to Install
 -------------------
