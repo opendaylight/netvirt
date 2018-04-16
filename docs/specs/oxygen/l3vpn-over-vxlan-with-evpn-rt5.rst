@@ -402,7 +402,7 @@ b) FIP VM to FIP VM on same Hypervisor
 
 
 SNAT to DNAT Traffic (Intra DC)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 SNAT Hypervisor:
 ~~~~~~~~~~~~~~~~
@@ -419,7 +419,7 @@ DNAT Hypervisor:
 ~~~~~~~~~~~~~~~~
 | Classifier Table (0) =>
 | Internal Tunnel Table (36) ``match: tun-id= external-l3vni`` =>
-| PDNAT Table (25) ``match: nw-dst=floating-ip eth-dst= floating-ip-dst-vm-mac-address set ip-dst=dst-vm-ip, vpn-id=l3vpn-id``=>
+| PDNAT Table (25) ``match: nw-dst=floating-ip eth-dst= floating-ip-dst-vm-mac-address set ip-dst=dst-vm-ip, vpn-id=l3vpn-id`` =>
 | DNAT Table (27)  ``match: vpn-id=l3vpn-id,nw-dst=dst-vm-ip`` =>
 | L3 FIB Table (21) ``match: vpn-id=l3vpn-id, nw-dst=dst-vm-ip set output to nexthopgroup-dst-vm`` =>
 | NextHopGroup-dst-vm: ``set-eth-dst dst-mac-vm, reg6=dst-vm-lport-tag`` =>

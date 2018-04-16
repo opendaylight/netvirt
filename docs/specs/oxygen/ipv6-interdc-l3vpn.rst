@@ -199,7 +199,7 @@ advertisements.
 
 
 EBGP YANG changes
-+++++++++++++++++
+~~~~~~~~~~~~~~~~~
 A new leaf afi will be added to container ``networks``
 
 .. code-block:: none
