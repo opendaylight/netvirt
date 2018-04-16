@@ -112,7 +112,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
             String rd = null;
             rd = vpnInstance.get().getVrfId();
 
-            VpnInstanceOpDataEntry vpnInstOp = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
+            VpnInstanceOpDataEntry vpnInstOp = VpnUtil.getVpnInstanceOpData(dataBroker, vpnName);
 
             AdjacenciesOp adjs = del.getAugmentation(AdjacenciesOp.class);
             List<Adjacency> adjList = adjs != null ? adjs.getAdjacency() : null;

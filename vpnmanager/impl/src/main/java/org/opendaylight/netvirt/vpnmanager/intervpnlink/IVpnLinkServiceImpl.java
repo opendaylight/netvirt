@@ -38,8 +38,10 @@ import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComp
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
@@ -120,7 +122,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             String key = dstVpnRd + VpnConstants.SEPARATOR + prefix;
             long leakedLabel = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME, key);
             String leakedNexthop = interVpnLink.getEndpointIpAddr(vpnName);
-            fibManager.addOrUpdateFibEntry(dstVpnRd, null /*macAddress*/, prefix,
+            fibManager.addOrUpdateFibEntry(dstVpnName, dstVpnRd, null /*macAddress*/, prefix,
                                            Collections.singletonList(leakedNexthop), VrfEntry.EncapType.Mplsgre,
                                            (int) leakedLabel, 0 /*l3vni*/, null /*gatewayMacAddress*/,
                                            null /*parentVpnRd*/, RouteOrigin.INTERVPN, null /*writeConfigTxn*/);
@@ -138,7 +140,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             }
         } else {
             LOG.debug("Removing leaked route to {} from VPN {}", prefix, dstVpnName);
-            fibManager.removeFibEntry(dstVpnRd, prefix, null /*writeConfigTxn*/);
+            fibManager.removeFibEntry(dstVpnName, dstVpnRd, prefix, null /*writeConfigTxn*/);
             bgpManager.withdrawPrefix(dstVpnRd, prefix);
         }
     }
@@ -169,9 +171,10 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnUuid);
         InstanceIdentifier<VrfEntry> newVrfEntryIid =
             InstanceIdentifier.builder(FibEntries.class)
-                              .child(VrfTables.class, new VrfTablesKey(dstVpnRd))
-                              .child(VrfEntry.class, new VrfEntryKey(newVrfEntry.getDestPrefix()))
-                              .build();
+                    .child(VpnInstanceNames.class, new VpnInstanceNamesKey(dstVpnUuid))
+                    .child(VrfTables.class, new VrfTablesKey(dstVpnRd))
+                    .child(VrfEntry.class, new VrfEntryKey(newVrfEntry.getDestPrefix()))
+                    .build();
         VpnUtil.asyncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, newVrfEntryIid, newVrfEntry);
 
         // Finally, route is advertised it to the DC-GW. But while in the FibEntries the nexthop is the other
@@ -291,7 +294,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
 
         String vpn1Rd = VpnUtil.getVpnRd(dataBroker, vpn1Uuid);
         String vpn2Endpoint = vpnLink.getOtherEndpointIpAddr(vpn2Uuid);
-        List<VrfEntry> allVpnVrfEntries = VpnUtil.getAllVrfEntries(dataBroker, vpn1Rd);
+        List<VrfEntry> allVpnVrfEntries = VpnUtil.getAllVrfEntries(dataBroker, vpn1Uuid, vpn1Rd);
         for (VrfEntry vrfEntry : allVpnVrfEntries) {
             vrfEntry.getRoutePaths().stream()
                     .filter(routePath -> routePath.getNexthopAddress().equals(vpn2Endpoint))
@@ -317,7 +320,8 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                             List<RouteOrigin> originsToConsider) {
         String srcVpnRd = VpnUtil.getVpnRd(dataBroker, srcVpnUuid);
         String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnUuid);
-        List<VrfEntry> srcVpnRemoteVrfEntries = VpnUtil.getVrfEntriesByOrigin(dataBroker, srcVpnRd, originsToConsider);
+        List<VrfEntry> srcVpnRemoteVrfEntries = VpnUtil.getVrfEntriesByOrigin(dataBroker, srcVpnUuid,
+                srcVpnRd, originsToConsider);
         for (VrfEntry vrfEntry : srcVpnRemoteVrfEntries) {
             long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
                                              VpnUtil.getNextHopLabelKey(dstVpnRd, vrfEntry.getDestPrefix()));

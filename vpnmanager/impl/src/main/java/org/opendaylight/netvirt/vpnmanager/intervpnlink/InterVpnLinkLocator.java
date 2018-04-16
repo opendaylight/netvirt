@@ -162,8 +162,7 @@ public class InterVpnLinkLocator {
     }
 
     private List<String> getIRTsByVpnName(String vpnName) {
-        String vpn1Rd = VpnUtil.getVpnRd(dataBroker, vpnName);
-        final VpnInstanceOpDataEntry vpnInstance = VpnUtil.getVpnInstanceOpData(dataBroker, vpn1Rd);
+        final VpnInstanceOpDataEntry vpnInstance = VpnUtil.getVpnInstanceOpData(dataBroker, vpnName);
         return getRts(vpnInstance, VpnTarget.VrfRTType.ImportExtcommunity);
     }
 
