@@ -140,8 +140,8 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
         // Note that in the DPN of the firstEndpoint we install the lportTag of the secondEndpoint and viceversa
         String vpn1PrimaryRd = VpnUtil.getPrimaryRd(broker, firstEndpointVpnUuid);
         String vpn2PrimaryRd = VpnUtil.getPrimaryRd(broker, secondEndpointVpnUuid);
-        if (!VpnUtil.isVpnPendingDelete(broker, vpn1PrimaryRd)
-                && !VpnUtil.isVpnPendingDelete(broker, vpn2PrimaryRd)) {
+        if (!VpnUtil.isVpnPendingDelete(broker, firstEndpointVpnUuid)
+                && !VpnUtil.isVpnPendingDelete(broker, secondEndpointVpnUuid)) {
             InterVpnLinkUtil.installLPortDispatcherTableFlow(broker, mdsalManager, ivpnLinkName, firstDpnList,
                     secondEndpointVpnUuid, opt2ndEndpointLportTag.get());
             InterVpnLinkUtil.installLPortDispatcherTableFlow(broker, mdsalManager, ivpnLinkName, secondDpnList,

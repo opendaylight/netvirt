@@ -116,7 +116,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         //TODO(vpnteam): Entire code would need refactoring to listen only on the parent object - VPNInstance
         try {
             vpnOpValue = SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                    VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd));
+                    VpnUtil.getVpnInstanceOpDataIdentifier(vpnName));
         } catch (ReadFailedException e) {
             LOG.error("{} remove: Exception when attempting to retrieve VpnInstanceOpDataEntry for VPN {}. ",
                     LOGGING_PREFIX_DELETE,  vpnName, e);
@@ -129,9 +129,9 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             return;
         } else {
             jobCoordinator.enqueueJob("VPN-" + vpnName, () -> {
-                VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder().setVrfId(primaryRd)
-                        .setVpnState(VpnInstanceOpDataEntry.VpnState.PendingDelete);
-                InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd);
+                VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder().setVpnInstanceName(vpnName)
+                        .setVrfId(primaryRd).setVpnState(VpnInstanceOpDataEntry.VpnState.PendingDelete);
+                InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(vpnName);
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                 writeTxn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build());
 
@@ -292,11 +292,11 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         }
         if (writeOperTxn != null) {
             writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd),
+                VpnUtil.getVpnInstanceOpDataIdentifier(vpnInstanceName),
                 builder.build(), true);
         } else {
             TransactionUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd),
+                VpnUtil.getVpnInstanceOpDataIdentifier(vpnInstanceName),
                 builder.build());
         }
         LOG.info("{} addVpnInstance: VpnInstanceOpData populated successfully for vpn {} rd {}", LOGGING_PREFIX_ADD,
@@ -330,7 +330,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             }
             log.info("{} onSuccess: Vpn Instance Op Data addition for {} successful.", LOGGING_PREFIX_ADD, vpnName);
             VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker,
-                    VpnUtil.getPrimaryRd(vpnInstance));
+                    vpnName);
 
             // bind service on each tunnel interface
             //TODO (KIRAN): Add a new listener to handle creation of new DC-GW binding and deletion of existing DC-GW.
@@ -376,7 +376,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 return false;
             }
             synchronized (vpnName.intern()) {
-                fibManager.addVrfTable(primaryRd, null);
+                fibManager.addVrfTable(this.vpnName, primaryRd, null);
             }
             vpnInterfaceManager.handleVpnsExportingRoutes(this.vpnName, primaryRd);
             return true;
@@ -402,8 +402,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         }
     }
 
-    protected VpnInstanceOpDataEntry getVpnInstanceOpData(String rd) {
-        InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
+    protected VpnInstanceOpDataEntry getVpnInstanceOpData(String vpnInstanceName) {
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(vpnInstanceName);
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpData =
             TransactionUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (vpnInstanceOpData.isPresent()) {

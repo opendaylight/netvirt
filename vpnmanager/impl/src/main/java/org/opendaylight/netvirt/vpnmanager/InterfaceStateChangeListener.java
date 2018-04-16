@@ -127,7 +127,7 @@ public class InterfaceStateChangeListener
                                                     LOG.info("VPN Interface add event - intfName {} onto vpnName {} "
                                                             + "running oper-driven, VpnInstance not ready, holding"
                                                             + " on", vpnIf.getName(), vpnName);
-                                                } else if (VpnUtil.isVpnPendingDelete(dataBroker, primaryRd)) {
+                                                } else if (VpnUtil.isVpnPendingDelete(dataBroker, vpnName)) {
                                                     LOG.error("add: Ignoring addition of vpnInterface {}, as"
                                                             + " vpnInstance {} with primaryRd {} is already marked for"
                                                             + " deletion", interfaceName, vpnName, primaryRd);
@@ -281,7 +281,7 @@ public class InterfaceStateChangeListener
                                                             "VPN Interface update event - intfName {} onto vpnName {} "
                                                                     + "running oper-driven UP, VpnInstance not ready,"
                                                             + " holding on", vpnIf.getName(), vpnName);
-                                                } else if (VpnUtil.isVpnPendingDelete(dataBroker, primaryRd)) {
+                                                } else if (VpnUtil.isVpnPendingDelete(dataBroker, vpnName)) {
                                                     LOG.error("update: Ignoring UP event for vpnInterface {}, as "
                                                             + "vpnInstance {} with primaryRd {} is already marked for"
                                                             + " deletion", vpnIf.getName(), vpnName, primaryRd);
