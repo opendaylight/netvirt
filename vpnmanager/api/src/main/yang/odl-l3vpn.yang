@@ -184,10 +184,13 @@ module odl-l3vpn {
            }
     }
 
-    container evpn-rd-to-networks {
+    container evpn-to-networks {
         description "Holds the networks to which given evpn is attached";
-        list evpn-rd-to-network {
-           key rd;
+        list evpn-to-network {
+           key vpn-instance-name;
+           leaf vpn-instance-name {
+             type string;
+           }
            leaf rd {
              type string;
            }
@@ -261,7 +264,7 @@ module odl-l3vpn {
     container vpn-instance-op-data {
         config false;
         list vpn-instance-op-data-entry {
-           key vrf-id;
+           key vpn-instance-name;
            leaf vpn-id { type uint32;}
            leaf vrf-id {
               description
@@ -697,6 +700,17 @@ module odl-l3vpn {
             leaf src-dp-id { type uint64; }
             leaf dst-device-id { type string; } //dpId or ip-address
             leaf-list nexthop-key { type string; }
+        }
+    }
+
+    container rd-to-vpn {
+        config false;
+        key "route-distinguisher";
+        leaf route-distinguisher { type string; }
+        list vpn-instances {
+            key "vpn-instance-name";
+            leaf vpn-instance-name { type string; }
+            leaf active { type boolean; }
         }
     }
 }
