@@ -86,12 +86,12 @@ module odl-fib {
         }
     }
 
-    augment "/odl-fib:fibEntries/odl-fib:vrfTables/odl-fib:vrfEntry" {
+    augment "/odl-fib:fibEntries/odl-fib:vpnInstanceNames/odl-fib:vrfTables/odl-fib:vrfEntry" {
             ext:augment-identifier "subnetRoute";
             leaf elantag {type uint32;}
     }
 
-    augment "/odl-fib:fibEntries/odl-fib:vrfTables/odl-fib:vrfEntry" {
+    augment "/odl-fib:fibEntries/odl-fib:vpnInstanceNames/odl-fib:vrfTables/odl-fib:vrfEntry" {
         ext:augment-identifier "routerInterface";
         leaf uuid {type string;}
         leaf mac-address {type string;}
@@ -100,11 +100,15 @@ module odl-fib {
 
     container fibEntries {
         config true;
-        list vrfTables{
-            key "routeDistinguisher";
-            leaf routeDistinguisher {type string;}
-            uses vrfEntries;
-            uses macVrfEntries;
+        list vpnInstanceNames {
+            key vpnInstanceName;
+            leaf vpnInstanceName {type string;}
+            list vrfTables{
+                key "routeDistinguisher";
+                leaf routeDistinguisher {type string;}
+                uses vrfEntries;
+                uses macVrfEntries;
+            }
         }
 
         container ipv4Table{
