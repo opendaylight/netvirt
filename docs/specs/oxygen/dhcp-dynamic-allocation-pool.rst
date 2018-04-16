@@ -218,26 +218,29 @@ Dynamic allocation pool
 
 .. code-block:: json
 
-  {"dhcp_allocation_pool": {
-    "network": [
-      {
-        "network-id": "d211a14b-e5e9-33af-89f3-9e43a270e0c8",
-        "allocation-pool": [
-          {
-            "subnet": "10.1.1.0/24",
-            "dns-servers": [
-              "8.8.8.8"
-            ],
-            "gateway": "10.1.1.1",
-            "allocate-from": "10.1.1.2",
-            "allocate-to": "10.1.1.200"
-            "static-routes": [
-              {
-                "destination": "5.8.19.24/16",
-                "nexthop": "10.1.1.254"
-              }
-            ]
-  ]}]}}
+    {
+        "dhcp_allocation_pool": {
+            "network": [
+            {
+                "network-id": "d211a14b-e5e9-33af-89f3-9e43a270e0c8",
+                "allocation-pool": [
+                {
+                    "subnet": "10.1.1.0/24",
+                    "dns-servers": [
+                        "8.8.8.8"
+                    ],
+                    "gateway": "10.1.1.1",
+                    "allocate-from": "10.1.1.2",
+                    "allocate-to": "10.1.1.200"
+                    "static-routes": [
+                    {
+                        "destination": "5.8.19.24/16",
+                        "nexthop": "10.1.1.254"
+                    }]
+                }]
+            }]
+        }
+    }
 
 Static address allocation
 ^^^^^^^^^^^^^^^^^^^^^^^^^

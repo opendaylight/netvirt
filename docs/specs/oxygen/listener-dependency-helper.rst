@@ -87,9 +87,9 @@ event due to dependent objects/InstanceIdentifier and list of dependent IID's.
 There are two approaches the Listener Dependency check can be verified.
 
     **approach-1** Get the list of dependent-IID's, query DataStore/Cache for
-depenedency resolution at regular intervals using "timer-task-pool". Once
-all the dependent IID's are resolved, call respective listener for
-processing.
+    dependency resolution at regular intervals using "timer-task-pool". Once
+    all the dependent IID's are resolved, call respective listener for
+    processing.
 
 LDH-task-pool : pool of threads which query for dependency resolution READ
 ONLY operation in DataStore. These threads are part of LDH common for all
@@ -173,7 +173,7 @@ Yang changes
 none
 
 Configuration impact
----------------------
+--------------------
 none
 
 Clustering considerations
@@ -185,11 +185,11 @@ number of reads.
 2 - RegisterListener: RegisterListener may some impact at the time of
 registering listener after which a notification message to cluser nodes.
 
-Predined List of Listeners
---------------------------
-perational/odl-l3vpn:vpn-instance-op-data/vpn-instance-op-data-entry/*
+Predifined List of Listeners
+----------------------------
+operational/odl-l3vpn:vpn-instance-op-data/vpn-instance-op-data-entry/*
 operational/odl-l3vpn:vpn-instance-op-data/vpn-instance-op-data-entry/
- vpn-id/vpn-to-dpn-list/*
+vpn-id/vpn-to-dpn-list/*
 config/l3vpn:vpn-instances/*
 
 
@@ -208,7 +208,7 @@ Performance shall remain intact.
 
 
 Targeted Release
------------------
+----------------
 
 Alternatives
 ------------
