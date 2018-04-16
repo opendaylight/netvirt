@@ -179,7 +179,8 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 List<DestPrefixes> prefixes = VpnExtraRouteHelper.getExtraRouteDestPrefixes(dataBroker,
                         opData.getVpnId());
                 prefixes.forEach(destPrefix -> {
-                    VrfEntry vrfEntry = VpnUtil.getVrfEntry(dataBroker, opData.getVrfId(),
+                    VrfEntry vrfEntry = VpnUtil.getVrfEntry(dataBroker, opData.getVpnInstanceName(),
+                            opData.getVrfId(),
                             destPrefix.getDestPrefix());
                     if (vrfEntry == null || vrfEntry.getRoutePaths() == null) {
                         return;
@@ -187,7 +188,8 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                     List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
                     routePaths.forEach(routePath -> {
                         if (routePath.getNexthopAddress().equals(srcTepIp)) {
-                            fibManager.updateRoutePathForFibEntry(opData.getVrfId(),
+                            fibManager.updateRoutePathForFibEntry(opData.getVpnInstanceName(),
+                                    opData.getVrfId(),
                                     destPrefix.getDestPrefix(), srcTepIp, routePath.getLabel(),
                                     false, writeConfigTxn);
                         }
@@ -372,13 +374,14 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             //Iterate over the VpnId-to-Rd map.
             for (Map.Entry<Long, String> entry : vpnIdRdMap.entrySet()) {
                 Long vpnId = entry.getKey();
+                String vpnName = VpnUtil.getVpnName(dataBroker, vpnId.longValue());
                 rd = entry.getValue();
                 if (tunnelAction == TunnelAction.TUNNEL_EP_ADD
                     && tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue()) {
-                    fibManager.populateExternalRoutesOnDpn(srcDpnId, vpnId, rd, srcTepIp, destTepIp);
+                    fibManager.populateExternalRoutesOnDpn(srcDpnId, vpnId, vpnName, rd, srcTepIp, destTepIp);
                 } else if (tunnelAction == TunnelAction.TUNNEL_EP_DELETE
                     && tunTypeVal == VpnConstants.ITMTunnelLocType.External.getValue()) {
-                    fibManager.cleanUpExternalRoutesOnDpn(srcDpnId, vpnId, rd, srcTepIp, destTepIp);
+                    fibManager.cleanUpExternalRoutesOnDpn(srcDpnId, vpnId, vpnName, rd, srcTepIp, destTepIp);
                 }
             }
             if (listVpnName.size() >= 1) {
@@ -475,12 +478,12 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                             long label = adj.getLabel();
                             if (tunnelAction == TunnelAction.TUNNEL_EP_ADD
                                     && tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue()) {
-                                fibManager.manageRemoteRouteOnDPN(true, srcDpnId, vpnId, rd, prefix, destTepIp, label);
+                                fibManager.manageRemoteRouteOnDPN(true, srcDpnId, vpnId, vpnName, rd, prefix, destTepIp, label);
                             }
 
                             if (tunnelAction == TunnelAction.TUNNEL_EP_DELETE
                                     && tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue()) {
-                                fibManager.manageRemoteRouteOnDPN(false, srcDpnId, vpnId, rd, prefix, destTepIp, label);
+                                fibManager.manageRemoteRouteOnDPN(false, srcDpnId, vpnId, vpnName, rd, prefix, destTepIp, label);
                             }
                         }
                     }
