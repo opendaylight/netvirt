@@ -753,8 +753,7 @@ controller and 2 compute nodes, DC-GW node and OpenDaylight node.
 * create routers
 
   - **two-router** solution
-    + create two routers A and B, each router will be respectively connected to
-      IPv4 and IPv6 subnets;
+    + create two routers A and B, each router will be respectively connected to IPv4 and IPv6 subnets;
     + add subnet A as a port to router A;
     + add subnet B as a port to router B.
 
