@@ -107,7 +107,7 @@ public class VpnServiceElanDpnInterfacesListener
                                 return;
                             }
                             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-                            fibManager.populateFibOnNewDpn(dpnId, vpnId, primaryRd, null);
+                            fibManager.populateFibOnNewDpn(dpnId, vpnId, vpnName, primaryRd, null);
                             break;
                         }
                     }

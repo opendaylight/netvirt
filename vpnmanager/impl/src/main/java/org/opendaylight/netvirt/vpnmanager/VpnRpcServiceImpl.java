@@ -154,7 +154,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         }
 
         String vpnRd = VpnUtil.getVpnRd(dataBroker, input.getVpnInstanceName());
-        VpnInstanceOpDataEntry vpnOpEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
+        VpnInstanceOpDataEntry vpnOpEntry = VpnUtil.getVpnInstanceOpData(dataBroker, input.getVpnInstanceName());
         Boolean isVxlan = VpnUtil.isL3VpnOverVxLan(vpnOpEntry.getL3vni());
         VrfEntry.EncapType encapType = VpnUtil.getEncapType(isVxlan);
         if (vpnRd == null) {
@@ -233,7 +233,8 @@ public class VpnRpcServiceImpl implements VpnRpcService {
 
         Optional<InterVpnLinkDataComposite> optVpnLink = interVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
         if (optVpnLink.isPresent()) {
-            fibManager.removeOrUpdateFibEntry(vpnRd, destination, nexthop, /*writeTx*/ null);
+            fibManager.removeOrUpdateFibEntry(input.getVpnInstanceName(),
+                    vpnRd, destination, nexthop, /*writeTx*/ null);
             bgpManager.withdrawPrefix(vpnRd, destination);
         } else {
             vpnManager.delExtraRoute(vpnInstanceName, destination,

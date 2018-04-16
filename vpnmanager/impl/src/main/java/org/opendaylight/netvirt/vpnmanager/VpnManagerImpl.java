@@ -175,7 +175,7 @@ public class VpnManagerImpl implements IVpnManager {
         int label,RouteOrigin origin) {
         LOG.info("Adding extra route with destination {}, nextHop {}, label{} and origin {}",
             destination, nextHop, label, origin);
-        VpnInstanceOpDataEntry vpnOpEntry = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
+        VpnInstanceOpDataEntry vpnOpEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnName);
         Boolean isVxlan = VpnUtil.isL3VpnOverVxLan(vpnOpEntry.getL3vni());
         VrfEntry.EncapType encapType = VpnUtil.getEncapType(isVxlan);
         addExtraRoute(vpnName, destination, nextHop, rd, routerID, vpnOpEntry.getL3vni(),
@@ -244,7 +244,7 @@ public class VpnManagerImpl implements IVpnManager {
                 List<String> nhList = optVpnExtraRoutes.get().getNexthopIpList();
                 if (nhList != null && nhList.size() > 1) {
                     // If nhList is greater than one for vpnextraroute, a call to populatefib doesn't update vrfentry.
-                    fibManager.refreshVrfEntry(primaryRd, destination);
+                    fibManager.refreshVrfEntry(vpnName, primaryRd, destination);
                 } else {
                     L3vpnInput input = new L3vpnInput().setNextHop(operationalAdj).setNextHopIp(nextHop).setL3vni(l3vni)
                             .setPrimaryRd(primaryRd).setVpnName(vpnName).setDpnId(dpnId)
@@ -291,7 +291,7 @@ public class VpnManagerImpl implements IVpnManager {
             LOG.info("delExtraRoute: Removed extra route {} from interface {} for rd {}", destination, intfName, rd);
         } else {
             // add FIB route directly
-            fibManager.removeOrUpdateFibEntry(routerID, destination, tunnelIp, writeConfigTxn);
+            fibManager.removeOrUpdateFibEntry(vpnName, routerID, destination, tunnelIp, writeConfigTxn);
             LOG.info("delExtraRoute: Removed extra route {} from interface {} for rd {}", destination, intfName,
                     routerID);
         }
@@ -326,7 +326,7 @@ public class VpnManagerImpl implements IVpnManager {
                                 VpnUtil.getVpnId(dataBroker, vpnName), prefix, nextHop));
                         LOG.debug("removePrefixFromBGP: Removed vpn-to-extraroute with rd {} prefix {} nexthop {}",
                                 rd, prefix, nextHop);
-                        fibManager.refreshVrfEntry(primaryRd, prefix);
+                        fibManager.refreshVrfEntry(vpnName, primaryRd, prefix);
                         long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
                         Optional<Prefixes> prefixToInterface = VpnUtil.getPrefixToInterface(dataBroker, vpnId, nextHop);
                         if (prefixToInterface.isPresent()) {
@@ -339,7 +339,7 @@ public class VpnManagerImpl implements IVpnManager {
                         return;
                     }
                 }
-                fibManager.removeOrUpdateFibEntry(primaryRd, prefix, tunnelIp, writeConfigTxn);
+                fibManager.removeOrUpdateFibEntry(vpnName, primaryRd, prefix, tunnelIp, writeConfigTxn);
                 if (VpnUtil.isEligibleForBgp(primaryRd, vpnName, dpnId, null /*networkName*/)) {
                     // TODO: Might be needed to include nextHop here
                     bgpManager.withdrawPrefix(rd, prefix);

@@ -141,7 +141,8 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
             writeTx1.submit().checkedGet();
             WriteTransaction writeTx2 = broker.newWriteOnlyTransaction();
             writeTx2.merge(LogicalDatastoreType.OPERATIONAL,
-                          VpnUtil.getVpnInstanceOpDataIdentifier(vpn.vpnOpData.getVrfId()), vpn.vpnOpData, true);
+                    VpnUtil.getVpnInstanceOpDataIdentifier(vpn.vpnOpData.getVpnInstanceName()),
+                    vpn.vpnOpData, true);
             writeTx2.submit().checkedGet();
         }
     }
@@ -151,7 +152,7 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
         for (L3VpnComposite vpn : vpns) {
             WriteTransaction writeTx1 = broker.newWriteOnlyTransaction();
             writeTx1.delete(LogicalDatastoreType.OPERATIONAL,
-                           VpnUtil.getVpnInstanceOpDataIdentifier(vpn.vpnOpData.getVrfId()));
+                           VpnUtil.getVpnInstanceOpDataIdentifier(vpn.vpnOpData.getVpnInstanceName()));
             writeTx1.submit().checkedGet();
 
             WriteTransaction writeTx2 = broker.newWriteOnlyTransaction();
