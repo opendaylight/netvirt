@@ -24,8 +24,10 @@ import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase.EncapType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntryKey;
@@ -50,9 +52,11 @@ public class FibDSWriter {
         this.singleTxDB = new SingleTransactionDataBroker(dataBroker);
     }
 
-    public synchronized void addFibEntryToDS(String rd, String prefix, List<String> nextHopList,
-            VrfEntry.EncapType encapType, int label, long l3vni,
-            String gatewayMacAddress, RouteOrigin origin) {
+    public synchronized void addFibEntryToDS(String vpnName,
+                                             String rd,
+                                             String prefix, List<String> nextHopList,
+                                             VrfEntry.EncapType encapType, int label, long l3vni,
+                                             String gatewayMacAddress, RouteOrigin origin) {
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
@@ -70,6 +74,7 @@ public class FibDSWriter {
         // Looking for existing prefix in MDSAL database
         InstanceIdentifier<VrfEntry> vrfEntryId =
                 InstanceIdentifier.builder(FibEntries.class)
+                        .child(VpnInstanceNames.class, new VpnInstanceNames(vpnName))
                         .child(VrfTables.class, new VrfTablesKey(rd))
                         .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
 
@@ -79,7 +84,7 @@ public class FibDSWriter {
         bgpUtil.update(vrfEntryId, vrfEntryBuilder.build());
     }
 
-    public void addMacEntryToDS(String rd, String macAddress, String prefix,
+    public void addMacEntryToDS(String vpnName, String rd, String macAddress, String prefix,
                                 List<String> nextHopList, VrfEntry.EncapType encapType,
                                 long l2vni, String gatewayMacAddress, RouteOrigin origin) {
         if (StringUtils.isEmpty(rd)) {
@@ -102,6 +107,7 @@ public class FibDSWriter {
         macEntryBuilder.setDestPrefix(prefix);
         InstanceIdentifier<MacVrfEntry> macEntryId =
                 InstanceIdentifier.builder(FibEntries.class)
+                        .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnName))
                         .child(VrfTables.class, new VrfTablesKey(rd))
                         .child(MacVrfEntry.class, new MacVrfEntryKey(macAddress)).build();
         bgpUtil.update(macEntryId, macEntryBuilder.build());
@@ -134,7 +140,7 @@ public class FibDSWriter {
         builder.setRoutePaths(routePaths);
     }
 
-    public synchronized void removeFibEntryFromDS(String rd, String prefix) {
+    public synchronized void removeFibEntryFromDS(String vpnName, String rd, String prefix) {
 
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
@@ -143,14 +149,16 @@ public class FibDSWriter {
         LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {}", prefix, rd);
 
         InstanceIdentifierBuilder<VrfEntry> idBuilder =
-                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(
-                        VrfEntry.class, new VrfEntryKey(prefix));
+                InstanceIdentifier.builder(FibEntries.class)
+                        .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnName))
+                        .child(VrfTables.class, new VrfTablesKey(rd))
+                        .child(VrfEntry.class, new VrfEntryKey(prefix));
         InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
         bgpUtil.delete(vrfEntryId);
 
     }
 
-    public void removeMacEntryFromDS(String rd, String macAddress) {
+    public void removeMacEntryFromDS(String vpnName, String rd, String macAddress) {
 
         if (StringUtils.isEmpty(rd)) {
             LOG.error("Mac {} not associated with vpn", macAddress);
@@ -159,14 +167,17 @@ public class FibDSWriter {
         LOG.debug("Removing Mac fib entry with Mac {} from vrf table for rd {}", macAddress, rd);
 
         InstanceIdentifierBuilder<MacVrfEntry> idBuilder =
-                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(
-                        MacVrfEntry.class, new MacVrfEntryKey(macAddress));
+                InstanceIdentifier.builder(FibEntries.class)
+                        .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnName))
+                        .child(VrfTables.class, new VrfTablesKey(rd))
+                        .child(MacVrfEntry.class, new MacVrfEntryKey(macAddress));
         InstanceIdentifier<MacVrfEntry> macEntryId = idBuilder.build();
         bgpUtil.delete(macEntryId);
 
     }
 
-    public synchronized void removeOrUpdateFibEntryFromDS(String rd, String prefix, String nextHop) {
+    public synchronized void removeOrUpdateFibEntryFromDS(String vpnName,
+                                                          String rd, String prefix, String nextHop) {
 
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
@@ -177,8 +188,9 @@ public class FibDSWriter {
         try {
             InstanceIdentifier<VrfEntry> vrfEntryId =
                     InstanceIdentifier.builder(FibEntries.class)
-                    .child(VrfTables.class, new VrfTablesKey(rd))
-                    .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+                            .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnName))
+                            .child(VrfTables.class, new VrfTablesKey(rd))
+                            .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
             Optional<VrfEntry> existingVrfEntry =
                     singleTxDB.syncReadOptional(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
             List<RoutePaths> routePaths =
@@ -194,7 +206,7 @@ public class FibDSWriter {
                     .findFirst()
                     .ifPresent(nh -> {
                         InstanceIdentifier<RoutePaths> routePathId =
-                                FibHelper.buildRoutePathId(rd, prefix, nextHop);
+                                FibHelper.buildRoutePathId(vpnName, rd, prefix, nextHop);
                         bgpUtil.delete(routePathId);
                     });
             }
@@ -205,7 +217,8 @@ public class FibDSWriter {
     }
 
 
-    public synchronized void removeVrfSubFamilyFromDS(String rd, AddressFamily addressFamily) {
+    public synchronized void removeVrfSubFamilyFromDS(String vpnName,
+                                                      String rd, AddressFamily addressFamily) {
 
         if (rd == null) {
             return;
@@ -214,7 +227,8 @@ public class FibDSWriter {
                   addressFamily, rd);
 
         InstanceIdentifier<VrfTables> id = InstanceIdentifier.create(FibEntries.class)
-            .child(VrfTables.class, new VrfTablesKey(rd));
+                .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnName))
+                .child(VrfTables.class, new VrfTablesKey(rd));
         try {
             VrfTables vrfTable = singleTxDB.syncRead(LogicalDatastoreType.CONFIGURATION, id);
             if (vrfTable != null) {
@@ -242,7 +256,7 @@ public class FibDSWriter {
                     if (found == false) {
                         continue;
                     }
-                    bgpUtil.removeVrfEntry(rd, vrfEntry);
+                    bgpUtil.removeVrfEntry(vpnName, rd, vrfEntry);
                 }
             }
         } catch (ReadFailedException rfe) {
@@ -251,11 +265,13 @@ public class FibDSWriter {
         return;
     }
 
-    public synchronized void removeVrfFromDS(String rd) {
+    public synchronized void removeVrfFromDS(String vpnName, String rd) {
         LOG.debug("Removing vrf table for  rd {}", rd);
 
         InstanceIdentifierBuilder<VrfTables> idBuilder =
-                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
+                InstanceIdentifier.builder(FibEntries.class)
+                        .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnName))
+                        .child(VrfTables.class, new VrfTablesKey(rd));
         InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
 
         bgpUtil.delete(vrfTableId);

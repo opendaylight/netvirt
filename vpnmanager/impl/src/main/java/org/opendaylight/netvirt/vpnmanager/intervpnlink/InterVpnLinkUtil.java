@@ -38,8 +38,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
@@ -402,9 +404,10 @@ public final class InterVpnLinkUtil {
         String dstVpnRd = VpnUtil.getVpnRd(broker, dstVpnUuid);
         InstanceIdentifier<VrfEntry> newVrfEntryIid =
             InstanceIdentifier.builder(FibEntries.class)
-                .child(VrfTables.class, new VrfTablesKey(dstVpnRd))
-                .child(VrfEntry.class, new VrfEntryKey(newVrfEntry.getDestPrefix()))
-                .build();
+                    .child(VpnInstanceNames.class, new VpnInstanceNamesKey(dstVpnUuid))
+                    .child(VrfTables.class, new VrfTablesKey(dstVpnRd))
+                    .child(VrfEntry.class, new VrfEntryKey(newVrfEntry.getDestPrefix()))
+                    .build();
         VpnUtil.asyncWrite(broker, LogicalDatastoreType.CONFIGURATION, newVrfEntryIid, newVrfEntry);
 
         // Finally, route is advertised it to the DC-GW. But while in the FibEntries the nexthop is the other
@@ -449,7 +452,7 @@ public final class InterVpnLinkUtil {
         }
         LOG.debug("Writing FibEntry to DS:  vpnRd={}, prefix={}, label={}, nexthop={} (interVpnLink)",
             vpnRd, destination, label, nexthop);
-        fibManager.addOrUpdateFibEntry(vpnRd, null /*macAddress*/, destination,
+        fibManager.addOrUpdateFibEntry(vpnName, vpnRd, null /*macAddress*/, destination,
                 Collections.singletonList(nexthop), VrfEntry.EncapType.Mplsgre, label,
                 0 /*l3vni*/, null /*gatewayMacAddress*/, null /*parentVpnRd*/, RouteOrigin.STATIC, null /*writeTxn*/);
 
