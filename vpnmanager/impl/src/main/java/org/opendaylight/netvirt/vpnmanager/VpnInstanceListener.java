@@ -376,7 +376,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 return false;
             }
             synchronized (vpnName.intern()) {
-                fibManager.addVrfTable(primaryRd, null);
+                fibManager.addVrfTable(this.vpnName, primaryRd, null);
             }
             vpnInterfaceManager.handleVpnsExportingRoutes(this.vpnName, primaryRd);
             return true;
