@@ -181,7 +181,7 @@ public final class NatEvpnUtil {
             NatUtil.addPrefixToInterface(broker, NatUtil.getVpnId(broker, vpnName), interfaceName, prefix, dpId,
                     null /* subnet-id */, Prefixes.PrefixCue.Nat);
 
-            fibManager.addOrUpdateFibEntry(rd, null /*macAddress*/, prefix,
+            fibManager.addOrUpdateFibEntry(vpnName, rd, null /*macAddress*/, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE,
                     l3Vni, gwMacAddress, null /* parent-vpn-rd */, origin, writeTx);
             /* Publish to Bgp only if its an INTERNET VPN */

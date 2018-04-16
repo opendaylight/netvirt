@@ -125,7 +125,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
                      vpnName);
             return;
         }
-        VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
+        VpnInstanceOpDataEntry vpnInstance = getVpnInstance(vpnName);
         if (vpnInstance == null) {
             LOG.warn("Could not find a suitable VpnInstance for Route-Distinguisher={}", rd);
             return;
@@ -133,7 +133,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
 
         // Find out the set of DPNs for the given VPN ID
         Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
-        List<VrfEntry> vrfEntries = VpnServiceChainUtils.getAllVrfEntries(dataBroker, rd);
+        List<VrfEntry> vrfEntries = VpnServiceChainUtils.getAllVrfEntries(dataBroker, vpnName, rd);
         if (vrfEntries != null) {
             if (addOrRemove == NwConstants.ADD_FLOW) {
                 AddVpnPseudoPortDataJob updateVpnToPseudoPortTask =
@@ -268,7 +268,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
         String rd = VpnServiceChainUtils.getVpnRd(dataBroker, vpnInstanceName);
         List<VrfEntry> vrfEntries = null;
         if (rd != null) {
-            vrfEntries = VpnServiceChainUtils.getAllVrfEntries(dataBroker, rd);
+            vrfEntries = VpnServiceChainUtils.getAllVrfEntries(dataBroker, vpnInstanceName, rd);
         }
         boolean cleanLFib = vrfEntries != null && !vrfEntries.isEmpty();
 

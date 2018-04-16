@@ -56,9 +56,9 @@ import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
@@ -180,7 +180,7 @@ public class VPNServiceChainHandlerTest {
         when(readTx.read(eq(LogicalDatastoreType.OPERATIONAL), eq(id))).thenReturn(chkdFuture);
     }
 
-    private void stubGetVpnInstance(String rd, String ipAddress, String ifaceName) throws Exception {
+    private void stubGetVpnInstance(String vpnName, String rd, String ipAddress, String ifaceName) throws Exception {
 
         IpAddresses ipAddr =
             new IpAddressesBuilder().setIpAddress(ipAddress).setKey(new IpAddressesKey(ipAddress)).build();
@@ -193,7 +193,8 @@ public class VPNServiceChainHandlerTest {
                                      .setVpnInterfaces(ifacesList);
 
         VpnInstanceOpDataEntry vpnInstanceOpDataEntry =
-            new VpnInstanceOpDataEntryBuilder().setKey(new VpnInstanceOpDataEntryKey(rd))
+            new VpnInstanceOpDataEntryBuilder().setKey(new VpnInstanceOpDataEntryKey(vpnName))
+                                               .setVrfId(rd)
                                                .setVpnId(VPN_ID)
                                                .setVpnToDpnList(Collections.singletonList(vtdlb.build()))
                                                .setVrfId("1").build();
@@ -203,19 +204,19 @@ public class VPNServiceChainHandlerTest {
                          eq(VpnServiceChainUtils.getVpnInstanceOpDataIdentifier(rd)))).thenReturn(chkdFuture);
     }
 
-    private void stubGetVrfEntries(String rd, List<VrfEntry> vrfEntryList)
+    private void stubGetVrfEntries(String vpnName, String rd, List<VrfEntry> vrfEntryList)
         throws Exception {
 
         VrfTables tables = new VrfTablesBuilder().setKey(new VrfTablesKey(rd)).setRouteDistinguisher(rd)
                                                  .setVrfEntry(vrfEntryList).build();
         CheckedFuture chkdFuture = mock(CheckedFuture.class);
         when(chkdFuture.checkedGet()).thenReturn(Optional.of(tables));
-        when(readTx.read(eq(LogicalDatastoreType.CONFIGURATION), eq(VpnServiceChainUtils.buildVrfId(rd))))
+        when(readTx.read(eq(LogicalDatastoreType.CONFIGURATION), eq(VpnServiceChainUtils.buildVrfId(vpnName, rd))))
                 .thenReturn(chkdFuture);
 
     }
 
-    private void stubReadVpnToDpnList(String rd, BigInteger dpnId, List<String> vpnIfacesOnDpn)
+    private void stubReadVpnToDpnList(String vpnName, String rd, BigInteger dpnId, List<String> vpnIfacesOnDpn)
         throws Exception {
 
         List<VpnInterfaces> vpnIfacesList =
@@ -227,7 +228,7 @@ public class VPNServiceChainHandlerTest {
         CheckedFuture chkdFuture = mock(CheckedFuture.class);
         when(chkdFuture.checkedGet()).thenReturn(Optional.of(vpnIfacesList));
         when(readTx.read(eq(LogicalDatastoreType.OPERATIONAL),
-                         eq(VpnServiceChainUtils.getVpnToDpnListIdentifier(rd, dpnId))))
+                         eq(VpnServiceChainUtils.getVpnToDpnListIdentifier(vpnName, rd, dpnId))))
              .thenReturn(chkdFuture);
     }
 
@@ -304,11 +305,11 @@ public class VPNServiceChainHandlerTest {
         // Basic stubbing //
         /////////////////////
         stubGetRouteDistinguisher(VPN_NAME, RD);
-        stubGetVpnInstance(RD, "1.2.3.4", "eth0");
+        stubGetVpnInstance(VPN_NAME, RD, "1.2.3.4", "eth0");
         VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder("11.12.13.14", 2000L, DC_GW_IP, RouteOrigin.STATIC, null)
                 .build();
-        stubGetVrfEntries(RD, Collections.singletonList(vrfEntry));
-        stubReadVpnToDpnList(RD, DPN_ID, Collections.singletonList("iface1"));
+        stubGetVrfEntries(VPN_NAME, RD, Collections.singletonList(vrfEntry));
+        stubReadVpnToDpnList(VPN_NAME, RD, DPN_ID, Collections.singletonList("iface1"));
         /////////
         // SUT //
         /////////
@@ -344,11 +345,11 @@ public class VPNServiceChainHandlerTest {
         /////////////////////
         String ifaceName = "eth0";
         stubGetRouteDistinguisher(VPN_NAME, RD);
-        stubGetVpnInstance(RD, "1.2.3.4", ifaceName);
+        stubGetVpnInstance(VPN_NAME, RD, "1.2.3.4", ifaceName);
         VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder("11.12.13.14", 2000L, DC_GW_IP, RouteOrigin.STATIC, null)
                 .build();
-        stubGetVrfEntries(RD, Collections.singletonList(vrfEntry));
-        stubReadVpnToDpnList(RD, DPN_ID, Collections.singletonList(ifaceName));
+        stubGetVrfEntries(VPN_NAME, RD, Collections.singletonList(vrfEntry));
+        stubReadVpnToDpnList(VPN_NAME, RD, DPN_ID, Collections.singletonList(ifaceName));
         stubScfIsBoundOnIface(SCF_TAG, ifaceName);
 
         /////////
@@ -385,11 +386,11 @@ public class VPNServiceChainHandlerTest {
         /////////////////////
         String ifaceName = "eth0";
         stubGetRouteDistinguisher(VPN_NAME, RD);
-        stubGetVpnInstance(RD, "1.2.3.4", ifaceName);
+        stubGetVpnInstance(VPN_NAME, RD, "1.2.3.4", ifaceName);
         VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder("11.12.13.14", 2000L, DC_GW_IP, RouteOrigin.STATIC, null)
                 .build();
-        stubGetVrfEntries(RD, Collections.singletonList(vrfEntry));
-        stubReadVpnToDpnList(RD, DPN_ID, Collections.singletonList(ifaceName));
+        stubGetVrfEntries(VPN_NAME, RD, Collections.singletonList(vrfEntry));
+        stubReadVpnToDpnList(VPN_NAME, RD, DPN_ID, Collections.singletonList(ifaceName));
         stubScfIsNotBoundOnIface(SCF_TAG, ifaceName);
 
         /////////

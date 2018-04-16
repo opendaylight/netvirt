@@ -27,10 +27,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.EvpnAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnRdToNetworks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetwork;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetworkBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetworkKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnToNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.to.networks.EvpnToNetwork;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.to.networks.EvpnToNetworkBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.to.networks.EvpnToNetworkKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,9 +60,9 @@ public class NeutronEvpnUtils {
 
     public boolean isVpnAssociatedWithNetwork(VpnInstance vpnInstance) throws ReadFailedException {
         String rd = vpnManager.getPrimaryRdFromVpnInstance(vpnInstance);
-        InstanceIdentifier<EvpnRdToNetwork> id = InstanceIdentifier.builder(EvpnRdToNetworks.class)
-                .child(EvpnRdToNetwork.class, new EvpnRdToNetworkKey(rd)).build();
-        Optional<EvpnRdToNetwork> optionalEvpnRdToNetwork =
+        InstanceIdentifier<EvpnToNetwork> id = InstanceIdentifier.builder(EvpnToNetworks.class)
+                .child(EvpnToNetwork.class, new EvpnToNetworkKey(rd)).build();
+        Optional<EvpnToNetwork> optionalEvpnRdToNetwork =
                 SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (optionalEvpnRdToNetwork.isPresent()) {
             LOG.debug("vpn is associated with network {}", optionalEvpnRdToNetwork);
@@ -71,9 +71,9 @@ public class NeutronEvpnUtils {
         return false;
     }
 
-    public InstanceIdentifier<EvpnRdToNetwork> getRdToNetworkIdentifier(String vrfId) {
-        return InstanceIdentifier.builder(EvpnRdToNetworks.class)
-                .child(EvpnRdToNetwork.class, new EvpnRdToNetworkKey(vrfId)).build();
+    public InstanceIdentifier<EvpnToNetwork> getEvpnToNetworkIdentifier(String vpnName) {
+        return InstanceIdentifier.builder(EvpnToNetworks.class)
+                .child(EvpnToNetwork.class, new EvpnToNetworkKey(vpnName)).build();
     }
 
     public void updateElanWithVpnInfo(String elanInstanceName, VpnInstance vpnInstance, Operation operation) {
@@ -113,7 +113,8 @@ public class NeutronEvpnUtils {
     public void updateVpnWithElanInfo(VpnInstance vpnInstance, String elanInstanceName, Operation operation) {
         String rd = vpnManager.getPrimaryRdFromVpnInstance(vpnInstance);
 
-        InstanceIdentifier<EvpnRdToNetwork> rdToNetworkIdentifier = getRdToNetworkIdentifier(rd);
+        InstanceIdentifier<EvpnToNetwork> rdToNetworkIdentifier = getEvpnToNetworkIdentifier(
+                vpnInstance.getVpnInstanceName());
 
         jobCoordinator.enqueueJob("EVPN_ASSOCIATE-" + rd, () -> {
             ReadWriteTransaction transaction = dataBroker.newReadWriteTransaction();
@@ -122,8 +123,8 @@ public class NeutronEvpnUtils {
                 LOG.debug("Deleting Evpn-Network with key {}", rd);
                 transaction.delete(LogicalDatastoreType.CONFIGURATION, rdToNetworkIdentifier);
             } else {
-                EvpnRdToNetworkBuilder evpnRdToNetworkBuilder = new EvpnRdToNetworkBuilder().setKey(
-                        new EvpnRdToNetworkKey(rd));
+                EvpnToNetworkBuilder evpnRdToNetworkBuilder = new EvpnToNetworkBuilder().setKey(
+                        new EvpnToNetworkKey(rd));
                 evpnRdToNetworkBuilder.setRd(rd);
                 evpnRdToNetworkBuilder.setNetworkId(elanInstanceName);
                 LOG.info("updating Evpn {} with elaninstance {} and rd {}",
