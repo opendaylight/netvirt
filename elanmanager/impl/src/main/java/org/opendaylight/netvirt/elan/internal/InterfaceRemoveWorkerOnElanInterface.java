@@ -8,19 +8,13 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class InterfaceRemoveWorkerOnElanInterface implements Callable<List<ListenableFuture<Void>>> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(InterfaceRemoveWorkerOnElanInterface.class);
 
     private final String interfaceName;
     private final ElanInstance elanInfo;
@@ -46,15 +40,8 @@ public class InterfaceRemoveWorkerOnElanInterface implements Callable<List<Liste
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     public List<ListenableFuture<Void>> call() {
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
-        try {
-            futures.addAll(dataChangeListener.removeEntriesForElanInterface(elanInfo, interfaceInfo, interfaceName,
-                    isLastElanInterface));
-        } catch (RuntimeException e) {
-            LOG.error("Error while processing for interface {} and elan {}", interfaceName, elanInfo, e);
-            ElanUtils.addToListenableFutureIfTxException(e, futures);
-        }
-        return futures;
+        return dataChangeListener.removeEntriesForElanInterface(elanInfo, interfaceInfo, interfaceName,
+                isLastElanInterface);
     }
 
 }
