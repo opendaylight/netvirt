@@ -552,7 +552,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 elanForwardingEntriesHandler.addElanInterfaceForwardingTableList(
                         elanName, interfaceName, staticMacEntry, tx);
             }
-            ElanUtils.waitForTransactionToComplete(tx);
+            ListenableFutures.addErrorLogging(ElanUtils.waitForTransactionToComplete(tx), LOG,
+                    "Error in update: identifier={}, original={}, update={}", identifier, original, update);
         }
     }
 
