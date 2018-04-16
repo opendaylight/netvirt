@@ -385,6 +385,7 @@ def get_match_inport(flow):
 
 def get_flow_info_from_any(flow_info, flow):
     w_mdata = get_instruction_writemeta(flow)
+    lport = None
     if w_mdata:
         metadata = w_mdata['metadata']
         mask = w_mdata['metadata-mask']

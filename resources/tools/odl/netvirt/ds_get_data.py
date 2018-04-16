@@ -6,7 +6,7 @@ import constants as const
 
 def get_ds_data(name, file_name=None, ds_type=None):
     res = const.DSMAP[name]
-    filename = file_name or res[const.DSM_FILE]
+    filename = '{}/{}'.format(utils.get_temp_path(), res[const.DSM_FILE])
     dstype = ds_type or res[const.DSM_DSTYPE]
     path = res[const.DSM_PATH]
     root1 = res[const.DSM_ROOT1]
@@ -18,9 +18,25 @@ def get_ds_data(name, file_name=None, ds_type=None):
     except IOError:
         url = utils.create_url(dstype, path)
         result = utils.grabJson(url)
+        with open(filename, 'w+') as data_file:
+            json.dump(result, data_file)
         if result:
             data = result[root1][root2]
     return data
+
+
+def get_all_dumps():
+    for res in const.DSMAP.itervalues():
+        filename = '{}/{}'.format(utils.get_temp_path(), res[const.DSM_FILE])
+        dstype = res[const.DSM_DSTYPE]
+        path = res[const.DSM_PATH]
+        root1 = res[const.DSM_ROOT1]
+        root2 = res[const.DSM_ROOT2]
+        data = {}
+        url = utils.create_url(dstype, path)
+        result = utils.grabJson(url)
+        with open(filename, 'w+') as data_file:
+            json.dump(result, data_file)
 
 
 def get_config_interfaces(file_name=None):

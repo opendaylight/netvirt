@@ -126,7 +126,7 @@ def get_groups(ofnodes=None):
     group_dict = defaultdict(dict)
     for node in of_nodes.itervalues():
         dpnid = utils.get_dpn_from_ofnodeid(node['id'])
-        for group in node[const.NODE_GROUP]:
+        for group in node.get(const.NODE_GROUP, []):
             if group_dict.get(dpnid) and group_dict.get(dpnid).get(group[key]):
                 print 'Duplicate:', dpnid, group[key]
             group_dict[dpnid][group[key]] = group
@@ -553,6 +553,9 @@ def analyze_trunks():
         if subport:
             print 'SubPort:{},Table:{},FlowStatus:{}'.format(
                     subport.get('port-id'), flow.get('table'), flow_status)
+
+def get_all_dumps():
+    dsg.get_all_dumps()
 
 
 def main(args=None):
