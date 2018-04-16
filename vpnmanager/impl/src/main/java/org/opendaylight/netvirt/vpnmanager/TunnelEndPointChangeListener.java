@@ -93,7 +93,7 @@ public class TunnelEndPointChangeListener
             final long vpnId = VpnUtil.getVpnId(broker, vpnName);
             LOG.info("add: Handling TEP {} add for VPN instance {}", tep.getInterfaceName(), vpnName);
             final String primaryRd = VpnUtil.getPrimaryRd(broker, vpnName);
-            if (!VpnUtil.isVpnPendingDelete(broker, primaryRd)) {
+            if (!VpnUtil.isVpnPendingDelete(broker, vpnName)) {
                 List<VpnInterfaces> vpnInterfaces = VpnUtil.getDpnVpnInterfaces(broker, vpnInstance, dpnId);
                 if (vpnInterfaces != null) {
                     for (VpnInterfaces vpnInterface : vpnInterfaces) {

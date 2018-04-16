@@ -109,13 +109,14 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     @Override
       public void deleteVrf(String rd, boolean removeFibTable, AddressFamily addressFamily) {
         boolean ret = false;
+        String vpnName = "abc";
         if (removeFibTable) {
             LOG.info("deleteVrf: suppressing FIB from rd {} with {}", rd, addressFamily);
-            fibDSWriter.removeVrfSubFamilyFromDS(rd, addressFamily);
+            fibDSWriter.removeVrfSubFamilyFromDS(vpnName, rd, addressFamily);
         }
         ret = bcm.delVrf(rd, addressFamily);
         if (ret && removeFibTable) {
-            fibDSWriter.removeVrfFromDS(rd);
+            fibDSWriter.removeVrfFromDS(vpnName, rd);
         }
     }
 
@@ -138,6 +139,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     @Override
     public void deletePrefix(String rd, String prefix) {
+        String vpnName = "abc";
         fibDSWriter.removeFibEntryFromDS(rd, prefix);
         bcm.delPrefix(rd, prefix);
     }

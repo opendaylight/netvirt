@@ -95,7 +95,7 @@ public class VpnToDpnListener implements OdlL3vpnListener {
 
             // Vpn2Scf flows (LFIB + LportDispatcher)
             // TODO: Should we filter out by bgp origin
-            List<VrfEntry> allVpnVrfEntries = VpnServiceChainUtils.getAllVrfEntries(broker, rd);
+            List<VrfEntry> allVpnVrfEntries = VpnServiceChainUtils.getAllVrfEntries(broker, vpnName, rd);
             vpnScHandler.programVpnToScfPipelineOnDpn(dpnId, allVpnVrfEntries,
                                                       vpnToPseudoPortInfo.getScfTableId(),
                                                       vpnToPseudoPortInfo.getScfTag(),
