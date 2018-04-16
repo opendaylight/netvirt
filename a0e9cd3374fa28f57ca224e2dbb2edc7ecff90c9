@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "44b0957a_c7d6c37b",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-16T07:42:17Z",
+      "side": 1,
+      "message": "Is this only outside DC-GW? What about VMs in a different subnet?",
+      "range": {
+        "startLine": 66,
+        "startChar": 2,
+        "endLine": 71,
+        "endChar": 20
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6accca6f_471015c9",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-16T07:42:17Z",
+      "side": 1,
+      "message": "This is not clear. The first packet from outside the DC-GW need not be NS packet. It can be any unicast packet belonging to a Hidden IP. As such, it is not clear why we need a rule to punt NS packets to the controller. \n\nThe rule should be for NA packet to be punted to the controller. This is described below.",
+      "range": {
+        "startLine": 227,
+        "startChar": 26,
+        "endLine": 227,
+        "endChar": 44
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5136f730_5e87bbac",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-16T07:42:17Z",
+      "side": 1,
+      "message": "The subnet route table will not have IPv6 entries? Isn\u0027t that correct?",
+      "range": {
+        "startLine": 228,
+        "startChar": 30,
+        "endLine": 228,
+        "endChar": 53
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
