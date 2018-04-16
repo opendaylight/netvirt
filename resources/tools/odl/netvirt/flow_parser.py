@@ -385,6 +385,7 @@ def get_match_inport(flow):
 
 def get_flow_info_from_any(flow_info, flow):
     w_mdata = get_instruction_writemeta(flow)
+    lport = None
     if w_mdata:
         metadata = w_mdata['metadata']
         mask = w_mdata['metadata-mask']
@@ -416,8 +417,8 @@ def get_flow_info_from_any(flow_info, flow):
 
 def get_ifname_from_flowid(flow_id, table):
     splitter = ':' if table == 0 else '.'
-    i = 2 if table == 0 else 1
-    # i = 2
+    # i = 2 if table == 0 else 1
+    i = 2
     ifname = None
     try:
         ifname = flow_id.split(splitter)[i]
