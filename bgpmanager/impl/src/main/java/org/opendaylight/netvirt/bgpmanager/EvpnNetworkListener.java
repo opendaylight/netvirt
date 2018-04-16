@@ -12,23 +12,23 @@ import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeLis
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnRdToNetworks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetwork;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnToNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.to.networks.EvpnToNetwork;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnRdToNetwork, EvpnRdNetworkListener>
-        implements ClusteredDataTreeChangeListener<EvpnRdToNetwork> {
-    private static final Logger LOG = LoggerFactory.getLogger(EvpnRdNetworkListener.class);
+public class EvpnNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnToNetwork, EvpnNetworkListener>
+        implements ClusteredDataTreeChangeListener<EvpnToNetwork> {
+    private static final Logger LOG = LoggerFactory.getLogger(EvpnNetworkListener.class);
 
     private final DataBroker broker;
     private final BgpConfigurationManager bgpConfigManager;
     private final BgpUtil bgpUtil;
 
-    public EvpnRdNetworkListener(DataBroker dataBroker, BgpConfigurationManager bgpConfigManager, BgpUtil bgpUtil) {
-        super(EvpnRdToNetwork.class, EvpnRdNetworkListener.class);
+    public EvpnNetworkListener(DataBroker dataBroker, BgpConfigurationManager bgpConfigManager, BgpUtil bgpUtil) {
+        super(EvpnToNetwork.class, EvpnNetworkListener.class);
         this.broker = dataBroker;
         this.bgpConfigManager = bgpConfigManager;
         this.bgpUtil = bgpUtil;
@@ -40,17 +40,17 @@ public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnR
     }
 
     @Override
-    protected InstanceIdentifier<EvpnRdToNetwork> getWildCardPath() {
-        return InstanceIdentifier.create(EvpnRdToNetworks.class).child(EvpnRdToNetwork.class);
+    protected InstanceIdentifier<EvpnToNetwork> getWildCardPath() {
+        return InstanceIdentifier.create(EvpnToNetworks.class).child(EvpnToNetwork.class);
     }
 
     @Override
-    protected EvpnRdNetworkListener getDataTreeChangeListener() {
+    protected EvpnNetworkListener getDataTreeChangeListener() {
         return this;
     }
 
     @Override
-    protected void add(InstanceIdentifier<EvpnRdToNetwork> instanceIdentifier, EvpnRdToNetwork rdToNetwork) {
+    protected void add(InstanceIdentifier<EvpnToNetwork> instanceIdentifier, EvpnToNetwork rdToNetwork) {
         if (!bgpConfigManager.isBGPEntityOwner()) {
             return;
         }
@@ -61,8 +61,8 @@ public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnR
     }
 
     @Override
-    protected void update(InstanceIdentifier<EvpnRdToNetwork> instanceIdentifier, EvpnRdToNetwork rdToNetwork,
-                          EvpnRdToNetwork rdToNetworkOld) {
+    protected void update(InstanceIdentifier<EvpnToNetwork> instanceIdentifier, EvpnToNetwork rdToNetwork,
+                          EvpnToNetwork rdToNetworkOld) {
         String rd = rdToNetwork.getRd();
         String elanName = rdToNetwork.getNetworkId();
         LOG.trace("Received EvpnRdToNetwork Update for RD {} Netwrok {}", rd, elanName);
@@ -71,7 +71,7 @@ public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnR
     }
 
     @Override
-    protected void remove(InstanceIdentifier<EvpnRdToNetwork> instanceIdentifier, EvpnRdToNetwork rdToNetwork) {
+    protected void remove(InstanceIdentifier<EvpnToNetwork> instanceIdentifier, EvpnToNetwork rdToNetwork) {
         if (!bgpConfigManager.isBGPEntityOwner()) {
             return;
         }

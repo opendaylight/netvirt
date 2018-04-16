@@ -27,7 +27,8 @@ import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase.EncapType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -102,14 +103,20 @@ public class ShowFibCommand extends OsgiCommandSupport {
             try {
                 FibEntries fibEntries = singleTxDb.syncRead(LogicalDatastoreType.CONFIGURATION, id);
 
-                List<VrfTables> vrfTablesList = fibEntries.getVrfTables();
-                if (vrfTablesList == null || vrfTablesList.isEmpty()) {
-                    console.println(" No Fib entries found");
+                List<VpnInstanceNames> vpnInstanceList = fibEntries.getVpnInstanceNames();
+                if (vpnInstanceList == null || vpnInstanceList.isEmpty()) {
+                    console.println(" No vpnInstances found");
                     return null;
                 }
 
-                for (VrfTables vrfTable : vrfTablesList) {
-                    printVrfTable(vrfTable, console);
+                for (VpnInstanceNames vpnInstanceName : vpnInstanceList) {
+                    List<VrfTables> vrfTablesList = vpnInstanceName.getVrfTables();
+                    if (vrfTablesList == null || vrfTablesList.isEmpty()) {
+                        continue;
+                    }
+                    for (VrfTables vrfTable : vrfTablesList) {
+                        printVrfTable(vpnInstanceName.getVpnInstanceName(), vrfTable, console);
+                    }
                 }
             } catch (ExpectedDataObjectNotFoundException e404) {
                 String errMsg = "FATAL: fib-entries container is missing from MD-SAL";
@@ -157,14 +164,21 @@ public class ShowFibCommand extends OsgiCommandSupport {
                 try {
                     FibEntries fibEntries = singleTxDb.syncRead(LogicalDatastoreType.CONFIGURATION, id);
 
-                    List<VrfTables> vrfTablesList = fibEntries.getVrfTables();
-                    if (vrfTablesList == null || vrfTablesList.isEmpty()) {
-                        console.println(" No Fib entries found");
+                    List<VpnInstanceNames> vpnInstanceList = fibEntries.getVpnInstanceNames();
+                    if (vpnInstanceList == null || vpnInstanceList.isEmpty()) {
+                        console.println(" No vpnInstances found");
                         return null;
                     }
 
-                    for (VrfTables vrfTable : vrfTablesList) {
-                        printVrfTable(vrfTable, console, isIpv4, isIpv6, isL2vpn, prefixOrSubnet);
+                    for (VpnInstanceNames vpnInstanceName : vpnInstanceList) {
+                        List<VrfTables> vrfTablesList = vpnInstanceName.getVrfTables();
+                        if (vrfTablesList == null || vrfTablesList.isEmpty()) {
+                            continue;
+                        }
+                        for (VrfTables vrfTable : vrfTablesList) {
+                            printVrfTable(vpnInstanceName.getVpnInstanceName(),vrfTable, console,
+                                    isIpv4, isIpv6, isL2vpn, prefixOrSubnet);
+                        }
                     }
                 } catch (ExpectedDataObjectNotFoundException e404) {
                     String errMsg = "FATAL: fib-entries container is missing from MD-SAL";
@@ -181,11 +195,11 @@ public class ShowFibCommand extends OsgiCommandSupport {
         return null;
     }
 
-    private void printVrfTable(VrfTables vrfTable, PrintStream console) {
-        printVrfTable(vrfTable, console, true, true, true, null);
+    private void printVrfTable(String vpnInstanceName, VrfTables vrfTable, PrintStream console) {
+        printVrfTable(vpnInstanceName, vrfTable, console, true, true, true, null);
     }
 
-    private void printVrfTable(VrfTables vrfTable, PrintStream console, boolean isIpv4, boolean isIpv6,
+    private void printVrfTable(String vpnInstanceName, VrfTables vrfTable, PrintStream console, boolean isIpv4, boolean isIpv6,
             boolean isL2vpn, String inputPrefixOrSubnet) {
 
         List<VrfEntry> vrfEntries = vrfTable.getVrfEntry();

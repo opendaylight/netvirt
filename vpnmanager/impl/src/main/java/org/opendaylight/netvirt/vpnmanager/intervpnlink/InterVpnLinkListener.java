@@ -293,16 +293,16 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         String vpn1Uuid = del.getFirstEndpoint().getVpnUuid().getValue();
         String rd1 = VpnUtil.getVpnRd(dataBroker, vpn1Uuid);
         LOG.debug("Removing leaked routes in VPN {}  rd={}", vpn1Uuid, rd1);
-        VpnUtil.removeVrfEntriesByOrigin(dataBroker, rd1, RouteOrigin.INTERVPN);
+        VpnUtil.removeVrfEntriesByOrigin(dataBroker, vpn1Uuid, rd1, RouteOrigin.INTERVPN);
         List<VrfEntry> vrfEntriesSecondEndpoint =
-            VpnUtil.findVrfEntriesByNexthop(dataBroker, rd1, del.getSecondEndpoint().getIpAddress().getValue());
+            VpnUtil.findVrfEntriesByNexthop(dataBroker, vpn1Uuid, rd1, del.getSecondEndpoint().getIpAddress().getValue());
 
         String vpn2Uuid = del.getSecondEndpoint().getVpnUuid().getValue();
         String rd2 = VpnUtil.getVpnRd(dataBroker, vpn2Uuid);
         LOG.debug("Removing leaked routes in VPN {}  rd={}", vpn2Uuid, rd2);
-        VpnUtil.removeVrfEntriesByOrigin(dataBroker, rd2, RouteOrigin.INTERVPN);
+        VpnUtil.removeVrfEntriesByOrigin(dataBroker, vpn2Uuid, rd2, RouteOrigin.INTERVPN);
         List<VrfEntry> vrfEntriesFirstEndpoint =
-            VpnUtil.findVrfEntriesByNexthop(dataBroker, rd2, del.getFirstEndpoint().getIpAddress().getValue());
+            VpnUtil.findVrfEntriesByNexthop(dataBroker, vpn2Uuid, rd2, del.getFirstEndpoint().getIpAddress().getValue());
 
         Optional<InterVpnLinkState> optIVpnLinkState = InterVpnLinkUtil.getInterVpnLinkState(dataBroker, del.getName());
         if (optIVpnLinkState.isPresent()) {
@@ -331,8 +331,8 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             }
         }
 
-        VpnUtil.removeVrfEntries(dataBroker, rd1, vrfEntriesSecondEndpoint);
-        VpnUtil.removeVrfEntries(dataBroker, rd2, vrfEntriesFirstEndpoint);
+        VpnUtil.removeVrfEntries(dataBroker, vpn1Uuid, rd1, vrfEntriesSecondEndpoint);
+        VpnUtil.removeVrfEntries(dataBroker, vpn2Uuid, rd2, vrfEntriesFirstEndpoint);
         VpnUtil.withdrawRoutes(bgpManager, rd1, vrfEntriesSecondEndpoint);
         VpnUtil.withdrawRoutes(bgpManager, rd2, vrfEntriesFirstEndpoint);
 
