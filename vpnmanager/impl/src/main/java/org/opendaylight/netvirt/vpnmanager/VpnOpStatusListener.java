@@ -113,7 +113,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
                 // Clean up FIB Entries Config DS
                 synchronized (vpnName.intern()) {
-                    fibManager.removeVrfTable(primaryRd, null);
+                    fibManager.removeVrfTable(vpnName, primaryRd, null);
                 }
 
                 // Clean up VPNExtraRoutes Operational DS

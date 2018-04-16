@@ -31,12 +31,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnRdToNetworks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetwork;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetworkKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnToNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.to.networks.EvpnToNetwork;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.to.networks.EvpnToNetworkKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,13 +90,14 @@ public class EvpnMacVrfUtils {
 
     public String getElanNameByMacvrfiid(InstanceIdentifier<MacVrfEntry> instanceIdentifier) {
         try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+            String vpnName = instanceIdentifier.firstKeyOf(VpnInstanceNames.class).getVpnInstanceName();
             String rd = instanceIdentifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
             String elanName = null;
-            InstanceIdentifier<EvpnRdToNetwork> iidEvpnRdToNet =
-                    InstanceIdentifier.builder(EvpnRdToNetworks.class).child(EvpnRdToNetwork.class,
-                            new EvpnRdToNetworkKey(rd)).build();
+            InstanceIdentifier<EvpnToNetwork> iidEvpnRdToNet =
+                    InstanceIdentifier.builder(EvpnToNetworks.class).child(EvpnToNetwork.class,
+                            new EvpnToNetworkKey(vpnName)).build();
             try {
-                Optional<EvpnRdToNetwork> evpnRdToNetwork =
+                Optional<EvpnToNetwork> evpnRdToNetwork =
                         tx.read(LogicalDatastoreType.CONFIGURATION, iidEvpnRdToNet).checkedGet();
                 if (evpnRdToNetwork.isPresent()) {
                     elanName = evpnRdToNetwork.get().getNetworkId();
@@ -106,17 +109,21 @@ public class EvpnMacVrfUtils {
         }
     }
 
-    public InstanceIdentifier<MacVrfEntry> getMacVrfEntryIid(String rd, MacVrfEntry macVrfEntry) {
-        return InstanceIdentifier.create(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
+    public InstanceIdentifier<MacVrfEntry> getMacVrfEntryIid(String vpnName, String rd, MacVrfEntry macVrfEntry) {
+        return InstanceIdentifier.create(FibEntries.class)
+                .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnName))
+                .child(VrfTables.class, new VrfTablesKey(rd))
                 .child(MacVrfEntry.class, macVrfEntry.getKey());
     }
 
     public void updateEvpnDmacFlows(final ElanInstance elanInstance, final boolean install) {
+        String vpnName = evpnUtils.getEvpnNameFromElan(elanInstance);
         String rd = evpnUtils.getEvpnRd(elanInstance);
         if (rd == null) {
             return;
         }
         final InstanceIdentifier<VrfTables> iid = InstanceIdentifier.create(FibEntries.class)
+                .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnName))
                 .child(VrfTables.class, new VrfTablesKey(rd));
         evpnUtils.asyncReadAndExecute(LogicalDatastoreType.CONFIGURATION, iid,
                 new StringBuilder(elanInstance.getElanInstanceName()).append(":").append(rd).toString(),
@@ -129,7 +136,7 @@ public class EvpnMacVrfUtils {
                     return null;
                 }
                 for (MacVrfEntry macVrfEntry : macVrfEntries) {
-                    InstanceIdentifier<MacVrfEntry> macVrfEntryIid = getMacVrfEntryIid(rd, macVrfEntry);
+                    InstanceIdentifier<MacVrfEntry> macVrfEntryIid = getMacVrfEntryIid(vpnName, rd, macVrfEntry);
                     if (install) {
                         addEvpnDmacFlowOnAttach(macVrfEntryIid, macVrfEntry, elanInstance);
                     } else {

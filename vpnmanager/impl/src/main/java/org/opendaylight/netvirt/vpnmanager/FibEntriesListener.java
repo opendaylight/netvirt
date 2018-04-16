@@ -17,8 +17,10 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -48,7 +50,9 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
 
     @Override
     protected InstanceIdentifier<VrfEntry> getWildCardPath() {
-        return InstanceIdentifier.create(FibEntries.class).child(VrfTables.class).child(VrfEntry.class);
+        return InstanceIdentifier.create(FibEntries.class)
+                .child(VpnInstanceNames.class)
+                .child(VrfTables.class).child(VrfEntry.class);
     }
 
     @Override
@@ -63,23 +67,27 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
         LOG.trace("Remove Fib event - Key : {}, value : {} ", identifier, del);
         final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
         String rd = key.getRouteDistinguisher();
+        final VpnInstanceNamesKey vpnKey = identifier.firstKeyOf(VpnInstanceNames.class, VpnInstanceNamesKey.class);
+        String vpnName = vpnKey.getVpnInstanceName();
         List<RoutePaths> routePaths = del.getRoutePaths();
-        removeLabelFromVpnInstance(rd, routePaths);
+        removeLabelFromVpnInstance(vpnName, rd, routePaths);
     }
 
     @Override
     protected void update(InstanceIdentifier<VrfEntry> identifier,
         VrfEntry original, VrfEntry update) {
         final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
+        final VpnInstanceNamesKey vpnKey = identifier.firstKeyOf(VpnInstanceNames.class, VpnInstanceNamesKey.class);
         String rd = key.getRouteDistinguisher();
+        String vpnName = vpnKey.getVpnInstanceName();
         List<RoutePaths> originalRoutePaths = new ArrayList<>(original.getRoutePaths());
         List<RoutePaths> updateRoutePaths = new ArrayList<>(update.getRoutePaths());
         if (originalRoutePaths.size() < updateRoutePaths.size()) {
             updateRoutePaths.removeAll(originalRoutePaths);
-            addLabelToVpnInstance(rd, updateRoutePaths);
+            addLabelToVpnInstance(vpnName, rd, updateRoutePaths);
         } else if (originalRoutePaths.size() > updateRoutePaths.size()) {
             originalRoutePaths.removeAll(updateRoutePaths);
-            removeLabelFromVpnInstance(rd, originalRoutePaths);
+            removeLabelFromVpnInstance(vpnName, rd, originalRoutePaths);
         }
     }
 
@@ -89,13 +97,16 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
         LOG.trace("Add Vrf Entry event - Key : {}, value : {}", identifier, add);
         final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
         String rd = key.getRouteDistinguisher();
-        addLabelToVpnInstance(rd, add.getRoutePaths());
+        final VpnInstanceNamesKey vpnKey = identifier.firstKeyOf(VpnInstanceNames.class, VpnInstanceNamesKey.class);
+        String vpnName = vpnKey.getVpnInstanceName();
+        addLabelToVpnInstance(vpnName, rd, add.getRoutePaths());
     }
 
-    private void addLabelToVpnInstance(String rd, List<RoutePaths> routePaths) {
+    private void addLabelToVpnInstance(String vpnInstanceName, String rd,
+                                       List<RoutePaths> routePaths) {
         List<Long> labels = routePaths.stream().map(RoutePaths::getLabel).distinct()
                             .collect(Collectors.toList());
-        VpnInstanceOpDataEntry vpnInstanceOpData = vpnInstanceListener.getVpnInstanceOpData(rd);
+        VpnInstanceOpDataEntry vpnInstanceOpData = vpnInstanceListener.getVpnInstanceOpData(vpnInstanceName);
         if (vpnInstanceOpData != null) {
             List<Long> routeIds = vpnInstanceOpData.getRouteEntryId() == null ? new ArrayList<>()
                     : vpnInstanceOpData.getRouteEntryId();
@@ -106,7 +117,7 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
                 }
             });
             TransactionUtil.asyncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                    VpnUtil.getVpnInstanceOpDataIdentifier(rd),
+                    VpnUtil.getVpnInstanceOpDataIdentifier(vpnInstanceName),
                     new VpnInstanceOpDataEntryBuilder(vpnInstanceOpData).setRouteEntryId(routeIds).build(),
                     TransactionUtil.DEFAULT_CALLBACK);
         } else {
@@ -114,10 +125,11 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
         }
     }
 
-    private void removeLabelFromVpnInstance(String rd, List<RoutePaths> routePaths) {
+    private void removeLabelFromVpnInstance(String vpnInstanceName, String rd,
+                                            List<RoutePaths> routePaths) {
         List<Long> labels = routePaths.stream().map(RoutePaths::getLabel).distinct()
                 .collect(Collectors.toList());
-        VpnInstanceOpDataEntry vpnInstanceOpData = vpnInstanceListener.getVpnInstanceOpData(rd);
+        VpnInstanceOpDataEntry vpnInstanceOpData = vpnInstanceListener.getVpnInstanceOpData(vpnInstanceName);
         if (vpnInstanceOpData != null) {
             List<Long> routeIds = vpnInstanceOpData.getRouteEntryId();
             if (routeIds == null) {
@@ -128,7 +140,7 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
                 TransactionUtil.asyncWrite(
                         dataBroker,
                         LogicalDatastoreType.OPERATIONAL,
-                        VpnUtil.getVpnInstanceOpDataIdentifier(rd),
+                        VpnUtil.getVpnInstanceOpDataIdentifier(vpnInstanceName),
                         new VpnInstanceOpDataEntryBuilder(vpnInstanceOpData).setRouteEntryId(
                                 routeIds).build(), TransactionUtil.DEFAULT_CALLBACK);
             }
