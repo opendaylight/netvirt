@@ -19,6 +19,8 @@ def parse_args():
                       help="opendaylight restconf password")
     parser.add_option("-m", "--method", action="store", type="string", dest="callMethod", default=None,
                       help="method to call")
+    parser.add_option("-d", "--tempdir", action="store", type="string", dest="tempDir", default="/tmp/odl",
+                      help="temp directory to store data")
     (options, args) = parser.parse_args(sys.argv)
     return options, args
 
@@ -33,6 +35,12 @@ def get_args():
 
 def create_url(dsType, path):
     return 'http://{}:{}/restconf/{}/{}/'.format(options.odlIp, options.odlPort, dsType, path)
+
+
+def get_temp_path():
+    if options:
+        return options.tempDir
+    return './'
 
 
 def grabJson(url):

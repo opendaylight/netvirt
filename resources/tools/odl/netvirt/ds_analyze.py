@@ -52,20 +52,20 @@ def analyze_interface(ifname=None):
     ifstates = dsg.get_interface_states()
     iface,ifstate,port,tunnel,tunState = by_ifname(ifname)
     print "InterfaceConfig: "
-    utils.pretty_print(iface)
+    json.dumps(iface, indent=2)
     print "InterfaceState: "
-    utils.pretty_print(ifstate)
+    json.dumps(ifstate, indent=2)
     if port:
         print "NeutronPort: "
-        utils.pretty_print(port)
+        json.dumps(port, indent=2)
         analyze_neutron_port(port, iface, ifstate)
         return
     if tunnel:
         print "Tunnel: "
-        utils.pretty_print(tunnel)
+        json.dumps(tunnel, indent=2)
     if tunState:
         print "TunState: "
-        utils.pretty_print(tunState)
+        json.dumps(tunState, indent=2)
     if ifstate:
         ncId = ifstate.get('lower-layer-if')[0]
         nodeId = ncId[:ncId.rindex(':')]
@@ -75,7 +75,7 @@ def analyze_interface(ifname=None):
 def analyze_neutron_port(port, iface, ifstate):
     for flow in utils.sort(get_all_flows(['all']), 'table'):
         if ((flow.get('ifname') == port['uuid']) or
-            (flow.get('lport') and flow['lport'] == ifstate.get('if-index')) or
+            (flow.get('lport') and ifstate and flow['lport'] == ifstate.get('if-index')) or
             (iface['name'] == flow.get('ifname'))):
                 result = 'Table:{},FlowId:{}{}'.format(
                 flow['table'], flow['id'],
@@ -97,7 +97,7 @@ def analyze_inventory(nodeId, isConfig=True, ncId=None, ifName=None):
     flow_list = []
     print "Flows:"
     for table in tables:
-        for flow in table.get('flow'):
+        for flow in table.get('flow', []):
             if not ifName or ifName in utils.nstr(flow.get('flow-name')):
                 flow_dict = {}
                 flow_dict['table'] = table['id']
@@ -126,7 +126,7 @@ def get_groups(ofnodes=None):
     group_dict = defaultdict(dict)
     for node in of_nodes.itervalues():
         dpnid = utils.get_dpn_from_ofnodeid(node['id'])
-        for group in node[const.NODE_GROUP]:
+        for group in node.get(const.NODE_GROUP, []):
             if group_dict.get(dpnid) and group_dict.get(dpnid).get(group[key]):
                 print 'Duplicate:', dpnid, group[key]
             group_dict[dpnid][group[key]] = group
@@ -553,6 +553,9 @@ def analyze_trunks():
         if subport:
             print 'SubPort:{},Table:{},FlowStatus:{}'.format(
                     subport.get('port-id'), flow.get('table'), flow_status)
+
+def get_all_dumps():
+    dsg.get_all_dumps()
 
 
 def main(args=None):
