@@ -61,8 +61,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VpnInstanceNamesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.vpninstancenames.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
@@ -443,7 +445,7 @@ public class NaptSwitchHA {
                             String rd = NatUtil.getVpnRd(dataBroker, vpnName);
                             for (String externalIp : externalIpsCache) {
                                 LOG.debug("isNaptSwitchDown : Removing Fib entry rd {} prefix {}", rd, externalIp);
-                                fibManager.removeFibEntry(rd, externalIp, null);
+                                fibManager.removeFibEntry(vpnName, rd, externalIp, null);
                             }
                         }
                     } else {
@@ -957,7 +959,7 @@ public class NaptSwitchHA {
             Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
             String rd = NatUtil.getVpnRd(dataBroker, vpnName);
             for (String externalIp : externalIps) {
-                removeFibEntry(rd, externalIp);
+                removeFibEntry(vpnName, rd, externalIp);
                 LOG.debug("installSnatFlows : advToBgpAndInstallFibAndTsFlows in naptswitch id {} "
                     + "with vpnName {} and externalIp {}", naptSwitch, vpnName, externalIp);
                 externalRouterListener.advToBgpAndInstallFibAndTsFlows(naptSwitch, NwConstants.INBOUND_NAPT_TABLE,
@@ -1042,15 +1044,17 @@ public class NaptSwitchHA {
         }
     }
 
-    private void removeFibEntry(String rd, String prefix) {
+    private void removeFibEntry(String vpnName, String rd, String prefix) {
         InstanceIdentifier.InstanceIdentifierBuilder<VrfEntry> idBuilder =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
+            InstanceIdentifier.builder(FibEntries.class)
+                    .child(VpnInstanceNames.class, new VpnInstanceNamesKey(vpnName))
+                    .child(VrfTables.class, new VrfTablesKey(rd))
                 .child(VrfEntry.class, new VrfEntryKey(prefix));
         InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
         Optional<VrfEntry> ent = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
         if (ent.isPresent()) {
             LOG.debug("removeFibEntry : Removing Fib entry rd {} prefix {}", rd, prefix);
-            fibManager.removeFibEntry(rd, prefix, null);
+            fibManager.removeFibEntry(vpnName, rd, prefix, null);
         }
     }
 

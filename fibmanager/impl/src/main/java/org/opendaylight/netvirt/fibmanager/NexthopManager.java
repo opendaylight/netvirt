@@ -814,15 +814,16 @@ public class NexthopManager implements AutoCloseable {
         return groupId;
     }
 
-    long createNextHopGroups(Long vpnId, String rd, BigInteger dpnId, VrfEntry vrfEntry,
-            Routes routes, List<Routes> vpnExtraRoutes) {
+    long createNextHopGroups(Long vpnId, String vpnInstanceName, String rd, BigInteger dpnId, VrfEntry vrfEntry,
+                             Routes routes, List<Routes> vpnExtraRoutes) {
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         List<Routes> clonedVpnExtraRoutes  = new ArrayList<>(vpnExtraRoutes);
         if (clonedVpnExtraRoutes.contains(routes)) {
             listBucketInfo.addAll(getBucketsForLocalNexthop(vpnId, dpnId, vrfEntry, routes));
             clonedVpnExtraRoutes.remove(routes);
         }
-        listBucketInfo.addAll(getBucketsForRemoteNexthop(vpnId, dpnId, vrfEntry, rd, clonedVpnExtraRoutes));
+        listBucketInfo.addAll(getBucketsForRemoteNexthop(vpnId, dpnId, vrfEntry, vpnInstanceName,
+                rd, clonedVpnExtraRoutes));
         return setupLoadBalancingNextHop(vpnId, dpnId, vrfEntry.getDestPrefix(), listBucketInfo, true);
     }
 
@@ -855,8 +856,9 @@ public class NexthopManager implements AutoCloseable {
         return listBucketInfo;
     }
 
-    private List<BucketInfo> getBucketsForRemoteNexthop(Long vpnId, BigInteger dpnId, VrfEntry vrfEntry, String rd,
-            List<Routes> vpnExtraRoutes) {
+    private List<BucketInfo> getBucketsForRemoteNexthop(Long vpnId, BigInteger dpnId, VrfEntry vrfEntry,
+                                                        String vpnInstanceName, String rd,
+                                                        List<Routes> vpnExtraRoutes) {
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         Map<String, List<ActionInfo>> egressActionMap = new HashMap<>();
         vpnExtraRoutes.forEach(vpnExtraRoute -> vpnExtraRoute.getNexthopIpList().forEach(nextHopIp -> {
@@ -866,7 +868,8 @@ public class NexthopManager implements AutoCloseable {
             } else {
                 nextHopPrefixIp = nextHopIp + NwConstants.IPV6PREFIX;
             }
-            List<String> tepIpAddresses = fibUtil.getNextHopAddresses(rd, nextHopPrefixIp);
+            List<String> tepIpAddresses = fibUtil.getNextHopAddresses(vpnInstanceName, rd,
+                    nextHopPrefixIp);
             if (tepIpAddresses.isEmpty()) {
                 return;
             }

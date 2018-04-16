@@ -883,11 +883,11 @@ public class VpnSubnetRouteHandler {
     }
 
     public void deleteSubnetRouteFibEntryFromDS(String rd, String prefix, String vpnName) {
-        fibManager.removeFibEntry(rd, prefix, null);
+        fibManager.removeFibEntry(vpnName, rd, prefix, null);
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = VpnUtil.getVpnsImportingMyRoute(dataBroker, vpnName);
         for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
             String importingRd = vpnInstance.getVrfId();
-            fibManager.removeFibEntry(importingRd, prefix, null);
+            fibManager.removeFibEntry(vpnInstance.getVpnInstanceName(), importingRd, prefix, null);
             LOG.info("SUBNETROUTE: deleteSubnetRouteFibEntryFromDS: Deleted imported subnet route rd {} prefix {}"
                     + " from vpn {} importingRd {}", rd, prefix, vpnInstance.getVpnInstanceName(), importingRd);
         }
