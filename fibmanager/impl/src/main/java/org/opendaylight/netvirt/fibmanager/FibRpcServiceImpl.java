@@ -121,13 +121,15 @@ public class FibRpcServiceImpl implements FibRpcService {
 
     @Override
     public Future<RpcResult<Void>> populateFibOnDpn(PopulateFibOnDpnInput input) {
-        fibManager.populateFibOnNewDpn(input.getDpid(), input.getVpnId(), input.getRd(), null);
+        fibManager.populateFibOnNewDpn(input.getDpid(), input.getVpnId(), input.getVpnInstanceName(),
+                input.getRd(), null);
         return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
     }
 
     @Override
     public Future<RpcResult<Void>> cleanupDpnForVpn(CleanupDpnForVpnInput input) {
-        fibManager.cleanUpDpnForVpn(input.getDpid(), input.getVpnId(), input.getRd(), null);
+        fibManager.cleanUpDpnForVpn(input.getDpid(), input.getVpnId(), input.getVpnInstanceName(),
+                input.getRd(), null);
         return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
     }
 

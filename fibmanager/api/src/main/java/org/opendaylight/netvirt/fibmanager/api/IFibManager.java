@@ -18,16 +18,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 
 public interface IFibManager {
-    void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd,
+    void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String vpnInstanceName, String rd,
                              FutureCallback<List<Void>> callback);
 
-    void cleanUpExternalRoutesOnDpn(BigInteger dpnId, long vpnId, String rd,
+    void cleanUpExternalRoutesOnDpn(BigInteger dpnId, long vpnId, String vpnInstanceName, String rd,
                                     String localNextHopIp, String remoteNextHopIp);
 
-    void populateExternalRoutesOnDpn(BigInteger localDpnId, long vpnId, String rd,
+    void populateExternalRoutesOnDpn(BigInteger localDpnId, long vpnId, String vpnInstanceName, String rd,
                                      String localNextHopIp, String remoteNextHopIp);
 
-    void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
+    void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String vpnInstanceName, String rd,
                           FutureCallback<List<Void>> callback);
 
     void setConfTransType(String service, String transportType);
@@ -45,29 +45,30 @@ public interface IFibManager {
     void manageRemoteRouteOnDPN(boolean action,
                                 BigInteger localDpnId,
                                 long vpnId,
+                                String vpnInstanceName,
                                 String rd,
                                 String destPrefix,
                                 String destTepIp,
                                 long label);
 
-    void addOrUpdateFibEntry(String rd, String macAddress, String prefix, List<String> nextHopList,
+    void addOrUpdateFibEntry(String vpnInstanceName, String rd, String macAddress, String prefix, List<String> nextHopList,
                              VrfEntry.EncapType encapType, long label, long l3vni, String gwMacAddress,
                              String parentVpnRd, RouteOrigin origin, WriteTransaction writeConfigTxn);
 
-    void addFibEntryForRouterInterface(String rd, String prefix,
+    void addFibEntryForRouterInterface(String vpnInstanceName, String rd, String prefix,
                                        RouterInterface routerInterface, long label, WriteTransaction writeConfigTxn);
 
-    void removeOrUpdateFibEntry(String rd, String prefix, String nextHopToRemove,
+    void removeOrUpdateFibEntry(String vpnInstanceName, String rd, String prefix, String nextHopToRemove,
                                 WriteTransaction writeConfigTxn);
 
-    void removeFibEntry(String rd, String prefix, WriteTransaction writeConfigTxn);
+    void removeFibEntry(String vpnInstanceName, String rd, String prefix, WriteTransaction writeConfigTxn);
 
-    void updateRoutePathForFibEntry(String rd, String prefix, String nextHop,
+    void updateRoutePathForFibEntry(String vpnInstanceName, String rd, String prefix, String nextHop,
                                     long label, boolean nextHopAdd, WriteTransaction writeConfigTxn);
 
-    void addVrfTable(String rd, WriteTransaction writeConfigTxn);
+    void addVrfTable(String vpnInstanceName, String rd, WriteTransaction writeConfigTxn);
 
-    void removeVrfTable(String rd, WriteTransaction writeConfigTxn);
+    void removeVrfTable(String vpnInstanceName, String rd, WriteTransaction writeConfigTxn);
 
     void removeInterVPNLinkRouteFlows(String interVpnLinkName,
                                       boolean isVpnFirstEndPoint,
@@ -76,5 +77,5 @@ public interface IFibManager {
     void programDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
             String destinationIp, int addRemoveOrUpdate, boolean isTunnelUp);
 
-    void refreshVrfEntry(String rd, String prefix);
+    void refreshVrfEntry(String vpnInstanceName, String rd, String prefix);
 }
