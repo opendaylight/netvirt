@@ -1380,7 +1380,8 @@ public class ElanUtils {
         try {
             futures.get();
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error writing to datastore {}", e);
+            // NETVIRT-1215: Do not log.error() here, only debug()
+            LOG.debug("Error writing to datastore", e);
         }
         return futures;
     }
