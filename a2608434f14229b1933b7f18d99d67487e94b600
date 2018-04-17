@@ -34,6 +34,24 @@
       "revId": "a2608434f14229b1933b7f18d99d67487e94b600",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a2581db8_b81d2c28",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/InterfaceAddWorkerOnElan.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-17T12:42:04Z",
+      "side": 0,
+      "message": "BTW, what kind of error statement will the JCOORD throw out if all retries failed.\n\nBasically what context it will have in the error message?\n\nIf it only throws the key (which is elanInstanceName), it would not be helpful for production.",
+      "parentUuid": "35d58a4f_6181d077",
+      "revId": "a2608434f14229b1933b7f18d99d67487e94b600",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
