@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb8e1ce8_231b3796",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2018-04-17T17:58:08Z",
+      "side": 1,
+      "message": "why is CSIT N/A?\n\nit might be feasible to craft spoofed packets that will trigger these\nnew learn actions where we can at least validate the new flows are\nprogrammed. subsequent traffic can be sent to check the packet counters\nincrease as expected.\n\nif the timeouts are configurable, is it something we can configure\nwithout a restart? The timeouts should be tested and validated as\nwell.",
+      "range": {
+        "startLine": 322,
+        "startChar": 0,
+        "endLine": 324,
+        "endChar": 4
+      },
+      "revId": "5ad1571c185174b8a2e5dbcfb88d4c98e41c6849",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
