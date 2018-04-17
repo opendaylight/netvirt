@@ -119,6 +119,54 @@
     },
     {
       "key": {
+        "uuid": "916f2f8d_9c35ddd2",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-17T10:50:21Z",
+      "side": 1,
+      "message": "It will be similar to subnet routing for hidden IPv4 addresses.\nIn IPv4 case, controller generates/sends single ARP for hidden IPv4 address to ELAN group which in-turn sends to all the ports on the ELAN.\nSimilarly for IPv6 case, controller will generate/sends single NS packet for hidden IPv6 address to ELAN group which in-turn sends to all the ports on the ELAN.",
+      "parentUuid": "7699fb20_2b9da38e",
+      "range": {
+        "startLine": 97,
+        "startChar": 6,
+        "endLine": 97,
+        "endChar": 31
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ccea8da_51f9c463",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-17T10:50:21Z",
+      "side": 1,
+      "message": "Yes Sridhar, it\u0027s NS. Updated the spec.",
+      "parentUuid": "f0aec93e_472d9b7b",
+      "range": {
+        "startLine": 97,
+        "startChar": 6,
+        "endLine": 97,
+        "endChar": 16
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "38968563_074b7229",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 2
@@ -177,6 +225,30 @@
       "writtenOn": "2018-04-16T09:13:41Z",
       "side": 1,
       "message": "Please elaborate what you mean by \"DC-GW advt\".",
+      "range": {
+        "startLine": 100,
+        "startChar": 18,
+        "endLine": 100,
+        "endChar": 46
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae1676e9_f7f830a6",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-17T10:50:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "878ba3cd_62ae750f",
       "range": {
         "startLine": 100,
         "startChar": 18,
@@ -365,6 +437,30 @@
       "side": 1,
       "message": "Yes. Good idea to make it consistent\n@Som, it may be a good idea to replace UNADVERTISED with only DEFERRED to make this consistent throughout the spec.",
       "parentUuid": "dc86a11f_68b498e7",
+      "range": {
+        "startLine": 145,
+        "startChar": 38,
+        "endLine": 145,
+        "endChar": 50
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4d466546_0b252f5a",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-17T10:50:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ac48c36_b706435c",
       "range": {
         "startLine": 145,
         "startChar": 38,
@@ -566,6 +662,30 @@
     },
     {
       "key": {
+        "uuid": "cc2e9dbd_6dc1a8fd",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-17T10:50:21Z",
+      "side": 1,
+      "message": "Updated the doc.\nNow only NAs from Global Unicast Address (GUA) IPv6 addresses excluding from neutron port Fixed IPs and LLA\u0027s will be punted to controller.",
+      "parentUuid": "04f6983e_f09a6244",
+      "range": {
+        "startLine": 240,
+        "startChar": 89,
+        "endLine": 240,
+        "endChar": 129
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "16f83d25_2336685b",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 2
@@ -601,6 +721,30 @@
       "side": 1,
       "message": "So, this should have been better explained.\n\nBasically, ODL supports both IPv4 and IPv6 address families. What could happen potentially is that  customer configures a pure IPv6 VM, (from neutron perspective) but allocates IPv4 hidden IPs out of band. Or alternatively, customer can configure pure IPv4 VMs (from neutron perspective), but allocates IPv6 hidden addresses out of band.",
       "parentUuid": "16f83d25_2336685b",
+      "range": {
+        "startLine": 264,
+        "startChar": 23,
+        "endLine": 264,
+        "endChar": 100
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89363870_7b257664",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-17T10:50:21Z",
+      "side": 1,
+      "message": "Updated doc.",
+      "parentUuid": "8efb4ca6_60e94a44",
       "range": {
         "startLine": 264,
         "startChar": 23,
