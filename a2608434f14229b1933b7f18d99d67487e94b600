@@ -16,6 +16,24 @@
       "revId": "a2608434f14229b1933b7f18d99d67487e94b600",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "35d58a4f_6181d077",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/InterfaceAddWorkerOnElan.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-17T12:39:17Z",
+      "side": 0,
+      "message": "Wasn\u0027t owning this file... But after analyzing it looks they need a LOG.error statement printed here and so they might have inserted a catch to squeeze in the log statement and throw back the TXCOMMITFAILED so that the JCOORD retry is triggered.",
+      "parentUuid": "192537b7_dd6c197c",
+      "revId": "a2608434f14229b1933b7f18d99d67487e94b600",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
