@@ -95,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "1aab4742_fb7a08fc",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-17T06:50:48Z",
+      "side": 1,
+      "message": "Do you mean \"you could not find\" or \"you could find\"? I did not understand the question.",
+      "parentUuid": "7699fb20_2b9da38e",
+      "range": {
+        "startLine": 97,
+        "startChar": 6,
+        "endLine": 97,
+        "endChar": 31
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "38968563_074b7229",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 2
@@ -106,6 +130,30 @@
       "writtenOn": "2018-04-16T09:13:41Z",
       "side": 1,
       "message": "Today we are \"punting only NAs\" that are destined to the Neutron Router interface. Does this patch change the behavior?",
+      "range": {
+        "startLine": 98,
+        "startChar": 30,
+        "endLine": 98,
+        "endChar": 95
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "42d9f483_4b892bda",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-17T06:50:48Z",
+      "side": 1,
+      "message": "Yes. It will. All Neighbor Advertisements will be punted to the controller. This is similar to GARP/ARP based learning supported for IPv4.",
+      "parentUuid": "38968563_074b7229",
       "range": {
         "startLine": 98,
         "startChar": 30,
@@ -164,6 +212,30 @@
     },
     {
       "key": {
+        "uuid": "a540c83c_bff1656d",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-17T06:50:48Z",
+      "side": 1,
+      "message": "Discussed later.",
+      "parentUuid": "0d494cdb_e15adea6",
+      "range": {
+        "startLine": 118,
+        "startChar": 30,
+        "endLine": 118,
+        "endChar": 92
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "99960a50_9145d243",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 2
@@ -175,6 +247,30 @@
       "writtenOn": "2018-04-16T09:13:41Z",
       "side": 1,
       "message": "The subnet-routes could point to the local VM (i.e., output port) that is hosting the Hidden IP right? I\u0027m a bit confused here, can you please clarify.",
+      "range": {
+        "startLine": 130,
+        "startChar": 38,
+        "endLine": 130,
+        "endChar": 94
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "56405b26_c06b596f",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-17T06:50:48Z",
+      "side": 1,
+      "message": "A single OVS would be chosen to act as a \"landing OVS\" to discover hidden IPs. What this is saying is that if landing CSS disconnects from ODL, then \n1. withdraw the corresponding subnet route from DC-GW \n2. Identify a new OVS that can be a \"landing OVS\"\n3. Advertise the new OVS TEP IP as the NH for that subnet",
+      "parentUuid": "99960a50_9145d243",
       "range": {
         "startLine": 130,
         "startChar": 38,
@@ -210,6 +306,30 @@
     },
     {
       "key": {
+        "uuid": "caf9bff7_7d518220",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-17T06:50:48Z",
+      "side": 1,
+      "message": "It should work in theory for intra DC use cases. Inter DC use cases will not work, because it tied closely to MG-BGP and MPLSoGRE The feature does not make explicit claims that it would support flat/VLAN based  provider networks.",
+      "parentUuid": "4a8e6ec8_feefb59a",
+      "range": {
+        "startLine": 132,
+        "startChar": 6,
+        "endLine": 132,
+        "endChar": 60
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dc86a11f_68b498e7",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 2
@@ -221,6 +341,30 @@
       "writtenOn": "2018-04-16T09:13:41Z",
       "side": 1,
       "message": "Is this same as DEFERRED?",
+      "range": {
+        "startLine": 145,
+        "startChar": 38,
+        "endLine": 145,
+        "endChar": 50
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3ac48c36_b706435c",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-17T06:50:48Z",
+      "side": 1,
+      "message": "Yes. Good idea to make it consistent\n@Som, it may be a good idea to replace UNADVERTISED with only DEFERRED to make this consistent throughout the spec.",
+      "parentUuid": "dc86a11f_68b498e7",
       "range": {
         "startLine": 145,
         "startChar": 38,
@@ -304,6 +448,30 @@
     },
     {
       "key": {
+        "uuid": "b320b145_2775aebd",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-17T06:50:48Z",
+      "side": 1,
+      "message": "@Sridhar, it does not have to in the case of MPLSoGRE tunnels. The OVS is responsible for carrying out distributed routing and forwarding (to the VM) and hence only OVS is expected to know the MAC address associated with the HIdden IP. \n\nThe DC-GW has to know only the MAC address of the \"Landing OVS\" in the case of L2 underlay. It has to know the MAC address of the 1st hop router in the underlay when the underlay is L3.",
+      "parentUuid": "e41d7b1b_0527e8a5",
+      "range": {
+        "startLine": 227,
+        "startChar": 26,
+        "endLine": 227,
+        "endChar": 44
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5136f730_5e87bbac",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 2
@@ -374,6 +542,30 @@
     },
     {
       "key": {
+        "uuid": "04f6983e_f09a6244",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-17T06:50:48Z",
+      "side": 1,
+      "message": "@Sridhar I agree with you. However, the typical deployments use 2 minutes as the REACHABLE TIME and so, even if we include Neutron Ports, the number of messages generated is not too high. That said, a user can configure a very low value of REACHABLE TIME and that can cause havoc. One possibility is to limit the RT configuration minimum value to be 1 minute (so that the load is not too high).\n\n@Som, @Sridhar, are there alternatives here?",
+      "parentUuid": "b60ff60e_0a4dab56",
+      "range": {
+        "startLine": 240,
+        "startChar": 89,
+        "endLine": 240,
+        "endChar": 129
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "16f83d25_2336685b",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 2
@@ -385,6 +577,30 @@
       "writtenOn": "2018-04-16T09:13:41Z",
       "side": 1,
       "message": "But in a dual-stack VM the VM would still have both IPv4/IPv6 address. Please clarify when would this situation arise?",
+      "range": {
+        "startLine": 264,
+        "startChar": 23,
+        "endLine": 264,
+        "endChar": 100
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8efb4ca6_60e94a44",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-17T06:50:48Z",
+      "side": 1,
+      "message": "So, this should have been better explained.\n\nBasically, ODL supports both IPv4 and IPv6 address families. What could happen potentially is that  customer configures a pure IPv6 VM, (from neutron perspective) but allocates IPv4 hidden IPs out of band. Or alternatively, customer can configure pure IPv4 VMs (from neutron perspective), but allocates IPv6 hidden addresses out of band.",
+      "parentUuid": "16f83d25_2336685b",
       "range": {
         "startLine": 264,
         "startChar": 23,
