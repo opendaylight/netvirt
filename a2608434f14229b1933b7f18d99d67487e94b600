@@ -52,6 +52,24 @@
       "revId": "a2608434f14229b1933b7f18d99d67487e94b600",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae047f52_9449ad75",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/InterfaceAddWorkerOnElan.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-04-17T13:02:04Z",
+      "side": 0,
+      "message": "we can see in https://github.com/opendaylight/infrautils/blob/master/jobcoordinator/jobcoordinator-impl/src/main/java/org/opendaylight/infrautils/jobcoordinator/internal/JobCoordinatorImpl.java#L293 that the error log contains the jobEntry, and in https://github.com/opendaylight/infrautils/blob/master/jobcoordinator/jobcoordinator-impl/src/main/java/org/opendaylight/infrautils/jobcoordinator/internal/JobEntry.java#L97 that the JobEntry.toString() includes the Callable\u003cList\u003cListenableFuture\u003cVoid\u003e\u003e\u003e mainWorker toString() which in this case is defined in lines 43/44 above, with the elanInterface, interfaceInfo, elanInstance details, so you will ultimately  have the same information - but only if it fails after retries, whereas this bad pattern logs and error even while it retries, which is very confusing.  Change your -1 to a +1? ;-)",
+      "parentUuid": "a2581db8_b81d2c28",
+      "revId": "a2608434f14229b1933b7f18d99d67487e94b600",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
