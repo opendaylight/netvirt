@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "35769eae_0c2fceaf",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-18T13:08:49Z",
+      "side": 1,
+      "message": "When there is no BGPVPN, can we use the Centralized NAPT Switch. For IPV6 N/S FLAT/Ext Network we are planning to use the same Centralized NAPT Switch for both IPv4/IPv6 traffic.",
+      "parentUuid": "d9644510_e60835d7",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 1
+      },
+      "revId": "d3107423046a58e4ece4941093c79dc715e6b0c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "71e28c2e_72d339be",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 4
@@ -59,6 +83,30 @@
       "writtenOn": "2018-04-18T09:31:36Z",
       "side": 1,
       "message": "Do we need this? This appears to bring in scale challenges because for each IPv6 entry, I would have to program a flow.\n\nGiven that the NAs are not sent frequently (Reachable Time is 2 minutes), is there a real need for this?",
+      "range": {
+        "startLine": 255,
+        "startChar": 2,
+        "endLine": 256,
+        "endChar": 62
+      },
+      "revId": "d3107423046a58e4ece4941093c79dc715e6b0c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69a0f0b2_a34a9fc5",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-18T13:08:49Z",
+      "side": 1,
+      "message": "As discussed over the email thread, for the given constraints this may be a better approach instead of punting all the packets to the controller.",
+      "parentUuid": "71e28c2e_72d339be",
       "range": {
         "startLine": 255,
         "startChar": 2,
