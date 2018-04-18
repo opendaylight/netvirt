@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "52aa4b78_85896c2f",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-18T11:01:11Z",
+      "side": 1,
+      "message": "A small clarification: when you say \"outside the subnet\", is it in the same tenant network or does it also mean an external network?",
+      "parentUuid": "ffc02977_37c69b0b",
+      "range": {
+        "startLine": 66,
+        "startChar": 2,
+        "endLine": 71,
+        "endChar": 20
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f0aec93e_472d9b7b",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 2
@@ -160,6 +184,54 @@
         "startChar": 6,
         "endLine": 97,
         "endChar": 16
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "246c45d2_0bf3ff56",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-18T11:01:11Z",
+      "side": 1,
+      "message": "Ohh, sorry missed the \"not\"",
+      "parentUuid": "1aab4742_fb7a08fc",
+      "range": {
+        "startLine": 97,
+        "startChar": 6,
+        "endLine": 97,
+        "endChar": 31
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "798304ea_8455d19b",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-18T11:01:11Z",
+      "side": 1,
+      "message": "Good to know that we can send it to the ELAN broadcast group.\nI see that we can optimize the current ipservice to do the same for periodic RA (currently we are sending it to each VM). Thanks for the info.\n\nA follow up question - when we send to ELAN group, should we send it on all the dpns?",
+      "parentUuid": "916f2f8d_9c35ddd2",
+      "range": {
+        "startLine": 97,
+        "startChar": 6,
+        "endLine": 97,
+        "endChar": 31
       },
       "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
@@ -355,6 +427,30 @@
     },
     {
       "key": {
+        "uuid": "e3ddf586_9eea03a8",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-18T11:01:11Z",
+      "side": 1,
+      "message": "thanks for the clarification.",
+      "parentUuid": "56405b26_c06b596f",
+      "range": {
+        "startLine": 130,
+        "startChar": 38,
+        "endLine": 130,
+        "endChar": 94
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4a8e6ec8_feefb59a",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 2
@@ -390,6 +486,30 @@
       "side": 1,
       "message": "It should work in theory for intra DC use cases. Inter DC use cases will not work, because it tied closely to MG-BGP and MPLSoGRE The feature does not make explicit claims that it would support flat/VLAN based  provider networks.",
       "parentUuid": "4a8e6ec8_feefb59a",
+      "range": {
+        "startLine": 132,
+        "startChar": 6,
+        "endLine": 132,
+        "endChar": 60
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d888301d_e84dcfcf",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-18T11:01:11Z",
+      "side": 1,
+      "message": "Got it.",
+      "parentUuid": "caf9bff7_7d518220",
       "range": {
         "startLine": 132,
         "startChar": 6,
@@ -568,6 +688,30 @@
     },
     {
       "key": {
+        "uuid": "469339d5_1e1e38d4",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-18T11:01:11Z",
+      "side": 1,
+      "message": "Ok, thanks @Ashvin.",
+      "parentUuid": "b320b145_2775aebd",
+      "range": {
+        "startLine": 227,
+        "startChar": 26,
+        "endLine": 227,
+        "endChar": 44
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5136f730_5e87bbac",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 2
@@ -674,6 +818,30 @@
       "side": 1,
       "message": "Updated the doc.\nNow only NAs from Global Unicast Address (GUA) IPv6 addresses excluding from neutron port Fixed IPs and LLA\u0027s will be punted to controller.",
       "parentUuid": "04f6983e_f09a6244",
+      "range": {
+        "startLine": 240,
+        "startChar": 89,
+        "endLine": 240,
+        "endChar": 129
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "14041a35_a4700026",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-18T11:01:11Z",
+      "side": 1,
+      "message": "Actually I like this idea instead of punting all the NAs to the controller. The flows would increase in the pipeline, but it would also mean less load on the controller.",
+      "parentUuid": "cc2e9dbd_6dc1a8fd",
       "range": {
         "startLine": 240,
         "startChar": 89,
