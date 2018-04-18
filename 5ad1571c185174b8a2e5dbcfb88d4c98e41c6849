@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "a1467ded_d4d77510",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-04-18T09:58:12Z",
+      "side": 1,
+      "message": "remove white space",
+      "range": {
+        "startLine": 22,
+        "startChar": 34,
+        "endLine": 22,
+        "endChar": 35
+      },
+      "revId": "5ad1571c185174b8a2e5dbcfb88d4c98e41c6849",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4749320e_779a791e",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-04-18T09:58:12Z",
+      "side": 1,
+      "message": "User higher table numbers like 195/196",
+      "range": {
+        "startLine": 86,
+        "startChar": 5,
+        "endLine": 86,
+        "endChar": 10
+      },
+      "revId": "5ad1571c185174b8a2e5dbcfb88d4c98e41c6849",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "99da463c_c6c0c62d",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-04-18T09:58:12Z",
+      "side": 1,
+      "message": "white space",
+      "range": {
+        "startLine": 86,
+        "startChar": 85,
+        "endLine": 86,
+        "endChar": 86
+      },
+      "revId": "5ad1571c185174b8a2e5dbcfb88d4c98e41c6849",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bb8e1ce8_231b3796",
         "filename": "docs/specs/fluorine/controller-punt-protection.rst",
         "patchSetId": 2
