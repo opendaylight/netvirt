@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0edb5978_a928eb85",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-18T09:31:36Z",
+      "side": 1,
+      "message": "This must be better described in the architecture. When ODL receives UNA (or NA), how is it processed. Do we use the MAC address or the Neutron Port as key (we should use the Neutron Port as Key)",
+      "range": {
+        "startLine": 64,
+        "startChar": 1,
+        "endLine": 65,
+        "endChar": 11
+      },
+      "revId": "d3107423046a58e4ece4941093c79dc715e6b0c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9644510_e60835d7",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-18T09:31:36Z",
+      "side": 1,
+      "message": "This section probably must be rewritten. The landing OVS is used only when BGP VPN is attached to the router. \n\nIf there is no BGP VPN configured, then landing OVS is not required. The FIB (or the subnet routing table) can contain the relevant CIDR based on which the packet is punted to the controller. This can be done with from every OVS in a distributed fashion. There is no need for having a landing OVS.",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 1
+      },
+      "revId": "d3107423046a58e4ece4941093c79dc715e6b0c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71e28c2e_72d339be",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-18T09:31:36Z",
+      "side": 1,
+      "message": "Do we need this? This appears to bring in scale challenges because for each IPv6 entry, I would have to program a flow.\n\nGiven that the NAs are not sent frequently (Reachable Time is 2 minutes), is there a real need for this?",
+      "range": {
+        "startLine": 255,
+        "startChar": 2,
+        "endLine": 256,
+        "endChar": 62
+      },
+      "revId": "d3107423046a58e4ece4941093c79dc715e6b0c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
