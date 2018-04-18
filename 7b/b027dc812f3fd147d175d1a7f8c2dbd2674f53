@@ -1,0 +1,7 @@
+Code-Review+2: Sam Hague <shague@redhat.com>
+Verified+1: Sam Hague <shague@redhat.com>
+Submitted-by: Thanh Ha <thanh.ha@linuxfoundation.org>
+Submitted-at: Wed, 18 Apr 2018 13:53:03 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/70638
+Project: netvirt
+Branch: refs/heads/stable/oxygen
