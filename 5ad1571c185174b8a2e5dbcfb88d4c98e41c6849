@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5bef7385_b9adfb64",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-18T12:02:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a1467ded_d4d77510",
+      "range": {
+        "startLine": 22,
+        "startChar": 34,
+        "endLine": 22,
+        "endChar": 35
+      },
+      "revId": "5ad1571c185174b8a2e5dbcfb88d4c98e41c6849",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4749320e_779a791e",
         "filename": "docs/specs/fluorine/controller-punt-protection.rst",
         "patchSetId": 2
@@ -71,6 +95,54 @@
     },
     {
       "key": {
+        "uuid": "5517b698_33f25dd9",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-18T12:02:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99da463c_c6c0c62d",
+      "range": {
+        "startLine": 86,
+        "startChar": 85,
+        "endLine": 86,
+        "endChar": 86
+      },
+      "revId": "5ad1571c185174b8a2e5dbcfb88d4c98e41c6849",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b1994b05_df2f5e18",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-18T12:02:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4749320e_779a791e",
+      "range": {
+        "startLine": 86,
+        "startChar": 5,
+        "endLine": 86,
+        "endChar": 10
+      },
+      "revId": "5ad1571c185174b8a2e5dbcfb88d4c98e41c6849",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bb8e1ce8_231b3796",
         "filename": "docs/specs/fluorine/controller-punt-protection.rst",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2018-04-17T17:58:08Z",
       "side": 1,
       "message": "why is CSIT N/A?\n\nit might be feasible to craft spoofed packets that will trigger these\nnew learn actions where we can at least validate the new flows are\nprogrammed. subsequent traffic can be sent to check the packet counters\nincrease as expected.\n\nif the timeouts are configurable, is it something we can configure\nwithout a restart? The timeouts should be tested and validated as\nwell.",
+      "range": {
+        "startLine": 322,
+        "startChar": 0,
+        "endLine": 324,
+        "endChar": 4
+      },
+      "revId": "5ad1571c185174b8a2e5dbcfb88d4c98e41c6849",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "13ce2b94_13a1a1cd",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-18T12:02:54Z",
+      "side": 1,
+      "message": "Updated the CSIT section in the spec.\n\nThe timeout configuration change will require ODL restart.\nThis is also updated in the spec now.",
+      "parentUuid": "bb8e1ce8_231b3796",
       "range": {
         "startLine": 322,
         "startChar": 0,
