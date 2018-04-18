@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef549617_c9172816",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-04-18T09:35:18Z",
+      "side": 1,
+      "message": "NOK: missing \"final\"",
+      "revId": "2b32e982327ed75d151b5278591a8cabfcb5b49f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "caa565dc_d6a66765",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-04-18T09:35:18Z",
+      "side": 1,
+      "message": "OK: ah yes, \"_\" instead of \".\" - great catch",
+      "revId": "2b32e982327ed75d151b5278591a8cabfcb5b49f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
