@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8a17988c_5555091c",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-19T13:50:57Z",
+      "side": 1,
+      "message": "Updated in the \"Details\" section.\nI can think of one reason where MAC address cannot be used as key i.e., to support overlapping MACs across tenants.\nAny other reasons?",
+      "parentUuid": "0edb5978_a928eb85",
+      "range": {
+        "startLine": 64,
+        "startChar": 1,
+        "endLine": 65,
+        "endChar": 11
+      },
+      "revId": "d3107423046a58e4ece4941093c79dc715e6b0c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d9644510_e60835d7",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 4
@@ -59,6 +83,30 @@
       "writtenOn": "2018-04-18T13:08:49Z",
       "side": 1,
       "message": "When there is no BGPVPN, can we use the Centralized NAPT Switch. For IPV6 N/S FLAT/Ext Network we are planning to use the same Centralized NAPT Switch for both IPv4/IPv6 traffic.",
+      "parentUuid": "d9644510_e60835d7",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 1
+      },
+      "revId": "d3107423046a58e4ece4941093c79dc715e6b0c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f52cb35_5dd8f7bc",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-19T13:50:57Z",
+      "side": 1,
+      "message": "@Ashvin, Done",
       "parentUuid": "d9644510_e60835d7",
       "range": {
         "startLine": 92,
