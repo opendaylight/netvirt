@@ -56,6 +56,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.SystemPropertyReader;
@@ -1400,27 +1401,42 @@ public final class VpnUtil {
         return InstanceIdentifier.create(Subnetmaps.class);
     }
 
-    public static FlowEntity buildL3vpnGatewayFlow(BigInteger dpId, String gwMacAddress, long vpnId,
+    public static FlowEntity buildL3vpnGatewayFlow(DataBroker broker, BigInteger dpId, String gwMacAddress, long vpnId,
             long subnetVpnId) {
         List<MatchInfo> mkMatches = new ArrayList<>();
+        Subnetmap smap = null;
         mkMatches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
         mkMatches.add(new MatchEthernetDestination(new MacAddress(gwMacAddress)));
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionGotoTable(NwConstants.L3_FIB_TABLE));
         if (subnetVpnId != VpnConstants.INVALID_ID) {
+            String vpnName = getVpnName(broker, subnetVpnId);
+            if (vpnName != null) {
+                smap = getSubnetmapFromItsUuid(broker, Uuid.getDefaultInstance(vpnName));
+                if (smap != null && smap.getSubnetIp() != null) {
+                    IpVersionChoice ipVersionChoice = getIpVersionFromString(smap.getSubnetIp());
+                    if (ipVersionChoice == IpVersionChoice.IPV4) {
+                        mkMatches.add(MatchEthernetType.IPV4);
+                    } else {
+                        mkMatches.add(MatchEthernetType.IPV6);
+                    }
+                }
+            }
+
             BigInteger subnetIdMetaData = MetaDataUtil.getVpnIdMetadata(subnetVpnId);
             mkInstructions.add(new InstructionWriteMetadata(subnetIdMetaData, MetaDataUtil.METADATA_MASK_VRFID));
         }
 
-        String flowId = getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, gwMacAddress);
+        String flowId = getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, gwMacAddress, subnetVpnId);
 
         return MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
                 flowId, 20, flowId, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, mkMatches, mkInstructions);
     }
 
-    private static String getL3VpnGatewayFlowRef(short l3GwMacTable, BigInteger dpId, long vpnId, String gwMacAddress) {
+    private static String getL3VpnGatewayFlowRef(short l3GwMacTable, BigInteger dpId, long vpnId,
+                                                 String gwMacAddress, long subnetVpnId) {
         return gwMacAddress + NwConstants.FLOWID_SEPARATOR + vpnId + NwConstants.FLOWID_SEPARATOR + dpId
-            + NwConstants.FLOWID_SEPARATOR + l3GwMacTable;
+            + NwConstants.FLOWID_SEPARATOR + l3GwMacTable + NwConstants.FLOWID_SEPARATOR + subnetVpnId;
     }
 
     public static void lockSubnet(LockManagerService lockManager, String subnetId) {
@@ -1521,7 +1537,8 @@ public final class VpnUtil {
                         interfaceName, dpnId.toString(), vpnIdsOptional.get().getVpnInstanceName());
                 return;
             }
-            FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dpnId, gwMac, vpnId, VpnConstants.INVALID_ID);
+            FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dataBroker, dpnId, gwMac, vpnId,
+                    VpnConstants.INVALID_ID);
             if (addOrRemove == NwConstants.ADD_FLOW) {
                 mdsalManager.addFlowToTx(flowEntity, writeInvTxn);
             } else if (addOrRemove == NwConstants.DEL_FLOW) {
