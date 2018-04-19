@@ -416,12 +416,12 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     private void addGwMac(String srcMacAddress, WriteTransaction tx, long vpnId, BigInteger dpId, long subnetVpnId) {
-        FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dpId, srcMacAddress, vpnId, subnetVpnId);
+        FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dataBroker, dpId, srcMacAddress, vpnId, subnetVpnId);
         mdsalManager.addFlowToTx(flowEntity, tx);
     }
 
     private void removeGwMac(String srcMacAddress, WriteTransaction tx, long vpnId, BigInteger dpId, long subnetVpnId) {
-        FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dpId, srcMacAddress, vpnId, subnetVpnId);
+        FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dataBroker, dpId, srcMacAddress, vpnId, subnetVpnId);
         mdsalManager.removeFlowToTx(flowEntity, tx);
     }
 
