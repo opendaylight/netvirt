@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,6 +120,12 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
             // Updating cache now as it might have not updated when
             // port-security-enable=false
             aclInterfaceBefore = addOrUpdateAclInterfaceCache(interfaceId, aclInPortBefore, true, interfaceState);
+        }
+        if (aclInPortBefore == null) {
+            aclInPortBefore = new InterfaceAclBuilder().setPortSecurityEnabled(Boolean.FALSE)
+                    .setAllowedAddressPairs(new ArrayList<>())
+                    .setSecurityGroups(new ArrayList<>())
+                    .build();
         }
         if (aclInPortAfter != null && aclInPortAfter.isPortSecurityEnabled()
                 || aclInPortBefore != null && aclInPortBefore.isPortSecurityEnabled()) {
