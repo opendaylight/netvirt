@@ -239,6 +239,30 @@
     },
     {
       "key": {
+        "uuid": "dda2ed79_39a18709",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-19T13:50:57Z",
+      "side": 1,
+      "message": "We identify DPN by subnet\u0027s Next-Hop and send it to ELAN remote broadcast group which in-turn takes care of sending it to local as well as remote ports (to all ELAN footprint DPNs).",
+      "parentUuid": "798304ea_8455d19b",
+      "range": {
+        "startLine": 97,
+        "startChar": 6,
+        "endLine": 97,
+        "endChar": 31
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "38968563_074b7229",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 2
