@@ -122,8 +122,11 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         }
         if (aclInPortAfter != null && aclInPortAfter.isPortSecurityEnabled()
                 || aclInPortBefore != null && aclInPortBefore.isPortSecurityEnabled()) {
-            boolean isSgChanged =
-                    isSecurityGroupsChanged(aclInPortBefore.getSecurityGroups(), aclInPortAfter.getSecurityGroups());
+            List<Uuid> sgsBefore = null;
+            if (aclInPortBefore != null) {
+                sgsBefore = aclInPortBefore.getSecurityGroups();
+            }
+            boolean isSgChanged = isSecurityGroupsChanged(sgsBefore, aclInPortAfter.getSecurityGroups());
             AclInterface aclInterfaceAfter =
                     addOrUpdateAclInterfaceCache(interfaceId, aclInPortAfter, isSgChanged, interfaceState);
 
