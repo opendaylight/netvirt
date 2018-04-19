@@ -33,6 +33,23 @@
       "revId": "2b32e982327ed75d151b5278591a8cabfcb5b49f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ea812696_dd492c8b",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2018-04-19T08:05:24Z",
+      "side": 1,
+      "message": "Packet deserialization exceptions getting caught here and hence  would not get captured by the pktdropcounter from the caller of this method right ?",
+      "revId": "2b32e982327ed75d151b5278591a8cabfcb5b49f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
