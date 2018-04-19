@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,8 +123,11 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         }
         if (aclInPortAfter != null && aclInPortAfter.isPortSecurityEnabled()
                 || aclInPortBefore != null && aclInPortBefore.isPortSecurityEnabled()) {
-            boolean isSgChanged =
-                    isSecurityGroupsChanged(aclInPortBefore.getSecurityGroups(), aclInPortAfter.getSecurityGroups());
+            List<Uuid> sgsBefore = null;
+            if(aclInPortBefore != null){
+                sgsBefore = aclInPortBefore.getSecurityGroups();
+            }
+            boolean isSgChanged = isSecurityGroupsChanged(sgsBefore, aclInPortAfter.getSecurityGroups());
             AclInterface aclInterfaceAfter =
                     addOrUpdateAclInterfaceCache(interfaceId, aclInPortAfter, isSgChanged, interfaceState);
 
