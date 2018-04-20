@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "2d6ab70b_d8143ed2",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-20T06:29:19Z",
+      "side": 1,
+      "message": "@Sridhar, Is there a need to use Centralized NAPT Switch for this usecase? The subnet route flows on local OVS will be able to punt packets to controller. Subsequent packets will hit specific matches in FIB. Please educate me on this if I am overlooking some scenarios.",
+      "parentUuid": "35769eae_0c2fceaf",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 1
+      },
+      "revId": "d3107423046a58e4ece4941093c79dc715e6b0c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "71e28c2e_72d339be",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 4
