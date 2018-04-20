@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "078fa410_6f482dae",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-20T06:50:29Z",
+      "side": 1,
+      "message": "I\u0027m not 100% clear on this, but kind of have a feeling that \"Centralized NAPT/Primary Switch\" would play a similar role of \"landing ovs\"(with L3VPNs). \n\nOn the tenant network, you still punt packets from the respective OVS-Switches/ComputeNodes, but if the request to ping/ssh for that HiddenIP comes from FLAT/VLAN provider network it hits the Centralized NAPT Switch as the landing ovs. Do you think it makes sense?",
+      "parentUuid": "dba8ca7b_410ce4b1",
+      "range": {
+        "startLine": 66,
+        "startChar": 2,
+        "endLine": 71,
+        "endChar": 20
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f0aec93e_472d9b7b",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 2
