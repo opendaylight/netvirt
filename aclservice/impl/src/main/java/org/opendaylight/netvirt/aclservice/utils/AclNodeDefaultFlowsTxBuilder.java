@@ -301,6 +301,7 @@ public class AclNodeDefaultFlowsTxBuilder {
                     programConntrackClassifierFlow(tableId, gotoTableId, MatchEthernetType.IPV6, protocol);
                     break;
                 case ICMP:
+                case IGMP:
                     programConntrackClassifierFlow(tableId, gotoTableId, MatchEthernetType.IPV4, protocol);
                     break;
                 case IPV6ICMP:
