@@ -34,6 +34,24 @@
       "revId": "0e08a8290e83ef9043ab2132b83359ca85538308",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef785422_1d5011d0",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-20T12:17:51Z",
+      "side": 1,
+      "message": "@Som, the spec does not seem to address IPv6 use-cases. Am I missing something?",
+      "parentUuid": "66861291_7f6db30b",
+      "revId": "0e08a8290e83ef9043ab2132b83359ca85538308",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
