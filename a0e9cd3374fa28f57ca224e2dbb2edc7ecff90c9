@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "883d39b6_ea8c9200",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-20T10:05:09Z",
+      "side": 1,
+      "message": "Yes, \"Centralized NAPT/Primary Switch\" would play a similar role of \"landing ovs\"(with L3VPNs). \n\nThanks Sridhar, now I understand that it would be required in case FLAT/VLAN provider networks.\n\nCurrently, it is not followed even for IPv4. \nI feel we should take it up as a separate activity for both IPv4 and IPv6.",
+      "parentUuid": "078fa410_6f482dae",
+      "range": {
+        "startLine": 66,
+        "startChar": 2,
+        "endLine": 71,
+        "endChar": 20
+      },
+      "revId": "a0e9cd3374fa28f57ca224e2dbb2edc7ecff90c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f0aec93e_472d9b7b",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 2
