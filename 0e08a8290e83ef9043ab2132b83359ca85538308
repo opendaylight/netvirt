@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baaa16e7_4043682a",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-20T11:06:48Z",
+      "side": 1,
+      "message": "Here we need to have a rate limiting for the Subnet route. By that I mean, if there is a sudden surge of traffic towards a hidden IP, only the first packet must be punted to controller. The rest must be dropped. This can be achieved by using the learn and add feature in OVS. \n\nWith learn and add, we can add a flow into a table based on the match on another flow. So, when a flow matches the subnet flow, then two things should happen\n1. The packet is punted to the controller\n2. A new flow is added by OVS (NOT ODL) using learn and add that matches the 5 tuple of the flow. The action would be to drop the packet. The flow should have a hard timeout of X seconds, where X is configurable in the controller",
+      "revId": "0e08a8290e83ef9043ab2132b83359ca85538308",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
