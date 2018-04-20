@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.ProtocolIcmpV6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.ProtocolTcp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.ProtocolUdp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.ProtocolIgmp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712.SecurityRuleAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712.security.rules.attributes.SecurityRules;
@@ -63,6 +64,7 @@ public class NeutronSecurityRuleListener
             ProtocolIcmp.class, NeutronSecurityRuleConstants.PROTOCOL_ICMP,
             ProtocolTcp.class, NeutronSecurityRuleConstants.PROTOCOL_TCP,
             ProtocolUdp.class, NeutronSecurityRuleConstants.PROTOCOL_UDP,
+            ProtocolIgmp.class, NeutronSecurityRuleConstants.PROTOCOL_IGMP,
             ProtocolIcmpV6.class, NeutronSecurityRuleConstants.PROTOCOL_ICMPV6);
 
     private final DataBroker dataBroker;
