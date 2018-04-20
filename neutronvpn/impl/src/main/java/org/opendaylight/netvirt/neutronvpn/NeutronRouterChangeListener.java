@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.neutronvpn;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -114,8 +115,15 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         List<Routes> oldRoutes = original.getRoutes() != null ? original.getRoutes() : new ArrayList<>();
         List<Routes> newRoutes = update.getRoutes() != null ? update.getRoutes() : new ArrayList<>();
         if (!oldRoutes.equals(newRoutes)) {
-            newRoutes.removeIf(oldRoutes::remove);
+            Iterator<Routes> iterator = newRoutes.iterator();
+            while (iterator.hasNext()) {
+                Routes route = iterator.next();
+                if (oldRoutes.remove(route)) {
+                    iterator.remove();
+                }
+            }
 
+            LOG.debug("Updating Router : AddRoutes {}, DeleteRoutes {}", newRoutes, oldRoutes);
             if (!oldRoutes.isEmpty()) {
                 handleChangedRoutes(vpnId, oldRoutes, NwConstants.DEL_FLOW);
             }
@@ -133,7 +141,9 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
                 LOG.error("Exception while sleeping", e);
             }
 
-            handleChangedRoutes(vpnId, newRoutes, NwConstants.ADD_FLOW);
+            if (!newRoutes.isEmpty()) {
+                handleChangedRoutes(vpnId, newRoutes, NwConstants.ADD_FLOW);
+            }
         }
 
         nvpnNatManager.handleExternalNetworkForRouter(original, update);
