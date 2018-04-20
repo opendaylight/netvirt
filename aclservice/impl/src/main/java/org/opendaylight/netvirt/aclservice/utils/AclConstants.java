@@ -131,7 +131,8 @@ public interface AclConstants {
     int JOB_MAX_RETRIES = 3;
 
     List<IPProtocols> PROTOCOLS_SUPPORTED_BY_CONNTRACK =
-            ImmutableList.of(IPProtocols.TCP, IPProtocols.UDP, IPProtocols.ICMP, IPProtocols.IPV6ICMP);
+            ImmutableList.of(IPProtocols.TCP, IPProtocols.UDP, IPProtocols.ICMP, IPProtocols.IPV6ICMP,
+                    IPProtocols.IGMP);
 
     enum PacketHandlingType {
         PERMIT,
