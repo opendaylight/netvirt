@@ -52,6 +52,24 @@
       "revId": "0e08a8290e83ef9043ab2132b83359ca85538308",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28465561_a7d6c241",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-20T13:18:11Z",
+      "side": 1,
+      "message": "The spec is generic which specifies handling controller punt protection for subnet route, ARP and SNAT usecases.\n\nAnyways, I have updated this spec with controller punt protection for IPv6 section by giving reference to [*].",
+      "parentUuid": "ef785422_1d5011d0",
+      "revId": "0e08a8290e83ef9043ab2132b83359ca85538308",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
