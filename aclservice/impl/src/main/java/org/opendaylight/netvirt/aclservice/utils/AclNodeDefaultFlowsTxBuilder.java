@@ -269,9 +269,14 @@ public class AclNodeDefaultFlowsTxBuilder {
 
     private void addConntrackStateRules(short dispatcherTableId, short tableId) {
         programConntrackForwardRule(AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY, "Tracked_Established",
-                AclConstants.TRACKED_EST_CT_STATE, AclConstants.TRACKED_EST_CT_STATE_MASK, dispatcherTableId, tableId);
+                AclConstants.TRACKED_EST_CT_STATE, AclConstants.TRACKED_EST_CT_STATE_MASK,
+                dispatcherTableId, tableId, true);
         programConntrackForwardRule(AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY, "Tracked_Related",
-                AclConstants.TRACKED_REL_CT_STATE, AclConstants.TRACKED_REL_CT_STATE_MASK, dispatcherTableId, tableId);
+                AclConstants.TRACKED_REL_CT_STATE, AclConstants.TRACKED_REL_CT_STATE_MASK,
+                dispatcherTableId, tableId, true);
+        programConntrackForwardRule(AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY, "Untracked_Related",
+                AclConstants.UNTRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK,
+                NwConstants.EGRESS_ACL_CONNTRACK_SENDER_TABLE, tableId, false);
     }
 
     /**
@@ -286,10 +291,12 @@ public class AclNodeDefaultFlowsTxBuilder {
      * @param tableId the table id
      */
     private void programConntrackForwardRule(Integer priority, String flowId, int conntrackState, int conntrackMask,
-            short dispatcherTableId, short tableId) {
+            short dispatcherTableId, short tableId, boolean shouldMatchMark) {
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(new NxMatchCtState(conntrackState, conntrackMask));
-        matches.add(new NxMatchCtMark(AclConstants.CT_MARK_EST_STATE, AclConstants.CT_MARK_EST_STATE_MASK));
+        if (shouldMatchMark) {
+            matches.add(new NxMatchCtMark(AclConstants.CT_MARK_EST_STATE, AclConstants.CT_MARK_EST_STATE_MASK));
+        }
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionNxCtClear());
         actionsInfos.add(new ActionNxResubmit(dispatcherTableId));
@@ -302,7 +309,6 @@ public class AclNodeDefaultFlowsTxBuilder {
     private void addEgressCtClearRule() {
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
-        matches.add(new NxMatchCtState(AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK));
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionNxCtClear());
@@ -313,7 +319,6 @@ public class AclNodeDefaultFlowsTxBuilder {
                 instructions);
         matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
-        matches.add(new NxMatchCtState(AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK));
         flowName = "Egress_Fixed_Ct_Clear_Table_Ipv6_" + this.dpId;
         addFlowToTx(NwConstants.EGRESS_ACL_DUMMY_TABLE, flowName, AclConstants.ACL_DEFAULT_PRIORITY, matches,
                 instructions);
