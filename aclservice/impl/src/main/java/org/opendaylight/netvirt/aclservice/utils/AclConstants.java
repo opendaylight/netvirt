@@ -63,12 +63,15 @@ public interface AclConstants {
     int TRACKED_NEW_CT_STATE = 0x21;
     int TRACKED_INV_CT_STATE = 0x30;
     int TRACKED_RPL_CT_STATE = 0x20;
+    int TRACKED_CT_STATE = 0x20;
+    int UNTRACKED_CT_STATE = 0x00;
 
     int TRACKED_EST_CT_STATE_MASK = 0x37;
     int TRACKED_REL_CT_STATE_MASK = 0x37;
     int TRACKED_NEW_CT_STATE_MASK = 0x21;
     int TRACKED_INV_CT_STATE_MASK = 0x30;
     int TRACKED_RPL_CT_STATE_MASK = 0x28;
+    int TRACKED_CT_STATE_MASK = 0x20;
 
     int CT_MARK_NEW_STATE = 0x0;
     int CT_MARK_EST_STATE = 0x1;
@@ -120,8 +123,6 @@ public interface AclConstants {
     int DEST_REMOTE_IP_PREFIX_SPECIFIED = 1;
     int DEST_REMOTE_IP_PREFIX_UNSPECIFIED = -1;
     int INVALID_ACL_TAG = -1;
-    int TRACKED_CT_STATE = 0x20;
-    int TRACKED_CT_STATE_MASK = 0x20;
 
     String ACL_SYNC_KEY_EXT = "-acl";
     int JOB_MAX_RETRIES = 3;
