@@ -1800,15 +1800,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         Adjacency adjElem = adjIt.next();
                         if (adjElem.getIpAddress().equals(adj.getIpAddress())) {
                             String rd = adjElem.getVrfId();
-                            adjIt.remove();
-
-                            AdjacenciesOp aug = VpnUtil.getVpnInterfaceOpDataEntryAugmentation(adjacencies);
-                            VpnInterfaceOpDataEntry newVpnIntf = VpnUtil
-                                    .getVpnInterfaceOpDataEntry(currVpnIntf.getName(),
-                                    currVpnIntf.getVpnInstanceName(), aug, dpnId, currVpnIntf.isScheduledForRemove(),
-                                            currVpnIntf.getLportTag(), currVpnIntf.getGatewayMacAddress());
-
-                            writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf, true);
+                            InstanceIdentifier<Adjacency> adjIdentifier = VpnUtil
+                                    .getVpnInterfaceOpDataEntryAdjacencyIdentifier(currVpnIntf.getName(),
+                                            currVpnIntf.getVpnInstanceName(), adj.getIpAddress());
+                            LOG.debug("delAdjFromVpnInterface: adjIdentifier {}", adjIdentifier);
+                            writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, adjIdentifier);
                             if (adj.getNextHopIpList() != null) {
                                 for (String nh : adj.getNextHopIpList()) {
                                     deleteExtraRouteFromCurrentAndImportingVpns(
