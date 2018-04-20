@@ -1,53 +1,30 @@
-import argparse
 import logging
-import sys
 import os
-from os import path
 import re
 import xml.etree.cElementTree as ET
 from subprocess import Popen
-#sys.path.append('../')
-#sys.path.append('../ovs')
-#sys.path.append(path.dirname( path.dirname( path.abspath(__file__))))
+from ovs import flows
 
 
-# logging.basicConfig(level=logging.DEBUG)
-# logger = logging.getLogger(__name__)
-logger = logging.getLogger("robotfiles")
-logger.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(levelname).3s - %(name)s - %(lineno)04d - %(message)s')
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-ch.setFormatter(formatter)
-logger.addHandler(ch)
-fh = logging.FileHandler("/tmp/robotfiles.txt", "w")
-fh.setLevel(logging.DEBUG)
-fh.setFormatter(formatter)
-logger.addHandler(fh)
+logger = logging.getLogger("csit.robotfiles")
 
 
 class RobotFiles:
-    JOBTAG = "job"
-    TMP = "/tmp"
+    OUTDIR = "/tmp/robotjob"
     CHUNK_SIZE = 65536
     DUMP_FLOWS = "sudo ovs-ofctl dump-flows br-int -OOpenFlow13"
+    TMP = "/tmp"
 
-    def __init__(self, infile, outdir, jobtag):
+    def __init__(self, infile, outdir):
         if outdir is None:
-            outdir = RobotFiles.TMP
-        if jobtag is None:
-            jobtag = RobotFiles.JOBTAG
-        self.outdir = "{}/{}".format(outdir, jobtag)
+            self.outdir = RobotFiles.TMP
+        else:
+            self.outdir = outdir
         self.datafilepath = infile
         self.pdata = {}
-        self.set_log_level(logging.INFO)
         self.re_normalize_text = re.compile(r"( \n)|(\[A\[C.*)")
         self.re_uri = re.compile(r"uri=(?P<uri>.*),")
         self.re_model = re.compile(r"uri=(?P<uri>.*),")
-
-    @staticmethod
-    def set_log_level(level):
-        ch.setLevel(level)
 
     def gunzip_output_file(self):
         infile = self.datafilepath
@@ -62,7 +39,7 @@ class RobotFiles:
             if not os.path.isdir(path):
                 raise
 
-    def mkdir_job_path(self):
+    def mk_outdir(self):
         self.mkdir(self.outdir)
 
     def read_chunks(self, fp):
@@ -78,9 +55,9 @@ class RobotFiles:
         with open(self.datafilepath, 'rb') as fp:
             for chunk in self.read_chunks(fp):
                 for m in re_st.finditer(chunk):
-                    print('%02d-%02d: %s' % (m.start(), m.end(), m.group(0)))
+                    logger.info("%02d-%02d: %s", m.start(), m.end(), m.group(0))
                     cnt += 1
-        print "total matches: {}".format(cnt)
+        logger.info("total matches: %d", cnt)
 
     class State:
         def __init__(self):
@@ -108,7 +85,7 @@ class RobotFiles:
     def print_config(self):
         logger.info("datafilepath: %s, outdir: %s", self.datafilepath, self.outdir)
 
-    # scan until test id= is seen that indicates the start of a new test -> state=test
+    # scan until test id= is seen. This indicates the start of a new test -> state=test
     # - scan until Get Test Teardown Debugs -> state=debugs
     #   - scan until Get DumpFlows And Ovsconfig -> state=nodes
     #   - scan until Get Model Dump -> state=models
@@ -229,7 +206,7 @@ class RobotFiles:
                 element.clear()
                 # debugging code to stop after the named test case is processed
                 # if "s1-t2" in self.pdata:
-                #    break
+                #     break
             root.clear()
 
     def write_pdata(self):
@@ -259,11 +236,12 @@ class RobotFiles:
                 ndir = tdir + "/" + nodeid
                 if RobotFiles.DUMP_FLOWS not in node:
                     continue
-                filename = ndir + "/" + self.fix_command_names(RobotFiles.DUMP_FLOWS) + ".f.txt"
+                filename = ndir + "/" + self.fix_command_names(RobotFiles.DUMP_FLOWS)
                 logger.info("Processing: %s", filename)
+                filename = filename + ".f.txt"
                 dump_flows = node[RobotFiles.DUMP_FLOWS]
-                flows = Flows(dump_flows, logging.DEBUG)
-                flows.write_fdata(filename)
+                fls = flows.Flows(dump_flows)
+                fls.write_fdata(filename)
 
     def fix_command_names(self, cmd):
         return cmd.replace(" ", "_")
@@ -273,47 +251,27 @@ class RobotFiles:
 
 
 def run(args):
-    robotfile = RobotFiles(args.infile, args.outdir, args.jobtag)
+    robotfile = RobotFiles(args.infile, args.outdir)
+    robotfile.print_config()
+    robotfile.mk_outdir()
+    if args.gunzip:
+        robotfile.gunzip_output_file()
     robotfile.print_config()
     robotfile.parse_xml_data_file()
-    robotfile.mkdir_job_path()
     robotfile.write_pdata()
+    if args.dump:
+        robotfile.write_debug_pdata()
 
 
-def create_parser():
-    parser = argparse.ArgumentParser(description="OpenStack CLI Mock")
-    parser.add_argument("-i", "--infile")
-    parser.add_argument("-o", "--outdir")
-    parser.add_argument("-j", "--jobtag")
-    parser.add_argument("-g", "--gunzip", action="store_true")
-    parser.add_argument("-v", "--verbose", dest="verbose", action="count", default=logging.INFO,
-                        help="Output more information about what's going on")
-    parser.add_argument("-V", "--version", action="version",
-                        version="%s version %s" %
-                                (os.path.split(sys.argv[0])[-1], 0.1))
+def add_parser(subparsers):
+    parser = subparsers.add_parser("csit")
+    parser.add_argument("infile",
+                        help="XML output from a Robot test, e.g. output_01_l2.xml.gz")
+    parser.add_argument("outdir",
+                        help="the directory that the parsed data is written into")
+    parser.add_argument("-g", "--gunzip", action="store_true",
+                        help="unzip the infile")
+    parser.add_argument("-d", "--dump", action="store_true",
+                        help="dump extra debugging, e.g. ovs metadata")
     parser.set_defaults(func=run)
 
-    return parser
-
-
-def parse_args():
-    parser = create_parser()
-    args = parser.parse_args()
-
-    return args
-
-
-def main():
-    args = parse_args()
-    args.func(args)
-
-if __name__ == "__main__":
-    if __package__ is None:
-        import sys
-        from os import path
-
-        sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-        from ovs.flows import Flows
-    else:
-        from ..ovs.flows import Flows
-    main()
