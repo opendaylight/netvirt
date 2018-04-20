@@ -76,7 +76,9 @@ class Flows:
         else:
             end = len(self.data) - 1
 
-        # Parse each line of the data. Create a dictionary of all tokens and append to a list.
+        # Parse each line of the data. Each line is a single flow.
+        # Create a dictionary of all tokens in that flow.
+        # Append this flow dictionary to a flow list.
         for line in self.data[start:end]:
             pline = {}
             tokens = line.split(" ")
