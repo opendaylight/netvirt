@@ -188,31 +188,56 @@ None
 
 Yang changes
 ------------
-Changes will be needed in ``aliveness-monitor.yang``.
-
-- A new parameter ``success-threshold`` will be added to
-  ``monitor-profile-params`` in aliveness-monitor.yang
-- A new container ``bfd-monitor-config`` will be added to
-  in aliveness-monitor.yang to store bfd monitoring
-  parameters in CONFIG data store.
+A new yang file ebgp-bfd.yang, published to accomodate bfd parameters,
+which has two containers: bfd-monitoring, bfd-config as below.
 
 .. code-block:: none
-   :caption: aliveness-monitor.yang
+   :caption: ebgp-bfd.yang
 
-   leaf success-threshold { 
-       type uint32;
-       mandatory "false";
-   }
+    container bfd-monitoring {
+        config        "true";
 
-   container bfd-monitor-config {
-        config true;
-        uses monitor-profile-params;
-   }
+        leaf detect-mult {
+            type        uint32;
+            default     3;
+            description "The number of packets that have to be missed 
+                         in a row to declare the session to be down.";
+        }
+        leaf min-rx {
+            type        uint32 {
+                            range "50..50000";
+            }
+            default     500;
+            description "The shortest interval, in milli-seconds, at
+                         which this BFD session offers to receive
+                         BFD control messages. Defaults to 500";
+        }
+        leaf min-tx {
+            type        uint32 {
+                            range "1000 .. 60000";
+            }
+            default     6000;
+            description "The shortest interval, in milli-seconds,
+                         at which this BFD session is willing to
+                         transmit BFD control messages. Defaults
+                         to 6000";
+        }
+    }
+
+    container bfd-config {
+        leaf multihop {
+            type        boolean;
+            default     true;
+            description "Value of True indicates suppport for BFD multihop";
+            config      "true";
+        }
+    }
 
 Changes will be needed in ``ebgp.yang``.
 
 - A new parameter will be adde to the existing ebgp.yang,
   to enable/disable bfd in bgp configuration
+- dc-gwy TEP ip will be modified as list
 
 .. code-block:: none
    :caption: ebgp.yang
@@ -220,6 +245,17 @@ Changes will be needed in ``ebgp.yang``.
      leaf bfd-enabled {
        type boolean;
        mandatory "false";
+     }
+
+     list tep-dcgw {
+         key          "dc-gw-ip";
+         description  "mapping: DC-Gwy ip <> TEP ip";
+         leaf dc-gw-ip {
+              type string;
+         }
+         leaf-list tep-ip {
+             type string;
+         }
      }
 
 Configuration impact
