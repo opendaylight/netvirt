@@ -1,7 +1,7 @@
 from models import Model
 
 
-name = "itm-state"
+NAME = "itm-state"
 
 
 class DpnEndpoints(Model):
@@ -11,6 +11,7 @@ class DpnEndpoints(Model):
     TUNNEL_END_POINTS = "tunnel-end-points"
     IP_ADDRESS = "ip-address"
 
+    # not currently used, backup method to get_kv
     def item_generator(self, json_input, lookup_key):
         if isinstance(json_input, dict):
             for k, v in json_input.iteritems():
@@ -47,5 +48,5 @@ class DpnEndpoints(Model):
         return tunnel_endpoints[0][self.IP_ADDRESS]
 
 
-def dpn_endpoints(store, ip, port, debug=0):
-    return DpnEndpoints(name, DpnEndpoints.CONTAINER, store, ip, port, debug)
+def dpn_endpoints(store, ip, port):
+    return DpnEndpoints(NAME, DpnEndpoints.CONTAINER, store, ip, port)
