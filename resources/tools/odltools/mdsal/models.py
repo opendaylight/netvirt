@@ -8,18 +8,14 @@ class Model:
     USER = "admin"
     PW = "admin"
 
-    def __init__(self, name, container, store, ip, port, debug=0):
+    def __init__(self, name, container, store, ip, port):
         self.name = name
         self.CONTAINER = container
         self.store = store
         self.ip = ip
         self.port = port
-        self.debug = debug
         self.data = None
         self.url = self.make_url()
-
-    def set_debug(self, level):
-        self.debug = level
 
     def set_odl_address(self, ip, port):
         self.ip = ip
@@ -34,8 +30,8 @@ class Model:
         self.data = request.get(self.url, self.USER, self.PW)
         return self.data
 
-    def get_from_file(self, filename):
-        self.data = request.get_from_file(filename)
+    def read_file(self, filename):
+        self.data = request.read_file(filename)
         return self.data
 
     def pretty_format(self, data=None):
@@ -44,6 +40,13 @@ class Model:
         return json.dumps(data, indent=4, separators=(',', ': '))
 
     def get_kv(self, k, v, values):
+        """
+        Return a list of values for the given key
+        :param k:
+        :param v:
+        :param values:
+        :return:
+        """
         if type(v) is dict:
             for jsonkey in v:
                 if jsonkey == k:

@@ -3,16 +3,11 @@ import logging
 import requests
 
 
-logging.basicConfig(format="%(levelname)-8s [%(module)s:%(lineno)d] %(message)s",
-                    level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-
-def set_log_level(level):
-    logger.setLevel(level)
+logger = logging.getLogger("mdsal.request")
 
 
 def debug_print(text1, data):
+    logger.info("request: %s: processed %d lines", text1, len(data))
     logger.debug("request: %s", text1)
     logger.debug("%s", json.dumps(data))
     logger.debug("%s", json.dumps(data, indent=4, separators=(',', ': ')))
@@ -26,7 +21,7 @@ def get(url, user, pw):
     return data
 
 
-def get_from_file(filename):
+def read_file(filename):
     with open(filename) as json_file:
         data = json.load(json_file)
     debug_print(filename, data)

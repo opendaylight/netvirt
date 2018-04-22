@@ -1,14 +1,11 @@
 import logging
 from pprint import pformat
 import re
-
 import tables
 import request
 
 
-logging.basicConfig(format="%(levelname)-8s []%(name)s] [%(module)s:%(lineno)d] %(message)s",
-                    level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("ovs.flows")
 
 
 # TODO:
@@ -18,7 +15,6 @@ logger = logging.getLogger(__name__)
 # group decoder
 # curl -s -u admin:admin -X GET 127.0.0.1:8080/restconf/operational/odl-l3vpn:learnt-vpn-vip-to-port-data
 # - check if external ip is resolved, devstack uses port 8087
-
 class Flows:
     COOKIE = "cookie"
     DURATION = "duration"
@@ -33,21 +29,24 @@ class Flows:
     GOTO = "goto"
     RESUBMIT = "resubmit"
 
-    def __init__(self, data, level=logging.INFO):
+    def __init__(self, data):
         self.pdata = []
         self.fdata = []
-        self.data = data
-        print "level: {}".format(level)
-        logger.setLevel(level)
-        if level is not logging.INFO:
-            logger.info("effective: %d", logger.getEffectiveLevel())
+        if type(data) is str:
+            self.data = data.splitlines()
+        elif type(data) is list:
+            self.data = data
+        else:
+            logger.error("init: data is not a supproted type")
+            return
+        self.start = 0
+        logger.info("init: Copied %d lines", len(self.data))
         self.process_data()
         self.format_data()
-        logger.info("data has been processed and parsed")
+        logger.info("init: data has been processed and formatted")
 
-    def set_log_level(self, level):
-        logger.setLevel(level)
-        logger.info("effective: %d", logger.getEffectiveLevel())
+    def pretty_print(self, data):
+        return "{}".format(pformat(data))
 
     def process_data(self):
         """
@@ -68,31 +67,47 @@ class Flows:
 
         # skip the header if present
         if "OFPST_FLOW" in self.data[0]:
-            start = 1
+            self.start = 1
+            logger.debug("process_data: will skip first line: OFPST_FLOW line")
         else:
-            start = 0
+            self.start = 0
         if "jenkins" in self.data[-1]:
-            end = len(self.data) - 2
-        else:
             end = len(self.data) - 1
+            logger.debug("process_data: will skip last line: jenkins line")
+        else:
+            end = len(self.data)
 
         # Parse each line of the data. Each line is a single flow.
         # Create a dictionary of all tokens in that flow.
-        # Append this flow dictionary to a flow list.
-        for line in self.data[start:end]:
+        # Append this flow dictionary to a list of flows.
+        for line in self.data[self.start:end]:
             pline = {}
+            pline[Flows.IDLE_TIMEOUT] = "---"
+            pline[Flows.SEND_FLOW_REMOVED] = "-"
             tokens = line.split(" ")
             for token in tokens:
                 # most lines are key=value so look for that pattern
                 splits = token.split("=", 1)
                 if len(splits) == 2:
-                    pline[splits[0]] = splits[1].rstrip(",")
+                    if Flows.PRIORITY in splits[0]:
+                        splitp = splits[1].split(",", 1)
+                        if len(splitp) == 2:
+                            pline[Flows.PRIORITY] = splitp[0]
+                            pline[Flows.MATCHES] = splitp[1]
+                        else:
+                            pline[Flows.PRIORITY] = splitp[0]
+                            pline[Flows.MATCHES] = ""
+                    else:
+                        pline[splits[0]] = splits[1].rstrip(",")
                 elif token == Flows.SEND_FLOW_REMOVED:
                     # send_flow_rem is a single token without a value
                     pline[token] = token
             self.pdata.append(pline)
-        logger.info("Processed %d lines, skipped %d", len(self.pdata), start)
-        logger.debug("Processed data: %s", pformat(self.pdata))
+            logger.debug("process_data: Processed line %d into: \n%s",
+                         self.start + len(self.pdata), pformat(pline))
+        logger.info("process_data: Processed %d lines, skipped %d", len(self.pdata),
+                    self.start + len(self.data) - end)
+
         return self.pdata
 
     def re_table(self, match):
@@ -115,42 +130,56 @@ class Flows:
 
     def format_data(self):
         if len(self.pdata) == 0:
-            self.logger.warn("There is no data to process")
+            logger.warn("There is no data to process")
             return self.pdata
-        header = "{:9} {:8} {:13}     {:6} {:12} {}... {}... {} {}\n" \
-            .format(Flows.COOKIE, Flows.DURATION, Flows.TABLE, "n_pack", Flows.N_BYTES, Flows.MATCHES, Flows.ACTIONS,
-                    Flows.IDLE_TIMEOUT, Flows.DURATION)
-        header_under = "--------- -------- -------------     ------ ------------ ---------- ---------- --------" \
-                       "---- --------\n"
+        header = "{:3} {:9} {:8} {:13}     {:6} {:12} {:1} {:3} {:5}\n" \
+                 "    {}\n" \
+                 "    {}\n" \
+            .format("nnn", Flows.COOKIE, Flows.DURATION, Flows.TABLE, "n_pack", Flows.N_BYTES,
+                    "S", "ito", "prio",
+                    Flows.MATCHES,
+                    Flows.ACTIONS)
+        header_under = "--- --------- -------- -------------     ------ ------------ - --- -----\n"
 
         # Match goto_table: nnn or resubmit(,nnn) and return as goto or resubmit match group
         re_gt = re.compile(r"goto_table:(?P<goto>\d{1,3})|"
                            r"resubmit\(,(?P<resubmit>\d{1,3})\)")
+
+        # Add the header as the first two lines of formatted data
         self.fdata = [header, header_under]
-        for line in self.pdata:
-            if Flows.SEND_FLOW_REMOVED in line:
-                send_flow_rem = " {} ".format(line[Flows.SEND_FLOW_REMOVED])
-            else:
-                send_flow_rem = ""
-            if Flows.IDLE_TIMEOUT in line:
-                idle_timeo = " {}={}".format(Flows.IDLE_TIMEOUT, line[Flows.IDLE_TIMEOUT])
-            else:
-                idle_timeo = ""
+
+        # Format each line of parsed data
+        for i, line in enumerate(self.pdata):
+            logger.debug("format_data: processing line %d: %s", self.start + i + 1, line)
+
+            #if Flows.SEND_FLOW_REMOVED in line:
+            #    send_flow_rem = " {} ".format(line[Flows.SEND_FLOW_REMOVED])
+            #else:
+            #    send_flow_rem = ""
+
+            #if Flows.IDLE_TIMEOUT in line:
+            #    idle_timeo = " {}={}".format(Flows.IDLE_TIMEOUT, line[Flows.IDLE_TIMEOUT])
+            #else:
+            #    idle_timeo = ""
+
             if Flows.ACTIONS in line:
                 nactions = re_gt.sub(self.re_table, line[Flows.ACTIONS])
             else:
                 logger.warn("Missing actions in %s", line)
                 nactions = ""
 
-            logger.debug("line: %s", line)
-
-            fline = "{:9} {:8} {:3} {:13} {:6} {:12} priority={} actions={}{}{}" \
-                .format(line[Flows.COOKIE], line[Flows.DURATION],
+            fline = "{:3} {:9} {:8} {:3} {:13} {:6} {:12} {:1} {:3} {:5}\n" \
+                    "    matches={}\n" \
+                    "    actions={}\n" \
+                .format(i+1, line[Flows.COOKIE], line[Flows.DURATION],
                         line[Flows.TABLE], tables.get_table_name(int(line[Flows.TABLE])),
                         line[Flows.N_PACKETS], line[Flows.N_BYTES],
-                        line[Flows.PRIORITY], nactions,
-                        idle_timeo, send_flow_rem, )
+                        line[Flows.SEND_FLOW_REMOVED][0], line[Flows.IDLE_TIMEOUT],
+                        line[Flows.PRIORITY],
+                        line[Flows.MATCHES],
+                        nactions)
             self.fdata.append(fline)
+            logger.debug("format_data: formatted line %d: %s", self.start + i + 1, fline)
         return self.fdata
 
     def write_fdata(self, filename):
