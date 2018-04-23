@@ -1175,13 +1175,7 @@ public final class NatUtil {
     }
 
     public static void removeFromNeutronRouterDpnsMap(String routerName, String vpnInterfaceName,
-        OdlInterfaceRpcService ifaceMgrRpcService, @Nonnull TypedReadWriteTransaction<Operational> operTx) {
-        BigInteger dpId = getDpnForInterface(ifaceMgrRpcService, vpnInterfaceName);
-        if (dpId.equals(BigInteger.ZERO)) {
-            LOG.debug("removeFromNeutronRouterDpnsMap : Could not retrieve dp id for interface {} to handle router {}"
-                    + " dissociation model", vpnInterfaceName, routerName);
-            return;
-        }
+         BigInteger dpId, @Nonnull TypedReadWriteTransaction<Operational> operTx) {
         InstanceIdentifier<DpnVpninterfacesList> routerDpnListIdentifier = getRouterDpnId(routerName, dpId);
         Optional<DpnVpninterfacesList> optionalRouterDpnList;
         try {
@@ -1192,40 +1186,27 @@ public final class NatUtil {
         }
         if (optionalRouterDpnList.isPresent()) {
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns
-                .router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces> routerInterfaces =
-                optionalRouterDpnList.get().getRouterInterfaces();
+                    .router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces> routerInterfaces =
+                    optionalRouterDpnList.get().getRouterInterfaces();
             org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn
-                .list.dpn.vpninterfaces.list.RouterInterfaces routerInterface =
-                new RouterInterfacesBuilder().withKey(new RouterInterfacesKey(vpnInterfaceName))
-                    .setInterface(vpnInterfaceName).build();
+                    .list.dpn.vpninterfaces.list.RouterInterfaces routerInterface =
+                    new RouterInterfacesBuilder().withKey(new RouterInterfacesKey(vpnInterfaceName))
+                            .setInterface(vpnInterfaceName).build();
 
             if (routerInterfaces != null && routerInterfaces.remove(routerInterface)) {
                 if (routerInterfaces.isEmpty()) {
                     operTx.delete(routerDpnListIdentifier);
                 } else {
                     operTx.delete(routerDpnListIdentifier.child(
-                        org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router
-                            .dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces.class,
-                        new RouterInterfacesKey(vpnInterfaceName)));
+                            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router
+                                    .dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces.class,
+                            new RouterInterfacesKey(vpnInterfaceName)));
                 }
             }
         }
     }
 
     public static void removeFromDpnRoutersMap(DataBroker broker, String routerName, String vpnInterfaceName,
-        OdlInterfaceRpcService ifaceMgrRpcService, TypedReadWriteTransaction<Operational> operTx)
-        throws ExecutionException, InterruptedException {
-        BigInteger dpId = getDpnForInterface(ifaceMgrRpcService, vpnInterfaceName);
-        if (dpId.equals(BigInteger.ZERO)) {
-            LOG.debug("removeFromDpnRoutersMap : removeFromDpnRoutersMap() : "
-                + "Could not retrieve DPN ID for interface {} to handle router {} dissociation model",
-                vpnInterfaceName, routerName);
-            return;
-        }
-        removeFromDpnRoutersMap(broker, routerName, vpnInterfaceName, dpId, ifaceMgrRpcService, operTx);
-    }
-
-    static void removeFromDpnRoutersMap(DataBroker broker, String routerName, String vpnInterfaceName,
         BigInteger curDpnId, OdlInterfaceRpcService ifaceMgrRpcService, TypedReadWriteTransaction<Operational> operTx)
         throws ExecutionException, InterruptedException {
         /*
