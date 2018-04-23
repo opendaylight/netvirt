@@ -148,7 +148,8 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 vpnFootprintService.updateVpnToDpnMapping(primarySwitchId, routerName, primaryRd,
                         routerPort, null, false);
                 NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, primarySwitchId, tx);
-                NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, routerName, interfaceManager, tx);
+                NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, routerName,
+                        primarySwitchId, interfaceManager, tx);
             }
         }), LOG, "Error deleting subnets from DPN maps for {}", routerName);
     }
