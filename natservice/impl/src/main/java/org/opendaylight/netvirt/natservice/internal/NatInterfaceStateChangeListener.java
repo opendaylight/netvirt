@@ -315,9 +315,12 @@ public class NatInterfaceStateChangeListener
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             try {
                 LOG.trace("call : Received interface {} PORT UP OR ADD event ", interfaceName);
-                WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-                handleRouterInterfacesUpEvent(routerName, interfaceName, intfDpnId, writeOperTxn);
-                futures.add(writeOperTxn.submit());
+                String dpnLock = NatConstants.NAT_DJC_PREFIX + intfDpnId;
+                synchronized (dpnLock.intern()) {
+                    WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                    handleRouterInterfacesUpEvent(routerName, interfaceName, intfDpnId, writeOperTxn);
+                    NatUtil.waitForTransactionToComplete(writeOperTxn);
+                }
             } catch (Exception e) {
                 LOG.error("call : Exception caught in Interface {} Operational State Up event",
                         interfaceName, e);
@@ -343,9 +346,12 @@ public class NatInterfaceStateChangeListener
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             try {
                 LOG.trace("call : Received interface {} PORT DOWN or REMOVE event", interfaceName);
-                WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-                handleRouterInterfacesDownEvent(routerName, interfaceName, intfDpnId, writeOperTxn);
-                futures.add(writeOperTxn.submit());
+                String dpnLock = NatConstants.NAT_DJC_PREFIX + intfDpnId;
+                synchronized (dpnLock.intern()) {
+                    WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                    handleRouterInterfacesDownEvent(routerName, interfaceName, intfDpnId, writeOperTxn);
+                    NatUtil.waitForTransactionToComplete(writeOperTxn);
+                }
             } catch (Exception e) {
                 LOG.error("call : Exception observed in handling deletion of VPN Interface {}.", interfaceName, e);
             }
@@ -374,27 +380,30 @@ public class NatInterfaceStateChangeListener
                 final String interfaceName = update.getName();
                 LOG.trace("call : Received interface {} state change event", interfaceName);
                 LOG.debug("call : DPN ID {} for the interface {} ", intfDpnId, interfaceName);
-                WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-                IntfTransitionState state = getTransitionState(original.getOperStatus(), update.getOperStatus());
-                if (state.equals(IntfTransitionState.STATE_IGNORE)) {
-                    LOG.info("NAT Service: Interface {} state original {} updated {} not handled",
-                            interfaceName, original.getOperStatus(), update.getOperStatus());
-                    return futures;
+                String dpnLock = NatConstants.NAT_DJC_PREFIX + intfDpnId;
+                synchronized (dpnLock.intern()) {
+                    WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                    IntfTransitionState state = getTransitionState(original.getOperStatus(), update.getOperStatus());
+                    if (state.equals(IntfTransitionState.STATE_IGNORE)) {
+                        LOG.info("NAT Service: Interface {} state original {} updated {} not handled",
+                                interfaceName, original.getOperStatus(), update.getOperStatus());
+                        return futures;
+                    }
+                    if (state.equals(IntfTransitionState.STATE_DOWN)) {
+                        LOG.debug("call : DPN {} connnected to the interface {} has gone down."
+                                + "Hence clearing the dpn-vpninterfaces-list entry from the"
+                                + " neutron-router-dpns model in the ODL:L3VPN", intfDpnId, interfaceName);
+                        // If the interface state is unknown, it means that the corresponding DPN has gone down.
+                        // So remove the dpn-vpninterfaces-list from the neutron-router-dpns model.
+                        NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, intfDpnId, writeOperTxn);
+                    } else if (state.equals(IntfTransitionState.STATE_UP)) {
+                        LOG.debug("call : DPN {} connnected to the interface {} has come up. Hence adding"
+                                + " the dpn-vpninterfaces-list entry from the neutron-router-dpns model"
+                                + " in the ODL:L3VPN", intfDpnId, interfaceName);
+                        handleRouterInterfacesUpEvent(routerName, interfaceName, intfDpnId, writeOperTxn);
+                    }
+                    NatUtil.waitForTransactionToComplete(writeOperTxn);
                 }
-                if (state.equals(IntfTransitionState.STATE_DOWN)) {
-                    LOG.debug("call : DPN {} connnected to the interface {} has gone down."
-                            + "Hence clearing the dpn-vpninterfaces-list entry from the"
-                            + " neutron-router-dpns model in the ODL:L3VPN", intfDpnId, interfaceName);
-                    // If the interface state is unknown, it means that the corresponding DPN has gone down.
-                    // So remove the dpn-vpninterfaces-list from the neutron-router-dpns model.
-                    NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, intfDpnId, writeOperTxn);
-                } else if (state.equals(IntfTransitionState.STATE_UP)) {
-                    LOG.debug("call : DPN {} connnected to the interface {} has come up. Hence adding"
-                            + " the dpn-vpninterfaces-list entry from the neutron-router-dpns model"
-                            + " in the ODL:L3VPN", intfDpnId, interfaceName);
-                    handleRouterInterfacesUpEvent(routerName, interfaceName, intfDpnId, writeOperTxn);
-                }
-                futures.add(writeOperTxn.submit());
             } catch (Exception e) {
                 LOG.error("call : Exception observed in handling updation of VPN Interface {}.", update.getName(), e);
             }
