@@ -149,7 +149,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             vpnFootprintService.updateVpnToDpnMapping(primarySwitchId, routerName, primaryRd,
                     routerPort, null, false);
             NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, primarySwitchId, writeOperTxn);
-            NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, routerName, interfaceManager,
+            NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, routerName, primarySwitchId, interfaceManager,
                     writeOperTxn);
         }
         writeOperTxn.submit();
