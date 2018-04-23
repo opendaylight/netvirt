@@ -91,10 +91,13 @@ public class NatRouterInterfaceListener
                         interfaceName, routerId);
                 return;
             }
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
-                NatUtil.addToNeutronRouterDpnsMap(routerId, interfaceName, dpId, operTx);
-                NatUtil.addToDpnRoutersMap(routerId, interfaceName, dpId, operTx);
-            }), LOG, "Error processing NAT router interface addition");
+            String dpnLock = NatConstants.NAT_DJC_PREFIX + dpId;
+            synchronized (dpnLock.intern()) {
+                ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
+                    NatUtil.addToNeutronRouterDpnsMap(routerId, interfaceName, dpId, operTx);
+                    NatUtil.addToDpnRoutersMap(routerId, interfaceName, dpId, operTx);
+                }), LOG, "Error processing NAT router interface addition");
+            }
         } else {
             LOG.info("add : Interface {} not yet operational to handle router interface add event in router {}",
                     interfaceName, routerId);
@@ -112,13 +115,21 @@ public class NatRouterInterfaceListener
             confTx -> confTx.delete(NatUtil.getRouterInterfaceId(interfaceName))), LOG,
             "Error handling NAT router interface removal");
 
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
-            //Delete the NeutronRouterDpnMap from the ODL:L3VPN operational model
-            NatUtil.removeFromNeutronRouterDpnsMap(routerId, interfaceName, interfaceManager, operTx);
-
-            //Delete the DpnRouterMap from the ODL:L3VPN operational model
-            NatUtil.removeFromDpnRoutersMap(dataBroker, routerId, interfaceName, interfaceManager, operTx);
-        }), LOG, "Error handling NAT router interface removal");
+        BigInteger dpId = NatUtil.getDpnForInterface(interfaceManager, interfaceName);
+        if (dpId.equals(BigInteger.ZERO)) {
+            LOG.warn("REMOVE : Could not retrieve DPN ID for interface {} to handle router {} dissociation model",
+                    interfaceName, routerId);
+            return;
+        }
+        String dpnLock = NatConstants.NAT_DJC_PREFIX + dpId;
+        synchronized (dpnLock.intern()) {
+            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
+                //Delete the NeutronRouterDpnMap from the ODL:L3VPN operational model
+                NatUtil.removeFromNeutronRouterDpnsMap(routerId, interfaceName, dpId, operTx);
+                //Delete the DpnRouterMap from the ODL:L3VPN operational model
+                NatUtil.removeFromDpnRoutersMap(dataBroker, routerId, interfaceName, dpId, interfaceManager, operTx);
+            }), LOG, "Error handling NAT router interface removal");
+        }
     }
 
     @Override
