@@ -22,6 +22,30 @@
       "revId": "ce1d25ee69301322bc86eec7eea691aed0d397bd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0f0e48ca_eafcce40",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2018-04-23T11:44:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0f71c61_ea0dd8c1",
+      "range": {
+        "startLine": 124,
+        "startChar": 12,
+        "endLine": 124,
+        "endChar": 27
+      },
+      "revId": "ce1d25ee69301322bc86eec7eea691aed0d397bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
