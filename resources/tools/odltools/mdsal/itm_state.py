@@ -1,7 +1,19 @@
-from models import Model
+from model import Model
 
 
 NAME = "itm-state"
+
+
+def dpn_endpoints(store, ip, port, path):
+    return DpnEndpoints(NAME, DpnEndpoints.CONTAINER, store, ip, port, path)
+
+
+def interfaces(store, ip=None, port=None, path=None):
+    return DpnTepsState(NAME, DpnTepsState.CONTAINER, store, ip, port, path)
+
+
+def tunnels_state(store, ip=None, port=None, path=None):
+    return TunnelsState(NAME, TunnelsState.CONTAINER, store, ip, port, path)
 
 
 class DpnEndpoints(Model):
@@ -10,20 +22,6 @@ class DpnEndpoints(Model):
     DPN_ID = "DPN-ID"
     TUNNEL_END_POINTS = "tunnel-end-points"
     IP_ADDRESS = "ip-address"
-
-    # not currently used, backup method to get_kv
-    def item_generator(self, json_input, lookup_key):
-        if isinstance(json_input, dict):
-            for k, v in json_input.iteritems():
-                if k == lookup_key:
-                    yield v
-                else:
-                    for child_val in self.item_generator(v, lookup_key):
-                        yield child_val
-        elif isinstance(json_input, list):
-            for item in json_input:
-                for item_val in self.item_generator(item, lookup_key):
-                    yield item_val
 
     def get_dpn_teps_infos(self):
         return self.data[self.CONTAINER][self.DPN_TEPS_INFO]
@@ -48,5 +46,32 @@ class DpnEndpoints(Model):
         return tunnel_endpoints[0][self.IP_ADDRESS]
 
 
-def dpn_endpoints(store, ip, port):
-    return DpnEndpoints(NAME, DpnEndpoints.CONTAINER, store, ip, port)
+class DpnTepsState(Model):
+    CONTAINER = "dpn-teps-state"
+    DPN_TEPS = "dpns-teps"
+
+    def get_dpn_teps(self):
+        return self.data[self.CONTAINER][self.DPN_TEPS]
+
+    def get_tuninterfaces_by_name(self):
+        d = {}
+        tunifaces = self.get_dpn_teps()
+        for sourcedpn in tunifaces:
+            for remotedpn in sourcedpn['remote-dpns']:
+                d[remotedpn['tunnel-name']] = remotedpn
+        return d
+
+
+class TunnelsState(Model):
+    CONTAINER = "tunnels_state"
+    STATE_TUNNEL_LIST = "state-tunnel-list"
+
+    def get_state_tunnel_list(self):
+        return self.data[self.CONTAINER][self.STATE_TUNNEL_LIST]
+
+    def get_tunnels_by_key(self, key="tunnel-interface-name"):
+        d = {}
+        tunnels = self.get_state_tunnel_list()
+        for tunnel in tunnels:
+            d[tunnel[key]] = tunnel
+        return d

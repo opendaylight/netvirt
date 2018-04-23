@@ -1,0 +1,102 @@
+{
+  "interfaces": {
+    "interface": [
+      {
+        "description": "VXLAN Trunk Interface",
+        "enabled": true,
+        "name": "tun95fee4d7132",
+        "odl-interface:datapath-node-identifier": 132319289050514,
+        "odl-interface:internal": true,
+        "odl-interface:monitor-enabled": true,
+        "odl-interface:monitor-interval": 10000,
+        "odl-interface:monitor-protocol": "odl-interface:tunnel-monitoring-type-bfd",
+        "odl-interface:tunnel-destination": "10.30.170.90",
+        "odl-interface:tunnel-gateway": "0.0.0.0",
+        "odl-interface:tunnel-interface-type": "odl-interface:tunnel-type-vxlan",
+        "odl-interface:tunnel-remote-ip-flow": false,
+        "odl-interface:tunnel-source": "10.30.170.17",
+        "type": "iana-if-type:tunnel"
+      },
+      {
+        "description": "VXLAN Trunk Interface",
+        "enabled": true,
+        "name": "tundb1d8b295c1",
+        "odl-interface:datapath-node-identifier": 234018835196237,
+        "odl-interface:internal": true,
+        "odl-interface:monitor-enabled": true,
+        "odl-interface:monitor-interval": 10000,
+        "odl-interface:monitor-protocol": "odl-interface:tunnel-monitoring-type-bfd",
+        "odl-interface:tunnel-destination": "10.30.170.17",
+        "odl-interface:tunnel-gateway": "0.0.0.0",
+        "odl-interface:tunnel-interface-type": "odl-interface:tunnel-type-vxlan",
+        "odl-interface:tunnel-remote-ip-flow": false,
+        "odl-interface:tunnel-source": "10.30.170.92",
+        "type": "iana-if-type:tunnel"
+      },
+      {
+        "description": "VXLAN Trunk Interface",
+        "enabled": true,
+        "name": "tun94ecbe1efd8",
+        "odl-interface:datapath-node-identifier": 132319289050514,
+        "odl-interface:internal": true,
+        "odl-interface:monitor-enabled": true,
+        "odl-interface:monitor-interval": 10000,
+        "odl-interface:monitor-protocol": "odl-interface:tunnel-monitoring-type-bfd",
+        "odl-interface:tunnel-destination": "10.30.170.92",
+        "odl-interface:tunnel-gateway": "0.0.0.0",
+        "odl-interface:tunnel-interface-type": "odl-interface:tunnel-type-vxlan",
+        "odl-interface:tunnel-remote-ip-flow": false,
+        "odl-interface:tunnel-source": "10.30.170.17",
+        "type": "iana-if-type:tunnel"
+      },
+      {
+        "description": "VXLAN Trunk Interface",
+        "enabled": true,
+        "name": "tunf68aef23130",
+        "odl-interface:datapath-node-identifier": 74851789353527,
+        "odl-interface:internal": true,
+        "odl-interface:monitor-enabled": true,
+        "odl-interface:monitor-interval": 10000,
+        "odl-interface:monitor-protocol": "odl-interface:tunnel-monitoring-type-bfd",
+        "odl-interface:tunnel-destination": "10.30.170.92",
+        "odl-interface:tunnel-gateway": "0.0.0.0",
+        "odl-interface:tunnel-interface-type": "odl-interface:tunnel-type-vxlan",
+        "odl-interface:tunnel-remote-ip-flow": false,
+        "odl-interface:tunnel-source": "10.30.170.90",
+        "type": "iana-if-type:tunnel"
+      },
+      {
+        "description": "VXLAN Trunk Interface",
+        "enabled": true,
+        "name": "tun999632b8289",
+        "odl-interface:datapath-node-identifier": 234018835196237,
+        "odl-interface:internal": true,
+        "odl-interface:monitor-enabled": true,
+        "odl-interface:monitor-interval": 10000,
+        "odl-interface:monitor-protocol": "odl-interface:tunnel-monitoring-type-bfd",
+        "odl-interface:tunnel-destination": "10.30.170.90",
+        "odl-interface:tunnel-gateway": "0.0.0.0",
+        "odl-interface:tunnel-interface-type": "odl-interface:tunnel-type-vxlan",
+        "odl-interface:tunnel-remote-ip-flow": false,
+        "odl-interface:tunnel-source": "10.30.170.92",
+        "type": "iana-if-type:tunnel"
+      },
+      {
+        "description": "VXLAN Trunk Interface",
+        "enabled": true,
+        "name": "tun03a2b920986",
+        "odl-interface:datapath-node-identifier": 74851789353527,
+        "odl-interface:internal": true,
+        "odl-interface:monitor-enabled": true,
+        "odl-interface:monitor-interval": 10000,
+        "odl-interface:monitor-protocol": "odl-interface:tunnel-monitoring-type-bfd",
+        "odl-interface:tunnel-destination": "10.30.170.17",
+        "odl-interface:tunnel-gateway": "0.0.0.0",
+        "odl-interface:tunnel-interface-type": "odl-interface:tunnel-type-vxlan",
+        "odl-interface:tunnel-remote-ip-flow": false,
+        "odl-interface:tunnel-source": "10.30.170.90",
+        "type": "iana-if-type:tunnel"
+      }
+    ]
+  }
+}
