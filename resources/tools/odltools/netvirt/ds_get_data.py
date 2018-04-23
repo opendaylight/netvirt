@@ -2,6 +2,8 @@ import collections
 import json
 import netvirt_utils as utils
 import constants as const
+from mdsal.models import Model
+from mdsal import ietf_interfaces
 
 
 def get_ds_data(name, file_name=None, ds_type=None):
@@ -35,6 +37,13 @@ def get_all_dumps():
         result = utils.grabJson(url)
         with open(filename, 'w+') as data_file:
             json.dump(result, data_file)
+
+
+ifconfig = ietf_interfaces.interfaces(Model.CONFIG)
+
+
+def get_config_interfaces2(file_name=None):
+    return ifconfig.get_interfaces_by_name()
 
 
 def get_config_interfaces(file_name=None):

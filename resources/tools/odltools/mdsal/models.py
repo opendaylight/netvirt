@@ -8,31 +8,42 @@ class Model:
     USER = "admin"
     PW = "admin"
 
-    def __init__(self, name, container, store, ip, port):
+    def __init__(self, name, container, store, ip=None, port=None, path="/tmp"):
         self.name = name
-        self.CONTAINER = container
+        self.container = container
         self.store = store
         self.ip = ip
         self.port = port
-        self.data = None
         self.url = self.make_url()
+        self.path = path
+        self.filename = self.make_filename()
+        self.data = None
+        self.data = self.get_model_data()
 
-    def set_odl_address(self, ip, port):
-        self.ip = ip
-        self.port = port
+    def make_filename(self):
+        return "{}/{}_{}:{}.json".format(self.path, self.store, self.name, self.container)
 
     def make_url(self):
-        url = "http://{}:{}/restconf/{}/{}:{}".format(self.ip, self.port, self.store,
-                                                      self.name, self.CONTAINER)
-        return url
+        return "http://{}:{}/restconf/{}/{}:{}".format(self.ip, self.port, self.store,
+                                                       self.name, self.container)
 
     def get_from_odl(self):
-        self.data = request.get(self.url, self.USER, self.PW)
-        return self.data
+        return request.get(self.url, self.USER, self.PW)
 
     def read_file(self, filename):
-        self.data = request.read_file(filename)
-        return self.data
+        return request.read_file(filename)
+
+    def get_model_data(self):
+        if self.data is not None:
+            return self.data
+
+        self.data = self.read_file(self.filename)
+        if self.data is not None:
+            return self.data
+
+        self.data = self.get_from_odl()
+        if self.data is not None:
+            return self.data
 
     def pretty_format(self, data=None):
         if data is None:

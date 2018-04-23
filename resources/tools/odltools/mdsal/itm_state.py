@@ -48,5 +48,5 @@ class DpnEndpoints(Model):
         return tunnel_endpoints[0][self.IP_ADDRESS]
 
 
-def dpn_endpoints(store, ip, port):
-    return DpnEndpoints(NAME, DpnEndpoints.CONTAINER, store, ip, port)
+def dpn_endpoints(store, ip, port, path):
+    return DpnEndpoints(NAME, DpnEndpoints.CONTAINER, store, ip, port, path)
