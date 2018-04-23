@@ -184,7 +184,8 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                     vpnFootprintService.updateVpnToDpnMapping(primarySwitchId, routerName, primaryRd,
                             routerPort, null, false);
                     NatUtil.removeFromNeutronRouterDpnsMap(routerName, primarySwitchId, tx);
-                    NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, routerName, interfaceManager, tx);
+                    NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, routerName,
+                            primarySwitchId, interfaceManager, tx);
                     if (subnetIdToElanInstanceMap.containsKey(subnetUuid.getValue())) {
                         String elanInstanceName = subnetIdToElanInstanceMap.remove(subnetUuid.getValue());
                         NatUtil.removePseudoPortFromElanDpn(elanInstanceName, elanInstanceName, primarySwitchId,
