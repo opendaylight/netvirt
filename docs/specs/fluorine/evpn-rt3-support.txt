@@ -1,0 +1,217 @@
+.. contents:: Table of Contents
+      :depth: 5
+
+=========================================================
+Support for RT3 route type in EVPN
+=========================================================
+
+https://git.opendaylight.org/gerrit/#/q/topic:EVPN_RT3
+
+Enable support for RT3 route type in evpn deployment.
+
+Problem description
+===================
+
+OpenDaylight NetVirt service today supports EVPN over VXLAN tunnels.
+L2DCI communication was made possible with this.
+
+This spec attempts to enhance EVPN service in NetVirt to add support for RT3 route type.
+
+Type 3 routes are required for Broadcast, Unknown Unicast and Multicast (BUM) traffic delivery across EVPN networks.
+Type 3 advertisements provide information that should be used to send BUM traffic.
+Without Type 3 advertisements, ingress router would not know how to deliver BUM traffic to other PE devices that comprise given EVPN instance.
+
+The format of Type 3 advertisement is as follows
+
+               +---------------------------------------+
+               |  RD (8 octets)                        |
+               +---------------------------------------+
+               |  Ethernet Tag ID (4 octets)           |
+               +---------------------------------------+
+               |  IP Address Length (1 octet)          |
+               +---------------------------------------+
+               |  Originating Router's IP Address      |
+               |          (4 or 16 octets)             |
+               +---------------------------------------+
+
+               
+In scope
+--------
+
+Only ingress replication mode will be supported for now.
+
+Out of scope
+------------
+
+Use Cases
+---------
+
+All the use cases supported by RT2 feauture will be supported.
+
+Proposed change
+===============
+
+Pipeline changes
+----------------
+No Pipeline changes are required.
+
+Yang changes
+------------
+There are no yang changes required.
+
+The list ``external-teps`` is updated in elan container every time an RT3 route is received/withdrawn.
+
+.. code-block:: none
+   :caption: elan.yang
+
+    container elan-instances {
+        list elan-instance {
+            key "elan-instance-name";
+            leaf elan-instance-name {
+                type string;
+            }
+            //omitted other existing fields
+            list external-teps {
+                key tep-ip;
+                leaf tep-ip {
+                    type inet:ip-address;
+                }
+            }
+        }
+    }
+
+Solution considerations
+-----------------------
+
+Proposed change in BGP Quagga Stack
+++++++++++++++++++++++++++++++++++++
+
+The following thrift apis would be added to communicate to quagga.
+
+.. code-block:: none
+   :caption: elan.yang
+
+    pushEvpnRT(EvpnConfigData evpnConfig)
+    onupdatePushEvpnRT(EvpnConfigData evpnConfig)
+
+    EvpnConfigData evpnConfig {
+        1: required byte evpnConfigDataVersion = 1;
+        2: required byte  routeType;
+        3: required string rd;
+        4: required long ethTag;
+        5: required string esi;
+        6: required byte tunnelType;
+        7: required string tunnelId;
+        8: required i32 label;
+    }
+
+Proposed change in OpenDaylight-specific features
++++++++++++++++++++++++++++++++++++++++++++++++++
+
+The following components within OpenDaylight Controller needs to be enhanced:
+
+* ELAN Manager
+* BGP Manager
+
+Reboot Scenarios
+^^^^^^^^^^^^^^^^
+This feature support all the following Reboot Scenarios for EVPN:
+
+*  Entire Cluster Reboot
+*  Leader PL reboot
+*  Candidate PL reboot
+*  OVS Datapath reboots
+*  Multiple PL reboots
+*  Multiple Cluster reboots
+*  Multiple reboots of the same OVS Datapath.
+*  Openstack Controller reboots
+
+
+Configuration impact
+--------------------
+N.A.
+
+Clustering considerations
+-------------------------
+The feature should operate in ODL Clustered environment reliably.
+
+Other Infra considerations
+--------------------------
+N.A.
+
+Security considerations
+-----------------------
+N.A.
+
+Scale and Performance Impact
+----------------------------
+Not covered by this Design Document.
+
+Targeted Release
+----------------
+Fluronie.
+
+Alternatives
+------------
+Alternatives considered and why they were not selected.
+
+Usage
+=====
+
+Features to Install
+-------------------
+This feature can be used by installing odl-netvirt-openstack.
+This feature doesn't add any new karaf feature.
+
+Implementation
+==============
+
+Assignee(s)
+-----------
+
+Primary assignee:
+  K.V Suneelu Verma <k.v.suneelu.verma@ericsson.com>
+  
+  Vyshakh Krishnan C H <vyshakh.krishnan.c.h@ericsson.com>
+
+
+Work Items
+----------
+Trello card details TODO
+
+Dependencies
+============
+Requires a DC-GW that is supporting EVPN RT3 on BGP Control plane.
+
+Testing
+=======
+Capture details of testing that will need to be added.
+
+Unit Tests
+----------
+Appropriate UTs will be added for the new code.
+
+Integration Tests
+-----------------
+There won't be any Integration tests provided for this feature.
+
+CSIT
+----
+CSIT will be enhanced to cover this feature by providing new CSIT tests.
+
+1) advertize RT3 route from dcgw , verify that remote broad cast group on all computes which host that network is updated to include the dcgw nexthop.
+2) withdraw RT3 route from dcgw , verify that remote broad cast group on all computes which host that network is updated to exclude the dcgw nexthop.
+3) bring up first elan vm on a compute, verify that RT3 route is advertized.
+4) bring up second elan vm on the same compute, verify that RT3 route is not advertized again.
+5) bring down first elan vm on a compute, verify that RT3 route is not withdrawn.
+6) bring down last elan vm on a compute, verify that RT3 route is withdrawn.
+7) Disassociate network from evpn, verify that all computes broadcasts are updated to exclude the dcgw nexthops.
+
+
+Documentation Impact
+====================
+This will require changes to User Guide and Developer Guide.
+
+References
+==========
+[1] `BGP MPLS-Based Ethernet VPN <https://tools.ietf.org/html/rfc7432>`_
