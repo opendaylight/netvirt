@@ -14,3 +14,4 @@ Contents:
    Tap as a Service <Tap-as-a-Service>
    EVPN and l2gw integration <evpn-l2gw-integration>
    Enable discovery of Virtual IPs (or Movable IPs) holding Virtual MACs
+   Evpn Route Type 3 support <evpn-rt3-support>
