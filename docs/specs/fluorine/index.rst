@@ -5,3 +5,5 @@ Contents:
 
 .. toctree::
    :maxdepth: 1
+
+   Retain Elected Napt Switch After Upgrade for SNAT<retain-napt-switch-after-upgrade-for-snat>
