@@ -1084,65 +1084,7 @@ public final class NatUtil {
         }
     }
 
-    public static void removeFromNeutronRouterDpnsMap(DataBroker broker, String routerName, String vpnInterfaceName,
-                                               OdlInterfaceRpcService ifaceMgrRpcService,
-                                               WriteTransaction writeOperTxn) {
-        BigInteger dpId = getDpnForInterface(ifaceMgrRpcService, vpnInterfaceName);
-        if (dpId.equals(BigInteger.ZERO)) {
-            LOG.debug("removeFromNeutronRouterDpnsMap : Could not retrieve dp id for interface {} to handle router {}"
-                    + " dissociation model", vpnInterfaceName, routerName);
-            return;
-        }
-        InstanceIdentifier<DpnVpninterfacesList> routerDpnListIdentifier = getRouterDpnId(routerName, dpId);
-        Optional<DpnVpninterfacesList> optionalRouterDpnList =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                        LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier);
-        if (optionalRouterDpnList.isPresent()) {
-            List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns
-                .router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces> routerInterfaces =
-                optionalRouterDpnList.get().getRouterInterfaces();
-            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn
-                .list.dpn.vpninterfaces.list.RouterInterfaces routerInterface =
-                new RouterInterfacesBuilder().setKey(new RouterInterfacesKey(vpnInterfaceName))
-                    .setInterface(vpnInterfaceName).build();
-
-            if (routerInterfaces != null && routerInterfaces.remove(routerInterface)) {
-                if (routerInterfaces.isEmpty()) {
-                    if (writeOperTxn != null) {
-                        writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier);
-                    } else {
-                        MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier);
-                    }
-                } else {
-                    if (writeOperTxn != null) {
-                        writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier.child(
-                            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router
-                                .dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces.class,
-                            new RouterInterfacesKey(vpnInterfaceName)));
-                    } else {
-                        MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier.child(
-                            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron
-                                .router.dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces.class,
-                            new RouterInterfacesKey(vpnInterfaceName)));
-                    }
-                }
-            }
-        }
-    }
-
     public static void removeFromDpnRoutersMap(DataBroker broker, String routerName, String vpnInterfaceName,
-                                        OdlInterfaceRpcService ifaceMgrRpcService, WriteTransaction writeOperTxn) {
-        BigInteger dpId = getDpnForInterface(ifaceMgrRpcService, vpnInterfaceName);
-        if (dpId.equals(BigInteger.ZERO)) {
-            LOG.debug("removeFromDpnRoutersMap : removeFromDpnRoutersMap() : "
-                + "Could not retrieve DPN ID for interface {} to handle router {} dissociation model",
-                vpnInterfaceName, routerName);
-            return;
-        }
-        removeFromDpnRoutersMap(broker, routerName, vpnInterfaceName, dpId, ifaceMgrRpcService, writeOperTxn);
-    }
-
-    static void removeFromDpnRoutersMap(DataBroker broker, String routerName, String vpnInterfaceName,
                                         BigInteger curDpnId,
                                         OdlInterfaceRpcService ifaceMgrRpcService, WriteTransaction writeOperTxn) {
         /*

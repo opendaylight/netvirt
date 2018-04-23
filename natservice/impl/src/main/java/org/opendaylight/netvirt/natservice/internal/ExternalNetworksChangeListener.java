@@ -117,24 +117,18 @@ public class ExternalNetworksChangeListener
         //Check for VPN disassociation
         Uuid originalVpn = original.getVpnid();
         Uuid updatedVpn = update.getVpnid();
-        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.getKey(), () -> {
-            WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            if (originalVpn == null && updatedVpn != null) {
-                //external network is dis-associated from L3VPN instance
-                associateExternalNetworkWithVPN(update, writeFlowInvTx);
-            } else if (originalVpn != null && updatedVpn == null) {
-                //external network is associated with vpn
-                disassociateExternalNetworkFromVPN(update, originalVpn.getValue());
-                //Remove the SNAT entries
-                removeSnatEntries(original, original.getId(), writeFlowInvTx);
-            }
-            futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
-            return futures;
-        }, NatConstants.NAT_DJC_MAX_RETRIES);
+        if (originalVpn == null && updatedVpn != null) {
+            //external network is dis-associated from L3VPN instance
+            associateExternalNetworkWithVPN(update);
+        } else if (originalVpn != null && updatedVpn == null) {
+            //external network is associated with vpn
+            disassociateExternalNetworkFromVPN(update, originalVpn.getValue());
+            //Remove the SNAT entries
+            removeSnatEntries(original, original.getId());
+        }
     }
 
-    private void removeSnatEntries(Networks original, Uuid networkUuid, WriteTransaction writeFlowInvTx) {
+    private void removeSnatEntries(Networks original, Uuid networkUuid) {
         List<Uuid> routerUuids = original.getRouterIds();
         for (Uuid routerUuid : routerUuids) {
             Long routerId = NatUtil.getVpnId(dataBroker, routerUuid.getValue());
@@ -144,13 +138,19 @@ public class ExternalNetworksChangeListener
             }
             Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
             if (natMode == NatMode.Controller) {
-                externalRouterListener.handleDisableSnatInternetVpn(routerUuid.getValue(), routerId, networkUuid,
-                        externalIps, original.getVpnid().getValue(), writeFlowInvTx);
+                coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routerUuid.getValue(), () -> {
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
+                    WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+                    externalRouterListener.handleDisableSnatInternetVpn(routerUuid.getValue(),routerId, networkUuid,
+                            externalIps, original.getVpnid().getValue(), writeFlowInvTx);
+                    futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
+                    return futures;
+                }, NatConstants.NAT_DJC_MAX_RETRIES);
             }
         }
     }
 
-    private void associateExternalNetworkWithVPN(Networks network, WriteTransaction writeFlowInvTx) {
+    private void associateExternalNetworkWithVPN(Networks network) {
         List<Uuid> routerIds = network.getRouterIds();
         for (Uuid routerId : routerIds) {
             //long router = NatUtil.getVpnId(dataBroker, routerId.getValue());
@@ -176,8 +176,14 @@ public class ExternalNetworksChangeListener
                 List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
                 for (InternalToExternalPortMap ipMap : intExtPortMapList) {
                     //remove all VPN related entries
-                    floatingIpListener.createNATFlowEntries(dpnId, portName, routerId.getValue(), network.getId(),
-                            ipMap, writeFlowInvTx);
+                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + ipMap.getKey(), () -> {
+                        WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
+                        floatingIpListener.createNATFlowEntries(dpnId, portName, routerId.getValue(), network.getId(),
+                                ipMap, writeFlowInvTx);
+                        futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
+                        return futures;
+                    }, NatConstants.NAT_DJC_MAX_RETRIES);
                 }
             }
         }
@@ -211,49 +217,57 @@ public class ExternalNetworksChangeListener
                     routerId, dpnId);
                 return;
             }
+            final BigInteger finalDpnId = dpnId;
+            coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routerId.getValue(), () -> {
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+                Long routerIdentifier = NatUtil.getVpnId(dataBroker, routerId.getValue());
+                InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice
+                    .rev160111.intext.ip.map.IpMapping> idBuilder =
+                    InstanceIdentifier.builder(IntextIpMap.class)
+                        .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
+                            .intext.ip.map.IpMapping.class,
+                            new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
+                                .intext.ip.map.IpMappingKey(routerIdentifier));
+                InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
+                    .intext.ip.map.IpMapping> id = idBuilder.build();
+                Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
+                    .intext.ip.map.IpMapping> ipMapping = MDSALUtil.read(dataBroker,
+                                                            LogicalDatastoreType.OPERATIONAL, id);
+                if (ipMapping.isPresent()) {
+                    List<IpMap> ipMaps = ipMapping.get().getIpMap();
+                    for (IpMap ipMap : ipMaps) {
+                        String externalIp = ipMap.getExternalIp();
+                        LOG.debug("associateExternalNetworkWithVPN : Calling advToBgpAndInstallFibAndTsFlows"
+                            + "   for dpnId {}, vpnName {} and externalIp {}", finalDpnId, vpnName, externalIp);
+                        if (natMode == NatMode.Controller) {
+                            externalRouterListener.advToBgpAndInstallFibAndTsFlows(finalDpnId,
+                                    NwConstants.INBOUND_NAPT_TABLE,
+                                    vpnName, routerIdentifier, routerId.getValue(),
+                                    externalIp, network.getId(), null /* external-router */,
+                                    writeFlowInvTx);
 
-            Long routerIdentifier = NatUtil.getVpnId(dataBroker, routerId.getValue());
-            InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice
-                .rev160111.intext.ip.map.IpMapping> idBuilder =
-                InstanceIdentifier.builder(IntextIpMap.class)
-                    .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
-                        .intext.ip.map.IpMapping.class,
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
-                            .intext.ip.map.IpMappingKey(routerIdentifier));
-            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
-                .intext.ip.map.IpMapping> id = idBuilder.build();
-            Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
-                .intext.ip.map.IpMapping> ipMapping = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-            if (ipMapping.isPresent()) {
-                List<IpMap> ipMaps = ipMapping.get().getIpMap();
-                for (IpMap ipMap : ipMaps) {
-                    String externalIp = ipMap.getExternalIp();
-                    LOG.debug("associateExternalNetworkWithVPN : Calling advToBgpAndInstallFibAndTsFlows for dpnId {},"
-                        + "vpnName {} and externalIp {}", dpnId, vpnName, externalIp);
-                    if (natMode == NatMode.Controller) {
-                        externalRouterListener.advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
-                                vpnName, routerIdentifier, routerId.getValue(),
-                                externalIp, network.getId(), null /* external-router */,
-                                writeFlowInvTx);
+                        }
+                    }
+                } else {
+                    LOG.warn("associateExternalNetworkWithVPN : No ipMapping present fot the routerId {}", routerId);
+                }
+
+                long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
+                // Install 47 entry to point to 21
+                if (natMode == NatMode.Controller) {
+                    externalRouterListener.installNaptPfibEntriesForExternalSubnets(routerId.getValue(), finalDpnId,
+                            writeFlowInvTx);
+                    if (vpnId != -1) {
+                        LOG.debug("associateExternalNetworkWithVPN : Calling externalRouterListener "
+                                + "installNaptPfibEntry for dpnId {} and vpnId {}", finalDpnId, vpnId);
+                        externalRouterListener.installNaptPfibEntry(finalDpnId, vpnId, writeFlowInvTx);
                     }
                 }
-            } else {
-                LOG.warn("associateExternalNetworkWithVPN : No ipMapping present fot the routerId {}", routerId);
-            }
-
-            long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
-            // Install 47 entry to point to 21
-            if (natMode == NatMode.Controller) {
-                externalRouterListener.installNaptPfibEntriesForExternalSubnets(routerId.getValue(), dpnId,
-                        writeFlowInvTx);
-                if (vpnId != -1) {
-                    LOG.debug("associateExternalNetworkWithVPN : Calling externalRouterListener installNaptPfibEntry "
-                            + "for dpnId {} and vpnId {}", dpnId, vpnId);
-                    externalRouterListener.installNaptPfibEntry(dpnId, vpnId, writeFlowInvTx);
-                }
-            }
+                futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
+                return futures;
+            }, NatConstants.NAT_DJC_MAX_RETRIES);
         }
-
     }
 
     private void disassociateExternalNetworkFromVPN(Networks network, String vpnName) {
@@ -270,7 +284,7 @@ public class ExternalNetworksChangeListener
             }
             RouterPorts routerPorts = optRouterPorts.get();
             List<Ports> interfaces = routerPorts.getPorts();
-            WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+
             for (Ports port : interfaces) {
                 String portName = port.getPortName();
                 BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
@@ -281,12 +295,16 @@ public class ExternalNetworksChangeListener
                 }
                 List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
                 for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
-                    floatingIpListener.removeNATFlowEntries(dpnId, portName, vpnName, routerId.getValue(),
-                            intExtPortMap, removeFlowInvTx);
+                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + intExtPortMap.getKey(), () -> {
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
+                        WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+                        floatingIpListener.removeNATFlowEntries(dpnId, portName, vpnName, routerId.getValue(),
+                                intExtPortMap, writeFlowInvTx);
+                        futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
+                        return futures;
+                    }, NatConstants.NAT_DJC_MAX_RETRIES);
                 }
             }
-
-            NatUtil.waitForTransactionToComplete(removeFlowInvTx);
         }
     }
 }
