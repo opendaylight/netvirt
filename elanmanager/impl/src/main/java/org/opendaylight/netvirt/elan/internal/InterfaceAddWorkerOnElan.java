@@ -8,10 +8,8 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -48,13 +46,10 @@ public class InterfaceAddWorkerOnElan implements Callable<List<ListenableFuture<
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     public List<ListenableFuture<Void>> call() throws Exception {
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
         try {
-            futures.addAll(dataChangeListener.addElanInterface(elanInterface, interfaceInfo, elanInstance));
+            return dataChangeListener.addElanInterface(elanInterface, interfaceInfo, elanInstance);
         } catch (RuntimeException e) {
-            LOG.error("Error while processing key {} for elan interface {} ", key, elanInterface, e);
-            ElanUtils.addToListenableFutureIfTxException(e, futures);
+            return ElanUtils.returnFailedListenableFutureIfTransactionCommitFailedExceptionCauseOrElseThrow(e);
         }
-        return futures;
     }
 }
