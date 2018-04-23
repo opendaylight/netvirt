@@ -1504,12 +1504,14 @@ public class ElanUtils {
         return elanMacKey.intern();
     }
 
-    // TODO This should return a collection of futures
-    public static void addToListenableFutureIfTxException(RuntimeException exception,
-            List<ListenableFuture<Void>> futures) {
+    public static List<ListenableFuture<Void>>
+        returnFailedListenableFutureIfTransactionCommitFailedExceptionCauseOrElseThrow(RuntimeException exception) {
+
         Throwable cause = exception.getCause();
         if (cause != null && cause instanceof TransactionCommitFailedException) {
-            futures.add(Futures.immediateFailedCheckedFuture((TransactionCommitFailedException) cause));
+            return Collections.singletonList(Futures.immediateFailedFuture(cause));
+        } else {
+            throw exception;
         }
     }
 
