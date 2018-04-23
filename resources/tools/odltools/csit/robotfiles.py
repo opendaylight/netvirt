@@ -23,8 +23,8 @@ class RobotFiles:
         self.datafilepath = infile
         self.pdata = {}
         self.re_normalize_text = re.compile(r"( \n)|(\[A\[C.*)")
+        # uri=restconf/config/interface-service-bindings:service-bindings, headers=None json=None</msg>
         self.re_uri = re.compile(r"uri=(?P<uri>.*),")
-        self.re_model = re.compile(r"uri=(?P<uri>.*),")
 
     def gunzip_output_file(self):
         infile = self.datafilepath
@@ -93,8 +93,8 @@ class RobotFiles:
         tag = element.tag
         text = element.text
         attribs = element.attrib
-        if logger.isEnabledFor(logging.DEBUG):
-            logger.debug("%s - %s - %s - %s - %s - %s", state.state, state.command, event, tag, (text is not None), attribs)
+        if logger.isEnabledFor(logging.DEBUG) and text is not None and attribs:
+            logger.debug("process_element: %s - %s - %s - %s - %s - %s", state.state, state.command, event, tag, (text is not None), attribs)
         if event == "end":
             if element.tag == "test":
                 state.pdata['nodes'] = state.nodes
@@ -112,27 +112,33 @@ class RobotFiles:
                 state.test_id = element.get("id")
                 state.pdata["name"] = element.get("name")
                 state.state = "test"
+                state.command = ""
         elif event == "start" and state.state == "test":
             # <kw type="teardown" name="Get Test Teardown Debugs" library="OpenStackOperations">
             if element.tag == "kw" and element.get("name") == "Get Test Teardown Debugs":
                 state.state = "debugs"
+                state.command = ""
         elif event == "start" and state.state == "debugs":
             # <arg>Get DumpFlows And Ovsconfig</arg>
             if element.tag == "kw" and element.get("name") == "Get DumpFlows And Ovsconfig":
                 state.state = "nodes"
+                state.command = ""
             # <arg>Get Model Dump</arg>
             if element.tag == "kw" and element.get("name") == "Get Model Dump":
                 state.state = "models"
+                state.command = ""
         elif event == "start" and state.state == "nodes":
             # <arg>${OS_CONTROL_NODE_IP}</arg>
             if element.tag == "arg" and element.text is not None and "${OS_" in element.text:
                 state.node = element.text[element.text.find("{") + 1:element.text.find("}")]
                 state.nodes[state.node] = {}
                 state.state = "nodes2"
+                state.command = ""
         elif event == "start" and state.state == "nodes2":
             # <kw name="Write Commands Until Expected Prompt" library="Utils">
             if element.tag == "kw" and element.get("name") == "Write Commands Until Expected Prompt":
                 state.state = "kw"
+                state.command = ""
         elif event == "start" and state.state == "kw":
             # <arg>ip -o link</arg>
             if element.tag == "arg" and element.text is not None:
@@ -152,9 +158,10 @@ class RobotFiles:
                     # [jenkins@rele ^Mng-36618-350-devstack-newton-0 ~]&gt; ip -o link</msg>
                     if text.find("jenkins") != -1:
                         state.state = "nodes2"
+                        state.command = ""
                     else:
-                        state.command = text
                         state.state = "msg"
+                        state.command = text
         elif state.state == "msg":
             # <msg timestamp="20170414 07:31:21.786" level="INFO">
             if element.tag == "msg" and element.text is not None:
@@ -163,6 +170,7 @@ class RobotFiles:
                 # this command is the last one
                 if state.command == "sudo ovs-ofctl dump-group-stats br-int -OOpenFlow13":
                     state.state = "debugs"
+                    state.command = ""
                 else:
                     # still more debugs for this node
                     state.state = "nodes2"
@@ -172,8 +180,8 @@ class RobotFiles:
             if element.tag == "msg" and element.text is not None and element.text.find("uri") != -1:
                 uri = self.re_uri.search(element.text)
                 if uri is not None and "uri" in uri.group():
-                    state.command = uri.group("uri")
                     state.state = "uri"
+                    state.command = uri.group("uri")
         elif event == "start" and state.state == "models":
             # <kw type="foritem" name="${model} = config/neutronvpn:router-interfaces-map">
             if element.tag == "kw" and "name" in element.attrib:
@@ -182,19 +190,22 @@ class RobotFiles:
                 if len(name_split) == 2:
                     model = name_split[1]
                 if model is not None:
-                    state.command = model
                     state.state = "uri"
+                    state.command = model
         elif state.state == "uri":
             if element.tag == "msg" and element.text is not None and element.text.find("pretty_output") != -1:
                 state.state = "dump"
+                # do not clear the state.command
         elif state.state == "dump":
             if element.tag == "msg" and element.text is not None:
                 state.models[state.command] = element.text
                 # if state.command == "restconf/operational/rendered-service-path:rendered-service-path":
                 if state.command == "restconf/operational/opendaylight-inventory:nodes":
                     state.state = "done"
+                    state.command = ""
                 else:
                     state.state = "models"
+                    state.command = ""
 
     def parse_xml_data_file(self):
         state = self.State()
@@ -205,8 +216,8 @@ class RobotFiles:
                 self.process_element(state, event, element)
                 element.clear()
                 # debugging code to stop after the named test case is processed
-                # if "s1-t2" in self.pdata:
-                #     break
+                if "s1-t1" in self.pdata:
+                    break
             root.clear()
 
     def write_pdata(self):
@@ -224,7 +235,7 @@ class RobotFiles:
             mdir = tdir + "/models"
             self.mkdir(mdir)
             for mindex, (model, mdata) in enumerate(test['models'].items()):
-                filename = mdir + "/" + self.fix_model_name(model) + ".txt"
+                filename = mdir + "/" + self.fix_model_name(model) + ".json"
                 with open(filename, 'w') as fp:
                     if mdata is not None:
                         fp.writelines(mdata)
