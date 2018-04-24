@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "116e6b98_00bf322e",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-24T13:47:08Z",
+      "side": 1,
+      "message": "and bgpvpns",
+      "revId": "eebc3e5e1330c1f5d8378e94533985e07baac176",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "db291edd_35c32d12",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-24T13:47:08Z",
+      "side": 1,
+      "message": "over BGPVPN",
+      "revId": "eebc3e5e1330c1f5d8378e94533985e07baac176",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2dfd658e_cd34b21f",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-24T13:47:08Z",
+      "side": 1,
+      "message": "to the bgpvpn.",
+      "revId": "eebc3e5e1330c1f5d8378e94533985e07baac176",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
