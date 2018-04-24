@@ -190,6 +190,29 @@
     },
     {
       "key": {
+        "uuid": "5106e3ed_1136013c",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-04-24T16:09:08Z",
+      "side": 1,
+      "message": "Does it matter about what components are using haproxy - meaning the upstream CSIT uses haproxy on the northbound for neutron, but not the southbound for ovsdb.",
+      "range": {
+        "startLine": 75,
+        "startChar": 52,
+        "endLine": 75,
+        "endChar": 53
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f642b5f_b507579c",
         "filename": "docs/specs/l3vpn-robustness.rst",
         "patchSetId": 13
@@ -234,6 +257,46 @@
       "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b34bde70_23f8cc25",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-04-24T16:09:08Z",
+      "side": 1,
+      "message": "nitpick whitespace, couple other places in the file",
+      "range": {
+        "startLine": 98,
+        "startChar": 72,
+        "endLine": 98,
+        "endChar": 73
+      },
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "323bbe29_37105ebb",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-04-24T16:09:08Z",
+      "side": 1,
+      "message": "have the underline same number of chars as the text above to avoid rst warnings",
+      "revId": "e9b4baa02f5940ff3e95143cd8e2df389a105019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
