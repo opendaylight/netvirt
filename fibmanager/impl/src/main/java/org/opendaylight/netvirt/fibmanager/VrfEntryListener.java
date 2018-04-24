@@ -1016,7 +1016,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency
             //in the vpn
             Optional<Routes> extraRouteOptional = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker,
-                    vpnName, rd, vrfEntry.getDestPrefix());
+                    vpnName, usedRds.get(0), vrfEntry.getDestPrefix());
             if (extraRouteOptional.isPresent()) {
                 Routes extraRoute = extraRouteOptional.get();
                 String ipPrefix;
