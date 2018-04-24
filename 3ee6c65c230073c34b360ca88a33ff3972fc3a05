@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8739c94a_bfbf2d1c",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 8015
+      },
+      "writtenOn": "2018-04-24T12:25:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c921582a_ea6539b6",
+      "revId": "3ee6c65c230073c34b360ca88a33ff3972fc3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "131dc6fc_aaaa7bbb",
         "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2018-04-24T09:53:01Z",
       "side": 1,
       "message": "over L3 BGPVPN will be retained.",
+      "revId": "3ee6c65c230073c34b360ca88a33ff3972fc3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "531a8409_48d6a77f",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 8015
+      },
+      "writtenOn": "2018-04-24T12:25:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "131dc6fc_aaaa7bbb",
       "revId": "3ee6c65c230073c34b360ca88a33ff3972fc3a05",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "07bc8b45_8c226c8e",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 8015
+      },
+      "writtenOn": "2018-04-24T12:25:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19e1d83a_b4b6702f",
+      "revId": "3ee6c65c230073c34b360ca88a33ff3972fc3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a08e6cd8_1c90f772",
         "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2018-04-24T09:53:01Z",
       "side": 1,
       "message": "Traffic between Trunk port and Subport over a BGPVPN will carry VNI enforced on the respective networks to which Trunk and Subports belong.  This will be applied universally regardless of whether such trunk ports and subports were network-associated and/or router-associated.",
+      "revId": "3ee6c65c230073c34b360ca88a33ff3972fc3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0308b3b8_9fdbcf18",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 8015
+      },
+      "writtenOn": "2018-04-24T12:25:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a08e6cd8_1c90f772",
       "revId": "3ee6c65c230073c34b360ca88a33ff3972fc3a05",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "7ec229d5_44d103a1",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 8015
+      },
+      "writtenOn": "2018-04-24T12:25:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "81e57f59_2bf0fecf",
+      "revId": "3ee6c65c230073c34b360ca88a33ff3972fc3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f5c8c75f_cab0c61f",
         "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
         "patchSetId": 3
@@ -98,6 +188,24 @@
       "writtenOn": "2018-04-24T09:53:01Z",
       "side": 1,
       "message": "ideally the inner-source-mac the packet must carry should be the router-interface-mac address, but its ok if we don\u0027t want to enforce the same.",
+      "revId": "3ee6c65c230073c34b360ca88a33ff3972fc3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f842aaa2_1a6eda40",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 8015
+      },
+      "writtenOn": "2018-04-24T12:25:53Z",
+      "side": 1,
+      "message": "we are leaving it as is",
+      "parentUuid": "f5c8c75f_cab0c61f",
       "revId": "3ee6c65c230073c34b360ca88a33ff3972fc3a05",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
