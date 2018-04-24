@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c921582a_ea6539b6",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-24T09:53:01Z",
+      "side": 1,
+      "message": "using routers and l3bgpvpns",
+      "revId": "3ee6c65c230073c34b360ca88a33ff3972fc3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "131dc6fc_aaaa7bbb",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-24T09:53:01Z",
+      "side": 1,
+      "message": "over L3 BGPVPN will be retained.",
+      "revId": "3ee6c65c230073c34b360ca88a33ff3972fc3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "19e1d83a_b4b6702f",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-24T09:53:01Z",
+      "side": 1,
+      "message": "here in dualstack, we need to quote that for Intra-DC IPv6 packets over VXLAN tunnels, the VNI enforced by Openstack will be carried in such packets.",
+      "revId": "3ee6c65c230073c34b360ca88a33ff3972fc3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a08e6cd8_1c90f772",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-24T09:53:01Z",
+      "side": 1,
+      "message": "Traffic between Trunk port and Subport over a BGPVPN will carry VNI enforced on the respective networks to which Trunk and Subports belong.  This will be applied universally regardless of whether such trunk ports and subports were network-associated and/or router-associated.",
+      "revId": "3ee6c65c230073c34b360ca88a33ff3972fc3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81e57f59_2bf0fecf",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-24T09:53:01Z",
+      "side": 1,
+      "message": "For Multi-Segment networks that have one of them as VXLAN network, the VNI in such networks will be enforced in the dataplane over VXLAN tunnels.",
+      "revId": "3ee6c65c230073c34b360ca88a33ff3972fc3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f5c8c75f_cab0c61f",
+        "filename": "docs/specs/vni-based-l2-switching-l3-forwarding-and-NATing.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-24T09:53:01Z",
+      "side": 1,
+      "message": "ideally the inner-source-mac the packet must carry should be the router-interface-mac address, but its ok if we don\u0027t want to enforce the same.",
+      "revId": "3ee6c65c230073c34b360ca88a33ff3972fc3a05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
