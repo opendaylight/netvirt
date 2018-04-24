@@ -1,0 +1,211 @@
+.. contents:: Table of Contents
+      :depth: 5
+
+=========================================================
+Evpn and l2gw integration
+=========================================================
+
+https://git.opendaylight.org/gerrit/#/q/topic:EVPN_L2GW
+
+Enable support of l2gw integration with evpn.
+
+Problem description
+===================
+
+OpenDaylight NetVirt service today supports EVPN over VXLAN tunnels.
+L2DCI communication was made possible with this.
+
+It also supports l2gw use cases.
+
+This spec attempts to integrate these two services.
+               
+In scope
+--------
+Only L2 support will be added now.
+
+Out of scope
+------------
+
+Use Cases
+---------
+
+All the use cases supported by RT2 feature will be supported.
+
+In addition the following use cases will be supported.
+
+1) Intra subnet communication between sriov vms across datacenters.
+
+2) Intra subnet communication between sriov vm and compute vm across datacenters.
+
+3) Intra subnet communication between baremetals behind l2gw across datacenters.
+
+4) Intra subnet communication between baremetal behind l2gw  and compute vm across datacenters.
+
+
+Proposed change
+===============
+
+Pipeline changes
+----------------
+No Pipeline changes are required.
+
+Yang changes
+------------
+There are no yang changes required.
+
+
+Solution considerations
+-----------------------
+
+Proposed change in OpenDaylight-specific features
++++++++++++++++++++++++++++++++++++++++++++++++++
+
+The following components within OpenDaylight Controller needs to be enhanced:
+
+* ELAN Manager
+
+The following actions are performed If the network is attached to evpn
+
+Upon L2gw connection creation.
+    Program remote mcast table of l2gw device with all the external teps of the elan instance.
+    
+    Program remote mcast table of l2gw device with all the external macs from mac vrf table of the elan instance.
+
+Upon L2gw connection deletion.
+    Delete remote mcast table of l2gw device.
+    
+    Clear remote mcast table of l2gw device with all the external macs from mac vrf table of the elan instance.
+
+Upon Local ucast add
+    advertize the RT2 route for the added ucast mac
+
+Upon Local ucast delete
+    withdraw the RT2 route for the added ucast mac
+
+Upon Receiving RT2 route
+    Programme remote ucast mac table of l2gw device with the mac received from RT2 route
+
+Upon Receiving RT2 route withdraw
+    Delete mac from remote ucast mac table of l2gw device
+
+Upon Receiving RT3 route
+    Programme remote mcast mac table of l2gw device to include the tep
+
+Upon Receiving RT3 route withdraw
+    Programme remote mcast mac table of l2gw device to exclude the tep
+
+Upon attaching network to evpn
+    Advertize local ucast macs of l2gw device as RT2 routes
+    
+    Advertize vtep of the l2gw device in RT3 route
+
+Upon detaching network from evpn
+    Advertize withdraw local ucast macs of l2gw device as RT2 routes
+    
+    Advertize withdraw vtep of the l2gw device in RT3 route
+
+Reboot Scenarios
+^^^^^^^^^^^^^^^^
+This feature support all the following Reboot Scenarios for EVPN:
+
+*  Entire Cluster Reboot
+*  Leader PL reboot (PL : payload node: one of the nodes in the cluster)
+*  Candidate PL reboot
+*  OVS Datapath reboots
+*  Multiple PL reboots
+*  Multiple Cluster reboots
+*  Multiple reboots of the same OVS Datapath.
+*  Openstack Controller reboots
+
+
+Configuration impact
+--------------------
+N.A.
+
+Clustering considerations
+-------------------------
+The feature should operate in ODL Clustered environment reliably.
+
+Other Infra considerations
+--------------------------
+N.A.
+
+Security considerations
+-----------------------
+N.A.
+
+Scale and Performance Impact
+----------------------------
+Not covered by this Design Document.
+
+Targeted Release
+----------------
+Fluorine.
+
+Alternatives
+------------
+Alternatives considered and why they were not selected.
+
+Usage
+=====
+
+Features to Install
+-------------------
+This feature can be used by installing odl-netvirt-openstack.
+This feature doesn't add any new karaf feature.
+
+Implementation
+==============
+
+Assignee(s)
+-----------
+
+Primary assignee:
+  K.V Suneelu Verma <k.v.suneelu.verma@ericsson.com>
+
+  Vyshakh Krishnan C H <vyshakh.krishnan.c.h@ericsson.com>
+
+
+Work Items
+----------
+Trello card details TODO
+
+Dependencies
+============
+Requires a DC-GW that is supporting EVPN RT2 & RT3 on BGP Control plane.
+
+Testing
+=======
+Capture details of testing that will need to be added.
+
+Unit Tests
+----------
+Appropriate UTs will be added for the new code.
+
+Integration Tests
+-----------------
+There won't be any Integration tests provided for this feature.
+
+CSIT
+----
+CSIT will be enhanced to cover this feature by providing new CSIT tests.
+
+1) create l2gw connection , verify that received dcgw routes are programmed in the l2gw device
+2) create l2gw connection , verify that the l2gw device tep is advertized in RT3 route
+3) delete l2gw connection , verify that received dcgw routes are deleted from the l2gw device
+4) delete l2gw connection , verify that the RT3 route withdraw message is published
+5) attach network to evpn , verify that l2gw local ucast macs are advertized as RT2 routes
+6) detach network from evpn , verify that l2gw local ucast macs are withdrwan
+7) receive RT2 route , verify that the received mac is programmed in l2gw device
+8) upon receiving withdraw of RT2 route, verify that the received mac is deleted from l2gw device
+9) receive RT3 route , verify that l2gw device mcast includes the dcgw nexthop ip
+10) upon receiving withdraw of RT3 route, verify that l2gw device mcast excludes the dcgw nexthop ip
+
+
+Documentation Impact
+====================
+This will require changes to User Guide and Developer Guide.
+
+References
+==========
+[1] `BGP MPLS-Based Ethernet VPN <https://tools.ietf.org/html/rfc7432>`_
