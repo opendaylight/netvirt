@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d60786a8_5284218e",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-24T11:30:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0a2fad9_0caea4c9",
+      "revId": "1fe5c5e88f1783ca7b7d6c9d1b597afb5ec11eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f9248c99_a95c946f",
         "filename": "docs/specs/fluorine/controller-punt-protection.rst",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2018-04-24T07:20:56Z",
       "side": 1,
       "message": "\"It will\" instead of \"The feature will\".",
+      "revId": "1fe5c5e88f1783ca7b7d6c9d1b597afb5ec11eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3d04e91_a36006a4",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-24T11:30:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9248c99_a95c946f",
       "revId": "1fe5c5e88f1783ca7b7d6c9d1b597afb5ec11eaa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "8bd25445_0abb0c18",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-24T11:30:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7211a437_da1544cb",
+      "revId": "1fe5c5e88f1783ca7b7d6c9d1b597afb5ec11eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f9abc422_82c76f1d",
         "filename": "docs/specs/fluorine/controller-punt-protection.rst",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2018-04-24T07:20:56Z",
       "side": 1,
       "message": "\"change in configuration will take effect\"",
+      "revId": "1fe5c5e88f1783ca7b7d6c9d1b597afb5ec11eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f76b3465_247de515",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-24T11:30:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9abc422_82c76f1d",
       "revId": "1fe5c5e88f1783ca7b7d6c9d1b597afb5ec11eaa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "b8971739_c6708d67",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-24T11:30:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c911b0f_5e10ea17",
+      "revId": "1fe5c5e88f1783ca7b7d6c9d1b597afb5ec11eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "01957f28_f7599e67",
         "filename": "docs/specs/fluorine/controller-punt-protection.rst",
         "patchSetId": 3
@@ -98,6 +188,24 @@
       "writtenOn": "2018-04-24T07:20:56Z",
       "side": 1,
       "message": "\"punts\" instead of punt.",
+      "revId": "1fe5c5e88f1783ca7b7d6c9d1b597afb5ec11eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca10a688_0ae68f49",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-24T11:30:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "01957f28_f7599e67",
       "revId": "1fe5c5e88f1783ca7b7d6c9d1b597afb5ec11eaa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "5b1ed577_403529f2",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-24T11:30:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ae1642c_8c5eeabb",
+      "revId": "1fe5c5e88f1783ca7b7d6c9d1b597afb5ec11eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cddc665d_94bafdc8",
         "filename": "docs/specs/fluorine/controller-punt-protection.rst",
         "patchSetId": 3
@@ -132,6 +258,24 @@
       "writtenOn": "2018-04-24T07:20:56Z",
       "side": 1,
       "message": "If possible please make the order of lead nodes are similar to the configuration xml file.",
+      "revId": "1fe5c5e88f1783ca7b7d6c9d1b597afb5ec11eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5570a67d_24f52993",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-24T11:30:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cddc665d_94bafdc8",
       "revId": "1fe5c5e88f1783ca7b7d6c9d1b597afb5ec11eaa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "af771afb_a39a1091",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-24T11:30:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a768ac10_35b66e53",
+      "revId": "1fe5c5e88f1783ca7b7d6c9d1b597afb5ec11eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8f5cc8bd_8a207d4b",
         "filename": "docs/specs/fluorine/controller-punt-protection.rst",
         "patchSetId": 3
@@ -166,6 +328,24 @@
       "writtenOn": "2018-04-24T07:20:56Z",
       "side": 1,
       "message": "Put a blank line here.",
+      "revId": "1fe5c5e88f1783ca7b7d6c9d1b597afb5ec11eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d796b36f_86442f28",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-24T11:30:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f5cc8bd_8a207d4b",
       "revId": "1fe5c5e88f1783ca7b7d6c9d1b597afb5ec11eaa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
