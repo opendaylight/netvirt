@@ -66,13 +66,13 @@ PREFIX_LPORT_SGR = {211: [], 212: [], 213: [],
                     }
 
 # Metadata consts
-LPORT_MASK = 0x1fffff0000000000
+LPORT_MASK = 0xfffff0000000000
 LPORT_MASK_ZLEN = 10  # no. of trailing 0s in lport mask
 ELAN_TAG_MASK = 0x000000ffff000000
 ELAN_HEX_LEN = 4
-LPORT_REG6_MASK = 0x1fffff00
+LPORT_REG6_MASK = 0xfffff00
 LPORT_REG6_MASK_ZLEN = 2
-VRFID_MASK = 0x00000000fffffffe
+VRFID_MASK = 0x0000000000fffffe
 
 
 def create_flow_dict(flow_info, flow):
