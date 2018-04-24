@@ -12,3 +12,4 @@ Contents:
    Subnet routing for hidden IPv6 addresses <subnet-routing-for-hidden-ipv6>
    Support Neutron BGPVPN API on OpenDaylight L3VPN Service
    Tap as a Service <Tap-as-a-Service>
+   EVPN and l2gw integration <evpn-l2gw-integration>
