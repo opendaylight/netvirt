@@ -1014,10 +1014,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         vrfEntry.getDestPrefix(), vpnName, rd);
                 return returnLocalDpnId;
             }
+            String vpnRd = (!usedRds.isEmpty()) ? usedRds.get(0) : rd;
             //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency
             //in the vpn
             Optional<Routes> extraRouteOptional = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker,
-                    vpnName, rd, vrfEntry.getDestPrefix());
+                    vpnName, vpnRd, vrfEntry.getDestPrefix());
             if (extraRouteOptional.isPresent()) {
                 Routes extraRoute = extraRouteOptional.get();
                 String ipPrefix;
