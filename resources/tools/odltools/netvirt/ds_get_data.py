@@ -34,7 +34,7 @@ def get_all_dumps():
         url = utils.create_url(dstype, path)
         result = utils.grabJson(url)
         with open(filename, 'w+') as data_file:
-            json.dump(result, data_file)
+            json.dump(result, data_file, indent=2)
 
 
 def get_config_interfaces(file_name=None):
