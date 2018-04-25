@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f859699d_83020384",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-25T09:04:09Z",
+      "side": 1,
+      "message": "The spec must probably include the changes to the OF Plugin as well. Or there should be a separate spec raised for this purpose. This is not a external dependency",
+      "range": {
+        "startLine": 324,
+        "startChar": 0,
+        "endLine": 324,
+        "endChar": 1
+      },
+      "revId": "86ae3f7fab1ec053e39676873be35d3b9c16da4a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30774f10_21e865c3",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-25T09:04:09Z",
+      "side": 1,
+      "message": "The spec must comment on how these extensions will come into OVS and in which release.",
+      "range": {
+        "startLine": 329,
+        "startChar": 0,
+        "endLine": 329,
+        "endChar": 3
+      },
+      "revId": "86ae3f7fab1ec053e39676873be35d3b9c16da4a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "305d150e_a2c2af7e",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-04-25T09:04:09Z",
+      "side": 1,
+      "message": "Is there a dependency on the two router solution? If not, this should not be in the \"dependencies\" section.",
+      "range": {
+        "startLine": 331,
+        "startChar": 0,
+        "endLine": 331,
+        "endChar": 1
+      },
+      "revId": "86ae3f7fab1ec053e39676873be35d3b9c16da4a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
