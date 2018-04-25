@@ -238,3 +238,7 @@ def get_model_data(filename, url, user, pw, pretty_print=False):
     data = get_from_odl(url, user, pw)
     if data is not None:
         request.write_file(filename, data, pretty_print)
+
+
+def run_dump(args):
+    get_all_dumps(args.outdir, args.ip, args.port, args.user, args.pw, args.pretty_print)

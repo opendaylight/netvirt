@@ -587,9 +587,6 @@ def analyze_trunks():
             print 'SubPort:{},Table:{},FlowStatus:{}'.format(
                     subport.get('port-id'), flow.get('table'), flow_status)
 
-def get_all_dumps():
-    dsg.get_all_dumps()
-
 
 def main(args=None):
     global elan_elan_instances

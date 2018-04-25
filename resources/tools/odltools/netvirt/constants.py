@@ -12,7 +12,6 @@ IFTYPE_TUNNEL = 'iana-if-type:tunnel'
 NODE_GROUP = 'flow-node-inventory:group'
 NODE_TABLE = 'flow-node-inventory:table'
 
-
 TABLE_MAP = {
     'ifm': [0, 17, 220],
     'l3vpn': [19, 20, 21, 22, 36, 81],

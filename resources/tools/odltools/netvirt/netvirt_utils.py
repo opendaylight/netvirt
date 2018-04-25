@@ -1,5 +1,5 @@
 import constants as const
-import json, pprint, urllib2, base64, sys
+import json, pprint, sys
 import optparse
 
 
@@ -41,27 +41,6 @@ def get_temp_path():
     if options:
         return options.tempDir
     return './'
-
-
-def grabJson(url):
-    data = None
-    try:
-        request = urllib2.Request(url)
-        # You need the replace to handle encodestring adding a trailing newline
-        # (https://docs.python.org/2/library/base64.html#base64.encodestring)
-        base64string = base64.encodestring('{}:{}'.format(options.odlUsername, options.odlPassword)).replace('\n', '')
-        request.add_header('Authorization', 'Basic {}'.format(base64string))
-        result = urllib2.urlopen(request)
-    except urllib2.URLError, e:
-        printError('Unable to send request: {}\n'.format(e))
-        return data
-
-    if (result.code != 200):
-        printError( '{}\n{}\n\nError: unexpected code: {}\n'.format(result.info(), result.read(), result.code) )
-        return data
-
-    data = json.load(result)
-    return data
 
 
 def nstr(s):
