@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73038836_e3287b94",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-25T11:39:28Z",
+      "side": 1,
+      "message": "can we please make yang changes so that we know for a given subnetId what is the networkId, networkType and segmentation-id without backpulling subnetMap?",
+      "revId": "e647d0a61d36f9a0e40c4cb7cc8b1d4429eb1836",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
