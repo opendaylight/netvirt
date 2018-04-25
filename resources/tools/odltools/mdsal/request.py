@@ -1,34 +1,59 @@
+import errno
 import json
 import logging
+import os
 import requests
 
 
 logger = logging.getLogger("mdsal.request")
 
 
-def debug_print(text1, data):
-    logger.debug("request: %s: processed %d lines", text1, len(data))
-    logger.debug("request: %s", text1)
-    logger.debug("%s", json.dumps(data))
-    logger.debug("%s", json.dumps(data, indent=4, separators=(',', ': ')))
+def debug_print(fname, text1, data):
+    logger.debug("%s: request: %s: processed %d lines", fname, text1, len(data))
+    logger.debug("%s:\n%s", fname, json.dumps(data))
+    logger.debug("%s:\n%s", fname, json.dumps(data, indent=4, separators=(',', ': ')))
 
 
 def get(url, user, pw):
-    resp = requests.get(url, auth=(user, pw))
-    # TODO: add error checking of the response
-    data = resp.json()
-    debug_print(url, data)
+    try:
+        resp = requests.get(url, auth=(user, pw))
+    except requests.exceptions.RequestException:
+        logger.exception("Failed to get url")
+        return None
+
+    try:
+        data = resp.json()
+    except ValueError:
+        logger.exception("Failed to get url")
+        return None
+
+    if logger.isEnabledFor(logging.DEBUG):
+        debug_print("get", url, data)
     return data
 
 
 def read_file(filename):
+    if os.path.isfile(filename) is False:
+        return None
+
     with open(filename) as json_file:
         data = json.load(json_file)
-    debug_print(filename, data)
+    if logger.isEnabledFor(logging.DEBUG):
+        debug_print("read_file", filename, data)
     return data
 
 
-def write_file(filename, data):
+def write_file(filename, data, pretty_print=False):
+    try:
+        os.makedirs(os.path.dirname(filename))
+    except OSError as exception:
+        if exception.errno != errno.EEXIST:
+            raise
+
     with open(filename, 'w') as fp:
-        json.dump(data, fp)
-    logger.debug("write_file: File: %s", filename)
+        if pretty_print:
+            json.dump(data, fp, indent=4, separators=(',', ': '))
+        else:
+            json.dump(data, fp)
+    if logger.isEnabledFor(logging.DEBUG):
+        debug_print("write_file", filename, data)
