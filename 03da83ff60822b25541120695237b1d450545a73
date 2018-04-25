@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24eb386f_c7a1691c",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-25T10:30:41Z",
+      "side": 1,
+      "message": "I will review the spec as soon as I get some time, but in the meantime please wrap the sentences @Karthik. Its difficult to review if the sentences are not wrapped.",
+      "revId": "03da83ff60822b25541120695237b1d450545a73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
