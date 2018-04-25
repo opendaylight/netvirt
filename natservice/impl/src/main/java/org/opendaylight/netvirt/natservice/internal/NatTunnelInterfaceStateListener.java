@@ -32,6 +32,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.itm.api.IITMProvider;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
@@ -99,6 +100,7 @@ public class NatTunnelInterfaceStateListener
     private final IElanService elanManager;
     private final IInterfaceManager interfaceManager;
     private final NatMode natMode;
+    private final IITMProvider iitmProvider;
 
     protected enum TunnelAction {
         TUNNEL_EP_ADD,
@@ -140,7 +142,8 @@ public class NatTunnelInterfaceStateListener
                                            final FibRpcService fibRpcService,
                                            final NatserviceConfig config,
                                            final IElanService elanManager,
-                                           final IInterfaceManager interfaceManager) {
+                                           final IInterfaceManager interfaceManager,
+                                           final IITMProvider iitmProvider) {
         super(StateTunnelList.class, NatTunnelInterfaceStateListener.class);
         this.dataBroker = dataBroker;
         this.bgpManager = bgpManager;
@@ -156,6 +159,7 @@ public class NatTunnelInterfaceStateListener
         this.fibRpcService = fibRpcService;
         this.elanManager = elanManager;
         this.interfaceManager = interfaceManager;
+        this.iitmProvider = iitmProvider;
         if (config != null) {
             this.natMode = config.getNatMode();
         } else {
@@ -1124,7 +1128,7 @@ public class NatTunnelInterfaceStateListener
     protected boolean isTunnelInLogicalGroup(StateTunnelList stateTunnelList) {
         String ifaceName = stateTunnelList.getTunnelInterfaceName();
         if (getTunnelType(stateTunnelList) == NatConstants.ITMTunnelLocType.Internal.getValue()) {
-            Interface configIface = interfaceManager.getInterfaceInfoFromConfigDataStore(ifaceName);
+            Interface configIface = iitmProvider.getInterface(ifaceName);
             IfTunnel ifTunnel = configIface != null ? configIface.getAugmentation(IfTunnel.class) : null;
             if (ifTunnel != null && ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
                 ParentRefs refs = configIface.getAugmentation(ParentRefs.class);
