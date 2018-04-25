@@ -16,6 +16,24 @@
       "revId": "03da83ff60822b25541120695237b1d450545a73",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "95c53d1e_8cbf1bc6",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-04-25T12:49:08Z",
+      "side": 1,
+      "message": "Thanks Sridhar. Done sentences wrap changes.",
+      "parentUuid": "24eb386f_c7a1691c",
+      "revId": "03da83ff60822b25541120695237b1d450545a73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
