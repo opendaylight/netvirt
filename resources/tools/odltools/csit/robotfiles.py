@@ -216,8 +216,8 @@ class RobotFiles:
                 self.process_element(state, event, element)
                 element.clear()
                 # debugging code to stop after the named test case is processed
-                if "s1-t1" in self.pdata:
-                    break
+                # if "s1-t1" in self.pdata:
+                #    break
             root.clear()
 
     def write_pdata(self):

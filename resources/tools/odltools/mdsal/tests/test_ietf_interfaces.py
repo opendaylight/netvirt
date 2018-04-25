@@ -1,6 +1,5 @@
 import unittest
-from mdsal import ietf_interfaces
-from mdsal.models import Model
+from mdsal.model import Model
 from mdsal.ietf_interfaces import interfaces
 from odltools import logg
 
@@ -15,9 +14,9 @@ class TestIetfInterfaces(unittest.TestCase):
         logg.Logger()
         self.interfaces = interfaces(Model.CONFIG, ip, port, path)
 
-    def test_get_interfaces_by_name(self):
-        if_dict = self.interfaces.get_interfaces_by_name()
-        self.assertIsNotNone(if_dict['tun95fee4d7132'])
+    def test_get_interfaces_by_key(self):
+        d = self.interfaces.get_interfaces_by_key()
+        self.assertIsNotNone(d['tun95fee4d7132'])
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,6 +1,6 @@
 import unittest
 from mdsal import itm_state
-from mdsal.models import Model
+from mdsal.model import Model
 from mdsal.itm_state import DpnEndpoints
 from odltools import logg
 

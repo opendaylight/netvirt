@@ -1,9 +1,22 @@
 import constants as const
-import ds_get_data as dsg
 import flow_parser as fp
 import json
 import netvirt_utils as utils
 from collections import defaultdict
+from mdsal.model import Model
+from mdsal import elan
+from mdsal import id_manager
+from mdsal import ietf_interfaces
+from mdsal import interface_service_bindings
+from mdsal import itm_state
+from mdsal import l3vpn
+from mdsal import mip
+from mdsal import network_topology
+from mdsal import neutron
+from mdsal import odl_fib
+from mdsal import odl_interface_meta
+from mdsal import odl_l3vpn
+from mdsal import opendaylight_inventory
 
 
 # Required
@@ -17,6 +30,26 @@ confNodes = {}
 operNodes = {}
 
 
+modelpath = "/tmp/robotjob/s1-t1_Create_VLAN_Network_net_1/models"
+elan_elan_instances = None
+elan_elan_interfaces = None
+id_manager_id_pools = None
+ietf_interfaces_interfaces = None
+ietf_interfaces_interfaces_state = None
+interface_service_bindings_service_bindings = None
+itm_state_tunnels_state = None
+l3vpn_vpn_interfaces = None
+mip_mac = None
+network_topology_network_topology_config = None
+network_topology_network_topology_operational = None
+neutron_neutron = None
+odl_fib_fib_entries = None
+odl_interface_meta_if_index_interface_map = None
+odl_inventory_nodes_config = None
+odl_inventory_nodes_operational = None
+odl_l3vpn_vpn_instance_to_vpn_id = None
+
+
 def by_ifname(ifname):
     ifstate = ifstates.get(ifname)
     iface = ifaces.get(ifname)
@@ -24,10 +57,10 @@ def by_ifname(ifname):
     tunnel = None
     tunState = None
     if iface and iface.get('type') == const.IFTYPE_VLAN:
-        ports = dsg.get_neutron_ports()
+        ports = neutron_neutron.get_ports_by_key()
         port = ports.get(ifname)
     elif iface and iface.get('type') == const.IFTYPE_TUNNEL:
-        tunnels = dsg.get_config_tunnels()
+        tunnels = itm_state_tunnels_state.get_tunnels_by_key()
         tunnel = tunnels.get(ifname)
         tunStates = dsg.get_tunnel_states()
         tunState = tunStates.get(ifname)
@@ -48,8 +81,8 @@ def analyze_interface(ifname=None):
         print_keys()
         exit(1)
     ifname = ifname[0]
-    ifaces = dsg.get_config_interfaces()
-    ifstates = dsg.get_interface_states()
+    ifaces = ietf_interfaces_interfaces.get_interfaces_by_key()
+    ifstates = ietf_interfaces_interfaces_state.get_interfaces_by_key()
     iface,ifstate,port,tunnel,tunState = by_ifname(ifname)
     print "InterfaceConfig: "
     json.dumps(iface, indent=2)
@@ -86,11 +119,11 @@ def analyze_neutron_port(port, iface, ifstate):
 
 def analyze_inventory(nodeId, isConfig=True, ncId=None, ifName=None):
     if isConfig:
-        nodes = dsg.get_inventory_config()
+        nodes = odl_inventory_nodes_config.get_nodes_by_key()
         print "Inventory Config:"
     else:
         print "Inventory Operational:"
-        nodes = dsg.get_inventory_oper()
+        nodes = odl_inventory_nodes_operational.get_nodes_by_key()
     node = nodes.get(nodeId)
     tables = node.get(const.NODE_TABLE)
     groups = node.get(const.NODE_GROUP)
@@ -113,7 +146,7 @@ def analyze_inventory(nodeId, isConfig=True, ncId=None, ifName=None):
 
 def get_dpn_host_mapping(oper_nodes=None):
         nodes_dict = {}
-        nodes = oper_nodes or dsg.get_inventory_oper()
+        nodes = oper_nodes or odl_inventory_nodes_operational.get_nodes_by_key()
         for node in nodes.itervalues():
             dpnid = utils.get_dpn_from_ofnodeid(node['id'])
             nodes_dict[dpnid] = node.get('flow-node-inventory:description', '')
@@ -121,7 +154,7 @@ def get_dpn_host_mapping(oper_nodes=None):
 
 
 def get_groups(ofnodes=None):
-    of_nodes = ofnodes or dsg.get_inventory_config()
+    of_nodes = ofnodes or odl_inventory_nodes_config.get_nodes_by_key()
     key ='group-id'
     group_dict = defaultdict(dict)
     for node in of_nodes.itervalues():
@@ -148,27 +181,27 @@ def get_stale_flows(modules=['ifm']):
     groups = {}
     table_list = list(set([table for module in modules for table in const.TABLE_MAP[module]]))
     ##table_list = [214, 244]
-    of_nodes = dsg.get_inventory_config()
+    of_nodes = odl_inventory_nodes_config.get_nodes_by_key()
     if 'ifm' in modules:
-        ifaces = dsg.get_config_interfaces()
-        ifstates = dsg.get_interface_states()
+        ifaces = ietf_interfaces_interfaces.get_interfaces_by_key()
+        ifstates = ietf_interfaces_interfaces_state.get_interfaces_by_key()
     if 'l3vpn' in modules:
-        ifaces = ifaces or dsg.get_config_interfaces()
-        ifindexes = ifindexes or dsg.get_ifindexes()
-        fibentries = fibentries or dsg.get_fibentries_by_label()
-        vpnids = vpnids or dsg.get_vpnids()
-        vpninterfaces = vpninterfaces or dsg.get_vpninterfaces()
+        ifaces = ifaces or ietf_interfaces_interfaces.get_interfaces_by_key()
+        ifindexes = ifindexes or odl_interface_meta_if_index_interface_map.get_if_index_interfaces_by_key()
+        fibentries = fibentries or odl_fib_fib_entries.get_vrf_entries_by_key()
+        vpnids = vpnids or odl_l3vpn_vpn_instance_to_vpn_id.get_vpn_ids_by_key()
+        vpninterfaces = vpninterfaces or l3vpn_vpn_interfaces.get_vpn_ids_by_key()
         groups = groups or get_groups(of_nodes)
     if 'acl' in modules:
-        ifaces = ifaces or dsg.get_config_interfaces()
-        ifindexes = ifindexes or dsg.get_ifindexes()
-        einsts = einsts or dsg.get_elan_instances()
-        eifaces = eifaces or dsg.get_elan_interfaces()
+        ifaces = ifaces or ietf_interfaces_interfaces.get_interfaces_by_key()
+        ifindexes = ifindexes or odl_interface_meta_if_index_interface_map.get_if_index_interfaces_by_key()
+        einsts = einsts or elan_elan_instances.get_elan_instances_by_key()
+        eifaces = eifaces or elan_elan_interfaces.get_elan_interfaces()
     if 'elan' in modules:
-        ifaces = ifaces or dsg.get_config_interfaces()
-        einsts = einsts or dsg.get_elan_instances()
-        eifaces = eifaces or dsg.get_elan_interfaces()
-        ifindexes = ifindexes or dsg.get_ifindexes()
+        ifaces = ifaces or ietf_interfaces_interfaces.get_interfaces_by_key()
+        einsts = einsts or elan_elan_instances.get_elan_instances_by_key()
+        eifaces = eifaces or elan_elan_interfaces.get_elan_interfaces()
+        ifindexes = ifindexes or odl_interface_meta_if_index_interface_map.get_if_index_interfaces_by_key()
     stale_flows = []
     for node in of_nodes.itervalues():
         tables = [x for x in node[const.NODE_TABLE] if x['id'] in table_list]
@@ -202,8 +235,8 @@ def show_stale_bindings():
 
 
 def get_stale_bindings():
-    ifaces = dsg.get_config_interfaces()
-    bindings, orphans = dsg.get_service_bindings()
+    ifaces = ietf_interfaces_interfaces.get_interfaces_by_key()
+    bindings, orphans = interface_service_bindings_service_bindings.get_service_bindings()
     return set(bindings.keys()) - set(ifaces.keys()), bindings
 
 
@@ -229,7 +262,7 @@ def show_link_flow_binding():
 
 def show_stale_flows(sort_by='table'):
     compute_map = get_dpn_host_mapping()
-    nports = dsg.get_neutron_ports()
+    nports = neutron_neutron.get_ports_by_key()
     for flow in utils.sort(get_stale_flows(['ifm', 'acl', 'elan', 'l3vpn']), sort_by):
         host = compute_map.get(flow.get('dpnid'), flow.get('dpnid'))
         ip_list = get_ips_for_iface(nports, flow.get('ifname'))
@@ -262,37 +295,37 @@ def get_all_flows(modules=['ifm'], filter=[]):
     else:
         table_list = list(set([table for module in modules for table in const.TABLE_MAP[module]]))
     ##table_list = [214, 244]
-    of_nodes = dsg.get_inventory_config()
+    of_nodes = odl_inventory_nodes_config.get_nodes_by_key()
     if 'ifm' in modules:
-        ifaces = dsg.get_config_interfaces()
-        ifstates = dsg.get_interface_states()
+        ifaces = ietf_interfaces_interfaces.get_interfaces_by_key()
+        ifstates = ietf_interfaces_interfaces_state.get_interfaces_by_key()
     if 'l3vpn' in modules:
-        ifaces = ifaces or dsg.get_config_interfaces()
-        ifindexes = ifindexes or dsg.get_ifindexes()
+        ifaces = ifaces or ietf_interfaces_interfaces.get_interfaces_by_key()
+        ifindexes = ifindexes or odl_interface_meta_if_index_interface_map.get_if_index_interfaces_by_key()
         fibentries = fibentries or dsg.get_fibentries_by_label()
-        vpnids = vpnids or dsg.get_vpnids()
-        vpninterfaces = vpninterfaces or dsg.get_vpninterfaces()
+        vpnids = vpnids or odl_l3vpn_vpn_instance_to_vpn_id.get_vpn_ids_by_key()
+        vpninterfaces = vpninterfaces or l3vpn_vpn_interfaces.get_vpn_ids_by_key()
         groups = groups or get_groups(of_nodes)
     if 'acl' in modules:
-        ifaces = ifaces or dsg.get_config_interfaces()
-        ifindexes = ifindexes or dsg.get_ifindexes()
-        einsts = einsts or dsg.get_elan_instances()
-        eifaces = eifaces or dsg.get_elan_interfaces()
+        ifaces = ifaces or ietf_interfaces_interfaces.get_interfaces_by_key()
+        ifindexes = ifindexes or odl_interface_meta_if_index_interface_map.get_if_index_interfaces_by_key()
+        einsts = einsts or elan_elan_instances.get_elan_instances_by_key()
+        eifaces = eifaces or elan_elan_interfaces.get_elan_interfaces()
     if 'elan' in modules:
-        ifaces = ifaces or dsg.get_config_interfaces()
-        einsts = einsts or dsg.get_elan_instances()
-        eifaces = eifaces or dsg.get_elan_interfaces()
-        ifindexes = ifindexes or dsg.get_ifindexes()
+        ifaces = ifaces or ietf_interfaces_interfaces.get_interfaces_by_key()
+        einsts = einsts or elan_elan_instances.get_elan_instances_by_key()
+        eifaces = eifaces or elan_elan_interfaces.get_elan_interfaces()
+        ifindexes = ifindexes or odl_interface_meta_if_index_interface_map.get_if_index_interfaces_by_key()
     if 'all' in modules:
         groups = groups or get_groups(of_nodes)
-        ifaces = ifaces or dsg.get_config_interfaces()
-        ifstates = ifstates or dsg.get_interface_states()
-        ifindexes = ifindexes or dsg.get_ifindexes()
+        ifaces = ifaces or ietf_interfaces_interfaces.get_interfaces_by_key()
+        ifstates = ifstates or ietf_interfaces_interfaces_state.get_interfaces_by_key()
+        ifindexes = ifindexes or odl_interface_meta_if_index_interface_map.get_if_index_interfaces_by_key()
         fibentries = fibentries or dsg.get_fibentries_by_label()
-        vpnids = vpnids or dsg.get_vpnids()
-        vpninterfaces = vpninterfaces or dsg.get_vpninterfaces()
-        einsts = einsts or dsg.get_elan_instances()
-        eifaces = eifaces or dsg.get_elan_interfaces()
+        vpnids = vpnids or odl_l3vpn_vpn_instance_to_vpn_id.get_vpn_ids_by_key()
+        vpninterfaces = vpninterfaces or l3vpn_vpn_interfaces.get_vpn_ids_by_key()
+        einsts = einsts or elan_elan_instances.get_elan_instances_by_key()
+        eifaces = eifaces or elan_elan_interfaces.get_elan_interfaces()
     flows = []
     for node in of_nodes.itervalues():
         tables = [x for x in node[const.NODE_TABLE] if x['id'] in table_list]
@@ -313,7 +346,7 @@ def get_all_flows(modules=['ifm'], filter=[]):
 
 def show_flows(modules=['ifm'], sort_by='table', filter_by=[]):
     compute_map = get_dpn_host_mapping()
-    nports = dsg.get_neutron_ports()
+    nports = neutron_neutron.get_ports_by_key()
     for flow in utils.sort(get_all_flows(modules, filter_by), sort_by):
         host = compute_map.get(flow.get('dpnid'), flow.get('dpnid'))
         ip_list = get_ips_for_iface(nports, flow.get('ifname'))
@@ -350,8 +383,8 @@ def get_key_for_dup_detect(flow):
 
 
 def show_dup_flows():
-    mmac = dsg.get_mip_mac()
-    einsts = dsg.get_elan_instances()
+    mmac = mip_mac.get_entries_by_key()
+    einsts = elan_elan_instances.get_elan_instances_by_key()
     flows = utils.sort(get_all_flows(['elan']), 'table')
     matches = defaultdict(list)
     compute_map = get_dpn_host_mapping()
@@ -377,7 +410,7 @@ def show_dup_flows():
 
 
 def show_learned_mac_flows():
-    nports = dsg.get_neutron_ports(key_field='mac-address')
+    nports = neutron_neutron.get_ports_by_key(key_field='mac-address')
     flows = utils.sort(get_all_flows(['elan']), 'table')
     compute_map = get_dpn_host_mapping()
     for flow_info in flows:
@@ -397,13 +430,13 @@ def show_learned_mac_flows():
 
 
 def show_elan_instances():
-    insts = dsg.get_elan_instances()
+    insts = elan_elan_instances.get_elan_instances_by_key()
     json.dumps(insts)
 
 
 def get_duplicate_ids():
     duplicate_ids= {}
-    for pool in dsg.get_idpools().itervalues():
+    for pool in id_manager_id_pools.get_id_pools_by_key().itervalues():
         id_values = {}
         for id_entry in pool.get('id-entries', []):
             id_info = {}
@@ -424,7 +457,7 @@ def get_duplicate_ids():
 
 
 def show_idpools():
-    ports = dsg.get_neutron_ports()
+    ports = neutron_neutron.get_ports_by_key()
     iface_ids = []
     for k,v in get_duplicate_ids().iteritems():
         result = "Id:{},Keys:{}".format(k, json.dumps(v.get('id-keys')))
@@ -478,7 +511,7 @@ def get_data_path(res_type, data):
 
 # Sample method that shows how to use
 def show_all_tables():
-    of_nodes = dsg.get_inventory_config()
+    of_nodes = odl_inventory_nodes_config.get_nodes_by_key()
     tables = set()
     for node in of_nodes.itervalues():
         for table in node[const.NODE_TABLE]:
@@ -488,7 +521,7 @@ def show_all_tables():
 
 
 def show_all_groups():
-    of_nodes = dsg.get_inventory_config()
+    of_nodes = odl_inventory_nodes_config.get_nodes_by_key()
     groups = get_groups(of_nodes)
     for dpn in groups:
         for group_key in groups[dpn]:
@@ -496,11 +529,11 @@ def show_all_groups():
 
 
 def analyze_trunks():
-    nports = dsg.get_neutron_ports()
-    ntrunks = dsg.get_neutron_trunks()
-    vpninterfaces = dsg.get_vpninterfaces()
-    ifaces = dsg.get_config_interfaces()
-    ifstates = dsg.get_interface_states()
+    nports = neutron_neutron.get_ports_by_key()
+    ntrunks = neutron_neutron.get_trunks_by_key()
+    vpninterfaces = l3vpn_vpn_interfaces.get_vpn_ids_by_key()
+    ifaces = ietf_interfaces_interfaces.get_interfaces_by_key()
+    ifstates = ietf_interfaces_interfaces_state.get_interfaces_by_key()
     subport_dict = {}
     for v in ntrunks.itervalues():
         nport = nports.get(v.get('port-id'))
@@ -559,7 +592,44 @@ def get_all_dumps():
 
 
 def main(args=None):
+    global elan_elan_instances
+    global elan_elan_interfaces
+    global id_manager_id_pools
+    global ietf_interfaces_interfaces
+    global ietf_interfaces_interfaces_state
+    global interface_service_bindings_service_bindings
+    global itm_state_tunnels_state
+    global l3vpn_vpn_interfaces
+    global mip_mac
+    global network_topology_network_topology_config
+    global network_topology_network_topology_operational
+    global neutron_neutron
+    global odl_fib_fib_entries
+    global odl_interface_meta_if_index_interface_map
+    global odl_inventory_nodes_config
+    global odl_inventory_nodes_operational
+    global odl_l3vpn_vpn_instance_to_vpn_id
     options, args = utils.parse_args()
+
+    elan_elan_instances = elan.elan_instances(Model.CONFIG, modelpath)
+    elan_elan_interfaces = elan.elan_interfaces(Model.CONFIG, modelpath)
+    id_manager_id_pools = id_manager.id_pools(Model.CONFIG, modelpath)
+    ietf_interfaces_interfaces = ietf_interfaces.interfaces(Model.CONFIG, modelpath)
+    ietf_interfaces_interfaces_state = ietf_interfaces.interfaces_state(Model.OPERATIONAL, modelpath)
+    interface_service_bindings_service_bindings = interface_service_bindings.service_bindings(Model.CONFIG, modelpath)
+    itm_state_tunnels_state = itm_state.tunnels_state(Model.OPERATIONAL, modelpath)
+    l3vpn_vpn_interfaces = l3vpn.vpn_instance_to_vpn_id(Model.CONFIG, modelpath)
+    mip_mac = mip.mac(Model.CONFIG, modelpath)
+    neutron_neutron = neutron.neutron(Model.CONFIG, modelpath)
+    network_topology_network_topology_config = network_topology.network_topology(Model.CONFIG, modelpath)
+    network_topology_network_topology_operational = network_topology.network_topology(Model.CONFIG, modelpath)
+    neutron_neutron = neutron.neutron(Model.CONFIG, modelpath)
+    odl_fib_fib_entries = odl_fib.fib_entries(Model.CONFIG, modelpath)
+    odl_interface_meta_if_index_interface_map = odl_interface_meta.if_indexes_interface_map(Model.OPERATIONAL, modelpath)
+    odl_inventory_nodes_config = opendaylight_inventory.nodes(Model.CONFIG, modelpath)
+    odl_inventory_nodes_operational = opendaylight_inventory.nodes(Model.OPERATIONAL, modelpath)
+    odl_l3vpn_vpn_instance_to_vpn_id = odl_l3vpn.vpn_instance_to_vpn_id(Model.CONFIG, modelpath)
+
     if options.callMethod:
         if args[1:]:
             eval(options.callMethod)(args[1:])
@@ -567,7 +637,7 @@ def main(args=None):
         else:
             eval(options.callMethod)()
             return
-    #print json.dumps(dsg.get_vpninterfaces())
+    #print json.dumps(l3vpn_vpn_interfaces.get_vpn_ids_by_key())
     #show_all_tables()
     #analyze_inventory('openflow:165862438671169',ifName='tunf94333cc491')
     #show_stale_flows()
