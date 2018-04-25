@@ -41,6 +41,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.itm.api.IITMProvider;
 import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -187,6 +188,7 @@ public class ElanUtils {
     private final ElanItmUtils elanItmUtils;
     private final ElanEtreeUtils elanEtreeUtils;
     private final ElanInterfaceCache elanInterfaceCache;
+    private final IITMProvider iitmProvider;
 
     public static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
@@ -204,7 +206,7 @@ public class ElanUtils {
     public ElanUtils(DataBroker dataBroker, IMdsalApiManager mdsalManager,
             OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService, ElanConfig elanConfig,
             IInterfaceManager interfaceManager, ElanEtreeUtils elanEtreeUtils, ElanItmUtils elanItmUtils,
-            ElanInterfaceCache elanInterfaceCache) {
+            ElanInterfaceCache elanInterfaceCache, IITMProvider iitmProvider) {
         this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
@@ -215,6 +217,7 @@ public class ElanUtils {
         this.elanEtreeUtils = elanEtreeUtils;
         this.elanItmUtils = elanItmUtils;
         this.elanInterfaceCache = elanInterfaceCache;
+        this.iitmProvider = iitmProvider;
     }
 
     public final Boolean isOpenstackVniSemanticsEnforced() {
@@ -1614,8 +1617,11 @@ public class ElanUtils {
 
     public boolean isTunnelInLogicalGroup(String interfaceName) {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-            .ietf.interfaces.rev140508.interfaces.Interface configIface =
-            interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
+                .ietf.interfaces.rev140508.interfaces.Interface configIface =
+                interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
+        if (configIface == null) {
+            configIface = iitmProvider.getInterface(interfaceName);
+        }
         IfTunnel ifTunnel = configIface.getAugmentation(IfTunnel.class);
         if (ifTunnel != null && ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
             ParentRefs refs = configIface.getAugmentation(ParentRefs.class);
