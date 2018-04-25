@@ -211,7 +211,7 @@ public class NeutronNetworkChangeListener
             }
             elanSegmentsBuilder.setSegmentationIndex(index);
             segments.add(elanSegmentsBuilder.build());
-            LOG.debug("Added segment {} to ELANInstance{}", segments.get((int)index - 1));
+            LOG.debug("Added segment {} to ELANInstance", segments.get((int)index));
         }
         return segments;
     }
