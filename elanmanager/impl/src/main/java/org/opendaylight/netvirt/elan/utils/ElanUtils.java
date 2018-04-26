@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -1374,13 +1375,14 @@ public class ElanUtils {
         return idBuilder.build();
     }
 
+    @CheckReturnValue
     public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(
             WriteTransaction tx) {
         CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
         try {
             futures.get();
         } catch (InterruptedException | ExecutionException e) {
-            // NETVIRT-1215: Do not log.error() here, only debug()
+            // NETVIRT-1215: Do not log.error() here, only debug(); but callers *MUST* @CheckReturnValue
             LOG.debug("Error writing to datastore", e);
         }
         return futures;
