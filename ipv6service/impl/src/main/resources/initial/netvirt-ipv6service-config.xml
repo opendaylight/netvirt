@@ -1,0 +1,3 @@
+<ipv6service-config xmlns="urn:opendaylight:netvirt:ipv6service:config">
+    <na-responder-mode>controller</na-responder-mode>
+</ipv6service-config>
