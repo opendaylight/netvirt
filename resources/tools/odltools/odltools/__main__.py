@@ -2,6 +2,9 @@ import cli
 import logg
 
 
-if __name__ == "__main__":
+def main():
     logg.Logger()
     cli.main()
+
+if __name__ == "__main__":
+    main()

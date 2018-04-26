@@ -2,6 +2,7 @@
 **/target
 bin/
 dist
+**egg-info
 **/logs
 products
 repository

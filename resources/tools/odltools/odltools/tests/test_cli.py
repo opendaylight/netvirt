@@ -1,6 +1,7 @@
 import unittest
+
 from odltools import cli
-from csit import robotfiles
+from odltools.csit import robotfiles
 
 
 class TestOdltools(unittest.TestCase):
