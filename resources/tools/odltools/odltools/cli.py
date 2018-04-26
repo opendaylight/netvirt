@@ -1,7 +1,8 @@
 import argparse
-import csit.cli
+
 import mdsal.cli
 import netvirt.cli
+import odltools.csit.cli
 
 __version__ = "0.1"
 
@@ -13,9 +14,9 @@ def create_parser():
     parser.add_argument("-V", "--version", action="version",
                         version="%(prog)s (version {version})".format(version=__version__))
     subparsers = parser.add_subparsers(dest="command", description="Command Tool")
-    csit.cli.add_parser(subparsers)
-    mdsal.cli.add_parser(subparsers)
-    netvirt.cli.add_parser(subparsers)
+    odltools.csit.cli.add_parser(subparsers)
+    odltools.mdsal.cli.add_parser(subparsers)
+    odltools.netvirt.cli.add_parser(subparsers)
 
     return parser
 
