@@ -155,6 +155,8 @@ public class BgpConfigurationManager {
     private static final int DS_RETRY_COUNT = 100; //100 retries, each after WAIT_TIME_BETWEEN_EACH_TRY_MILLIS seconds
     private static final long WAIT_TIME_BETWEEN_EACH_TRY_MILLIS = 1000L; //one second sleep after every retry
     private static final String BGP_ENTITY_TYPE_FOR_OWNERSHIP = "bgp";
+    private static final String BGP_EOR_DELAY = "vpnservice.bgp.eordelay";
+    private static final String DEF_BGP_EOR_DELAY = "1800";
     private static final String BGP_ENTITY_NAME = "bgp";
     private static final String ADD_WARN = "Config store updated; undo with Delete if needed.";
     private static final String DEL_WARN = "Config store updated; undo with Add if needed.";
@@ -180,6 +182,7 @@ public class BgpConfigurationManager {
     private final BgpRouter bgpRouter;
     private final BgpSyncHandle bgpSyncHandle = new BgpSyncHandle();
     private volatile BgpThriftService bgpThriftService = null;
+    private final int delayEorSeconds = 0;
 
     private final CountDownLatch initer = new CountDownLatch(1);
 
@@ -248,6 +251,7 @@ public class BgpConfigurationManager {
         VtyshCli.setHostAddr(hostStartup);
         ClearBgpCli.setHostAddr(hostStartup);
         bgpRouter = BgpRouter.newInstance(this::getConfig, this::isBGPEntityOwner);
+        delayEorSeconds = Integer.valueOf(getProperty(BGP_EOR_DELAY, DEF_BGP_EOR_DELAY));
         registerCallbacks();
 
         entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
@@ -2184,11 +2188,11 @@ public class BgpConfigurationManager {
          * commenting this due to a bug with QBGP. Will uncomment once QBGP fix is done.
          * This wont have any functional impacts
          */
-        //try {
-        //    br.delayEOR(delayEorSeconds);
-        //} catch (TException | BgpRouterException e) {
-        //    LOG.error("Replay: delayEOR() number of seconds to wait for EOR from ODL:", e);
-        //}
+        try {
+            br.delayEOR(delayEorSeconds);
+        } catch (TException | BgpRouterException e) {
+            LOG.error("Replay: delayEOR() number of seconds to wait for EOR from ODL:", e);
+        }
 
         List<Neighbors> neighbors = config.getNeighbors();
         if (neighbors != null) {
