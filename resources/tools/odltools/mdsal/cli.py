@@ -2,7 +2,7 @@ import models
 
 
 def add_dump_parser(parsers):
-    parser = parsers.add_parser("dump")
+    parser = parsers.add_parser("dump", description="Get and write all mdsal models")
     parser.add_argument("outdir",
                         help="the directory that the parsed data is written into")
     parser.add_argument("-i", "--ip", default="localhost",
@@ -19,6 +19,6 @@ def add_dump_parser(parsers):
 
 
 def add_parser(parsers):
-    parser = parsers.add_parser("model")
-    subparsers = parser.add_subparsers(dest="subcommand")
+    parser = parsers.add_parser("model", description="Tools for MDSAL models")
+    subparsers = parser.add_subparsers(dest="subcommand", description="Model tools")
     add_dump_parser(subparsers)
