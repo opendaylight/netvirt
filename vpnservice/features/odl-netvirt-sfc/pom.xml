@@ -14,13 +14,13 @@
     <parent>
         <groupId>org.opendaylight.odlparent</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>1.8.4-SNAPSHOT</version>
+        <version>1.8.5-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>odl-netvirt-sfc</artifactId>
-    <version>0.4.4-SNAPSHOT</version>
+    <version>0.4.5-SNAPSHOT</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: NetVirt :: SFC</name>
@@ -29,14 +29,14 @@
         <dependency>
             <groupId>org.opendaylight.sfc</groupId>
             <artifactId>odl-sfc-openflow-renderer</artifactId>
-            <version>0.5.4-SNAPSHOT</version>
+            <version>0.5.5-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.sfc</groupId>
             <artifactId>odl-sfc-genius</artifactId>
-            <version>0.5.4-SNAPSHOT</version>
+            <version>0.5.5-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>

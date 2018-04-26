@@ -14,7 +14,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <parent>
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>binding-parent</artifactId>
-    <version>0.4.4-SNAPSHOT</version>
+    <version>0.4.5-SNAPSHOT</version>
     <relativePath>../../../commons/binding-parent</relativePath>
   </parent>
 
@@ -23,7 +23,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <packaging>bundle</packaging>
 
   <properties>
-    <sfc.version>0.5.4-SNAPSHOT</sfc.version>
+    <sfc.version>0.5.5-SNAPSHOT</sfc.version>
   </properties>
 
   <dependencies>

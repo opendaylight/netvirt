@@ -12,7 +12,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <parent>
     <groupId>org.opendaylight.mdsal</groupId>
     <artifactId>binding-parent</artifactId>
-    <version>0.10.4-SNAPSHOT</version>
+    <version>0.10.5-SNAPSHOT</version>
     <relativePath/>
   </parent>
 
@@ -20,18 +20,18 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>binding-parent</artifactId>
   <name>ODL :: netvirt :: ${project.artifactId}</name>
-  <version>0.4.4-SNAPSHOT</version>
+  <version>0.4.5-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <properties>
-    <controller.mdsal.version>1.5.4-SNAPSHOT</controller.mdsal.version>
-    <federation.version>0.2.4-SNAPSHOT</federation.version>
-    <genius.version>0.2.4-SNAPSHOT</genius.version>
-    <infrautils.version>1.1.4-SNAPSHOT</infrautils.version>
-    <model.bgp.version>2013.07.15.10.4-SNAPSHOT</model.bgp.version>
-    <neutron.version>0.8.4-SNAPSHOT</neutron.version>
-    <openflowplugin.version>0.4.4-SNAPSHOT</openflowplugin.version>
-    <ovsdb.version>1.4.4-SNAPSHOT</ovsdb.version>
+    <controller.mdsal.version>1.5.5-SNAPSHOT</controller.mdsal.version>
+    <federation.version>0.2.5-SNAPSHOT</federation.version>
+    <genius.version>0.2.5-SNAPSHOT</genius.version>
+    <infrautils.version>1.1.5-SNAPSHOT</infrautils.version>
+    <model.bgp.version>2013.07.15.10.5-SNAPSHOT</model.bgp.version>
+    <neutron.version>0.8.5-SNAPSHOT</neutron.version>
+    <openflowplugin.version>0.4.5-SNAPSHOT</openflowplugin.version>
+    <ovsdb.version>1.4.5-SNAPSHOT</ovsdb.version>
   </properties>
 
   <dependencyManagement>
