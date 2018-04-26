@@ -1,0 +1,24 @@
+module ipv6service-config {
+    yang-version 1;
+    namespace "urn:opendaylight:netvirt:ipv6service:config";
+    prefix "ipv6service-config";
+
+    description
+        "Configuration for IPv6 Service.";
+
+    revision "2018-04-26" {
+        description
+                "Initial revision.";
+    }
+
+    container ipv6service-config {
+        config true;
+        leaf na-responder-mode {
+            type enumeration {
+                enum "controller";
+                enum "switch";
+            }
+            default "switch";
+        }
+   }
+}
