@@ -7,12 +7,12 @@ __version__ = "0.1"
 
 
 def create_parser():
-    parser = argparse.ArgumentParser(description="OpenDaylight Troubleshooting Tools")
+    parser = argparse.ArgumentParser(prog="python -m odltools", description="OpenDaylight Troubleshooting Tools")
     parser.add_argument("-v", "--verbose", dest="verbose", action="count", default=0,
                         help="verbosity (-v, -vv)")
     parser.add_argument("-V", "--version", action="version",
                         version="%(prog)s (version {version})".format(version=__version__))
-    subparsers = parser.add_subparsers(dest="command")
+    subparsers = parser.add_subparsers(dest="command", description="Command Tool")
     csit.cli.add_parser(subparsers)
     mdsal.cli.add_parser(subparsers)
     netvirt.cli.add_parser(subparsers)
