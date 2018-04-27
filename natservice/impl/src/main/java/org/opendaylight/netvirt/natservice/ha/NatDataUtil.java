@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.natservice.ha;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Singleton;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
@@ -32,5 +33,9 @@ public class NatDataUtil {
 
     public Routers getRouter(String routerId) {
         return routerMap.get(routerId);
+    }
+
+    public Set<Map.Entry<String,Routers>> getAllRouters() {
+        return routerMap.entrySet();
     }
 }
