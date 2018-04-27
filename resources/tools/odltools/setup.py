@@ -45,7 +45,7 @@ setup(
     keywords='development',
     zip_safe=False,
     # entry_points={'console_scripts': ['odltools=odltools.__main__:main']},
-    classifiers=textwrap.dedent("""
+    classifiers=textwrap.dedent('''
         Development Status :: 1 - Planning
         Intended Audience :: Developers
         License :: OSI Approved :: Eclipse Public License 1.0 (EPL-1.0)
@@ -55,7 +55,7 @@ setup(
         Programming Language :: Python :: 2.7
         Topic :: Software Development
         Topic :: Utilities
-        """).strip().splitlines(),
+        ''').strip().splitlines(),
     cmdclass={
         'clean': CleanCommand,
     }
