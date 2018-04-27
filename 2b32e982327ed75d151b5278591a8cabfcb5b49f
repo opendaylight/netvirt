@@ -50,6 +50,24 @@
       "revId": "2b32e982327ed75d151b5278591a8cabfcb5b49f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e90ffb35_5a2a3243",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-04-27T06:50:35Z",
+      "side": 1,
+      "message": "you are right i missed that. will refresh the patch",
+      "parentUuid": "ea812696_dd492c8b",
+      "revId": "2b32e982327ed75d151b5278591a8cabfcb5b49f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
