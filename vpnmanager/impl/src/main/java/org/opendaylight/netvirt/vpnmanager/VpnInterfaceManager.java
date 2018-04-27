@@ -1553,10 +1553,15 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                     operTx, confTx);
                                             Optional<VpnInterfaceOpDataEntry> optVpnInterface = operTx.read(
                                                     LogicalDatastoreType.OPERATIONAL, vpnInterfaceOpIdentifier).get();
-                                            VpnInterfaceOpDataEntry vpnInterfaceOpDataEntry = optVpnInterface.get();
-                                            long vpnId = VpnUtil.getVpnId(dataBroker, newVpnName);
-                                            VpnUtil.removePrefixToInterfaceAdj(dataBroker, adj, vpnId,
-                                                    vpnInterfaceOpDataEntry, operTx);
+                                            if (optVpnInterface.isPresent()) {
+                                                VpnInterfaceOpDataEntry vpnInterfaceOpDataEntry = optVpnInterface.get();
+                                                long vpnId = VpnUtil.getVpnId(dataBroker, newVpnName);
+                                                VpnUtil.removePrefixToInterfaceAdj(dataBroker, adj, vpnId,
+                                                        vpnInterfaceOpDataEntry, operTx);
+                                            } else {
+                                                LOG.debug("Vpninterface {} not present in Operational",
+                                                        vpnInterfaceName);
+                                            }
                                             //remove FIB entry
                                             String vpnRd = VpnUtil.getVpnRd(dataBroker, newVpnName);
                                             LOG.debug("update: remove prefix {} from the FIB and BGP entry "
