@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -35,7 +38,12 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
+import org.opendaylight.netvirt.natservice.ha.NatDataUtil;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
@@ -49,11 +57,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.G
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+
 
 public abstract class AbstractSnatService implements SnatServiceListener {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSnatService.class);
@@ -68,19 +83,27 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected final NAPTSwitchSelector naptSwitchSelector;
     protected final ItmRpcService itmManager;
     protected final OdlInterfaceRpcService odlInterfaceRpcService;
+    protected final IFibManager fibManager;
     protected final IInterfaceManager interfaceManager;
+    protected final NatDataUtil natDataUtil;
 
     protected AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
-                                  final ItmRpcService itmManager, final OdlInterfaceRpcService odlInterfaceRpcService,
-                                  final IdManagerService idManager, final NAPTSwitchSelector naptSwitchSelector,
-                                  final IInterfaceManager interfaceManager) {
+            final ItmRpcService itmManager,
+            final OdlInterfaceRpcService odlInterfaceRpcService,
+            final IdManagerService idManager,
+            final NAPTSwitchSelector naptSwitchSelector,
+            final IFibManager fibManager,
+            final IInterfaceManager interfaceManager,
+            final NatDataUtil natDataUtil) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
-        this.interfaceManager = interfaceManager;
+        this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.idManager = idManager;
         this.naptSwitchSelector = naptSwitchSelector;
-        this.odlInterfaceRpcService = odlInterfaceRpcService;
+        this.fibManager = fibManager;
+        this.interfaceManager = interfaceManager;
+        this.natDataUtil = natDataUtil;
     }
 
     protected DataBroker getDataBroker() {
@@ -97,20 +120,34 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
     @Override
     public boolean handleSnatAllSwitch(Routers routers, BigInteger primarySwitchId,  int addOrRemove) {
-        LOG.debug("handleSnatAllSwitch : Handle Snat in all switches");
+        LOG.info("handleSnatAllSwitch : Handle Snat in all switches for router", routers.getRouterName());
         String routerName = routers.getRouterName();
         List<BigInteger> switches = naptSwitchSelector.getDpnsForVpn(routerName);
         /*
          * Primary switch handled separately since the pseudo port created may
          * not be present in the switch list on delete.
          */
+        boolean isLastRouterDelete = false;
+        if (addOrRemove == NwConstants.DEL_FLOW) {
+            isLastRouterDelete = NatUtil.isLastExternalRouter(routers.getNetworkId()
+                .getValue(), routers.getRouterName(), natDataUtil);
+            LOG.info("handleSnatAllSwitch : action is delete for router {} and isLastRouterDelete is {}",
+                    routers.getRouterName(), isLastRouterDelete);
+        }
         handleSnat(routers, primarySwitchId, primarySwitchId, addOrRemove);
+
         for (BigInteger dpnId : switches) {
             if (primarySwitchId != dpnId) {
                 handleSnat(routers, primarySwitchId, dpnId, addOrRemove);
+                if (isLastRouterDelete) {
+                    removeMipAdjacencies(routers, dpnId);
+                }
             }
         }
-
+        if (isLastRouterDelete) {
+            removeLearntIpPorts(routers);
+            removeMipAdjacencies(routers, primarySwitchId);
+        }
         return true;
     }
 
@@ -119,11 +156,11 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
         // Handle non NAPT switches and NAPT switches separately
         if (!dpnId.equals(primarySwitchId)) {
-            LOG.debug("handleSnat : Handle non NAPT switch {}", dpnId);
+            LOG.info("handleSnat : Handle non NAPT switch {} for router {}", dpnId, routers.getRouterName());
             installSnatCommonEntriesForNonNaptSwitch(routers, primarySwitchId, dpnId, addOrRemove);
             installSnatSpecificEntriesForNonNaptSwitch(routers, dpnId, addOrRemove);
         } else {
-            LOG.debug("handleSnat : Handle NAPT switch {}", dpnId);
+            LOG.info("handleSnat : Handle NAPT switch {} for router {}", dpnId, routers.getRouterName());
             installSnatCommonEntriesForNaptSwitch(routers, dpnId, addOrRemove);
             installSnatSpecificEntriesForNaptSwitch(routers, dpnId, addOrRemove);
 
@@ -383,6 +420,47 @@ public abstract class AbstractSnatService implements SnatServiceListener {
                     + "between {} and {}", srcDpId, dstDpId);
         }
         return null;
+    }
+
+    protected void removeMipAdjacencies(Routers routers, BigInteger dpnId) {
+        LOG.info("removeMipAdjacencies for router {} in dpn {}", routers.getRouterName(), dpnId);
+        String networkId = routers.getNetworkId().getValue();
+        String externalInterface = NatUtil.getExternalElanInterface(networkId, dpnId, interfaceManager,
+                dataBroker);
+        InstanceIdentifier<Adjacencies> adjacencyIdentifierConf =
+                InstanceIdentifier.builder(VpnInterfaces.class).child(VpnInterface.class,
+                        new VpnInterfaceKey(externalInterface)).augmentation(Adjacencies.class).build();
+        try {
+            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    adjacencyIdentifierConf);
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Failed to remove removeMipAdjacencies with error {}", e.getMessage());
+        }
+    }
+
+    private void removeLearntIpPorts(Routers routers) {
+        LOG.info("removeLearntIpPorts for router {} and network {}", routers.getRouterName(), routers.getNetworkId());
+        String networkId = routers.getNetworkId().getValue();
+        LearntVpnVipToPortData learntVpnVipToPortData = NatUtil.getLearntVpnVipToPortData(dataBroker);
+        LearntVpnVipToPortDataBuilder learntVpnVipToPortDataBuilder = new LearntVpnVipToPortDataBuilder();
+        List<LearntVpnVipToPort> learntVpnVipToPortList = new ArrayList<>();
+        for (LearntVpnVipToPort learntVpnVipToPort : learntVpnVipToPortData.getLearntVpnVipToPort()) {
+            if (!learntVpnVipToPort.getVpnName().equals(networkId)) {
+                LOG.info("The learned port belongs to Vpn {} hence not removing", learntVpnVipToPort.getVpnName());
+                learntVpnVipToPortList.add(learntVpnVipToPort);
+            }
+        }
+
+        try {
+            learntVpnVipToPortDataBuilder.setLearntVpnVipToPort(learntVpnVipToPortList);
+            InstanceIdentifier<LearntVpnVipToPortData> learntVpnVipToPortDataId = NatUtil
+                    .getLearntVpnVipToPortDataId();
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    learntVpnVipToPortDataId, learntVpnVipToPortDataBuilder.build());
+
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Failed to remove removeLearntIpPorts with error {}", e.getMessage());
+        }
     }
 
     static int mostSignificantBit(int value) {
