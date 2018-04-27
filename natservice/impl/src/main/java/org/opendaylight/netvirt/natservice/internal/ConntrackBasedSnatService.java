@@ -34,6 +34,8 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.natservice.ha.NatDataUtil;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -62,10 +64,11 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
 
     public ConntrackBasedSnatService(DataBroker dataBroker, IMdsalApiManager mdsalManager, ItmRpcService itmManager,
                                      IdManagerService idManager, NAPTSwitchSelector naptSwitchSelector,
-                                     OdlInterfaceRpcService odlInterfaceRpcService,
-                                     IInterfaceManager interfaceManager, IVpnFootprintService vpnFootprintService) {
+                                     OdlInterfaceRpcService odlInterfaceRpcService, IFibManager fibManager,
+                                     IInterfaceManager interfaceManager, IVpnFootprintService vpnFootprintService,
+                                     NatDataUtil natDataUtil) {
         super(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService, idManager, naptSwitchSelector,
-                interfaceManager, vpnFootprintService);
+                fibManager, interfaceManager, vpnFootprintService, natDataUtil);
     }
 
     @Override
