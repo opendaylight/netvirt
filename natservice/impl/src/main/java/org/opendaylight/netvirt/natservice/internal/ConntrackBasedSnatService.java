@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -30,6 +31,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -54,9 +56,10 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     protected static final int DNAT_CT_STATE_MASK = 0x80;
 
     public ConntrackBasedSnatService(DataBroker dataBroker, IMdsalApiManager mdsalManager, ItmRpcService itmManager,
-            OdlInterfaceRpcService interfaceManager, IdManagerService idManager,
-            NAPTSwitchSelector naptSwitchSelector) {
-        super(dataBroker, mdsalManager, itmManager, interfaceManager, idManager, naptSwitchSelector);
+            OdlInterfaceRpcService odlInterfaceRpcService, IdManagerService idManager,
+            NAPTSwitchSelector naptSwitchSelector, final IFibManager fibManager, IInterfaceManager interfaceManager) {
+        super(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService, idManager, naptSwitchSelector, fibManager,
+                interfaceManager);
     }
 
     @Override
