@@ -13,6 +13,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.natservice.ha.NatDataUtil;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -31,9 +32,10 @@ public class FlatVlanConntrackBasedSnatService extends ConntrackBasedSnatService
                                              IdManagerService idManager, NAPTSwitchSelector naptSwitchSelector,
                                              IInterfaceManager interfaceManager,
                                              IVpnFootprintService vpnFootprintService,
-                                             IFibManager fibManager) {
+                                             IFibManager fibManager, NatDataUtil natDataUtil) {
         super(dataBroker, mdsalManager, itmManager, idManager, naptSwitchSelector,
-                odlInterfaceRpcService, interfaceManager, vpnFootprintService, fibManager);
+                odlInterfaceRpcService, interfaceManager, vpnFootprintService, fibManager ,
+                natDataUtil);
     }
 
     @Override
