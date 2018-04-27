@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "a7b20094_f8a94f58",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-27T06:05:30Z",
+      "side": 1,
+      "message": "It was the same case earlier as well. Arp packet with unknown smac gets punted from both arp table and unknown smac table.",
+      "parentUuid": "d2a217fc_8c0cfd80",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4bde3f30_85be27ef",
         "filename": "docs/specs/fluorine/controller-punt-protection.rst",
         "patchSetId": 5
@@ -47,6 +65,24 @@
       "writtenOn": "2018-04-27T04:48:03Z",
       "side": 1,
       "message": "arp_spa\u003d30.1.1.10",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "32dff7a2_8178cdf5",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-27T06:05:30Z",
+      "side": 1,
+      "message": "This flow is learnt for GARP packet.",
+      "parentUuid": "4bde3f30_85be27ef",
       "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "27e8003c_48a9b4d4",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-27T06:05:30Z",
+      "side": 1,
+      "message": "Since one table can match only one flow and for GARP identification 2 different flow matches are required -\n1. match on actual spa and tpa ie spa\u003d\u003dspa and tpa\u003d\u003dtpa\n2. inverse match on spa\u003d\u003dtpa and tpa\u003d\u003dspa.\nHence, 2 tables are used.",
+      "parentUuid": "1d7381fe_a95b85e7",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8299b18d_83b1c2f2",
         "filename": "docs/specs/fluorine/controller-punt-protection.rst",
         "patchSetId": 5
@@ -81,6 +135,24 @@
       "writtenOn": "2018-04-27T04:48:03Z",
       "side": 1,
       "message": "this looks to send arp resquest and arp response packets in a rate-limited way to the controller, right?",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b5233bab_75450e1d",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-27T06:05:30Z",
+      "side": 1,
+      "message": "This flow will punt and install learnt flows for arp packets.\nThe learnt flows rate limit the packet subsequently.",
+      "parentUuid": "8299b18d_83b1c2f2",
       "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -104,6 +176,24 @@
     },
     {
       "key": {
+        "uuid": "06f6335c_794c00c2",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-27T06:05:30Z",
+      "side": 1,
+      "message": "GARP flows will install identical flows with same matches. Only the action part is different for the two flows in table 195 and 196.",
+      "parentUuid": "0bfef1e2_18a1f396",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a4e4d7b_546984e2",
         "filename": "docs/specs/fluorine/controller-punt-protection.rst",
         "patchSetId": 5
@@ -115,6 +205,24 @@
       "writtenOn": "2018-04-27T04:48:03Z",
       "side": 1,
       "message": "this flow looks to send grat arp request packets always to the controller, correct?",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "168238f5_96a9ba6f",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-27T06:05:30Z",
+      "side": 1,
+      "message": "yes.",
+      "parentUuid": "9a4e4d7b_546984e2",
       "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -138,6 +246,24 @@
     },
     {
       "key": {
+        "uuid": "4867adcb_163234af",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-27T06:05:30Z",
+      "side": 1,
+      "message": "REG4 is used later by elan pipeline for unknown smac punts.\nAnd arp flows set this register for learning, to clear the register, this flow is used.",
+      "parentUuid": "69cc155e_44def7e9",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "003199f3_af892d6c",
         "filename": "docs/specs/fluorine/controller-punt-protection.rst",
         "patchSetId": 5
@@ -149,6 +275,24 @@
       "writtenOn": "2018-04-27T04:48:03Z",
       "side": 1,
       "message": "why is this write_metadata at the end required?",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3766db52_576c802d",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-04-27T06:05:30Z",
+      "side": 1,
+      "message": "This was part of the existing flow without the learn action.",
+      "parentUuid": "003199f3_af892d6c",
       "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
