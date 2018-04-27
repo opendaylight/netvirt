@@ -22,12 +22,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -57,6 +59,7 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.natservice.ha.NatDataUtil;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
@@ -218,6 +221,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev14
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionRegLoadNodesNodeTableFlowApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.load.grouping.NxRegLoad;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -2059,6 +2063,66 @@ public final class NatUtil {
             LOG.warn("Failed to remove elanDpnInterface with error {}", e.getMessage());
         }
 
+    }
+
+    public static DpnInterfaces getElanInterfaceInfoByElanDpn(String elanInstanceName, BigInteger dpId,
+            DataBroker broker) {
+        InstanceIdentifier<DpnInterfaces> elanDpnInterfacesId =
+                getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId);
+        DpnInterfaces dpnInterfaces = null;
+        try {
+            dpnInterfaces = SingleTransactionDataBroker.syncRead(broker, LogicalDatastoreType.OPERATIONAL,
+                    elanDpnInterfacesId);
+        }
+        catch (ReadFailedException e) {
+            LOG.warn("Failed to read ElanDpnInterfacesList with error {}", e.getMessage());
+        }
+        return dpnInterfaces;
+    }
+
+    public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
+            InstanceIdentifier<T> path) {
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+            return tx.read(datastoreType, path).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean isLastExternalRouter(String networkid, String routerName, NatDataUtil natDataUtil) {
+        Set<Map.Entry<String,Routers>> extRouter = natDataUtil.getAllRouters();
+        for (Map.Entry<String,Routers> router : extRouter) {
+            if (!router.getKey().equals(routerName) && router.getValue().getNetworkId().getValue()
+                    .equals(networkid)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static InstanceIdentifier<ExtRouters> buildExtRouters() {
+        InstanceIdentifier<ExtRouters> extRouterInstanceIndentifier = InstanceIdentifier.builder(ExtRouters.class)
+                .build();
+        return extRouterInstanceIndentifier;
+    }
+
+    public static LearntVpnVipToPortData getLearntVpnVipToPortData(DataBroker dataBroker) {
+        InstanceIdentifier<LearntVpnVipToPortData> learntVpnVipToPortDataId = getLearntVpnVipToPortDataId();
+        LearntVpnVipToPortData learntVpnVipToPortData = null;
+        try {
+            learntVpnVipToPortData = SingleTransactionDataBroker.syncRead(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, learntVpnVipToPortDataId);
+        }
+        catch (ReadFailedException e) {
+            LOG.warn("Failed to read LearntVpnVipToPortData with error {}", e.getMessage());
+        }
+        return learntVpnVipToPortData;
+    }
+
+    public static InstanceIdentifier<LearntVpnVipToPortData> getLearntVpnVipToPortDataId() {
+        InstanceIdentifier<LearntVpnVipToPortData> learntVpnVipToPortDataId = InstanceIdentifier
+                .builder(LearntVpnVipToPortData.class).build();
+        return learntVpnVipToPortDataId;
     }
 
     public static InstanceIdentifier<DpnInterfaces> getElanDpnInterfaceOperationalDataPath(String elanInstanceName,
