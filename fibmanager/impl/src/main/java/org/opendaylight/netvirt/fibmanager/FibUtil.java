@@ -26,6 +26,8 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -100,6 +102,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes;
@@ -869,5 +873,22 @@ public class FibUtil {
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("unlockCluster: Unable to unlock {}", lockName, e);
         }
+    }
+
+    public boolean isInterfacePresentInDpn(String vpnName, BigInteger dpnId) {
+        InstanceIdentifier<VpnToDpnList> vpnToDpnListId = InstanceIdentifier.builder(VpnInstanceOpData.class)
+                .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(vpnName))
+                .child(VpnToDpnList.class, new VpnToDpnListKey(dpnId)).build();
+        try {
+            VpnToDpnList vpnToDpnList = SingleTransactionDataBroker.syncRead(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, vpnToDpnListId);
+            if (!(vpnToDpnList == null) && !(vpnToDpnList.getVpnInterfaces() == null)
+                    && !vpnToDpnList.getVpnInterfaces().isEmpty()) {
+                return true;
+            }
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to read interfaces with error {}", e.getMessage());
+        }
+        return false;
     }
 }
