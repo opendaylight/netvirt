@@ -1808,7 +1808,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     currVpnIntf.getVpnInstanceName(), aug, dpnId, currVpnIntf.isScheduledForRemove(),
                                             currVpnIntf.getLportTag(), currVpnIntf.getGatewayMacAddress());
 
-                            writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf, true);
+                            writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf);
                             if (adj.getNextHopIpList() != null) {
                                 for (String nh : adj.getNextHopIpList()) {
                                     deleteExtraRouteFromCurrentAndImportingVpns(
