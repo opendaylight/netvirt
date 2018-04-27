@@ -15,6 +15,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.natservice.ha.NatDataUtil;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -42,7 +43,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     private final IElanService elanManager;
     private final IInterfaceManager interfaceManager;
     private final IVpnFootprintService vpnFootprintService;
-    protected final IFibManager fibManager;
+    private final IFibManager fibManager;
+    private final NatDataUtil natDataUtil;
 
     @Inject
     public SnatServiceImplFactory(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -56,7 +58,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
                                   final IElanService elanManager,
                                   final IInterfaceManager interfaceManager,
                                   final IVpnFootprintService vpnFootprintService,
-                                  final IFibManager fibManager) {
+                                  final IFibManager fibManager,
+                                  final NatDataUtil natDataUtil) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
@@ -74,6 +77,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         this.interfaceManager = interfaceManager;
         this.vpnFootprintService = vpnFootprintService;
         this.fibManager = fibManager;
+        this.natDataUtil = natDataUtil;
     }
 
     @Override
@@ -90,7 +94,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
 
         if (natMode == NatMode.Conntrack) {
             return new FlatVlanConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService,
-                    idManager, naptSwitchSelector, interfaceManager, vpnFootprintService, fibManager);
+                    idManager, naptSwitchSelector, interfaceManager, vpnFootprintService, fibManager,  natDataUtil);
         }
         return null;
     }
@@ -102,7 +106,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
                     NatConstants.ODL_VNI_POOL_NAME);
             return new VxlanGreConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService,
                     idManager, naptSwitchSelector, externalRouterListener, elanManager, interfaceManager,
-                    vpnFootprintService, fibManager);
+                    vpnFootprintService, fibManager, natDataUtil);
         }
         return null;
     }
