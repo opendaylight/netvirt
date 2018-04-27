@@ -20,7 +20,8 @@ public enum RouteOrigin {
     INTERVPN("inter-vpn link", "iv"),
     SELF_IMPORTED("self-imported", "si"),
     BGP("bgp", "b"),
-    LOCAL("local", "l");
+    LOCAL("local", "l"),
+    DYNAMIC("dynamic", "d");
 
 
     final String description;
