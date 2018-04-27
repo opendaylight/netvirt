@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8fda143e_b45837a7",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-27T04:48:03Z",
+      "side": 1,
+      "message": "please clearly state which is rate limited and which is not.\n\nIt is stated here that GARP will not be rate limited.\nCan you please add statements to clarify the same way for ARP requests and ARP responses.",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d2a217fc_8c0cfd80",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-27T04:48:03Z",
+      "side": 1,
+      "message": "since we are sending to both 195 and 48 here, won\u0027t the initial packet be it arp-request/arp-response be double punted to controller , i..e, one from 195 and another from 50?\n\nWas it the same case earlier.",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4bde3f30_85be27ef",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-27T04:48:03Z",
+      "side": 1,
+      "message": "arp_spa\u003d30.1.1.10",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1d7381fe_a95b85e7",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-27T04:48:03Z",
+      "side": 1,
+      "message": "why do we need two learnt flows in each of table 195 and 196?\n\ncan\u0027t one flow in 195 and 196 be sufficient?",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8299b18d_83b1c2f2",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-27T04:48:03Z",
+      "side": 1,
+      "message": "this looks to send arp resquest and arp response packets in a rate-limited way to the controller, right?",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0bfef1e2_18a1f396",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-27T04:48:03Z",
+      "side": 1,
+      "message": "ditto here",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a4e4d7b_546984e2",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-27T04:48:03Z",
+      "side": 1,
+      "message": "this flow looks to send grat arp request packets always to the controller, correct?",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "69cc155e_44def7e9",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-27T04:48:03Z",
+      "side": 1,
+      "message": "why is this flow required?",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "003199f3_af892d6c",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-27T04:48:03Z",
+      "side": 1,
+      "message": "why is this write_metadata at the end required?",
+      "revId": "22a80cef7eb809a207eb154b0ff4658f2759ba42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
