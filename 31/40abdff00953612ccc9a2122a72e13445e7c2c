@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Sam Hague <shague@redhat.com>
+Submitted-by: Sam Hague <shague@redhat.com>
+Submitted-at: Fri, 27 Apr 2018 00:13:37 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/70993
+Project: netvirt
+Branch: refs/heads/stable/oxygen
