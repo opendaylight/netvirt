@@ -1785,10 +1785,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 if (vrfTable.isPresent()) {
                     synchronized (vpnInstance.getVpnInstanceName().intern()) {
                         futures.add(retryingTxRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                            String vpnName = fibUtil.getVpnNameFromId(vpnInstance.getVpnId());
                             for (final VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
                                 /* Handle subnet routes here */
                                 SubnetRoute subnetRoute = vrfEntry.augmentation(SubnetRoute.class);
-                                if (subnetRoute != null) {
+                                if (subnetRoute != null && !fibUtil
+                                        .isInterfacePresentInDpn(vrfEntry.getParentVpnRd(), dpnId)) {
                                     LOG.trace("SUBNETROUTE: cleanUpDpnForVpn: Cleaning subnetroute {} on dpn {}"
                                             + " for vpn {}", vrfEntry.getDestPrefix(), dpnId, rd);
                                     baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null,
@@ -1837,7 +1839,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                 // to which prefix is attached at this point
                                 List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker,
                                         vpnInstance.getVpnId(), vrfEntry.getDestPrefix());
-                                String vpnName = fibUtil.getVpnNameFromId(vpnInstance.getVpnId());
                                 Optional<Routes> extraRouteOptional;
                                 //Is this fib route an extra route? If yes, get the nexthop which would be
                                 //an adjacency in the vpn
@@ -1857,8 +1858,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                     bgpRouteVrfEntryHandler.deleteRemoteRoute(null, dpnId, vpnId,
                                             vrfTable.get().key(), vrfEntry, extraRouteOptional, tx, txnObjects);
                                 } else {
-                                    baseVrfEntryHandler.deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().key(),
-                                            vrfEntry, extraRouteOptional, tx);
+                                    if (subnetRoute == null || !fibUtil
+                                            .isInterfacePresentInDpn(vrfEntry.getParentVpnRd(), dpnId)) {
+                                        baseVrfEntryHandler.deleteRemoteRoute(null, dpnId, vpnId,
+                                                vrfTable.get().key(), vrfEntry, extraRouteOptional, tx);
+                                    }
                                 }
                             }
                         }));
