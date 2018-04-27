@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -34,7 +38,11 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
@@ -48,11 +56,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.G
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+
 
 public abstract class AbstractSnatService implements SnatServiceListener {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSnatService.class);
@@ -66,19 +81,25 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected final IdManagerService idManager;
     protected final NAPTSwitchSelector naptSwitchSelector;
     protected final ItmRpcService itmManager;
-    protected final OdlInterfaceRpcService interfaceManager;
+    protected final OdlInterfaceRpcService odlInterfaceRpcService;
+    private final IFibManager fibManager;
+    private final IInterfaceManager interfaceManager;
 
     protected AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
             final ItmRpcService itmManager,
-            final OdlInterfaceRpcService interfaceManager,
+            final OdlInterfaceRpcService odlInterfaceRpcService,
             final IdManagerService idManager,
-            final NAPTSwitchSelector naptSwitchSelector) {
+            final NAPTSwitchSelector naptSwitchSelector,
+            final IFibManager fibManager,
+            final IInterfaceManager interfaceManager) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
-        this.interfaceManager = interfaceManager;
+        this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.idManager = idManager;
         this.naptSwitchSelector = naptSwitchSelector;
+        this.fibManager = fibManager;
+        this.interfaceManager = interfaceManager;
     }
 
     protected DataBroker getDataBroker() {
@@ -125,6 +146,10 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             installSnatCommonEntriesForNaptSwitch(routers, dpnId, addOrRemove);
             installSnatSpecificEntriesForNaptSwitch(routers, dpnId, addOrRemove);
 
+        }
+        if (addOrRemove == NwConstants.DEL_FLOW) {
+            removeMipAdjacencies(routers, dpnId);
+            removeLearntIpPorts(routers, dpnId);
         }
         return true;
     }
@@ -212,7 +237,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         if (ifNamePrimary != null) {
             LOG.debug("installSnatMissEntry : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
-            listActionInfoPrimary = NatUtil.getEgressActionsForInterface(interfaceManager, ifNamePrimary, routerId);
+            listActionInfoPrimary = NatUtil.getEgressActionsForInterface(odlInterfaceRpcService,
+                    ifNamePrimary, routerId);
         }
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
         listBucketInfo.add(0, bucketPrimary);
@@ -303,7 +329,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionGotoTable(NwConstants.PSNAT_TABLE));
 
-        String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, extNetId);
+        String flowRef = "DefaultFibRouteForSNAT" + getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, extNetId);
         syncFlow(dpnId, NwConstants.L3_FIB_TABLE, flowRef, NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef,
                 NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
     }
@@ -380,6 +406,47 @@ public abstract class AbstractSnatService implements SnatServiceListener {
                     + "between {} and {}", srcDpId, dstDpId);
         }
         return null;
+    }
+
+    protected void removeMipAdjacencies(Routers routers, BigInteger dpnId) {
+        String networkId = routers.getNetworkId().getValue();
+        String externalInterface = NatUtil.getExternalElanInterface(networkId, dpnId, interfaceManager,
+                dataBroker);
+        if (NatUtil.isLastExternalRouter(networkId, routers.getRouterName(), dataBroker)) {
+            InstanceIdentifier<Adjacencies> adjacencyIdentifierConf =
+                    InstanceIdentifier.builder(VpnInterfaces.class).child(VpnInterface.class,
+                            new VpnInterfaceKey(externalInterface)).augmentation(Adjacencies.class).build();
+            try {
+                SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        adjacencyIdentifierConf);
+            } catch (TransactionCommitFailedException e) {
+                LOG.warn("Failed to remove removeFibEntries with error {}", e.getMessage());
+            }
+
+        }
+    }
+
+    private void removeLearntIpPorts(Routers routers, BigInteger dpnId) {
+        String networkId = routers.getNetworkId().getValue();
+        LearntVpnVipToPortData learntVpnVipToPortData = NatUtil.getLearntVpnVipToPortData(dataBroker);
+        LearntVpnVipToPortDataBuilder learntVpnVipToPortDataBuilder = new LearntVpnVipToPortDataBuilder();
+        List<LearntVpnVipToPort> learntVpnVipToPortList = new ArrayList<>();
+        for (LearntVpnVipToPort learntVpnVipToPort : learntVpnVipToPortData.getLearntVpnVipToPort()) {
+            if (!learntVpnVipToPort.getVpnName().equals(networkId)) {
+                learntVpnVipToPortList.add(learntVpnVipToPort);
+            }
+        }
+
+        try {
+            learntVpnVipToPortDataBuilder.setLearntVpnVipToPort(learntVpnVipToPortList);
+            InstanceIdentifier<LearntVpnVipToPortData> learntVpnVipToPortDataId = NatUtil
+                    .getLearntVpnVipToPortDataId();
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    learntVpnVipToPortDataId, learntVpnVipToPortDataBuilder.build());
+
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Failed to remove removeFibEntries with error {}", e.getMessage());
+        }
     }
 
     static int mostSignificantBit(int value) {

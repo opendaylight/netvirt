@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
@@ -38,6 +39,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -59,10 +61,11 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
     private final IElanService elanManager;
 
     public VxlanGreConntrackBasedSnatService(DataBroker dataBroker, IMdsalApiManager mdsalManager,
-            ItmRpcService itmManager, OdlInterfaceRpcService interfaceManager, IdManagerService idManager,
-            NAPTSwitchSelector naptSwitchSelector,
+            ItmRpcService itmManager, OdlInterfaceRpcService odlInterfaceRpcService, IdManagerService idManager,
+            NAPTSwitchSelector naptSwitchSelector, final IFibManager fibManager,IInterfaceManager interfaceManager,
             ExternalRoutersListener externalRouterListener, IElanService elanManager) {
-        super(dataBroker, mdsalManager, itmManager, interfaceManager, idManager, naptSwitchSelector);
+        super(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService, idManager, naptSwitchSelector,
+                fibManager, interfaceManager);
         this.externalRouterListener = externalRouterListener;
         this.elanManager = elanManager;
     }
@@ -300,7 +303,8 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         if (ifNamePrimary != null) {
             LOG.debug("installSnatMissEntry : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
-            listActionInfoPrimary = NatUtil.getEgressActionsForInterface(interfaceManager, ifNamePrimary, routerId);
+            listActionInfoPrimary = NatUtil.getEgressActionsForInterface(odlInterfaceRpcService,
+                    ifNamePrimary, routerId);
         }
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
         listBucketInfo.add(0, bucketPrimary);

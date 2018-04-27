@@ -10,9 +10,11 @@ package org.opendaylight.netvirt.natservice.internal;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -30,28 +32,32 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final ItmRpcService itmManager;
-    private final OdlInterfaceRpcService interfaceManager;
+    private final OdlInterfaceRpcService odlInterfaceRpcService;
     private final IdManagerService idManager;
     private final NAPTSwitchSelector naptSwitchSelector;
     private final NatMode natMode;
     private final INeutronVpnManager nvpnManager;
     private final ExternalRoutersListener externalRouterListener;
     private final IElanService elanManager;
+    private final IFibManager fibManager;
+    private final IInterfaceManager interfaceManager;
 
     @Inject
     public SnatServiceImplFactory(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
             final ItmRpcService itmManager,
-            final OdlInterfaceRpcService interfaceManager,
+            final OdlInterfaceRpcService odlInterfaceRpcService,
             final IdManagerService idManager,
             final NAPTSwitchSelector naptSwitchSelector,
             final NatserviceConfig config,
             final INeutronVpnManager nvpnManager,
             final ExternalRoutersListener externalRouterListener,
-            final IElanService elanManager) {
+            final IElanService elanManager,
+            final IFibManager fibManager,
+            final IInterfaceManager interfaceManager) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
-        this.interfaceManager = interfaceManager;
+        this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.idManager = idManager;
         this.naptSwitchSelector = naptSwitchSelector;
         if (config != null) {
@@ -62,6 +68,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         this.nvpnManager = nvpnManager;
         this.externalRouterListener = externalRouterListener;
         this.elanManager = elanManager;
+        this.fibManager = fibManager;
+        this.interfaceManager = interfaceManager;
     }
 
     @Override
@@ -77,8 +85,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     public AbstractSnatService createFlatVlanSnatServiceImpl() {
 
         if (natMode == NatMode.Conntrack) {
-            return new FlatVlanConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager,
-                    idManager, naptSwitchSelector);
+            return new FlatVlanConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService,
+                    idManager, naptSwitchSelector, fibManager, interfaceManager);
         }
         return null;
     }
@@ -88,8 +96,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         if (natMode == NatMode.Conntrack) {
             NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
                     NatConstants.ODL_VNI_POOL_NAME);
-            return new VxlanGreConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager,
-                    idManager, naptSwitchSelector, externalRouterListener, elanManager);
+            return new VxlanGreConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService,
+                    idManager, naptSwitchSelector, fibManager, interfaceManager, externalRouterListener, elanManager);
         }
         return null;
     }
