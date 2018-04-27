@@ -14,6 +14,10 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -40,7 +44,12 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
+import org.opendaylight.netvirt.natservice.ha.NatDataUtil;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
@@ -55,9 +64,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.G
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,13 +94,14 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected final IInterfaceManager interfaceManager;
     protected final IVpnFootprintService vpnFootprintService;
     protected final IFibManager fibManager;
+    protected final NatDataUtil natDataUtil;
 
     protected AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                   final ItmRpcService itmManager, final OdlInterfaceRpcService odlInterfaceRpcService,
                                   final IdManagerService idManager, final NAPTSwitchSelector naptSwitchSelector,
                                   final IInterfaceManager interfaceManager,
                                   final IVpnFootprintService vpnFootprintService,
-                                  final IFibManager fibManager) {
+                                  final IFibManager fibManager, final NatDataUtil natDataUtil) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
@@ -94,6 +111,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.vpnFootprintService = vpnFootprintService;
         this.fibManager = fibManager;
+        this.natDataUtil = natDataUtil;
     }
 
     protected DataBroker getDataBroker() {
@@ -110,20 +128,30 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
     @Override
     public boolean handleSnatAllSwitch(Routers routers, BigInteger primarySwitchId,  int addOrRemove) {
-        LOG.debug("handleSnatAllSwitch : Handle Snat in all switches");
+        LOG.info("handleSnatAllSwitch : Handle Snat in all switches for router {}", routers.getRouterName());
         String routerName = routers.getRouterName();
         List<BigInteger> switches = naptSwitchSelector.getDpnsForVpn(routerName);
         /*
          * Primary switch handled separately since the pseudo port created may
          * not be present in the switch list on delete.
          */
+        boolean isLastRouterDelete = false;
+        if (addOrRemove == NwConstants.DEL_FLOW) {
+            isLastRouterDelete = NatUtil.isLastExternalRouter(routers.getNetworkId()
+                .getValue(), routers.getRouterName(), natDataUtil);
+            LOG.info("handleSnatAllSwitch : action is delete for router {} and isLastRouterDelete is {}",
+                    routers.getRouterName(), isLastRouterDelete);
+        }
         handleSnat(routers, primarySwitchId, primarySwitchId, addOrRemove);
         for (BigInteger dpnId : switches) {
             if (primarySwitchId != dpnId) {
                 handleSnat(routers, primarySwitchId, dpnId, addOrRemove);
             }
         }
-
+        if (isLastRouterDelete) {
+            removeLearntIpPorts(routers);
+            removeMipAdjacencies(routers);
+        }
         return true;
     }
 
@@ -132,11 +160,11 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
         // Handle non NAPT switches and NAPT switches separately
         if (!dpnId.equals(primarySwitchId)) {
-            LOG.debug("handleSnat : Handle non NAPT switch {}", dpnId);
+            LOG.info("handleSnat : Handle non NAPT switch {} for router {}", dpnId, routers.getRouterName());
             installSnatCommonEntriesForNonNaptSwitch(routers, primarySwitchId, dpnId, addOrRemove);
             installSnatSpecificEntriesForNonNaptSwitch(routers, dpnId, addOrRemove);
         } else {
-            LOG.debug("handleSnat : Handle NAPT switch {}", dpnId);
+            LOG.info("handleSnat : Handle NAPT switch {} for router {}", dpnId, routers.getRouterName());
             installSnatCommonEntriesForNaptSwitch(routers, dpnId, addOrRemove);
             installSnatSpecificEntriesForNaptSwitch(routers, dpnId, addOrRemove);
 
@@ -381,6 +409,99 @@ public abstract class AbstractSnatService implements SnatServiceListener {
                     + "between {} and {}", srcDpId, dstDpId);
         }
         return null;
+    }
+
+    protected void removeMipAdjacencies(Routers routers) {
+        LOG.info("removeMipAdjacencies for router {}", routers.getRouterName());
+        String externalSubNetId  = null;
+        for (ExternalIps externalIp : routers.getExternalIps()) {
+            if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
+                // In this class we handle only IPv4 use-cases.
+                continue;
+            }
+            externalSubNetId = externalIp.getSubnetId().getValue();
+            break;
+        }
+        if (externalSubNetId == null) {
+            LOG.info("removeMipAdjacencies no external Ipv4 address present router {}",
+                    routers.getRouterName());
+            return;
+        }
+        InstanceIdentifier<VpnInterfaces> vpnInterfacesId =
+                InstanceIdentifier.builder(VpnInterfaces.class).build();
+        try {
+            VpnInterfaces vpnInterfaces = SingleTransactionDataBroker.syncRead(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, vpnInterfacesId);
+            List<VpnInterface> updatedVpnInterface = new ArrayList<>();
+            for (VpnInterface vpnInterface : vpnInterfaces.getVpnInterface()) {
+                List<Adjacency> updatedAdjacencies = new ArrayList<>();
+                Adjacencies adjacencies = vpnInterface.getAugmentation(Adjacencies.class);
+                if (null != adjacencies) {
+                    for (Adjacency adjacency : adjacencies.getAdjacency()) {
+                        if (!adjacency.getSubnetId().getValue().equals(externalSubNetId)) {
+                            updatedAdjacencies.add(adjacency);
+                        }
+                    }
+                }
+                AdjacenciesBuilder adjacenciesBuilder = new AdjacenciesBuilder();
+                adjacenciesBuilder.setAdjacency(updatedAdjacencies);
+                VpnInterfaceBuilder vpnInterfaceBuilder = new VpnInterfaceBuilder(vpnInterface);
+                vpnInterfaceBuilder.addAugmentation(Adjacencies.class, adjacenciesBuilder.build());
+                updatedVpnInterface.add(vpnInterfaceBuilder.build());
+            }
+            VpnInterfacesBuilder vpnInterfacesBuilder = new VpnInterfacesBuilder();
+            vpnInterfacesBuilder.setVpnInterface(updatedVpnInterface);
+
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    vpnInterfacesId, vpnInterfacesBuilder.build());
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to read removeMipAdjacencies with error {}", e.getMessage());
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Failed to remove removeMipAdjacencies with error {}", e.getMessage());
+        }
+    }
+
+    private void removeLearntIpPorts(Routers routers) {
+        LOG.info("removeLearntIpPorts for router {} and network {}", routers.getRouterName(), routers.getNetworkId());
+        String networkId = routers.getNetworkId().getValue();
+        LearntVpnVipToPortData learntVpnVipToPortData = NatUtil.getLearntVpnVipToPortData(dataBroker);
+        LearntVpnVipToPortDataBuilder learntVpnVipToPortDataBuilder = new LearntVpnVipToPortDataBuilder();
+        List<LearntVpnVipToPort> learntVpnVipToPortList = new ArrayList<>();
+        for (LearntVpnVipToPort learntVpnVipToPort : learntVpnVipToPortData.getLearntVpnVipToPort()) {
+            if (!learntVpnVipToPort.getVpnName().equals(networkId)) {
+                LOG.info("The learned port belongs to Vpn {} hence not removing", learntVpnVipToPort.getVpnName());
+                learntVpnVipToPortList.add(learntVpnVipToPort);
+            } else {
+                String externalSubNetId = null;
+                for (ExternalIps externalIp : routers.getExternalIps()) {
+                    if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
+                        // In this class we handle only IPv4 use-cases.
+                        continue;
+                    }
+                    externalSubNetId = externalIp.getSubnetId().getValue();
+                    break;
+                }
+                if (externalSubNetId == null) {
+                    LOG.info("removeMipAdjacencies no external Ipv4 address present router {}",
+                            routers.getRouterName());
+                    return;
+                }
+                String prefix = learntVpnVipToPort.getPortFixedip() + "/32";
+                NatUtil.deletePrefixToInterface(dataBroker, NatUtil.getVpnId(dataBroker,
+                        externalSubNetId), prefix);
+            }
+        }
+
+        try {
+            learntVpnVipToPortDataBuilder.setLearntVpnVipToPort(learntVpnVipToPortList);
+            InstanceIdentifier<LearntVpnVipToPortData> learntVpnVipToPortDataId = NatUtil
+                    .getLearntVpnVipToPortDataId();
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    learntVpnVipToPortDataId, learntVpnVipToPortDataBuilder.build());
+
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Failed to remove removeLearntIpPorts with error {}", e.getMessage());
+        }
     }
 
     static int mostSignificantBit(int value) {
