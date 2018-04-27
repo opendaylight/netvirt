@@ -28,10 +28,13 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
@@ -89,7 +92,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -205,6 +213,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev14
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionRegLoadNodesNodeTableFlowApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.load.grouping.NxRegLoad;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -1941,4 +1950,105 @@ public final class NatUtil {
         }
         return false;
     }
+
+    public static String getExternalElanInterface(String elanInstanceName, BigInteger dpnId,
+            IInterfaceManager interfaceManager, DataBroker broker) {
+        DpnInterfaces dpnInterfaces = getElanInterfaceInfoByElanDpn(elanInstanceName, dpnId, broker);
+        if (dpnInterfaces == null || dpnInterfaces.getInterfaces() == null) {
+            LOG.trace("Elan {} does not have interfaces in DPN {}", elanInstanceName, dpnId);
+            return null;
+        }
+
+        for (String dpnInterface : dpnInterfaces.getInterfaces()) {
+            if (interfaceManager.isExternalInterface(dpnInterface)) {
+                return dpnInterface;
+            }
+        }
+        LOG.trace("Elan {} does not have any external interace attached to DPN {}", elanInstanceName, dpnId);
+        return null;
+    }
+
+    public static DpnInterfaces getElanInterfaceInfoByElanDpn(String elanInstanceName, BigInteger dpId,
+            DataBroker broker) {
+        InstanceIdentifier<DpnInterfaces> elanDpnInterfacesId =
+                getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId);
+        DpnInterfaces dpnInterfaces = null;
+        try {
+            dpnInterfaces = SingleTransactionDataBroker.syncRead(broker, LogicalDatastoreType.OPERATIONAL,
+                    elanDpnInterfacesId);
+        }
+        catch (ReadFailedException e) {
+            LOG.warn("Failed to read ElanDpnInterfacesList with error {}", e.getMessage());
+        }
+        return dpnInterfaces;
+    }
+
+    public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
+            InstanceIdentifier<T> path) {
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+            return tx.read(datastoreType, path).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static InstanceIdentifier<DpnInterfaces> getElanDpnInterfaceOperationalDataPath(String elanInstanceName,
+            BigInteger dpId) {
+        return InstanceIdentifier.builder(ElanDpnInterfaces.class)
+                .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName))
+                .child(DpnInterfaces.class, new DpnInterfacesKey(dpId)).build();
+    }
+
+    public static boolean isLastExternalRouter(String networkid, String routerName, DataBroker dataBroker) {
+        ExtRouters extRouter = getExternalRouter(dataBroker);
+        for (Routers router : extRouter.getRouters()) {
+            if (!router.getRouterName().endsWith(routerName) && router.getNetworkId().getValue()
+                    .equals(networkid)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static ExtRouters getExternalRouter(DataBroker dataBroker) {
+        InstanceIdentifier<ExtRouters> extRouterInstanceIndentifier = InstanceIdentifier.builder(ExtRouters.class)
+                .build();
+        ExtRouters extRouters = null;
+        try {
+            Optional<ExtRouters> extRoutersOptional = SingleTransactionDataBroker
+                    .syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION, extRouterInstanceIndentifier);
+            if (extRoutersOptional.isPresent()) {
+                extRouters = extRoutersOptional.get();
+            }
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to read ExternalRouter with error {}", e.getMessage());
+        }
+        return extRouters;
+    }
+
+    public static InstanceIdentifier<ExtRouters> buildExtRouters() {
+        InstanceIdentifier<ExtRouters> extRouterInstanceIndentifier = InstanceIdentifier.builder(ExtRouters.class)
+                .build();
+        return extRouterInstanceIndentifier;
+    }
+
+    public static LearntVpnVipToPortData getLearntVpnVipToPortData(DataBroker dataBroker) {
+        InstanceIdentifier<LearntVpnVipToPortData> learntVpnVipToPortDataId = getLearntVpnVipToPortDataId();
+        LearntVpnVipToPortData learntVpnVipToPortData = null;
+        try {
+            learntVpnVipToPortData = SingleTransactionDataBroker.syncRead(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, learntVpnVipToPortDataId);
+        }
+        catch (ReadFailedException e) {
+            LOG.warn("Failed to read LearntVpnVipToPortData with error {}", e.getMessage());
+        }
+        return learntVpnVipToPortData;
+    }
+
+    public static InstanceIdentifier<LearntVpnVipToPortData> getLearntVpnVipToPortDataId() {
+        InstanceIdentifier<LearntVpnVipToPortData> learntVpnVipToPortDataId = InstanceIdentifier
+                .builder(LearntVpnVipToPortData.class).build();
+        return learntVpnVipToPortDataId;
+    }
+
 }
