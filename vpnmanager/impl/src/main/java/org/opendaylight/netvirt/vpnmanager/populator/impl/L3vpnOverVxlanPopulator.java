@@ -63,8 +63,6 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
         String primaryRd = input.getPrimaryRd();
         String ipAddress = input.getIpAddress();
         List<Pair<String, String>> nexthopRdPair = input.getNextHopRdPair();
-        List<String> nextHopIp = nexthopRdPair.stream().map(pair -> pair.getLeft())
-                .collect(Collectors.toList());
         LOG.info("populateFib : Found Interface Adjacency with prefix {} rd {}", ipAddress, primaryRd);
         if (!rd.equalsIgnoreCase(input.getVpnName()) && !rd.equals(input.getNetworkName())) {
             Objects.requireNonNull(input.getRouteOrigin(), "populateFib: RouteOrigin is mandatory");

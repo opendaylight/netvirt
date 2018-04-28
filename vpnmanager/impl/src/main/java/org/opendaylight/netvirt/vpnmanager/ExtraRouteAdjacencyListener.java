@@ -31,12 +31,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.ExtraRouteAdjacency;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.Destination;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.destination.NextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.Vpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.vpn.Destination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.vpn.destination.NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -60,7 +58,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Singleton
-public class ExtraRouteAdjacencyListener extends AsyncDataTreeChangeListenerBase<Destination,
+public class ExtraRouteAdjacencyListener extends AsyncDataTreeChangeListenerBase<NextHop,
         ExtraRouteAdjacencyListener> {
     private static final Logger LOG = LoggerFactory.getLogger(ExtraRouteAdjacencyListener.class);
     private final DataBroker dataBroker;
@@ -75,7 +73,7 @@ public class ExtraRouteAdjacencyListener extends AsyncDataTreeChangeListenerBase
                                        final IFibManager fibManager, OdlInterfaceRpcService interfaceMgrRpcService,
                                        final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver,
                                        final JobCoordinator jobCoordinator) {
-        super(Destination.class, ExtraRouteAdjacencyListener.class);
+        super(NextHop.class, ExtraRouteAdjacencyListener.class);
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.fibManager = fibManager;
@@ -91,8 +89,9 @@ public class ExtraRouteAdjacencyListener extends AsyncDataTreeChangeListenerBase
     }
 
     @Override
-    protected InstanceIdentifier<Destination> getWildCardPath() {
-        return InstanceIdentifier.create(ExtraRouteAdjacency.class).child(Destination.class);
+    protected InstanceIdentifier<NextHop> getWildCardPath() {
+        return InstanceIdentifier.create(ExtraRouteAdjacency.class).child(Vpn.class).child(Destination.class)
+                .child(NextHop.class);
     }
 
     @Override
@@ -101,128 +100,58 @@ public class ExtraRouteAdjacencyListener extends AsyncDataTreeChangeListenerBase
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Destination> identifier, Destination oldExtraRouteAdjacency) {
+    protected void remove(InstanceIdentifier<NextHop> identifier, NextHop oldNextHop) {
         if (vpnClusterOwnershipDriver.amIOwner()) {
-            LOG.trace("remove: {}", oldExtraRouteAdjacency);
-            final String extraRoute = oldExtraRouteAdjacency.getDestinationIp();
+            LOG.trace("remove: {}", oldNextHop);
+            final String extraRoute = identifier.firstKeyOf(Destination.class).getDestinationIp();
             final String extraRoutePrefix = VpnUtil.getIpPrefix(extraRoute);
-            final String vpnName = oldExtraRouteAdjacency.getVpnName();
-            Optional.ofNullable(VpnUtil.getPrimaryRd(dataBroker, vpnName)).ifPresent(primaryRd -> {
-                jobCoordinator.enqueueJob(primaryRd + '-' + extraRoutePrefix, () -> {
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-                    fibManager.removeFibEntry(primaryRd, extraRoutePrefix, writeConfigTxn);
-                    futures.add(writeConfigTxn.submit());
-                    return futures;
+            final String vpnName = identifier.firstKeyOf(Vpn.class).getVpnName();
+            String interfaceName = oldNextHop.getInterfaceName();
+            String extraRouteNexthop = oldNextHop.getNextHopIp();
+            if (interfaceName != null) {
+                Optional.ofNullable(VpnUtil.getPrimaryRd(dataBroker, vpnName)).ifPresent(primaryRd -> {
+                    jobCoordinator.enqueueJob(primaryRd + '-' + extraRoutePrefix, () -> {
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
+                        WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+                        final BigInteger dpnId = InterfaceUtils.getDpnForInterface(interfaceMgrRpcService,
+                                interfaceName);
+                        String tunnelNextHop = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId);
+                        if (tunnelNextHop == null || tunnelNextHop.isEmpty()) {
+                            LOG.error("delExtraRoute: NextHop for interface {} is null / empty. Failed" +
+                                            " withdrawing extra route for rd {} prefix {} dpn {}", interfaceName,
+                                    primaryRd, extraRoute, dpnId);
+                            return futures;
+                        }
+                        fibManager.removeOrUpdateFibEntry(primaryRd, extraRoutePrefix, tunnelNextHop, writeConfigTxn);
+                        futures.add(writeConfigTxn.submit());
+                        return futures;
+                    });
                 });
-            });
+            }else {
+                LOG.info("remove: Extra-route {} with next-hop {} on vpn {} not bound to any inteface. Ignoring...",
+                        extraRoutePrefix, extraRouteNexthop, vpnName);
+            }
         }
     }
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void update(InstanceIdentifier<Destination> identifier,
-                          Destination oldExtraRouteAdjacency, Destination newExtraRouteAdjacency) {
-        if (vpnClusterOwnershipDriver.amIOwner()) {
-            LOG.trace("update: old {} new {}", oldExtraRouteAdjacency, newExtraRouteAdjacency);
-            final String extraRoute = newExtraRouteAdjacency.getDestinationIp();
-            final String extraRoutePrefix = VpnUtil.getIpPrefix(extraRoute);
-            final String vpnName = newExtraRouteAdjacency.getVpnName();
-            final List<NextHop> oldNextHops = oldExtraRouteAdjacency.getNextHop();
-            final List<NextHop> newNextHops = newExtraRouteAdjacency.getNextHop();
-            Optional.ofNullable(VpnUtil.getPrimaryRd(dataBroker, vpnName)).ifPresent(primaryRd -> {
-                jobCoordinator.enqueueJob(primaryRd + "-" + extraRoutePrefix, () -> {
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    Map<BigInteger, String> dpnToTunnelMap = new HashMap<>();
-                    if (!VpnUtil.isVpnPendingDelete(dataBroker, primaryRd)) {
-                        oldNextHops.stream().forEach(oldNextHop -> {
-                            String interfaceName = oldNextHop.getInterfaceName();
-                            if (!newNextHops.remove(oldNextHop)) {
-                                //Remove nextHop
-                                BigInteger dpnId = InterfaceUtils.getDpnForInterface(interfaceMgrRpcService,
-                                        interfaceName);
-                                String tunnelNextHop = dpnToTunnelMap.computeIfAbsent(dpnId,
-                                        key -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, key));
-                                if (tunnelNextHop == null || tunnelNextHop.isEmpty()) {
-                                    LOG.error("delExtraRoute: NextHop for interface {} is null / empty. Failed" +
-                                            " withdrawing extra route for rd {} prefix {} dpn {}", interfaceName,
-                                            primaryRd, extraRoute, dpnId);
-                                    return;
-                                }
-                            }
-                        });
-                        Optional.ofNullable(dpnToTunnelMap.values()).ifPresent(nextHops -> {
-                            List<String> nexthopList = new ArrayList<String>(nextHops);
-                            WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-                            fibManager.removeOrUpdateFibEntry(primaryRd, extraRoutePrefix, nexthopList,
-                                    writeConfigTxn);
-                            futures.add(writeConfigTxn.submit());
-                        });
-                        List<Pair<String, String>> nhList = new ArrayList<>();
-                        newNextHops.stream().forEach(nextHop -> {
-                            final String extraRouteNextHop = nextHop.getNextHopIp();
-                            final String interfaceName = nextHop.getInterfaceName();
-                            final BigInteger dpnId = InterfaceUtils.getDpnForInterface(interfaceMgrRpcService,
-                                    interfaceName);
-                            //Construct FIB and other objects to commit
-                            long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-                            VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(dataBroker, vpnId, null,
-                                extraRoutePrefix, vpnName, extraRouteNextHop, dpnId)
-                                .ifPresent(allocatedRd -> {
-                                    //Build nh-list for route-paths
-                                    String tunnelNextHop = dpnToTunnelMap.computeIfAbsent(dpnId,
-                                            key -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, key));
-                                    if (tunnelNextHop == null || tunnelNextHop.isEmpty()) {
-                                        LOG.error("addExtraRoute: NextHop for interface {} is null / empty."
-                                                        + " Failed advertising extra route for rd {} prefix {}"
-                                                        + " nexthop {}dpn {}", interfaceName, primaryRd,
-                                                extraRoute, extraRouteNextHop, dpnId);
-                                        return;
-                                    }
-                                    VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                                            VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName,
-                                                    allocatedRd, extraRoute),
-                                            VpnUtil.getVpnToExtraroute(extraRoute,
-                                                    Collections.singletonList(extraRouteNextHop)));
-                                    nhList.add(new ImmutablePair<>(tunnelNextHop, allocatedRd));
-                                });
-                        });
-                        long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                                VpnUtil.getNextHopLabelKey(primaryRd, extraRoutePrefix));
-                        if (label == VpnConstants.INVALID_LABEL) {
-                            String error = "Unable to fetch label from Id Manager. Bailing out of creation of"
-                                    + " operational vpn interface adjacency " + extraRoutePrefix + "for vpn "
-                                    + vpnName;
-                            throw new NullPointerException(error);
-                        }
-                        VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker,
-                                primaryRd);
-                        boolean isL3VpnOverVxLan = VpnUtil.isL3VpnOverVxLan(vpnInstanceOpData.getL3vni());
-                        VrfEntry.EncapType encapType = VpnUtil.getEncapType(isL3VpnOverVxLan);
-                        long l3vni = vpnInstanceOpData.getL3vni() == null ? 0L :  vpnInstanceOpData.getL3vni();
-                        L3vpnInput input = new L3vpnInput().setIpAddress(extraRoutePrefix).setNextHopRdPair(nhList)
-                                .setL3vni(l3vni).setLabel(label).setPrimaryRd(primaryRd).setVpnName(vpnName)
-                                .setEncapType(encapType).setRouteOrigin(RouteOrigin.STATIC);
-                        WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-                        L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(input, writeConfigTxn);
-                        futures.add(writeConfigTxn.submit());
-                    }
-                    return futures;
-                });
-            });
-        }
+    protected void update(InstanceIdentifier<NextHop> identifier,
+                          NextHop oldExtraRouteAdjacency, NextHop newExtraRouteAdjacency) {
+        //triggered when an interface is bound to an extra-route next-hop-ip
     }
 
     @Override
-    protected void add(final InstanceIdentifier<Destination> identifier,
-                       final Destination newExtraRouteAdjacency) {
+    protected void add(final InstanceIdentifier<NextHop> identifier,
+                       final NextHop newNextHop) {
         if (vpnClusterOwnershipDriver.amIOwner()) {
-            LOG.trace("add: {}", newExtraRouteAdjacency);
-            final String extraRoute = newExtraRouteAdjacency.getDestinationIp();
+            LOG.trace("add: {}", newNextHop);
+            final String extraRoute = identifier.firstKeyOf(Destination.class).getDestinationIp();
             final String extraRoutePrefix = VpnUtil.getIpPrefix(extraRoute);
-            final List<NextHop> nextHops = newExtraRouteAdjacency.getNextHop();
-            final String vpnName = newExtraRouteAdjacency.getVpnName();
-            if (nextHops != null){
+            final String vpnName = identifier.firstKeyOf(Vpn.class).getVpnName();
+            final String extraRouteNextHop = newNextHop.getNextHopIp();
+            final String interfaceName = newNextHop.getInterfaceName();
+            if (interfaceName != null) {
                 Optional.ofNullable(VpnUtil.getPrimaryRd(dataBroker, vpnName)).ifPresent(primaryRd -> {
                     jobCoordinator.enqueueJob(primaryRd + "-" + extraRoutePrefix, () -> {
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -230,33 +159,29 @@ public class ExtraRouteAdjacencyListener extends AsyncDataTreeChangeListenerBase
                             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
                             List<Pair<String, String>> nhList = new ArrayList<>();
                             Map<BigInteger, String> dpnToTunnelMap = new HashMap<>();
-                            for (NextHop nextHop : nextHops) {
-                                final String extraRouteNextHop = nextHop.getNextHopIp();
-                                final String interfaceName = nextHop.getInterfaceName();
-                                final BigInteger dpnId = InterfaceUtils.getDpnForInterface(interfaceMgrRpcService,
-                                        interfaceName);
-                                //Construct FIB and other objects to commit
-                                VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(dataBroker, vpnId, null,
-                                        extraRoutePrefix, vpnName, extraRouteNextHop, dpnId)
-                                        .ifPresent(allocatedRd -> {
-                                            //Build nh-list for route-paths
-                                            String tunnelNextHop = dpnToTunnelMap.computeIfAbsent(dpnId,
-                                                    key -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, key));
-                                            if (tunnelNextHop == null || tunnelNextHop.isEmpty()) {
-                                                LOG.error("addExtraRoute: NextHop for interface {} is null / empty."
-                                                                + " Failed advertising extra route for rd {} prefix {}"
-                                                                + " nexthop {}dpn {}", interfaceName, primaryRd,
-                                                        extraRoute, extraRouteNextHop, dpnId);
-                                                return;
-                                            }
-                                            VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                                                    VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName,
-                                                            allocatedRd, extraRoute),
-                                                    VpnUtil.getVpnToExtraroute(extraRoute,
-                                                            Collections.singletonList(extraRouteNextHop)));
-                                            nhList.add(new ImmutablePair<>(tunnelNextHop, allocatedRd));
-                                        });
-                            }
+                            final BigInteger dpnId = InterfaceUtils.getDpnForInterface(interfaceMgrRpcService,
+                                    interfaceName);
+                            //Construct FIB and other objects to commit
+                            VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(dataBroker, vpnId, null,
+                                    extraRoutePrefix, vpnName, extraRouteNextHop, dpnId)
+                                    .ifPresent(allocatedRd -> {
+                                        //Build nh-list for route-paths
+                                        String tunnelNextHop = dpnToTunnelMap.computeIfAbsent(dpnId,
+                                                key -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, key));
+                                        if (tunnelNextHop == null || tunnelNextHop.isEmpty()) {
+                                            LOG.error("addExtraRoute: NextHop for interface {} is null / empty."
+                                                            + " Failed advertising extra route for rd {} prefix {}"
+                                                            + " nexthop {}dpn {}", interfaceName, primaryRd,
+                                                    extraRoute, extraRouteNextHop, dpnId);
+                                            return;
+                                        }
+                                        VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                                VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName,
+                                                        allocatedRd, extraRoute),
+                                                VpnUtil.getVpnToExtraroute(extraRoute,
+                                                        Collections.singletonList(extraRouteNextHop)));
+                                        nhList.add(new ImmutablePair<>(tunnelNextHop, allocatedRd));
+                                    });
                             long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
                                     VpnUtil.getNextHopLabelKey(primaryRd, extraRoutePrefix));
                             if (label == VpnConstants.INVALID_LABEL) {
@@ -284,7 +209,8 @@ public class ExtraRouteAdjacencyListener extends AsyncDataTreeChangeListenerBase
                     });
                 });
             } else {
-                LOG.error("add: NextHops null for extra-route {} on vpn {}", extraRoute, vpnName);
+                LOG.info("add: Extra-route {} with nextHop {} on vpn {} not bound to any interface. Ignoring...",
+                        extraRoutePrefix, extraRouteNextHop, vpnName);
             }
         }
     }

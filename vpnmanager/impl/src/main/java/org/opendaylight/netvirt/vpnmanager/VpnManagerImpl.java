@@ -19,6 +19,8 @@ import java.util.concurrent.Future;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -243,7 +245,8 @@ public class VpnManagerImpl implements IVpnManager {
                     fibManager.refreshVrfEntry(primaryRd, destination);
                 } else {
                     L3vpnInput input = new L3vpnInput().setIpAddress(operationalAdj.getIpAddress())
-                            .setLabel(operationalAdj.getLabel()).setNextHopIp(nextHop).setL3vni(l3vni)
+                            .setLabel(operationalAdj.getLabel()).setNextHopRdPair(Collections
+                                    .singletonList(new ImmutablePair<>(nextHop, rd))).setL3vni(l3vni)
                             .setPrimaryRd(primaryRd).setVpnName(vpnName).setDpnId(dpnId).setEncapType(encapType)
                             .setRd(rd).setRouteOrigin(origin).setMacAddress(operationalAdj.getMacAddress());
                     L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(input, writeConfigTxn);

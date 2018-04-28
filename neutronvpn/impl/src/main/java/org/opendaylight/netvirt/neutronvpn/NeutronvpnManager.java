@@ -86,11 +86,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency.AdjacencyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.Destination;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.DestinationKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.destination.NextHop;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.destination.NextHopBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.destination.NextHopKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.Vpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.VpnKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.vpn.Destination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.vpn.DestinationKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.vpn.destination.NextHop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.vpn.destination.NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.extra.route.adjacency.vpn.destination.NextHopKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry.BgpvpnType;
@@ -1993,24 +1995,26 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected void updateExtraRouteAdjacency(Uuid vpnName, List<Routes> routesList, int addOrRemove) {
         for (Routes route : routesList) {
             if (route == null || route.getNexthop() == null || route.getDestination() == null) {
-                LOG.error("Incorrect input received for extra route. {}", route);
+                LOG.error("updateExtraRouteAdjacency: Incorrect input received for extra route. {}", route);
             } else {
                 String nextHop = String.valueOf(route.getNexthop().getValue());
                 String destination = String.valueOf(route.getDestination().getValue());
                 String interfaceName = neutronvpnUtils.getNeutronPortNameFromVpnPortFixedIp(vpnName.getValue(),
                         nextHop);
                 if (interfaceName == null) {
-                    LOG.warn("NextHop interface not available for extra-route destination {} on VPN {} "
-                            + "with nexthop {}", destination, vpnName.getValue(), nextHop);
+                    LOG.warn("updateExtraRouteAdjacency: NextHop interface not available for extra-route destination"
+                            + " {} on VPN {} with nexthop {}", destination, vpnName.getValue(), nextHop);
                 }
+
                 InstanceIdentifier<NextHop> nextHopId = InstanceIdentifier.builder(ExtraRouteAdjacency.class)
-                        .child(Destination.class, new DestinationKey(vpnName.getValue(), destination))
-                        .child(NextHop.class, new NextHopKey(nextHop)).build();
+                        .child(Vpn.class, new VpnKey(vpnName.getValue())).child(Destination.class,
+                                new DestinationKey(destination)).child(NextHop.class, new NextHopKey(nextHop)).build();
                 try {
                     switch (addOrRemove) {
                         case 1 /*add*/ : {
-                            LOG.info("Updating extra route for destination {} onto vpn {} with nexthop {} and "
-                                    + "infName {}", destination, vpnName.getValue(), nextHop, interfaceName);
+                            LOG.info("updateExtraRouteAdjacency: Updating extra route for destination {} onto vpn {}"
+                                    + " with nexthop {} and infName {}", destination, vpnName.getValue(), nextHop,
+                                    interfaceName);
                             InstanceIdentifier<VpnInterface> identifier = InstanceIdentifier
                                     .builder(VpnInterfaces.class).child(VpnInterface.class,
                                             new VpnInterfaceKey(interfaceName)).build();
@@ -2019,9 +2023,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                             Optional<Adjacency> existingAdjacency = SingleTransactionDataBroker
                                     .syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
                             if (existingAdjacency.isPresent()) {
-                                LOG.error("The route with destination {} nextHop {} is already present as primary"
-                                                + " adjacency for interface {}. Skipping adjacency addition.",
-                                        destination, nextHop, interfaceName);
+                                LOG.error("updateExtraRouteAdjacency: The route with destination {} nextHop {} is"
+                                        + " already present as primary adjacency for interface {}. Skipping adjacency"
+                                        + " addition.", destination, nextHop, interfaceName);
                             } else {
                                 NextHop nextHopObject = new NextHopBuilder().setNextHopIp(nextHop)
                                         .setInterfaceName(interfaceName).build();
@@ -2031,17 +2035,20 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         }
                         break;
                         case 0 /*remove*/ : {
-                            LOG.info("Removing extra route for destination {} onto vpn {} with nexthop {} and "
-                                    + "infName  {}", destination, vpnName.getValue(), nextHop, interfaceName);
+                            LOG.info("updateExtraRouteAdjacency: Removing extra route for destination {} onto vpn {}"
+                                    + " with nexthop {} and infName  {}", destination, vpnName.getValue(), nextHop,
+                                    interfaceName);
                             SingleTransactionDataBroker.syncDelete(dataBroker, OPERATIONAL, nextHopId);
                         }
+                        default:
+                            LOG.error("updateExtraRouteAdjacency: Unknown value provided for switch case");
                         break;
                     }
                 } catch (ReadFailedException e) {
-                    LOG.error("Exception on reading data-store ", e);
+                    LOG.error("updateExtraRouteAdjacency: Exception on reading data-store ", e);
                 } catch (TransactionCommitFailedException e) {
-                    LOG.error("exception in updating extra route with destination: {}, next hop: {}",
-                            destination, nextHop, e);
+                    LOG.error("updateExtraRouteAdjacency: exception in updating extra route with destination: {},"
+                            + " next hop: {}", destination, nextHop, e);
                 }
             }
         }
