@@ -1,15 +1,15 @@
-from odltools.mdsal.model import Model
+from odltools.mdsal.models.model import Model
 
 
 NAME = "elan"
 
 
-def elan_instances(store, ip=None, port=None, path=None):
-    return ElanInstances(NAME, ElanInstances.CONTAINER, store, ip, port, path)
+def elan_instances(store, args):
+    return ElanInstances(NAME, ElanInstances.CONTAINER, store, args)
 
 
-def elan_interfaces(store, ip=None, port=None, path=None):
-    return ElanInstances(NAME, ElanInstances.CONTAINER, store, ip, port, path)
+def elan_interfaces(store, args):
+    return ElanInstances(NAME, ElanInstances.CONTAINER, store, args)
 
 
 class ElanInstances(Model):
@@ -36,7 +36,7 @@ class ElanInterfaces(Model):
 
     def get_elan_interfaces_by_key(self, key="name"):
         d = {}
-        ifaces = self.get_elan_ifaces()
+        ifaces = self.get_elan_interfaces()
         for iface in ifaces:
             d[iface[key]] = iface
         return d

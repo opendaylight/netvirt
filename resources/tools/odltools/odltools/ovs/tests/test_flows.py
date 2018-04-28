@@ -1,9 +1,8 @@
 import unittest
 
-from ovs import request
-
 from odltools import logg
 from odltools.ovs import flows
+from odltools.ovs import request
 
 
 class TestFlows(unittest.TestCase):

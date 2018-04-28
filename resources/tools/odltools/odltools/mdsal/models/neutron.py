@@ -1,11 +1,11 @@
-from odltools.mdsal.model import Model
+from odltools.mdsal.models.model import Model
 
 
 NAME = "neutron"
 
 
-def neutron(store, ip=None, port=None, path=None):
-    return Neutron(NAME, Neutron.CONTAINER, store, ip, port, path)
+def neutron(store, args):
+    return Neutron(NAME, Neutron.CONTAINER, store, args)
 
 
 class Neutron(Model):
@@ -27,6 +27,8 @@ class Neutron(Model):
     def get_ports_by_key(self, key="uuid"):
         d = {}
         ports = self.get_ports()
+        if ports is None:
+            return None
         for port in ports:
             d[port[key]] = port
         return d
@@ -37,6 +39,8 @@ class Neutron(Model):
     def get_trunks_by_key(self, key="uuid"):
         d = {}
         trunks = self.get_trunks()
+        if trunks is None:
+            return None
         for trunk in trunks:
             d[trunk[key]] = trunk
         return d

@@ -1,21 +1,17 @@
 import unittest
 
 from odltools import logg
-from odltools.mdsal.model import Model
-from odltools.mdsal.models import itm_state
+from odltools.mdsal.models.itm_state import dpn_endpoints
 from odltools.mdsal.models.itm_state import DpnEndpoints
-
-ip = "127.0.0.1"
-port = "8080"
-path = "./resources"
-# path = "/tmp/robotjob/s1-t1_Create_VLAN_Network_net_1/models"
+from odltools.mdsal.models.model import Model
+from odltools.mdsal.tests import Args
 
 
 class TestItmState(unittest.TestCase):
     def setUp(self):
         logg.Logger()
-        self.dpn_endpoints = itm_state.dpn_endpoints(Model.CONFIG, ip, port, path)
-        # self.data = self.dpn_endpoints.read_file("./resources/config_itm-state:dpn-endpoints.json")
+        args = Args(path="../../tests/resources")
+        self.dpn_endpoints = dpn_endpoints(Model.CONFIG, args)
 
     def test_read_file(self):
         print "dpn-endpoints: {}".format(self.dpn_endpoints.data)
@@ -26,8 +22,8 @@ class TestItmState(unittest.TestCase):
         dpn_id = dpn_ids[0]
         ip_address = self.dpn_endpoints.get_ip_address(dpn_id)
         print "dpn_id: {}, ip_address: {}".format(dpn_id, ip_address)
-        self.assertEqual(dpn_id, 13878168265586)
-        self.assertEqual(ip_address, "10.29.13.165")
+        self.assertEqual(dpn_id, 132319289050514)
+        self.assertEqual(ip_address, "10.30.170.17")
 
     def test_get_all(self):
         print "dpn-endpoints: {}".format(self.dpn_endpoints.data)
@@ -40,7 +36,7 @@ class TestItmState(unittest.TestCase):
 
         ip_address = self.dpn_endpoints.get_ip_address(dpn_id)
         print "ip_address: {}".format(ip_address)
-        self.assertEqual(ip_address, "10.29.13.165")
+        self.assertEqual(ip_address, "10.30.170.17")
 
         self.get_info(DpnEndpoints.CONTAINER)
         self.get_info(DpnEndpoints.DPN_TEPS_INFO)

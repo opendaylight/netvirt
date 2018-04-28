@@ -1,0 +1,552 @@
+{
+    "interfaces-state": {
+        "interface": [
+            {
+                "admin-status": "up",
+                "if-index": 13,
+                "lower-layer-if": [
+                    "openflow:74851789353527:1"
+                ],
+                "name": "74851789353527:br-physnet1-pa:trunk",
+                "oper-status": "up",
+                "phys-address": "72:02:ca:f9:f2:88",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:04:20.672Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 65536,
+                "lower-layer-if": [
+                    "openflow:234018835196237:9"
+                ],
+                "name": "tapbdc8e869-52",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:78:06:99",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:27.922Z"
+                },
+                "type": "iana-if-type:other"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 65536,
+                "lower-layer-if": [
+                    "openflow:74851789353527:7"
+                ],
+                "name": "tap0ee93a49-61",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:db:a8:d1",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:12:56.511Z"
+                },
+                "type": "iana-if-type:other"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 28,
+                "lower-layer-if": [
+                    "openflow:234018835196237:7"
+                ],
+                "name": "09f6bf9e-7aaf-4a9e-8f0e-b29b8097970d",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:01:dc:d3",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:06.067Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 65536,
+                "lower-layer-if": [
+                    "openflow:234018835196237:1"
+                ],
+                "name": "234018835196237:br-physnet1-pa",
+                "oper-status": "up",
+                "phys-address": "b2:7f:f4:03:f2:6f",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T13:53:24.393Z"
+                },
+                "type": "iana-if-type:other"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 26,
+                "lower-layer-if": [
+                    "openflow:74851789353527:1"
+                ],
+                "name": "74851789353527:br-physnet1-pa:1131",
+                "oper-status": "up",
+                "phys-address": "72:02:ca:f9:f2:88",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:12:56.550Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 65536,
+                "lower-layer-if": [
+                    "openflow:132319289050514:8"
+                ],
+                "name": "tap67eb9b7f-db",
+                "oper-status": "up",
+                "phys-address": "00:00:00:00:20:b6",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:12:24.197Z"
+                },
+                "type": "iana-if-type:other"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 27,
+                "lower-layer-if": [
+                    "openflow:74851789353527:8"
+                ],
+                "name": "7f083b4d-dc2c-47ad-a471-6d2d0cd110d5",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:61:77:40",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:01.713Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 4,
+                "lower-layer-if": [
+                    "openflow:234018835196237:3"
+                ],
+                "name": "tun999632b8289",
+                "oper-status": "down",
+                "phys-address": "c6:56:b1:92:b2:94",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T13:53:24.910Z"
+                },
+                "type": "iana-if-type:tunnel"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 25,
+                "lower-layer-if": [
+                    "openflow:74851789353527:7"
+                ],
+                "name": "0ee93a49-6122-4580-acb4-4c921f196d13",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:db:a8:d1",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:12:56.522Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 31,
+                "lower-layer-if": [
+                    "openflow:234018835196237:8"
+                ],
+                "name": "38deef1c-db34-4f56-9014-8c38c818f019",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:e3:fc:5b",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:22.707Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 5,
+                "lower-layer-if": [
+                    "openflow:132319289050514:3"
+                ],
+                "name": "tun94ecbe1efd8",
+                "oper-status": "down",
+                "phys-address": "1e:14:d5:16:f6:28",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T13:53:24.913Z"
+                },
+                "type": "iana-if-type:tunnel"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 65536,
+                "lower-layer-if": [
+                    "openflow:132319289050514:6"
+                ],
+                "name": "tap98c2e265-b4",
+                "oper-status": "up",
+                "phys-address": "00:00:00:00:70:03",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:11:55.438Z"
+                },
+                "type": "iana-if-type:other"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 34,
+                "lower-layer-if": [
+                    "openflow:74851789353527:11"
+                ],
+                "name": "af8aaaa2-fc98-4da4-96f2-a9e9f23464e2",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:f8:a8:c8",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:47.962Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 65536,
+                "lower-layer-if": [
+                    "openflow:234018835196237:8"
+                ],
+                "name": "tap38deef1c-db",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:e3:fc:5b",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:22.703Z"
+                },
+                "type": "iana-if-type:other"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 65536,
+                "lower-layer-if": [
+                    "openflow:74851789353527:1"
+                ],
+                "name": "74851789353527:br-physnet1-pa",
+                "oper-status": "up",
+                "phys-address": "72:02:ca:f9:f2:88",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T13:52:04.613Z"
+                },
+                "type": "iana-if-type:other"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 21,
+                "lower-layer-if": [
+                    "openflow:132319289050514:6"
+                ],
+                "name": "98c2e265-b4f2-40a5-8f31-2fb5d2b2baf6",
+                "oper-status": "up",
+                "phys-address": "00:00:00:00:70:03",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:11:55.441Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 2,
+                "lower-layer-if": [
+                    "openflow:74851789353527:2"
+                ],
+                "name": "tun03a2b920986",
+                "oper-status": "down",
+                "phys-address": "ce:76:70:76:98:99",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T13:52:31.946Z"
+                },
+                "type": "iana-if-type:tunnel"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 29,
+                "lower-layer-if": [
+                    "openflow:234018835196237:1"
+                ],
+                "name": "234018835196237:br-physnet1-pa:1131",
+                "oper-status": "up",
+                "phys-address": "b2:7f:f4:03:f2:6f",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:06.090Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 65536,
+                "lower-layer-if": [
+                    "openflow:132319289050514:1"
+                ],
+                "name": "132319289050514:br-physnet1-pa",
+                "oper-status": "up",
+                "phys-address": "a6:94:3b:59:32:0f",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T13:52:31.325Z"
+                },
+                "type": "iana-if-type:other"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 1,
+                "lower-layer-if": [
+                    "openflow:132319289050514:2"
+                ],
+                "name": "tun95fee4d7132",
+                "oper-status": "down",
+                "phys-address": "7e:bf:d4:f7:60:c3",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T13:52:31.471Z"
+                },
+                "type": "iana-if-type:tunnel"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 65536,
+                "lower-layer-if": [
+                    "openflow:74851789353527:8"
+                ],
+                "name": "tap7f083b4d-dc",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:61:77:40",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:01.703Z"
+                },
+                "type": "iana-if-type:other"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 35,
+                "lower-layer-if": [
+                    "openflow:234018835196237:10"
+                ],
+                "name": "3a2d068a-ad59-453e-8cd3-57f765c921f8",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:ff:a9:48",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:51.466Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 65536,
+                "lower-layer-if": [
+                    "openflow:234018835196237:7"
+                ],
+                "name": "tap09f6bf9e-7a",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:01:dc:d3",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:06.058Z"
+                },
+                "type": "iana-if-type:other"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 30,
+                "lower-layer-if": [
+                    "openflow:74851789353527:9"
+                ],
+                "name": "e802b5e7-0865-4da2-929f-84c0931e0040",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:73:3e:1e",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:17.256Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 22,
+                "lower-layer-if": [
+                    "openflow:132319289050514:1"
+                ],
+                "name": "132319289050514:br-physnet1-pa:1131",
+                "oper-status": "up",
+                "phys-address": "a6:94:3b:59:32:0f",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:11:55.489Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 17,
+                "lower-layer-if": [
+                    "openflow:234018835196237:1"
+                ],
+                "name": "234018835196237:br-physnet1-pa:trunk",
+                "oper-status": "up",
+                "phys-address": "b2:7f:f4:03:f2:6f",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:04:33.252Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 6,
+                "lower-layer-if": [
+                    "openflow:74851789353527:3"
+                ],
+                "name": "tunf68aef23130",
+                "oper-status": "down",
+                "phys-address": "4e:a7:9b:99:74:4f",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T13:53:24.924Z"
+                },
+                "type": "iana-if-type:tunnel"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 3,
+                "lower-layer-if": [
+                    "openflow:234018835196237:2"
+                ],
+                "name": "tundb1d8b295c1",
+                "oper-status": "down",
+                "phys-address": "36:1a:ef:92:a2:be",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T13:53:24.403Z"
+                },
+                "type": "iana-if-type:tunnel"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 32,
+                "lower-layer-if": [
+                    "openflow:234018835196237:9"
+                ],
+                "name": "bdc8e869-52e2-4899-a1fb-551b1c5501c2",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:78:06:99",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:27.926Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 24,
+                "lower-layer-if": [
+                    "openflow:132319289050514:8"
+                ],
+                "name": "67eb9b7f-dba5-40d4-8383-56149a7d6af2",
+                "oper-status": "up",
+                "phys-address": "00:00:00:00:20:b6",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:12:24.200Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 33,
+                "lower-layer-if": [
+                    "openflow:74851789353527:10"
+                ],
+                "name": "8e3c262e-7b45-4222-ac4e-528db75e5516",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:99:7d:91",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:42.557Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 65536,
+                "lower-layer-if": [
+                    "openflow:132319289050514:7"
+                ],
+                "name": "tap992c4556-82",
+                "oper-status": "up",
+                "phys-address": "00:00:00:00:00:0d",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:12:09.451Z"
+                },
+                "type": "iana-if-type:other"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 8,
+                "lower-layer-if": [
+                    "openflow:132319289050514:1"
+                ],
+                "name": "132319289050514:br-physnet1-pa:trunk",
+                "oper-status": "up",
+                "phys-address": "a6:94:3b:59:32:0f",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:03:33.734Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 65536,
+                "lower-layer-if": [
+                    "openflow:74851789353527:10"
+                ],
+                "name": "tap8e3c262e-7b",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:99:7d:91",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:42.553Z"
+                },
+                "type": "iana-if-type:other"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 65536,
+                "lower-layer-if": [
+                    "openflow:234018835196237:10"
+                ],
+                "name": "tap3a2d068a-ad",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:ff:a9:48",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:51.463Z"
+                },
+                "type": "iana-if-type:other"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 65536,
+                "lower-layer-if": [
+                    "openflow:74851789353527:9"
+                ],
+                "name": "tape802b5e7-08",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:73:3e:1e",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:17.253Z"
+                },
+                "type": "iana-if-type:other"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 65536,
+                "lower-layer-if": [
+                    "openflow:74851789353527:11"
+                ],
+                "name": "tapaf8aaaa2-fc",
+                "oper-status": "up",
+                "phys-address": "fe:16:3e:f8:a8:c8",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:13:47.961Z"
+                },
+                "type": "iana-if-type:other"
+            },
+            {
+                "admin-status": "up",
+                "if-index": 23,
+                "lower-layer-if": [
+                    "openflow:132319289050514:7"
+                ],
+                "name": "992c4556-828b-49d0-bad3-1e3ffe6bb76b",
+                "oper-status": "up",
+                "phys-address": "00:00:00:00:00:0d",
+                "statistics": {
+                    "discontinuity-time": "2018-04-12T14:12:09.455Z"
+                },
+                "type": "iana-if-type:l2vlan"
+            }
+        ]
+    }
+}

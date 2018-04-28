@@ -1,15 +1,15 @@
-from odltools.mdsal.model import Model
+from odltools.mdsal.models.model import Model
 
 
 NAME = "odl-l3vpn"
 
 
-def vpn_id_to_vpn_instance(store, ip=None, port=None, path=None):
-    return VpnIdToVpnInstance(NAME, VpnIdToVpnInstance.CONTAINER, store, ip, port, path)
+def vpn_id_to_vpn_instance(store, args):
+    return VpnIdToVpnInstance(NAME, VpnIdToVpnInstance.CONTAINER, store, args)
 
 
-def vpn_instance_to_vpn_id(store, ip=None, port=None, path=None):
-    return VpnInstanceToVpnId(NAME, VpnInstanceToVpnId.CONTAINER, store, ip, port, path)
+def vpn_instance_to_vpn_id(store, args):
+    return VpnInstanceToVpnId(NAME, VpnInstanceToVpnId.CONTAINER, store, args)
 
 
 class VpnIdToVpnInstance(Model):
@@ -22,6 +22,8 @@ class VpnIdToVpnInstance(Model):
     def get_vpn_ids_by_key(self, key="vpn-id"):
         d = {}
         vpnids = self.get_vpn_ids()
+        if vpnids is None:
+            return None
         for vpnid in vpnids:
             d[vpnid[key]] = vpnid
         return d
@@ -37,6 +39,8 @@ class VpnInstanceToVpnId(Model):
     def get_vpn_instances_by_key(self, key="vpn-id"):
         d = {}
         instances = self.get_vpn_instances()
+        if instances is None:
+            return None
         for instance in instances:
             d[instance[key]] = instance
         return d

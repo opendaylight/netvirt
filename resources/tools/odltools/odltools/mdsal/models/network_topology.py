@@ -1,11 +1,11 @@
-from odltools.mdsal.model import Model
+from odltools.mdsal.models.model import Model
 
 
 NAME = "network-topology"
 
 
-def network_topology(store, ip=None, port=None, path=None, mid="ovsdb:1"):
-    return NetworkTopology(NAME, NetworkTopology.CONTAINER, store, ip, port, path, mid)
+def network_topology(store, args, mid="ovsdb:1"):
+    return NetworkTopology(NAME, NetworkTopology.CONTAINER, store, args, mid)
 
 
 class NetworkTopology(Model):
@@ -20,6 +20,8 @@ class NetworkTopology(Model):
 
     def get_topology_by_tid(self, tid="ovsdb:1"):
         topologies = self.get_topologies()
+        if topologies is None:
+            return None
         for topology in topologies:
             if topology['topology-id'] == tid:
                 return topology
@@ -29,8 +31,10 @@ class NetworkTopology(Model):
         return topology[self.NODE]
 
     def get_nodes_by_tid_and_key(self, tid="ovsdb:1", key='node-id'):
-        nodes = self.get_nodes_by_tid(tid)
         d = {}
+        nodes = self.get_nodes_by_tid(tid)
+        if nodes is None:
+            return None
         for node in nodes:
             d[node[key]] = node
         return d

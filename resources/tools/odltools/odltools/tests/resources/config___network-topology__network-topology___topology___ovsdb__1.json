@@ -1,0 +1,372 @@
+{
+    "topology": [
+        {
+            "node": [
+                {
+                    "node-id": "ovsdb://uuid/8eabb815-5570-42fc-9635-89c880ebc4ac/bridge/br-int",
+                    "ovsdb:bridge-name": "br-int",
+                    "ovsdb:bridge-other-configs": [
+                        {
+                            "bridge-other-config-key": "hwaddr",
+                            "bridge-other-config-value": "44:13:ca:50:b2:37"
+                        },
+                        {
+                            "bridge-other-config-key": "disable-in-band",
+                            "bridge-other-config-value": "true"
+                        }
+                    ],
+                    "ovsdb:controller-entry": [
+                        {
+                            "target": "tcp:10.30.170.5:6653"
+                        }
+                    ],
+                    "ovsdb:fail-mode": "ovsdb:ovsdb-fail-mode-secure",
+                    "ovsdb:managed-by": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/8eabb815-5570-42fc-9635-89c880ebc4ac']",
+                    "ovsdb:protocol-entry": [
+                        {
+                            "protocol": "ovsdb:ovsdb-bridge-protocol-openflow-13"
+                        }
+                    ],
+                    "termination-point": [
+                        {
+                            "ovsdb:interface-type": "ovsdb:interface-type-patch",
+                            "ovsdb:name": "br-physnet1-pa",
+                            "ovsdb:options": [
+                                {
+                                    "option": "peer",
+                                    "value": "br-physnet1-int-patch"
+                                }
+                            ],
+                            "tp-id": "br-physnet1-pa"
+                        },
+                        {
+                            "ovsdb:interface-bfd": [
+                                {
+                                    "bfd-key": "forwarding_if_rx",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "enable",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "min_tx",
+                                    "bfd-value": "10000"
+                                }
+                            ],
+                            "ovsdb:interface-type": "ovsdb:interface-type-vxlan",
+                            "ovsdb:name": "tun03a2b920986",
+                            "ovsdb:options": [
+                                {
+                                    "option": "key",
+                                    "value": "flow"
+                                },
+                                {
+                                    "option": "local_ip",
+                                    "value": "10.30.170.90"
+                                },
+                                {
+                                    "option": "remote_ip",
+                                    "value": "10.30.170.17"
+                                }
+                            ],
+                            "tp-id": "tun03a2b920986"
+                        },
+                        {
+                            "ovsdb:interface-bfd": [
+                                {
+                                    "bfd-key": "forwarding_if_rx",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "enable",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "min_tx",
+                                    "bfd-value": "10000"
+                                }
+                            ],
+                            "ovsdb:interface-type": "ovsdb:interface-type-vxlan",
+                            "ovsdb:name": "tunf68aef23130",
+                            "ovsdb:options": [
+                                {
+                                    "option": "key",
+                                    "value": "flow"
+                                },
+                                {
+                                    "option": "local_ip",
+                                    "value": "10.30.170.90"
+                                },
+                                {
+                                    "option": "remote_ip",
+                                    "value": "10.30.170.92"
+                                }
+                            ],
+                            "tp-id": "tunf68aef23130"
+                        }
+                    ]
+                },
+                {
+                    "node-id": "ovsdb://uuid/52910ce2-e429-4417-b638-142a32dbe56b/bridge/br-physnet1",
+                    "termination-point": [
+                        {
+                            "ovsdb:interface-type": "ovsdb:interface-type-patch",
+                            "ovsdb:name": "br-physnet1-int-patch",
+                            "ovsdb:options": [
+                                {
+                                    "option": "peer",
+                                    "value": "br-physnet1-pa"
+                                }
+                            ],
+                            "tp-id": "br-physnet1-int-patch"
+                        }
+                    ]
+                },
+                {
+                    "node-id": "ovsdb://uuid/52910ce2-e429-4417-b638-142a32dbe56b/bridge/br-int",
+                    "ovsdb:bridge-name": "br-int",
+                    "ovsdb:bridge-other-configs": [
+                        {
+                            "bridge-other-config-key": "hwaddr",
+                            "bridge-other-config-value": "d4:d6:c1:8a:e9:4d"
+                        },
+                        {
+                            "bridge-other-config-key": "disable-in-band",
+                            "bridge-other-config-value": "true"
+                        }
+                    ],
+                    "ovsdb:controller-entry": [
+                        {
+                            "target": "tcp:10.30.170.5:6653"
+                        }
+                    ],
+                    "ovsdb:fail-mode": "ovsdb:ovsdb-fail-mode-secure",
+                    "ovsdb:managed-by": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/52910ce2-e429-4417-b638-142a32dbe56b']",
+                    "ovsdb:protocol-entry": [
+                        {
+                            "protocol": "ovsdb:ovsdb-bridge-protocol-openflow-13"
+                        }
+                    ],
+                    "termination-point": [
+                        {
+                            "ovsdb:interface-type": "ovsdb:interface-type-patch",
+                            "ovsdb:name": "br-physnet1-pa",
+                            "ovsdb:options": [
+                                {
+                                    "option": "peer",
+                                    "value": "br-physnet1-int-patch"
+                                }
+                            ],
+                            "tp-id": "br-physnet1-pa"
+                        },
+                        {
+                            "ovsdb:interface-bfd": [
+                                {
+                                    "bfd-key": "forwarding_if_rx",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "enable",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "min_tx",
+                                    "bfd-value": "10000"
+                                }
+                            ],
+                            "ovsdb:interface-type": "ovsdb:interface-type-vxlan",
+                            "ovsdb:name": "tundb1d8b295c1",
+                            "ovsdb:options": [
+                                {
+                                    "option": "key",
+                                    "value": "flow"
+                                },
+                                {
+                                    "option": "local_ip",
+                                    "value": "10.30.170.92"
+                                },
+                                {
+                                    "option": "remote_ip",
+                                    "value": "10.30.170.17"
+                                }
+                            ],
+                            "tp-id": "tundb1d8b295c1"
+                        },
+                        {
+                            "ovsdb:interface-bfd": [
+                                {
+                                    "bfd-key": "forwarding_if_rx",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "enable",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "min_tx",
+                                    "bfd-value": "10000"
+                                }
+                            ],
+                            "ovsdb:interface-type": "ovsdb:interface-type-vxlan",
+                            "ovsdb:name": "tun999632b8289",
+                            "ovsdb:options": [
+                                {
+                                    "option": "key",
+                                    "value": "flow"
+                                },
+                                {
+                                    "option": "local_ip",
+                                    "value": "10.30.170.92"
+                                },
+                                {
+                                    "option": "remote_ip",
+                                    "value": "10.30.170.90"
+                                }
+                            ],
+                            "tp-id": "tun999632b8289"
+                        }
+                    ]
+                },
+                {
+                    "node-id": "ovsdb://uuid/719e0692-b96a-4109-b1b3-f6370546be5b/bridge/br-int",
+                    "ovsdb:bridge-name": "br-int",
+                    "ovsdb:bridge-other-configs": [
+                        {
+                            "bridge-other-config-key": "hwaddr",
+                            "bridge-other-config-value": "78:57:fc:38:85:92"
+                        },
+                        {
+                            "bridge-other-config-key": "disable-in-band",
+                            "bridge-other-config-value": "true"
+                        }
+                    ],
+                    "ovsdb:controller-entry": [
+                        {
+                            "target": "tcp:10.30.170.5:6653"
+                        }
+                    ],
+                    "ovsdb:fail-mode": "ovsdb:ovsdb-fail-mode-secure",
+                    "ovsdb:managed-by": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/719e0692-b96a-4109-b1b3-f6370546be5b']",
+                    "ovsdb:protocol-entry": [
+                        {
+                            "protocol": "ovsdb:ovsdb-bridge-protocol-openflow-13"
+                        }
+                    ],
+                    "termination-point": [
+                        {
+                            "ovsdb:interface-type": "ovsdb:interface-type-patch",
+                            "ovsdb:name": "br-physnet1-pa",
+                            "ovsdb:options": [
+                                {
+                                    "option": "peer",
+                                    "value": "br-physnet1-int-patch"
+                                }
+                            ],
+                            "tp-id": "br-physnet1-pa"
+                        },
+                        {
+                            "ovsdb:interface-bfd": [
+                                {
+                                    "bfd-key": "forwarding_if_rx",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "enable",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "min_tx",
+                                    "bfd-value": "10000"
+                                }
+                            ],
+                            "ovsdb:interface-type": "ovsdb:interface-type-vxlan",
+                            "ovsdb:name": "tun95fee4d7132",
+                            "ovsdb:options": [
+                                {
+                                    "option": "key",
+                                    "value": "flow"
+                                },
+                                {
+                                    "option": "local_ip",
+                                    "value": "10.30.170.17"
+                                },
+                                {
+                                    "option": "remote_ip",
+                                    "value": "10.30.170.90"
+                                }
+                            ],
+                            "tp-id": "tun95fee4d7132"
+                        },
+                        {
+                            "ovsdb:interface-bfd": [
+                                {
+                                    "bfd-key": "forwarding_if_rx",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "enable",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "min_tx",
+                                    "bfd-value": "10000"
+                                }
+                            ],
+                            "ovsdb:interface-type": "ovsdb:interface-type-vxlan",
+                            "ovsdb:name": "tun94ecbe1efd8",
+                            "ovsdb:options": [
+                                {
+                                    "option": "key",
+                                    "value": "flow"
+                                },
+                                {
+                                    "option": "local_ip",
+                                    "value": "10.30.170.17"
+                                },
+                                {
+                                    "option": "remote_ip",
+                                    "value": "10.30.170.92"
+                                }
+                            ],
+                            "tp-id": "tun94ecbe1efd8"
+                        }
+                    ]
+                },
+                {
+                    "node-id": "ovsdb://uuid/719e0692-b96a-4109-b1b3-f6370546be5b/bridge/br-physnet1",
+                    "termination-point": [
+                        {
+                            "ovsdb:interface-type": "ovsdb:interface-type-patch",
+                            "ovsdb:name": "br-physnet1-int-patch",
+                            "ovsdb:options": [
+                                {
+                                    "option": "peer",
+                                    "value": "br-physnet1-pa"
+                                }
+                            ],
+                            "tp-id": "br-physnet1-int-patch"
+                        }
+                    ]
+                },
+                {
+                    "node-id": "ovsdb://uuid/8eabb815-5570-42fc-9635-89c880ebc4ac/bridge/br-physnet1",
+                    "termination-point": [
+                        {
+                            "ovsdb:interface-type": "ovsdb:interface-type-patch",
+                            "ovsdb:name": "br-physnet1-int-patch",
+                            "ovsdb:options": [
+                                {
+                                    "option": "peer",
+                                    "value": "br-physnet1-pa"
+                                }
+                            ],
+                            "tp-id": "br-physnet1-int-patch"
+                        }
+                    ]
+                }
+            ],
+            "topology-id": "ovsdb:1"
+        }
+    ]
+}

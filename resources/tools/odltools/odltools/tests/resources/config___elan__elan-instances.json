@@ -1,0 +1,38 @@
+{
+    "elan-instances": {
+        "elan-instance": [
+            {
+                "elan-instance-name": "893239d8-59ea-4614-ae0a-29ebb2800ece",
+                "elan-tag": 5005,
+                "external": false,
+                "mac-timeout": 300,
+                "segment-type": "elan:segment-type-vxlan",
+                "segmentation-id": 1002
+            },
+            {
+                "elan-instance-name": "bd8db3a8-2b30-4083-a8b3-b3fd46401142",
+                "elan-tag": 5001,
+                "external": false,
+                "mac-timeout": 300,
+                "segment-type": "elan:segment-type-flat"
+            },
+            {
+                "elan-instance-name": "a5fe7476-9aa1-4bfb-aec4-05d7a1376f45",
+                "elan-tag": 5006,
+                "external": false,
+                "mac-timeout": 300,
+                "segment-type": "elan:segment-type-vxlan",
+                "segmentation-id": 1095
+            },
+            {
+                "elan-instance-name": "eacd76d1-259c-4f4f-a8ff-69c8a016d8b8",
+                "elan-tag": 5004,
+                "external": false,
+                "mac-timeout": 300,
+                "physical-network-name": "physnet1",
+                "segment-type": "elan:segment-type-vlan",
+                "segmentation-id": 1131
+            }
+        ]
+    }
+}

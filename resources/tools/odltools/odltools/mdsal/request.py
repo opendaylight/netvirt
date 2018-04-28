@@ -18,13 +18,13 @@ def get(url, user, pw):
     try:
         resp = requests.get(url, auth=(user, pw))
     except requests.exceptions.RequestException:
-        logger.exception("Failed to get url")
+        logger.exception("Failed to get url %s", url)
         return None
 
     try:
         data = resp.json()
     except ValueError:
-        logger.exception("Failed to get url")
+        logger.exception("Failed to get url %s", url)
         return None
 
     if logger.isEnabledFor(logging.DEBUG):

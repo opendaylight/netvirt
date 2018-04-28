@@ -7,7 +7,7 @@ from odltools.mdsal import request
 class TestRequest(unittest.TestCase):
     def setUp(self):
         logg.Logger()
-        self.filename = "./resources/config_itm-state:dpn-endpoints.json"
+        self.filename = "../../tests/resources/config___itm-state__dpn-endpoints.json"
 
     def test_read_file(self):
         data = request.read_file(self.filename)

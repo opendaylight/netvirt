@@ -1,11 +1,11 @@
-from odltools.mdsal.model import Model
+from odltools.mdsal.models.model import Model
 
 
 NAME = "id-manager"
 
 
-def id_pools(store, ip=None, port=None, path=None):
-    return IdPools(NAME, IdPools.CONTAINER, store, ip, port, path)
+def id_pools(store, args):
+    return IdPools(NAME, IdPools.CONTAINER, store, args)
 
 
 class IdPools(Model):
@@ -18,6 +18,8 @@ class IdPools(Model):
     def get_id_pools_by_key(self, key="pool-name"):
         d = {}
         idpools = self.get_id_pools()
+        if idpools is None:
+            return None
         for idpool in idpools:
             d[idpool[key]] = idpool
         return d

@@ -1,11 +1,11 @@
-from odltools.mdsal.model import Model
+from odltools.mdsal.models.model import Model
 
 
 NAME = "l3vpn"
 
 
-def vpn_instance_to_vpn_id(store, ip=None, port=None, path=None):
-    return VpnInterfaces(NAME, VpnInterfaces.CONTAINER, store, ip, port, path)
+def vpn_instance_to_vpn_id(store, args):
+    return VpnInterfaces(NAME, VpnInterfaces.CONTAINER, store, args)
 
 
 class VpnInterfaces(Model):
@@ -18,6 +18,8 @@ class VpnInterfaces(Model):
     def get_vpn_ids_by_key(self, key="name"):
         d = {}
         ifaces = self.get_vpn_interfaces()
+        if ifaces is None:
+            return None
         for iface in ifaces:
             d[iface[key]] = iface
         return d

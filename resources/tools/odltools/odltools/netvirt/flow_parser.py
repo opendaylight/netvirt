@@ -1,5 +1,4 @@
-import netvirt_utils as utils
-import constants as const
+from odltools.mdsal.models.model import Model
 
 
 OPTIONALS = ['ifname', 'lport', 'elan-tag', 'mpls', 'vpnid', 'reason',
@@ -123,7 +122,7 @@ def stale_ifm_flow(flow, flow_info, ifaces, ifstates):
         ifstate = ifstates.get(flow_ifname)
         ncid_list = ifstate.get('lower-layer-if')
         ncid = ncid_list[0] if ncid_list else None
-        dpn = utils.get_dpn_from_ofnodeid(ncid)
+        dpn = Model.get_dpn_from_ofnodeid(ncid)
         if dpn and dpn != flow_info['dpnid']:
             flow_info['reason'] = 'DpnId mismatch for flow and Interface'
             return create_flow_dict(flow_info, flow)

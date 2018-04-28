@@ -1,12 +1,12 @@
 import collections
-from odltools.mdsal.model import Model
 
+from odltools.mdsal.models.model import Model
 
 NAME = "interface-service-bindings"
 
 
-def service_bindings(store, ip=None, port=None, path=None):
-    return ServiceBindings(NAME, ServiceBindings.CONTAINER, store, ip, port, path)
+def service_bindings(store, args):
+    return ServiceBindings(NAME, ServiceBindings.CONTAINER, store, args)
 
 
 class ServiceBindings(Model):
@@ -20,6 +20,8 @@ class ServiceBindings(Model):
         sb_dict = collections.defaultdict(dict)
         orphans_dict = collections.defaultdict(dict)
         sb_infos = self.get_services_infos()
+        if sb_infos is None:
+            return None
         for sb_info in sb_infos:
             service_mode = sb_info['service-mode'][len('interface-service-bindings:'):]
             if sb_info.get('bound-services'):

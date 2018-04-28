@@ -11,7 +11,7 @@ from odltools.csit.robotfiles import RobotFiles
 
 class TestRobotFiles(unittest.TestCase):
     DATAPATH = "/tmp/output_02_l3.xml.gz"
-    OUTPATH = "/tmp/robotjob"
+    OUTPATH = "/tmp/robotjob2"
 
     def setUp(self):
         logg.Logger()

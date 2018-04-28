@@ -262,7 +262,9 @@ class RobotFiles:
         return cmd.replace(" ", "_")
 
     def fix_model_name(self, model):
-        return model.replace("/", "_")
+        name = model.replace("/", "___")
+        name = name.replace(":", "__")
+        return name
 
 
 def run(args):

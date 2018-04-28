@@ -1,0 +1,381 @@
+{
+    "interfaces": {
+        "interface": [
+            {
+                "enabled": true,
+                "name": "74851789353527:br-physnet1-pa:trunk",
+                "odl-interface:external": true,
+                "odl-interface:l2vlan-mode": "trunk",
+                "odl-interface:parent-interface": "74851789353527:br-physnet1-pa",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "aclservice:allowed-address-pairs": [
+                    {
+                        "ip-address": "31.0.0.12",
+                        "mac-address": "fa:16:3e:01:dc:d3"
+                    },
+                    {
+                        "ip-address": "fe80:0:0:0:f816:3eff:fe01:dcd3",
+                        "mac-address": "fa:16:3e:01:dc:d3"
+                    }
+                ],
+                "aclservice:port-security-enabled": true,
+                "aclservice:security-groups": [
+                    "d9185034-fa07-4bea-adbc-cb228653e0c2"
+                ],
+                "enabled": true,
+                "name": "09f6bf9e-7aaf-4a9e-8f0e-b29b8097970d",
+                "odl-interface:l2vlan-mode": "trunk",
+                "odl-interface:parent-interface": "tap09f6bf9e-7a",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "enabled": true,
+                "name": "74851789353527:br-physnet1-pa:1131",
+                "odl-interface:external": true,
+                "odl-interface:l2vlan-mode": "trunk-member",
+                "odl-interface:parent-interface": "74851789353527:br-physnet1-pa:trunk",
+                "odl-interface:vlan-id": 1131,
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "aclservice:allowed-address-pairs": [
+                    {
+                        "ip-address": "fe80:0:0:0:f816:3eff:fe61:7740",
+                        "mac-address": "fa:16:3e:61:77:40"
+                    },
+                    {
+                        "ip-address": "31.0.0.10",
+                        "mac-address": "fa:16:3e:61:77:40"
+                    }
+                ],
+                "aclservice:port-security-enabled": true,
+                "aclservice:security-groups": [
+                    "d9185034-fa07-4bea-adbc-cb228653e0c2"
+                ],
+                "enabled": true,
+                "name": "7f083b4d-dc2c-47ad-a471-6d2d0cd110d5",
+                "odl-interface:l2vlan-mode": "trunk",
+                "odl-interface:parent-interface": "tap7f083b4d-dc",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "description": "VXLAN Trunk Interface",
+                "enabled": true,
+                "name": "tun999632b8289",
+                "odl-interface:datapath-node-identifier": 234018835196237,
+                "odl-interface:internal": true,
+                "odl-interface:monitor-enabled": true,
+                "odl-interface:monitor-interval": 10000,
+                "odl-interface:monitor-protocol": "odl-interface:tunnel-monitoring-type-bfd",
+                "odl-interface:tunnel-destination": "10.30.170.90",
+                "odl-interface:tunnel-gateway": "0.0.0.0",
+                "odl-interface:tunnel-interface-type": "odl-interface:tunnel-type-vxlan",
+                "odl-interface:tunnel-remote-ip-flow": false,
+                "odl-interface:tunnel-source": "10.30.170.92",
+                "type": "iana-if-type:tunnel"
+            },
+            {
+                "enabled": true,
+                "name": "71b48121-d77f-4947-a58d-35413da52bd8",
+                "odl-interface:l2vlan-mode": "trunk",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "enabled": true,
+                "name": "42d43cbf-3a28-4b9d-8de7-21f6a0faf327",
+                "odl-interface:l2vlan-mode": "trunk",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "aclservice:allowed-address-pairs": [
+                    {
+                        "ip-address": "fe80:0:0:0:f816:3eff:fedb:a8d1",
+                        "mac-address": "fa:16:3e:db:a8:d1"
+                    },
+                    {
+                        "ip-address": "31.0.0.11",
+                        "mac-address": "fa:16:3e:db:a8:d1"
+                    }
+                ],
+                "aclservice:port-security-enabled": true,
+                "aclservice:security-groups": [
+                    "d9185034-fa07-4bea-adbc-cb228653e0c2"
+                ],
+                "enabled": true,
+                "name": "0ee93a49-6122-4580-acb4-4c921f196d13",
+                "odl-interface:l2vlan-mode": "trunk",
+                "odl-interface:parent-interface": "tap0ee93a49-61",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "aclservice:allowed-address-pairs": [
+                    {
+                        "ip-address": "fe80:0:0:0:f816:3eff:fee3:fc5b",
+                        "mac-address": "fa:16:3e:e3:fc:5b"
+                    },
+                    {
+                        "ip-address": "32.0.0.10",
+                        "mac-address": "fa:16:3e:e3:fc:5b"
+                    }
+                ],
+                "aclservice:port-security-enabled": true,
+                "aclservice:security-groups": [
+                    "d9185034-fa07-4bea-adbc-cb228653e0c2"
+                ],
+                "enabled": true,
+                "name": "38deef1c-db34-4f56-9014-8c38c818f019",
+                "odl-interface:l2vlan-mode": "trunk",
+                "odl-interface:parent-interface": "tap38deef1c-db",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "description": "VXLAN Trunk Interface",
+                "enabled": true,
+                "name": "tun94ecbe1efd8",
+                "odl-interface:datapath-node-identifier": 132319289050514,
+                "odl-interface:internal": true,
+                "odl-interface:monitor-enabled": true,
+                "odl-interface:monitor-interval": 10000,
+                "odl-interface:monitor-protocol": "odl-interface:tunnel-monitoring-type-bfd",
+                "odl-interface:tunnel-destination": "10.30.170.92",
+                "odl-interface:tunnel-gateway": "0.0.0.0",
+                "odl-interface:tunnel-interface-type": "odl-interface:tunnel-type-vxlan",
+                "odl-interface:tunnel-remote-ip-flow": false,
+                "odl-interface:tunnel-source": "10.30.170.17",
+                "type": "iana-if-type:tunnel"
+            },
+            {
+                "aclservice:allowed-address-pairs": [
+                    {
+                        "ip-address": "33.0.0.9",
+                        "mac-address": "fa:16:3e:f8:a8:c8"
+                    },
+                    {
+                        "ip-address": "fe80:0:0:0:f816:3eff:fef8:a8c8",
+                        "mac-address": "fa:16:3e:f8:a8:c8"
+                    }
+                ],
+                "aclservice:port-security-enabled": true,
+                "aclservice:security-groups": [
+                    "d9185034-fa07-4bea-adbc-cb228653e0c2"
+                ],
+                "enabled": true,
+                "name": "af8aaaa2-fc98-4da4-96f2-a9e9f23464e2",
+                "odl-interface:l2vlan-mode": "trunk",
+                "odl-interface:parent-interface": "tapaf8aaaa2-fc",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "enabled": true,
+                "name": "98c2e265-b4f2-40a5-8f31-2fb5d2b2baf6",
+                "odl-interface:l2vlan-mode": "trunk",
+                "odl-interface:parent-interface": "tap98c2e265-b4",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "description": "VXLAN Trunk Interface",
+                "enabled": true,
+                "name": "tun03a2b920986",
+                "odl-interface:datapath-node-identifier": 74851789353527,
+                "odl-interface:internal": true,
+                "odl-interface:monitor-enabled": true,
+                "odl-interface:monitor-interval": 10000,
+                "odl-interface:monitor-protocol": "odl-interface:tunnel-monitoring-type-bfd",
+                "odl-interface:tunnel-destination": "10.30.170.17",
+                "odl-interface:tunnel-gateway": "0.0.0.0",
+                "odl-interface:tunnel-interface-type": "odl-interface:tunnel-type-vxlan",
+                "odl-interface:tunnel-remote-ip-flow": false,
+                "odl-interface:tunnel-source": "10.30.170.90",
+                "type": "iana-if-type:tunnel"
+            },
+            {
+                "enabled": true,
+                "name": "234018835196237:br-physnet1-pa:1131",
+                "odl-interface:external": true,
+                "odl-interface:l2vlan-mode": "trunk-member",
+                "odl-interface:parent-interface": "234018835196237:br-physnet1-pa:trunk",
+                "odl-interface:vlan-id": 1131,
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "description": "VXLAN Trunk Interface",
+                "enabled": true,
+                "name": "tun95fee4d7132",
+                "odl-interface:datapath-node-identifier": 132319289050514,
+                "odl-interface:internal": true,
+                "odl-interface:monitor-enabled": true,
+                "odl-interface:monitor-interval": 10000,
+                "odl-interface:monitor-protocol": "odl-interface:tunnel-monitoring-type-bfd",
+                "odl-interface:tunnel-destination": "10.30.170.90",
+                "odl-interface:tunnel-gateway": "0.0.0.0",
+                "odl-interface:tunnel-interface-type": "odl-interface:tunnel-type-vxlan",
+                "odl-interface:tunnel-remote-ip-flow": false,
+                "odl-interface:tunnel-source": "10.30.170.17",
+                "type": "iana-if-type:tunnel"
+            },
+            {
+                "aclservice:allowed-address-pairs": [
+                    {
+                        "ip-address": "33.0.0.11",
+                        "mac-address": "fa:16:3e:ff:a9:48"
+                    },
+                    {
+                        "ip-address": "fe80:0:0:0:f816:3eff:feff:a948",
+                        "mac-address": "fa:16:3e:ff:a9:48"
+                    }
+                ],
+                "aclservice:port-security-enabled": true,
+                "aclservice:security-groups": [
+                    "d9185034-fa07-4bea-adbc-cb228653e0c2"
+                ],
+                "enabled": true,
+                "name": "3a2d068a-ad59-453e-8cd3-57f765c921f8",
+                "odl-interface:l2vlan-mode": "trunk",
+                "odl-interface:parent-interface": "tap3a2d068a-ad",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "aclservice:allowed-address-pairs": [
+                    {
+                        "ip-address": "32.0.0.8",
+                        "mac-address": "fa:16:3e:73:3e:1e"
+                    },
+                    {
+                        "ip-address": "fe80:0:0:0:f816:3eff:fe73:3e1e",
+                        "mac-address": "fa:16:3e:73:3e:1e"
+                    }
+                ],
+                "aclservice:port-security-enabled": true,
+                "aclservice:security-groups": [
+                    "d9185034-fa07-4bea-adbc-cb228653e0c2"
+                ],
+                "enabled": true,
+                "name": "e802b5e7-0865-4da2-929f-84c0931e0040",
+                "odl-interface:l2vlan-mode": "trunk",
+                "odl-interface:parent-interface": "tape802b5e7-08",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "enabled": true,
+                "name": "132319289050514:br-physnet1-pa:1131",
+                "odl-interface:external": true,
+                "odl-interface:l2vlan-mode": "trunk-member",
+                "odl-interface:parent-interface": "132319289050514:br-physnet1-pa:trunk",
+                "odl-interface:vlan-id": 1131,
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "enabled": true,
+                "name": "234018835196237:br-physnet1-pa:trunk",
+                "odl-interface:external": true,
+                "odl-interface:l2vlan-mode": "trunk",
+                "odl-interface:parent-interface": "234018835196237:br-physnet1-pa",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "description": "VXLAN Trunk Interface",
+                "enabled": true,
+                "name": "tunf68aef23130",
+                "odl-interface:datapath-node-identifier": 74851789353527,
+                "odl-interface:internal": true,
+                "odl-interface:monitor-enabled": true,
+                "odl-interface:monitor-interval": 10000,
+                "odl-interface:monitor-protocol": "odl-interface:tunnel-monitoring-type-bfd",
+                "odl-interface:tunnel-destination": "10.30.170.92",
+                "odl-interface:tunnel-gateway": "0.0.0.0",
+                "odl-interface:tunnel-interface-type": "odl-interface:tunnel-type-vxlan",
+                "odl-interface:tunnel-remote-ip-flow": false,
+                "odl-interface:tunnel-source": "10.30.170.90",
+                "type": "iana-if-type:tunnel"
+            },
+            {
+                "description": "VXLAN Trunk Interface",
+                "enabled": true,
+                "name": "tundb1d8b295c1",
+                "odl-interface:datapath-node-identifier": 234018835196237,
+                "odl-interface:internal": true,
+                "odl-interface:monitor-enabled": true,
+                "odl-interface:monitor-interval": 10000,
+                "odl-interface:monitor-protocol": "odl-interface:tunnel-monitoring-type-bfd",
+                "odl-interface:tunnel-destination": "10.30.170.17",
+                "odl-interface:tunnel-gateway": "0.0.0.0",
+                "odl-interface:tunnel-interface-type": "odl-interface:tunnel-type-vxlan",
+                "odl-interface:tunnel-remote-ip-flow": false,
+                "odl-interface:tunnel-source": "10.30.170.92",
+                "type": "iana-if-type:tunnel"
+            },
+            {
+                "aclservice:allowed-address-pairs": [
+                    {
+                        "ip-address": "fe80:0:0:0:f816:3eff:fe78:699",
+                        "mac-address": "fa:16:3e:78:06:99"
+                    },
+                    {
+                        "ip-address": "32.0.0.11",
+                        "mac-address": "fa:16:3e:78:06:99"
+                    }
+                ],
+                "aclservice:port-security-enabled": true,
+                "aclservice:security-groups": [
+                    "d9185034-fa07-4bea-adbc-cb228653e0c2"
+                ],
+                "enabled": true,
+                "name": "bdc8e869-52e2-4899-a1fb-551b1c5501c2",
+                "odl-interface:l2vlan-mode": "trunk",
+                "odl-interface:parent-interface": "tapbdc8e869-52",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "enabled": true,
+                "name": "67eb9b7f-dba5-40d4-8383-56149a7d6af2",
+                "odl-interface:l2vlan-mode": "trunk",
+                "odl-interface:parent-interface": "tap67eb9b7f-db",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "aclservice:allowed-address-pairs": [
+                    {
+                        "ip-address": "fe80:0:0:0:f816:3eff:fe99:7d91",
+                        "mac-address": "fa:16:3e:99:7d:91"
+                    },
+                    {
+                        "ip-address": "33.0.0.5",
+                        "mac-address": "fa:16:3e:99:7d:91"
+                    }
+                ],
+                "aclservice:port-security-enabled": true,
+                "aclservice:security-groups": [
+                    "d9185034-fa07-4bea-adbc-cb228653e0c2"
+                ],
+                "enabled": true,
+                "name": "8e3c262e-7b45-4222-ac4e-528db75e5516",
+                "odl-interface:l2vlan-mode": "trunk",
+                "odl-interface:parent-interface": "tap8e3c262e-7b",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "enabled": true,
+                "name": "132319289050514:br-physnet1-pa:trunk",
+                "odl-interface:external": true,
+                "odl-interface:l2vlan-mode": "trunk",
+                "odl-interface:parent-interface": "132319289050514:br-physnet1-pa",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "enabled": true,
+                "name": "7a3db5a3-bf72-4ad6-be70-ec3bdec7d707",
+                "odl-interface:l2vlan-mode": "trunk",
+                "type": "iana-if-type:l2vlan"
+            },
+            {
+                "enabled": true,
+                "name": "992c4556-828b-49d0-bad3-1e3ffe6bb76b",
+                "odl-interface:l2vlan-mode": "trunk",
+                "odl-interface:parent-interface": "tap992c4556-82",
+                "type": "iana-if-type:l2vlan"
+            }
+        ]
+    }
+}

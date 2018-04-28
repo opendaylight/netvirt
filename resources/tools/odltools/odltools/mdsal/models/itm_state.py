@@ -1,19 +1,19 @@
-from odltools.mdsal.model import Model
+from odltools.mdsal.models.model import Model
 
 
 NAME = "itm-state"
 
 
-def dpn_endpoints(store, ip, port, path):
-    return DpnEndpoints(NAME, DpnEndpoints.CONTAINER, store, ip, port, path)
+def dpn_endpoints(store, args):
+    return DpnEndpoints(NAME, DpnEndpoints.CONTAINER, store, args)
 
 
-def interfaces(store, ip=None, port=None, path=None):
-    return DpnTepsState(NAME, DpnTepsState.CONTAINER, store, ip, port, path)
+def interfaces(store, args):
+    return DpnTepsState(NAME, DpnTepsState.CONTAINER, store, args)
 
 
-def tunnels_state(store, ip=None, port=None, path=None):
-    return TunnelsState(NAME, TunnelsState.CONTAINER, store, ip, port, path)
+def tunnels_state(store, args):
+    return TunnelsState(NAME, TunnelsState.CONTAINER, store, args)
 
 
 class DpnEndpoints(Model):
@@ -56,6 +56,8 @@ class DpnTepsState(Model):
     def get_tuninterfaces_by_name(self):
         d = {}
         tunifaces = self.get_dpn_teps()
+        if tunifaces is None:
+            return None
         for sourcedpn in tunifaces:
             for remotedpn in sourcedpn['remote-dpns']:
                 d[remotedpn['tunnel-name']] = remotedpn
@@ -72,6 +74,8 @@ class TunnelsState(Model):
     def get_tunnels_by_key(self, key="tunnel-interface-name"):
         d = {}
         tunnels = self.get_state_tunnel_list()
+        if tunnels is None:
+            return None
         for tunnel in tunnels:
             d[tunnel[key]] = tunnel
         return d

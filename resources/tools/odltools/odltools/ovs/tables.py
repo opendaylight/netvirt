@@ -35,3 +35,18 @@ def get_table_name(table_id):
         return tables[table_id]
     else:
         return "unknown:{}".format(table_id)
+
+
+table_model_map = {
+    'ifm': [0, 17, 220],
+    'l3vpn': [19, 20, 21, 22, 36, 81],
+    'elan': [50, 51, 52, 55],
+    'acl': [211, 212, 213, 214, 215, 241, 242, 243, 244, 245]
+}
+
+
+def get_table_map(key):
+    if key in table_model_map:
+        return table_model_map[key]
+    else:
+        return None

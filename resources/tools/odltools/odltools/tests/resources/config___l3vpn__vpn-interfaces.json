@@ -1,0 +1,276 @@
+{
+    "vpn-interfaces": {
+        "vpn-interface": [
+            {
+                "name": "e802b5e7-0865-4da2-929f-84c0931e0040",
+                "odl-l3vpn:adjacency": [
+                    {
+                        "adjacency_type": "primary-adjacency",
+                        "ip_address": "32.0.0.8/32",
+                        "mac_address": "fa:16:3e:73:3e:1e",
+                        "subnet_id": "c174dfad-4bf4-4b34-a0ec-a0edde33cbe0"
+                    }
+                ],
+                "router-interface": false,
+                "vpn-instance-names": [
+                    {
+                        "associated-subnet-type": "V4AndV6Subnets",
+                        "vpn-name": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    }
+                ]
+            },
+            {
+                "name": "67eb9b7f-dba5-40d4-8383-56149a7d6af2",
+                "odl-l3vpn:adjacency": [
+                    {
+                        "adjacency_type": "primary-adjacency",
+                        "ip_address": "33.0.0.2/32",
+                        "mac_address": "fa:16:3e:bb:51:9c",
+                        "subnet_id": "96ef7016-1bb2-4543-a6f8-c053a71ebef8"
+                    }
+                ],
+                "router-interface": false,
+                "vpn-instance-names": [
+                    {
+                        "associated-subnet-type": "V4AndV6Subnets",
+                        "vpn-name": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    }
+                ]
+            },
+            {
+                "name": "af8aaaa2-fc98-4da4-96f2-a9e9f23464e2",
+                "odl-l3vpn:adjacency": [
+                    {
+                        "adjacency_type": "primary-adjacency",
+                        "ip_address": "33.0.0.9/32",
+                        "mac_address": "fa:16:3e:f8:a8:c8",
+                        "subnet_id": "96ef7016-1bb2-4543-a6f8-c053a71ebef8"
+                    }
+                ],
+                "router-interface": false,
+                "vpn-instance-names": [
+                    {
+                        "associated-subnet-type": "V4AndV6Subnets",
+                        "vpn-name": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    }
+                ]
+            },
+            {
+                "name": "0ee93a49-6122-4580-acb4-4c921f196d13",
+                "odl-l3vpn:adjacency": [
+                    {
+                        "adjacency_type": "primary-adjacency",
+                        "ip_address": "31.0.0.11/32",
+                        "mac_address": "fa:16:3e:db:a8:d1",
+                        "subnet_id": "af1ec006-aed0-4ee2-aade-260f7efaa19e"
+                    }
+                ],
+                "router-interface": false,
+                "vpn-instance-names": [
+                    {
+                        "associated-subnet-type": "V4AndV6Subnets",
+                        "vpn-name": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    }
+                ]
+            },
+            {
+                "name": "7a3db5a3-bf72-4ad6-be70-ec3bdec7d707",
+                "odl-l3vpn:adjacency": [
+                    {
+                        "adjacency_type": "primary-adjacency",
+                        "ip_address": "33.0.0.1/32",
+                        "mac_address": "fa:16:3e:9a:c2:36",
+                        "subnet_id": "96ef7016-1bb2-4543-a6f8-c053a71ebef8"
+                    }
+                ],
+                "router-interface": true,
+                "vpn-instance-names": [
+                    {
+                        "associated-subnet-type": "V4AndV6Subnets",
+                        "vpn-name": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    }
+                ]
+            },
+            {
+                "name": "42d43cbf-3a28-4b9d-8de7-21f6a0faf327",
+                "odl-l3vpn:adjacency": [
+                    {
+                        "adjacency_type": "primary-adjacency",
+                        "ip_address": "32.0.0.1/32",
+                        "mac_address": "fa:16:3e:3d:ad:ed",
+                        "subnet_id": "c174dfad-4bf4-4b34-a0ec-a0edde33cbe0"
+                    }
+                ],
+                "router-interface": true,
+                "vpn-instance-names": [
+                    {
+                        "associated-subnet-type": "V4AndV6Subnets",
+                        "vpn-name": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    }
+                ]
+            },
+            {
+                "name": "38deef1c-db34-4f56-9014-8c38c818f019",
+                "odl-l3vpn:adjacency": [
+                    {
+                        "adjacency_type": "primary-adjacency",
+                        "ip_address": "32.0.0.10/32",
+                        "mac_address": "fa:16:3e:e3:fc:5b",
+                        "subnet_id": "c174dfad-4bf4-4b34-a0ec-a0edde33cbe0"
+                    }
+                ],
+                "router-interface": false,
+                "vpn-instance-names": [
+                    {
+                        "associated-subnet-type": "V4AndV6Subnets",
+                        "vpn-name": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    }
+                ]
+            },
+            {
+                "name": "bdc8e869-52e2-4899-a1fb-551b1c5501c2",
+                "odl-l3vpn:adjacency": [
+                    {
+                        "adjacency_type": "primary-adjacency",
+                        "ip_address": "32.0.0.11/32",
+                        "mac_address": "fa:16:3e:78:06:99",
+                        "subnet_id": "c174dfad-4bf4-4b34-a0ec-a0edde33cbe0"
+                    }
+                ],
+                "router-interface": false,
+                "vpn-instance-names": [
+                    {
+                        "associated-subnet-type": "V4AndV6Subnets",
+                        "vpn-name": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    }
+                ]
+            },
+            {
+                "name": "98c2e265-b4f2-40a5-8f31-2fb5d2b2baf6",
+                "odl-l3vpn:adjacency": [
+                    {
+                        "adjacency_type": "primary-adjacency",
+                        "ip_address": "31.0.0.2/32",
+                        "mac_address": "fa:16:3e:1e:55:49",
+                        "subnet_id": "af1ec006-aed0-4ee2-aade-260f7efaa19e"
+                    }
+                ],
+                "router-interface": false,
+                "vpn-instance-names": [
+                    {
+                        "associated-subnet-type": "V4AndV6Subnets",
+                        "vpn-name": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    }
+                ]
+            },
+            {
+                "name": "3a2d068a-ad59-453e-8cd3-57f765c921f8",
+                "odl-l3vpn:adjacency": [
+                    {
+                        "adjacency_type": "primary-adjacency",
+                        "ip_address": "33.0.0.11/32",
+                        "mac_address": "fa:16:3e:ff:a9:48",
+                        "subnet_id": "96ef7016-1bb2-4543-a6f8-c053a71ebef8"
+                    }
+                ],
+                "router-interface": false,
+                "vpn-instance-names": [
+                    {
+                        "associated-subnet-type": "V4AndV6Subnets",
+                        "vpn-name": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    }
+                ]
+            },
+            {
+                "name": "7f083b4d-dc2c-47ad-a471-6d2d0cd110d5",
+                "odl-l3vpn:adjacency": [
+                    {
+                        "adjacency_type": "primary-adjacency",
+                        "ip_address": "31.0.0.10/32",
+                        "mac_address": "fa:16:3e:61:77:40",
+                        "subnet_id": "af1ec006-aed0-4ee2-aade-260f7efaa19e"
+                    }
+                ],
+                "router-interface": false,
+                "vpn-instance-names": [
+                    {
+                        "associated-subnet-type": "V4AndV6Subnets",
+                        "vpn-name": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    }
+                ]
+            },
+            {
+                "name": "71b48121-d77f-4947-a58d-35413da52bd8",
+                "odl-l3vpn:adjacency": [
+                    {
+                        "adjacency_type": "primary-adjacency",
+                        "ip_address": "31.0.0.1/32",
+                        "mac_address": "fa:16:3e:05:52:93",
+                        "subnet_id": "af1ec006-aed0-4ee2-aade-260f7efaa19e"
+                    }
+                ],
+                "router-interface": true,
+                "vpn-instance-names": [
+                    {
+                        "associated-subnet-type": "V4AndV6Subnets",
+                        "vpn-name": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    }
+                ]
+            },
+            {
+                "name": "8e3c262e-7b45-4222-ac4e-528db75e5516",
+                "odl-l3vpn:adjacency": [
+                    {
+                        "adjacency_type": "primary-adjacency",
+                        "ip_address": "33.0.0.5/32",
+                        "mac_address": "fa:16:3e:99:7d:91",
+                        "subnet_id": "96ef7016-1bb2-4543-a6f8-c053a71ebef8"
+                    }
+                ],
+                "router-interface": false,
+                "vpn-instance-names": [
+                    {
+                        "associated-subnet-type": "V4AndV6Subnets",
+                        "vpn-name": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    }
+                ]
+            },
+            {
+                "name": "09f6bf9e-7aaf-4a9e-8f0e-b29b8097970d",
+                "odl-l3vpn:adjacency": [
+                    {
+                        "adjacency_type": "primary-adjacency",
+                        "ip_address": "31.0.0.12/32",
+                        "mac_address": "fa:16:3e:01:dc:d3",
+                        "subnet_id": "af1ec006-aed0-4ee2-aade-260f7efaa19e"
+                    }
+                ],
+                "router-interface": false,
+                "vpn-instance-names": [
+                    {
+                        "associated-subnet-type": "V4AndV6Subnets",
+                        "vpn-name": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    }
+                ]
+            },
+            {
+                "name": "992c4556-828b-49d0-bad3-1e3ffe6bb76b",
+                "odl-l3vpn:adjacency": [
+                    {
+                        "adjacency_type": "primary-adjacency",
+                        "ip_address": "32.0.0.2/32",
+                        "mac_address": "fa:16:3e:1e:bb:87",
+                        "subnet_id": "c174dfad-4bf4-4b34-a0ec-a0edde33cbe0"
+                    }
+                ],
+                "router-interface": false,
+                "vpn-instance-names": [
+                    {
+                        "associated-subnet-type": "V4AndV6Subnets",
+                        "vpn-name": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    }
+                ]
+            }
+        ]
+    }
+}
