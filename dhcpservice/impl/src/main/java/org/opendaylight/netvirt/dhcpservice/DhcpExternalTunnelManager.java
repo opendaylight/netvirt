@@ -609,7 +609,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         builder.setDpId(dpnId).setInterfaceName(interfaceName).setSpa(dhcpIpAddress).setSha(dhcpMacAddress)
                 .setLportTag(lportTag);
         builder.setInstructions(ArpResponderUtil.getInterfaceInstructions(interfaceManager, interfaceName,
-                dhcpIpAddress, dhcpMacAddress, itmRpcService));
+                dhcpIpAddress, dhcpMacAddress));
         elanService.addExternalTunnelArpResponderFlow(builder.buildForInstallFlow(), elanInstanceName);
     }
 

@@ -21,9 +21,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelTypeInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelTypeOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetTunnelTypeInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetTunnelTypeOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.ExtrarouteRdsMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.ExtrarouteRds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.ExtrarouteRdsKey;
@@ -127,10 +127,11 @@ public final class VpnExtraRouteHelper {
         return extraRoutesList;
     }
 
-    public static Class<? extends TunnelTypeBase> getTunnelType(ItmRpcService itmRpcService, String ifName) {
+    public static Class<? extends TunnelTypeBase> getTunnelType(OdlInterfaceRpcService interfaceManager,
+            String ifName) {
         try {
-            Future<RpcResult<GetTunnelTypeOutput>> result =
-                    itmRpcService.getTunnelType(new GetTunnelTypeInputBuilder().setIntfName(ifName).build());
+            Future<RpcResult<GetTunnelTypeOutput>> result = interfaceManager.getTunnelType(
+                    new GetTunnelTypeInputBuilder().setIntfName(ifName).build());
             RpcResult<GetTunnelTypeOutput> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
                 LOG.warn("RPC Call to getTunnelInterfaceId returned with Errors {}", rpcResult.getErrors());

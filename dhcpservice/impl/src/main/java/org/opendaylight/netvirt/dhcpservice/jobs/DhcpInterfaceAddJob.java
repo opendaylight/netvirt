@@ -28,7 +28,6 @@ import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPort;
@@ -47,12 +46,10 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
     private final BigInteger dpnId;
     private final IInterfaceManager interfaceManager;
     private final IElanService elanService;
-    private final ItmRpcService itmRpcService;
 
     public DhcpInterfaceAddJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager,
                                DataBroker dataBroker, Interface interfaceAdd, BigInteger dpnId,
-                               IInterfaceManager interfaceManager, IElanService elanService,
-                               ItmRpcService itmRpcService) {
+                               IInterfaceManager interfaceManager, IElanService elanService) {
         this.dhcpManager = dhcpManager;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = dataBroker;
@@ -61,7 +58,6 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
         this.dpnId = dpnId;
         this.interfaceManager = interfaceManager;
         this.elanService = elanService;
-        this.itmRpcService = itmRpcService;
     }
 
     @Override
@@ -107,7 +103,7 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
             builder.setDpId(dpnId).setInterfaceName(interfaceName).setSpa(subnetToDhcp.get().getPortFixedip())
                     .setSha(subnetToDhcp.get().getPortMacaddress()).setLportTag(interfaceAdd.getIfIndex());
             builder.setInstructions(ArpResponderUtil.getInterfaceInstructions(interfaceManager, interfaceName,
-                    subnetToDhcp.get().getPortFixedip(), subnetToDhcp.get().getPortMacaddress(), itmRpcService));
+                    subnetToDhcp.get().getPortFixedip(), subnetToDhcp.get().getPortMacaddress()));
             elanService.addArpResponderFlow(builder.buildForInstallFlow());
             return futures;
         }

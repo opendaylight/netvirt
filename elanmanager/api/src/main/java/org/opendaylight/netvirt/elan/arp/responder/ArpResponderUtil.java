@@ -56,9 +56,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
@@ -196,14 +193,12 @@ public final class ArpResponderUtil {
      *            MacAddress for which ARP Response packet is to be generated
      * @return List of ARP Responder Actions actions
      */
-    public static List<Action> getActions(IInterfaceManager ifaceMgrRpcService, ItmRpcService itmRpcService,
-                                          String ifName, String ipAddress, String macAddress,
-                                          boolean isTunnelInterface) {
+    public static List<Action> getActions(IInterfaceManager ifaceMgrRpcService, String ifName, String ipAddress,
+            String macAddress) {
 
         AtomicInteger actionCounter = new AtomicInteger();
         List<Action> actions = arpActions.apply(actionCounter, macAddress, ipAddress);
-        actions.addAll(getEgressActionsForInterface(ifaceMgrRpcService, itmRpcService, ifName, actionCounter.get(),
-                isTunnelInterface));
+        actions.addAll(getEgressActionsForInterface(ifaceMgrRpcService, ifName, actionCounter.get()));
         LOG.trace("Total Number of actions is {}", actionCounter);
         return actions;
 
@@ -259,9 +254,8 @@ public final class ArpResponderUtil {
      * Get instruction list for ARP responder flows.
      */
     public static List<Instruction> getInterfaceInstructions(IInterfaceManager ifaceMgrRpcService, String interfaceName,
-            String ipAddress, String macAddress, ItmRpcService itmRpcService) {
-        List<Action> actions = ArpResponderUtil.getActions(ifaceMgrRpcService, itmRpcService, interfaceName, ipAddress,
-                macAddress, false);
+            String ipAddress, String macAddress) {
+        List<Action> actions = ArpResponderUtil.getActions(ifaceMgrRpcService, interfaceName, ipAddress, macAddress);
         return Collections.singletonList(MDSALUtil.buildApplyActionsInstruction(actions));
     }
 
@@ -275,13 +269,10 @@ public final class ArpResponderUtil {
      * action needs to be replaced with goto instruction.
      */
     public static List<Instruction> getExtInterfaceInstructions(IInterfaceManager ifaceMgrRpcService,
-                                                                ItmRpcService itmRpcService,
-                                                                String extInterfaceName, String ipAddress,
-                                                                String macAddress) {
+            String extInterfaceName, String ipAddress, String macAddress) {
         AtomicInteger tableId = new AtomicInteger(-1);
         List<Instruction> instructions = new ArrayList<>();
-        List<Action> actions = getActions(ifaceMgrRpcService, itmRpcService, extInterfaceName, ipAddress, macAddress,
-                false);
+        List<Action> actions = getActions(ifaceMgrRpcService, extInterfaceName, ipAddress, macAddress);
         actions.removeIf(v -> {
             org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action actionClass = v
                     .getAction();
@@ -450,30 +441,11 @@ public final class ArpResponderUtil {
      *            Action Key
      * @return List of Egress Actions
      */
-    public static List<Action> getEgressActionsForInterface(IInterfaceManager ifaceMgrRpcService,
-                                                            ItmRpcService itmRpcService, String ifName,
-                                                            int actionCounter, boolean isTunnelInterface) {
-        if (isTunnelInterface && ifaceMgrRpcService.isItmDirectTunnelsEnabled()) {
-            try {
-                RpcResult result = itmRpcService.getEgressActionsForTunnel(new GetEgressActionsForTunnelInputBuilder()
-                        .setIntfName(ifName).build()).get();
-                List<Action> listActions = new ArrayList<>();
-                if (!result.isSuccessful()) {
-                    LOG.error("getEgressActionsForInterface: RPC Call to Get egress actions for interface {} "
-                            + "returned with Errors {}", ifName, result.getErrors());
-                } else {
-                    listActions = ((GetEgressActionsForTunnelOutput) result.getResult()).getAction();
-                }
-                return listActions;
-            } catch (InterruptedException | ExecutionException e) {
-                LOG.error("getEgressActionsForInterface: Exception when egress actions for interface {}", ifName, e);
-            }
-        } else {
-            List<ActionInfo> actionInfos = ifaceMgrRpcService.getInterfaceEgressActions(ifName);
-            AtomicInteger counter = new AtomicInteger(actionCounter);
-            return actionInfos.stream().map(v -> v.buildAction(counter.getAndIncrement())).collect(Collectors.toList());
-        }
-        return Collections.emptyList();
+    public static List<Action> getEgressActionsForInterface(IInterfaceManager ifaceMgrRpcService, String ifName,
+            int actionCounter) {
+        List<ActionInfo> actionInfos = ifaceMgrRpcService.getInterfaceEgressActions(ifName);
+        AtomicInteger counter = new AtomicInteger(actionCounter);
+        return actionInfos.stream().map(v -> v.buildAction(counter.getAndIncrement())).collect(Collectors.toList());
     }
 
     /**

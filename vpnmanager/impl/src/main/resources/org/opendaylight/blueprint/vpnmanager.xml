@@ -44,8 +44,6 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService" />
   <odl:rpc-service id="alivenessMonitorService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService" />
-  <odl:rpc-service id="itmRpcService"
-                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService"/>
 
   <service ref="dpnInVpnChangeListener" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener" />

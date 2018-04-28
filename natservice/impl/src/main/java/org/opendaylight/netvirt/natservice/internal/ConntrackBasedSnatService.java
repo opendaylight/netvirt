@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -55,11 +54,9 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     protected static final int DNAT_CT_STATE_MASK = 0x80;
 
     public ConntrackBasedSnatService(DataBroker dataBroker, IMdsalApiManager mdsalManager, ItmRpcService itmManager,
-                                     IdManagerService idManager, NAPTSwitchSelector naptSwitchSelector,
-                                     OdlInterfaceRpcService odlInterfaceRpcService,
-                                     IInterfaceManager interfaceManager) {
-        super(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService, idManager, naptSwitchSelector,
-                interfaceManager);
+            OdlInterfaceRpcService interfaceManager, IdManagerService idManager,
+            NAPTSwitchSelector naptSwitchSelector) {
+        super(dataBroker, mdsalManager, itmManager, interfaceManager, idManager, naptSwitchSelector);
     }
 
     @Override

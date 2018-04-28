@@ -34,7 +34,6 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -55,7 +54,6 @@ public class DhcpManager {
     private final IElanService elanService;
     private final JobCoordinator jobCoordinator;
     private DhcpPortCache dhcpPortCache;
-    private final ItmRpcService itmRpcService;
 
     private volatile int dhcpOptLeaseTime = 0;
     private volatile String dhcpOptDefDomainName;
@@ -68,7 +66,7 @@ public class DhcpManager {
             final DhcpserviceConfig config, final DataBroker dataBroker,
             final DhcpExternalTunnelManager dhcpExternalTunnelManager, final IInterfaceManager interfaceManager,
             @Named("elanService") IElanService ielanService, final DhcpPortCache dhcpPortCache,
-            final JobCoordinator jobCoordinator, final ItmRpcService itmRpcService) {
+            final JobCoordinator jobCoordinator) {
         this.mdsalUtil = mdsalApiManager;
         this.neutronVpnService = neutronVpnManager;
         this.config = config;
@@ -78,7 +76,6 @@ public class DhcpManager {
         this.elanService = ielanService;
         this.dhcpPortCache = dhcpPortCache;
         this.jobCoordinator = jobCoordinator;
-        this.itmRpcService = itmRpcService;
         configureLeaseDuration(DhcpMConstants.DEFAULT_LEASE_TIME);
     }
 
@@ -87,7 +84,7 @@ public class DhcpManager {
         LOG.trace("Netvirt DHCP Manager Init .... {}",config.isControllerDhcpEnabled());
         if (config.isControllerDhcpEnabled()) {
             dhcpInterfaceEventListener = new DhcpInterfaceEventListener(this, broker, dhcpExternalTunnelManager,
-                    interfaceManager, elanService, dhcpPortCache, jobCoordinator, itmRpcService);
+                    interfaceManager, elanService, dhcpPortCache, jobCoordinator);
             dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager, this,
                     jobCoordinator);
             LOG.info("DHCP Service initialized");

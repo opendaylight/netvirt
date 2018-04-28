@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.natservice.internal;
 import java.math.BigInteger;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -25,11 +24,9 @@ public class FlatVlanConntrackBasedSnatService extends ConntrackBasedSnatService
     private static final Logger LOG = LoggerFactory.getLogger(FlatVlanConntrackBasedSnatService.class);
 
     public FlatVlanConntrackBasedSnatService(DataBroker dataBroker, IMdsalApiManager mdsalManager,
-                                             ItmRpcService itmManager, OdlInterfaceRpcService odlInterfaceRpcService,
-                                             IdManagerService idManager, NAPTSwitchSelector naptSwitchSelector,
-                                             IInterfaceManager interfaceManager) {
-        super(dataBroker, mdsalManager, itmManager, idManager, naptSwitchSelector,
-                odlInterfaceRpcService, interfaceManager);
+            ItmRpcService itmManager, OdlInterfaceRpcService interfaceManager, IdManagerService idManager,
+            NAPTSwitchSelector naptSwitchSelector) {
+        super(dataBroker, mdsalManager, itmManager, interfaceManager, idManager, naptSwitchSelector);
     }
 
     @Override
