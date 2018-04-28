@@ -89,7 +89,7 @@ public class ElanItmUtils {
                 String tunnelIfaceName = tunnelInterfaceNameOutput.getInterfaceName();
                 LOG.debug("Received tunnelInterfaceName from getTunnelInterfaceName RPC {}", tunnelIfaceName);
 
-                result = buildTunnelItmEgressActions(tunnelIfaceName, vni);
+                result = buildTunnelItmEgressActions(tunnelIfaceName, vni, false);
             }
 
         } catch (InterruptedException | ExecutionException e) {
@@ -113,7 +113,7 @@ public class ElanItmUtils {
                 String tunnelIfaceName = tunnelInterfaceNameOutput.getInterfaceName();
                 LOG.debug("Received tunnelInterfaceName from getTunnelInterfaceName RPC {}", tunnelIfaceName);
 
-                result = buildTunnelItmEgressActions(tunnelIfaceName, vni);
+                result = buildTunnelItmEgressActions(tunnelIfaceName, vni, false);
             }
 
         } catch (InterruptedException | ExecutionException e) {
@@ -151,7 +151,7 @@ public class ElanItmUtils {
                 GetTunnelInterfaceNameOutput tunnelInterfaceNameOutput = output.get().getResult();
                 String tunnelIfaceName = tunnelInterfaceNameOutput.getInterfaceName();
                 LOG.info("Received tunnelInterfaceName from getTunnelInterfaceName RPC {}", tunnelIfaceName);
-                result = buildTunnelItmEgressActions(tunnelIfaceName, tunnelKey);
+                result = buildTunnelItmEgressActions(tunnelIfaceName, tunnelKey, true);
             } else {
                 LOG.trace("Tunnel interface doesn't exist between srcDpId {} dstDpId {}", sourceDpnId,
                         destinationDpnId);
@@ -172,11 +172,10 @@ public class ElanItmUtils {
      *            the tunnel key
      * @return the list
      */
-    public List<Action> buildTunnelItmEgressActions(String tunnelIfaceName, Long tunnelKey) {
+    public List<Action> buildTunnelItmEgressActions(String tunnelIfaceName, Long tunnelKey, boolean ineternal) {
         if (tunnelIfaceName != null && !tunnelIfaceName.isEmpty()) {
-            return buildItmEgressActions(tunnelIfaceName, tunnelKey);
+            return buildItmEgressActions(tunnelIfaceName, tunnelKey, ineternal);
         }
-
         return Collections.emptyList();
     }
 
@@ -189,7 +188,7 @@ public class ElanItmUtils {
      * @return the external port itm egress actions
      */
     public List<Action> getExternalPortItmEgressAction(String interfaceName) {
-        return buildItmEgressActions(interfaceName, null);
+        return buildItmEgressActions(interfaceName, null, false);
     }
 
     /**
@@ -204,23 +203,24 @@ public class ElanItmUtils {
      * @return the list
      */
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public List<Action> buildItmEgressActions(String interfaceName, Long tunnelKey) {
+    public List<Action> buildItmEgressActions(String interfaceName, Long tunnelKey, boolean internal) {
         try {
-            GetEgressActionsForInterfaceInput getEgressActInput = new GetEgressActionsForInterfaceInputBuilder()
-                    .setIntfName(interfaceName).setTunnelKey(tunnelKey).build();
-
-            Future<RpcResult<GetEgressActionsForInterfaceOutput>> egressActionsOutputFuture = interfaceManagerRpcService
-                    .getEgressActionsForInterface(getEgressActInput);
-
-            GetEgressActionsForTunnelInput getEgressActInputItm = new GetEgressActionsForTunnelInputBuilder()
-                    .setIntfName(interfaceName).setTunnelKey(tunnelKey).build();
-
-            Future<RpcResult<GetEgressActionsForTunnelOutput>> egressActionsOutputItm =
-                    itmRpcService.getEgressActionsForTunnel(getEgressActInputItm);
-            if (egressActionsOutputFuture.get().isSuccessful() && !interfaceManager.isItmDirectTunnelsEnabled()) {
-                return egressActionsOutputFuture.get().getResult().getAction();
-            } else if (egressActionsOutputItm.get().isSuccessful() && interfaceManager.isItmDirectTunnelsEnabled()) {
-                return egressActionsOutputItm.get().getResult().getAction();
+            if (internal && interfaceManager.isItmDirectTunnelsEnabled()) {
+                GetEgressActionsForTunnelInput getEgressActInputItm = new GetEgressActionsForTunnelInputBuilder()
+                        .setIntfName(interfaceName).setTunnelKey(tunnelKey).build();
+                Future<RpcResult<GetEgressActionsForTunnelOutput>> egressActionsOutputItm =
+                        itmRpcService.getEgressActionsForTunnel(getEgressActInputItm);
+                if (egressActionsOutputItm.get().isSuccessful()) {
+                    return egressActionsOutputItm.get().getResult().getAction();
+                }
+            } else {
+                GetEgressActionsForInterfaceInput getEgressActInput = new GetEgressActionsForInterfaceInputBuilder()
+                        .setIntfName(interfaceName).setTunnelKey(tunnelKey).build();
+                Future<RpcResult<GetEgressActionsForInterfaceOutput>> egressActionsOutputFuture =
+                        interfaceManagerRpcService.getEgressActionsForInterface(getEgressActInput);
+                if (egressActionsOutputFuture.get().isSuccessful()) {
+                    return egressActionsOutputFuture.get().getResult().getAction();
+                }
             }
         } catch (Exception e) {
             LOG.error("Error in RPC call getEgressActionsForInterface {}", e);
