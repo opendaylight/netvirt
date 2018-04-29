@@ -1,0 +1,389 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3911683e_06ddab02",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "nit: you can remove the word \u0027own\u0027",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 3
+      },
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ea57c6e6_4c810a2c",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "nit: instead of analysis, \"detection\" might be a better term.",
+      "range": {
+        "startLine": 35,
+        "startChar": 67,
+        "endLine": 35,
+        "endChar": 75
+      },
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0ff595e7_162a490a",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "This is part of use-case 1 right? I mean by programming the NA responder flows, we achieve the above three use-cases isn\u0027t it? If so, then we can remove this from the list of use-cases. If I\u0027m missing something, please clarify.",
+      "range": {
+        "startLine": 39,
+        "startChar": 3,
+        "endLine": 39,
+        "endChar": 65
+      },
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25c8ee2f_2fe956c2",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "Does this feature have a dependency on the OVS version?",
+      "range": {
+        "startLine": 72,
+        "startChar": 38,
+        "endLine": 72,
+        "endChar": 55
+      },
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4a405eb9_547c809f",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "Lithium?",
+      "range": {
+        "startLine": 77,
+        "startChar": 10,
+        "endLine": 77,
+        "endChar": 29
+      },
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d3822481_91f2c4bc",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "nit: please remove the word \u0027particular\u0027",
+      "range": {
+        "startLine": 84,
+        "startChar": 7,
+        "endLine": 84,
+        "endChar": 17
+      },
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1b1434b4_0ca3bbb4",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "Since this is the first occurrence of TLL, please expand it as \"Target Link Layer Address (TLL)\"",
+      "range": {
+        "startLine": 99,
+        "startChar": 90,
+        "endLine": 99,
+        "endChar": 93
+      },
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7e690c96_d25aef2d",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "This should be 135 (Neighbor Solicitation) right?",
+      "range": {
+        "startLine": 121,
+        "startChar": 94,
+        "endLine": 121,
+        "endChar": 107
+      },
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "92872753_f870d911",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "nit: please replace tabs with spaces.",
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4ded129f_04b79d81",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "Can you please add a note on what flags would be set for this value?",
+      "range": {
+        "startLine": 126,
+        "startChar": 13,
+        "endLine": 126,
+        "endChar": 19
+      },
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3cf020f1_32e7cfdc",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "This should be 135 (Neighbor Solicitation) right?",
+      "range": {
+        "startLine": 139,
+        "startChar": 94,
+        "endLine": 139,
+        "endChar": 107
+      },
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e7f902b_1a1cd20f",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "nit: you can remove the word \u0027been\u0027",
+      "range": {
+        "startLine": 160,
+        "startChar": 48,
+        "endLine": 160,
+        "endChar": 52
+      },
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7894a3fa_591421e4",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "I\u0027m interested to know why you are updating these fields before sending the packets to Table-81. Can you please explain?",
+      "range": {
+        "startLine": 190,
+        "startChar": 4,
+        "endLine": 190,
+        "endChar": 96
+      },
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2fa8e261_1b137707",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "Just to confirm, when you manually programmed this flow (using ovs-ofctl command), is this working?",
+      "range": {
+        "startLine": 198,
+        "startChar": 4,
+        "endLine": 203,
+        "endChar": 94
+      },
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd122752_1a0cec3b",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "nit: \"be able to set TLL field\"",
+      "range": {
+        "startLine": 220,
+        "startChar": 84,
+        "endLine": 220,
+        "endChar": 100
+      },
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "123930ad_d55eb737",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "In Table45, you changed the icmp_type to 136 and we are sending this to the Controller. Now will the controller see it as a NS or NA packet?",
+      "range": {
+        "startLine": 225,
+        "startChar": 95,
+        "endLine": 225,
+        "endChar": 109
+      },
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3187e310_a6ee6e4e",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T20:30:07Z",
+      "side": 1,
+      "message": "For SLAAC/SLAAC subnets, you can remove the allocation-pool during subnet-creation as its hard to enforce it.",
+      "range": {
+        "startLine": 307,
+        "startChar": 152,
+        "endLine": 307,
+        "endChar": 228
+      },
+      "revId": "b67c80f2d49c56b3f05cbf56115ef7cca6d38ac5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
