@@ -9,12 +9,15 @@ package org.opendaylight.netvirt.elan.l2gw.ha;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.Futures;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -70,6 +73,11 @@ public class BatchedTransaction implements ReadWriteTransaction {
     @Override
     public CheckedFuture<Void, TransactionCommitFailedException> submit() {
         return Futures.immediateCheckedFuture(null);
+    }
+
+    @Override
+    public @NonNull FluentFuture<? extends @NonNull CommitInfo> commit() {
+        return CommitInfo.emptyFluentFuture();
     }
 
     @Override
