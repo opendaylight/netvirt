@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b9a1e25_16cf817a",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T18:54:17Z",
+      "side": 1,
+      "message": "These APIs are doing a lot of DataStore reads (which is pretty intrusive in a Clustered Setup) and some of the operations can be avoided as they are not dpnId based. So, please optimize this code.\n\nFor example: NatUtil.isLastExternalRouter is not dpnId based, so you can invoke this once instead of calling it for all dpnIds.",
+      "range": {
+        "startLine": 151,
+        "startChar": 12,
+        "endLine": 151,
+        "endChar": 32
+      },
+      "revId": "96b1cdf030080870fbd83e52c05ba5c6e3777f86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7f7db1e2_7033cc93",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T18:54:17Z",
+      "side": 1,
+      "message": "wrong warning log, please fix it.",
+      "range": {
+        "startLine": 423,
+        "startChar": 26,
+        "endLine": 423,
+        "endChar": 73
+      },
+      "revId": "96b1cdf030080870fbd83e52c05ba5c6e3777f86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dae6962a_9505d1f3",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T18:54:17Z",
+      "side": 1,
+      "message": "syncDelete?",
+      "range": {
+        "startLine": 444,
+        "startChar": 40,
+        "endLine": 444,
+        "endChar": 49
+      },
+      "revId": "96b1cdf030080870fbd83e52c05ba5c6e3777f86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cdc082dd_cde36fbe",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T18:54:17Z",
+      "side": 1,
+      "message": "wrong warning log, please fix it.",
+      "range": {
+        "startLine": 448,
+        "startChar": 22,
+        "endLine": 448,
+        "endChar": 66
+      },
+      "revId": "96b1cdf030080870fbd83e52c05ba5c6e3777f86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a088540_e176924f",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 2013,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-29T18:54:17Z",
+      "side": 1,
+      "message": "nit: Since it is a list of ext-routers, please rename the API as getExternalRouter\u0027s\u0027 (i.e., plural)",
+      "range": {
+        "startLine": 2013,
+        "startChar": 29,
+        "endLine": 2013,
+        "endChar": 46
+      },
+      "revId": "96b1cdf030080870fbd83e52c05ba5c6e3777f86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
