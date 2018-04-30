@@ -20,6 +20,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -47,6 +48,7 @@ public class Ipv6PktHandlerTest {
     private PacketProcessingService pktProcessService;
     private Ipv6PktHandler pktHandler;
     private IfMgr ifMgrInstance;
+    private NotificationPublishService notificationPublishService;
     private long counter;
     private static final int THREAD_WAIT_TIME = 100;
     private Ipv6TestUtils ipv6TestUtils;
@@ -55,7 +57,8 @@ public class Ipv6PktHandlerTest {
     public void initTest() {
         pktProcessService = Mockito.mock(PacketProcessingService.class);
         ifMgrInstance = Mockito.mock(IfMgr.class);
-        pktHandler = new Ipv6PktHandler(pktProcessService, ifMgrInstance);
+        notificationPublishService = Mockito.mock(NotificationPublishService.class);
+        pktHandler = new Ipv6PktHandler(pktProcessService, ifMgrInstance, notificationPublishService);
         counter = pktHandler.getPacketProcessedCounter();
         ipv6TestUtils = new Ipv6TestUtils();
     }
