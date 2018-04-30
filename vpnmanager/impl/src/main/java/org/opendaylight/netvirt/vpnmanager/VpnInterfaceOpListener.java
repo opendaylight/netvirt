@@ -7,9 +7,12 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency.AdjacencyType.PrimaryAdjacency;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,10 +25,12 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInterfaceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
@@ -217,7 +222,24 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     @Override
     protected void update(final InstanceIdentifier<VpnInterfaceOpDataEntry> identifier,
             final VpnInterfaceOpDataEntry original, final VpnInterfaceOpDataEntry update) {
-        LOG.info("update: interface {} vpn {}. Ignoring", original.getName(), original.getVpnInstanceName());
+        LOG.info("update: interface {} vpn {}", original.getName(), original.getVpnInstanceName());
+        AdjacenciesOp originalAdj = original.getAugmentation(AdjacenciesOp.class);
+        AdjacenciesOp updatedAdj = update.getAugmentation(AdjacenciesOp.class);
+        if (originalAdj != null && updatedAdj != null) {
+            originalAdj.getAdjacency().stream()
+                    .filter(adj -> !updatedAdj.getAdjacency().contains(adj))
+                    .filter(adj -> PrimaryAdjacency == adj.getAdjacencyType())
+                    .peek(adj -> LOG.debug("Following adjancy deleted as part update {}", adj))
+                    .forEach(adj -> {
+                        VpnInterfaceOpDataEntry vpnInterfaceTemp =
+                                new VpnInterfaceOpDataEntryBuilder(original)
+                                        .addAugmentation(AdjacenciesOp.class, new AdjacenciesOpBuilder()
+                                                .setAdjacency(Collections.singletonList(adj))
+                                                .build()).build();
+
+                        remove(identifier, vpnInterfaceTemp);
+                    });
+        }
     }
 
     @Override
