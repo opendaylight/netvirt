@@ -191,7 +191,7 @@ public class NeutronNetworkChangeListener
         Long numSegments = NeutronUtils.getNumberSegmentsFromNeutronNetwork(input);
         List<ElanSegments> segments = new ArrayList<>();
 
-        for (long index = 0L; index < numSegments; index++) {
+        for (long index = 1L; index <= numSegments; index++) {
             ElanSegmentsBuilder elanSegmentsBuilder = new ElanSegmentsBuilder();
             elanSegmentsBuilder.setSegmentationId(0L);
             if (NeutronUtils.getSegmentationIdFromNeutronNetworkSegment(input, index) != null) {
@@ -211,7 +211,7 @@ public class NeutronNetworkChangeListener
             }
             elanSegmentsBuilder.setSegmentationIndex(index);
             segments.add(elanSegmentsBuilder.build());
-            LOG.debug("Added segment {} to ELANInstance", segments.get((int)index));
+            LOG.debug("Added segment {} to ELANInstance", segments.get((int) index - 1));
         }
         return segments;
     }
