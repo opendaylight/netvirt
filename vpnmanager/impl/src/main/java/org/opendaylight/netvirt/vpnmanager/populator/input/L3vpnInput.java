@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.vpnmanager.populator.input;
 
 import java.math.BigInteger;
+
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
@@ -29,6 +30,8 @@ public class L3vpnInput {
     private Long label;
     private Long elanTag;
     private String networkName;
+    private String ipAddress;
+    private String macAddress;
 
     public String getRd() {
         return rd;
@@ -92,6 +95,14 @@ public class L3vpnInput {
 
     public String getSubnetIp() {
         return subnetIp;
+    }
+
+    public String getIpAddress() {
+        return  ipAddress;
+    }
+
+    public String getMacAddress() {
+        return  macAddress;
     }
 
     public L3vpnInput setPrimaryRd(String primaryRd) {
@@ -171,6 +182,16 @@ public class L3vpnInput {
 
     public L3vpnInput setNetworkName(String networkName) {
         this.networkName = networkName;
+        return this;
+    }
+
+    public L3vpnInput setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+        return this;
+    }
+
+    public L3vpnInput setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
         return this;
     }
 }
