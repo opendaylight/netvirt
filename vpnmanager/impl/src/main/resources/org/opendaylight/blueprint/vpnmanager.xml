@@ -52,6 +52,9 @@
   <service ref="vpnFootprintService"
            interface="org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService" />
 
+  <service ref="extraRoutePortBindingService"
+           interface="org.opendaylight.netvirt.vpnmanager.api.extraroute.IExtraRoutePortBindingService" />
+
   <odl:notification-listener ref="arpMonitorEventListener" />
 
   <service ref="subnetRoutePacketInHandler" odl:type="default"
