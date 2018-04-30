@@ -39,6 +39,7 @@ public class Ipv6ServiceInterfaceEventListener
     private final IfMgr ifMgr;
     private final Ipv6ServiceUtils ipv6ServiceUtils;
     private final JobCoordinator jobCoordinator;
+    private final Ipv6ServiceEosHandler ipv6ServiceEosHandler;
 
     /**
      * Intialize the member variables.
@@ -46,12 +47,13 @@ public class Ipv6ServiceInterfaceEventListener
      */
     @Inject
     public Ipv6ServiceInterfaceEventListener(DataBroker broker, IfMgr ifMgr, Ipv6ServiceUtils ipv6ServiceUtils,
-                                             final JobCoordinator jobCoordinator) {
+            final JobCoordinator jobCoordinator, Ipv6ServiceEosHandler ipv6ServiceEosHandler) {
         super(Interface.class, Ipv6ServiceInterfaceEventListener.class);
         this.dataBroker = broker;
         this.ifMgr = ifMgr;
         this.ipv6ServiceUtils = ipv6ServiceUtils;
         this.jobCoordinator = jobCoordinator;
+        this.ipv6ServiceEosHandler = ipv6ServiceEosHandler;
     }
 
     @PostConstruct
@@ -78,6 +80,10 @@ public class Ipv6ServiceInterfaceEventListener
             return;
         }
 
+        if (!ipv6ServiceEosHandler.isClusterOwner()) {
+            LOG.trace("Not a cluster Owner, skipping further IPv6 processing on this node.");
+            return;
+        }
         Uuid portId = new Uuid(del.getName());
         VirtualPort port = ifMgr.obtainV6Interface(portId);
         if (port == null) {
@@ -93,6 +99,10 @@ public class Ipv6ServiceInterfaceEventListener
                 return Collections.emptyList();
             }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         }
+
+        VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
+        ifMgr.handleInterfaceStateEvent(port, ipv6ServiceUtils.getDpIdFromInterfaceState(del), routerPort,
+                Ipv6Constants.DEL_FLOW);
     }
 
     @Override
@@ -144,13 +154,17 @@ public class Ipv6ServiceInterfaceEventListener
                 Long ofPort = MDSALUtil.getOfPortNumberFromPortName(nodeConnectorId);
                 ifMgr.updateDpnInfo(portId, dpId, ofPort);
 
+                if (!ipv6ServiceEosHandler.isClusterOwner()) {
+                    LOG.trace("Not a cluster Owner, skipping further IPv6 processing on this node.");
+                    return;
+                }
+
                 VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
                 if (routerPort == null) {
                     LOG.info("Port {} is not associated to a Router, skipping.", portId);
                     return;
                 }
-                // Check and program icmpv6 punt flows on the dpnID if its the first VM on the host.
-                ifMgr.programIcmpv6PuntFlowsIfNecessary(portId, dpId, routerPort);
+                ifMgr.handleInterfaceStateEvent(port, dpId, routerPort, Ipv6Constants.ADD_FLOW);
 
                 if (!port.getServiceBindingStatus()) {
                     jobCoordinator.enqueueJob("IPv6-" + String.valueOf(portId), () -> {
