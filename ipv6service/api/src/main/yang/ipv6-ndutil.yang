@@ -39,11 +39,69 @@ module ipv6-ndutil {
 
 
     rpc send-neighbor-solicitation {
-          input {
-              leaf target-ip-address {
-                  type inet:ipv6-address;
-              }
-              uses interfaces;
-          }
+        input {
+            leaf target-ip-address {
+                type inet:ipv6-address;
+            }
+            uses interfaces;
+        }
+    }
+
+    rpc send-neighbor-solicitation-to-of-group {
+        input {
+            leaf source-ipv6 {
+                type inet:ipv6-address;
+                mandatory "true";
+            }
+            leaf target-ip-address {
+                type inet:ipv6-address;
+                mandatory "true";
+            }
+            leaf source-ll-address {
+               type yang:mac-address;
+               mandatory "true";
+            }
+            leaf dp-id {
+               type uint64;
+               mandatory "true";
+            }
+            leaf of-group-id {
+               type uint32;
+               mandatory "true";
+               description "NS will be sent to the specified OpenFlow group ID.";
+            }
+        }
+    }
+
+    notification na-received {
+        leaf source-mac {
+            type yang:mac-address;
+        }
+        leaf destination-mac {
+            type yang:mac-address;
+        }
+        leaf source-ipv6 {
+            type inet:ipv6-address;
+        }
+        leaf destination-ipv6 {
+            type inet:ipv6-address;
+        }
+        leaf target-address {
+            type inet:ipv6-address;
+        }
+        leaf target-ll-address {
+            type yang:mac-address;
+        }
+        leaf of-table-id {
+            type uint32;
+        }
+        leaf metadata {
+            type uint64;
+        }
+        leaf interface {
+            type leafref {
+                path "/if:interfaces/if:interface/if:name";
+            }
+        }
     }
 }
