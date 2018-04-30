@@ -30,8 +30,10 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -91,6 +93,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
@@ -1273,7 +1277,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         public List<ListenableFuture<Void>> call() {
             // If another renderer(for eg : CSS) needs to be supported, check can be performed here
             // to call the respective helpers.
-            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
                 //First Cleanup LabelRouteInfo
                 //TODO(KIRAN) : Move the below block when addressing iRT/eRT for L3VPN Over VxLan
                 LOG.debug("cleanupVpnInterfaceWorker: rd {} prefix {}", rd, prefixInfo.getIpAddress());
@@ -1345,28 +1349,56 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                 VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, vrfEntry.getDestPrefix()));
                     }
                 }
-                Optional<AdjacenciesOp> optAdjacencies =
-                    MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                                   FibUtil.getAdjListPathOp(ifName, vpnName));
-                int numAdj = 0;
-                if (optAdjacencies.isPresent()) {
-                    numAdj = optAdjacencies.get().getAdjacency().size();
-                }
-                //remove adjacency corr to prefix
-                if (numAdj > 1) {
-                    LOG.info("cleanUpOpDataForFib: remove adjacency for prefix: {} {} vpnName {}", vpnId,
-                             vrfEntry.getDestPrefix(), vpnName);
-                    tx.delete(LogicalDatastoreType.OPERATIONAL,
-                              FibUtil.getAdjacencyIdentifierOp(ifName, vpnName, vrfEntry.getDestPrefix()));
-                } else {
-                    //this is last adjacency (or) no more adjacency left for this vpn interface, so
-                    //clean up the vpn interface from DpnToVpn list
-                    LOG.info("Clean up vpn interface {} from dpn {} to vpn {} list.",
-                             ifName, prefixInfo.getDpnId(), rd);
-                    tx.delete(LogicalDatastoreType.OPERATIONAL,
-                              FibUtil.getVpnInterfaceOpDataEntryIdentifier(ifName, vpnName));
-                }
+                handleAdjacencyAndVpnOpInterfaceDeletion(vrfEntry, ifName, vpnName, tx);
             }));
+        }
+    }
+
+    /**
+     * Check all the adjacency in VpnInterfaceOpData and decide whether to delete the entire interface or only adj.
+     * Remove Adjacency from VPNInterfaceOpData.
+     * if Adjacency != primary.
+     * if Adjacency == primary , then mark it for deletion.
+     * Remove entire VPNinterfaceOpData Entry.
+     * if sie of Adjacency <= 2 and all are marked for deletion , delete the entire VPNinterface Op entry.
+     * @param vrfEntry - VrfEntry removed
+     * @param ifName - Interface name from VRFentry
+     * @param vpnName - VPN name of corresponding VRF
+     * @param tx - ReadWrite Tx
+     * @throws ReadFailedException - Exception thrown in case of read failed
+     */
+    private void handleAdjacencyAndVpnOpInterfaceDeletion(VrfEntry vrfEntry, String ifName, String vpnName,
+                                                          ReadWriteTransaction tx) throws ReadFailedException {
+        InstanceIdentifier<Adjacency> adjacencyIid =
+                FibUtil.getAdjacencyIdentifierOp(ifName, vpnName, vrfEntry.getDestPrefix());
+        Optional<Adjacency> adjacencyOptional = tx.read(LogicalDatastoreType.OPERATIONAL, adjacencyIid).checkedGet();
+        if (adjacencyOptional.isPresent()) {
+            if (adjacencyOptional.get().getAdjacencyType() != Adjacency.AdjacencyType.PrimaryAdjacency) {
+                tx.delete(LogicalDatastoreType.OPERATIONAL,
+                        FibUtil.getAdjacencyIdentifierOp(ifName, vpnName, vrfEntry.getDestPrefix()));
+            } else {
+                tx.merge(LogicalDatastoreType.OPERATIONAL, adjacencyIid,
+                        new AdjacencyBuilder(adjacencyOptional.get()).setMarkedForDeletion(true).build());
+            }
+        }
+
+        Optional<AdjacenciesOp> optAdjacencies =
+                tx.read(LogicalDatastoreType.OPERATIONAL,
+                        FibUtil.getAdjListPathOp(ifName, vpnName)).checkedGet();
+
+        if (!optAdjacencies.isPresent() || optAdjacencies.get().getAdjacency() == null) {
+            return;
+        }
+
+        if (optAdjacencies.get().getAdjacency().stream().count() <= 2
+                && optAdjacencies.get().getAdjacency().stream().allMatch(adjacency ->
+                adjacency.getAdjacencyType() == Adjacency.AdjacencyType.PrimaryAdjacency
+                        && adjacency.isMarkedForDeletion() != null
+                        && adjacency.isMarkedForDeletion()
+        )) {
+            LOG.info("Clean up vpn interface {} to vpn {} list.", ifName, vpnName);
+            tx.delete(LogicalDatastoreType.OPERATIONAL,
+                    FibUtil.getVpnInterfaceOpDataEntryIdentifier(ifName, vpnName));
         }
     }
 
