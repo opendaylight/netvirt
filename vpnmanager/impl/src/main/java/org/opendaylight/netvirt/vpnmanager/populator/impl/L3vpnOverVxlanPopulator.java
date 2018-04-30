@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -58,13 +59,12 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
         }
         String rd = input.getRd();
         String primaryRd = input.getPrimaryRd();
-        Adjacency nextHop = input.getNextHop();
-        LOG.info("populateFib : Found Interface Adjacency with prefix {} rd {}", nextHop.getIpAddress(), primaryRd);
+        String ipAddress = input.getIpAddress();
+        LOG.info("populateFib : Found Interface Adjacency with prefix {} rd {}", ipAddress, primaryRd);
         if (!rd.equalsIgnoreCase(input.getVpnName()) && !rd.equals(input.getNetworkName())) {
             Objects.requireNonNull(input.getRouteOrigin(), "populateFib: RouteOrigin is mandatory");
-            addPrefixToBGP(rd, primaryRd, nextHop.getMacAddress(), nextHop.getIpAddress(), input.getNextHopIp(),
-                    input.getEncapType(), 0 /*label*/, input.getL3vni(), input.getGatewayMac(),
-                    input.getRouteOrigin(), writeConfigTxn);
+            addPrefixToBGP(rd, primaryRd, input.getMacAddress(), ipAddress, input.getNextHopIp(), input.getEncapType(),
+                    0 /*label*/, input.getL3vni(), input.getGatewayMac(), input.getRouteOrigin(), writeConfigTxn);
         } else {
             LOG.error("Internal VPN for L3 Over VxLAN is not supported. Aborting.");
             return;
