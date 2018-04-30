@@ -24,6 +24,8 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -52,6 +54,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.genius.utils.batching.SubTransactionImpl;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -93,6 +96,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final NexthopManager nextHopManager;
     private final IMdsalApiManager mdsalManager;
     private final FibUtil fibUtil;
@@ -103,6 +107,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                                final IMdsalApiManager mdsalManager,
                                final FibUtil fibUtil) {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.nextHopManager = nexthopManager;
         this.mdsalManager = mdsalManager;
         this.fibUtil = fibUtil;
@@ -212,10 +217,11 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     protected void makeConnectedRoute(BigInteger dpId, long vpnId, VrfEntry vrfEntry, String rd,
                             List<InstructionInfo> instructions, int addOrRemove, WriteTransaction tx,
                             List<SubTransaction> subTxns) {
-        Boolean wrTxPresent = true;
         if (tx == null) {
-            wrTxPresent = false;
-            tx = dataBroker.newWriteOnlyTransaction();
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                newTx -> makeConnectedRoute(dpId, vpnId, vrfEntry, rd, instructions, addOrRemove, newTx, subTxns)),
+                LOG, "Error making connected route");
+            return;
         }
 
         LOG.trace("makeConnectedRoute: vrfEntry {}", vrfEntry);
@@ -283,10 +289,6 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             tx.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow, true);
         } else {
             tx.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
-        }
-
-        if (!wrTxPresent) {
-            tx.submit();
         }
     }
 
@@ -435,11 +437,11 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                                   final long vpnId, final VrfTablesKey vrfTableKey,
                                   final VrfEntry vrfEntry, Optional<Routes> extraRouteOptional,
                                   WriteTransaction tx) {
-
-        Boolean wrTxPresent = true;
         if (tx == null) {
-            wrTxPresent = false;
-            tx = dataBroker.newWriteOnlyTransaction();
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                newTx -> deleteRemoteRoute(localDpnId, remoteDpnId, vpnId, vrfTableKey, vrfEntry,
+                        extraRouteOptional, newTx)), LOG, "Error deleting remote route");
+            return;
         }
 
         LOG.debug("deleting remote route: prefix={}, vpnId={} localDpnId {} remoteDpnId {}",
@@ -464,9 +466,6 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                     Collections.emptyList() /*listBucketInfo*/ , false);
         } else {
             checkDpnDeleteFibEntry(localNextHopInfo, remoteDpnId, vpnId, vrfEntry, rd, tx, null);
-        }
-        if (!wrTxPresent) {
-            tx.submit();
         }
     }
 
