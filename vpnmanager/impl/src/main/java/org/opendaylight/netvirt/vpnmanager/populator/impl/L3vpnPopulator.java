@@ -7,16 +7,8 @@
  */
 package org.opendaylight.netvirt.vpnmanager.populator.impl;
 
-import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
-import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.infrautils.utils.concurrent.ListenableFutures.addErrorLogging;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import java.math.BigInteger;
-import java.util.Collections;
-import java.util.List;
-import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -50,6 +42,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.math.BigInteger;
+import java.util.Collections;
+import java.util.List;
+
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.infrautils.utils.concurrent.ListenableFutures.addErrorLogging;
 
 public abstract class L3vpnPopulator implements VpnPopulator {
     private static final Logger LOG = LoggerFactory.getLogger(L3vpnPopulator.class);
@@ -204,19 +205,19 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                                   TypedWriteTransaction<Configuration> writeConfigTxn) {
         try {
             List<String> nextHopList = Collections.singletonList(nextHopIp);
-            LOG.info("ADD: addPrefixToBGP: Adding Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,
-                    nextHopList, label, gatewayMac);
+            LOG.info("ADD: addPrefixToBGP: Adding Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", primaryRd,
+                    prefix, nextHopList, label, gatewayMac);
             fibManager.addOrUpdateFibEntry(primaryRd, macAddress, prefix, nextHopList,
                     encapType, (int)label, l3vni, gatewayMac, null /*parentVpnRd*/, origin, writeConfigTxn);
-            LOG.info("ADD: addPrefixToBGP: Added Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,
-                    nextHopList, label, gatewayMac);
+            LOG.info("ADD: addPrefixToBGP: Added Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", primaryRd,
+                    prefix, nextHopList, label, gatewayMac);
             // Advertise the prefix to BGP only if nexthop ip is available
             if (!nextHopList.isEmpty()) {
                 bgpManager.advertisePrefix(rd, macAddress, prefix, nextHopList, encapType, (int)label,
                         l3vni, 0 /*l2vni*/, gatewayMac);
             } else {
                 LOG.error("addPrefixToBGP: NextHopList is null/empty. Hence rd {} prefix {} nextHop {} label {}"
-                        + " gwMac {} is not advertised to BGP", rd, prefix, nextHopList, label, gatewayMac);
+                        + " gwMac {} is not advertised to BGP", primaryRd, prefix, nextHopList, label, gatewayMac);
             }
         } catch (Exception e) {
             LOG.error("addPrefixToBGP: Add prefix {} with rd {} nextHop {} label {} gwMac {} failed", prefix, rd,
