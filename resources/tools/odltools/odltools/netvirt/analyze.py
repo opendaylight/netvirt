@@ -1,15 +1,14 @@
+import config
+import flow_parser
+import flows
 from odltools.mdsal.models import constants
 from odltools.mdsal.models import ietf_interfaces
 from odltools.mdsal.models import itm_state
 from odltools.mdsal.models import l3vpn
 from odltools.mdsal.models import neutron
+from odltools.mdsal.models.opendaylight_inventory import Nodes
 from odltools.mdsal.models.model import Model
 from odltools.netvirt import utils
-from odltools.netvirt.utils import sort
-
-
-def get_all_flows(modules=['ifm'], filter=[]):
-    return []
 
 
 def print_keys(ifaces, ifstates):
@@ -120,7 +119,7 @@ def analyze_trunks(args):
     print '\n------------------------------------'
     print   'Analyzing Flow status for SubPorts'
     print   '------------------------------------'
-    for flow in sort(get_all_flows(['ifm'], ['vlanid']), 'ifname'):
+    for flow in utils.sort(flows.get_all_flows(['ifm'], ['vlanid']), 'ifname'):
         subport = subport_dict.get(flow.get('ifname')) or None
         vlanid = subport.get('segmentation-id') if subport else None
         ofport = subport.get('ofport') if subport else None
@@ -132,3 +131,42 @@ def analyze_trunks(args):
         if subport:
             print 'SubPort:{},Table:{},FlowStatus:{}'.format(
                 subport.get('port-id'), flow.get('table'), flow_status)
+
+
+def analyze_neutron_port(port, iface, ifstate):
+    for flow in utils.sort(flows.get_all_flows(['all']), 'table'):
+        if ((flow.get('ifname') == port['uuid']) or
+                (flow.get('lport') and ifstate and flow['lport'] == ifstate.get('if-index')) or
+                (iface['name'] == flow.get('ifname'))):
+            result = 'Table:{},FlowId:{}{}'.format(
+                flow['table'], flow['id'],
+                utils.show_optionals(flow))
+            print result
+            print 'Flow:', utils.format_json(None, flow_parser.parse_flow(flow.get('flow')))
+
+
+def analyze_inventory(args):
+    config.get_models(args, {
+        "odl_inventory_nodes_config",
+        "odl_inventory_nodes_operational"})
+
+    if args.isConfig:
+        nodes = config.gmodels.odl_inventory_nodes_config.get_nodes_by_key()
+        print "Inventory Config:"
+    else:
+        print "Inventory Operational:"
+        nodes = config.gmodels.odl_inventory_nodes_operational.get_nodes_by_key()
+    node = nodes.get("openflow:" + args.nodeId)
+    tables = node.get(Nodes.NODE_TABLE)
+    groups = node.get(Nodes.NODE_GROUP)
+    flow_list = []
+    print "Flows:"
+    for table in tables:
+        for flow in table.get('flow', []):
+            if not args.ifName or args.ifName in utils.nstr(flow.get('flow-name')):
+                flow_dict = {'table': table['id'], 'id': flow['id'], 'name': flow.get('flow-name'), 'flow': flow}
+                flow_list.append(flow_dict)
+    flows = sorted(flow_list, key=lambda x: x['table'])
+    for flow in flows:
+        print 'Table:', flow['table']
+        print 'FlowId:', flow['id'], 'FlowName:', flow.get('name')

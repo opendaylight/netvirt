@@ -54,3 +54,9 @@ def to_hex(data, ele=None):
         return data[ele]
     else:
         return data
+
+
+def nstr(s):
+    if not s:
+        return ''
+    return str(s)
