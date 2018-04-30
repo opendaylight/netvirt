@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "60f3efb0_1d0713d3",
+        "filename": "fibmanager/api/src/main/java/org/opendaylight/netvirt/fibmanager/api/RouteOrigin.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-30T05:31:35Z",
+      "side": 1,
+      "message": "can you please let us know where you will want to use this new enum to handle things differently?",
+      "revId": "e4c1f59bdd0ae28c1aadf58a26e83e8109d8faec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
