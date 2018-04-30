@@ -25,6 +25,8 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -41,6 +43,7 @@ import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceHandler;
 import org.opendaylight.genius.utils.batching.SubTransaction;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
@@ -68,6 +71,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
     private static final int BATCH_SIZE = 1000;
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final BlockingQueue<ActionableResource> vrfEntryBufferQ = new LinkedBlockingQueue<>();
     private final ResourceBatchingManager resourceBatchingManager;
     private final NexthopManager nexthopManager;
@@ -78,6 +82,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
                                    final FibUtil fibUtil) {
         super(dataBroker, nexthopManager, null, fibUtil);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.nexthopManager = nexthopManager;
 
         resourceBatchingManager = ResourceBatchingManager.getInstance();
@@ -280,10 +285,11 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
                                      final VrfEntry vrfEntry,
                                      WriteTransaction tx,
                                      List<SubTransaction> subTxns) {
-        Boolean wrTxPresent = true;
         if (tx == null) {
-            wrTxPresent = false;
-            tx = dataBroker.newWriteOnlyTransaction();
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                newTx -> createRemoteFibEntry(remoteDpnId, vpnId, rd, vrfEntry, newTx, subTxns)), LOG,
+                "Error creating remote FIB entry");
+            return;
         }
 
         LOG.debug("createRemoteFibEntry: adding route {} for rd {} on remoteDpnId {}",
@@ -299,9 +305,6 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
 
         programRemoteFibForBgpRoutes(remoteDpnId, vpnId, vrfEntry, tx, rd, adjacencyResults, subTxns);
 
-        if (!wrTxPresent) {
-            tx.submit();
-        }
         LOG.debug("Successfully added FIB entry for prefix {} in vpnId {}", vrfEntry.getDestPrefix(), vpnId);
     }
 
@@ -319,11 +322,11 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
                                   final long vpnId, final VrfTablesKey vrfTableKey,
                                   final VrfEntry vrfEntry, Optional<Routes> extraRouteOptional,
                                   WriteTransaction tx, List<SubTransaction> subTxns) {
-
-        Boolean wrTxPresent = true;
         if (tx == null) {
-            wrTxPresent = false;
-            tx = dataBroker.newWriteOnlyTransaction();
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                newTx -> deleteRemoteRoute(localDpnId, remoteDpnId, vpnId, vrfTableKey, vrfEntry,
+                        extraRouteOptional, newTx)), LOG, "Error deleting remote route");
+            return;
         }
 
         LOG.debug("deleting remote route: prefix={}, vpnId={} localDpnId {} remoteDpnId {}",
@@ -347,9 +350,6 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
                     Collections.emptyList()  /*listBucketInfo*/ , false);
         } else {
             checkDpnDeleteFibEntry(localNextHopInfo, remoteDpnId, vpnId, vrfEntry, rd, tx, subTxns);
-        }
-        if (!wrTxPresent) {
-            tx.submit();
         }
     }
 
