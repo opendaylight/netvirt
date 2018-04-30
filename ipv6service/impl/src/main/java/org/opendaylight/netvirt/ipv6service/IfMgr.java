@@ -41,6 +41,7 @@ import org.opendaylight.netvirt.ipv6service.utils.Ipv6TimerWheel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -269,6 +270,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
 
         programIcmpv6NSPuntFlowForAddress(intf, fixedIp.getIpv6Address(), Ipv6Constants.ADD_FLOW);
+        programIcmpv6NaPuntFlow(intf, Ipv6Constants.ADD_FLOW);
 
         if (newIntf) {
             LOG.debug("start the periodic RA Timer for routerIntf {}", portId);
@@ -336,11 +338,13 @@ public class IfMgr implements ElementCache, AutoCloseable {
         for (Ipv6Address ipv6Address: newlyAddedIpv6AddressList) {
             // Some v6 subnets are associated to the routerPort add the corresponding NS Flows.
             programIcmpv6NSPuntFlowForAddress(intf, ipv6Address, Ipv6Constants.ADD_FLOW);
+            programIcmpv6NaPuntFlow(intf, Ipv6Constants.ADD_FLOW);
         }
 
         for (Ipv6Address ipv6Address: existingIPv6AddressList) {
             // Some v6 subnets are disassociated from the routerPort, remove the corresponding NS Flows.
             programIcmpv6NSPuntFlowForAddress(intf, ipv6Address, Ipv6Constants.DEL_FLOW);
+            programIcmpv6NaPuntFlow(intf, Ipv6Constants.DEL_FLOW);
         }
     }
 
@@ -474,6 +478,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
                 programIcmpv6RSPuntFlows(intf, Ipv6Constants.DEL_FLOW);
                 for (Ipv6Address ipv6Address: intf.getIpv6Addresses()) {
                     programIcmpv6NSPuntFlowForAddress(intf, ipv6Address, Ipv6Constants.DEL_FLOW);
+                    programIcmpv6NaPuntFlow(intf, Ipv6Constants.DEL_FLOW);
                 }
                 transmitRouterAdvertisement(intf, Ipv6RtrAdvertType.CEASE_ADVERTISEMENT);
                 timer.cancelPeriodicTransmissionTimeout(intf.getPeriodicTimeout());
@@ -578,35 +583,96 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
-    public void programIcmpv6PuntFlowsIfNecessary(Uuid vmPortId, BigInteger dpId, VirtualPort routerPort) {
+    private void programIcmpv6NaPuntFlow(VirtualPort routerPort, int action) {
         if (!ipv6ServiceEosHandler.isClusterOwner()) {
             LOG.trace("Not a cluster Owner, skip flow programming.");
             return;
         }
 
-        IVirtualPort vmPort = getPort(vmPortId);
-        if (null != vmPort) {
-            VirtualNetwork vnet = getNetwork(vmPort.getNetworkID());
-            if (null != vnet) {
-                VirtualNetwork.DpnInterfaceInfo dpnInfo = vnet.getDpnIfaceInfo(dpId);
-                if (null != dpnInfo) {
-                    Long elanTag = getNetworkElanTag(routerPort.getNetworkID());
-                    if (vnet.getRSPuntFlowStatusOnDpnId(dpId) == Ipv6Constants.FLOWS_NOT_CONFIGURED) {
-                        ipv6ServiceUtils.installIcmpv6RsPuntFlow(NwConstants.IPV6_TABLE, dpId, elanTag,
-                                Ipv6Constants.ADD_FLOW);
-                        vnet.setRSPuntFlowStatusOnDpnId(dpId, Ipv6Constants.FLOWS_CONFIGURED);
-                    }
-
-                    for (Ipv6Address ipv6Address: routerPort.getIpv6Addresses()) {
-                        if (!dpnInfo.ndTargetFlowsPunted.contains(ipv6Address)) {
-                            ipv6ServiceUtils.installIcmpv6NsPuntFlow(NwConstants.IPV6_TABLE, dpId,
-                                    elanTag, ipv6Address.getValue(), Ipv6Constants.ADD_FLOW);
-                            dpnInfo.updateNDTargetAddress(ipv6Address, Ipv6Constants.ADD_FLOW);
+        Long elanTag = getNetworkElanTag(routerPort.getNetworkID());
+        VirtualNetwork vnet = getNetwork(routerPort.getNetworkID());
+        if (vnet != null) {
+            Collection<VirtualNetwork.DpnInterfaceInfo> dpnIfaceList = vnet.getDpnIfaceList();
+            for (VirtualNetwork.DpnInterfaceInfo dpnIfaceInfo : dpnIfaceList) {
+                if (dpnIfaceInfo.getDpId() == null) {
+                    continue;
+                }
+                for (VirtualSubnet subnet : routerPort.getSubnets()) {
+                    Ipv6Prefix ipv6SubnetPrefix = subnet.getSubnetCidr().getIpv6Prefix();
+                    if (ipv6SubnetPrefix != null) {
+                        ipv6ServiceUtils.installIcmpv6NaPuntFlow(NwConstants.IPV6_TABLE, ipv6SubnetPrefix,
+                                dpnIfaceInfo.getDpId(), elanTag, action);
+                        if (action == Ipv6Constants.ADD_FLOW) {
+                            vnet.setSubnetCidrPuntFlowStatusOnDpnId(dpnIfaceInfo.getDpId(), ipv6SubnetPrefix,
+                                    Ipv6Constants.FLOWS_CONFIGURED);
+                        } else {
+                            vnet.setSubnetCidrPuntFlowStatusOnDpnId(dpnIfaceInfo.getDpId(), ipv6SubnetPrefix,
+                                    Ipv6Constants.FLOWS_NOT_CONFIGURED);
                         }
                     }
                 }
             }
         }
+    }
+
+    public void handleInterfaceStateEvent(Uuid vmPortId, BigInteger dpId, VirtualPort routerPort, int addOrRemove) {
+        IVirtualPort vmPort = getPort(vmPortId);
+        if (null != vmPort) {
+            Long elanTag = getNetworkElanTag(routerPort.getNetworkID());
+            if (addOrRemove == Ipv6Constants.ADD_FLOW) {
+                // Check and program icmpv6 punt flows on the dpnID if its the first VM on the host.
+                programIcmpv6PuntFlows(vmPort, dpId, elanTag, routerPort);
+            }
+            programIcmpv6NaForwardFlow(vmPort, dpId, elanTag, addOrRemove);
+        }
+    }
+
+    private void programIcmpv6PuntFlows(IVirtualPort vmPort, BigInteger dpId, Long elanTag, VirtualPort routerPort) {
+        VirtualNetwork vnet = getNetwork(vmPort.getNetworkID());
+        if (null != vnet) {
+            VirtualNetwork.DpnInterfaceInfo dpnInfo = vnet.getDpnIfaceInfo(dpId);
+            if (null != dpnInfo) {
+                if (vnet.getRSPuntFlowStatusOnDpnId(dpId) == Ipv6Constants.FLOWS_NOT_CONFIGURED) {
+                    ipv6ServiceUtils.installIcmpv6RsPuntFlow(NwConstants.IPV6_TABLE, dpId, elanTag,
+                            Ipv6Constants.ADD_FLOW);
+                    vnet.setRSPuntFlowStatusOnDpnId(dpId, Ipv6Constants.FLOWS_CONFIGURED);
+                }
+
+                for (Ipv6Address ipv6Address : routerPort.getIpv6Addresses()) {
+                    if (!dpnInfo.ndTargetFlowsPunted.contains(ipv6Address)) {
+                        ipv6ServiceUtils.installIcmpv6NsPuntFlow(NwConstants.IPV6_TABLE, dpId,
+                                elanTag, ipv6Address.getValue(), Ipv6Constants.ADD_FLOW);
+                        dpnInfo.updateNDTargetAddress(ipv6Address, Ipv6Constants.ADD_FLOW);
+                    }
+                }
+
+                for (VirtualSubnet subnet : routerPort.getSubnets()) {
+                    Ipv6Prefix ipv6SubnetPrefix = subnet.getSubnetCidr().getIpv6Prefix();
+                    if (ipv6SubnetPrefix != null) {
+                        if (vnet.getSubnetCidrPuntFlowStatusOnDpnId(dpId, ipv6SubnetPrefix)
+                                == Ipv6Constants.FLOWS_NOT_CONFIGURED) {
+                            ipv6ServiceUtils.installIcmpv6NaPuntFlow(NwConstants.IPV6_TABLE, ipv6SubnetPrefix,
+                                    dpId, elanTag, Ipv6Constants.ADD_FLOW);
+                            vnet.setSubnetCidrPuntFlowStatusOnDpnId(dpId, ipv6SubnetPrefix,
+                                    Ipv6Constants.FLOWS_CONFIGURED);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Programs ICMPv6 NA forwarding flow for fixed IPs of neutron port. NA's from non-fixed IPs are
+     * punted to controller for learning.
+     *
+     * @param vmPort the VM port
+     * @param dpId the DP ID
+     * @param elanTag the ELAN tag
+     * @param addOrRemove the add or remove flag
+     */
+    private void programIcmpv6NaForwardFlow(IVirtualPort vmPort, BigInteger dpId, Long elanTag, int addOrRemove) {
+        ipv6ServiceUtils.installIcmpv6NaForwardFlow(NwConstants.IPV6_TABLE, vmPort, dpId, elanTag, addOrRemove);
     }
 
     public String getInterfaceNameFromTag(long portTag) {

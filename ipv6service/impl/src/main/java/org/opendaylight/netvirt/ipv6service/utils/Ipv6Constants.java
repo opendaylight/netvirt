@@ -27,6 +27,8 @@ public interface Ipv6Constants {
     int ICMPV6_OPTION_SOURCE_LLA_LENGTH = 8;
     int ICMPV6_OPTION_PREFIX_LENGTH = 32;
 
+    int ICMPV6_NA_LENGTH_WO_OPTIONS = 24;
+
     int IPV6_DEFAULT_HOP_LIMIT = 64;
     int IPV6_ROUTER_LIFETIME = 4500;
     int IPV6_RA_VALID_LIFETIME = 2592000;
@@ -57,6 +59,7 @@ public interface Ipv6Constants {
 
     BigInteger INVALID_DPID = new BigInteger("-1");
     short DEFAULT_FLOW_PRIORITY = 50;
+    short PUNT_NA_FLOW_PRIORITY = 40;
     String FLOWID_PREFIX = "IPv6.";
     String FLOWID_SEPARATOR = ".";
 
