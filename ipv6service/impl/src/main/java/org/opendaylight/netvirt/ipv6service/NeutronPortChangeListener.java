@@ -88,16 +88,21 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
             LOG.info("IPv6Service (TODO): Skipping router_gateway port {} for update event", update);
             return;
         }
-
         LOG.debug("update port notification handler is invoked for port {} ", update);
 
-        Set<FixedIps> oldIPs = getFixedIpSet(original.getFixedIps());
-        Set<FixedIps> newIPs = getFixedIpSet(update.getFixedIps());
-        if (!oldIPs.equals(newIPs)) {
+        Set<FixedIps> ipsBefore = getFixedIpSet(original.getFixedIps());
+        Set<FixedIps> ipsAfter = getFixedIpSet(update.getFixedIps());
+
+        Set<FixedIps> deletedIps = new HashSet<>(ipsBefore);
+        deletedIps.removeAll(ipsAfter);
+
+        if (!ipsBefore.equals(ipsAfter)) {
             Boolean portIncludesV6Address = Boolean.FALSE;
             ifMgr.clearAnyExistingSubnetInfo(update.getUuid());
-            List<FixedIps> ipList = update.getFixedIps();
-            for (FixedIps fixedip : ipList) {
+
+            Set<FixedIps> remainingIps = new HashSet<>(ipsAfter);
+            remainingIps.removeAll(deletedIps);
+            for (FixedIps fixedip : remainingIps) {
                 if (fixedip.getIpAddress().getIpv4Address() != null) {
                     continue;
                 }
@@ -106,7 +111,8 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
             }
 
             if (update.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
-                ifMgr.updateRouterIntf(update.getUuid(), new Uuid(update.getDeviceId()), update.getFixedIps());
+                ifMgr.updateRouterIntf(update.getUuid(), new Uuid(update.getDeviceId()), update.getFixedIps(),
+                        deletedIps);
             } else {
                 ifMgr.updateHostIntf(update.getUuid(), portIncludesV6Address);
             }
