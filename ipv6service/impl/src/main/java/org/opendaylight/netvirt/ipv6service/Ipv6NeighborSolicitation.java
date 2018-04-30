@@ -12,9 +12,13 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
@@ -126,4 +130,18 @@ public class Ipv6NeighborSolicitation {
         return true;
     }
 
+    public void transmitNeighborSolicitationToOfGroup(BigInteger dpId, MacAddress srcMacAddress,
+            Ipv6Address srcIpv6Address, Ipv6Address targetIpv6Address, long ofGroupId) {
+        byte[] txPayload = frameNeighborSolicitationRequest(srcMacAddress, srcIpv6Address, targetIpv6Address);
+        List<ActionInfo> lstActionInfo = new ArrayList<>();
+        lstActionInfo.add(new ActionGroup(ofGroupId));
+
+        TransmitPacketInput input = MDSALUtil.getPacketOutDefault(lstActionInfo, txPayload, dpId);
+        // Tx the packet out of the controller.
+        LOG.debug(
+                "Transmitting Neighbor Solicitation packet out. srcMacAddress={}, srcIpv6Address={}, "
+                        + "targetIpv6Address={}, dpId={}, ofGroupId={}",
+                srcMacAddress.getValue(), srcIpv6Address.getValue(), targetIpv6Address.getValue(), dpId, ofGroupId);
+        JdkFutures.addErrorLogging(packetService.transmitPacket(input), LOG, "transmitPacket");
+    }
 }
