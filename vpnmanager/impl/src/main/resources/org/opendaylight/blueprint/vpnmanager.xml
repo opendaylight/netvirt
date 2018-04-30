@@ -60,6 +60,9 @@
 
   <odl:notification-listener ref="ipMonitorEventListener" />
 
+  <service ref="extraRoutePortBindingService"
+           interface="org.opendaylight.netvirt.vpnmanager.api.extraroute.IExtraRoutePortBindingService" />
+
   <service ref="subnetRoutePacketInHandler" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener" />
   <odl:notification-listener ref="subnetRoutePacketInHandler" />
