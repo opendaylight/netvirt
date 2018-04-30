@@ -25,6 +25,16 @@ def add_interface_parser(parsers):
                         help="interfaces-state:interface:name")
     parser.set_defaults(func=analyze.analyze_interface)
 
+    parser = parsers.add_parser("inventory")
+    add_common_args(parser)
+    parser.add_argument("--ifName",
+                        help="interfaces-state:interface:name")
+    parser.add_argument("--isConfig",
+                        help="config or operational inventory")
+    parser.add_argument("--nodeId",
+                        help="nodeId")
+    parser.set_defaults(func=analyze.analyze_inventory)
+
     parser = parsers.add_parser("trunks")
     add_common_args(parser)
     parser.set_defaults(func=analyze.analyze_trunks)
