@@ -486,6 +486,24 @@
       "revId": "79953c574030d13b9052c7185c1eb5ef0161f88a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f0e5e0ab_8e9eb018",
+        "filename": "docs/specs/fluorine/index.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-04-30T11:05:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb349dc3_62696581",
+      "revId": "79953c574030d13b9052c7185c1eb5ef0161f88a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
