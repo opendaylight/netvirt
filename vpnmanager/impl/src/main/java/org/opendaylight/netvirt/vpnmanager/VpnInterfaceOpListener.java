@@ -126,7 +126,8 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
             if (vpnInstOp != null && adjList != null && adjList.size() > 0) {
                 /*
                  * When a VPN Interface is removed by FibManager (aka VrfEntryListener and its cohorts),
-                 * one adjacency for that VPN Interface will be hanging around along with that
+                 * one adjacency or two adjacency (in case of dual-stack)
+                 * for that VPN Interface will be hanging around along with that
                  * VPN Interface.   That adjacency could be primary (or) non-primary.
                  * If its a primary adjacency, then a prefix-to-interface entry will be available for the
                  * same.  If its a non-primary adjacency, then a prefix-to-interface entry will not be
@@ -205,7 +206,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     @Override
     protected void update(final InstanceIdentifier<VpnInterfaceOpDataEntry> identifier,
             final VpnInterfaceOpDataEntry original, final VpnInterfaceOpDataEntry update) {
-        LOG.info("update: interface {} vpn {}. Ignoring", original.getName(), original.getVpnInstanceName());
+        LOG.info("update: interface {} vpn {}", original.getName(), original.getVpnInstanceName());
     }
 
     @Override
