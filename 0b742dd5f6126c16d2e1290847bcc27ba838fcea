@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "59cdc699_2f6c6640",
+        "filename": "checkstyle/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-04-30T15:02:02Z",
+      "side": 1,
+      "message": "IMO modelVersion belongs at the top of the file, along with the matching DTD declaration, but I’ll move it. I’m also moving the POM to commons.",
+      "parentUuid": "0f0cf2e1_1c1298e7",
+      "revId": "0b742dd5f6126c16d2e1290847bcc27ba838fcea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "51355f15_e7cdf02a",
         "filename": "commons/managed-tx-parent/pom.xml",
         "patchSetId": 2
