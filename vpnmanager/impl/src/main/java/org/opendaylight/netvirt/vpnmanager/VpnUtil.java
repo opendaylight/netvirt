@@ -467,7 +467,7 @@ public final class VpnUtil {
         return null;
     }
 
-    static Routes getVpnToExtraroute(String ipPrefix, List<String> nextHopList) {
+    public static Routes getVpnToExtraroute(String ipPrefix, List<String> nextHopList) {
         return new RoutesBuilder().setPrefix(ipPrefix).setNexthopIpList(nextHopList).build();
     }
 
@@ -1347,7 +1347,7 @@ public final class VpnUtil {
         return routerToNaptSwitch != null ? routerToNaptSwitch.getPrimarySwitchId() : null;
     }
 
-    static boolean isL3VpnOverVxLan(Long l3Vni) {
+    public static boolean isL3VpnOverVxLan(Long l3Vni) {
         return l3Vni != null && l3Vni != 0;
     }
 
@@ -1395,9 +1395,10 @@ public final class VpnUtil {
         return !vpnName.equals(primaryRd);
     }
 
-    java.util.Optional<String> allocateRdForExtraRouteAndUpdateUsedRdsMap(long vpnId, @Nullable Long parentVpnId,
-                                                                          String prefix, String vpnName,
-                                                                          String nextHop, BigInteger dpnId) {
+    public java.util.Optional<String> allocateRdForExtraRouteAndUpdateUsedRdsMap(long vpnId,
+                                                                                 @Nullable Long parentVpnId,
+                                                                                 String prefix, String vpnName,
+                                                                                 String nextHop, BigInteger dpnId) {
         //Check if rd is already allocated for this extraroute behind the same VM. If yes, reuse it.
         //This is particularly useful during reboot scenarios.
         java.util.Optional<String> allocatedRd = VpnExtraRouteHelper
@@ -1533,7 +1534,7 @@ public final class VpnUtil {
         return new FlowEntityBuilder().setDpnId(dpnId).setTableId(tableId).setFlowId(flowId).build();
     }
 
-    static VrfEntryBase.EncapType getEncapType(boolean isVxLan) {
+    public static VrfEntryBase.EncapType getEncapType(boolean isVxLan) {
         return isVxLan ? VrfEntryBase.EncapType.Vxlan : VrfEntryBase.EncapType.Mplsgre;
     }
 
