@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9787dc02_f78c7dcf",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-04-30T11:05:34Z",
+      "side": 1,
+      "message": "will do it once suneelu is back. i am unable to edit the topic",
+      "parentUuid": "31ba4a88_ccb9b21b",
+      "range": {
+        "startLine": 8,
+        "startChar": 46,
+        "endLine": 8,
+        "endChar": 54
+      },
+      "revId": "79953c574030d13b9052c7185c1eb5ef0161f88a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "86eea124_3494f706",
         "filename": "docs/specs/fluorine/evpn-rt3-support.txt",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-04-30T06:13:07Z",
       "side": 1,
       "message": "Can you briefly describe how the solution would be implemented taking some example (similar to how you explained in the CSIT section below).",
+      "range": {
+        "startLine": 22,
+        "startChar": 31,
+        "endLine": 22,
+        "endChar": 88
+      },
+      "revId": "79953c574030d13b9052c7185c1eb5ef0161f88a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc441d7b_b171cff4",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-04-30T11:05:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86eea124_3494f706",
       "range": {
         "startLine": 22,
         "startChar": 31,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "427ee87a_1ad3660a",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-04-30T11:05:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4cff3071_e9b6a5bf",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 15
+      },
+      "revId": "79953c574030d13b9052c7185c1eb5ef0161f88a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2cbff54e_b6b83f58",
         "filename": "docs/specs/fluorine/evpn-rt3-support.txt",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2018-04-30T06:13:07Z",
       "side": 1,
       "message": "Can you please include the use-cases or make a reference to the RT2 Spec here.",
+      "range": {
+        "startLine": 49,
+        "startChar": 4,
+        "endLine": 49,
+        "endChar": 34
+      },
+      "revId": "79953c574030d13b9052c7185c1eb5ef0161f88a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "911f33bc_8e9b2c3e",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-04-30T11:05:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2cbff54e_b6b83f58",
       "range": {
         "startLine": 49,
         "startChar": 4,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "9fe4f56c_a31ef0d6",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-04-30T11:05:34Z",
+      "side": 1,
+      "message": "yes correct. but its just adding a new bucket to existing BC group. pipeline changes usually are captured only if we introduce a change in the way packet is handled in the of pipeline",
+      "parentUuid": "4e88fb81_f1d273ff",
+      "range": {
+        "startLine": 56,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 33
+      },
+      "revId": "79953c574030d13b9052c7185c1eb5ef0161f88a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1c6bda87_b435804b",
         "filename": "docs/specs/fluorine/evpn-rt3-support.txt",
         "patchSetId": 2
@@ -128,6 +248,30 @@
       "writtenOn": "2018-04-30T06:13:07Z",
       "side": 1,
       "message": "Please explain what \"PL\" means?",
+      "range": {
+        "startLine": 121,
+        "startChar": 10,
+        "endLine": 121,
+        "endChar": 12
+      },
+      "revId": "79953c574030d13b9052c7185c1eb5ef0161f88a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fff1ed07_bba6a7b4",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-04-30T11:05:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c6bda87_b435804b",
       "range": {
         "startLine": 121,
         "startChar": 10,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "08e9915a_116cfad7",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-04-30T11:05:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61a435f2_0e369563",
+      "range": {
+        "startLine": 152,
+        "startChar": 0,
+        "endLine": 152,
+        "endChar": 8
+      },
+      "revId": "79953c574030d13b9052c7185c1eb5ef0161f88a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4d274a4f_1a79557d",
         "filename": "docs/specs/fluorine/evpn-rt3-support.txt",
         "patchSetId": 2
@@ -174,6 +342,30 @@
       "writtenOn": "2018-04-30T06:13:07Z",
       "side": 1,
       "message": "todo?",
+      "range": {
+        "startLine": 156,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 55
+      },
+      "revId": "79953c574030d13b9052c7185c1eb5ef0161f88a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09a8946f_421f401a",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-04-30T11:05:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4d274a4f_1a79557d",
       "range": {
         "startLine": 156,
         "startChar": 0,
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "d4de84be_cc612718",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-04-30T11:05:34Z",
+      "side": 1,
+      "message": "if DCGW doesnt support RT3, it works as it is today. BUM traffic is sent to PEs who has sent RT2",
+      "parentUuid": "6970d7fe_38e3e877",
+      "range": {
+        "startLine": 184,
+        "startChar": 11,
+        "endLine": 184,
+        "endChar": 44
+      },
+      "revId": "79953c574030d13b9052c7185c1eb5ef0161f88a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4599d813_e8f596ad",
         "filename": "docs/specs/fluorine/evpn-rt3-support.txt",
         "patchSetId": 2
@@ -220,6 +436,30 @@
       "writtenOn": "2018-04-30T06:13:07Z",
       "side": 1,
       "message": "Just for my understanding. Currently when we spawn a new VM, we are advertising RT2 route. With this feature do we also advertise RT3 along with RT2?",
+      "range": {
+        "startLine": 204,
+        "startChar": 40,
+        "endLine": 204,
+        "endChar": 75
+      },
+      "revId": "79953c574030d13b9052c7185c1eb5ef0161f88a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1cdd635d_6c399472",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-04-30T11:05:34Z",
+      "side": 1,
+      "message": "When we configure EVPN only we sent RT3 with this feature even before spawning a VM",
+      "parentUuid": "4599d813_e8f596ad",
       "range": {
         "startLine": 204,
         "startChar": 40,
