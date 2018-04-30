@@ -67,6 +67,7 @@ import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
+import org.opendaylight.netvirt.vpnmanager.api.extraroute.IExtraRoutePortBindingService;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -131,6 +132,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private final IElanService elanManager;
     private final FibUtil fibUtil;
     private final InterVpnLinkCache interVpnLinkCache;
+    private final IExtraRoutePortBindingService extraRoutePortBindingService;
     private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
 
     @Inject
@@ -141,8 +143,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             final BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler,
                             final RouterInterfaceVrfEntryHandler routerInterfaceVrfEntryHandler,
                             final JobCoordinator jobCoordinator,
-                            final FibUtil fibUtil,
-                            final InterVpnLinkCache interVpnLinkCache) {
+                            final FibUtil fibUtil, final InterVpnLinkCache interVpnLinkCache,
+                            final IExtraRoutePortBindingService extraRoutePortBindingService) {
         super(VrfEntry.class, VrfEntryListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -156,6 +158,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         this.jobCoordinator = jobCoordinator;
         this.fibUtil = fibUtil;
         this.interVpnLinkCache = interVpnLinkCache;
+        this.extraRoutePortBindingService = extraRoutePortBindingService;
     }
 
     @Override
@@ -391,7 +394,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return;
         }
 
-        final List<BigInteger> localDpnIdList = createLocalFibEntry(vpnInstance.getVpnId(), rd, vrfEntry);
+        Prefixes localNextHopInfo = fibUtil.getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
+        final List<BigInteger> localDpnIdList = createLocalFibEntry(vpnInstance.getVpnId(), rd, vrfEntry,
+                localNextHopInfo);
         if (!localDpnIdList.isEmpty() && vpnToDpnList != null) {
             jobCoordinator.enqueueJob(FibUtil.getJobKeyForRdPrefix(rd, vrfEntry.getDestPrefix()), () -> {
                 WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
@@ -436,6 +441,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     }
                 });
             }
+        }
+
+        //For local routes, bind pre-configured extra-routes that match the nexthop
+        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.LOCAL) {
+            extraRoutePortBindingService.bindIfPresent(vpnInstance.getVpnInstanceName(),
+                    localNextHopInfo.getVpnInterfaceName(), vrfEntry.getDestPrefix());
         }
     }
 
@@ -707,10 +718,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
     }
 
-    private List<BigInteger> createLocalFibEntry(Long vpnId, String rd, VrfEntry vrfEntry) {
+    private List<BigInteger> createLocalFibEntry(Long vpnId, String rd, VrfEntry vrfEntry, Prefixes localNextHopInfo) {
         List<BigInteger> returnLocalDpnId = new ArrayList<>();
         String localNextHopIP = vrfEntry.getDestPrefix();
-        Prefixes localNextHopInfo = fibUtil.getPrefixToInterface(vpnId, localNextHopIP);
         String vpnName = fibUtil.getVpnNameFromId(vpnId);
         if (localNextHopInfo == null) {
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, localNextHopIP);
@@ -1504,6 +1514,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 }, MAX_RETRIES);
         }
 
+        //For local routes, unbind pre-configured extra-routes that match the nexthop
+        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.LOCAL) {
+            extraRoutePortBindingService.unbindIfPresent(vpnInstance.getVpnInstanceName(),
+                    null /*interfaceName*/, vrfEntry.getDestPrefix());
+        }
+
         //The flow/group entry has been deleted from config DS; need to clean up associated operational
         //DS entries in VPN Op DS, VpnInstanceOpData and PrefixToInterface to complete deletion
         cleanUpOpDataForFib(vpnInstance.getVpnId(), vrfTableKey.getRouteDistinguisher(), vrfEntry);
@@ -1616,7 +1632,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                     LabelRouteInfo lri = getLabelRouteInfo(optionalLabel.get());
                                     if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopList, lri)) {
                                         if (lri.getDpnId().equals(dpnId)) {
-                                            createLocalFibEntry(vpnId, rd, vrfEntry);
+                                            Prefixes localNextHopInfo = fibUtil.getPrefixToInterface(vpnId,
+                                                    vrfEntry.getDestPrefix());
+                                            createLocalFibEntry(vpnId, rd, vrfEntry, localNextHopInfo);
                                             continue;
                                         }
                                     }
