@@ -1,0 +1,168 @@
+{
+    "elan-interfaces": {
+        "elan-interface": [
+            {
+                "elan-instance-name": "eacd76d1-259c-4f4f-a8ff-69c8a016d8b8",
+                "name": "234018835196237:br-physnet1-pa:1131"
+            },
+            {
+                "elan-instance-name": "a5fe7476-9aa1-4bfb-aec4-05d7a1376f45",
+                "name": "67eb9b7f-dba5-40d4-8383-56149a7d6af2",
+                "static-mac-entries": [
+                    {
+                        "ip-prefix": "33.0.0.2",
+                        "mac-address": "fa:16:3e:bb:51:9c"
+                    }
+                ]
+            },
+            {
+                "elan-instance-name": "893239d8-59ea-4614-ae0a-29ebb2800ece",
+                "name": "e802b5e7-0865-4da2-929f-84c0931e0040",
+                "static-mac-entries": [
+                    {
+                        "ip-prefix": "32.0.0.8",
+                        "mac-address": "fa:16:3e:73:3e:1e"
+                    }
+                ]
+            },
+            {
+                "elan-instance-name": "eacd76d1-259c-4f4f-a8ff-69c8a016d8b8",
+                "name": "0ee93a49-6122-4580-acb4-4c921f196d13",
+                "static-mac-entries": [
+                    {
+                        "ip-prefix": "31.0.0.11",
+                        "mac-address": "fa:16:3e:db:a8:d1"
+                    }
+                ]
+            },
+            {
+                "elan-instance-name": "a5fe7476-9aa1-4bfb-aec4-05d7a1376f45",
+                "name": "7a3db5a3-bf72-4ad6-be70-ec3bdec7d707",
+                "static-mac-entries": [
+                    {
+                        "ip-prefix": "33.0.0.1",
+                        "mac-address": "fa:16:3e:9a:c2:36"
+                    }
+                ]
+            },
+            {
+                "elan-instance-name": "a5fe7476-9aa1-4bfb-aec4-05d7a1376f45",
+                "name": "af8aaaa2-fc98-4da4-96f2-a9e9f23464e2",
+                "static-mac-entries": [
+                    {
+                        "ip-prefix": "33.0.0.9",
+                        "mac-address": "fa:16:3e:f8:a8:c8"
+                    }
+                ]
+            },
+            {
+                "elan-instance-name": "893239d8-59ea-4614-ae0a-29ebb2800ece",
+                "name": "42d43cbf-3a28-4b9d-8de7-21f6a0faf327",
+                "static-mac-entries": [
+                    {
+                        "ip-prefix": "32.0.0.1",
+                        "mac-address": "fa:16:3e:3d:ad:ed"
+                    }
+                ]
+            },
+            {
+                "elan-instance-name": "893239d8-59ea-4614-ae0a-29ebb2800ece",
+                "name": "38deef1c-db34-4f56-9014-8c38c818f019",
+                "static-mac-entries": [
+                    {
+                        "ip-prefix": "32.0.0.10",
+                        "mac-address": "fa:16:3e:e3:fc:5b"
+                    }
+                ]
+            },
+            {
+                "elan-instance-name": "eacd76d1-259c-4f4f-a8ff-69c8a016d8b8",
+                "name": "98c2e265-b4f2-40a5-8f31-2fb5d2b2baf6",
+                "static-mac-entries": [
+                    {
+                        "ip-prefix": "31.0.0.2",
+                        "mac-address": "fa:16:3e:1e:55:49"
+                    }
+                ]
+            },
+            {
+                "elan-instance-name": "eacd76d1-259c-4f4f-a8ff-69c8a016d8b8",
+                "name": "74851789353527:br-physnet1-pa:1131"
+            },
+            {
+                "elan-instance-name": "893239d8-59ea-4614-ae0a-29ebb2800ece",
+                "name": "bdc8e869-52e2-4899-a1fb-551b1c5501c2",
+                "static-mac-entries": [
+                    {
+                        "ip-prefix": "32.0.0.11",
+                        "mac-address": "fa:16:3e:78:06:99"
+                    }
+                ]
+            },
+            {
+                "elan-instance-name": "eacd76d1-259c-4f4f-a8ff-69c8a016d8b8",
+                "name": "132319289050514:br-physnet1-pa:1131"
+            },
+            {
+                "elan-instance-name": "a5fe7476-9aa1-4bfb-aec4-05d7a1376f45",
+                "name": "3a2d068a-ad59-453e-8cd3-57f765c921f8",
+                "static-mac-entries": [
+                    {
+                        "ip-prefix": "33.0.0.11",
+                        "mac-address": "fa:16:3e:ff:a9:48"
+                    }
+                ]
+            },
+            {
+                "elan-instance-name": "eacd76d1-259c-4f4f-a8ff-69c8a016d8b8",
+                "name": "7f083b4d-dc2c-47ad-a471-6d2d0cd110d5",
+                "static-mac-entries": [
+                    {
+                        "ip-prefix": "31.0.0.10",
+                        "mac-address": "fa:16:3e:61:77:40"
+                    }
+                ]
+            },
+            {
+                "elan-instance-name": "eacd76d1-259c-4f4f-a8ff-69c8a016d8b8",
+                "name": "71b48121-d77f-4947-a58d-35413da52bd8",
+                "static-mac-entries": [
+                    {
+                        "ip-prefix": "31.0.0.1",
+                        "mac-address": "fa:16:3e:05:52:93"
+                    }
+                ]
+            },
+            {
+                "elan-instance-name": "a5fe7476-9aa1-4bfb-aec4-05d7a1376f45",
+                "name": "8e3c262e-7b45-4222-ac4e-528db75e5516",
+                "static-mac-entries": [
+                    {
+                        "ip-prefix": "33.0.0.5",
+                        "mac-address": "fa:16:3e:99:7d:91"
+                    }
+                ]
+            },
+            {
+                "elan-instance-name": "893239d8-59ea-4614-ae0a-29ebb2800ece",
+                "name": "992c4556-828b-49d0-bad3-1e3ffe6bb76b",
+                "static-mac-entries": [
+                    {
+                        "ip-prefix": "32.0.0.2",
+                        "mac-address": "fa:16:3e:1e:bb:87"
+                    }
+                ]
+            },
+            {
+                "elan-instance-name": "eacd76d1-259c-4f4f-a8ff-69c8a016d8b8",
+                "name": "09f6bf9e-7aaf-4a9e-8f0e-b29b8097970d",
+                "static-mac-entries": [
+                    {
+                        "ip-prefix": "31.0.0.12",
+                        "mac-address": "fa:16:3e:01:dc:d3"
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -83,8 +83,10 @@ class Model:
                     self.get_kv(k, item, values)
         return values
 
-    def get_dpn_from_ofnodeid(self, node_id):
+    @staticmethod
+    def get_dpn_from_ofnodeid(node_id):
         return node_id.split(':')[1] if node_id else 'none'
 
-    def get_ofport_from_ncid(self, ncid):
+    @staticmethod
+    def get_ofport_from_ncid(ncid):
         return ncid.split(':')[2] if ncid and ncid.startswith('openflow') else 0

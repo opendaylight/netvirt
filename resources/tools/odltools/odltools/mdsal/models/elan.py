@@ -9,7 +9,7 @@ def elan_instances(store, args):
 
 
 def elan_interfaces(store, args):
-    return ElanInstances(NAME, ElanInstances.CONTAINER, store, args)
+    return ElanInterfaces(NAME, ElanInterfaces.CONTAINER, store, args)
 
 
 class ElanInstances(Model):
@@ -29,7 +29,7 @@ class ElanInstances(Model):
 
 class ElanInterfaces(Model):
     CONTAINER = "elan-interfaces"
-    ELAN_INSTANCE = "elan-instance"
+    ELAN_INSTANCE = "elan-interface"
 
     def get_elan_interfaces(self):
         return self.data[self.CONTAINER][self.ELAN_INSTANCE]

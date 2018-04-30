@@ -1,0 +1,194 @@
+{
+    "fibEntries": {
+        "vrfTables": [
+            {
+                "routeDistinguisher": "c7922261-90ab-4757-bc03-93ef3bbbaa19",
+                "vrfEntry": [
+                    {
+                        "destPrefix": "33.0.0.1/32",
+                        "ip-address": "33.0.0.1/32",
+                        "mac-address": "fa:16:3e:9a:c2:36",
+                        "origin": "l",
+                        "route-paths": [
+                            {
+                                "label": 100011,
+                                "nexthop-address": "0.0.0.0"
+                            }
+                        ],
+                        "uuid": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    },
+                    {
+                        "destPrefix": "33.0.0.2/32",
+                        "encap-type": "mplsgre",
+                        "gateway_mac_address": "fa:16:3e:9a:c2:36",
+                        "origin": "l",
+                        "route-paths": [
+                            {
+                                "label": 100012,
+                                "nexthop-address": "10.30.170.17"
+                            }
+                        ]
+                    },
+                    {
+                        "destPrefix": "31.0.0.10/32",
+                        "encap-type": "mplsgre",
+                        "gateway_mac_address": "fa:16:3e:05:52:93",
+                        "origin": "l",
+                        "route-paths": [
+                            {
+                                "label": 100005,
+                                "nexthop-address": "10.30.170.90"
+                            }
+                        ]
+                    },
+                    {
+                        "destPrefix": "32.0.0.10/32",
+                        "encap-type": "mplsgre",
+                        "gateway_mac_address": "fa:16:3e:3d:ad:ed",
+                        "origin": "l",
+                        "route-paths": [
+                            {
+                                "label": 100008,
+                                "nexthop-address": "10.30.170.92"
+                            }
+                        ]
+                    },
+                    {
+                        "destPrefix": "33.0.0.5/32",
+                        "encap-type": "mplsgre",
+                        "gateway_mac_address": "fa:16:3e:9a:c2:36",
+                        "origin": "l",
+                        "route-paths": [
+                            {
+                                "label": 100015,
+                                "nexthop-address": "10.30.170.90"
+                            }
+                        ]
+                    },
+                    {
+                        "destPrefix": "32.0.0.11/32",
+                        "encap-type": "mplsgre",
+                        "gateway_mac_address": "fa:16:3e:3d:ad:ed",
+                        "origin": "l",
+                        "route-paths": [
+                            {
+                                "label": 100009,
+                                "nexthop-address": "10.30.170.92"
+                            }
+                        ]
+                    },
+                    {
+                        "destPrefix": "33.0.0.11/32",
+                        "encap-type": "mplsgre",
+                        "gateway_mac_address": "fa:16:3e:9a:c2:36",
+                        "origin": "l",
+                        "route-paths": [
+                            {
+                                "label": 100013,
+                                "nexthop-address": "10.30.170.92"
+                            }
+                        ]
+                    },
+                    {
+                        "destPrefix": "31.0.0.2/32",
+                        "encap-type": "mplsgre",
+                        "gateway_mac_address": "fa:16:3e:05:52:93",
+                        "origin": "l",
+                        "route-paths": [
+                            {
+                                "label": 100004,
+                                "nexthop-address": "10.30.170.17"
+                            }
+                        ]
+                    },
+                    {
+                        "destPrefix": "31.0.0.1/32",
+                        "ip-address": "31.0.0.1/32",
+                        "mac-address": "fa:16:3e:05:52:93",
+                        "origin": "l",
+                        "route-paths": [
+                            {
+                                "label": 100001,
+                                "nexthop-address": "0.0.0.0"
+                            }
+                        ],
+                        "uuid": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    },
+                    {
+                        "destPrefix": "33.0.0.9/32",
+                        "encap-type": "mplsgre",
+                        "gateway_mac_address": "fa:16:3e:9a:c2:36",
+                        "origin": "l",
+                        "route-paths": [
+                            {
+                                "label": 100014,
+                                "nexthop-address": "10.30.170.90"
+                            }
+                        ]
+                    },
+                    {
+                        "destPrefix": "32.0.0.1/32",
+                        "ip-address": "32.0.0.1/32",
+                        "mac-address": "fa:16:3e:3d:ad:ed",
+                        "origin": "l",
+                        "route-paths": [
+                            {
+                                "label": 100006,
+                                "nexthop-address": "0.0.0.0"
+                            }
+                        ],
+                        "uuid": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+                    },
+                    {
+                        "destPrefix": "32.0.0.2/32",
+                        "encap-type": "mplsgre",
+                        "gateway_mac_address": "fa:16:3e:3d:ad:ed",
+                        "origin": "l",
+                        "route-paths": [
+                            {
+                                "label": 100010,
+                                "nexthop-address": "10.30.170.17"
+                            }
+                        ]
+                    },
+                    {
+                        "destPrefix": "31.0.0.11/32",
+                        "encap-type": "mplsgre",
+                        "gateway_mac_address": "fa:16:3e:05:52:93",
+                        "origin": "l",
+                        "route-paths": [
+                            {
+                                "label": 100003,
+                                "nexthop-address": "10.30.170.90"
+                            }
+                        ]
+                    },
+                    {
+                        "destPrefix": "31.0.0.12/32",
+                        "encap-type": "mplsgre",
+                        "gateway_mac_address": "fa:16:3e:05:52:93",
+                        "origin": "l",
+                        "route-paths": [
+                            {
+                                "label": 100002,
+                                "nexthop-address": "10.30.170.92"
+                            }
+                        ]
+                    },
+                    {
+                        "destPrefix": "32.0.0.8/32",
+                        "encap-type": "mplsgre",
+                        "gateway_mac_address": "fa:16:3e:3d:ad:ed",
+                        "origin": "l",
+                        "route-paths": [
+                            {
+                                "label": 100007,
+                                "nexthop-address": "10.30.170.90"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

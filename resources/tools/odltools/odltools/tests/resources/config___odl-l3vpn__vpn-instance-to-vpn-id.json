@@ -1,0 +1,11 @@
+{
+    "vpn-instance-to-vpn-id": {
+        "vpn-instance": [
+            {
+                "vpn-id": 100000,
+                "vpn-instance-name": "c7922261-90ab-4757-bc03-93ef3bbbaa19",
+                "vrf-id": "c7922261-90ab-4757-bc03-93ef3bbbaa19"
+            }
+        ]
+    }
+}

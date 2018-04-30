@@ -1,9 +1,10 @@
 import analyze
+import argparse
 import show
 
 
 def add_common_args(parser):
-    parser.add_argument("path",
+    parser.add_argument("--path",
                         help="the directory that the parsed data is written into")
     parser.add_argument("-i", "--ip", default="localhost",
                         help="OpenDaylight ip address")
@@ -29,10 +30,21 @@ def add_interface_parser(parsers):
     parser.set_defaults(func=analyze.analyze_trunks)
 
 
+def call_func(args):
+    args.func2(args)
+
+
 def add_show_parser(parsers):
     parser = parsers.add_parser("elan-instances")
     add_common_args(parser)
     parser.set_defaults(func=show.show_elan_instances)
+
+    parser = parsers.add_parser("flows")
+    add_common_args(parser)
+    parser.add_argument("--modules",
+                        help="service module owning the flow")
+    parser.add_argument("flowtype", choices=["all", "duplicate", "elan", "learned", "stale"])
+    parser.set_defaults(func=show.show_flows)
 
     parser = parsers.add_parser("id-pools")
     add_common_args(parser)
@@ -44,7 +56,9 @@ def add_show_parser(parsers):
 
     parser = parsers.add_parser("stale-bindings")
     add_common_args(parser)
-    parser.set_defaults(func=show.show_stale_bindings)
+    # parser.set_defaults(func=show.show_stale_bindings)
+    parser.add_argument("--func2", default=show.show_stale_bindings, help=argparse.SUPPRESS)
+    parser.set_defaults(func=call_func)
 
     parser = parsers.add_parser("tables")
     add_common_args(parser)

@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from odltools import logg
@@ -19,7 +20,9 @@ class TestFlows(unittest.TestCase):
         print "pretty_print:\n{}".format(self.flows.pretty_print(self.flows.fdata))
 
     def test_write_file(self):
-        self.flows.write_fdata("/tmp/flow_dumps.3.out.txt")
+        filename = "/tmp/flow_dumps.3.out.txt"
+        self.flows.write_fdata(filename)
+        self.assertTrue(os.path.exists(filename))
 
 if __name__ == '__main__':
     unittest.main()
