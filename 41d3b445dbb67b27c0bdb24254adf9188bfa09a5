@@ -1,0 +1,251 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7bd7d6d7_823d7d3c",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-30T07:04:38Z",
+      "side": 1,
+      "message": "Do you think its better to say \"EVPN RT2 and L2GW Integration\"? Since we are having support for few Route Targets, some already implemented and some in pipeline.",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 25
+      },
+      "revId": "41d3b445dbb67b27c0bdb24254adf9188bfa09a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "238d9d89_33d1e4cb",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-30T07:04:38Z",
+      "side": 1,
+      "message": "Please set the topic of this SPEC accordingly.",
+      "range": {
+        "startLine": 8,
+        "startChar": 46,
+        "endLine": 8,
+        "endChar": 55
+      },
+      "revId": "41d3b445dbb67b27c0bdb24254adf9188bfa09a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "826a2639_7cc1754c",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-30T07:04:38Z",
+      "side": 1,
+      "message": "nit: feature",
+      "range": {
+        "startLine": 32,
+        "startChar": 35,
+        "endLine": 32,
+        "endChar": 43
+      },
+      "revId": "41d3b445dbb67b27c0bdb24254adf9188bfa09a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "31b6e57e_948bf5b2",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-30T07:04:38Z",
+      "side": 1,
+      "message": "Is it some todo?",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 33
+      },
+      "revId": "41d3b445dbb67b27c0bdb24254adf9188bfa09a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f51b225_4757740a",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-30T07:04:38Z",
+      "side": 1,
+      "message": "nit: Program",
+      "range": {
+        "startLine": 70,
+        "startChar": 4,
+        "endLine": 70,
+        "endChar": 13
+      },
+      "revId": "41d3b445dbb67b27c0bdb24254adf9188bfa09a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4823acbd_c1358274",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-30T07:04:38Z",
+      "side": 1,
+      "message": "nit: mcast?",
+      "range": {
+        "startLine": 72,
+        "startChar": 21,
+        "endLine": 72,
+        "endChar": 26
+      },
+      "revId": "41d3b445dbb67b27c0bdb24254adf9188bfa09a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0ecb4d46_a50def30",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-30T07:04:38Z",
+      "side": 1,
+      "message": "nit: ditto",
+      "range": {
+        "startLine": 77,
+        "startChar": 17,
+        "endLine": 77,
+        "endChar": 22
+      },
+      "revId": "41d3b445dbb67b27c0bdb24254adf9188bfa09a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "100f7147_24036dca",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-30T07:04:38Z",
+      "side": 1,
+      "message": "Please clarify what \"PL\" means.",
+      "range": {
+        "startLine": 112,
+        "startChar": 10,
+        "endLine": 112,
+        "endChar": 12
+      },
+      "revId": "41d3b445dbb67b27c0bdb24254adf9188bfa09a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5107626a_ff24395e",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-30T07:04:38Z",
+      "side": 1,
+      "message": "nit: Fluorine",
+      "range": {
+        "startLine": 143,
+        "startChar": 0,
+        "endLine": 143,
+        "endChar": 8
+      },
+      "revId": "41d3b445dbb67b27c0bdb24254adf9188bfa09a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "52f0bda5_5287bbb2",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-30T07:04:38Z",
+      "side": 1,
+      "message": "nit: space",
+      "range": {
+        "startLine": 165,
+        "startChar": 0,
+        "endLine": 165,
+        "endChar": 2
+      },
+      "revId": "41d3b445dbb67b27c0bdb24254adf9188bfa09a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "082b00b4_a6186a38",
+        "filename": "docs/specs/fluorine/index.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-30T07:04:38Z",
+      "side": 1,
+      "message": "\u003cevpn-l2gw-integration\u003e",
+      "revId": "41d3b445dbb67b27c0bdb24254adf9188bfa09a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
