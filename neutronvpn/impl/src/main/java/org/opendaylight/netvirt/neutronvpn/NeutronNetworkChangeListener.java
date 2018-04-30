@@ -188,30 +188,34 @@ public class NeutronNetworkChangeListener
 
     @Nonnull
     private List<ElanSegments> buildSegments(Network input) {
-        Long numSegments = NeutronUtils.getNumberSegmentsFromNeutronNetwork(input);
         List<ElanSegments> segments = new ArrayList<>();
-
-        for (long index = 0L; index < numSegments; index++) {
-            ElanSegmentsBuilder elanSegmentsBuilder = new ElanSegmentsBuilder();
-            elanSegmentsBuilder.setSegmentationId(0L);
-            if (NeutronUtils.getSegmentationIdFromNeutronNetworkSegment(input, index) != null) {
+        NetworkProviderExtension providerExtension = input.getAugmentation(NetworkProviderExtension.class);
+        if (providerExtension != null) {
+            providerExtension.getSegments().forEach(segment -> {
+                ElanSegmentsBuilder elanSegmentsBuilder = new ElanSegmentsBuilder();
                 try {
-                    elanSegmentsBuilder.setSegmentationId(
-                            Long.valueOf(NeutronUtils.getSegmentationIdFromNeutronNetworkSegment(input, index)));
+                    if (segment.getSegmentationId() != null)
+                        elanSegmentsBuilder.setSegmentationId(Long.valueOf(segment.getSegmentationId()));
+                    else
+                        elanSegmentsBuilder.setSegmentationId(0L);
                 } catch (NumberFormatException error) {
                     LOG.error("Failed to get the segment id for network {}", input);
                 }
-            }
-            if (NeutronUtils.isNetworkSegmentType(input, index, NetworkTypeVxlan.class)) {
-                elanSegmentsBuilder.setSegmentType(SegmentTypeVxlan.class);
-            } else if (NeutronUtils.isNetworkSegmentType(input, index, NetworkTypeVlan.class)) {
-                elanSegmentsBuilder.setSegmentType(SegmentTypeVlan.class);
-            } else if (NeutronUtils.isNetworkSegmentType(input, index, NetworkTypeFlat.class)) {
-                elanSegmentsBuilder.setSegmentType(SegmentTypeFlat.class);
-            }
-            elanSegmentsBuilder.setSegmentationIndex(index);
-            segments.add(elanSegmentsBuilder.build());
-            LOG.debug("Added segment {} to ELANInstance", segments.get((int)index));
+                if (segment.getNetworkType() != null) {
+                    if (segment.getNetworkType().isAssignableFrom(NetworkTypeVxlan.class)) {
+                        elanSegmentsBuilder.setSegmentType(SegmentTypeVxlan.class);
+                    } else if (segment.getNetworkType().isAssignableFrom(NetworkTypeVlan.class)) {
+                        elanSegmentsBuilder.setSegmentType(SegmentTypeVlan.class);
+                    } else if (segment.getNetworkType().isAssignableFrom(NetworkTypeFlat.class)) {
+                        elanSegmentsBuilder.setSegmentType(SegmentTypeFlat.class);
+                    }
+                }
+                elanSegmentsBuilder.setSegmentationIndex(segment.getSegmentationIndex());
+                ElanSegments segments1 = elanSegmentsBuilder.build();
+                segments.add(segments1);
+                if (LOG.isDebugEnabled())
+                    LOG.debug("Added segment {} to ELANInstance", segments1);
+            });
         }
         return segments;
     }
