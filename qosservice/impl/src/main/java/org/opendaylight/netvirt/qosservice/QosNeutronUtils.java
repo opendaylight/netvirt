@@ -446,11 +446,11 @@ public class QosNeutronUtils {
         tpBuilder.addAugmentation(OvsdbTerminationPointAugmentation.class, tpAugmentationBuilder.build());
         try {
             if (writeConfigTxn != null) {
-                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
+                writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
                         .create(NetworkTopology.class)
                         .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
                         .child(Node.class, bridgeNode.get().getKey())
-                        .child(TerminationPoint.class, new TerminationPointKey(tp.getKey())), tpBuilder.build());
+                        .child(TerminationPoint.class, new TerminationPointKey(tp.getKey())), tpBuilder.build(), true);
             } else {
                 MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
                         .create(NetworkTopology.class)
