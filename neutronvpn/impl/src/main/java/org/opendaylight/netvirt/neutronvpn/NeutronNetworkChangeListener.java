@@ -8,9 +8,10 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -39,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.neutron.networks.network.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -188,32 +190,43 @@ public class NeutronNetworkChangeListener
 
     @Nonnull
     private List<ElanSegments> buildSegments(Network input) {
-        Long numSegments = NeutronUtils.getNumberSegmentsFromNeutronNetwork(input);
-        List<ElanSegments> segments = new ArrayList<>();
-
-        for (long index = 1L; index <= numSegments; index++) {
-            ElanSegmentsBuilder elanSegmentsBuilder = new ElanSegmentsBuilder();
-            elanSegmentsBuilder.setSegmentationId(0L);
-            if (NeutronUtils.getSegmentationIdFromNeutronNetworkSegment(input, index) != null) {
-                try {
-                    elanSegmentsBuilder.setSegmentationId(
-                            Long.valueOf(NeutronUtils.getSegmentationIdFromNeutronNetworkSegment(input, index)));
-                } catch (NumberFormatException error) {
-                    LOG.error("Failed to get the segment id for network {}", input);
-                }
-            }
-            if (NeutronUtils.isNetworkSegmentType(input, index, NetworkTypeVxlan.class)) {
-                elanSegmentsBuilder.setSegmentType(SegmentTypeVxlan.class);
-            } else if (NeutronUtils.isNetworkSegmentType(input, index, NetworkTypeVlan.class)) {
-                elanSegmentsBuilder.setSegmentType(SegmentTypeVlan.class);
-            } else if (NeutronUtils.isNetworkSegmentType(input, index, NetworkTypeFlat.class)) {
-                elanSegmentsBuilder.setSegmentType(SegmentTypeFlat.class);
-            }
-            elanSegmentsBuilder.setSegmentationIndex(index);
-            segments.add(elanSegmentsBuilder.build());
-            LOG.debug("Added segment {} to ELANInstance", segments.get((int) index - 1));
+        NetworkProviderExtension providerExtension = input.getAugmentation(NetworkProviderExtension.class);
+        if (providerExtension == null || providerExtension.getSegments() == null) {
+            return Collections.emptyList();
         }
-        return segments;
+        return providerExtension.getSegments().stream()
+                .map(segment -> new ElanSegmentsBuilder()
+                        .setSegmentationIndex(segment.getSegmentationIndex())
+                        .setSegmentationId(getSegmentationId(input, segment))
+                        .setSegmentType(elanSegmentTypeFromNetworkType(segment.getNetworkType()))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private Long getSegmentationId(Network network, Segments segment) {
+        try {
+            if (segment.getSegmentationId() != null) {
+                return Long.valueOf(segment.getSegmentationId());
+            }
+        } catch (NumberFormatException error) {
+            LOG.error("Failed to get the segment id for network {}", network);
+        }
+        return 0L;
+    }
+
+    private Class<? extends SegmentTypeBase> elanSegmentTypeFromNetworkType(
+            Class<? extends NetworkTypeBase> networkType) {
+        if (networkType == null) {
+            return null;
+        }
+        if (networkType.isAssignableFrom(NetworkTypeVxlan.class)) {
+            return SegmentTypeVxlan.class;
+        } else if (networkType.isAssignableFrom(NetworkTypeVlan.class)) {
+            return SegmentTypeVlan.class;
+        } else if (networkType.isAssignableFrom(NetworkTypeFlat.class)) {
+            return SegmentTypeFlat.class;
+        }
+        return null;
     }
 
     private ElanInstance createElanInstance(Network input) {
