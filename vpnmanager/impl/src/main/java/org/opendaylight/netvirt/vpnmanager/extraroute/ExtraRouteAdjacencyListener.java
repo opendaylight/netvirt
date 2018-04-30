@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.vpnmanager;
+package org.opendaylight.netvirt.vpnmanager.extraroute;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -28,6 +28,8 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.VpnConstants;
+import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
@@ -155,59 +157,64 @@ public class ExtraRouteAdjacencyListener extends AsyncClusteredDataTreeChangeLis
                             final BigInteger dpnId = InterfaceUtils.getDpnForInterface(interfaceMgrRpcService,
                                     interfaceName);
                             vpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(vpnId, null, extraRoutePrefix, vpnName,
-                                extraRouteNextHop, dpnId)
-                                .ifPresent(allocatedRd -> {
-                                    String tunnelNextHop = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker,
-                                            dpnId);
-                                    if (tunnelNextHop == null || tunnelNextHop.isEmpty()) {
-                                        LOG.error("add: Tunnel NextHop for interface {} is null / empty."
-                                                        + " Failed to process extra route for rd {} prefix {}"
-                                                        + " nexthop {} dpn {}", interfaceName, primaryRd,
-                                                extraRoute, extraRouteNextHop, dpnId);
-                                    } else {
-                                        ListenableFuture<Void> configFuture = txRunner
-                                            .callWithNewWriteOnlyTransactionAndSubmit(configTx -> {
-                                                ListenableFuture<Void> operFuture = txRunner
-                                                    .callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
-                                                        operTx.merge(LogicalDatastoreType.OPERATIONAL,
-                                                            VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(
-                                                                    vpnName, allocatedRd, extraRoute),
-                                                            VpnUtil.getVpnToExtraroute(extraRoute,
-                                                                    Collections.singletonList(extraRouteNextHop)),
-                                                            WriteTransaction.CREATE_MISSING_PARENTS);
+                                    extraRouteNextHop, dpnId)
+                                    .ifPresent(allocatedRd -> {
+                                        String tunnelNextHop = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker,
+                                                dpnId);
+                                        if (tunnelNextHop == null || tunnelNextHop.isEmpty()) {
+                                            LOG.error("add: Tunnel NextHop for interface {} is null / empty."
+                                                            + " Failed to process extra route for rd {} prefix {}"
+                                                            + " nexthop {} dpn {}", interfaceName, primaryRd,
+                                                    extraRoute, extraRouteNextHop, dpnId);
+                                        } else {
+                                            ListenableFuture<Void> configFuture = txRunner
+                                                    .callWithNewWriteOnlyTransactionAndSubmit(configTx -> {
+                                                        ListenableFuture<Void> operFuture = txRunner
+                                                                .callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
+                                                                    operTx.merge(LogicalDatastoreType.OPERATIONAL,
+                                                                            VpnExtraRouteHelper
+                                                                                    .getVpnToExtrarouteVrfIdIdentifier(
+                                                                                    vpnName, allocatedRd, extraRoute),
+                                                                            VpnUtil.getVpnToExtraroute(extraRoute,
+                                                                                    Collections.singletonList(
+                                                                                            extraRouteNextHop)),
+                                                                            WriteTransaction.CREATE_MISSING_PARENTS);
+                                                                });
+                                                        operFuture.get(); //Wait for oper data write
+                                                        long label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
+                                                                VpnUtil.getNextHopLabelKey(primaryRd,
+                                                                        extraRoutePrefix));
+                                                        if (label == VpnConstants.INVALID_LABEL) {
+                                                            LOG.error("add: Unable to fetch label from Id Manager."
+                                                                    + " Bailing out of processing extra-route {} for "
+                                                                    + "vpn {} with nexthop {} tunnelNexthop {}",
+                                                                    extraRoutePrefix, vpnName, extraRouteNextHop,
+                                                                    tunnelNextHop);
+                                                        } else {
+                                                            VpnInstanceOpDataEntry vpnInstanceOpData = vpnUtil
+                                                                    .getVpnInstanceOpData(primaryRd);
+                                                            boolean isL3VpnOverVxLan = VpnUtil
+                                                                    .isL3VpnOverVxLan(vpnInstanceOpData.getL3vni());
+                                                            VrfEntry.EncapType encapType = VpnUtil.getEncapType(
+                                                                    isL3VpnOverVxLan);
+                                                            long l3vni = vpnInstanceOpData.getL3vni() == null ? 0L
+                                                                    : vpnInstanceOpData.getL3vni();
+                                                            L3vpnInput input = new L3vpnInput().setIpAddress(
+                                                                    extraRoutePrefix).setNextHopIp(tunnelNextHop)
+                                                                    .setL3vni(l3vni)
+                                                                    .setLabel(label).setPrimaryRd(primaryRd)
+                                                                    .setVpnName(vpnName).setEncapType(encapType)
+                                                                    .setRouteOrigin(RouteOrigin.STATIC);
+                                                            L3vpnRegistry.getRegisteredPopulator(encapType)
+                                                                    .populateFib(input, configTx);
+                                                        }
                                                     });
-                                                operFuture.get(); //Wait for oper data write
-                                                long label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
-                                                        VpnUtil.getNextHopLabelKey(primaryRd, extraRoutePrefix));
-                                                if (label == VpnConstants.INVALID_LABEL) {
-                                                    LOG.error("add: Unable to fetch label from Id Manager. Bailing out"
-                                                            + " of processing extra-route {} for vpn {} with nexthop"
-                                                            + " {} tunnelNexthop {}", extraRoutePrefix, vpnName,
-                                                            extraRouteNextHop, tunnelNextHop);
-                                                } else {
-                                                    VpnInstanceOpDataEntry vpnInstanceOpData = vpnUtil
-                                                            .getVpnInstanceOpData(primaryRd);
-                                                    boolean isL3VpnOverVxLan = VpnUtil
-                                                            .isL3VpnOverVxLan(vpnInstanceOpData.getL3vni());
-                                                    VrfEntry.EncapType encapType = VpnUtil.getEncapType(
-                                                            isL3VpnOverVxLan);
-                                                    long l3vni = vpnInstanceOpData.getL3vni() == null ? 0L
-                                                            : vpnInstanceOpData.getL3vni();
-                                                    L3vpnInput input = new L3vpnInput().setIpAddress(extraRoutePrefix)
-                                                            .setNextHopIp(tunnelNextHop).setL3vni(l3vni)
-                                                            .setLabel(label).setPrimaryRd(primaryRd)
-                                                            .setVpnName(vpnName).setEncapType(encapType)
-                                                            .setRouteOrigin(RouteOrigin.STATIC);
-                                                    L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(input,
-                                                            configTx);
-                                                }
-                                            });
-                                        ListenableFutures.addErrorLogging(configFuture, LOG, "add: failed for "
-                                                + "extra-route {} next-hop {} interface {} vpn {}", extraRoutePrefix,
-                                                extraRouteNextHop, interfaceName, vpnName);
-                                        futures.add(configFuture);
-                                    }
-                                });
+                                            ListenableFutures.addErrorLogging(configFuture, LOG, "add: failed for "
+                                                            + "extra-route {} next-hop {} interface {} vpn {}",
+                                                    extraRoutePrefix, extraRouteNextHop, interfaceName, vpnName);
+                                            futures.add(configFuture);
+                                        }
+                                    });
                         } else {
                             LOG.error("add: VPN with primaryRd {} is scheduled for delete. Ignoring extra-route {}"
                                     + "processing", primaryRd, extraRoute);
