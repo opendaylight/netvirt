@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e9551c23_a33b4e41",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-30T07:25:47Z",
+      "side": 1,
+      "message": "this statement needs to be clarified.   The subnet must be a neutron subnet (i.e., it cannot be a non-neutron subnet).  \nThe discoverable IPs can use a subset of IP Addresses from that neutron subnet CIDR.\n\nThere has been a problem here from IPv4 subnetrouting days on how do we prevent overlap of IPs used by Neutron in that subnet, vis-a-vis discoverable IPs configured by cusotmer.  Can you please clarify if that problem will be addressed by this spec?",
+      "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c36df42a_d269c1d0",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-30T07:25:47Z",
+      "side": 1,
+      "message": "please clarify here too by rewriting \"not configured by Neutorn\" as \n\n\"hosting IPv6 addresses not used by other Neutron ports on the same subnet\"",
+      "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d4de3d88_2cf2cc3d",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-30T07:25:47Z",
+      "side": 1,
+      "message": "channels between whom?",
+      "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "371f14ac_ee8f5ab4",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-30T07:25:47Z",
+      "side": 1,
+      "message": "this is a functionality required and cannot become a use-case",
+      "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb207a7e_eb79e56f",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-30T07:25:47Z",
+      "side": 1,
+      "message": "i would suggest that we tailor the section here with following use-cases :\n\na. A hidden IPv6 address in a valid Neutron IPv6 subnet must be discoverable when traffic is initiated to that address from a source external to the DC (i.e, from an IPv6 address behind the DC-GW).  The traffic must succeed to that discovered IPv6 address from the same external source after initial loss of few packets (~10).\n\nb. A hidden IPv6 address in a valid Neutron IPv6 subnet must be discoverable when traffic is initiated to that address from a source internal to the DC (i.e., some other VM on a subnet routable towards this IPv6 subnet).  The traffic must succeed to that discovered IPv6 address from the same internal routable source after initial loss of few packets (~10).\n\nc. If the hidden IPv6 address is a globally unique IPv6 address and its in a valid Neutron IPv6 subnet which is on an external network, then such address must be discoverable when traffic is initiated to that address from internet to the DC (from internet IPv6 address towards this IPv6 subnet).  The traffic must succeed to that discovered IPv6 address from the internet after initial loss of few packets (~10).\n\nd. Subnet Routing feature was made to work for FLAT/VLAN external networks for IPv4 addresses via the PNF feature.  If you want to extend it to make PNF (Physical Network Functions) with IPv6 addresses be discoverable, please quote an explicit use-case here for the same.  If you donot want to extend it for IPv6, put an out-of-scope section and claim so in the same.",
+      "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6a525e44_ca847cda",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-30T07:25:47Z",
+      "side": 1,
+      "message": "even if you ping from within a subnet, the Hidden IP would get learned provided that Hidden IP is on a VPN-interface.",
+      "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9772009_09bc0e87",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-04-30T07:25:47Z",
+      "side": 1,
+      "message": "let us please remove this section as this is not addressed by this spec.",
+      "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
