@@ -39,8 +39,11 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -183,6 +186,7 @@ public class NeutronvpnUtils {
     private final ConcurrentMap<Uuid, HashMap<Uuid, Network>> qosNetworksMap = new ConcurrentHashMap<>();
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IdManagerService idManager;
     private final JobCoordinator jobCoordinator;
     private IPV6InternetDefaultRouteProgrammer ipV6InternetDefRt;
@@ -191,6 +195,7 @@ public class NeutronvpnUtils {
     public NeutronvpnUtils(final DataBroker dataBroker, final IdManagerService idManager,
             final JobCoordinator jobCoordinator, final IPV6InternetDefaultRouteProgrammer ipV6InternetDefRt) {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = idManager;
         this.jobCoordinator = jobCoordinator;
         this.ipV6InternetDefRt = ipV6InternetDefRt;
@@ -1498,17 +1503,16 @@ public class NeutronvpnUtils {
             if (isFinalVpnInstanceIpv6Changed) {
                 builder.setIpv6Configured(finalIsIpv6Configured);
             }
-            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-            InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
-                    .child(VpnInstanceOpDataEntry.class,
-                            new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
-            writeTxn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
-            LOG.info("updateVpnInstanceWithIpFamily: Successfully {} {} to Vpn {}",
-                    add ? "added" : "removed",
-                    ipVersion.toString(), vpnName);
-            return Collections.singletonList(writeTxn.submit());
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+                        .child(VpnInstanceOpDataEntry.class,
+                                new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
+                tx.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
+                LOG.info("updateVpnInstanceWithIpFamily: Successfully {} {} to Vpn {}",
+                        add ? "added" : "removed",
+                        ipVersion.toString(), vpnName);
+            }));
         });
-        return;
     }
 
     /**
@@ -1648,15 +1652,10 @@ public class NeutronvpnUtils {
         }
         VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
         builder.setBgpvpnType(choice);
-        WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-        writeTxn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
-        LOG.debug("updateVpnInstanceOpWithType: sent merge to operDS BgpvpnType {} for {}", choice, vpn.getValue());
-        try {
-            writeTxn.submit().get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("updateVpnInstanceOpWithType: on merge execution, error:  {}", e);
-        }
-        return;
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            tx.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
+            LOG.debug("updateVpnInstanceOpWithType: sent merge to operDS BgpvpnType {} for {}", choice, vpn.getValue());
+        }), LOG, "Error updating VPN instance op {} with type {}", vpn, choice);
     }
 
     @Nonnull

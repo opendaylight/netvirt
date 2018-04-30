@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,9 +15,10 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
@@ -45,6 +45,7 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
     private static final Logger LOG = LoggerFactory.getLogger(NeutronTrunkChangeListener.class);
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IInterfaceManager ifMgr;
     private final JobCoordinator jobCoordinator;
 
@@ -52,6 +53,7 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
     public NeutronTrunkChangeListener(final DataBroker dataBroker, final IInterfaceManager ifMgr,
             final JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.ifMgr = ifMgr;
         this.jobCoordinator = jobCoordinator;
     }
@@ -125,7 +127,6 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
         // Should we use parentName?
         jobCoordinator.enqueueJob("PORT- " + portName, () -> {
             Interface iface = ifMgr.getInterfaceInfoFromConfigDataStore(portName);
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
             if (iface == null) {
                 /*
                  * Trunk creation requires NeutronPort to be present, by this time interface
@@ -135,7 +136,7 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
                  *      node as this one. Use of DSJC helps ensure the order.
                  */
                 LOG.warn("Interface not present for Trunk SubPort: {}", subPort);
-                return futures;
+                return Collections.emptyList();
             }
             InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
             IfL2vlan ifL2vlan = new IfL2vlanBuilder().setL2vlanMode(IfL2vlan.L2vlanMode.TrunkMember)
@@ -144,16 +145,15 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
             SplitHorizon splitHorizon = new SplitHorizonBuilder().setOverrideSplitHorizonProtection(true).build();
             interfaceBuilder.setName(portName).setType(L2vlan.class).addAugmentation(IfL2vlan.class, ifL2vlan)
                 .addAugmentation(ParentRefs.class, parentRefs).addAugmentation(SplitHorizon.class, splitHorizon);
-            iface = interfaceBuilder.build();
+            Interface newIface = interfaceBuilder.build();
             /*
              * Interface is already created for parent NeutronPort. We're updating parent refs
              * and VLAN Information
              */
-            WriteTransaction txn = dataBroker.newWriteOnlyTransaction();
-            txn.merge(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, iface);
-            LOG.trace("Creating trunk member interface {}", iface);
-            futures.add(txn.submit());
-            return futures;
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                tx.merge(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, newIface);
+                LOG.trace("Creating trunk member interface {}", newIface);
+            }));
         });
     }
 
@@ -163,10 +163,9 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
                         NeutronvpnUtils.buildVlanInterfaceIdentifier(subPort.getPortId().getValue());
         jobCoordinator.enqueueJob("PORT- " + portName, () -> {
             Interface iface = ifMgr.getInterfaceInfoFromConfigDataStore(portName);
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
             if (iface == null) {
                 LOG.warn("Interface not present for SubPort {}", subPort);
-                return futures;
+                return Collections.emptyList();
             }
             /*
              * We'll reset interface back to way it was? Can IFM handle parentRef delete?
@@ -177,7 +176,7 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
                 .removeAugmentation(SplitHorizon.class);
             IfL2vlan ifL2vlan = new IfL2vlanBuilder().setL2vlanMode(IfL2vlan.L2vlanMode.Trunk).build();
             interfaceBuilder.addAugmentation(IfL2vlan.class, ifL2vlan);
-            iface = interfaceBuilder.build();
+            Interface newIface = interfaceBuilder.build();
             /*
              * There is no means to do an update to remove elements from a node.
              * Our solution is to get existing iface, remove parentRef and VlanId,
@@ -187,11 +186,10 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
              * and this being subport delete path, don't expect any significant changes to
              * corresponding Neutron Port. Deletion of NeutronPort should follow soon enough.
              */
-            WriteTransaction txn = dataBroker.newWriteOnlyTransaction();
-            txn.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, iface);
-            LOG.trace("Resetting trunk member interface {}", iface);
-            futures.add(txn.submit());
-            return futures;
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                tx.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, newIface);
+                LOG.trace("Resetting trunk member interface {}", newIface);
+            }));
         });
 
     }
