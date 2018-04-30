@@ -57,6 +57,7 @@ public interface Ipv6Constants {
 
     BigInteger INVALID_DPID = new BigInteger("-1");
     short DEFAULT_FLOW_PRIORITY = 50;
+    short PUNT_NA_FLOW_PRIORITY = 40;
     String FLOWID_PREFIX = "IPv6.";
     String FLOWID_SEPARATOR = ".";
 
