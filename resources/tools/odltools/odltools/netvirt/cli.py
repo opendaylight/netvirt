@@ -21,7 +21,7 @@ def add_common_args(parser):
 def add_interface_parser(parsers):
     parser = parsers.add_parser("interface")
     add_common_args(parser)
-    parser.add_argument("--ifname",
+    parser.add_argument("--ifName",
                         help="interfaces-state:interface:name")
     parser.set_defaults(func=analyze.analyze_interface)
 
