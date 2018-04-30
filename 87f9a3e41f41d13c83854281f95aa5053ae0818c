@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8af2d2b3_0d49f3d5",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-30T11:16:46Z",
+      "side": 1,
+      "message": "Updated spec to provide clarity about discoverable IP should be within neutron subnet CIDR range.\n\nRegarding overlap of IPs, it\u0027s considered as limitation and is covered in Limitations section.",
+      "parentUuid": "e9551c23_a33b4e41",
+      "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c36df42a_d269c1d0",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2018-04-30T07:25:47Z",
       "side": 1,
       "message": "please clarify here too by rewriting \"not configured by Neutorn\" as \n\n\"hosting IPv6 addresses not used by other Neutron ports on the same subnet\"",
+      "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9aaa2eb2_88d17f53",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-30T11:16:46Z",
+      "side": 1,
+      "message": "Updated this section as per your suggestion in other comment.",
+      "parentUuid": "c36df42a_d269c1d0",
       "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "e6f37e1f_9ebefb11",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-30T11:16:46Z",
+      "side": 1,
+      "message": "Updated this section as per your suggestion in other comment.",
+      "parentUuid": "d4de3d88_2cf2cc3d",
+      "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "371f14ac_ee8f5ab4",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 8
@@ -64,6 +118,24 @@
       "writtenOn": "2018-04-30T07:25:47Z",
       "side": 1,
       "message": "this is a functionality required and cannot become a use-case",
+      "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba6c5718_485f9b01",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-30T11:16:46Z",
+      "side": 1,
+      "message": "Updated this section as per your suggestion in other comment.",
+      "parentUuid": "371f14ac_ee8f5ab4",
       "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "27ae44ae_8b598db7",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-30T11:16:46Z",
+      "side": 1,
+      "message": "Thanks for detailed description, updated same in the spec.",
+      "parentUuid": "cb207a7e_eb79e56f",
+      "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6a525e44_ca847cda",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 8
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "43b4ed05_791d1bd2",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-30T11:16:46Z",
+      "side": 1,
+      "message": "Updated",
+      "parentUuid": "6a525e44_ca847cda",
+      "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f9772009_09bc0e87",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 8
@@ -115,6 +223,24 @@
       "writtenOn": "2018-04-30T07:25:47Z",
       "side": 1,
       "message": "let us please remove this section as this is not addressed by this spec.",
+      "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "021182cf_efee2363",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-04-30T11:16:46Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "f9772009_09bc0e87",
       "revId": "87f9a3e41f41d13c83854281f95aa5053ae0818c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
