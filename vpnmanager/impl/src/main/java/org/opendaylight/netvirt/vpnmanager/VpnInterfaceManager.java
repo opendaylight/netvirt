@@ -31,6 +31,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -820,7 +822,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     : RouteOrigin.STATIC;
             L3vpnInput input = new L3vpnInput().setNextHop(nextHop).setRd(rd).setVpnName(vpnName)
                 .setInterfaceName(interfaceName).setNextHopIp(nextHopIp).setPrimaryRd(primaryRd)
-                .setSubnetGatewayMacAddress(vpnInterfaceSubnetGwMacAddress).setRouteOrigin(origin);
+                    .setSubnetGatewayMacAddress(vpnInterfaceSubnetGwMacAddress).setRouteOrigin(origin);
             Adjacency operationalAdjacency = null;
             try {
                 operationalAdjacency = registeredPopulator.createOperationalAdjacency(input);
@@ -842,15 +844,16 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 gwMac.isPresent() ? gwMac.get() : null, writeOperTxn);
 
         L3vpnInput input = new L3vpnInput().setNextHopIp(nextHopIp).setL3vni(l3vni).setPrimaryRd(primaryRd)
-                .setGatewayMac(gwMac.orNull()).setInterfaceName(interfaceName)
-                .setVpnName(vpnName).setDpnId(dpnId).setEncapType(encapType);
+                .setGatewayMac(gwMac.orNull()).setInterfaceName(interfaceName).setVpnName(vpnName).setDpnId(dpnId)
+                .setEncapType(encapType);
 
         for (Adjacency nextHop : aug.getAdjacency()) {
             // Adjacencies other than primary Adjacencies are handled in the addExtraRoute call above.
             if (nextHop.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
                 RouteOrigin origin = nextHop.getAdjacencyType() == AdjacencyType.PrimaryAdjacency ? RouteOrigin.LOCAL
                         : RouteOrigin.STATIC;
-                input.setNextHop(nextHop).setRd(nextHop.getVrfId()).setRouteOrigin(origin);
+                input.setIpAddress(nextHop.getIpAddress()).setRd(nextHop.getVrfId()).setRouteOrigin(origin)
+                        .setLabel(nextHop.getLabel()).setMacAddress(nextHop.getMacAddress());
                 registeredPopulator.populateFib(input, writeConfigTxn);
             }
         }
