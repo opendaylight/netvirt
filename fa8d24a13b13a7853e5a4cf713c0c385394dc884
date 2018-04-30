@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "056da7ac_a87354d8",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityGroupListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-04-30T14:55:30Z",
+      "side": 1,
+      "message": "Do we have chance of race of delete here and the delete in group rule listener leading to exceptions in MDSAL write? Can we handle the delete in the rule listener on delete of last rule?",
+      "revId": "fa8d24a13b13a7853e5a4cf713c0c385394dc884",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
