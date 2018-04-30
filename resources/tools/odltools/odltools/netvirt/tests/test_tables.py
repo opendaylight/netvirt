@@ -1,7 +1,7 @@
 import unittest
 
 from odltools import logg
-from odltools.ovs import tables
+from odltools.netvirt import tables
 
 
 class TestTables(unittest.TestCase):

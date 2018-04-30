@@ -5,7 +5,7 @@ from subprocess import Popen
 import os
 import re
 
-from odltools.ovs import flows
+from odltools.netvirt import ovs_flows
 
 logger = logging.getLogger("csit.robotfiles")
 
@@ -255,7 +255,7 @@ class RobotFiles:
                 logger.info("Processing: %s", filename)
                 filename = filename + ".f.txt"
                 dump_flows = node[RobotFiles.DUMP_FLOWS]
-                fls = flows.Flows(dump_flows)
+                fls = ovs_flows.Flows(dump_flows)
                 fls.write_fdata(filename)
 
     def fix_command_names(self, cmd):

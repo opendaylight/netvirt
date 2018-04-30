@@ -2,9 +2,9 @@ import logging
 from pprint import pformat
 
 import re
-
-import request
 import tables
+
+from odltools.netvirt import request
 
 logger = logging.getLogger("ovs.flows")
 
