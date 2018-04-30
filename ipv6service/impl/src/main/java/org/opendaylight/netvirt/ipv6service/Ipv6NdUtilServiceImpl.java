@@ -26,6 +26,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.Ipv6NdutilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.SendNeighborSolicitationInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.SendNeighborSolicitationOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.SendNeighborSolicitationToOfGroupInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.SendNeighborSolicitationToOfGroupOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.interfaces.InterfaceAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.yang.common.RpcError;
@@ -118,6 +120,16 @@ public class Ipv6NdUtilServiceImpl implements Ipv6NdutilService {
             LOG.error("Error while retrieving the interfaceName from tag using getInterfaceFromIfIndex RPC");
         }
         return result;
+    }
+
+    @Override
+    public ListenableFuture<RpcResult<SendNeighborSolicitationToOfGroupOutput>> sendNeighborSolicitationToOfGroup(
+            SendNeighborSolicitationToOfGroupInput ndInput) {
+        RpcResultBuilder<SendNeighborSolicitationToOfGroupOutput> successBuilder = RpcResultBuilder.success();
+        ipv6NeighborSolicitation.transmitNeighborSolicitationToOfGroup(ndInput.getDpId(), ndInput.getSourceLlAddress(),
+                ndInput.getSourceIpv6(), ndInput.getTargetIpAddress(), ndInput.getOfGroupId());
+
+        return  successBuilder.buildFuture();
     }
 
 }
