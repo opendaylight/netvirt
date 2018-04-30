@@ -52,6 +52,11 @@ module odl-l3vpn {
                 default false;
                 description "Value of True indicates this is an adjacency of a device in a provider network";
             }
+            leaf marked_for_deletion {
+                type boolean;
+                default false;
+                description "This flag if true suggest this adjancency has been marked for deletion";
+            }
         }
     }
 
