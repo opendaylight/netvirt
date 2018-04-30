@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f0cf2e1_1c1298e7",
+        "filename": "checkstyle/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-04-30T13:32:46Z",
+      "side": 1,
+      "message": "can you refactor this to look like the other poms in the project? I think the only change really is moving the modelVersion down below the name.\n\nWould this look better if over in the commons dir?",
+      "revId": "0b742dd5f6126c16d2e1290847bcc27ba838fcea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51355f15_e7cdf02a",
+        "filename": "commons/managed-tx-parent/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-04-30T13:32:46Z",
+      "side": 1,
+      "message": "same comment as other pom",
+      "revId": "0b742dd5f6126c16d2e1290847bcc27ba838fcea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
