@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "543d4931_3d9af456",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-04-30T06:52:42Z",
+      "side": 1,
+      "message": "vpn id should also be used as match criteria in case of arp learnt flows",
+      "revId": "3696adfcb8fb92c9749c7747e82dbc2a2281f100",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
