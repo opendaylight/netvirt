@@ -41,17 +41,26 @@ module odl-l3vpn {
                 }
                 default "extra-route";
             }
-            leaf label { type uint32; config "false"; } /* optional */
             leaf mac_address {type string;} /* optional */
             leaf subnet_id {type yang:uuid;} /* optional */
             leaf subnet_gateway_ip {type string;}  /* optional */
-            leaf subnet_gateway_mac_address {type string; config "false";} /* optional */
-            leaf vrf-id { type string; config "false"; }
             leaf phys-network-func {
                 type boolean;
                 default false;
                 description "Value of True indicates this is an adjacency of a device in a provider network";
             }
+            uses adjacency-op-data;
+        }
+    }
+
+    grouping adjacency-op-data{
+        leaf label { type uint32; config "false"; } /* optional */
+        leaf subnet_gateway_mac_address {type string; config "false";} /* optional */
+        leaf vrf-id { type string; config "false"; }
+        leaf marked_for_deletion {
+            config "false";
+            type boolean;
+            description "This flag if true suggest this adjancency has been marked for deletion";
         }
     }
 
