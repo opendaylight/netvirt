@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.vpnmanager;
+package org.opendaylight.netvirt.vpnmanager.extraroute;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -25,6 +25,8 @@ import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListen
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.VpnConstants;
+import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
