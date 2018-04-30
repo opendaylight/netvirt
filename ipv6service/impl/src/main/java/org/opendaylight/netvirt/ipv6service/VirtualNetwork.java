@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 import org.opendaylight.netvirt.ipv6service.api.IVirtualNetwork;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
 public class VirtualNetwork implements IVirtualNetwork {
@@ -85,6 +86,21 @@ public class VirtualNetwork implements IVirtualNetwork {
         return Ipv6Constants.FLOWS_NOT_CONFIGURED;
     }
 
+    public void setSubnetCidrPuntFlowStatusOnDpnId(BigInteger dpnId, Ipv6Prefix subnetPrefix, int action) {
+        DpnInterfaceInfo dpnInterface = getDpnIfaceInfo(dpnId);
+        if (null != dpnInterface) {
+            dpnInterface.setSubnetCidrFlowConfiguredStatus(subnetPrefix, action);
+        }
+    }
+
+    public int getSubnetCidrPuntFlowStatusOnDpnId(BigInteger dpnId, Ipv6Prefix subnetPrefix) {
+        DpnInterfaceInfo dpnInterface = getDpnIfaceInfo(dpnId);
+        if (null != dpnInterface) {
+            return dpnInterface.getSubnetCidrFlowConfiguredStatus(subnetPrefix);
+        }
+        return Ipv6Constants.FLOWS_NOT_CONFIGURED;
+    }
+
     public void clearDpnInterfaceList() {
         dpnIfaceList.clear();
     }
@@ -98,6 +114,7 @@ public class VirtualNetwork implements IVirtualNetwork {
         dpnIfaceList.values().forEach(dpnInterfaceInfo -> {
             dpnInterfaceInfo.clearOfPortList();
             dpnInterfaceInfo.clearNdTargetFlowInfo();
+            dpnInterfaceInfo.clearsubnetCidrPuntFlowConfiguredMap();
         });
 
         clearDpnInterfaceList();
@@ -106,13 +123,12 @@ public class VirtualNetwork implements IVirtualNetwork {
     public static class DpnInterfaceInfo {
         BigInteger dpId;
         int rsPuntFlowConfigured;
-        List<Long> ofPortList;
-        List<Ipv6Address> ndTargetFlowsPunted;
+        final ConcurrentMap<Ipv6Prefix, Integer> subnetCidrPuntFlowConfiguredMap = new ConcurrentHashMap<>();
+        final List<Long> ofPortList = new ArrayList<>();
+        final List<Ipv6Address> ndTargetFlowsPunted = new ArrayList<>();
 
         DpnInterfaceInfo(BigInteger dpnId) {
             dpId = dpnId;
-            ofPortList = new ArrayList<>();
-            ndTargetFlowsPunted = new ArrayList<>();
             rsPuntFlowConfigured = Ipv6Constants.FLOWS_NOT_CONFIGURED;
         }
 
@@ -130,6 +146,14 @@ public class VirtualNetwork implements IVirtualNetwork {
 
         public int getRsFlowConfiguredStatus() {
             return rsPuntFlowConfigured;
+        }
+
+        public void setSubnetCidrFlowConfiguredStatus(Ipv6Prefix subnetPrefix, int status) {
+            this.subnetCidrPuntFlowConfiguredMap.put(subnetPrefix, status);
+        }
+
+        public int getSubnetCidrFlowConfiguredStatus(Ipv6Prefix subnetPrefix) {
+            return subnetCidrPuntFlowConfiguredMap.getOrDefault(subnetPrefix, Ipv6Constants.FLOWS_NOT_CONFIGURED);
         }
 
         public List<Ipv6Address> getNDTargetFlows() {
@@ -160,9 +184,14 @@ public class VirtualNetwork implements IVirtualNetwork {
             this.ofPortList.clear();
         }
 
+        public void clearsubnetCidrPuntFlowConfiguredMap() {
+            this.subnetCidrPuntFlowConfiguredMap.clear();
+        }
+
         @Override
         public String toString() {
-            return "DpnInterfaceInfo [dpId=" + dpId + " rsPuntFlowConfigured=" + rsPuntFlowConfigured + " ofPortList="
+            return "DpnInterfaceInfo [dpId=" + dpId + " rsPuntFlowConfigured=" + rsPuntFlowConfigured
+                    + "subnetCidrPuntFlowConfiguredMap=" + subnetCidrPuntFlowConfiguredMap + " ofPortList="
                     + ofPortList + "]";
         }
     }

@@ -20,6 +20,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
@@ -38,18 +39,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.Metadata;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.MetadataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.NaReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.NaReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.packet.received.MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.table.types.rev131026.TableId;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class Ipv6PktHandlerTest {
     private PacketProcessingService pktProcessService;
     private Ipv6PktHandler pktHandler;
     private IfMgr ifMgrInstance;
+    private NotificationPublishService notificationPublishService;
     private long counter;
     private static final int THREAD_WAIT_TIME = 100;
     private Ipv6TestUtils ipv6TestUtils;
@@ -58,7 +63,8 @@ public class Ipv6PktHandlerTest {
     public void initTest() {
         pktProcessService = Mockito.mock(PacketProcessingService.class);
         ifMgrInstance = Mockito.mock(IfMgr.class);
-        pktHandler = new Ipv6PktHandler(pktProcessService, ifMgrInstance);
+        notificationPublishService = Mockito.mock(NotificationPublishService.class);
+        pktHandler = new Ipv6PktHandler(pktProcessService, ifMgrInstance, notificationPublishService);
         counter = pktHandler.getPacketProcessedCounter();
         ipv6TestUtils = new Ipv6TestUtils();
     }
@@ -495,6 +501,117 @@ public class Ipv6PktHandlerTest {
         verify(pktProcessService).transmitPacket(new TransmitPacketInputBuilder().setPayload(expectedPayload)
                 .setNode(new NodeRef(ncId))
                 .setEgress(ncRef).setIngress(ncRef).setAction(any(List.class)).build());
+    }
+
+    @Test
+    public void testonPacketReceivedNeighborAdvertisementWithValidPayload() throws Exception {
+        VirtualPort intf = Mockito.mock(VirtualPort.class);
+        when(intf.getNetworkID()).thenReturn(new Uuid("eeec9dba-d831-4ad7-84b9-00d7f65f0555"));
+        when(ifMgrInstance.getInterfaceNameFromTag(anyLong())).thenReturn("ddec9dba-d831-4ad7-84b9-00d7f65f052f");
+        when(ifMgrInstance.obtainV6Interface(any())).thenReturn(intf);
+
+        InstanceIdentifier<Node> ncId = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId("openflow:1"))).build();
+        NodeConnectorRef ncRef = new NodeConnectorRef(ncId);
+
+        BigInteger mdata = new BigInteger(String.valueOf(0x1000000));
+        Metadata metadata = new MetadataBuilder().setMetadata(mdata).build();
+        MatchBuilder matchbuilder = new MatchBuilder().setMetadata(metadata);
+        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
+                "FA 16 3E F7 69 4E",                               // Destination MAC
+                "FA 16 3E A9 38 94",                               // Source MAC
+                "86 DD",                                           // IPv6
+                "60 00 00 00",                                     // Version 6, traffic class 0, no flowlabel
+                "00 20",                                           // Payload length
+                "3A",                                              // Next header is ICMPv6
+                "FF",                                              // Hop limit
+                "20 01 0D B8 00 00 00 02 00 00 00 00 00 00 11 11", // Source IP
+                "10 01 0D B8 00 00 00 02 F8 16 3E FF FE F7 69 4E", // Destination IP
+                "88",                                              // ICMPv6 neighbor advertisement
+                "00",                                              // Code
+                "C9 9F",                                           // Checksum (valid)
+                "00 00 00 00",                                     // ICMPv6 message body
+                "20 01 0D B8 00 00 00 02 00 00 00 00 00 00 11 11", // Target
+                "02",                                              // ICMPv6 Option: Target Link Layer Address
+                "01",                                              // Length
+                "FA 16 3E A9 38 94"                                // Link Layer Address
+        )).setIngress(ncRef).setMatch(matchbuilder.build()).setTableId(new TableId((short) 45)).build());
+        //wait on this thread until the async job is completed in the packet handler.
+        waitForPacketProcessing();
+
+        NaReceivedBuilder naReceivedBuilder = new NaReceivedBuilder().setSourceMac(new MacAddress("fa:16:3e:a9:38:94"))
+                .setDestinationMac(new MacAddress("fa:16:3e:f7:69:4e"))
+                .setSourceIpv6(Ipv6Address.getDefaultInstance("2001:db8:0:2:0:0:0:1111"))
+                .setDestinationIpv6(Ipv6Address.getDefaultInstance("1001:db8:0:2:f816:3eff:fef7:694e"))
+                .setTargetAddress(Ipv6Address.getDefaultInstance("2001:db8:0:2:0:0:0:1111"))
+                .setTargetLlAddress(new MacAddress("fa:16:3e:a9:38:94")).setOfTableId(45L).setMetadata(mdata)
+                .setInterface("ddec9dba-d831-4ad7-84b9-00d7f65f052f");
+        verify(notificationPublishService).offerNotification(naReceivedBuilder.build());
+    }
+
+    @Test
+    public void testonPacketReceivedNeighborAdvertisementWithInvalidPayload() throws Exception {
+        //incorrect checksum
+        VirtualPort intf = Mockito.mock(VirtualPort.class);
+        when(intf.getNetworkID()).thenReturn(new Uuid("eeec9dba-d831-4ad7-84b9-00d7f65f0555"));
+        when(ifMgrInstance.getInterfaceNameFromTag(anyLong())).thenReturn("ddec9dba-d831-4ad7-84b9-00d7f65f052f");
+        when(ifMgrInstance.obtainV6Interface(any())).thenReturn(intf);
+
+        InstanceIdentifier<Node> ncId = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, new NodeKey(new NodeId("openflow:1"))).build();
+        NodeConnectorRef ncRef = new NodeConnectorRef(ncId);
+
+        BigInteger mdata = new BigInteger(String.valueOf(0x1000000));
+        Metadata metadata = new MetadataBuilder().setMetadata(mdata).build();
+        MatchBuilder matchbuilder = new MatchBuilder().setMetadata(metadata);
+
+        // incorrect checksum
+        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
+                "FA 16 3E F7 69 4E",                               // Destination MAC
+                "FA 16 3E A9 38 94",                               // Source MAC
+                "86 DD",                                           // IPv6
+                "60 00 00 00",                                     // Version 6, traffic class 0, no flowlabel
+                "00 20",                                           // Payload length
+                "3A",                                              // Next header is ICMPv6
+                "FF",                                              // Hop limit
+                "20 01 0D B8 00 00 00 02 00 00 00 00 00 00 11 11", // Source IP
+                "10 01 0D B8 00 00 00 02 F8 16 3E FF FE F7 69 4E", // Destination IP
+                "88",                                              // ICMPv6 neighbor advertisement
+                "00",                                              // Code
+                "C9 9A",                                           // Checksum (valid)
+                "00 00 00 00",                                     // ICMPv6 message body
+                "20 01 0D B8 00 00 00 02 00 00 00 00 00 00 11 11", // Target
+                "02",                                              // ICMPv6 Option: Target Link Layer Address
+                "01",                                              // Length
+                "FA 16 3E A9 38 94"                                // Link Layer Address
+        )).setIngress(ncRef).setMatch(matchbuilder.build()).setTableId(new TableId((short) 45)).build());
+        //wait on this thread until the async job is completed in the packet handler.
+        waitForPacketProcessing();
+        verify(notificationPublishService, times(0)).offerNotification(any(NaReceived.class));
+
+        // incorrect ICMPv6 type
+        pktHandler.onPacketReceived(new PacketReceivedBuilder().setPayload(ipv6TestUtils.buildPacket(
+                "FA 16 3E F7 69 4E",                               // Destination MAC
+                "FA 16 3E A9 38 94",                               // Source MAC
+                "86 DD",                                           // IPv6
+                "60 00 00 00",                                     // Version 6, traffic class 0, no flowlabel
+                "00 20",                                           // Payload length
+                "3A",                                              // Next header is ICMPv6
+                "FF",                                              // Hop limit
+                "20 01 0D B8 00 00 00 02 00 00 00 00 00 00 11 11", // Source IP
+                "10 01 0D B8 00 00 00 02 F8 16 3E FF FE F7 69 4E", // Destination IP
+                "87",                                              // ICMPv6 neighbor solicitation (invalid)
+                "00",                                              // Code
+                "C9 9F",                                           // Checksum (valid)
+                "00 00 00 00",                                     // ICMPv6 message body
+                "20 01 0D B8 00 00 00 02 00 00 00 00 00 00 11 11", // Target
+                "02",                                              // ICMPv6 Option: Target Link Layer Address
+                "01",                                              // Length
+                "FA 16 3E A9 38 94"                                // Link Layer Address
+        )).setIngress(ncRef).setMatch(matchbuilder.build()).setTableId(new TableId((short) 45)).build());
+        //wait on this thread until the async job is completed in the packet handler.
+        waitForPacketProcessing();
+        verify(notificationPublishService, times(0)).offerNotification(any(NaReceived.class));
     }
 
     private void waitForPacketProcessing() throws InterruptedException {
