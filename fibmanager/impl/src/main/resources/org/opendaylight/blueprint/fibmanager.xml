@@ -13,6 +13,9 @@
   <reference id="iVpnFootprintService"
              interface="org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService"
              availability="optional"/>
+  <reference id="iExtraRoutePortBindingService"
+             interface="org.opendaylight.netvirt.vpnmanager.api.extraroute.IExtraRoutePortBindingService"
+             availability="optional"/>
   <reference id="jobCoordinator"
              interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator"/>
   <reference id="interVpnLinkCache"
