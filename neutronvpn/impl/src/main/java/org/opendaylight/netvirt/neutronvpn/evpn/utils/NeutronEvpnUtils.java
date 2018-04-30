@@ -8,16 +8,16 @@
 package org.opendaylight.netvirt.neutronvpn.evpn.utils;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
@@ -45,11 +45,13 @@ public class NeutronEvpnUtils {
     }
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IVpnManager vpnManager;
     private final JobCoordinator jobCoordinator;
 
     public NeutronEvpnUtils(DataBroker broker, IVpnManager vpnManager, JobCoordinator jobCoordinator) {
         this.dataBroker = broker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.vpnManager = vpnManager;
         this.jobCoordinator = jobCoordinator;
     }
@@ -79,35 +81,31 @@ public class NeutronEvpnUtils {
     public void updateElanWithVpnInfo(String elanInstanceName, VpnInstance vpnInstance, Operation operation) {
         String vpnName = vpnInstance.getVpnInstanceName();
         InstanceIdentifier<ElanInstance> elanIid = ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName);
-        ReadWriteTransaction transaction = dataBroker.newReadWriteTransaction();
-        Optional<ElanInstance> elanInstanceOptional = Optional.absent();
-        try {
-            elanInstanceOptional = transaction.read(LogicalDatastoreType.CONFIGURATION, elanIid).checkedGet();
-        } catch (ReadFailedException e) {
-            LOG.error("updateElanWithVpnInfo throws ReadFailedException e {}", e);
-        }
-        if (!elanInstanceOptional.isPresent()) {
-            return;
-        }
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            Optional<ElanInstance> elanInstanceOptional =
+                    tx.read(LogicalDatastoreType.CONFIGURATION, elanIid).checkedGet();
+            if (!elanInstanceOptional.isPresent()) {
+                return;
+            }
 
-        EvpnAugmentationBuilder evpnAugmentationBuilder = new EvpnAugmentationBuilder();
-        ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder(elanInstanceOptional.get());
-        if (elanInstanceBuilder.getAugmentation(EvpnAugmentation.class) != null) {
-            evpnAugmentationBuilder =
-                    new EvpnAugmentationBuilder(elanInstanceBuilder.getAugmentation(EvpnAugmentation.class));
-        }
-        if (operation == Operation.ADD) {
-            evpnAugmentationBuilder.setEvpnName(vpnName);
-            LOG.debug("Writing Elan-EvpnAugmentation with key {}", elanInstanceName);
-        } else {
-            evpnAugmentationBuilder.setEvpnName(null);
-            LOG.debug("Deleting Elan-EvpnAugmentation with key {}", elanInstanceName);
-        }
+            EvpnAugmentationBuilder evpnAugmentationBuilder = new EvpnAugmentationBuilder();
+            ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder(elanInstanceOptional.get());
+            if (elanInstanceBuilder.getAugmentation(EvpnAugmentation.class) != null) {
+                evpnAugmentationBuilder =
+                        new EvpnAugmentationBuilder(elanInstanceBuilder.getAugmentation(EvpnAugmentation.class));
+            }
+            if (operation == Operation.ADD) {
+                evpnAugmentationBuilder.setEvpnName(vpnName);
+                LOG.debug("Writing Elan-EvpnAugmentation with key {}", elanInstanceName);
+            } else {
+                evpnAugmentationBuilder.setEvpnName(null);
+                LOG.debug("Deleting Elan-EvpnAugmentation with key {}", elanInstanceName);
+            }
 
-        elanInstanceBuilder.addAugmentation(EvpnAugmentation.class, evpnAugmentationBuilder.build());
-        transaction.put(LogicalDatastoreType.CONFIGURATION, elanIid, elanInstanceBuilder.build(),
-                WriteTransaction.CREATE_MISSING_PARENTS);
-        transaction.submit();
+            elanInstanceBuilder.addAugmentation(EvpnAugmentation.class, evpnAugmentationBuilder.build());
+            tx.put(LogicalDatastoreType.CONFIGURATION, elanIid, elanInstanceBuilder.build(),
+                    WriteTransaction.CREATE_MISSING_PARENTS);
+        }), LOG, "Error updating ELAN with VPN info {}, {}, {}", elanInstanceName, vpnInstance, operation);
     }
 
     public void updateVpnWithElanInfo(VpnInstance vpnInstance, String elanInstanceName, Operation operation) {
@@ -115,25 +113,22 @@ public class NeutronEvpnUtils {
 
         InstanceIdentifier<EvpnRdToNetwork> rdToNetworkIdentifier = getRdToNetworkIdentifier(rd);
 
-        jobCoordinator.enqueueJob("EVPN_ASSOCIATE-" + rd, () -> {
-            ReadWriteTransaction transaction = dataBroker.newReadWriteTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            if (operation == Operation.DELETE) {
-                LOG.debug("Deleting Evpn-Network with key {}", rd);
-                transaction.delete(LogicalDatastoreType.CONFIGURATION, rdToNetworkIdentifier);
-            } else {
-                EvpnRdToNetworkBuilder evpnRdToNetworkBuilder = new EvpnRdToNetworkBuilder().setKey(
-                        new EvpnRdToNetworkKey(rd));
-                evpnRdToNetworkBuilder.setRd(rd);
-                evpnRdToNetworkBuilder.setNetworkId(elanInstanceName);
-                LOG.info("updating Evpn {} with elaninstance {} and rd {}",
-                        vpnInstance.getVpnInstanceName(), elanInstanceName, rd);
-                transaction.put(LogicalDatastoreType.CONFIGURATION, rdToNetworkIdentifier,
-                        evpnRdToNetworkBuilder.build(), WriteTransaction.CREATE_MISSING_PARENTS);
-            }
-            futures.add(transaction.submit());
-            return futures;
-        });
+        jobCoordinator.enqueueJob("EVPN_ASSOCIATE-" + rd,
+            () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+                if (operation == Operation.DELETE) {
+                    LOG.debug("Deleting Evpn-Network with key {}", rd);
+                    tx.delete(LogicalDatastoreType.CONFIGURATION, rdToNetworkIdentifier);
+                } else {
+                    EvpnRdToNetworkBuilder evpnRdToNetworkBuilder = new EvpnRdToNetworkBuilder().setKey(
+                            new EvpnRdToNetworkKey(rd));
+                    evpnRdToNetworkBuilder.setRd(rd);
+                    evpnRdToNetworkBuilder.setNetworkId(elanInstanceName);
+                    LOG.info("updating Evpn {} with elaninstance {} and rd {}",
+                            vpnInstance.getVpnInstanceName(), elanInstanceName, rd);
+                    tx.put(LogicalDatastoreType.CONFIGURATION, rdToNetworkIdentifier,
+                            evpnRdToNetworkBuilder.build(), WriteTransaction.CREATE_MISSING_PARENTS);
+                }
+            })));
     }
 
     public void updateElanAndVpn(VpnInstance vpnInstance, String subnetVpn, Operation operation) {

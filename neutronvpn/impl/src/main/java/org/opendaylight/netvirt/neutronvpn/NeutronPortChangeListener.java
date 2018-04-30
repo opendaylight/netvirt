@@ -11,7 +11,6 @@ import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingI
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -621,7 +620,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         final List<FixedIps> portIpsList = port.getFixedIps();
         jobCoordinator.enqueueJob("PORT- " + portName,
             () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx -> {
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 if (!(NeutronUtils.isPortVnicTypeNormal(port) || isPortTypeSwitchdev(port))) {
                     for (FixedIps ip : portIpsList) {
                         // remove direct port from subnetMaps config DS
