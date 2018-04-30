@@ -1,13 +1,22 @@
 import json
+import logging
+
+import flows
 import utils
-from odltools.mdsal.models.models import Model
 from odltools.mdsal.models import elan
-from odltools.mdsal.models import ietf_interfaces
 from odltools.mdsal.models import id_manager
-from odltools.mdsal.models import interface_service_bindings
+# from odltools.mdsal.models import ietf_interfaces
+# from odltools.mdsal.models import interface_service_bindings
 from odltools.mdsal.models import neutron
 from odltools.mdsal.models import opendaylight_inventory
+from odltools.mdsal.models.models import Model
+# from odltools.mdsal.models.models import Models
 from odltools.mdsal.models.opendaylight_inventory import Nodes
+# from odltools.mdsal.models.models import Models
+import config
+
+
+logger = logging.getLogger("netvirt.show")
 
 
 def show_elan_instances(args):
@@ -70,27 +79,22 @@ def show_groups(args):
 
 def get_data_path(res_type, data):
     if res_type == 'bindings':
-        return 'interface-service-bindings:service-bindings/services-info/{}/{}'.format(data['interface-name'],data['service-mode'])
+        return 'interface-service-bindings:service-bindings/services-info/{}/{}'.format(
+            data['interface-name'], data['service-mode'])
     elif res_type == 'flows':
-        return 'opendaylight-inventory:nodes/node/openflow:{}/flow-node-inventory:table/{}/flow/{}'.format(data['dpnid'],data['table'],data['id'])
-
-
-def get_stale_bindings(args):
-    ietf_interfaces_interfaces = ietf_interfaces.interfaces(Model.CONFIG, args)
-    interface_service_bindings_service_bindings = interface_service_bindings.service_bindings(Model.CONFIG, args)
-    ifaces = ietf_interfaces_interfaces.get_interfaces_by_key()
-    bindings, orphans = interface_service_bindings_service_bindings.get_service_bindings()
-    return set(bindings.keys()) - set(ifaces.keys()), bindings
+        return 'opendaylight-inventory:nodes/node/openflow:{}/flow-node-inventory:table/{}/flow/{}'.format(
+            data['dpnid'], data['table'], data['id'])
 
 
 def show_stale_bindings(args):
-    stale_ids, bindings = get_stale_bindings(args)
+    config.get_models(args, {"ietf_interfaces_interfaces", "interface_service_bindings_service_bindings"})
+    stale_ids, bindings = flows.get_stale_bindings(args)
     for iface_id in sorted(stale_ids):
         for binding in bindings[iface_id].itervalues():
             #if binding.get('bound-services'):
             path = get_data_path('bindings', binding)
-            print json.dumps(bindings[iface_id])
-            print('http://192.168.2.32:8383/restconf/config/{}'.format(path))
+            print utils.format_json(bindings[iface_id])
+            print('http://{}:{}/restconf/config/{}'.format(args.ip, args.port, path))
 
 
 def show_tables(args):
@@ -102,3 +106,14 @@ def show_tables(args):
             if table.get('flow'):
                 tables.add(table['id'])
     print list(tables)
+
+
+def show_flows(args):
+    if args.flowtype == "all":
+        flows.show_all_flows(args)
+    if args.flowtype == "duplicate":
+        flows.show_dup_flows(args)
+    if args.flowtype == "learned":
+        flows.show_learned_mac_flows(args)
+    if args.flowtype == "stale":
+        flows.show_stale_flows(args)

@@ -1,18 +1,15 @@
-from odltools.netvirt import utils
 from odltools.mdsal.models import constants
 from odltools.mdsal.models import ietf_interfaces
 from odltools.mdsal.models import itm_state
 from odltools.mdsal.models import l3vpn
 from odltools.mdsal.models import neutron
 from odltools.mdsal.models.model import Model
+from odltools.netvirt import utils
+from odltools.netvirt.utils import sort
 
 
 def get_all_flows(modules=['ifm'], filter=[]):
     return []
-
-
-def sort(data, field):
-    return sorted(data, key=lambda x: x[field])
 
 
 def print_keys(ifaces, ifstates):
@@ -95,7 +92,7 @@ def analyze_trunks(args):
             sifstate = ifstates.get(sport_id)
             subport['SubNeutronPort'] = 'Correct' if snport else 'Wrong'
             subport['SubVpnInterface'] = 'Correct' if svpniface else 'Wrong'
-            subport['ofport'] = Model.get_ofport_from_ncid(sifstate.get('lower-layer-if')[0])
+            subport['ofport'] = Model.get_ofport_from_ncid()
             if siface:
                 vlan_mode = siface.get('odl-interface:l2vlan-mode')
                 parent_iface_id = siface.get('odl-interface:parent-interface')

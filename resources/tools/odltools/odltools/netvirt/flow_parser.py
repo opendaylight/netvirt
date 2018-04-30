@@ -1,8 +1,7 @@
 from odltools.mdsal.models.model import Model
+import utils
 
 
-OPTIONALS = ['ifname', 'lport', 'elan-tag', 'mpls', 'vpnid', 'reason',
-             'dst-mac', 'src-mac', 'ofport', 'vlanid']
 MAC_LEN = 17
 
 # Flow table constants
@@ -28,7 +27,6 @@ PREFIX_241_GOTO = 'Ingress_Fixed_Goto_Classifier_'
 PREFIX_243 = 'Ingress_Fixed_Conntrk_'
 PREFIX_244 = 'Ingress_Fixed_Conntrk_Drop'
 PREFIX_245 = 'Ingress_Fixed_NonConntrk_Drop'
-
 
 PREFIX_FOR_LPORT = {211: [PREFIX_211_GOTO, PREFIX_211_DHCPSv4,
                           PREFIX_211_DHCPSv6, PREFIX_211_DHCPCv4,
@@ -74,189 +72,31 @@ LPORT_REG6_MASK_ZLEN = 2
 VRFID_MASK = 0x0000000000fffffe
 
 
-def create_flow_dict(flow_info, flow):
-    flow_dict = {}
-    flow_dict['table'] = flow['table_id']
-    flow_dict['id'] = flow['id']
-    flow_dict['name'] = flow.get('flow-name')
-    flow_dict['flow'] = flow
-    flow_dict['dpnid'] = flow_info['dpnid']
-    for opt in OPTIONALS:
-        if flow_info.get(opt):
-            flow_dict[opt] = flow_info.get(opt)
-    return flow_dict
+def parse_flow(flow):
+    #parse flow fields
+    #hex(int(mask, 16) & int(data, 16))
+    if flow['cookie']:
+        utils.to_hex(flow, 'cookie')
+    # parse instructions
+    for instruction in flow['instructions'].get('instruction', []):
+        if 'write-metadata' in instruction:
+            utils.to_hex(instruction['write-metadata'],'metadata')
+            utils.to_hex(instruction['write-metadata'],'metadata-mask')
+        if 'apply-actions' in instruction:
+            for action in instruction['apply-actions'].get('action', []):
+                if 'openflowplugin-extension-nicira-action:nx-reg-load' in action:
+                    utils.to_hex(action['openflowplugin-extension-nicira-action:nx-reg-load'], 'value')
+    # parse matches
+    if 'metadata' in flow['match']:
+        metadata = flow['match']['metadata']
+        utils.to_hex(metadata,'metadata')
+        utils.to_hex(metadata,'metadata-mask')
 
+    for ofex in flow['match'].get('openflowplugin-extension-general:extension-list', []):
+        if ofex['extension-key'] == 'openflowplugin-extension-nicira-match:nxm-nx-reg6-key':
+            utils.to_hex(ofex['extension']['openflowplugin-extension-nicira-match:nxm-nx-reg'], 'value')
 
-def get_any_flow(flow, flow_info, groups, ifaces, ifstates, ifindexes,
-                 fibentries, vpnids, vpninterfaces, einsts, eifaces):
-    table = flow['table_id']
-    if table in const.TABLE_MAP['ifm']:
-        stale_ifm = stale_ifm_flow(flow, flow_info, ifaces, ifstates)
-        flow_info = stale_ifm if stale_ifm else get_flow_info_from_ifm_table(flow_info, flow)
-    elif table in const.TABLE_MAP['acl']:
-        stale_acl = stale_acl_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces)
-        flow_info = stale_acl if stale_acl else get_flow_info_from_acl_table(flow_info, flow)
-    elif table in const.TABLE_MAP['elan']:
-        stale_elan = stale_elan_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces)
-        flow_info = stale_elan if stale_elan else get_flow_info_from_elan_table(flow_info, flow)
-    elif table in const.TABLE_MAP['l3vpn']:
-        stale_l3vpn = stale_l3vpn_flow(flow, flow_info, groups, ifaces, ifindexes, vpnids, vpninterfaces, fibentries)
-        flow_info = stale_l3vpn if stale_l3vpn else get_flow_info_from_l3vpn_table(flow_info, flow)
-    else:
-        flow_info = get_flow_info_from_any(flow_info, flow)
-        iface = (get_iface_for_lport(ifaces, ifindexes, flow_info.get('lport'))
-                 if flow_info.get('lport') else None)
-        if iface and iface.get('name'):
-            flow_info['ifname'] = iface['name']
-    return create_flow_dict(flow_info, flow)
-
-
-def stale_ifm_flow(flow, flow_info, ifaces, ifstates):
-    get_flow_info_from_ifm_table(flow_info, flow)
-    flow_ifname = flow_info['ifname']
-    iface = ifaces.get(flow_ifname)
-    if flow_ifname is not None and not iface:
-        flow_info['reason'] = 'Interface doesnt exist'
-        return create_flow_dict(flow_info, flow)
-    elif flow_ifname and ifstates.get(flow_ifname):
-        ifstate = ifstates.get(flow_ifname)
-        ncid_list = ifstate.get('lower-layer-if')
-        ncid = ncid_list[0] if ncid_list else None
-        dpn = Model.get_dpn_from_ofnodeid(ncid)
-        if dpn and dpn != flow_info['dpnid']:
-            flow_info['reason'] = 'DpnId mismatch for flow and Interface'
-            return create_flow_dict(flow_info, flow)
-        if (flow_info.get('lport') and ifstate.get('if-index')
-                and flow_info['lport'] != ifstate['if-index']):
-            flow_info['reason'] = 'Lport and IfIndex mismatch'
-            return create_flow_dict(flow_info, flow)
-        if (flow_info.get('ofport') and ifstate.get('lower-layer-if')
-                and flow_info['ofport'] != utils.get_ofport_from_ncid(
-                    ifstate.get('lower-layer-if')[0])):
-            flow_info['reason'] = 'OfPort mismatch'
-        if (flow_info.get('vlanid') and iface.get('odl-interface:vlan-id')
-                and flow_info['vlanid'] != iface.get('odl-interface:vlan-id')):
-            flow_info['reason'] = 'VlanId mismatch'
-    return None
-    # return create_flow_dict(flow_info, flow)
-
-
-def stale_l3vpn_flow(flow, flow_info, groups, ifaces, ifindexes,
-                     vpnids, vpninterfaces, fibentries):
-    get_flow_info_from_l3vpn_table(flow_info, flow)
-    lport = flow_info.get('lport')
-    iface = get_iface_for_lport(ifaces, ifindexes, lport)
-    if lport and not iface:
-        flow_info['reason'] = 'Interface for lport not found'
-        return create_flow_dict(flow_info, flow)
-    if iface:
-        flow_info['ifname'] = iface['name']
-    vpninterface = vpninterfaces.get(iface.get('name')) if iface else None
-    if not vpninterfaces:
-        flow_info['reason'] = 'VpnInterface for Lport not found'
-        return create_flow_dict(flow_info, flow)
-    vpnid = flow_info.get('vpnid')
-    if vpnid and not vpnids.get(vpnid):
-        flow_info['reason'] = 'VpnInstance for VpnId not found'
-        return create_flow_dict(flow_info, flow)
-    if vpnid and vpninterface and vpnids.get(vpnid):
-        if (vpninterface.get('vpn-instance-name') !=
-                vpnids[vpnid]['vpn-instance-name']):
-            flow_info['reason'] = 'Lport VpnId mismatch'
-            return create_flow_dict(flow_info, flow)
-    label = flow_info.get('label')
-    fibentry = fibentries.get(label) if label else None
-    if label and not fibentry:
-        flow_info['reason'] = 'Fibentry for MplsLabel not found'
-        return create_flow_dict(flow_info, flow)
-    # Label check for group
-    prefix = fibentry.get('destPrefix') if fibentry else None
-    if prefix and flow_info.get('group-id'):
-        gid = flow_info.get('group-id')
-        if groups.get(gid) and (
-                groups.get(gid).get('group-name', '') != prefix):
-            flow_info['reason'] = 'DestPrefix mismatch for label and group'
-            return create_flow_dict(flow_info, flow)
-    return None
-
-
-def stale_elan_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces):
-    # hex(int(mask, 16) & int(hexa, 16))
-    get_flow_info_from_elan_table(flow_info, flow)
-    lport = flow_info.get('lport')
-    eltag = flow_info.get('elan-tag')
-    iface = get_iface_for_lport(ifaces, ifindexes, lport)
-    if lport and not iface:
-        flow_info['reason'] = 'Interface for lport not found'
-        return create_flow_dict(flow_info, flow)
-    if iface:
-        flow_info['ifname'] = iface['name']
-    if not is_elantag_valid(eltag, eifaces, einsts, iface):
-        flow_info['reason'] = 'Lport Elantag mismatch'
-        return create_flow_dict(flow_info, flow)
-    return None
-
-
-def stale_acl_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces):
-    get_flow_info_from_acl_table(flow_info, flow)
-    lport = flow_info.get('lport')
-    eltag = flow_info.get('elan-tag')
-    iface = get_iface_for_lport(ifaces, ifindexes, lport)
-    if lport and not iface:
-            flow_info['reason'] = 'Interface for lport not found'
-            return create_flow_dict(flow_info, flow)
-    if iface:
-        flow_info['ifname'] = iface['name']
-    if not is_elantag_valid(eltag, eifaces, einsts, iface):
-        flow_info['reason'] = 'Lport Elantag mismatch'
-        return create_flow_dict(flow_info, flow)
-    #return create_flow_dict(flow_info, flow)
-    return None
-
-
-def is_elantag_valid(eltag, eifaces, einsts, iface):
-    if (iface and eltag
-            and eltag != get_eltag_for_iface(eifaces, einsts, iface)):
-        return False
-    return True
-
-
-def is_correct_elan_flow(flow_info, mmac, einsts, flow_host):
-    flow = flow_info.get('flow')
-    flow_etag = flow_info.get('elan-tag')
-    for k, v in mmac.iteritems():
-        mac_host = v.get('compute')
-        if einsts.get(k):
-            einst_tag = einsts.get(k).get('elan-tag')
-            #print einst_tag, flow_etag, mac_host
-            if flow_etag and einst_tag and flow_etag == einst_tag:
-                if mac_host.startswith(flow_host):
-                    act_resubmit = get_act_resubmit(flow)
-                    if (act_resubmit and act_resubmit.get('table') == 220):
-                        return 'Correct'
-                else:
-                    act_tunnel = get_act_set_tunnel(flow)
-                    if act_tunnel:
-                        return 'Correct'
-                return 'Wrong'
-    return 'Wrong'
-
-
-def get_iface_for_lport(ifaces, ifindexes, lport):
-    if lport:
-        if ifindexes.get(lport):
-            ifname = ifindexes.get(lport).get('interface-name')
-            if ifname and ifaces.get(ifname):
-                return ifaces.get(ifname)
-    return None
-
-
-def get_eltag_for_iface(eifaces, einsts, iface):
-    ifname = iface.get('name') if iface else None
-    eiface = eifaces.get(ifname) if ifname else None
-    einst_name = eiface.get('elan-instance-name') if eiface else None
-    einst = einsts.get(einst_name) if einst_name else None
-    return einst.get('elan-tag') if einst else None
+    return flow
 
 
 # Methods to extract flow fields
@@ -271,10 +111,8 @@ def get_act_reg6load(flow):
     for instruction in flow['instructions'].get('instruction', []):
         if 'apply-actions' in instruction:
             for action in instruction['apply-actions'].get('action', []):
-                if ('openflowplugin-extension-nicira-action:nx-reg-load'
-                        in action):
-                    return action[
-                        'openflowplugin-extension-nicira-action:nx-reg-load']
+                if 'openflowplugin-extension-nicira-action:nx-reg-load' in action:
+                    return action['openflowplugin-extension-nicira-action:nx-reg-load']
     return None
 
 
@@ -282,10 +120,8 @@ def get_act_conntrack(flow):
     for instruction in flow['instructions'].get('instruction', []):
         if 'apply-actions' in instruction:
             for action in instruction['apply-actions'].get('action', []):
-                if ('openflowplugin-extension-nicira-action:nx-conntrack'
-                        in action):
-                    return action[
-                        'openflowplugin-extension-nicira-action:nx-conntrack']
+                if 'openflowplugin-extension-nicira-action:nx-conntrack' in action:
+                    return action['openflowplugin-extension-nicira-action:nx-conntrack']
 
 
 def get_act_group(flow):
@@ -308,8 +144,7 @@ def get_act_resubmit(flow):
     for instruction in flow['instructions'].get('instruction', []):
         if 'apply-actions' in instruction:
             for action in instruction['apply-actions'].get('action', []):
-                if ('openflowplugin-extension-nicira-action:nx-resubmit'
-                        in action):
+                if 'openflowplugin-extension-nicira-action:nx-resubmit' in action:
                     return action[
                         'openflowplugin-extension-nicira-action:nx-resubmit']
 
@@ -388,7 +223,7 @@ def get_flow_info_from_any(flow_info, flow):
     if w_mdata:
         metadata = w_mdata['metadata']
         mask = w_mdata['metadata-mask']
-        if (mask & LPORT_MASK):
+        if mask & LPORT_MASK:
             lport = ('%x' % (metadata & LPORT_MASK))[:-LPORT_MASK_ZLEN]
             if lport:
                 flow_info['lport'] = int(lport, 16)
@@ -396,7 +231,7 @@ def get_flow_info_from_any(flow_info, flow):
     if m_metadata:
         metadata = m_metadata['metadata']
         mask = m_metadata['metadata-mask']
-        if (mask & ELAN_TAG_MASK):
+        if mask & ELAN_TAG_MASK:
             elan = ('%x' % (metadata & ELAN_TAG_MASK))[:ELAN_HEX_LEN]
             if elan:
                 flow_info['elan-tag'] = int(elan, 16)
@@ -413,6 +248,7 @@ def get_flow_info_from_any(flow_info, flow):
     return flow_info
 
 # Table specific parsing
+
 
 def get_ifname_from_flowid(flow_id, table):
     splitter = ':' if table == 0 else '.'
@@ -434,7 +270,7 @@ def get_flow_info_from_ifm_table(flow_info, flow):
     if w_mdata:
         metadata = w_mdata['metadata']
         mask = w_mdata['metadata-mask']
-        if (mask & LPORT_MASK):
+        if mask & LPORT_MASK:
             lport = ('%x' % (metadata & LPORT_MASK))[:-LPORT_MASK_ZLEN]
             flow_info['lport'] = int(lport, 16)
     m_reg6 = get_match_reg6(flow)
@@ -445,7 +281,7 @@ def get_flow_info_from_ifm_table(flow_info, flow):
     if flow['table_id'] == 0:
         m_inport = get_match_inport(flow)
         if m_inport:
-            flow_info['ofport'] = utils.get_ofport_from_ncid(m_inport)
+            flow_info['ofport'] = Model.get_ofport_from_ncid(m_inport)
         m_vlan = get_match_vlanid(flow)
         if m_vlan and m_vlan.get('vlan-id'):
             flow_info['vlanid'] = m_vlan.get('vlan-id')
@@ -472,10 +308,10 @@ def get_flow_info_from_l3vpn_table(flow_info, flow):
     if m_metadata:
         metadata = m_metadata['metadata']
         mask = m_metadata['metadata-mask']
-        if (mask & LPORT_MASK):
+        if mask & LPORT_MASK:
             lport = ('%x' % (metadata & LPORT_MASK))[:-LPORT_MASK_ZLEN]
             flow_info['lport'] = int(lport, 16)
-        if (mask & VRFID_MASK):
+        if mask & VRFID_MASK:
             flow_info['vpnid'] = (metadata & VRFID_MASK) / 2
     return flow_info
 
@@ -492,10 +328,10 @@ def get_flow_info_from_elan_table(flow_info, flow):
     if m_metadata:
         metadata = m_metadata['metadata']
         mask = m_metadata['metadata-mask']
-        if (mask & ELAN_TAG_MASK):
+        if mask & ELAN_TAG_MASK:
             elan = ('%x' % (metadata & ELAN_TAG_MASK))[:ELAN_HEX_LEN]
             flow_info['elan-tag'] = int(elan, 16)
-        if (mask & LPORT_MASK):
+        if mask & LPORT_MASK:
             lport = ('%x' % (metadata & LPORT_MASK))[:-LPORT_MASK_ZLEN]
             flow_info['lport'] = int(lport, 16)
     m_ether_dest = get_match_ether_dest(flow)
@@ -518,7 +354,7 @@ def get_flow_info_from_acl_table(flow_info, flow):
     if m_metadata:
         metadata = m_metadata['metadata']
         mask = m_metadata['metadata-mask']
-        if (mask & LPORT_MASK):
+        if mask & LPORT_MASK:
             lport = ('%x' % (metadata & LPORT_MASK))[:-LPORT_MASK_ZLEN]
             flow_info['lport'] = int(lport, 16)
     a_conntrk = get_act_conntrack(flow)

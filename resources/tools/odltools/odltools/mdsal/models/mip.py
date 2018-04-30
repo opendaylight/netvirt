@@ -22,5 +22,5 @@ class Mac(Model):
             return None
         for entry in entries:
             entry['mac'] = entry['mac'].lower()
-        d[entry.get('mac')][entry.get('network-id')] = entry
+            d[entry.get('mac')][entry.get('network-id')] = entry
         return d

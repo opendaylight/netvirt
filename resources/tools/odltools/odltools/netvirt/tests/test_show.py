@@ -18,6 +18,14 @@ class TestShow(unittest.TestCase):
     def test_show_groups(self):
         show.show_groups(self.args)
 
+    def test_show_flows_all(self):
+        self.args.flowtype = "all"
+        self.args.pretty_print = True
+        show.show_flows(self.args)
+
+    def test_show_stale_bindings(self):
+        show.show_stale_bindings(self.args)
+
     def test_show_tables(self):
         show.show_tables(self.args)
 
