@@ -125,21 +125,28 @@ public class CentralizedSwitchChangeListener
             LOG.error("CentralizedSwitchChangeListener: setupRouterGwFlows no externalIP present");
             return;
         }
-        Uuid subnetVpnName = externalIps.get(0).getSubnetId();
+
+        for (ExternalIps extIp: router.getExternalIps()) {
+            Uuid subnetVpnName = extIp.getSubnetId();
+            if (addOrRemove == NwConstants.ADD_FLOW) {
+                vpnManager.addRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId,
+                        subnetVpnName.getValue(), writeTx);
+                externalRouterDataUtil.addtoRouterMap(router);
+            } else {
+                vpnManager.removeRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId,
+                        subnetVpnName.getValue(), writeTx);
+                externalRouterDataUtil.removeFromRouterMap(router);
+            }
+        }
+
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            vpnManager.addRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId,
-                    subnetVpnName.getValue(), writeTx);
             vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName,
                     VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
                     extGwMacAddress, primarySwitchId, extNetworkId, writeTx);
-            externalRouterDataUtil.addtoRouterMap(router);
         } else {
-            vpnManager.removeRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId,
-                    subnetVpnName.getValue(), writeTx);
             vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerName,
                     VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
                     extGwMacAddress, primarySwitchId, extNetworkId);
-            externalRouterDataUtil.removeFromRouterMap(router);
         }
     }
 }

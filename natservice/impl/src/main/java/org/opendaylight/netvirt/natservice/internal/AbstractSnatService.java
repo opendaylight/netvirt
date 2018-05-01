@@ -23,6 +23,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadMetadata;
@@ -36,17 +37,11 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
@@ -131,48 +126,51 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         return true;
     }
 
+    public boolean handleRouterUpdate(Routers origRouter, Routers updatedRouter) {
+        return true;
+    }
+
     protected void installSnatCommonEntriesForNaptSwitch(Routers routers, BigInteger dpnId,  int addOrRemove) {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         installDefaultFibRouteForSNAT(dpnId, routerId, addOrRemove);
         List<ExternalIps> externalIps = routers.getExternalIps();
-        if (externalIps.isEmpty()) {
-            LOG.error("AbstractSnatService: installSnatCommonEntriesForNaptSwitch no externalIP present"
-                    + " for routerId {}",
-                    routerId);
-            return;
+        for (ExternalIps externalIp : routers.getExternalIps()) {
+            if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
+                // Here we handle only IPv4 use-case, skip any ipv6 subnets in the external network
+                continue;
+            }
+            //The logic now handle only one external IP per router, others if present will be ignored.
+            long extSubnetId = NatConstants.INVALID_ID;
+            if (addOrRemove == NwConstants.ADD_FLOW) {
+                extSubnetId = NatUtil.getExternalSubnetVpnId(dataBroker, externalIp.getSubnetId());
+            }
+            installInboundFibEntry(dpnId, externalIp.getIpAddress(), routerId, extSubnetId, addOrRemove);
+            installInboundTerminatingServiceTblEntry(dpnId, routerId, extSubnetId, addOrRemove);
+            break;
         }
-        //The logic now handle only one external IP per router, others if present will be ignored.
-        String externalIp = externalIps.get(0).getIpAddress();
-        Uuid externalSubnetId = externalIps.get(0).getSubnetId();
-        long extSubnetId = NatConstants.INVALID_ID;
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            extSubnetId = NatUtil.getExternalSubnetVpnId(dataBroker,externalSubnetId);
-        }
-        installInboundFibEntry(dpnId, externalIp, routerId, extSubnetId, addOrRemove);
-        installInboundTerminatingServiceTblEntry(dpnId, routerId, extSubnetId, addOrRemove);
     }
 
     protected void installSnatCommonEntriesForNonNaptSwitch(Routers routers, BigInteger primarySwitchId,
             BigInteger dpnId, int addOrRemove) {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
-        List<ExternalIps> externalIps = routers.getExternalIps();
-        if (externalIps.isEmpty()) {
-            LOG.error("AbstractSnatService: installSnatCommonEntriesForNaptSwitch no externalIP present"
-                    + " for routerId {}",
-                    routerId);
-            return;
-        }
-        String externalIp = externalIps.get(0).getIpAddress();
-        Uuid externalSubnetId = externalIps.get(0).getSubnetId();
-        long extSubnetId = NatConstants.INVALID_ID;
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            extSubnetId = NatUtil.getExternalSubnetVpnId(dataBroker,externalSubnetId);
-        }
+        for (ExternalIps externalIp : routers.getExternalIps()) {
+            if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
+                // Here we handle only IPv4 use-case, skip any ipv6 subnets in the external network
+                continue;
+            }
 
-        installDefaultFibRouteForSNAT(dpnId, routerId, addOrRemove);
-        installSnatMissEntry(dpnId, routerId, routerName, primarySwitchId, externalIp, extSubnetId, addOrRemove);
+            long extSubnetId = NatConstants.INVALID_ID;
+            if (addOrRemove == NwConstants.ADD_FLOW) {
+                extSubnetId = NatUtil.getExternalSubnetVpnId(dataBroker,externalIp.getSubnetId());
+            }
+
+            installDefaultFibRouteForSNAT(dpnId, routerId, addOrRemove);
+            installSnatMissEntry(dpnId, routerId, routerName, primarySwitchId,
+                    externalIp.getIpAddress(), extSubnetId, addOrRemove);
+            break;
+        }
     }
 
     protected abstract void installSnatSpecificEntriesForNaptSwitch(Routers routers, BigInteger dpnId,
@@ -210,7 +208,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             String externalIp, long extSubnetId, int addOrRemove) {
         LOG.debug("installSnatMissEntry : Installing SNAT miss entry in switch {}", dpnId);
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
-        String ifNamePrimary = getTunnelInterfaceName(dpnId, primarySwitchId);
+        String ifNamePrimary = NatUtil.getTunnelInterfaceName(dpnId, primarySwitchId, itmManager);
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         if (ifNamePrimary != null) {
             LOG.debug("installSnatMissEntry : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
@@ -270,7 +268,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
     protected void installInboundTerminatingServiceTblEntry(BigInteger dpnId, Long routerId,
             long extSubnetId, int addOrRemove) {
-        //Install the tunnel table entry in NAPT switch for inbound traffic to SNAP IP from a non a NAPT switch.
+        //Install the tunnel table entry in NAPT switch for inbound traffic to SNAT IP from a non a NAPT switch.
         LOG.info("installInboundTerminatingServiceTblEntry : creating entry for Terminating Service Table "
                 + "for switch {}, routerId {}", dpnId, routerId);
         List<MatchInfo> matches = new ArrayList<>();
@@ -349,40 +347,6 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
     protected String getGroupIdKey(String routerName) {
         return "snatmiss." + routerName;
-    }
-
-    protected String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {
-        Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
-        RpcResult<GetTunnelInterfaceNameOutput> rpcResult;
-        try {
-            Future<RpcResult<GetTunnelInterfaceNameOutput>> result = itmManager
-                    .getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder().setSourceDpid(srcDpId)
-                            .setDestinationDpid(dstDpId).setTunnelType(tunType).build());
-            rpcResult = result.get();
-            if (!rpcResult.isSuccessful()) {
-                tunType = TunnelTypeGre.class ;
-                result = itmManager.getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder()
-                        .setSourceDpid(srcDpId)
-                        .setDestinationDpid(dstDpId)
-                        .setTunnelType(tunType)
-                        .build());
-                rpcResult = result.get();
-                if (!rpcResult.isSuccessful()) {
-                    LOG.warn("getTunnelInterfaceName : RPC Call to getTunnelInterfaceId returned with Errors {}",
-                            rpcResult.getErrors());
-                } else {
-                    return rpcResult.getResult().getInterfaceName();
-                }
-                LOG.warn("getTunnelInterfaceName : RPC Call to getTunnelInterfaceId returned with Errors {}",
-                        rpcResult.getErrors());
-            } else {
-                return rpcResult.getResult().getInterfaceName();
-            }
-        } catch (InterruptedException | ExecutionException | NullPointerException e) {
-            LOG.error("getTunnelInterfaceName : Exception when getting tunnel interface Id for tunnel "
-                    + "between {} and {}", srcDpId, dstDpId);
-        }
-        return null;
     }
 
     static int mostSignificantBit(int value) {
