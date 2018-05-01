@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8f22fcf_f7536e0d",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1519,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-04-10T11:35:14Z",
+      "side": 1,
+      "message": "I hope you wanted to remove these comments.",
+      "range": {
+        "startLine": 1519,
+        "startChar": 38,
+        "endLine": 1519,
+        "endChar": 100
+      },
+      "revId": "80159921c635b323efea7e680a82a0701034e7f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
