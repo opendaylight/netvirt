@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "826f9660_5f1e1ab3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-01T11:06:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f32163a_3191dad7",
+      "range": {
+        "startLine": 7,
+        "startChar": 22,
+        "endLine": 7,
+        "endChar": 33
+      },
+      "revId": "98418d7ecb94872c448ae6c4e7951c9f2c9477ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d6dca12e_328dddd4",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2018-04-30T21:25:18Z",
       "side": 1,
       "message": "why not create an elanSegments object just once and pass\nthat to segments.add() and LOG.debug() instead of doing\nthe .build() twice.",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 216,
+        "endChar": 95
+      },
+      "revId": "98418d7ecb94872c448ae6c4e7951c9f2c9477ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b634ecbc_91d83b07",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-01T11:06:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d6dca12e_328dddd4",
       "range": {
         "startLine": 213,
         "startChar": 0,
