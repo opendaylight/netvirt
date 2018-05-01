@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de3efee0_acb0cf55",
+        "filename": "docs/user-guide/port-status-update-debugging.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-05-01T19:16:56Z",
+      "side": 1,
+      "message": "whitespace",
+      "range": {
+        "startLine": 22,
+        "startChar": 90,
+        "endLine": 22,
+        "endChar": 91
+      },
+      "revId": "575afb2a24f1ff84012a89751870ba65bc08fd5a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
