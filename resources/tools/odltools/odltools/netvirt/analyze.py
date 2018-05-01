@@ -19,6 +19,7 @@ def print_keys(ifaces, ifstates):
 
 def by_ifname(args, ifname, ifstates, ifaces):
     itm_state_tunnels_state = itm_state.tunnels_state(Model.OPERATIONAL, args)
+    # itm_state_tunnels_list = itm_state.tunnels_list(Model.CONFIG, args)
     neutron_neutron = neutron.neutron(Model.CONFIG, args)
     ifstate = ifstates.get(ifname)
     iface = ifaces.get(ifname)
@@ -29,9 +30,9 @@ def by_ifname(args, ifname, ifstates, ifaces):
         ports = neutron_neutron.get_ports_by_key()
         port = ports.get(ifname)
     elif iface and iface.get('type') == constants.IFTYPE_TUNNEL:
-        tunnels = itm_state_tunnels_state.get_tunnels_by_key()
-        tunnel = tunnels.get(ifname)
-        tun_states = itm_state_tunnels_state.get_tunnel_states()
+        # tunnels = itm_state_tunnels_state.get_tunnels_by_key()
+        # tunnel = tunnels.get(ifname)
+        tun_states = itm_state_tunnels_state.get_tunnels_by_key()
         tun_state = tun_states.get(ifname)
     else:
         print "UNSUPPORTED IfType"
