@@ -42,6 +42,7 @@ import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
@@ -416,12 +417,14 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     private void addGwMac(String srcMacAddress, WriteTransaction tx, long vpnId, BigInteger dpId, long subnetVpnId) {
-        FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dpId, srcMacAddress, vpnId, subnetVpnId);
+        // SGM: Dont merge this change, we already have patch - https://git.opendaylight.org/gerrit/#/c/71093/1
+        FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dataBroker, dpId, srcMacAddress, vpnId, subnetVpnId);
         mdsalManager.addFlowToTx(flowEntity, tx);
     }
 
     private void removeGwMac(String srcMacAddress, WriteTransaction tx, long vpnId, BigInteger dpId, long subnetVpnId) {
-        FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dpId, srcMacAddress, vpnId, subnetVpnId);
+        // SGM: Dont merge this change, we already have patch - https://git.opendaylight.org/gerrit/#/c/71093/1
+        FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dataBroker, dpId, srcMacAddress, vpnId, subnetVpnId);
         mdsalManager.removeFlowToTx(flowEntity, tx);
     }
 
@@ -559,6 +562,10 @@ public class VpnManagerImpl implements IVpnManager {
             ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 tx -> {
                     for (String fixedIp : fixedIps) {
+                        IpVersionChoice ipVersionChoice = VpnUtil.getIpVersionFromString(fixedIp);
+                        if (ipVersionChoice == IpVersionChoice.IPV6) {
+                            continue;
+                        }
                         installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag,
                                 fixedIp);
                     }
@@ -566,6 +573,10 @@ public class VpnManagerImpl implements IVpnManager {
             ListenableFutures.addErrorLogging(future, LOG, "Commit transaction");
         } else {
             for (String fixedIp : fixedIps) {
+                IpVersionChoice ipVersionChoice = VpnUtil.getIpVersionFromString(fixedIp);
+                if (ipVersionChoice == IpVersionChoice.IPV6) {
+                    continue;
+                }
                 installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag,
                         fixedIp);
             }

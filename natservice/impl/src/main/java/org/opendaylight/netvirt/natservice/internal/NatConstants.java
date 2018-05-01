@@ -17,6 +17,7 @@ public interface NatConstants {
     String NAPT_FLOW_NAME = "SNAT";
     BigInteger COOKIE_NAPT_BASE = new BigInteger("8000000", 16);
     String NAPT_FLOWID_PREFIX = "SNAT.";
+    String IPV6_FLOWID_PREFIX = "IPv6.";
     String FLOWID_SEPARATOR = ".";
     String COLON_SEPARATOR = ":";
     int DEFAULT_NAPT_IDLE_TIMEOUT = 300;
