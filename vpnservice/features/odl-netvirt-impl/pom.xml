@@ -18,7 +18,7 @@
 
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>odl-netvirt-impl</artifactId>
-    <version>0.5.3-SNAPSHOT</version>
+    <version>0.5.3</version>
     <packaging>feature</packaging>
 
     <name>OpenDaylight :: NetVirt :: impl</name>
@@ -27,21 +27,21 @@
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>odl-mdsal-broker</artifactId>
-            <version>1.6.3-SNAPSHOT</version>
+            <version>1.6.3</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.ovsdb</groupId>
             <artifactId>odl-ovsdb-southbound-impl</artifactId>
-            <version>1.5.3-SNAPSHOT</version>
+            <version>1.5.3</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.ovsdb</groupId>
             <artifactId>odl-ovsdb-hwvtepsouthbound</artifactId>
-            <version>1.5.3-SNAPSHOT</version>
+            <version>1.5.3</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
@@ -55,28 +55,28 @@
         <dependency>
             <groupId>org.opendaylight.openflowplugin</groupId>
             <artifactId>odl-openflowplugin-southbound</artifactId>
-            <version>0.5.3-SNAPSHOT</version>
+            <version>0.5.3</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.openflowplugin</groupId>
             <artifactId>odl-openflowplugin-flow-services</artifactId>
-            <version>0.5.3-SNAPSHOT</version>
+            <version>0.5.3</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>odl-genius</artifactId>
-            <version>0.3.3-SNAPSHOT</version>
+            <version>0.3.3</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>odl-infrautils-inject</artifactId>
-            <version>1.2.3-SNAPSHOT</version>
+            <version>1.2.3</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
