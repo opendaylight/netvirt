@@ -117,3 +117,5 @@ def show_flows(args):
         flows.show_learned_mac_flows(args)
     if args.flowtype == "stale":
         flows.show_stale_flows(args)
+    if args.flowtype == "elan":
+        flows.show_elan_flows(args)
