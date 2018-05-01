@@ -268,7 +268,7 @@ class RobotFiles:
 
 
 def run(args):
-    robotfile = RobotFiles(args.infile, args.outdir)
+    robotfile = RobotFiles(args.infile, args.path)
     robotfile.print_config()
     robotfile.mk_outdir()
     if args.gunzip:

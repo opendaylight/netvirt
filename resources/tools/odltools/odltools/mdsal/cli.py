@@ -3,7 +3,7 @@ import cmd
 
 def add_dump_parser(parsers):
     parser = parsers.add_parser("dump", description="Get and write all mdsal models")
-    parser.add_argument("outdir",
+    parser.add_argument("path",
                         help="the directory that the parsed data is written into")
     parser.add_argument("-i", "--ip", default="localhost",
                         help="OpenDaylight ip address")

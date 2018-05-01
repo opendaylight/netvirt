@@ -185,4 +185,4 @@ def get_model_data(filename, url, user, pw, pretty_print=False):
 
 
 def run_dump(args):
-    get_all_dumps(args.outdir, args)
+    get_all_dumps(args)
