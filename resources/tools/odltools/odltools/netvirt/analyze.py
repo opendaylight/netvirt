@@ -45,11 +45,11 @@ def analyze_interface(args):
     ietf_interfaces_interfaces_state = ietf_interfaces.interfaces_state(Model.OPERATIONAL, args)
     ifstates = ietf_interfaces_interfaces_state.get_interfaces_by_key()
 
-    if not args.ifname:
+    if not args.ifName:
         print_keys(ifaces, ifstates)
         exit(1)
 
-    ifname = args.ifname
+    ifname = args.ifName
     iface, ifstate, port, tunnel, tunState = by_ifname(args, ifname, ifstates, ifaces)
     print "InterfaceConfig: \n{}".format(utils.format_json(args, iface))
     print "InterfaceState: \n{}".format(utils.format_json(args, ifstate))
@@ -157,6 +157,9 @@ def analyze_inventory(args):
         print "Inventory Operational:"
         nodes = config.gmodels.odl_inventory_nodes_operational.get_nodes_by_key()
     node = nodes.get("openflow:" + args.nodeId)
+    if node is None:
+        print "node: {} was not found".format("openflow:" + args.nodeId)
+        return
     tables = node.get(Nodes.NODE_TABLE)
     groups = node.get(Nodes.NODE_GROUP)
     flow_list = []
