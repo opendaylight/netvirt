@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d8f639f9_a1ffc91f",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-05-02T09:31:14Z",
+      "side": 1,
+      "message": "vpn id will be 0. Updated the spec to use elan id as match.",
+      "parentUuid": "c37dd070_9562944a",
+      "revId": "ce6242d8e3dd1042ba927746c416cc343d8abac4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e131d3cc_c1077cc4",
         "filename": "docs/specs/fluorine/controller-punt-protection.rst",
         "patchSetId": 7
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "c3f22c26_e4082c21",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-05-02T09:31:14Z",
+      "side": 1,
+      "message": "Updated the flow to use elan id as match.",
+      "parentUuid": "e131d3cc_c1077cc4",
+      "revId": "ce6242d8e3dd1042ba927746c416cc343d8abac4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b19b6c4_977d8ed8",
         "filename": "docs/specs/fluorine/controller-punt-protection.rst",
         "patchSetId": 7
@@ -47,6 +83,24 @@
       "writtenOn": "2018-05-02T06:02:00Z",
       "side": 1,
       "message": "for sure you will have an ELAN Tag when the traffic hits Table 43 and so you should see which bits are used for ELAN Tag and use them instead of vpn-id",
+      "revId": "ce6242d8e3dd1042ba927746c416cc343d8abac4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b250fdc_56b52c00",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-05-02T09:31:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8b19b6c4_977d8ed8",
       "revId": "ce6242d8e3dd1042ba927746c416cc343d8abac4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
