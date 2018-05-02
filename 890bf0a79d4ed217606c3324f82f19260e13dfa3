@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06dc93a7_c2d44a32",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/ConfigureBgpCli.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-05-02T06:15:57Z",
+      "side": 1,
+      "message": "I assume lu stands for labelled Unicast (RFC 3107). Does ODL support Labeled unicast? If not, this check does not make sense.",
+      "range": {
+        "startLine": 342,
+        "startChar": 16,
+        "endLine": 342,
+        "endChar": 43
+      },
+      "revId": "890bf0a79d4ed217606c3324f82f19260e13dfa3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
