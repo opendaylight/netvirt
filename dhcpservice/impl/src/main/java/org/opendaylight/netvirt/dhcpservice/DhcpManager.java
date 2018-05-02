@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -33,11 +35,18 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,18 +154,34 @@ public class DhcpManager {
     public Subnet getNeutronSubnet(List<FixedIps> fixedIps) {
         for (FixedIps fixedIp: fixedIps) {
             if (fixedIp.getIpAddress().getIpv4Address() != null) {
-                return neutronVpnService.getNeutronSubnet(fixedIp.getSubnetId());
+                return getNeutronSubnet(fixedIp.getSubnetId());
             }
         }
         return null;
     }
 
-    public Port getNeutronPort(String name) {
-        try {
-            return neutronVpnService.getNeutronPort(name);
-        } catch (IllegalArgumentException e) {
-            return null;
+    private Subnet getNeutronSubnet(Uuid subnetId) {
+        Subnet subnet = null;
+        InstanceIdentifier<Subnet> inst = InstanceIdentifier.create(Neutron.class).child(Subnets.class).child(Subnet
+                .class, new SubnetKey(subnetId));
+        Optional<Subnet> sn = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+        if (sn.isPresent()) {
+            subnet = sn.get();
         }
+        LOG.trace("Subnet {} = {}", subnetId, subnet);
+        return subnet;
+    }
+
+    public Port getNeutronPort(String name) {
+        Port prt = null;
+        InstanceIdentifier<Port> inst = InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class,
+                new PortKey(new Uuid(name)));
+        Optional<Port> port = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+        if (port.isPresent()) {
+            prt = port.get();
+        }
+        LOG.trace("Port {} = {}", name, prt);
+        return prt;
     }
 
     public void installDhcpEntries(BigInteger dpnId, String vmMacAddress, WriteTransaction tx) {
