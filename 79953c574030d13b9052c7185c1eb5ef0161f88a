@@ -472,6 +472,30 @@
     },
     {
       "key": {
+        "uuid": "3c9d77b8_40eb577d",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-05-02T08:51:32Z",
+      "side": 1,
+      "message": "We advertize RT3 for every compute only for the first vm on that evpn instance. For second vm on that evpn instance on the same compute no RT3 is advertized, that is covered in the next test case",
+      "parentUuid": "1cdd635d_6c399472",
+      "range": {
+        "startLine": 204,
+        "startChar": 40,
+        "endLine": 204,
+        "endChar": 75
+      },
+      "revId": "79953c574030d13b9052c7185c1eb5ef0161f88a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eb349dc3_62696581",
         "filename": "docs/specs/fluorine/index.rst",
         "patchSetId": 2
