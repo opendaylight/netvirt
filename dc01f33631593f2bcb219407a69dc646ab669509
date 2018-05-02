@@ -1,0 +1,378 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cccdafde_b9f4af59",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "or inside the subnet",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e9feb6c9_f02de69d",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "and when the Router is associated to a BGPVPN, the L3VPN service",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "616f4b2f_ba3a3703",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "Use \u0027designated dpn\u0027 instead of \u0027landing ovs\u0027.  A dpn is eligible for becoming a \u0027designated dpn\u0027 only if there is atleast one active VM IPv6 port on the subnet on that dpn (wherein this subnet also hosts the hidden IPv6 address)",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c3365ed_3d6051dc",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "this is unclear.  Today if a Router is not in a VPN, there will be no subnetroute flows at all.",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "55162f05_6b630652",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "in programming the remote flow rules in all the other DPNs that have the same VPN footprint.",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "33de5aa7_3522c3e4",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "this is incorrect.  Only if a router is in VPN and if the subnet is present as an arm of the router, the discovery will happen.\n\nIf the discovery happens just for plain routers internal subnets (note - not external subnets), then we have a bug which has to be fixed before this feature lands.",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "078f1bf0_b61eca2b",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "this is incorrect.  We never configure Hidden IPs on loopback interfaces of the VMs and so we donot know the effect of the same.",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c9767f24_f78cdb4f",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "this is correct.  There should be no leak of discovered IPv6 addresses from other than the parent-VPN.",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d9860402_61041d51",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "I believe both of the above will re-use the IPv4 subnetroute engine DPN Election logic that is already present, correct?",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ace9f4bc_c712a503",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "ditto here too",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9dd86c22_83b52417",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "this area is being extensively changed for IPv4 in the review from Hanumant here:\nhttps://git.opendaylight.org/gerrit/#/c/70649/\n\nSo I kindly request you to work with him to land your changes on top of that review.",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "727d3571_933dd4ce",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "Add case of last VM on a VPN removed from a DPN when such a DPN is the subnetroute anchor here.",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7d9afa7b_140c1598",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "Isn\u0027t here we are re-using the same aliveness manager that we used for IPv4 learnt addresses (or) are we proposing something different here for IPv6 learnt addresses?",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c4e90b0_f8bb0c8f",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "I disagree with this.. We cannot push ifs \u0026 buts into the code.\n\nCode sustainability is of higher importance than features.   \n\nI would rather advise to take only router-associated-vpns into this spec and leave for another spec that will cover plain routers for both IPv4 and IPv6.",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5e53da95_3d9f3f33",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "what is the additional metadata that is written here in the flow compared to the already matching metadata?",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e70432e5_daa01c4f",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "please align these pipeline changes with Karthikeyan\u0027s IPV6 ND Responder pipeline too.",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a9f92b5a_69384f9e",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "this RPC will be used by aliveness-monitor for periodically sending NS to specific port holding the hidden ipv6 address?",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9df08687_06d1cec6",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "i understand this limitation, but how do we make this work for customers?",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4cfc831c_64f2eef0",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "this cannot be agreed.  We should be able to check from the NA incoming interface whether it is holding atleast one primary IPv6 address and based on that we handle NA (or) throw an error and ignore the packet.  This will not take much effort in implementation, and so let us remove this limitation.",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "389a84ce_9b9f808c",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "ditto as aboev here too",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c9e81ed_803f0c8c",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "are you going to support this whole thing for dual router model?  If so why :) when the dual router implementation itself has not landed?",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "37082b04_c1088421",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T18:04:37Z",
+      "side": 1,
+      "message": "please add details of testsuite and testcases you will be constructing for this feature into NetVirt CSIT.",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
