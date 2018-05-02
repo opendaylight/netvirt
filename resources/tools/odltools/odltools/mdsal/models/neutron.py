@@ -1,11 +1,11 @@
 from odltools.mdsal.models.model import Model
 
 
-NAME = "neutron"
+MODULE = "neutron"
 
 
 def neutron(store, args):
-    return Neutron(NAME, Neutron.CONTAINER, store, args)
+    return Neutron(MODULE, store, args)
 
 
 class Neutron(Model):
@@ -18,29 +18,29 @@ class Neutron(Model):
     ROUTER = "router"
     TRUNKS = "trunks"
     TRUNK = "trunk"
-    NAME = "name"
+    MODULE = "name"
     UUID = "uuid"
 
-    def get_ports(self):
-        return self.data[self.CONTAINER][self.PORTS][self.PORT]
+    def get_clist(self):
+        return self.data[self.CONTAINER]
+
+    def get_ccl(self, parent, child, item):
+        c = self.data and self.data.get(parent, {})
+        l = self.get_list(c, child, item)
+        return l
+
+    def get_ccl_by_key(self, parent, child, item, key="uuid"):
+        d = {}
+        lst = self.get_ccl(parent, child, item)
+        for l in lst:
+            d[l[key]] = l
+        return d
+
+    def get_networks_by_key(self, key="uuid"):
+        return self.get_ccl_by_key(self.CONTAINER, self.NETWORKS, self.NETWORK, key)
 
     def get_ports_by_key(self, key="uuid"):
-        d = {}
-        ports = self.get_ports()
-        if ports is None:
-            return None
-        for port in ports:
-            d[port[key]] = port
-        return d
-
-    def get_trunks(self):
-        return self.data[self.CONTAINER][self.TRUNKS][self.TRUNK]
+        return self.get_ccl_by_key(self.CONTAINER, self.PORTS, self.PORT, key)
 
     def get_trunks_by_key(self, key="uuid"):
-        d = {}
-        trunks = self.get_trunks()
-        if trunks is None:
-            return None
-        for trunk in trunks:
-            d[trunk[key]] = trunk
-        return d
+        return self.get_ccl_by_key(self.CONTAINER, self.TRUNKS, self.TRUNK, key)

@@ -1,16 +1,17 @@
+import logging
 import unittest
 
 from odltools import logg
 from odltools.netvirt import show
-from odltools.netvirt.tests import Args
+from odltools.netvirt import tests
 
 
 class TestShow(unittest.TestCase):
     # TODO: capture stdout and check for list of tables.
 
     def setUp(self):
-        logg.Logger()
-        self.args = Args(path="../../tests/resources")
+        logg.Logger(logging.INFO, logging.INFO)
+        self.args = tests.Args(path=tests.get_resources_path())
 
     def test_show_elan_instances(self):
         show.show_elan_instances(self.args)

@@ -1,0 +1,102 @@
+{
+    "tunnels_state": {
+        "state-tunnel-list": [
+            {
+                "dst-info": {
+                    "tep-device-id": "233201308854882",
+                    "tep-device-type": "itm-state:tep-type-internal",
+                    "tep-ip": "10.30.170.13"
+                },
+                "oper-state": "up",
+                "src-info": {
+                    "tep-device-id": "66870777175113",
+                    "tep-device-type": "itm-state:tep-type-internal",
+                    "tep-ip": "10.30.170.41"
+                },
+                "transport-type": "odl-interface:tunnel-type-vxlan",
+                "tunnel-interface-name": "tun428ee8c4fe7",
+                "tunnel-state": true
+            },
+            {
+                "dst-info": {
+                    "tep-device-id": "203251201875890",
+                    "tep-device-type": "itm-state:tep-type-internal",
+                    "tep-ip": "10.30.170.31"
+                },
+                "oper-state": "up",
+                "src-info": {
+                    "tep-device-id": "66870777175113",
+                    "tep-device-type": "itm-state:tep-type-internal",
+                    "tep-ip": "10.30.170.41"
+                },
+                "transport-type": "odl-interface:tunnel-type-vxlan",
+                "tunnel-interface-name": "tun789af3b29bf",
+                "tunnel-state": true
+            },
+            {
+                "dst-info": {
+                    "tep-device-id": "233201308854882",
+                    "tep-device-type": "itm-state:tep-type-internal",
+                    "tep-ip": "10.30.170.13"
+                },
+                "oper-state": "up",
+                "src-info": {
+                    "tep-device-id": "203251201875890",
+                    "tep-device-type": "itm-state:tep-type-internal",
+                    "tep-ip": "10.30.170.31"
+                },
+                "transport-type": "odl-interface:tunnel-type-vxlan",
+                "tunnel-interface-name": "tun4ec984af0f9",
+                "tunnel-state": true
+            },
+            {
+                "dst-info": {
+                    "tep-device-id": "66870777175113",
+                    "tep-device-type": "itm-state:tep-type-internal",
+                    "tep-ip": "10.30.170.41"
+                },
+                "oper-state": "up",
+                "src-info": {
+                    "tep-device-id": "233201308854882",
+                    "tep-device-type": "itm-state:tep-type-internal",
+                    "tep-ip": "10.30.170.13"
+                },
+                "transport-type": "odl-interface:tunnel-type-vxlan",
+                "tunnel-interface-name": "tunaf7425faccd",
+                "tunnel-state": true
+            },
+            {
+                "dst-info": {
+                    "tep-device-id": "66870777175113",
+                    "tep-device-type": "itm-state:tep-type-internal",
+                    "tep-ip": "10.30.170.41"
+                },
+                "oper-state": "up",
+                "src-info": {
+                    "tep-device-id": "203251201875890",
+                    "tep-device-type": "itm-state:tep-type-internal",
+                    "tep-ip": "10.30.170.31"
+                },
+                "transport-type": "odl-interface:tunnel-type-vxlan",
+                "tunnel-interface-name": "tuna221648ca0a",
+                "tunnel-state": true
+            },
+            {
+                "dst-info": {
+                    "tep-device-id": "203251201875890",
+                    "tep-device-type": "itm-state:tep-type-internal",
+                    "tep-ip": "10.30.170.31"
+                },
+                "oper-state": "up",
+                "src-info": {
+                    "tep-device-id": "233201308854882",
+                    "tep-device-type": "itm-state:tep-type-internal",
+                    "tep-ip": "10.30.170.13"
+                },
+                "transport-type": "odl-interface:tunnel-type-vxlan",
+                "tunnel-interface-name": "tuna877bff3c2d",
+                "tunnel-state": true
+            }
+        ]
+    }
+}

@@ -1,15 +1,18 @@
+import logging
 import unittest
 
 import os
 
 from odltools import logg
-from odltools.netvirt import request, ovs_flows
+from odltools.netvirt import ovs_flows
+from odltools.netvirt import request
+from odltools.netvirt import tests
 
 
 class TestFlows(unittest.TestCase):
     def setUp(self):
-        logg.Logger()
-        self.filename = "../../tests/resources/flow_dumps.3.txt"
+        logg.Logger(logging.INFO, logging.INFO)
+        self.filename = "{}/flow_dumps.1.txt".format(tests.get_resources_path())
         self.data = request.read_file(self.filename)
         self.flows = ovs_flows.Flows(self.data)
 

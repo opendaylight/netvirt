@@ -21,7 +21,7 @@ logger = logging.getLogger("netvirt.show")
 
 def show_elan_instances(args):
     elan_elan_instances = elan.elan_instances(Model.CONFIG, args)
-    instances = elan_elan_instances.get_elan_instances_by_key()
+    instances = elan_elan_instances.get_clist_by_key()
     for k, v in instances.items():
         print "ElanInstance: {}, {}".format(k, utils.format_json(args, v))
 
@@ -70,7 +70,7 @@ def show_idpools(args):
 
 def show_groups(args):
     odl_inventory_nodes_config = opendaylight_inventory.nodes(Model.CONFIG, args)
-    of_nodes = odl_inventory_nodes_config.get_nodes_by_key()
+    of_nodes = odl_inventory_nodes_config.get_clist_by_key()
     groups = odl_inventory_nodes_config.get_groups(of_nodes)
     for dpn in groups:
         for group_key in groups[dpn]:
@@ -99,7 +99,7 @@ def show_stale_bindings(args):
 
 def show_tables(args):
     odl_inventory_nodes_config = opendaylight_inventory.nodes(Model.CONFIG, args)
-    of_nodes = odl_inventory_nodes_config.get_nodes_by_key()
+    of_nodes = odl_inventory_nodes_config.get_clist_by_key()
     tables = set()
     for node in of_nodes.itervalues():
         for table in node[Nodes.NODE_TABLE]:
