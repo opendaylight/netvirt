@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e778dde_55d7d3db",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T16:52:20Z",
+      "side": 1,
+      "message": "since the network stuff is really config information, can\u0027t we just store this in config-vpn-interface adjacency itself.\n\nIn that way you can avoid this unnecessary backpull.",
+      "revId": "2badc0a6b03f473f0324661582d9294c2411206b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "176c11df_92ecad92",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T16:52:20Z",
+      "side": 1,
+      "message": "plesae avoid backpull..\n\nAlso please understand that the change should work for dualstack VMs i.e, VM VPNInterfaces that will have 1 IPV4 Adjacency and 1 IPV6 Adjacency.",
+      "revId": "2badc0a6b03f473f0324661582d9294c2411206b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
