@@ -1,6 +1,8 @@
 import config
 import flow_parser
 import flows
+import tables
+
 from odltools.mdsal.models import constants
 from odltools.mdsal.models import ietf_interfaces
 from odltools.mdsal.models import itm_state
@@ -130,8 +132,10 @@ def analyze_trunks(args):
         if flow.get('vlanid') and flow.get('vlanid') != vlanid:
             flow_status = 'VlanId mismatch for SubPort:{} and Flow:{}'.format(subport, flow.get('flow'))
         if subport:
-            print 'SubPort:{},Table:{},FlowStatus:{}'.format(
-                subport.get('port-id'), flow.get('table'), flow_status)
+            print 'SubPort:{},Table:{}/{},FlowStatus:{}'.format(
+                subport.get('port-id'), flow.get('table'),
+                tables.get_table_name(flow.get('table')),
+                flow_status)
 
 
 def analyze_neutron_port(port, iface, ifstate):
@@ -139,9 +143,9 @@ def analyze_neutron_port(port, iface, ifstate):
         if ((flow.get('ifname') == port['uuid']) or
                 (flow.get('lport') and ifstate and flow['lport'] == ifstate.get('if-index')) or
                 (iface['name'] == flow.get('ifname'))):
-            result = 'Table:{},FlowId:{}{}'.format(
-                flow['table'], flow['id'],
-                utils.show_optionals(flow))
+            result = 'Table:{}/{},FlowId:{}{}'.format(
+                flow['table'], tables.get_table_name(flow['table']),
+                flow['id'], utils.show_optionals(flow))
             print result
             print 'Flow:', utils.format_json(None, flow_parser.parse_flow(flow.get('flow')))
 
@@ -172,5 +176,6 @@ def analyze_inventory(args):
                 flow_list.append(flow_dict)
     flows = sorted(flow_list, key=lambda x: x['table'])
     for flow in flows:
-        print 'Table:', flow['table']
+        print 'Table:{}/{}'.format(flow['table'],
+                                   tables.get_table_name(flow['table']))
         print 'FlowId:', flow['id'], 'FlowName:', flow.get('name')
