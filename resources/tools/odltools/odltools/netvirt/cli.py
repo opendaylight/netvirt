@@ -6,16 +6,18 @@ import show
 def add_common_args(parser):
     parser.add_argument("--path",
                         help="the directory that the parsed data is written into")
+    parser.add_argument("-s", "--https", action="store_true",
+                        help="use https for secure connection")
     parser.add_argument("-i", "--ip", default="localhost",
                         help="OpenDaylight ip address")
-    parser.add_argument("-p", "--pretty_print", action="store_true",
-                        help="json dump with pretty_print")
     parser.add_argument("-t", "--port", default="8181",
                         help="OpenDaylight restconf port, default: 8181")
     parser.add_argument("-u", "--user", default="admin",
                         help="OpenDaylight restconf username, default: admin")
     parser.add_argument("-w", "--pw", default="admin",
                         help="OpenDaylight restconf password, default: admin")
+    parser.add_argument("-p", "--pretty_print", action="store_true",
+                        help="json dump with pretty_print")
 
 
 def add_interface_parser(parsers):
@@ -54,6 +56,10 @@ def add_show_parser(parsers):
     parser.add_argument("--modules",
                         help="service module owning the flow")
     parser.add_argument("flowtype", choices=["all", "duplicate", "elan", "learned", "stale"])
+    parser.add_argument("--metaOnly", action="store_true",
+                        help="display flow meta info only")
+    parser.add_argument("--urls", action="store_true",
+                        help="show flow urls")
     parser.set_defaults(func=show.show_flows)
 
     parser = parsers.add_parser("id-pools")

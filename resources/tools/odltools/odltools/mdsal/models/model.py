@@ -13,6 +13,7 @@ class Model:
         self.name = name
         self.container = container
         self.store = store
+        self.http = 'https' if args.https else 'http'
         self.ip = args.ip
         self.port = args.port
         self.url = self.make_url()
@@ -32,12 +33,14 @@ class Model:
         return "{}/{}___{}__{}___topology___{}.json".format(self.path, self.store, self.name, self.container, fmid)
 
     def make_url(self):
-        return "http://{}:{}/restconf/{}/{}:{}".format(self.ip, self.port, self.store,
-                                                       self.name, self.container)
+        return "{}://{}:{}/restconf/{}/{}:{}".format(self.http, self.ip, self.port,
+                                                     self.store, self.name,
+                                                     self.container)
 
     def make_url_type(self, mid):
-        return "http://{}:{}/restconf/{}/{}:{}/topology/{}".format(self.ip, self.port, self.store,
-                                                                   self.name, self.container, mid)
+        return "{}://{}:{}/restconf/{}/{}:{}/topology/{}".format(self.http, self.ip, self.port,
+                                                                 self.store, self.name,
+                                                                 self.container, mid)
 
     def get_from_odl(self):
         return odltools.mdsal.request.get(self.url, self.USER, self.PW)

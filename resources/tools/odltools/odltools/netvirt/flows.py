@@ -11,6 +11,7 @@ from odltools.mdsal.models.opendaylight_inventory import Nodes
 from odltools.netvirt import utils
 import config
 import flow_parser
+import tables
 
 
 logger = logging.getLogger("netvirt.flows")
@@ -252,7 +253,6 @@ def get_iface_for_lport(ifaces, ifindexes, lport):
 
 
 def get_eltag_for_iface(eifaces, einsts, iface):
-    print eifaces
     ifname = iface.get('name') if iface else None
     eiface = eifaces.get(ifname) if ifname else None
     einst_name = eiface.get('elan-instance-name') if eiface else None
@@ -329,6 +329,14 @@ def show_link_flow_binding(args):
             print 'Flow without binding: ', flow['ifname']
 
 
+def get_flow_url(args, flow):
+    base_url = 'http://{}:{}/restconf/config'.format(args.ip, args.port)
+    flow_path = 'opendaylight-inventory:nodes/node/openflow:{}/' \
+                'flow-node-inventory:table/{}/flow/{}'.format(
+        flow['dpnid'], flow['table'], flow['id'])
+    return '{}/{}'.format(base_url, flow_path)
+
+
 def show_stale_flows(args, sort_by='table'):
     config.get_models(args, {
         "elan_elan_instances",
@@ -352,13 +360,15 @@ def show_stale_flows(args, sort_by='table'):
         ip_list = get_ips_for_iface(nports, flow.get('ifname'))
         if ip_list:
             flow['iface-ips'] = ip_list
-        result = 'Table:{}, Host:{}, FlowId:{}{}'.format(
-            flow['table'], host, flow['id'],
+        result = 'Table:{}/{}, Host:{}, FlowId:{}{}'.format(
+            flow['table'], tables.get_table_name(flow.get('table')),
+            host, flow['id'],
             utils.show_optionals(flow))
         print result
-        ##path = get_data_path('flows', flow)
-        #print('http://192.168.2.32:8383/restconf/config/{}'.format(path))
-        #print 'Flow:', utils.format_json(args, flow_parser.parse_flow(flow['flow']))
+        if args.urls:
+            print('http://{}'.format(get_flow_url(args, flow)))
+        if not args.metaOnly:
+            print 'Flow:{}'.format(utils.format_json(args, flow_parser.parse_flow(flow['flow'])))
 
 
 def show_elan_flows(args):
@@ -373,11 +383,14 @@ def show_elan_flows(args):
     compute_map = config.gmodels.odl_inventory_nodes_operational.get_dpn_host_mapping()
     for flow in utils.sort(get_all_flows(args, modules=['elan']), 'id'):
         host = compute_map.get(flow.get('dpnid'), flow.get('dpnid'))
-        result = 'MacHost:{}{}, Table:{}, FlowId:{}, {}, Flow:{}'.format(
-            flow['id'][-17:], host, flow['table'], flow['id'], utils.show_optionals(flow),
+        result = 'MacHost:{}{}, Table:{}/{}, FlowId:{}, {}, Flow:{}'.format(
+            flow['id'][-17:], host, flow['table'],
+            tables.get_table_name(flow['table']),
+            flow['id'], utils.show_optionals(flow),
            utils.format_json(args, flow_parser.parse_flow(flow['flow'])))
         print result
-        #print 'Flow:', utils.format_json(args, flow_parser.parse_flow(flow['flow']))
+        if not args.metaOnly:
+            print 'Flow:{}'.format(utils.format_json(args, flow_parser.parse_flow(flow['flow'])))
 
 
 def get_matchstr(args, flow):
@@ -460,11 +473,13 @@ def show_learned_mac_flows(args):
         nports.get(flow_info.get('src-mac'))) or
                 (flow_info.get('table') == 51 and
                      not nports.get(flow_info.get('dst-mac')))):
-            result = 'Table:{}, Host:{}, FlowId:{}{}'.format(
-                flow_info.get('table'), host, flow.get('id'),
-                utils.show_optionals(flow_info))
+            result = 'Table:{}/{}, Host:{}, FlowId:{}{}'.format(
+                flow_info.get('table'),
+                tables.get_table_name(flow['table']),
+                host, flow.get('id'), utils.show_optionals(flow_info))
             print result
-            print 'Flow:{}'.format(utils.format_json(args, flow_parser.parse_flow(flow)))
+            if not args.metaOnly:
+                print 'Flow:{}'.format(utils.format_json(args,flow_parser.parse_flow(flow)))
 
 
 def get_stale_bindings(args):
@@ -488,11 +503,13 @@ def dump_flows(args, modules=None, sort_by='table', filter_by=None):
         ip_list = get_ips_for_iface(nports, flow.get('ifname'))
         if ip_list:
             flow['iface-ips'] = ip_list
-        result = 'Table:{}, Host:{}, FlowId:{}{}'.format(
-            flow['table'], host, flow['id'],
+        result = 'Table:{}/{}, Host:{}, FlowId:{}{}'.format(
+            flow['table'], tables.get_table_name(flow['table']),
+            host, flow['id'],
             utils.show_optionals(flow))
         print result
-        print 'Flow:', utils.format_json(args, flow_parser.parse_flow(flow['flow']))
+        if not args.metaOnly:
+            print 'Flow:', utils.format_json(args, flow_parser.parse_flow(flow['flow']))
 
 
 def show_all_flows(args):
