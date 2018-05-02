@@ -20,11 +20,13 @@ class TestOdltools(unittest.TestCase):
             parser.parse_args(['-h'])
         self.assertEqual(cm.exception.code, 0)
 
+    @unittest.skip("skipping")
     def test_robotfiles_run(self):
         parser = cli.create_parser()
         args = parser.parse_args(['csit', self.DATAPATH, self.OUTPATH, '-g'])
         robotfiles.run(args)
 
+    @unittest.skip("skipping")
     def test_csit(self):
         parser = cli.create_parser()
         args = parser.parse_args(['csit', self.DATAPATH, self.OUTPATH, '-g', '-d'])

@@ -142,7 +142,7 @@ def get_all_dumps(args):
         model_path = res[DSM_PATH]
         path_split = split_model_path(model_path)
         filename = make_filename(args.path, store, path_split.name, path_split.container)
-        url = make_url(args.https, args.ip, args.port, store, path_split.name, path_split.container)
+        url = make_url(args.transport, args.ip, args.port, store, path_split.name, path_split.container)
         get_model_data(filename, url, args.user, args.pw, args.pretty_print)
 
 
@@ -161,9 +161,8 @@ def make_filename(path, store, name, container):
     return "{}/{}_{}:{}.json".format(path, store, name, container.replace("/", "_"))
 
 
-def make_url(https, ip, port, store, name, container):
-    http = 'https' if https else 'http'
-    return "{}://{}:{}/restconf/{}/{}:{}".format(http, ip, port, store,
+def make_url(transport, ip, port, store, name, container):
+    return "{}://{}:{}/restconf/{}/{}:{}".format(transport, ip, port, store,
                                                  name, container)
 
 
