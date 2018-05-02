@@ -26,14 +26,14 @@ class RobotFiles:
         self.re_normalize_text = re.compile(r"( \n)|(\[A\[C.*)")
         # uri=restconf/config/interface-service-bindings:service-bindings, headers=None json=None</msg>
         self.re_uri = re.compile(r"uri=(?P<uri>.*),")
-        logger.info("RobotFiles created")
+        logger.debug("RobotFiles created")
 
     def gunzip(self):
         infile = self.datafilepath
         basename = os.path.splitext(os.path.basename(self.datafilepath))[0]
         self.datafilepath = "{}/{}".format(self.outdir, basename)
         Popen("gunzip -cfk {} > {}".format(infile, self.datafilepath), shell=True).wait()
-        logger.info("gunzip -cfk %s > %s", infile, self.datafilepath)
+        logger.debug("gunzip -cfk %s > %s", infile, self.datafilepath)
 
     def mkdir(self, path):
         try:
@@ -44,7 +44,7 @@ class RobotFiles:
 
     def mk_outdir(self):
         self.mkdir(self.outdir)
-        logger.info("mk_outdir: %s created", self.outdir)
+        logger.debug("mk_outdir: %s created", self.outdir)
 
     def read_chunks(self, fp):
         while True:

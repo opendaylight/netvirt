@@ -1,0 +1,102 @@
+{
+    "if-indexes-interface-map": {
+        "if-index-interface": [
+            {
+                "if-index": 16,
+                "interface-name": "233201308854882:br-physnet1-pa:trunk"
+            },
+            {
+                "if-index": 13,
+                "interface-name": "66870777175113:br-physnet1-pa:trunk"
+            },
+            {
+                "if-index": 26,
+                "interface-name": "66870777175113:br-physnet1-pa:1131"
+            },
+            {
+                "if-index": 25,
+                "interface-name": "13eb9a56-ae36-4fa4-9c88-6710bd6d7016"
+            },
+            {
+                "if-index": 24,
+                "interface-name": "1be4e467-fbf8-48bd-a1e9-e307716f1523"
+            },
+            {
+                "if-index": 23,
+                "interface-name": "54f620f8-acda-429b-a68b-bd56fa5c1207"
+            },
+            {
+                "if-index": 22,
+                "interface-name": "203251201875890:br-physnet1-pa:1131"
+            },
+            {
+                "if-index": 21,
+                "interface-name": "c4857784-4fee-4229-bdaa-312c45021c6c"
+            },
+            {
+                "if-index": 2,
+                "interface-name": "tuna221648ca0a"
+            },
+            {
+                "if-index": 34,
+                "interface-name": "c8047b56-7d60-4ac9-88ad-c8ede52e9315"
+            },
+            {
+                "if-index": 1,
+                "interface-name": "tun789af3b29bf"
+            },
+            {
+                "if-index": 33,
+                "interface-name": "1f82f53d-5235-486f-b344-471804badfbd"
+            },
+            {
+                "if-index": 32,
+                "interface-name": "1defce3a-2897-4030-960c-8073e7ac9bcb"
+            },
+            {
+                "if-index": 31,
+                "interface-name": "8a4ccb62-9057-40fc-94d7-7a2bd2182ddb"
+            },
+            {
+                "if-index": 30,
+                "interface-name": "3ddd65c8-e946-4747-a5f8-7e1e14361f6f"
+            },
+            {
+                "if-index": 29,
+                "interface-name": "233201308854882:br-physnet1-pa:1131"
+            },
+            {
+                "if-index": 28,
+                "interface-name": "afe0eeae-e6c0-4e7e-acf4-009123e023eb"
+            },
+            {
+                "if-index": 27,
+                "interface-name": "8bbf2bf2-3f6b-4e6b-80f7-a40f6e419b29"
+            },
+            {
+                "if-index": 8,
+                "interface-name": "203251201875890:br-physnet1-pa:trunk"
+            },
+            {
+                "if-index": 6,
+                "interface-name": "tunaf7425faccd"
+            },
+            {
+                "if-index": 5,
+                "interface-name": "tun4ec984af0f9"
+            },
+            {
+                "if-index": 4,
+                "interface-name": "tun428ee8c4fe7"
+            },
+            {
+                "if-index": 3,
+                "interface-name": "tuna877bff3c2d"
+            },
+            {
+                "if-index": 35,
+                "interface-name": "e8c2f851-beaf-41e5-8900-bf4f15018325"
+            }
+        ]
+    }
+}

@@ -1,0 +1,2874 @@
+{
+    "nodes": {
+        "node": [
+            {
+                "flow-node-inventory:description": "None",
+                "flow-node-inventory:hardware": "Open vSwitch",
+                "flow-node-inventory:ip-address": "10.30.170.31",
+                "flow-node-inventory:manufacturer": "Nicira, Inc.",
+                "flow-node-inventory:port-number": 50810,
+                "flow-node-inventory:serial-number": "None",
+                "flow-node-inventory:software": "2.7.3",
+                "flow-node-inventory:switch-features": {
+                    "capabilities": [
+                        "flow-node-inventory:flow-feature-capability-flow-stats",
+                        "flow-node-inventory:flow-feature-capability-queue-stats",
+                        "flow-node-inventory:flow-feature-capability-port-stats",
+                        "flow-node-inventory:flow-feature-capability-table-stats",
+                        "flow-node-inventory:flow-feature-capability-group-stats"
+                    ],
+                    "max_buffers": 0,
+                    "max_tables": 254
+                },
+                "flow-node-inventory:table": [
+                    {
+                        "id": 235
+                    },
+                    {
+                        "id": 209
+                    },
+                    {
+                        "id": 175
+                    },
+                    {
+                        "id": 89
+                    },
+                    {
+                        "id": 119
+                    },
+                    {
+                        "id": 21
+                    },
+                    {
+                        "id": 51
+                    },
+                    {
+                        "id": 234
+                    },
+                    {
+                        "id": 208
+                    },
+                    {
+                        "id": 174
+                    },
+                    {
+                        "id": 88
+                    },
+                    {
+                        "id": 118
+                    },
+                    {
+                        "id": 20
+                    },
+                    {
+                        "id": 50
+                    },
+                    {
+                        "id": 237
+                    },
+                    {
+                        "id": 207
+                    },
+                    {
+                        "id": 177
+                    },
+                    {
+                        "id": 0
+                    },
+                    {
+                        "id": 87
+                    },
+                    {
+                        "id": 121
+                    },
+                    {
+                        "id": 19
+                    },
+                    {
+                        "id": 53
+                    },
+                    {
+                        "id": 236
+                    },
+                    {
+                        "id": 206
+                    },
+                    {
+                        "id": 176
+                    },
+                    {
+                        "id": 1
+                    },
+                    {
+                        "id": 86
+                    },
+                    {
+                        "id": 120
+                    },
+                    {
+                        "id": 18
+                    },
+                    {
+                        "id": 52
+                    },
+                    {
+                        "id": 239
+                    },
+                    {
+                        "id": 205
+                    },
+                    {
+                        "id": 171
+                    },
+                    {
+                        "id": 85
+                    },
+                    {
+                        "id": 115
+                    },
+                    {
+                        "id": 25
+                    },
+                    {
+                        "id": 55
+                    },
+                    {
+                        "id": 238
+                    },
+                    {
+                        "id": 204
+                    },
+                    {
+                        "id": 170
+                    },
+                    {
+                        "id": 84
+                    },
+                    {
+                        "id": 114
+                    },
+                    {
+                        "id": 24
+                    },
+                    {
+                        "id": 54
+                    },
+                    {
+                        "id": 241
+                    },
+                    {
+                        "id": 203
+                    },
+                    {
+                        "id": 173
+                    },
+                    {
+                        "id": 83
+                    },
+                    {
+                        "id": 117
+                    },
+                    {
+                        "id": 23
+                    },
+                    {
+                        "id": 57
+                    },
+                    {
+                        "id": 240
+                    },
+                    {
+                        "id": 202
+                    },
+                    {
+                        "id": 172
+                    },
+                    {
+                        "id": 82
+                    },
+                    {
+                        "id": 116
+                    },
+                    {
+                        "id": 22
+                    },
+                    {
+                        "id": 56
+                    },
+                    {
+                        "id": 227
+                    },
+                    {
+                        "id": 201
+                    },
+                    {
+                        "id": 167
+                    },
+                    {
+                        "id": 97
+                    },
+                    {
+                        "id": 127
+                    },
+                    {
+                        "id": 29
+                    },
+                    {
+                        "id": 59
+                    },
+                    {
+                        "id": 226
+                    },
+                    {
+                        "id": 200
+                    },
+                    {
+                        "id": 166
+                    },
+                    {
+                        "id": 96
+                    },
+                    {
+                        "id": 126
+                    },
+                    {
+                        "id": 28
+                    },
+                    {
+                        "id": 58
+                    },
+                    {
+                        "id": 229
+                    },
+                    {
+                        "id": 199
+                    },
+                    {
+                        "id": 169
+                    },
+                    {
+                        "id": 95
+                    },
+                    {
+                        "id": 129
+                    },
+                    {
+                        "id": 27
+                    },
+                    {
+                        "id": 61
+                    },
+                    {
+                        "id": 228
+                    },
+                    {
+                        "id": 198
+                    },
+                    {
+                        "id": 168
+                    },
+                    {
+                        "id": 94
+                    },
+                    {
+                        "id": 128
+                    },
+                    {
+                        "id": 26
+                    },
+                    {
+                        "id": 60
+                    },
+                    {
+                        "id": 231
+                    },
+                    {
+                        "id": 197
+                    },
+                    {
+                        "id": 163
+                    },
+                    {
+                        "id": 93
+                    },
+                    {
+                        "id": 123
+                    },
+                    {
+                        "id": 33
+                    },
+                    {
+                        "id": 63
+                    },
+                    {
+                        "id": 230
+                    },
+                    {
+                        "id": 196
+                    },
+                    {
+                        "id": 162
+                    },
+                    {
+                        "id": 92
+                    },
+                    {
+                        "id": 122
+                    },
+                    {
+                        "id": 32
+                    },
+                    {
+                        "id": 62
+                    },
+                    {
+                        "id": 233
+                    },
+                    {
+                        "id": 195
+                    },
+                    {
+                        "id": 165
+                    },
+                    {
+                        "id": 91
+                    },
+                    {
+                        "id": 125
+                    },
+                    {
+                        "id": 31
+                    },
+                    {
+                        "id": 65
+                    },
+                    {
+                        "id": 232
+                    },
+                    {
+                        "id": 194
+                    },
+                    {
+                        "id": 164
+                    },
+                    {
+                        "id": 90
+                    },
+                    {
+                        "id": 124
+                    },
+                    {
+                        "id": 30
+                    },
+                    {
+                        "id": 64
+                    },
+                    {
+                        "id": 252
+                    },
+                    {
+                        "id": 218
+                    },
+                    {
+                        "id": 192
+                    },
+                    {
+                        "id": 158
+                    },
+                    {
+                        "id": 15
+                    },
+                    {
+                        "id": 104
+                    },
+                    {
+                        "id": 134
+                    },
+                    {
+                        "id": 36
+                    },
+                    {
+                        "id": 66
+                    },
+                    {
+                        "id": 253
+                    },
+                    {
+                        "id": 219
+                    },
+                    {
+                        "id": 193
+                    },
+                    {
+                        "id": 159
+                    },
+                    {
+                        "id": 14
+                    },
+                    {
+                        "id": 105
+                    },
+                    {
+                        "id": 135
+                    },
+                    {
+                        "id": 37
+                    },
+                    {
+                        "id": 67
+                    },
+                    {
+                        "id": 250
+                    },
+                    {
+                        "id": 220
+                    },
+                    {
+                        "id": 190
+                    },
+                    {
+                        "id": 160
+                    },
+                    {
+                        "id": 17
+                    },
+                    {
+                        "id": 102
+                    },
+                    {
+                        "id": 136
+                    },
+                    {
+                        "id": 34
+                    },
+                    {
+                        "id": 68
+                    },
+                    {
+                        "id": 251
+                    },
+                    {
+                        "id": 221
+                    },
+                    {
+                        "id": 191
+                    },
+                    {
+                        "id": 161
+                    },
+                    {
+                        "id": 16
+                    },
+                    {
+                        "id": 103
+                    },
+                    {
+                        "id": 137
+                    },
+                    {
+                        "id": 35
+                    },
+                    {
+                        "id": 69
+                    },
+                    {
+                        "id": 222
+                    },
+                    {
+                        "id": 188
+                    },
+                    {
+                        "id": 154
+                    },
+                    {
+                        "id": 11
+                    },
+                    {
+                        "id": 100
+                    },
+                    {
+                        "id": 130
+                    },
+                    {
+                        "id": 40
+                    },
+                    {
+                        "id": 70
+                    },
+                    {
+                        "id": 223
+                    },
+                    {
+                        "id": 189
+                    },
+                    {
+                        "id": 155
+                    },
+                    {
+                        "id": 10
+                    },
+                    {
+                        "id": 101
+                    },
+                    {
+                        "id": 131
+                    },
+                    {
+                        "id": 41
+                    },
+                    {
+                        "id": 71
+                    },
+                    {
+                        "id": 224
+                    },
+                    {
+                        "id": 186
+                    },
+                    {
+                        "id": 156
+                    },
+                    {
+                        "id": 13
+                    },
+                    {
+                        "id": 98
+                    },
+                    {
+                        "id": 132
+                    },
+                    {
+                        "id": 38
+                    },
+                    {
+                        "id": 72
+                    },
+                    {
+                        "id": 225
+                    },
+                    {
+                        "id": 187
+                    },
+                    {
+                        "id": 157
+                    },
+                    {
+                        "id": 12
+                    },
+                    {
+                        "id": 99
+                    },
+                    {
+                        "id": 133
+                    },
+                    {
+                        "id": 39
+                    },
+                    {
+                        "id": 73
+                    },
+                    {
+                        "id": 244
+                    },
+                    {
+                        "id": 210
+                    },
+                    {
+                        "id": 184
+                    },
+                    {
+                        "id": 150
+                    },
+                    {
+                        "id": 7
+                    },
+                    {
+                        "id": 112
+                    },
+                    {
+                        "id": 142
+                    },
+                    {
+                        "id": 44
+                    },
+                    {
+                        "id": 74
+                    },
+                    {
+                        "id": 245
+                    },
+                    {
+                        "id": 211
+                    },
+                    {
+                        "id": 185
+                    },
+                    {
+                        "id": 151
+                    },
+                    {
+                        "id": 6
+                    },
+                    {
+                        "id": 113
+                    },
+                    {
+                        "id": 143
+                    },
+                    {
+                        "id": 45
+                    },
+                    {
+                        "id": 75
+                    },
+                    {
+                        "id": 242
+                    },
+                    {
+                        "id": 212
+                    },
+                    {
+                        "id": 182
+                    },
+                    {
+                        "id": 152
+                    },
+                    {
+                        "id": 9
+                    },
+                    {
+                        "id": 110
+                    },
+                    {
+                        "id": 144
+                    },
+                    {
+                        "id": 42
+                    },
+                    {
+                        "id": 76
+                    },
+                    {
+                        "id": 243
+                    },
+                    {
+                        "id": 213
+                    },
+                    {
+                        "id": 183
+                    },
+                    {
+                        "id": 153
+                    },
+                    {
+                        "id": 8
+                    },
+                    {
+                        "id": 111
+                    },
+                    {
+                        "id": 145
+                    },
+                    {
+                        "id": 43
+                    },
+                    {
+                        "id": 77
+                    },
+                    {
+                        "id": 248
+                    },
+                    {
+                        "id": 214
+                    },
+                    {
+                        "id": 180
+                    },
+                    {
+                        "id": 146
+                    },
+                    {
+                        "id": 3
+                    },
+                    {
+                        "id": 108
+                    },
+                    {
+                        "id": 138
+                    },
+                    {
+                        "id": 48
+                    },
+                    {
+                        "id": 78
+                    },
+                    {
+                        "id": 249
+                    },
+                    {
+                        "id": 215
+                    },
+                    {
+                        "id": 181
+                    },
+                    {
+                        "id": 147
+                    },
+                    {
+                        "id": 2
+                    },
+                    {
+                        "id": 109
+                    },
+                    {
+                        "id": 139
+                    },
+                    {
+                        "id": 49
+                    },
+                    {
+                        "id": 79
+                    },
+                    {
+                        "id": 246
+                    },
+                    {
+                        "id": 216
+                    },
+                    {
+                        "id": 178
+                    },
+                    {
+                        "id": 148
+                    },
+                    {
+                        "id": 5
+                    },
+                    {
+                        "id": 106
+                    },
+                    {
+                        "id": 140
+                    },
+                    {
+                        "id": 46
+                    },
+                    {
+                        "id": 80
+                    },
+                    {
+                        "id": 247
+                    },
+                    {
+                        "id": 217
+                    },
+                    {
+                        "id": 179
+                    },
+                    {
+                        "id": 149
+                    },
+                    {
+                        "id": 4
+                    },
+                    {
+                        "id": 107
+                    },
+                    {
+                        "id": 141
+                    },
+                    {
+                        "id": 47
+                    },
+                    {
+                        "id": 81
+                    }
+                ],
+                "id": "openflow:203251201875890",
+                "node-connector": [
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "",
+                        "flow-node-inventory:current-speed": 0,
+                        "flow-node-inventory:hardware-address": "a6:44:fe:57:31:e9",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "br-physnet1-pa",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 1,
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:203251201875890:1"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "PORT-DOWN",
+                        "flow-node-inventory:current-feature": "",
+                        "flow-node-inventory:current-speed": 0,
+                        "flow-node-inventory:hardware-address": "b8:db:1b:b0:1f:b2",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "br-int",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 4294967294,
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": true,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:203251201875890:LOCAL"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "",
+                        "flow-node-inventory:current-speed": 0,
+                        "flow-node-inventory:hardware-address": "be:a4:33:6a:2e:56",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tuna221648ca0a",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 2,
+                        "flow-node-inventory:reason": "add",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:203251201875890:2"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "",
+                        "flow-node-inventory:current-speed": 0,
+                        "flow-node-inventory:hardware-address": "6e:9c:0f:0d:8d:06",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tun4ec984af0f9",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 3,
+                        "flow-node-inventory:reason": "add",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:203251201875890:3"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "PORT-DOWN",
+                        "flow-node-inventory:current-feature": "",
+                        "flow-node-inventory:current-speed": 0,
+                        "flow-node-inventory:hardware-address": "00:00:00:00:b0:b1",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tapc4857784-4f",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 6,
+                        "flow-node-inventory:reason": "update",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": true,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:203251201875890:6"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "PORT-DOWN",
+                        "flow-node-inventory:current-feature": "",
+                        "flow-node-inventory:current-speed": 0,
+                        "flow-node-inventory:hardware-address": "00:00:00:00:40:a2",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tap54f620f8-ac",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 7,
+                        "flow-node-inventory:reason": "update",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": true,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:203251201875890:7"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "PORT-DOWN",
+                        "flow-node-inventory:current-feature": "",
+                        "flow-node-inventory:current-speed": 0,
+                        "flow-node-inventory:hardware-address": "00:00:00:00:30:8e",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tap1be4e467-fb",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 8,
+                        "flow-node-inventory:reason": "update",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": true,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:203251201875890:8"
+                    }
+                ],
+                "opendaylight-group-statistics:group-features": {
+                    "actions": [
+                        67076097
+                    ],
+                    "group-capabilities-supported": [
+                        "opendaylight-group-types:chaining",
+                        "opendaylight-group-types:select-liveness",
+                        "opendaylight-group-types:select-weight"
+                    ],
+                    "group-types-supported": [
+                        "opendaylight-group-types:group-all",
+                        "opendaylight-group-types:group-indirect",
+                        "opendaylight-group-types:group-select",
+                        "opendaylight-group-types:group-ff"
+                    ],
+                    "max-groups": [
+                        4294967040
+                    ]
+                }
+            },
+            {
+                "flow-node-inventory:description": "None",
+                "flow-node-inventory:hardware": "Open vSwitch",
+                "flow-node-inventory:ip-address": "10.30.170.41",
+                "flow-node-inventory:manufacturer": "Nicira, Inc.",
+                "flow-node-inventory:port-number": 58874,
+                "flow-node-inventory:serial-number": "None",
+                "flow-node-inventory:software": "2.7.3",
+                "flow-node-inventory:switch-features": {
+                    "capabilities": [
+                        "flow-node-inventory:flow-feature-capability-flow-stats",
+                        "flow-node-inventory:flow-feature-capability-queue-stats",
+                        "flow-node-inventory:flow-feature-capability-port-stats",
+                        "flow-node-inventory:flow-feature-capability-table-stats",
+                        "flow-node-inventory:flow-feature-capability-group-stats"
+                    ],
+                    "max_buffers": 0,
+                    "max_tables": 254
+                },
+                "flow-node-inventory:table": [
+                    {
+                        "id": 235
+                    },
+                    {
+                        "id": 209
+                    },
+                    {
+                        "id": 175
+                    },
+                    {
+                        "id": 89
+                    },
+                    {
+                        "id": 119
+                    },
+                    {
+                        "id": 21
+                    },
+                    {
+                        "id": 51
+                    },
+                    {
+                        "id": 234
+                    },
+                    {
+                        "id": 208
+                    },
+                    {
+                        "id": 174
+                    },
+                    {
+                        "id": 88
+                    },
+                    {
+                        "id": 118
+                    },
+                    {
+                        "id": 20
+                    },
+                    {
+                        "id": 50
+                    },
+                    {
+                        "id": 237
+                    },
+                    {
+                        "id": 207
+                    },
+                    {
+                        "id": 177
+                    },
+                    {
+                        "id": 0
+                    },
+                    {
+                        "id": 87
+                    },
+                    {
+                        "id": 121
+                    },
+                    {
+                        "id": 19
+                    },
+                    {
+                        "id": 53
+                    },
+                    {
+                        "id": 236
+                    },
+                    {
+                        "id": 206
+                    },
+                    {
+                        "id": 176
+                    },
+                    {
+                        "id": 1
+                    },
+                    {
+                        "id": 86
+                    },
+                    {
+                        "id": 120
+                    },
+                    {
+                        "id": 18
+                    },
+                    {
+                        "id": 52
+                    },
+                    {
+                        "id": 239
+                    },
+                    {
+                        "id": 205
+                    },
+                    {
+                        "id": 171
+                    },
+                    {
+                        "id": 85
+                    },
+                    {
+                        "id": 115
+                    },
+                    {
+                        "id": 25
+                    },
+                    {
+                        "id": 55
+                    },
+                    {
+                        "id": 238
+                    },
+                    {
+                        "id": 204
+                    },
+                    {
+                        "id": 170
+                    },
+                    {
+                        "id": 84
+                    },
+                    {
+                        "id": 114
+                    },
+                    {
+                        "id": 24
+                    },
+                    {
+                        "id": 54
+                    },
+                    {
+                        "id": 241
+                    },
+                    {
+                        "id": 203
+                    },
+                    {
+                        "id": 173
+                    },
+                    {
+                        "id": 83
+                    },
+                    {
+                        "id": 117
+                    },
+                    {
+                        "id": 23
+                    },
+                    {
+                        "id": 57
+                    },
+                    {
+                        "id": 240
+                    },
+                    {
+                        "id": 202
+                    },
+                    {
+                        "id": 172
+                    },
+                    {
+                        "id": 82
+                    },
+                    {
+                        "id": 116
+                    },
+                    {
+                        "id": 22
+                    },
+                    {
+                        "id": 56
+                    },
+                    {
+                        "id": 227
+                    },
+                    {
+                        "id": 201
+                    },
+                    {
+                        "id": 167
+                    },
+                    {
+                        "id": 97
+                    },
+                    {
+                        "id": 127
+                    },
+                    {
+                        "id": 29
+                    },
+                    {
+                        "id": 59
+                    },
+                    {
+                        "id": 226
+                    },
+                    {
+                        "id": 200
+                    },
+                    {
+                        "id": 166
+                    },
+                    {
+                        "id": 96
+                    },
+                    {
+                        "id": 126
+                    },
+                    {
+                        "id": 28
+                    },
+                    {
+                        "id": 58
+                    },
+                    {
+                        "id": 229
+                    },
+                    {
+                        "id": 199
+                    },
+                    {
+                        "id": 169
+                    },
+                    {
+                        "id": 95
+                    },
+                    {
+                        "id": 129
+                    },
+                    {
+                        "id": 27
+                    },
+                    {
+                        "id": 61
+                    },
+                    {
+                        "id": 228
+                    },
+                    {
+                        "id": 198
+                    },
+                    {
+                        "id": 168
+                    },
+                    {
+                        "id": 94
+                    },
+                    {
+                        "id": 128
+                    },
+                    {
+                        "id": 26
+                    },
+                    {
+                        "id": 60
+                    },
+                    {
+                        "id": 231
+                    },
+                    {
+                        "id": 197
+                    },
+                    {
+                        "id": 163
+                    },
+                    {
+                        "id": 93
+                    },
+                    {
+                        "id": 123
+                    },
+                    {
+                        "id": 33
+                    },
+                    {
+                        "id": 63
+                    },
+                    {
+                        "id": 230
+                    },
+                    {
+                        "id": 196
+                    },
+                    {
+                        "id": 162
+                    },
+                    {
+                        "id": 92
+                    },
+                    {
+                        "id": 122
+                    },
+                    {
+                        "id": 32
+                    },
+                    {
+                        "id": 62
+                    },
+                    {
+                        "id": 233
+                    },
+                    {
+                        "id": 195
+                    },
+                    {
+                        "id": 165
+                    },
+                    {
+                        "id": 91
+                    },
+                    {
+                        "id": 125
+                    },
+                    {
+                        "id": 31
+                    },
+                    {
+                        "id": 65
+                    },
+                    {
+                        "id": 232
+                    },
+                    {
+                        "id": 194
+                    },
+                    {
+                        "id": 164
+                    },
+                    {
+                        "id": 90
+                    },
+                    {
+                        "id": 124
+                    },
+                    {
+                        "id": 30
+                    },
+                    {
+                        "id": 64
+                    },
+                    {
+                        "id": 252
+                    },
+                    {
+                        "id": 218
+                    },
+                    {
+                        "id": 192
+                    },
+                    {
+                        "id": 158
+                    },
+                    {
+                        "id": 15
+                    },
+                    {
+                        "id": 104
+                    },
+                    {
+                        "id": 134
+                    },
+                    {
+                        "id": 36
+                    },
+                    {
+                        "id": 66
+                    },
+                    {
+                        "id": 253
+                    },
+                    {
+                        "id": 219
+                    },
+                    {
+                        "id": 193
+                    },
+                    {
+                        "id": 159
+                    },
+                    {
+                        "id": 14
+                    },
+                    {
+                        "id": 105
+                    },
+                    {
+                        "id": 135
+                    },
+                    {
+                        "id": 37
+                    },
+                    {
+                        "id": 67
+                    },
+                    {
+                        "id": 250
+                    },
+                    {
+                        "id": 220
+                    },
+                    {
+                        "id": 190
+                    },
+                    {
+                        "id": 160
+                    },
+                    {
+                        "id": 17
+                    },
+                    {
+                        "id": 102
+                    },
+                    {
+                        "id": 136
+                    },
+                    {
+                        "id": 34
+                    },
+                    {
+                        "id": 68
+                    },
+                    {
+                        "id": 251
+                    },
+                    {
+                        "id": 221
+                    },
+                    {
+                        "id": 191
+                    },
+                    {
+                        "id": 161
+                    },
+                    {
+                        "id": 16
+                    },
+                    {
+                        "id": 103
+                    },
+                    {
+                        "id": 137
+                    },
+                    {
+                        "id": 35
+                    },
+                    {
+                        "id": 69
+                    },
+                    {
+                        "id": 222
+                    },
+                    {
+                        "id": 188
+                    },
+                    {
+                        "id": 154
+                    },
+                    {
+                        "id": 11
+                    },
+                    {
+                        "id": 100
+                    },
+                    {
+                        "id": 130
+                    },
+                    {
+                        "id": 40
+                    },
+                    {
+                        "id": 70
+                    },
+                    {
+                        "id": 223
+                    },
+                    {
+                        "id": 189
+                    },
+                    {
+                        "id": 155
+                    },
+                    {
+                        "id": 10
+                    },
+                    {
+                        "id": 101
+                    },
+                    {
+                        "id": 131
+                    },
+                    {
+                        "id": 41
+                    },
+                    {
+                        "id": 71
+                    },
+                    {
+                        "id": 224
+                    },
+                    {
+                        "id": 186
+                    },
+                    {
+                        "id": 156
+                    },
+                    {
+                        "id": 13
+                    },
+                    {
+                        "id": 98
+                    },
+                    {
+                        "id": 132
+                    },
+                    {
+                        "id": 38
+                    },
+                    {
+                        "id": 72
+                    },
+                    {
+                        "id": 225
+                    },
+                    {
+                        "id": 187
+                    },
+                    {
+                        "id": 157
+                    },
+                    {
+                        "id": 12
+                    },
+                    {
+                        "id": 99
+                    },
+                    {
+                        "id": 133
+                    },
+                    {
+                        "id": 39
+                    },
+                    {
+                        "id": 73
+                    },
+                    {
+                        "id": 244
+                    },
+                    {
+                        "id": 210
+                    },
+                    {
+                        "id": 184
+                    },
+                    {
+                        "id": 150
+                    },
+                    {
+                        "id": 7
+                    },
+                    {
+                        "id": 112
+                    },
+                    {
+                        "id": 142
+                    },
+                    {
+                        "id": 44
+                    },
+                    {
+                        "id": 74
+                    },
+                    {
+                        "id": 245
+                    },
+                    {
+                        "id": 211
+                    },
+                    {
+                        "id": 185
+                    },
+                    {
+                        "id": 151
+                    },
+                    {
+                        "id": 6
+                    },
+                    {
+                        "id": 113
+                    },
+                    {
+                        "id": 143
+                    },
+                    {
+                        "id": 45
+                    },
+                    {
+                        "id": 75
+                    },
+                    {
+                        "id": 242
+                    },
+                    {
+                        "id": 212
+                    },
+                    {
+                        "id": 182
+                    },
+                    {
+                        "id": 152
+                    },
+                    {
+                        "id": 9
+                    },
+                    {
+                        "id": 110
+                    },
+                    {
+                        "id": 144
+                    },
+                    {
+                        "id": 42
+                    },
+                    {
+                        "id": 76
+                    },
+                    {
+                        "id": 243
+                    },
+                    {
+                        "id": 213
+                    },
+                    {
+                        "id": 183
+                    },
+                    {
+                        "id": 153
+                    },
+                    {
+                        "id": 8
+                    },
+                    {
+                        "id": 111
+                    },
+                    {
+                        "id": 145
+                    },
+                    {
+                        "id": 43
+                    },
+                    {
+                        "id": 77
+                    },
+                    {
+                        "id": 248
+                    },
+                    {
+                        "id": 214
+                    },
+                    {
+                        "id": 180
+                    },
+                    {
+                        "id": 146
+                    },
+                    {
+                        "id": 3
+                    },
+                    {
+                        "id": 108
+                    },
+                    {
+                        "id": 138
+                    },
+                    {
+                        "id": 48
+                    },
+                    {
+                        "id": 78
+                    },
+                    {
+                        "id": 249
+                    },
+                    {
+                        "id": 215
+                    },
+                    {
+                        "id": 181
+                    },
+                    {
+                        "id": 147
+                    },
+                    {
+                        "id": 2
+                    },
+                    {
+                        "id": 109
+                    },
+                    {
+                        "id": 139
+                    },
+                    {
+                        "id": 49
+                    },
+                    {
+                        "id": 79
+                    },
+                    {
+                        "id": 246
+                    },
+                    {
+                        "id": 216
+                    },
+                    {
+                        "id": 178
+                    },
+                    {
+                        "id": 148
+                    },
+                    {
+                        "id": 5
+                    },
+                    {
+                        "id": 106
+                    },
+                    {
+                        "id": 140
+                    },
+                    {
+                        "id": 46
+                    },
+                    {
+                        "id": 80
+                    },
+                    {
+                        "id": 247
+                    },
+                    {
+                        "id": 217
+                    },
+                    {
+                        "id": 179
+                    },
+                    {
+                        "id": 149
+                    },
+                    {
+                        "id": 4
+                    },
+                    {
+                        "id": 107
+                    },
+                    {
+                        "id": 141
+                    },
+                    {
+                        "id": 47
+                    },
+                    {
+                        "id": 81
+                    }
+                ],
+                "id": "openflow:66870777175113",
+                "node-connector": [
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "ten-mb-fd copper",
+                        "flow-node-inventory:current-speed": 10000,
+                        "flow-node-inventory:hardware-address": "fe:16:3e:68:bc:43",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tap13eb9a56-ae",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 7,
+                        "flow-node-inventory:reason": "update",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:66870777175113:7"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "PORT-DOWN",
+                        "flow-node-inventory:current-feature": "",
+                        "flow-node-inventory:current-speed": 0,
+                        "flow-node-inventory:hardware-address": "3c:d1:90:eb:5c:49",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "br-int",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 4294967294,
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": true,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:66870777175113:LOCAL"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "ten-mb-fd copper",
+                        "flow-node-inventory:current-speed": 10000,
+                        "flow-node-inventory:hardware-address": "fe:16:3e:9b:e4:19",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tap3ddd65c8-e9",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 9,
+                        "flow-node-inventory:reason": "update",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:66870777175113:9"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "ten-mb-fd copper",
+                        "flow-node-inventory:current-speed": 10000,
+                        "flow-node-inventory:hardware-address": "fe:16:3e:18:08:32",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tapc8047b56-7d",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 11,
+                        "flow-node-inventory:reason": "update",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:66870777175113:11"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "ten-mb-fd copper",
+                        "flow-node-inventory:current-speed": 10000,
+                        "flow-node-inventory:hardware-address": "fe:16:3e:82:00:d4",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tap8bbf2bf2-3f",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 8,
+                        "flow-node-inventory:reason": "update",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:66870777175113:8"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "ten-mb-fd copper",
+                        "flow-node-inventory:current-speed": 10000,
+                        "flow-node-inventory:hardware-address": "fe:16:3e:ad:b3:d5",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tap1f82f53d-52",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 10,
+                        "flow-node-inventory:reason": "update",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:66870777175113:10"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "",
+                        "flow-node-inventory:current-speed": 0,
+                        "flow-node-inventory:hardware-address": "a2:b7:c4:5a:db:86",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tun428ee8c4fe7",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 3,
+                        "flow-node-inventory:reason": "add",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:66870777175113:3"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "",
+                        "flow-node-inventory:current-speed": 0,
+                        "flow-node-inventory:hardware-address": "12:c6:a1:42:20:bf",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tun789af3b29bf",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 2,
+                        "flow-node-inventory:reason": "add",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:66870777175113:2"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "",
+                        "flow-node-inventory:current-speed": 0,
+                        "flow-node-inventory:hardware-address": "e6:aa:a3:17:fb:68",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "br-physnet1-pa",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 1,
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:66870777175113:1"
+                    }
+                ],
+                "opendaylight-group-statistics:group-features": {
+                    "actions": [
+                        67076097
+                    ],
+                    "group-capabilities-supported": [
+                        "opendaylight-group-types:chaining",
+                        "opendaylight-group-types:select-liveness",
+                        "opendaylight-group-types:select-weight"
+                    ],
+                    "group-types-supported": [
+                        "opendaylight-group-types:group-all",
+                        "opendaylight-group-types:group-indirect",
+                        "opendaylight-group-types:group-select",
+                        "opendaylight-group-types:group-ff"
+                    ],
+                    "max-groups": [
+                        4294967040
+                    ]
+                }
+            },
+            {
+                "flow-node-inventory:description": "None",
+                "flow-node-inventory:hardware": "Open vSwitch",
+                "flow-node-inventory:ip-address": "10.30.170.13",
+                "flow-node-inventory:manufacturer": "Nicira, Inc.",
+                "flow-node-inventory:port-number": 44734,
+                "flow-node-inventory:serial-number": "None",
+                "flow-node-inventory:software": "2.7.3",
+                "flow-node-inventory:switch-features": {
+                    "capabilities": [
+                        "flow-node-inventory:flow-feature-capability-flow-stats",
+                        "flow-node-inventory:flow-feature-capability-queue-stats",
+                        "flow-node-inventory:flow-feature-capability-port-stats",
+                        "flow-node-inventory:flow-feature-capability-table-stats",
+                        "flow-node-inventory:flow-feature-capability-group-stats"
+                    ],
+                    "max_buffers": 0,
+                    "max_tables": 254
+                },
+                "flow-node-inventory:table": [
+                    {
+                        "id": 235
+                    },
+                    {
+                        "id": 209
+                    },
+                    {
+                        "id": 175
+                    },
+                    {
+                        "id": 89
+                    },
+                    {
+                        "id": 119
+                    },
+                    {
+                        "id": 21
+                    },
+                    {
+                        "id": 51
+                    },
+                    {
+                        "id": 234
+                    },
+                    {
+                        "id": 208
+                    },
+                    {
+                        "id": 174
+                    },
+                    {
+                        "id": 88
+                    },
+                    {
+                        "id": 118
+                    },
+                    {
+                        "id": 20
+                    },
+                    {
+                        "id": 50
+                    },
+                    {
+                        "id": 237
+                    },
+                    {
+                        "id": 207
+                    },
+                    {
+                        "id": 177
+                    },
+                    {
+                        "id": 0
+                    },
+                    {
+                        "id": 87
+                    },
+                    {
+                        "id": 121
+                    },
+                    {
+                        "id": 19
+                    },
+                    {
+                        "id": 53
+                    },
+                    {
+                        "id": 236
+                    },
+                    {
+                        "id": 206
+                    },
+                    {
+                        "id": 176
+                    },
+                    {
+                        "id": 1
+                    },
+                    {
+                        "id": 86
+                    },
+                    {
+                        "id": 120
+                    },
+                    {
+                        "id": 18
+                    },
+                    {
+                        "id": 52
+                    },
+                    {
+                        "id": 239
+                    },
+                    {
+                        "id": 205
+                    },
+                    {
+                        "id": 171
+                    },
+                    {
+                        "id": 85
+                    },
+                    {
+                        "id": 115
+                    },
+                    {
+                        "id": 25
+                    },
+                    {
+                        "id": 55
+                    },
+                    {
+                        "id": 238
+                    },
+                    {
+                        "id": 204
+                    },
+                    {
+                        "id": 170
+                    },
+                    {
+                        "id": 84
+                    },
+                    {
+                        "id": 114
+                    },
+                    {
+                        "id": 24
+                    },
+                    {
+                        "id": 54
+                    },
+                    {
+                        "id": 241
+                    },
+                    {
+                        "id": 203
+                    },
+                    {
+                        "id": 173
+                    },
+                    {
+                        "id": 83
+                    },
+                    {
+                        "id": 117
+                    },
+                    {
+                        "id": 23
+                    },
+                    {
+                        "id": 57
+                    },
+                    {
+                        "id": 240
+                    },
+                    {
+                        "id": 202
+                    },
+                    {
+                        "id": 172
+                    },
+                    {
+                        "id": 82
+                    },
+                    {
+                        "id": 116
+                    },
+                    {
+                        "id": 22
+                    },
+                    {
+                        "id": 56
+                    },
+                    {
+                        "id": 227
+                    },
+                    {
+                        "id": 201
+                    },
+                    {
+                        "id": 167
+                    },
+                    {
+                        "id": 97
+                    },
+                    {
+                        "id": 127
+                    },
+                    {
+                        "id": 29
+                    },
+                    {
+                        "id": 59
+                    },
+                    {
+                        "id": 226
+                    },
+                    {
+                        "id": 200
+                    },
+                    {
+                        "id": 166
+                    },
+                    {
+                        "id": 96
+                    },
+                    {
+                        "id": 126
+                    },
+                    {
+                        "id": 28
+                    },
+                    {
+                        "id": 58
+                    },
+                    {
+                        "id": 229
+                    },
+                    {
+                        "id": 199
+                    },
+                    {
+                        "id": 169
+                    },
+                    {
+                        "id": 95
+                    },
+                    {
+                        "id": 129
+                    },
+                    {
+                        "id": 27
+                    },
+                    {
+                        "id": 61
+                    },
+                    {
+                        "id": 228
+                    },
+                    {
+                        "id": 198
+                    },
+                    {
+                        "id": 168
+                    },
+                    {
+                        "id": 94
+                    },
+                    {
+                        "id": 128
+                    },
+                    {
+                        "id": 26
+                    },
+                    {
+                        "id": 60
+                    },
+                    {
+                        "id": 231
+                    },
+                    {
+                        "id": 197
+                    },
+                    {
+                        "id": 163
+                    },
+                    {
+                        "id": 93
+                    },
+                    {
+                        "id": 123
+                    },
+                    {
+                        "id": 33
+                    },
+                    {
+                        "id": 63
+                    },
+                    {
+                        "id": 230
+                    },
+                    {
+                        "id": 196
+                    },
+                    {
+                        "id": 162
+                    },
+                    {
+                        "id": 92
+                    },
+                    {
+                        "id": 122
+                    },
+                    {
+                        "id": 32
+                    },
+                    {
+                        "id": 62
+                    },
+                    {
+                        "id": 233
+                    },
+                    {
+                        "id": 195
+                    },
+                    {
+                        "id": 165
+                    },
+                    {
+                        "id": 91
+                    },
+                    {
+                        "id": 125
+                    },
+                    {
+                        "id": 31
+                    },
+                    {
+                        "id": 65
+                    },
+                    {
+                        "id": 232
+                    },
+                    {
+                        "id": 194
+                    },
+                    {
+                        "id": 164
+                    },
+                    {
+                        "id": 90
+                    },
+                    {
+                        "id": 124
+                    },
+                    {
+                        "id": 30
+                    },
+                    {
+                        "id": 64
+                    },
+                    {
+                        "id": 252
+                    },
+                    {
+                        "id": 218
+                    },
+                    {
+                        "id": 192
+                    },
+                    {
+                        "id": 158
+                    },
+                    {
+                        "id": 15
+                    },
+                    {
+                        "id": 104
+                    },
+                    {
+                        "id": 134
+                    },
+                    {
+                        "id": 36
+                    },
+                    {
+                        "id": 66
+                    },
+                    {
+                        "id": 253
+                    },
+                    {
+                        "id": 219
+                    },
+                    {
+                        "id": 193
+                    },
+                    {
+                        "id": 159
+                    },
+                    {
+                        "id": 14
+                    },
+                    {
+                        "id": 105
+                    },
+                    {
+                        "id": 135
+                    },
+                    {
+                        "id": 37
+                    },
+                    {
+                        "id": 67
+                    },
+                    {
+                        "id": 250
+                    },
+                    {
+                        "id": 220
+                    },
+                    {
+                        "id": 190
+                    },
+                    {
+                        "id": 160
+                    },
+                    {
+                        "id": 17
+                    },
+                    {
+                        "id": 102
+                    },
+                    {
+                        "id": 136
+                    },
+                    {
+                        "id": 34
+                    },
+                    {
+                        "id": 68
+                    },
+                    {
+                        "id": 251
+                    },
+                    {
+                        "id": 221
+                    },
+                    {
+                        "id": 191
+                    },
+                    {
+                        "id": 161
+                    },
+                    {
+                        "id": 16
+                    },
+                    {
+                        "id": 103
+                    },
+                    {
+                        "id": 137
+                    },
+                    {
+                        "id": 35
+                    },
+                    {
+                        "id": 69
+                    },
+                    {
+                        "id": 222
+                    },
+                    {
+                        "id": 188
+                    },
+                    {
+                        "id": 154
+                    },
+                    {
+                        "id": 11
+                    },
+                    {
+                        "id": 100
+                    },
+                    {
+                        "id": 130
+                    },
+                    {
+                        "id": 40
+                    },
+                    {
+                        "id": 70
+                    },
+                    {
+                        "id": 223
+                    },
+                    {
+                        "id": 189
+                    },
+                    {
+                        "id": 155
+                    },
+                    {
+                        "id": 10
+                    },
+                    {
+                        "id": 101
+                    },
+                    {
+                        "id": 131
+                    },
+                    {
+                        "id": 41
+                    },
+                    {
+                        "id": 71
+                    },
+                    {
+                        "id": 224
+                    },
+                    {
+                        "id": 186
+                    },
+                    {
+                        "id": 156
+                    },
+                    {
+                        "id": 13
+                    },
+                    {
+                        "id": 98
+                    },
+                    {
+                        "id": 132
+                    },
+                    {
+                        "id": 38
+                    },
+                    {
+                        "id": 72
+                    },
+                    {
+                        "id": 225
+                    },
+                    {
+                        "id": 187
+                    },
+                    {
+                        "id": 157
+                    },
+                    {
+                        "id": 12
+                    },
+                    {
+                        "id": 99
+                    },
+                    {
+                        "id": 133
+                    },
+                    {
+                        "id": 39
+                    },
+                    {
+                        "id": 73
+                    },
+                    {
+                        "id": 244
+                    },
+                    {
+                        "id": 210
+                    },
+                    {
+                        "id": 184
+                    },
+                    {
+                        "id": 150
+                    },
+                    {
+                        "id": 7
+                    },
+                    {
+                        "id": 112
+                    },
+                    {
+                        "id": 142
+                    },
+                    {
+                        "id": 44
+                    },
+                    {
+                        "id": 74
+                    },
+                    {
+                        "id": 245
+                    },
+                    {
+                        "id": 211
+                    },
+                    {
+                        "id": 185
+                    },
+                    {
+                        "id": 151
+                    },
+                    {
+                        "id": 6
+                    },
+                    {
+                        "id": 113
+                    },
+                    {
+                        "id": 143
+                    },
+                    {
+                        "id": 45
+                    },
+                    {
+                        "id": 75
+                    },
+                    {
+                        "id": 242
+                    },
+                    {
+                        "id": 212
+                    },
+                    {
+                        "id": 182
+                    },
+                    {
+                        "id": 152
+                    },
+                    {
+                        "id": 9
+                    },
+                    {
+                        "id": 110
+                    },
+                    {
+                        "id": 144
+                    },
+                    {
+                        "id": 42
+                    },
+                    {
+                        "id": 76
+                    },
+                    {
+                        "id": 243
+                    },
+                    {
+                        "id": 213
+                    },
+                    {
+                        "id": 183
+                    },
+                    {
+                        "id": 153
+                    },
+                    {
+                        "id": 8
+                    },
+                    {
+                        "id": 111
+                    },
+                    {
+                        "id": 145
+                    },
+                    {
+                        "id": 43
+                    },
+                    {
+                        "id": 77
+                    },
+                    {
+                        "id": 248
+                    },
+                    {
+                        "id": 214
+                    },
+                    {
+                        "id": 180
+                    },
+                    {
+                        "id": 146
+                    },
+                    {
+                        "id": 3
+                    },
+                    {
+                        "id": 108
+                    },
+                    {
+                        "id": 138
+                    },
+                    {
+                        "id": 48
+                    },
+                    {
+                        "id": 78
+                    },
+                    {
+                        "id": 249
+                    },
+                    {
+                        "id": 215
+                    },
+                    {
+                        "id": 181
+                    },
+                    {
+                        "id": 147
+                    },
+                    {
+                        "id": 2
+                    },
+                    {
+                        "id": 109
+                    },
+                    {
+                        "id": 139
+                    },
+                    {
+                        "id": 49
+                    },
+                    {
+                        "id": 79
+                    },
+                    {
+                        "id": 246
+                    },
+                    {
+                        "id": 216
+                    },
+                    {
+                        "id": 178
+                    },
+                    {
+                        "id": 148
+                    },
+                    {
+                        "id": 5
+                    },
+                    {
+                        "id": 106
+                    },
+                    {
+                        "id": 140
+                    },
+                    {
+                        "id": 46
+                    },
+                    {
+                        "id": 80
+                    },
+                    {
+                        "id": 247
+                    },
+                    {
+                        "id": 217
+                    },
+                    {
+                        "id": 179
+                    },
+                    {
+                        "id": 149
+                    },
+                    {
+                        "id": 4
+                    },
+                    {
+                        "id": 107
+                    },
+                    {
+                        "id": 141
+                    },
+                    {
+                        "id": 47
+                    },
+                    {
+                        "id": 81
+                    }
+                ],
+                "id": "openflow:233201308854882",
+                "node-connector": [
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "PORT-DOWN",
+                        "flow-node-inventory:current-feature": "",
+                        "flow-node-inventory:current-speed": 0,
+                        "flow-node-inventory:hardware-address": "d4:18:69:2c:ea:62",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "br-int",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 4294967294,
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": true,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:233201308854882:LOCAL"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "ten-mb-fd copper",
+                        "flow-node-inventory:current-speed": 10000,
+                        "flow-node-inventory:hardware-address": "fe:16:3e:bf:eb:b0",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tapafe0eeae-e6",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 7,
+                        "flow-node-inventory:reason": "update",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:233201308854882:7"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "ten-mb-fd copper",
+                        "flow-node-inventory:current-speed": 10000,
+                        "flow-node-inventory:hardware-address": "fe:16:3e:16:6b:45",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tap8a4ccb62-90",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 8,
+                        "flow-node-inventory:reason": "update",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:233201308854882:8"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "ten-mb-fd copper",
+                        "flow-node-inventory:current-speed": 10000,
+                        "flow-node-inventory:hardware-address": "fe:16:3e:f0:bc:6a",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tap1defce3a-28",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 9,
+                        "flow-node-inventory:reason": "update",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:233201308854882:9"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "ten-mb-fd copper",
+                        "flow-node-inventory:current-speed": 10000,
+                        "flow-node-inventory:hardware-address": "fe:16:3e:ed:ee:13",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tape8c2f851-be",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 10,
+                        "flow-node-inventory:reason": "update",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:233201308854882:10"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "",
+                        "flow-node-inventory:current-speed": 0,
+                        "flow-node-inventory:hardware-address": "62:29:e9:a2:e3:1a",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "br-physnet1-pa",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 1,
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:233201308854882:1"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "",
+                        "flow-node-inventory:current-speed": 0,
+                        "flow-node-inventory:hardware-address": "92:c5:a2:6d:39:1c",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tuna877bff3c2d",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 2,
+                        "flow-node-inventory:reason": "add",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:233201308854882:2"
+                    },
+                    {
+                        "flow-node-inventory:advertised-features": "",
+                        "flow-node-inventory:configuration": "",
+                        "flow-node-inventory:current-feature": "",
+                        "flow-node-inventory:current-speed": 0,
+                        "flow-node-inventory:hardware-address": "ce:b0:6f:28:36:81",
+                        "flow-node-inventory:maximum-speed": 0,
+                        "flow-node-inventory:name": "tunaf7425faccd",
+                        "flow-node-inventory:peer-features": "",
+                        "flow-node-inventory:port-number": 3,
+                        "flow-node-inventory:reason": "add",
+                        "flow-node-inventory:state": {
+                            "blocked": false,
+                            "link-down": false,
+                            "live": false
+                        },
+                        "flow-node-inventory:supported": "",
+                        "id": "openflow:233201308854882:3"
+                    }
+                ],
+                "opendaylight-group-statistics:group-features": {
+                    "actions": [
+                        67076097
+                    ],
+                    "group-capabilities-supported": [
+                        "opendaylight-group-types:chaining",
+                        "opendaylight-group-types:select-liveness",
+                        "opendaylight-group-types:select-weight"
+                    ],
+                    "group-types-supported": [
+                        "opendaylight-group-types:group-all",
+                        "opendaylight-group-types:group-indirect",
+                        "opendaylight-group-types:group-select",
+                        "opendaylight-group-types:group-ff"
+                    ],
+                    "max-groups": [
+                        4294967040
+                    ]
+                }
+            }
+        ]
+    }
+}

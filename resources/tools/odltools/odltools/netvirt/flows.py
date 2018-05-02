@@ -11,7 +11,6 @@ from odltools.mdsal.models.opendaylight_inventory import Nodes
 from odltools.netvirt import utils
 import config
 import flow_parser
-import tables
 
 
 logger = logging.getLogger("netvirt.flows")
@@ -58,41 +57,41 @@ def get_all_flows(args, modules=None, filter_by=None):
         table_list = list(set([table for mod in modules for table in TABLE_MAP[mod]]))
     # models = Models(args)
     # odl_inventory_nodes_config = opendaylight_inventory.nodes(Model.CONFIG, args)
-    of_nodes = config.gmodels.odl_inventory_nodes_config.get_nodes_by_key()
+    of_nodes = config.gmodels.odl_inventory_nodes_config.get_clist_by_key()
     # ietf_interfaces_interfaces = ietf_interfaces.interfaces(Model.CONFIG, args)
     # ietf_interfaces_interfaces_state = ietf_interfaces.interfaces_state(Model.OPERATIONAL, args)
     # odl_interface_meta_if_index_interface_map = odl_interface_meta.if_indexes_interface_map(Model.OPERATIONAL, args)
     # odl_fib_fib_entries = odl_fib.fib_entries(Model.CONFIG, args)
     # odl_l3vpn_vpn_instance_to_vpn_id = odl_l3vpn.vpn_instance_to_vpn_id(Model.CONFIG, args)
     if 'ifm' in modules:
-        ifaces = config.gmodels.ietf_interfaces_interfaces.get_interfaces_by_key()
-        ifstates = config.gmodels.ietf_interfaces_interfaces_state.get_interfaces_by_key()
+        ifaces = config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
+        ifstates = config.gmodels.ietf_interfaces_interfaces_state.get_clist_by_key()
     if 'l3vpn' in modules:
-        ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_interfaces_by_key()
-        ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_if_index_interfaces_by_key()
+        ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
+        ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_clist_by_key()
         fibentries = fibentries or config.gmodels.odl_fib_fib_entries.get_vrf_entries_by_key()
-        vpnids = vpnids or config.gmodels.odl_l3vpn_vpn_instance_to_vpn_id.get_vpn_ids_by_key()
-        vpninterfaces = vpninterfaces or config.gmodels.l3vpn_vpn_interfaces.get_vpn_ids_by_key()
+        vpnids = vpnids or config.gmodels.odl_l3vpn_vpn_instance_to_vpn_id.get_clist_by_key()
+        vpninterfaces = vpninterfaces or config.gmodels.l3vpn_vpn_interfaces.get_clist_by_key()
         groups = groups or config.gmodels.odl_inventory_nodes_config.get_groups(of_nodes)
     if 'acl' in modules:
-        ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_interfaces_by_key()
-        ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_if_index_interfaces_by_key()
-        einsts = einsts or config.gmodels.elan_elan_instances.get_elan_instances_by_key()
+        ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
+        ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_clist_by_key()
+        einsts = einsts or config.gmodels.elan_elan_instances.get_clist_by_key()
         eifaces = eifaces or config.gmodels.elan_elan_interfaces.get_elan_interfaces_by_key()
     if 'elan' in modules:
-        ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_interfaces_by_key()
-        einsts = einsts or config.gmodels.elan_elan_instances.get_elan_instances_by_key()
+        ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
+        einsts = einsts or config.gmodels.elan_elan_instances.get_clist_by_key()
         eifaces = eifaces or config.gmodels.elan_elan_interfaces.get_elan_interfaces_by_key()
-        ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_if_index_interfaces_by_key()
+        ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_clist_by_key()
     if 'all' in modules:
         groups = groups or config.gmodels.odl_inventory_nodes_config.get_groups(of_nodes)
-        ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_interfaces_by_key()
-        ifstates = ifstates or config.gmodels.ietf_interfaces_interfaces_state.get_interfaces_by_key()
-        ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_if_index_interfaces_by_key()
+        ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
+        ifstates = ifstates or config.gmodels.ietf_interfaces_interfaces_state.get_clist_by_key()
+        ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_clist_by_key()
         fibentries = fibentries or config.gmodels.odl_fib_fib_entries.get_vrf_entries_by_key()
-        vpnids = vpnids or config.gmodels.odl_l3vpn_vpn_instance_to_vpn_id.get_vpn_ids_by_key()
-        vpninterfaces = vpninterfaces or config.gmodels.l3vpn_vpn_interfaces.get_vpn_ids_by_key()
-        einsts = einsts or config.gmodels.elan_elan_instances.get_elan_instances_by_key()
+        vpnids = vpnids or config.gmodels.odl_l3vpn_vpn_instance_to_vpn_id.get_clist_by_key()
+        vpninterfaces = vpninterfaces or config.gmodels.l3vpn_vpn_interfaces.get_clist_by_key()
+        einsts = einsts or config.gmodels.elan_elan_instances.get_clist_by_key()
         eifaces = eifaces or config.gmodels.elan_elan_interfaces.get_elan_interfaces_by_key()
     flows = []
     for node in of_nodes.itervalues():
@@ -253,6 +252,7 @@ def get_iface_for_lport(ifaces, ifindexes, lport):
 
 
 def get_eltag_for_iface(eifaces, einsts, iface):
+    print eifaces
     ifname = iface.get('name') if iface else None
     eiface = eifaces.get(ifname) if ifname else None
     einst_name = eiface.get('elan-instance-name') if eiface else None
@@ -276,27 +276,27 @@ def get_stale_flows(modules=['ifm']):
     table_list = list(set([table for module in modules for table in TABLE_MAP[module]]))
     ##table_list = [214, 244]
 
-    of_nodes = config.gmodels.odl_inventory_nodes_config.get_nodes_by_key()
+    of_nodes = config.gmodels.odl_inventory_nodes_config.get_clist_by_key()
     if 'ifm' in modules:
-        ifaces = config.gmodels.ietf_interfaces_interfaces.get_interfaces_by_key()
-        ifstates = config.gmodels.ietf_interfaces_interfaces_state.get_interfaces_by_key()
+        ifaces = config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
+        ifstates = config.gmodels.ietf_interfaces_interfaces_state.get_clist_by_key()
     if 'l3vpn' in modules:
-        ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_interfaces_by_key()
-        ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_if_index_interfaces_by_key()
+        ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
+        ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_clist_by_key()
         fibentries = fibentries or config.gmodels.odl_fib_fib_entries.get_vrf_entries_by_key()
-        vpnids = vpnids or config.gmodels.odl_l3vpn_vpn_instance_to_vpn_id.get_vpn_instances_by_key()
-        vpninterfaces = vpninterfaces or config.gmodels.l3vpn_vpn_interfaces.get_vpn_ids_by_key()
+        vpnids = vpnids or config.gmodels.odl_l3vpn_vpn_instance_to_vpn_id.get_clist_by_key()
+        vpninterfaces = vpninterfaces or config.gmodels.l3vpn_vpn_interfaces.get_clist_by_key()
         groups = groups or config.gmodels.odl_inventory_nodes_config.get_groups(of_nodes)
     if 'acl' in modules:
-        ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_interfaces_by_key()
-        ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_if_index_interfaces_by_key()
-        einsts = einsts or config.gmodels.elan_elan_instances.get_elan_instances_by_key()
+        ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
+        ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_clist_by_key()
+        einsts = einsts or config.gmodels.elan_elan_instances.get_clist_by_key()
         eifaces = eifaces or config.gmodels.elan_elan_interfaces.get_elan_interfaces_by_key()
     if 'elan' in modules:
-        ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_interfaces_by_key()
-        einsts = einsts or config.gmodels.elan_elan_instances.get_elan_instances_by_key()
+        ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
+        einsts = einsts or config.gmodels.elan_elan_instances.get_clist_by_key()
         eifaces = eifaces or config.gmodels.elan_elan_interfaces.get_elan_interfaces_by_key()
-        ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_if_index_interfaces_by_key()
+        ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_clist_by_key()
     stale_flows = []
     for node in of_nodes.itervalues():
         tables = [x for x in node[Nodes.NODE_TABLE] if x['id'] in table_list]
@@ -329,14 +329,6 @@ def show_link_flow_binding(args):
             print 'Flow without binding: ', flow['ifname']
 
 
-def get_flow_url(args, flow):
-    base_url = 'http://{}:{}/restconf/config'.format(args.ip, args.port)
-    flow_path = 'opendaylight-inventory:nodes/node/openflow:{}/' \
-                'flow-node-inventory:table/{}/flow/{}'.format(
-        flow['dpnid'], flow['table'], flow['id'])
-    return '{}/{}'.format(base_url, flow_path)
-
-
 def show_stale_flows(args, sort_by='table'):
     config.get_models(args, {
         "elan_elan_instances",
@@ -360,15 +352,13 @@ def show_stale_flows(args, sort_by='table'):
         ip_list = get_ips_for_iface(nports, flow.get('ifname'))
         if ip_list:
             flow['iface-ips'] = ip_list
-        result = 'Table:{}/{}, Host:{}, FlowId:{}{}'.format(
-            flow['table'], tables.get_table_name(flow.get('table')),
-            host, flow['id'],
+        result = 'Table:{}, Host:{}, FlowId:{}{}'.format(
+            flow['table'], host, flow['id'],
             utils.show_optionals(flow))
         print result
-        if args.urls:
-            print('http://{}'.format(get_flow_url(args, flow)))
-        if not args.metaOnly:
-            print 'Flow:{}'.format(utils.format_json(args, flow_parser.parse_flow(flow['flow'])))
+        ##path = get_data_path('flows', flow)
+        #print('http://192.168.2.32:8383/restconf/config/{}'.format(path))
+        #print 'Flow:', utils.format_json(args, flow_parser.parse_flow(flow['flow']))
 
 
 def show_elan_flows(args):
@@ -383,14 +373,11 @@ def show_elan_flows(args):
     compute_map = config.gmodels.odl_inventory_nodes_operational.get_dpn_host_mapping()
     for flow in utils.sort(get_all_flows(args, modules=['elan']), 'id'):
         host = compute_map.get(flow.get('dpnid'), flow.get('dpnid'))
-        result = 'MacHost:{}{}, Table:{}/{}, FlowId:{}, {}, Flow:{}'.format(
-            flow['id'][-17:], host, flow['table'],
-            tables.get_table_name(flow['table']),
-            flow['id'], utils.show_optionals(flow),
+        result = 'MacHost:{}{}, Table:{}, FlowId:{}, {}, Flow:{}'.format(
+            flow['id'][-17:], host, flow['table'], flow['id'], utils.show_optionals(flow),
            utils.format_json(args, flow_parser.parse_flow(flow['flow'])))
         print result
-        if not args.metaOnly:
-            print 'Flow:{}'.format(utils.format_json(args, flow_parser.parse_flow(flow['flow'])))
+        #print 'Flow:', utils.format_json(args, flow_parser.parse_flow(flow['flow']))
 
 
 def get_matchstr(args, flow):
@@ -418,7 +405,7 @@ def show_dup_flows(args):
         "odl_inventory_nodes_config",
         "odl_inventory_nodes_operational"})
     mmac = {}  # config.gmodels.mip_mac.get_entries_by_key()
-    einsts = config.gmodels.elan_elan_instances.get_elan_instances_by_key()
+    einsts = config.gmodels.elan_elan_instances.get_clist_by_key()
     compute_map = config.gmodels.odl_inventory_nodes_operational.get_dpn_host_mapping()
 
     flows = utils.sort(get_all_flows(['elan']), 'table')
@@ -473,19 +460,17 @@ def show_learned_mac_flows(args):
         nports.get(flow_info.get('src-mac'))) or
                 (flow_info.get('table') == 51 and
                      not nports.get(flow_info.get('dst-mac')))):
-            result = 'Table:{}/{}, Host:{}, FlowId:{}{}'.format(
-                flow_info.get('table'),
-                tables.get_table_name(flow['table']),
-                host, flow.get('id'), utils.show_optionals(flow_info))
+            result = 'Table:{}, Host:{}, FlowId:{}{}'.format(
+                flow_info.get('table'), host, flow.get('id'),
+                utils.show_optionals(flow_info))
             print result
-            if not args.metaOnly:
-                print 'Flow:{}'.format(utils.format_json(args,flow_parser.parse_flow(flow)))
+            print 'Flow:{}'.format(utils.format_json(args, flow_parser.parse_flow(flow)))
 
 
 def get_stale_bindings(args):
     # ietf_interfaces_interfaces = ietf_interfaces.interfaces(Model.CONFIG, args)
     # interface_service_bindings_service_bindings = interface_service_bindings.service_bindings(Model.CONFIG, args)
-    ifaces = config.gmodels.ietf_interfaces_interfaces.get_interfaces_by_key()
+    ifaces = config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
     bindings, orphans = config.gmodels.interface_service_bindings_service_bindings.get_service_bindings()
     return set(bindings.keys()) - set(ifaces.keys()), bindings
 
@@ -503,13 +488,11 @@ def dump_flows(args, modules=None, sort_by='table', filter_by=None):
         ip_list = get_ips_for_iface(nports, flow.get('ifname'))
         if ip_list:
             flow['iface-ips'] = ip_list
-        result = 'Table:{}/{}, Host:{}, FlowId:{}{}'.format(
-            flow['table'], tables.get_table_name(flow['table']),
-            host, flow['id'],
+        result = 'Table:{}, Host:{}, FlowId:{}{}'.format(
+            flow['table'], host, flow['id'],
             utils.show_optionals(flow))
         print result
-        if not args.metaOnly:
-            print 'Flow:', utils.format_json(args, flow_parser.parse_flow(flow['flow']))
+        print 'Flow:', utils.format_json(args, flow_parser.parse_flow(flow['flow']))
 
 
 def show_all_flows(args):

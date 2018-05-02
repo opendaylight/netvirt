@@ -1,6 +1,9 @@
 import json
+import logging
 
 import odltools.mdsal.request
+
+logger = logging.getLogger("mdsal.model")
 
 
 class Model:
@@ -8,10 +11,15 @@ class Model:
     OPERATIONAL = "operational"
     USER = "admin"
     PW = "admin"
+    CONTAINER = "container"
+    CLIST = "clist"
+    CLIST_KEY = "key"
 
-    def __init__(self, name, container, store, args, mid=None):
-        self.name = name
-        self.container = container
+    def __init__(self, modul, store, args, mid=None):
+        self.modul = modul
+        self.container = self.CONTAINER  # container
+        self.clist = self.CLIST  # clist
+        self.clist_key = self.CLIST_KEY  # clist_key
         self.store = store
         self.http = 'https' if args.https else 'http'
         self.ip = args.ip
@@ -24,22 +32,43 @@ class Model:
             self.filename = self.make_filename_type(mid)
         self.data = None
         self.data = self.get_model_data()
+        if self.data is None:
+            logger.warning("Model data was not imported")
+        elif self.get_clist() is []:
+            logger.warning("Model data is wrong")
+            self.data = None
+
+    def get_list(self, data, container_key, lst):
+        c = data and data.get(container_key, {})
+        l = c.get(lst, [])
+        return l
+
+    def get_clist(self):
+        return self.get_list(self.data, self.container, self.clist)
+
+    def get_clist_by_key(self, key=None):
+        d = {}
+        key = key or self.clist_key
+        cl = self.get_clist()
+        for l in cl:
+            d[l[key]] = l
+        return d
 
     def make_filename(self):
-        return "{}/{}___{}__{}.json".format(self.path, self.store, self.name, self.container)
+        return "{}/{}___{}__{}.json".format(self.path, self.store, self.modul, self.container)
 
     def make_filename_type(self, mid):
         fmid = mid.replace(":", "__")
-        return "{}/{}___{}__{}___topology___{}.json".format(self.path, self.store, self.name, self.container, fmid)
+        return "{}/{}___{}__{}___topology___{}.json".format(self.path, self.store, self.modul, self.container, fmid)
 
     def make_url(self):
         return "{}://{}:{}/restconf/{}/{}:{}".format(self.http, self.ip, self.port,
-                                                     self.store, self.name,
+                                                     self.store, self.modul,
                                                      self.container)
 
     def make_url_type(self, mid):
         return "{}://{}:{}/restconf/{}/{}:{}/topology/{}".format(self.http, self.ip, self.port,
-                                                                 self.store, self.name,
+                                                                 self.store, self.modul,
                                                                  self.container, mid)
 
     def get_from_odl(self):

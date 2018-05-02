@@ -1,8 +1,6 @@
 import config
 import flow_parser
 import flows
-import tables
-
 from odltools.mdsal.models import constants
 from odltools.mdsal.models import ietf_interfaces
 from odltools.mdsal.models import itm_state
@@ -32,9 +30,9 @@ def by_ifname(args, ifname, ifstates, ifaces):
         ports = neutron_neutron.get_ports_by_key()
         port = ports.get(ifname)
     elif iface and iface.get('type') == constants.IFTYPE_TUNNEL:
-        # tunnels = itm_state_tunnels_state.get_tunnels_by_key()
+        # tunnels = itm_state_tunnels_state.get_clist_by_key()
         # tunnel = tunnels.get(ifname)
-        tun_states = itm_state_tunnels_state.get_tunnels_by_key()
+        tun_states = itm_state_tunnels_state.get_clist_by_key()
         tun_state = tun_states.get(ifname)
     else:
         print "UNSUPPORTED IfType"
@@ -43,10 +41,10 @@ def by_ifname(args, ifname, ifstates, ifaces):
 
 def analyze_interface(args):
     ietf_interfaces_interfaces = ietf_interfaces.interfaces(Model.CONFIG, args)
-    ifaces = ietf_interfaces_interfaces.get_interfaces_by_key()
+    ifaces = ietf_interfaces_interfaces.get_clist_by_key()
 
     ietf_interfaces_interfaces_state = ietf_interfaces.interfaces_state(Model.OPERATIONAL, args)
-    ifstates = ietf_interfaces_interfaces_state.get_interfaces_by_key()
+    ifstates = ietf_interfaces_interfaces_state.get_clist_by_key()
 
     if not args.ifName:
         print_keys(ifaces, ifstates)
@@ -79,9 +77,9 @@ def analyze_trunks(args):
 
     nports = neutron_neutron.get_ports_by_key()
     ntrunks = neutron_neutron.get_trunks_by_key()
-    vpninterfaces = l3vpn_vpn_interfaces.get_vpn_ids_by_key()
-    ifaces = ietf_interfaces_interfaces.get_interfaces_by_key()
-    ifstates = ietf_interfaces_interfaces_state.get_interfaces_by_key()
+    vpninterfaces = l3vpn_vpn_interfaces.get_clist_by_key()
+    ifaces = ietf_interfaces_interfaces.get_clist_by_key()
+    ifstates = ietf_interfaces_interfaces_state.get_clist_by_key()
     subport_dict = {}
     for v in ntrunks.itervalues():
         nport = nports.get(v.get('port-id'))
@@ -132,10 +130,8 @@ def analyze_trunks(args):
         if flow.get('vlanid') and flow.get('vlanid') != vlanid:
             flow_status = 'VlanId mismatch for SubPort:{} and Flow:{}'.format(subport, flow.get('flow'))
         if subport:
-            print 'SubPort:{},Table:{}/{},FlowStatus:{}'.format(
-                subport.get('port-id'), flow.get('table'),
-                tables.get_table_name(flow.get('table')),
-                flow_status)
+            print 'SubPort:{},Table:{},FlowStatus:{}'.format(
+                subport.get('port-id'), flow.get('table'), flow_status)
 
 
 def analyze_neutron_port(port, iface, ifstate):
@@ -143,9 +139,9 @@ def analyze_neutron_port(port, iface, ifstate):
         if ((flow.get('ifname') == port['uuid']) or
                 (flow.get('lport') and ifstate and flow['lport'] == ifstate.get('if-index')) or
                 (iface['name'] == flow.get('ifname'))):
-            result = 'Table:{}/{},FlowId:{}{}'.format(
-                flow['table'], tables.get_table_name(flow['table']),
-                flow['id'], utils.show_optionals(flow))
+            result = 'Table:{},FlowId:{}{}'.format(
+                flow['table'], flow['id'],
+                utils.show_optionals(flow))
             print result
             print 'Flow:', utils.format_json(None, flow_parser.parse_flow(flow.get('flow')))
 
@@ -156,11 +152,11 @@ def analyze_inventory(args):
         "odl_inventory_nodes_operational"})
 
     if args.isConfig:
-        nodes = config.gmodels.odl_inventory_nodes_config.get_nodes_by_key()
+        nodes = config.gmodels.odl_inventory_nodes_config.get_clist_by_key()
         print "Inventory Config:"
     else:
         print "Inventory Operational:"
-        nodes = config.gmodels.odl_inventory_nodes_operational.get_nodes_by_key()
+        nodes = config.gmodels.odl_inventory_nodes_operational.get_clist_by_key()
     node = nodes.get("openflow:" + args.nodeId)
     if node is None:
         print "node: {} was not found".format("openflow:" + args.nodeId)
@@ -176,6 +172,5 @@ def analyze_inventory(args):
                 flow_list.append(flow_dict)
     flows = sorted(flow_list, key=lambda x: x['table'])
     for flow in flows:
-        print 'Table:{}/{}'.format(flow['table'],
-                                   tables.get_table_name(flow['table']))
+        print 'Table:', flow['table']
         print 'FlowId:', flow['id'], 'FlowName:', flow.get('name')
