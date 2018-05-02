@@ -8,5 +8,3 @@ def get_models(args, models):
     global gmodels
     gmodels = Models()
     gmodels.get_models(args, models)
-
-

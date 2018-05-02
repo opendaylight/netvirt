@@ -23,5 +23,6 @@ class TestIetfInterfaces(unittest.TestCase):
         d = self.interfaces_state.get_clist_by_key()
         self.assertIsNotNone(d.get('tap67eb9b7f-db'))
 
+
 if __name__ == '__main__':
     unittest.main()

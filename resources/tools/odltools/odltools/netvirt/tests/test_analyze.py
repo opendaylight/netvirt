@@ -20,5 +20,6 @@ class TestAnalyze(unittest.TestCase):
     def test_analyze_interface(self):
         analyze.analyze_interface(self.args)
 
+
 if __name__ == '__main__':
     unittest.main()

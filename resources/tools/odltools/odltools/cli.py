@@ -1,8 +1,7 @@
 import argparse
 
-import mdsal.cli
-import netvirt.cli
-import odltools
+import odltools.mdsal.cli
+import odltools.netvirt.cli
 import odltools.csit.cli
 
 

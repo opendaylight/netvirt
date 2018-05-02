@@ -30,5 +30,6 @@ class TestShow(unittest.TestCase):
     def test_show_tables(self):
         show.show_tables(self.args)
 
+
 if __name__ == '__main__':
     unittest.main()

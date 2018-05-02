@@ -21,5 +21,6 @@ class TestNetworkTopology(unittest.TestCase):
         d = self.network_topology.get_nodes_by_tid_and_key()
         self.assertIsNotNone(d.get('ovsdb://uuid/8eabb815-5570-42fc-9635-89c880ebc4ac/bridge/br-int'))
 
+
 if __name__ == '__main__':
     unittest.main()

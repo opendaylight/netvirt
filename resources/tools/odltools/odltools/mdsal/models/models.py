@@ -67,7 +67,8 @@ class Models:
         self.id_manager_id_pools = id_manager.id_pools(Model.CONFIG, args)
         self.ietf_interfaces_interfaces = ietf_interfaces.interfaces(Model.CONFIG, args)
         self.ietf_interfaces_interfaces_state = ietf_interfaces.interfaces_state(Model.OPERATIONAL, args)
-        self.interface_service_bindings_service_bindings = interface_service_bindings.service_bindings(Model.CONFIG, args)
+        self.interface_service_bindings_service_bindings = \
+            interface_service_bindings.service_bindings(Model.CONFIG, args)
         self.itm_state_tunnels_state = itm_state.tunnels_state(Model.OPERATIONAL, args)
         self.l3vpn_vpn_interfaces = l3vpn.vpn_instance_to_vpn_id(Model.CONFIG, args)
         self.mip_mac = mip.mac(Model.CONFIG, args)
@@ -75,7 +76,8 @@ class Models:
         self.network_topology_network_topology_operational = network_topology.network_topology(Model.CONFIG, args)
         self.neutron_neutron = neutron.neutron(Model.CONFIG, args)
         self.odl_fib_fib_entries = odl_fib.fib_entries(Model.CONFIG, args)
-        self.odl_interface_meta_if_index_interface_map = odl_interface_meta.if_indexes_interface_map(Model.OPERATIONAL, args)
+        self.odl_interface_meta_if_index_interface_map = \
+            odl_interface_meta.if_indexes_interface_map(Model.OPERATIONAL, args)
         self.odl_inventory_nodes_config = opendaylight_inventory.nodes(Model.CONFIG, args)
         self.odl_inventory_nodes_operational = opendaylight_inventory.nodes(Model.OPERATIONAL, args)
         self.odl_l3vpn_vpn_instance_to_vpn_id = odl_l3vpn.vpn_instance_to_vpn_id(Model.CONFIG, args)
@@ -94,7 +96,8 @@ class Models:
         if "ietf_interfaces_interfaces_state" in models:
             self.ietf_interfaces_interfaces_state = ietf_interfaces.interfaces_state(Model.OPERATIONAL, args)
         if "interface_service_bindings_service_bindings" in models:
-            self.interface_service_bindings_service_bindings = interface_service_bindings.service_bindings(Model.CONFIG, args)
+            self.interface_service_bindings_service_bindings = \
+                interface_service_bindings.service_bindings(Model.CONFIG, args)
         if "itm_state_tunnels_state" in models:
             self.itm_state_tunnels_state = itm_state.tunnels_state(Model.OPERATIONAL, args)
         if "l3vpn_vpn_interfaces" in models:
@@ -112,7 +115,8 @@ class Models:
         if "odl_fib_fib_entries" in models:
             self.odl_fib_fib_entries = odl_fib.fib_entries(Model.CONFIG, args)
         if "odl_interface_meta_if_index_interface_map" in models:
-            self.odl_interface_meta_if_index_interface_map = odl_interface_meta.if_indexes_interface_map(Model.OPERATIONAL, args)
+            self.odl_interface_meta_if_index_interface_map = \
+                odl_interface_meta.if_indexes_interface_map(Model.OPERATIONAL, args)
         if "odl_inventory_nodes_config" in models:
             self.odl_inventory_nodes_config = opendaylight_inventory.nodes(Model.CONFIG, args)
         if "odl_inventory_nodes_operational" in models:

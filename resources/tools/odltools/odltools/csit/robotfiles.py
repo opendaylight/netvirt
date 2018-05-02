@@ -98,7 +98,8 @@ class RobotFiles:
         text = element.text
         attribs = element.attrib
         if logger.isEnabledFor(logging.DEBUG) and text is not None and attribs:
-            logger.debug("process_element: %s - %s - %s - %s - %s - %s", state.state, state.command, event, tag, (text is not None), attribs)
+            logger.debug("process_element: %s - %s - %s - %s - %s - %s",
+                         state.state, state.command, event, tag, (text is not None), attribs)
         if event == "end":
             if element.tag == "test":
                 state.pdata['nodes'] = state.nodes

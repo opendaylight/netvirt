@@ -40,8 +40,8 @@ class Model:
 
     def get_list(self, data, container_key, lst):
         c = data and data.get(container_key, {})
-        l = c.get(lst, [])
-        return l
+        lst = c.get(lst, [])
+        return lst
 
     def get_clist(self):
         return self.get_list(self.data, self.container, self.clist)

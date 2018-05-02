@@ -32,5 +32,6 @@ class TestOdltools(unittest.TestCase):
         args = parser.parse_args(['csit', self.DATAPATH, self.OUTPATH, '-g', '-d'])
         robotfiles.run(args)
 
+
 if __name__ == '__main__':
     unittest.main()

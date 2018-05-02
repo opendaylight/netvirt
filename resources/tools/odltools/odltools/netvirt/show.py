@@ -91,7 +91,7 @@ def show_stale_bindings(args):
     stale_ids, bindings = flows.get_stale_bindings(args)
     for iface_id in sorted(stale_ids):
         for binding in bindings[iface_id].itervalues():
-            #if binding.get('bound-services'):
+            # if binding.get('bound-services'):
             path = get_data_path('bindings', binding)
             print utils.format_json(bindings[iface_id])
             print('http://{}:{}/restconf/config/{}'.format(args.ip, args.port, path))

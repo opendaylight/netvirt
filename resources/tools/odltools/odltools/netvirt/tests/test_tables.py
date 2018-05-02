@@ -12,5 +12,6 @@ class TestTables(unittest.TestCase):
     def test_get_table_name(self):
         self.assertEqual(tables.get_table_name(17), "DISPATCHER")
 
+
 if __name__ == '__main__':
     unittest.main()

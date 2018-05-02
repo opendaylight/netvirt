@@ -56,5 +56,6 @@ class TestRobotFiles(unittest.TestCase):
         self.robotfile.write_pdata()
         self.robotfile.write_debug_pdata()
 
+
 if __name__ == '__main__':
     unittest.main()

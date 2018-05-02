@@ -1,12 +1,6 @@
 import collections
 import logging
-from odltools.mdsal.models import ietf_interfaces
-from odltools.mdsal.models import odl_fib
-from odltools.mdsal.models import odl_interface_meta
-from odltools.mdsal.models import odl_l3vpn
-from odltools.mdsal.models import opendaylight_inventory
 from odltools.mdsal.models.model import Model
-from odltools.mdsal.models.models import Models
 from odltools.mdsal.models.opendaylight_inventory import Nodes
 from odltools.netvirt import utils
 import config
@@ -44,7 +38,7 @@ def get_all_flows(args, modules=None, filter_by=None):
     ifaces = {}
     ifstates = {}
     ifindexes = {}
-    bindings = {}
+    # bindings = {}
     einsts = {}
     eifaces = {}
     fibentries = {}
@@ -211,7 +205,7 @@ def stale_acl_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces):
     if not is_elantag_valid(eltag, eifaces, einsts, iface):
         flow_info['reason'] = 'Lport Elantag mismatch'
         return create_flow_dict(flow_info, flow)
-    #return create_flow_dict(flow_info, flow)
+    # return create_flow_dict(flow_info, flow)
     return None
 
 
@@ -231,11 +225,11 @@ def is_correct_elan_flow(flow_info, mmac, einsts, flow_host):
             # print einst_tag, flow_etag, mac_host
             if flow_etag and einst_tag and flow_etag == einst_tag:
                 if mac_host.startswith(flow_host):
-                    act_resubmit = get_act_resubmit(flow)
-                    if (act_resubmit and act_resubmit.get('table') == 220):
+                    act_resubmit = flow_parser.get_act_resubmit(flow)
+                    if act_resubmit and act_resubmit.get('table') == 220:
                         return 'Correct'
                 else:
-                    act_tunnel = get_act_set_tunnel(flow)
+                    act_tunnel = flow_parser.get_act_set_tunnel(flow)
                     if act_tunnel:
                         return 'Correct'
                 return 'Wrong'
@@ -266,7 +260,7 @@ def get_stale_flows(modules=['ifm']):
     ifaces = {}
     ifstates = {}
     ifindexes = {}
-    bindings = {}
+    # bindings = {}
     einsts = {}
     eifaces = {}
     fibentries = {}
@@ -274,7 +268,7 @@ def get_stale_flows(modules=['ifm']):
     vpninterfaces = {}
     groups = {}
     table_list = list(set([table for module in modules for table in TABLE_MAP[module]]))
-    ##table_list = [214, 244]
+    # table_list = [214, 244]
 
     of_nodes = config.gmodels.odl_inventory_nodes_config.get_clist_by_key()
     if 'ifm' in modules:
@@ -307,7 +301,8 @@ def get_stale_flows(modules=['ifm']):
                 if 'ifm' in modules and table['id'] in TABLE_MAP['ifm']:
                     flow_dict = stale_ifm_flow(flow, flow_info, ifaces, ifstates)
                 if 'l3vpn' in modules and table['id'] in TABLE_MAP['l3vpn']:
-                    flow_dict = stale_l3vpn_flow(flow, flow_info, groups, ifaces, ifindexes, vpnids, vpninterfaces, fibentries)
+                    flow_dict = stale_l3vpn_flow(flow, flow_info, groups, ifaces, ifindexes, vpnids,
+                                                 vpninterfaces, fibentries)
                 if 'elan' in modules and table['id'] in TABLE_MAP['elan']:
                     flow_dict = stale_elan_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces)
                 if 'acl' in modules and table['id'] in TABLE_MAP['acl']:
@@ -356,9 +351,9 @@ def show_stale_flows(args, sort_by='table'):
             flow['table'], host, flow['id'],
             utils.show_optionals(flow))
         print result
-        ##path = get_data_path('flows', flow)
-        #print('http://192.168.2.32:8383/restconf/config/{}'.format(path))
-        #print 'Flow:', utils.format_json(args, flow_parser.parse_flow(flow['flow']))
+        # path = get_data_path('flows', flow)
+        # print('http://192.168.2.32:8383/restconf/config/{}'.format(path))
+        # print 'Flow:', utils.format_json(args, flow_parser.parse_flow(flow['flow']))
 
 
 def show_elan_flows(args):
@@ -375,9 +370,9 @@ def show_elan_flows(args):
         host = compute_map.get(flow.get('dpnid'), flow.get('dpnid'))
         result = 'MacHost:{}{}, Table:{}, FlowId:{}, {}, Flow:{}'.format(
             flow['id'][-17:], host, flow['table'], flow['id'], utils.show_optionals(flow),
-           utils.format_json(args, flow_parser.parse_flow(flow['flow'])))
+            utils.format_json(args, flow_parser.parse_flow(flow['flow'])))
         print result
-        #print 'Flow:', utils.format_json(args, flow_parser.parse_flow(flow['flow']))
+        # print 'Flow:', utils.format_json(args, flow_parser.parse_flow(flow['flow']))
 
 
 def get_matchstr(args, flow):
@@ -455,11 +450,10 @@ def show_learned_mac_flows(args):
         flow = flow_info.get('flow')
         dpnid = flow_info.get('dpnid')
         host = compute_map.get(dpnid, dpnid)
-        if ((flow_info.get('table') == 50 and
-                     flow.get('idle-timeout') == 300 and not
-        nports.get(flow_info.get('src-mac'))) or
-                (flow_info.get('table') == 51 and
-                     not nports.get(flow_info.get('dst-mac')))):
+        if ((flow_info.get('table') == 50 and flow.get('idle-timeout') == 300
+             and not nports.get(flow_info.get('src-mac')))
+            or (flow_info.get('table') == 51 and not nports.get(flow_info.get('dst-mac')))):  # NOQA
+
             result = 'Table:{}, Host:{}, FlowId:{}{}'.format(
                 flow_info.get('table'), host, flow.get('id'),
                 utils.show_optionals(flow_info))
@@ -482,7 +476,6 @@ def dump_flows(args, modules=None, sort_by='table', filter_by=None):
     compute_map = config.gmodels.odl_inventory_nodes_operational.get_dpn_host_mapping()
     # neutron_neutron = neutron.neutron(Model.CONFIG, args)
     nports = config.gmodels.neutron_neutron.get_ports_by_key()
-    logger.info("dump_flows: %s", args)
     for flow in utils.sort(get_all_flows(modules, filter_by), sort_by):
         host = compute_map.get(flow.get('dpnid'), flow.get('dpnid'))
         ip_list = get_ips_for_iface(nports, flow.get('ifname'))
@@ -536,15 +529,14 @@ def stale_ifm_flow(flow, flow_info, ifaces, ifstates):
         if dpn and dpn != flow_info['dpnid']:
             flow_info['reason'] = 'DpnId mismatch for flow and Interface'
             return create_flow_dict(flow_info, flow)
-        if (flow_info.get('lport') and ifstate.get('if-index')
-            and flow_info['lport'] != ifstate['if-index']):
+        if flow_info.get('lport') and ifstate.get('if-index') and flow_info['lport'] != ifstate['if-index']:
             flow_info['reason'] = 'Lport and IfIndex mismatch'
             return create_flow_dict(flow_info, flow)
         if (flow_info.get('ofport') and ifstate.get('lower-layer-if')
-            and flow_info['ofport'] != Model.get_ofport_from_ncid(ifstate.get('lower-layer-if')[0])):
+            and flow_info['ofport'] != Model.get_ofport_from_ncid(ifstate.get('lower-layer-if')[0])):  # NOQA
             flow_info['reason'] = 'OfPort mismatch'
         if (flow_info.get('vlanid') and iface.get('odl-interface:vlan-id')
-            and flow_info['vlanid'] != iface.get('odl-interface:vlan-id')):
+            and flow_info['vlanid'] != iface.get('odl-interface:vlan-id')):  # NOQA
             flow_info['reason'] = 'VlanId mismatch'
     return None
     # return create_flow_dict(flow_info, flow)

@@ -11,4 +11,4 @@ def if_indexes_interface_map(store, args):
 class IfIndexesInterfaceMap(Model):
     CONTAINER = "if-indexes-interface-map"
     CLIST = "if-index-interface"
-    CLIST_KEY= "if-index"
+    CLIST_KEY = "if-index"

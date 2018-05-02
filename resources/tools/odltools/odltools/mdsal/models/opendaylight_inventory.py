@@ -35,4 +35,3 @@ class Nodes(Model):
             dpnid = self.get_dpn_from_ofnodeid(node['id'])
             nodes_dict[dpnid] = node.get('flow-node-inventory:description', '')
         return nodes_dict
-

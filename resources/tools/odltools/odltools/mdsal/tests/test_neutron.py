@@ -26,5 +26,6 @@ class TestNeutron(unittest.TestCase):
         d = self.neutron.get_trunks_by_key()
         self.assertIsNotNone(d.get('8e3c262e-7b45-4222-ac4e-528db75e5516'))
 
+
 if __name__ == '__main__':
     unittest.main()
