@@ -5,8 +5,9 @@ def add_dump_parser(parsers):
     parser = parsers.add_parser("dump", description="Get and write all mdsal models")
     parser.add_argument("path",
                         help="the directory that the parsed data is written into")
-    parser.add_argument("-s", "--https", action="store_true",
-                        help="use https for secure connection")
+    parser.add_argument("--transport", default="http",
+                        choices=["http", "https"],
+                        help="transport for connections")
     parser.add_argument("-i", "--ip", default="localhost",
                         help="OpenDaylight ip address")
     parser.add_argument("-t", "--port", default="8181",
