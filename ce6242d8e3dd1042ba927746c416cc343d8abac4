@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c37dd070_9562944a",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T06:02:00Z",
+      "side": 1,
+      "message": "a VPN ID will not be available in a pure L2 cloud deployment.\n\nSo from where will you get the match?",
+      "revId": "ce6242d8e3dd1042ba927746c416cc343d8abac4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e131d3cc_c1077cc4",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T06:02:00Z",
+      "side": 1,
+      "message": "ditto here.",
+      "revId": "ce6242d8e3dd1042ba927746c416cc343d8abac4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b19b6c4_977d8ed8",
+        "filename": "docs/specs/fluorine/controller-punt-protection.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-02T06:02:00Z",
+      "side": 1,
+      "message": "for sure you will have an ELAN Tag when the traffic hits Table 43 and so you should see which bits are used for ELAN Tag and use them instead of vpn-id",
+      "revId": "ce6242d8e3dd1042ba927746c416cc343d8abac4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
