@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a71241e5_6566ae7a",
+        "filename": "resources/tools/odltools/odltools/mdsal/cli.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-05-02T10:39:28Z",
+      "side": 1,
+      "message": "maybe change this to transport with default http composed of choices http and https then just take the value as is later in the Model()",
+      "range": {
+        "startLine": 8,
+        "startChar": 33,
+        "endLine": 8,
+        "endChar": 38
+      },
+      "revId": "4983e479b2ca0df38529bcf2c8e6f31cf620014a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
