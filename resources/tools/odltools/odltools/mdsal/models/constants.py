@@ -1,6 +1,6 @@
 VIF_TYPE_TO_PREFIX = {
-    'ovs':'tap',
-    'vhost_user':'vhu'
+    'ovs': 'tap',
+    'vhost_user': 'vhu'
 }
 
 VIF_TYPE = 'neutron-binding:vif-type'

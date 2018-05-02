@@ -27,6 +27,7 @@ class CleanCommand(Command):
     def run(self):
         os.system('rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info')
 
+
 setup(
     name='odltools',
     version=__version__,

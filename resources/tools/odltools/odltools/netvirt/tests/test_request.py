@@ -24,5 +24,6 @@ class TestRequest(unittest.TestCase):
         request.write_file(self.outpath, data)
         self.assertTrue(os.path.exists(self.outpath))
 
+
 if __name__ == '__main__':
     unittest.main()

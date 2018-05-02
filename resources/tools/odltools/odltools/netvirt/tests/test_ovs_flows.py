@@ -17,15 +17,18 @@ class TestFlows(unittest.TestCase):
         self.flows = ovs_flows.Flows(self.data)
 
     def test_process_data(self):
-        print "pretty_print:\n{}".format(self.flows.pretty_print(self.flows.pdata))
+        # print "pretty_print:\n{}".format(self.flows.pretty_print(self.flows.pdata))
+        self.assertIsNotNone(self.flows.data)
 
     def test_format_data(self):
-        print "pretty_print:\n{}".format(self.flows.pretty_print(self.flows.fdata))
+        # print "pretty_print:\n{}".format(self.flows.pretty_print(self.flows.fdata))
+        self.assertIsNotNone(self.flows.fdata)
 
     def test_write_file(self):
         filename = "/tmp/flow_dumps.3.out.txt"
         self.flows.write_fdata(filename)
         self.assertTrue(os.path.exists(filename))
+
 
 if __name__ == '__main__':
     unittest.main()

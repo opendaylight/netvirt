@@ -26,8 +26,8 @@ class Neutron(Model):
 
     def get_ccl(self, parent, child, item):
         c = self.data and self.data.get(parent, {})
-        l = self.get_list(c, child, item)
-        return l
+        lst = self.get_list(c, child, item)
+        return lst
 
     def get_ccl_by_key(self, parent, child, item, key="uuid"):
         d = {}

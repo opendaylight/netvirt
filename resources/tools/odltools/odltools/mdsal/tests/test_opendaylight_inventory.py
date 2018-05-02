@@ -25,5 +25,6 @@ class TestOpendaylightInventory(unittest.TestCase):
         d = self.nodes.get_dpn_host_mapping()
         self.assertIsNotNone(d.get('132319289050514'))
 
+
 if __name__ == '__main__':
     unittest.main()

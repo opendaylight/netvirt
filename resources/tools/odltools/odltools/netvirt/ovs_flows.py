@@ -41,10 +41,10 @@ class Flows:
             logger.error("init: data is not a supported type")
             return
         self.start = 0
-        logger.info("init: Copied %d lines", len(self.data))
+        logger.debug("init: Copied %d lines", len(self.data))
         self.process_data()
         self.format_data()
-        logger.info("init: data has been processed and formatted")
+        logger.debug("init: data has been processed and formatted")
 
     def pretty_print(self, data):
         return "{}".format(pformat(data))
@@ -82,9 +82,7 @@ class Flows:
         # Create a dictionary of all tokens in that flow.
         # Append this flow dictionary to a list of flows.
         for line in self.data[self.start:end]:
-            pline = {}
-            pline[Flows.IDLE_TIMEOUT] = "---"
-            pline[Flows.SEND_FLOW_REMOVED] = "-"
+            pline = {Flows.IDLE_TIMEOUT: "---", Flows.SEND_FLOW_REMOVED: "-"}
             tokens = line.split(" ")
             for token in tokens:
                 # most lines are key=value so look for that pattern
@@ -106,8 +104,8 @@ class Flows:
             self.pdata.append(pline)
             logger.debug("process_data: Processed line %d into: \n%s",
                          self.start + len(self.pdata), pformat(pline))
-        logger.info("process_data: Processed %d lines, skipped %d", len(self.pdata),
-                    self.start + len(self.data) - end)
+        logger.debug("process_data: Processed %d lines, skipped %d", len(self.pdata),
+                     self.start + len(self.data) - end)
 
         return self.pdata
 
@@ -152,16 +150,6 @@ class Flows:
         # Format each line of parsed data
         for i, line in enumerate(self.pdata):
             logger.debug("format_data: processing line %d: %s", self.start + i + 1, line)
-
-            #if Flows.SEND_FLOW_REMOVED in line:
-            #    send_flow_rem = " {} ".format(line[Flows.SEND_FLOW_REMOVED])
-            #else:
-            #    send_flow_rem = ""
-
-            #if Flows.IDLE_TIMEOUT in line:
-            #    idle_timeo = " {}={}".format(Flows.IDLE_TIMEOUT, line[Flows.IDLE_TIMEOUT])
-            #else:
-            #    idle_timeo = ""
 
             if Flows.ACTIONS in line:
                 nactions = re_gt.sub(self.re_table, line[Flows.ACTIONS])

@@ -19,8 +19,8 @@ class TestItmState(unittest.TestCase):
         self.tunnels_state = tunnels_state(Model.OPERATIONAL, args)
 
     def test_read_file(self):
-        logger.debug("dpn-endpoints: %s",self.dpn_endpoints.data)
-        logger.debug("dpn-endpoints: \n%s",self.dpn_endpoints.pretty_format(self.dpn_endpoints.data))
+        logger.debug("dpn-endpoints: %s", self.dpn_endpoints.data)
+        logger.debug("dpn-endpoints: \n%s", self.dpn_endpoints.pretty_format(self.dpn_endpoints.data))
 
     def test_get_ip_address(self):
         dpn_ids = self.dpn_endpoints.get_dpn_ids()
@@ -56,6 +56,7 @@ class TestItmState(unittest.TestCase):
     def test_get_tunnels_state(self):
         d = self.tunnels_state.get_clist_by_key()
         self.assertIsNotNone(d and d['tun428ee8c4fe7'])
+
 
 if __name__ == '__main__':
     unittest.main()

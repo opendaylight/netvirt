@@ -12,7 +12,7 @@ DSM_ROOT2 = 4
 """
 
 DSMAP = {
-    'acls': ['acls.json', 'config','ietf-access-control-list:access-lists',
+    'acls': ['acls.json', 'config', 'ietf-access-control-list:access-lists',
              'access-lists', 'acls'],
     'bindings': ['service-bindings.json', 'config', 'interface-service-bindings:service-bindings',
                  'service-bindings', 'services-info'],

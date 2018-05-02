@@ -73,15 +73,15 @@ VRFID_MASK = 0x0000000000fffffe
 
 
 def parse_flow(flow):
-    #parse flow fields
-    #hex(int(mask, 16) & int(data, 16))
+    # parse flow fields
+    # hex(int(mask, 16) & int(data, 16))
     if flow['cookie']:
         utils.to_hex(flow, 'cookie')
     # parse instructions
     for instruction in flow['instructions'].get('instruction', []):
         if 'write-metadata' in instruction:
-            utils.to_hex(instruction['write-metadata'],'metadata')
-            utils.to_hex(instruction['write-metadata'],'metadata-mask')
+            utils.to_hex(instruction['write-metadata'], 'metadata')
+            utils.to_hex(instruction['write-metadata'], 'metadata-mask')
         if 'apply-actions' in instruction:
             for action in instruction['apply-actions'].get('action', []):
                 if 'openflowplugin-extension-nicira-action:nx-reg-load' in action:
@@ -89,8 +89,8 @@ def parse_flow(flow):
     # parse matches
     if 'metadata' in flow['match']:
         metadata = flow['match']['metadata']
-        utils.to_hex(metadata,'metadata')
-        utils.to_hex(metadata,'metadata-mask')
+        utils.to_hex(metadata, 'metadata')
+        utils.to_hex(metadata, 'metadata-mask')
 
     for ofex in flow['match'].get('openflowplugin-extension-general:extension-list', []):
         if ofex['extension-key'] == 'openflowplugin-extension-nicira-match:nxm-nx-reg6-key':

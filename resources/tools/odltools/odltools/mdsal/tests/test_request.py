@@ -16,5 +16,6 @@ class TestRequest(unittest.TestCase):
         data = request.read_file(self.filename)
         self.assertEquals(len(data), 1)
 
+
 if __name__ == '__main__':
     unittest.main()

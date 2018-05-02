@@ -12,4 +12,3 @@ def add_parser(subparsers):
     parser.add_argument("-d", "--dump", action="store_true",
                         help="dump extra debugging, e.g. ovs metadata")
     parser.set_defaults(func=robotfiles.run)
-

@@ -21,5 +21,6 @@ class TestOdlFib(unittest.TestCase):
         d = self.fib_entries.get_vrf_entries_by_key()
         self.assertIsNotNone(d.get(100011))
 
+
 if __name__ == '__main__':
     unittest.main()
