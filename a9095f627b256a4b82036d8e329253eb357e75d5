@@ -16,6 +16,24 @@
       "revId": "a9095f627b256a4b82036d8e329253eb357e75d5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ad6c438_c4693def",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceOpListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-02T12:12:48Z",
+      "side": 1,
+      "message": "We are not deleting the VPN interface. I am simply passing vpninterface with the required prefix-to-interface to be removed. It will not delete the VpnInterface",
+      "parentUuid": "38f8bccd_debefa73",
+      "revId": "a9095f627b256a4b82036d8e329253eb357e75d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
