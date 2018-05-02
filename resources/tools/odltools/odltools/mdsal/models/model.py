@@ -21,7 +21,7 @@ class Model:
         self.clist = self.CLIST  # clist
         self.clist_key = self.CLIST_KEY  # clist_key
         self.store = store
-        self.http = 'https' if args.https else 'http'
+        self.transport = args.transport
         self.ip = args.ip
         self.port = args.port
         self.url = self.make_url()
@@ -62,12 +62,12 @@ class Model:
         return "{}/{}___{}__{}___topology___{}.json".format(self.path, self.store, self.modul, self.container, fmid)
 
     def make_url(self):
-        return "{}://{}:{}/restconf/{}/{}:{}".format(self.http, self.ip, self.port,
+        return "{}://{}:{}/restconf/{}/{}:{}".format(self.transport, self.ip, self.port,
                                                      self.store, self.modul,
                                                      self.container)
 
     def make_url_type(self, mid):
-        return "{}://{}:{}/restconf/{}/{}:{}/topology/{}".format(self.http, self.ip, self.port,
+        return "{}://{}:{}/restconf/{}/{}:{}/topology/{}".format(self.transport, self.ip, self.port,
                                                                  self.store, self.modul,
                                                                  self.container, mid)
 

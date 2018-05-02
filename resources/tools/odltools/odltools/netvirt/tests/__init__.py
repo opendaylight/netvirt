@@ -2,9 +2,9 @@ import os
 
 
 class Args:
-    def __init__(self, https="http", ip="localhost", port=8181, user="admin", pw="admin", path="/tmp",
+    def __init__(self, transport = "http", ip="localhost", port=8181, user="admin", pw="admin", path="/tmp",
                  pretty_print=False, if_name=""):
-        self.https = https
+        self.transport = transport
         self.ip = ip
         self.port = port
         self.user = user
