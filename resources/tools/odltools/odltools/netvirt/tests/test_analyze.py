@@ -11,7 +11,7 @@ class TestAnalyze(unittest.TestCase):
 
     def setUp(self):
         logg.Logger(logging.INFO, logging.INFO)
-        self.args = tests.Args(path=tests.get_resources_path(), if_name="98c2e265-b4f2-40a5-8f31-2fb5d2b2baf6")
+        self.args = tests.Args(path=tests.get_resources_path(), ifname="98c2e265-b4f2-40a5-8f31-2fb5d2b2baf6")
 
     @unittest.skip("skipping")
     def test_analyze_trunks(self):

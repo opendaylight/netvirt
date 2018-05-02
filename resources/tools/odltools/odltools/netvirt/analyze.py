@@ -46,11 +46,11 @@ def analyze_interface(args):
     ietf_interfaces_interfaces_state = ietf_interfaces.interfaces_state(Model.OPERATIONAL, args)
     ifstates = ietf_interfaces_interfaces_state.get_clist_by_key()
 
-    if not args.ifName:
+    if not args.ifname:
         print_keys(ifaces, ifstates)
         exit(1)
 
-    ifname = args.ifName
+    ifname = args.ifname
     iface, ifstate, port, tunnel, tunState = by_ifname(args, ifname, ifstates, ifaces)
     print "InterfaceConfig: \n{}".format(utils.format_json(args, iface))
     print "InterfaceState: \n{}".format(utils.format_json(args, ifstate))
@@ -64,9 +64,9 @@ def analyze_interface(args):
         print "TunState: \n{}".format(utils.format_json(args, tunState))
     if ifstate:
         ncId = ifstate.get('lower-layer-if')[0]
-        nodeId = ncId[:ncId.rindex(':')]
-        # analyze_inventory(nodeId, True, ncId, ifname)
-        # analyze_inventory(nodeId, False, ncId, ifname)
+        nodeid = ncId[:ncId.rindex(':')]
+        # analyze_inventory(nodeid, True, ncId, ifname)
+        # analyze_inventory(nodeid, False, ncId, ifname)
 
 
 def analyze_trunks(args):
@@ -157,9 +157,9 @@ def analyze_inventory(args):
     else:
         print "Inventory Operational:"
         nodes = config.gmodels.odl_inventory_nodes_operational.get_clist_by_key()
-    node = nodes.get("openflow:" + args.nodeId)
+    node = nodes.get("openflow:" + args.nodeid)
     if node is None:
-        print "node: {} was not found".format("openflow:" + args.nodeId)
+        print "node: {} was not found".format("openflow:" + args.nodeid)
         return
     tables = node.get(Nodes.NODE_TABLE)
     groups = node.get(Nodes.NODE_GROUP)
@@ -167,7 +167,7 @@ def analyze_inventory(args):
     print "Flows:"
     for table in tables:
         for flow in table.get('flow', []):
-            if not args.ifName or args.ifName in utils.nstr(flow.get('flow-name')):
+            if not args.ifname or args.ifname in utils.nstr(flow.get('flow-name')):
                 flow_dict = {'table': table['id'], 'id': flow['id'], 'name': flow.get('flow-name'), 'flow': flow}
                 flow_list.append(flow_dict)
     flows = sorted(flow_list, key=lambda x: x['table'])

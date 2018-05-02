@@ -24,18 +24,18 @@ def add_common_args(parser):
 def add_interface_parser(parsers):
     parser = parsers.add_parser("interface")
     add_common_args(parser)
-    parser.add_argument("--ifName",
+    parser.add_argument("--ifname",
                         help="interfaces-state:interface:name")
     parser.set_defaults(func=analyze.analyze_interface)
 
     parser = parsers.add_parser("inventory")
     add_common_args(parser)
-    parser.add_argument("--ifName",
+    parser.add_argument("--ifname",
                         help="interfaces-state:interface:name")
     parser.add_argument("--isConfig",
                         help="config or operational inventory")
-    parser.add_argument("--nodeId",
-                        help="nodeId")
+    parser.add_argument("--nodeid",
+                        help="an openflow node id, not including the prefix such as openflow:")
     parser.set_defaults(func=analyze.analyze_inventory)
 
     parser = parsers.add_parser("trunks")
@@ -57,7 +57,7 @@ def add_show_parser(parsers):
     parser.add_argument("--modules",
                         help="service module owning the flow")
     parser.add_argument("flowtype", choices=["all", "duplicate", "elan", "learned", "stale"])
-    parser.add_argument("--metaOnly", action="store_true",
+    parser.add_argument("--metaonly", action="store_true",
                         help="display flow meta info only")
     parser.add_argument("--urls", action="store_true",
                         help="show flow urls")
