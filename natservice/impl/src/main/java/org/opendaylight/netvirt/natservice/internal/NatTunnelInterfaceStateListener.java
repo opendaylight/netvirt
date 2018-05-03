@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
@@ -31,6 +32,8 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -85,6 +88,7 @@ public class NatTunnelInterfaceStateListener
 
     private static final Logger LOG = LoggerFactory.getLogger(NatTunnelInterfaceStateListener.class);
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IFibManager fibManager;
     private final SNATDefaultRouteProgrammer defaultRouteProgrammer;
     private final NaptSwitchHA naptSwitchHA;
@@ -143,6 +147,7 @@ public class NatTunnelInterfaceStateListener
                                            final IInterfaceManager interfaceManager) {
         super(StateTunnelList.class, NatTunnelInterfaceStateListener.class);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.bgpManager = bgpManager;
         this.fibManager = fibManager;
         this.defaultRouteProgrammer = defaultRouteProgrammer;
@@ -343,21 +348,30 @@ public class NatTunnelInterfaceStateListener
 
             switch (tunnelAction) {
                 case TUNNEL_EP_ADD:
-                    WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
-                    if (isTunnelInLogicalGroup(stateTunnelList)
-                            || !hndlTepAddForAllRtrs(srcDpnId, tunnelType, tunnelName, srcTepIp, destTepIp,
-                            writeFlowInvTx)) {
-                        LOG.debug("hndlTepEvntsForDpn : Unable to process TEP ADD");
+                    try {
+                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                            if (isTunnelInLogicalGroup(stateTunnelList)
+                                    || !hndlTepAddForAllRtrs(srcDpnId, tunnelType, tunnelName, srcTepIp, destTepIp,
+                                    tx)) {
+                                LOG.debug("hndlTepEvntsForDpn : Unable to process TEP ADD");
+                            }
+                        }).get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        LOG.error("Error processing tunnel endpoint addition", e);
                     }
-                    NatUtil.waitForTransactionToComplete(writeFlowInvTx);
                     break;
                 case TUNNEL_EP_DELETE:
-                    WriteTransaction writeFlowRemovetx = dataBroker.newWriteOnlyTransaction();
-                    if (!handleTepDelForAllRtrs(srcDpnId, tunnelType, tunnelName, srcTepIp, destTepIp,
-                            writeFlowRemovetx)) {
-                        LOG.debug("hndlTepEvntsForDpn : Unable to process TEP DEL");
+                    try {
+                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                            if (!handleTepDelForAllRtrs(srcDpnId, tunnelType, tunnelName, srcTepIp, destTepIp, tx)) {
+                                LOG.debug("hndlTepEvntsForDpn : Unable to process TEP DEL");
+                            }
+                        }).get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        LOG.error("Error processing tunnel endpoint removal", e);
                     }
-                    NatUtil.waitForTransactionToComplete(writeFlowRemovetx);
+                    break;
+                case TUNNEL_EP_UPDATE:
                     break;
                 default:
                     LOG.warn("hndlTepEvntsForDpn: unknown tunnelAction: {}", tunnelAction);
@@ -365,7 +379,6 @@ public class NatTunnelInterfaceStateListener
             }
         } catch (Exception e) {
             LOG.error("hndlTepEvntsForDpn : Unable to handle the TEP event.", e);
-            return;
         }
     }
 

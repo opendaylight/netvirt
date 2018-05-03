@@ -26,6 +26,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -75,6 +77,7 @@ public class EvpnDnatFlowProgrammer {
     private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IMdsalApiManager mdsalManager;
     private final IBgpManager bgpManager;
     private final IFibManager fibManager;
@@ -90,6 +93,7 @@ public class EvpnDnatFlowProgrammer {
                            final IVpnManager vpnManager,
                            final IdManagerService idManager) {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
         this.bgpManager = bgpManager;
         this.fibManager = fibManager;
@@ -156,12 +160,12 @@ public class EvpnDnatFlowProgrammer {
         LOG.debug("onAddFloatingIp : Add Floating Ip {} , found associated to fixed port {}",
                 externalIp, interfaceName);
         if (floatingIpPortMacAddress != null) {
-            WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-            vpnManager.addSubnetMacIntoVpnInstance(vpnName, null, floatingIpPortMacAddress, dpnId, writeTx);
-            vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName,
-                    Collections.singleton(externalIp),
-                    floatingIpPortMacAddress, dpnId, networkId, writeTx);
-            writeTx.submit();
+            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+                vpnManager.addSubnetMacIntoVpnInstance(vpnName, null, floatingIpPortMacAddress, dpnId, tx);
+                vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName,
+                        Collections.singleton(externalIp),
+                        floatingIpPortMacAddress, dpnId, networkId, tx);
+            }), LOG, "Error processing floating IP port with MAC address {}", floatingIpPortMacAddress);
         }
         final long finalL3Vni = l3Vni;
         Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<Void>>() {
@@ -209,41 +213,38 @@ public class EvpnDnatFlowProgrammer {
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
         if (optionalVpnInterface.isPresent()) {
-            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-            for (VpnInstanceNames vpnInstance : optionalVpnInterface.get().getVpnInstanceNames()) {
-                if (!vpnName.equals(vpnInstance.getVpnName())) {
-                    continue;
-                }
-                VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get());
-                Adjacencies adjs = vpnIfBuilder.getAugmentation(Adjacencies.class);
-                VpnInterfaceOpDataEntryBuilder vpnIfOpDataEntryBuilder = new VpnInterfaceOpDataEntryBuilder();
-                vpnIfOpDataEntryBuilder.setKey(new VpnInterfaceOpDataEntryKey(interfaceName, vpnName));
-
-                List<Adjacency> adjacencyList = adjs != null ? adjs.getAdjacency() : new ArrayList<>();
-                List<Adjacency> adjacencyListToImport = new ArrayList<>();
-                for (Adjacency adj : adjacencyList) {
-                    Subnetmap sn = VpnHelper.getSubnetmapFromItsUuid(dataBroker, adj.getSubnetId());
-                    if (!VpnHelper.isSubnetPartOfVpn(sn, vpnName)) {
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                for (VpnInstanceNames vpnInstance : optionalVpnInterface.get().getVpnInstanceNames()) {
+                    if (!vpnName.equals(vpnInstance.getVpnName())) {
                         continue;
                     }
-                    adjacencyListToImport.add(adj);
-                }
-                AdjacenciesOp adjacenciesOp = new AdjacenciesOpBuilder()
-                        .setAdjacency(adjacencyListToImport).build();
-                vpnIfOpDataEntryBuilder.addAugmentation(AdjacenciesOp.class, adjacenciesOp);
+                    VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get());
+                    Adjacencies adjs = vpnIfBuilder.getAugmentation(Adjacencies.class);
+                    VpnInterfaceOpDataEntryBuilder vpnIfOpDataEntryBuilder = new VpnInterfaceOpDataEntryBuilder();
+                    vpnIfOpDataEntryBuilder.setKey(new VpnInterfaceOpDataEntryKey(interfaceName, vpnName));
 
-                LOG.debug("onAddFloatingIp : Add vpnInterface {} to Operational l3vpn:vpn-interfaces-op-data ",
-                        floatingIpInterface);
-                InstanceIdentifier<VpnInterfaceOpDataEntry> vpnIfIdentifierOpDataEntry =
-                                        NatUtil.getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
-                writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, vpnIfIdentifierOpDataEntry,
-                              vpnIfOpDataEntryBuilder.build(), WriteTransaction.CREATE_MISSING_PARENTS);
-                break;
-            }
-            ListenableFuture<Void> futures = writeOperTxn.submit();
-            String errorText = "onAddFloatingIp : Could not write Interface " + interfaceName
-                  + " vpnName " + vpnName;
-            ListenableFutures.addErrorLogging(futures, LOG, errorText);
+                    List<Adjacency> adjacencyList = adjs != null ? adjs.getAdjacency() : new ArrayList<>();
+                    List<Adjacency> adjacencyListToImport = new ArrayList<>();
+                    for (Adjacency adj : adjacencyList) {
+                        Subnetmap sn = VpnHelper.getSubnetmapFromItsUuid(dataBroker, adj.getSubnetId());
+                        if (!VpnHelper.isSubnetPartOfVpn(sn, vpnName)) {
+                            continue;
+                        }
+                        adjacencyListToImport.add(adj);
+                    }
+                    AdjacenciesOp adjacenciesOp = new AdjacenciesOpBuilder()
+                            .setAdjacency(adjacencyListToImport).build();
+                    vpnIfOpDataEntryBuilder.addAugmentation(AdjacenciesOp.class, adjacenciesOp);
+
+                    LOG.debug("onAddFloatingIp : Add vpnInterface {} to Operational l3vpn:vpn-interfaces-op-data ",
+                            floatingIpInterface);
+                    InstanceIdentifier<VpnInterfaceOpDataEntry> vpnIfIdentifierOpDataEntry =
+                            NatUtil.getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
+                    tx.put(LogicalDatastoreType.OPERATIONAL, vpnIfIdentifierOpDataEntry,
+                            vpnIfOpDataEntryBuilder.build(), WriteTransaction.CREATE_MISSING_PARENTS);
+                    break;
+                }
+            }), LOG, "onAddFloatingIp : Could not write Interface {}, vpnName {}", interfaceName, vpnName);
         } else {
             LOG.debug("onAddFloatingIp : No vpnInterface {} found in Configuration l3vpn:vpn-interfaces ",
                            floatingIpInterface);
@@ -330,21 +331,18 @@ public class EvpnDnatFlowProgrammer {
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
         if (optionalVpnInterface.isPresent()) {
-            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-            for (VpnInstanceNames vpnInstance : optionalVpnInterface.get().getVpnInstanceNames()) {
-                if (!vpnName.equals(vpnInstance.getVpnName())) {
-                    continue;
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                for (VpnInstanceNames vpnInstance : optionalVpnInterface.get().getVpnInstanceNames()) {
+                    if (!vpnName.equals(vpnInstance.getVpnName())) {
+                        continue;
+                    }
+                    InstanceIdentifier<VpnInterfaceOpDataEntry> vpnOpIfIdentifier = NatUtil
+                            .getVpnInterfaceOpDataEntryIdentifier(floatingIpInterface, vpnName);
+                    tx.delete(LogicalDatastoreType.OPERATIONAL, vpnOpIfIdentifier);
+                    break;
                 }
-                InstanceIdentifier<VpnInterfaceOpDataEntry> vpnOpIfIdentifier = NatUtil
-                           .getVpnInterfaceOpDataEntryIdentifier(floatingIpInterface, vpnName);
-                writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, vpnOpIfIdentifier);
-                break;
-            }
-            ListenableFuture<Void> futures = writeOperTxn.submit();
-            String errorText = "onRemoveFloatingIp : Could not remove vpnInterface " + floatingIpInterface
-                + " vpnName " + vpnName
-                + " from Operational odl-l3vpn:vpn-interface-op-data";
-            ListenableFutures.addErrorLogging(futures, LOG, errorText);
+            }), LOG, "onRemoveFloatingIp : Could not remove vpnInterface {}, vpnName {} from Operational "
+                    + "odl-l3vpn:vpn-interface-op-data", floatingIpInterface, vpnName);
 
             LOG.debug("onRemoveFloatingIp : Remove vpnInterface {} vpnName {} "
                      + "to Operational odl-l3vpn:vpn-interface-op-data", floatingIpInterface, vpnName);

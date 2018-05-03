@@ -13,7 +13,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -38,6 +39,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -59,6 +61,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
     private static final Logger LOG = LoggerFactory.getLogger(VxlanGreConntrackBasedSnatService.class);
     private final ExternalRoutersListener externalRouterListener;
     private final IElanService elanManager;
+    private final ManagedNewTransactionRunner txRunner;
 
     public VxlanGreConntrackBasedSnatService(DataBroker dataBroker, IMdsalApiManager mdsalManager,
                                              ItmRpcService itmManager, OdlInterfaceRpcService odlInterfaceRpcService,
@@ -70,6 +73,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
                 interfaceManager, vpnFootprintService);
         this.externalRouterListener = externalRouterListener;
         this.elanManager = elanManager;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
     @Override
@@ -134,16 +138,15 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
             return;
         }
         //The logic now handle only one external IP per router, others if present will be ignored.
-        String externalIp = externalIps.get(0).getIpAddress();
-        externalIp = NatUtil.validateAndAddNetworkMask(externalIp);
-        WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            externalRouterListener.handleSnatReverseTraffic(dpnId, routers, routerId, routerName, externalIp,
-                    writeFlowInvTx);
-        } else {
-            externalRouterListener.clearFibTsAndReverseTraffic(dpnId, routerId, routers.getNetworkId(),
-                    Collections.singletonList(externalIp), null, routers.getExtGwMacAddress(), writeFlowInvTx);
-        }
+        String externalIp = NatUtil.validateAndAddNetworkMask(externalIps.get(0).getIpAddress());
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            if (addOrRemove == NwConstants.ADD_FLOW) {
+                externalRouterListener.handleSnatReverseTraffic(dpnId, routers, routerId, routerName, externalIp, tx);
+            } else {
+                externalRouterListener.clearFibTsAndReverseTraffic(dpnId, routerId, routers.getNetworkId(),
+                        Collections.singletonList(externalIp), null, routers.getExtGwMacAddress(), tx);
+            }
+        }), LOG, "Error installing SNAT-specific entries for NAPT switch");
     }
 
     protected void createOutboundTblTrackEntryForVxlanGre(BigInteger dpnId, Long routerId, Long extNetVpnId,
