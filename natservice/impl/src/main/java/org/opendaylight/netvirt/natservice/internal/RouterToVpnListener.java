@@ -10,11 +10,13 @@ package org.opendaylight.netvirt.natservice.internal;
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -33,6 +35,7 @@ import org.slf4j.LoggerFactory;
 public class RouterToVpnListener implements NeutronvpnListener {
     private static final Logger LOG = LoggerFactory.getLogger(RouterToVpnListener.class);
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final FloatingIPListener floatingIpListener;
     private final OdlInterfaceRpcService interfaceManager;
     private final ExternalRoutersListener externalRoutersListener;
@@ -43,6 +46,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
                                final OdlInterfaceRpcService interfaceManager,
                                final ExternalRoutersListener externalRoutersListener) {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.floatingIpListener = floatingIpListener;
         this.interfaceManager = interfaceManager;
         this.externalRoutersListener = externalRoutersListener;
@@ -55,7 +59,6 @@ public class RouterToVpnListener implements NeutronvpnListener {
     public void onRouterAssociatedToVpn(RouterAssociatedToVpn notification) {
         String routerName = notification.getRouterId().getValue();
         String vpnName = notification.getVpnId().getValue();
-        WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
         //check router is associated to external network
         String extNetwork = NatUtil.getAssociatedExternalNetwork(dataBroker, routerName);
         if (extNetwork != null) {
@@ -74,14 +77,17 @@ public class RouterToVpnListener implements NeutronvpnListener {
                 return;
             }
             long routerId = NatUtil.getVpnId(dataBroker, routerName);
-            externalRoutersListener.changeLocalVpnIdToBgpVpnId(routerName, routerId, vpnName, writeFlowInvTx,
-                    extNwProvType);
+            try {
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    tx -> externalRoutersListener.changeLocalVpnIdToBgpVpnId(routerName, routerId, vpnName, tx,
+                            extNwProvType)).get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Error changling local VPN identifier to BGP VPN identifier", e);
+            }
         } else {
             LOG.debug("onRouterAssociatedToVpn : Ignoring the Router {} association with VPN {} "
                     + "since it is not external router", routerName, vpnName);
         }
-
-        NatUtil.waitForTransactionToComplete(writeFlowInvTx);
     }
 
     /**
@@ -91,7 +97,6 @@ public class RouterToVpnListener implements NeutronvpnListener {
     public void onRouterDisassociatedFromVpn(RouterDisassociatedFromVpn notification) {
         String routerName = notification.getRouterId().getValue();
         String vpnName = notification.getVpnId().getValue();
-        WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
         //check router is associated to external network
         String extNetwork = NatUtil.getAssociatedExternalNetwork(dataBroker, routerName);
         if (extNetwork != null) {
@@ -110,14 +115,17 @@ public class RouterToVpnListener implements NeutronvpnListener {
                 return;
             }
             long routerId = NatUtil.getVpnId(dataBroker, routerName);
-            externalRoutersListener.changeBgpVpnIdToLocalVpnId(routerName, routerId, vpnName, writeFlowInvTx,
-                    extNwProvType);
+            try {
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    tx -> externalRoutersListener.changeBgpVpnIdToLocalVpnId(routerName, routerId, vpnName, tx,
+                            extNwProvType)).get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Error changing BGP VPN identifier to local VPN identifier", e);
+            }
         } else {
             LOG.debug("onRouterDisassociatedFromVpn : Ignoring the Router {} association with VPN {} "
                     + "since it is not external router", routerName, vpnName);
         }
-
-        NatUtil.waitForTransactionToComplete(writeFlowInvTx);
     }
 
     void handleDNATConfigurationForRouterAssociation(String routerName, String vpnName, String externalNetwork) {

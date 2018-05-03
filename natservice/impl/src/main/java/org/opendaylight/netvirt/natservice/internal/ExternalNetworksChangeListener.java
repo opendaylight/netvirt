@@ -8,11 +8,11 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,6 +20,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -45,6 +47,7 @@ public class ExternalNetworksChangeListener
         extends AsyncDataTreeChangeListenerBase<Networks, ExternalNetworksChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalNetworksChangeListener.class);
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final FloatingIPListener floatingIpListener;
     private final ExternalRoutersListener externalRouterListener;
     private final OdlInterfaceRpcService interfaceManager;
@@ -59,6 +62,7 @@ public class ExternalNetworksChangeListener
                                           final JobCoordinator coordinator) {
         super(Networks.class, ExternalNetworksChangeListener.class);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.floatingIpListener = floatingIpListener;
         this.externalRouterListener = externalRouterListener;
         this.interfaceManager = interfaceManager;
@@ -117,21 +121,18 @@ public class ExternalNetworksChangeListener
         //Check for VPN disassociation
         Uuid originalVpn = original.getVpnid();
         Uuid updatedVpn = update.getVpnid();
-        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.getKey(), () -> {
-            WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            if (originalVpn == null && updatedVpn != null) {
-                //external network is dis-associated from L3VPN instance
-                associateExternalNetworkWithVPN(update, writeFlowInvTx);
-            } else if (originalVpn != null && updatedVpn == null) {
-                //external network is associated with vpn
-                disassociateExternalNetworkFromVPN(update, originalVpn.getValue());
-                //Remove the SNAT entries
-                removeSnatEntries(original, original.getId(), writeFlowInvTx);
-            }
-            futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
-            return futures;
-        }, NatConstants.NAT_DJC_MAX_RETRIES);
+        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.getKey(),
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                if (originalVpn == null && updatedVpn != null) {
+                    //external network is dis-associated from L3VPN instance
+                    associateExternalNetworkWithVPN(update, tx);
+                } else if (originalVpn != null && updatedVpn == null) {
+                    //external network is associated with vpn
+                    disassociateExternalNetworkFromVPN(update, originalVpn.getValue());
+                    //Remove the SNAT entries
+                    removeSnatEntries(original, original.getId(), tx);
+                }
+            })), NatConstants.NAT_DJC_MAX_RETRIES);
     }
 
     private void removeSnatEntries(Networks original, Uuid networkUuid, WriteTransaction writeFlowInvTx) {
@@ -270,23 +271,26 @@ public class ExternalNetworksChangeListener
             }
             RouterPorts routerPorts = optRouterPorts.get();
             List<Ports> interfaces = routerPorts.getPorts();
-            WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
-            for (Ports port : interfaces) {
-                String portName = port.getPortName();
-                BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
-                if (dpnId.equals(BigInteger.ZERO)) {
-                    LOG.debug("disassociateExternalNetworkFromVPN : DPN not found for {},"
-                            + "skip handling of ext nw {} disassociation", portName, network.getId());
-                    continue;
-                }
-                List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
-                for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
-                    floatingIpListener.removeNATFlowEntries(dpnId, portName, vpnName, routerId.getValue(),
-                            intExtPortMap, removeFlowInvTx);
-                }
+            try {
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                    for (Ports port : interfaces) {
+                        String portName = port.getPortName();
+                        BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
+                        if (dpnId.equals(BigInteger.ZERO)) {
+                            LOG.debug("disassociateExternalNetworkFromVPN : DPN not found for {},"
+                                    + "skip handling of ext nw {} disassociation", portName, network.getId());
+                            continue;
+                        }
+                        List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
+                        for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
+                            floatingIpListener.removeNATFlowEntries(dpnId, portName, vpnName, routerId.getValue(),
+                                    intExtPortMap, tx);
+                        }
+                    }
+                }).get();
+            } catch (ExecutionException | InterruptedException e) {
+                LOG.error("Error writing to datastore {}", e);
             }
-
-            NatUtil.waitForTransactionToComplete(removeFlowInvTx);
         }
     }
 }
