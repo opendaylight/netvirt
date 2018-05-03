@@ -12,11 +12,13 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 
 import com.google.common.base.Optional;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAJobScheduler;
@@ -44,11 +46,11 @@ public class NodeConnectedHandler {
     private final PSAugmentationMerger psAugmentationMerger = PSAugmentationMerger.getInstance();
     private final GlobalNodeMerger globalNodeMerger = GlobalNodeMerger.getInstance();
     private final PSNodeMerger psNodeMerger = PSNodeMerger.getInstance();
-    private final DataBroker db;
+    private final ManagedNewTransactionRunner txRunner;
     private final HwvtepNodeHACache hwvtepNodeHACache;
 
     public NodeConnectedHandler(final DataBroker db, final HwvtepNodeHACache hwvtepNodeHACache) {
-        this.db = db;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(db);
         this.hwvtepNodeHACache = hwvtepNodeHACache;
     }
 
@@ -93,10 +95,9 @@ public class NodeConnectedHandler {
                         hwvtepNodeHACache.updateConnectedNodeStatus(childNodePath);
                         LOG.info("HA child reconnected handleNodeReConnected {}",
                                 childNode.getNodeId().getValue());
-                        ReadWriteTransaction tx1 = db.newReadWriteTransaction();
-                        copyHAPSConfigToChildPS(haPSCfg.get(), childNodePath, tx1);
-                        tx1.submit().checkedGet();
-                    } catch (TransactionCommitFailedException e) {
+                        txRunner.callWithNewReadWriteTransactionAndSubmit(
+                            tx1 -> copyHAPSConfigToChildPS(haPSCfg.get(), childNodePath, tx1)).get();
+                    } catch (InterruptedException | ExecutionException e) {
                         LOG.error("Failed to process ", e);
                     }
                 });
