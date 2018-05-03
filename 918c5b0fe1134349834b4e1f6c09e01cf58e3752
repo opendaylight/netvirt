@@ -1,0 +1,251 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4acffbe7_783f5d38",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-03T09:39:28Z",
+      "side": 1,
+      "message": "nit: space",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 15
+      },
+      "revId": "918c5b0fe1134349834b4e1f6c09e01cf58e3752",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1835aee0_064c8dff",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-03T09:39:28Z",
+      "side": 1,
+      "message": "Please add notes on what is not supported.",
+      "revId": "918c5b0fe1134349834b4e1f6c09e01cf58e3752",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5bfe84bb_e81e5cd5",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-03T09:39:28Z",
+      "side": 1,
+      "message": "nit: please remove the spaces (some of them are couple of lines below)",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 2
+      },
+      "revId": "918c5b0fe1134349834b4e1f6c09e01cf58e3752",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f793990f_6e375385",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-03T09:39:28Z",
+      "side": 1,
+      "message": "nit: Program",
+      "range": {
+        "startLine": 86,
+        "startChar": 4,
+        "endLine": 86,
+        "endChar": 13
+      },
+      "revId": "918c5b0fe1134349834b4e1f6c09e01cf58e3752",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a639e25_9375cc0c",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-03T09:39:28Z",
+      "side": 1,
+      "message": "nit: Program",
+      "range": {
+        "startLine": 92,
+        "startChar": 4,
+        "endLine": 92,
+        "endChar": 13
+      },
+      "revId": "918c5b0fe1134349834b4e1f6c09e01cf58e3752",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eed11116_344ea2db",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-03T09:39:28Z",
+      "side": 1,
+      "message": "nit: Program",
+      "range": {
+        "startLine": 95,
+        "startChar": 4,
+        "endLine": 95,
+        "endChar": 13
+      },
+      "revId": "918c5b0fe1134349834b4e1f6c09e01cf58e3752",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97c885bd_1afa07d3",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-03T09:39:28Z",
+      "side": 1,
+      "message": "nit: shall we remove the word \"Advertize\" here (and below)?",
+      "range": {
+        "startLine": 103,
+        "startChar": 4,
+        "endLine": 103,
+        "endChar": 13
+      },
+      "revId": "918c5b0fe1134349834b4e1f6c09e01cf58e3752",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e855b359_2f576837",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-03T09:39:28Z",
+      "side": 1,
+      "message": "If not applicable, please use \"N/A\"",
+      "range": {
+        "startLine": 147,
+        "startChar": 0,
+        "endLine": 147,
+        "endChar": 55
+      },
+      "revId": "918c5b0fe1134349834b4e1f6c09e01cf58e3752",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3038afd7_66642461",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-03T09:39:28Z",
+      "side": 1,
+      "message": "please update.",
+      "range": {
+        "startLine": 171,
+        "startChar": 20,
+        "endLine": 171,
+        "endChar": 24
+      },
+      "revId": "918c5b0fe1134349834b4e1f6c09e01cf58e3752",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e3869847_32a8f717",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-03T09:39:28Z",
+      "side": 1,
+      "message": "nit: pls remove the space (also for all the lines below)",
+      "range": {
+        "startLine": 193,
+        "startChar": 25,
+        "endLine": 193,
+        "endChar": 26
+      },
+      "revId": "918c5b0fe1134349834b4e1f6c09e01cf58e3752",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0cd87d66_222c48cc",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-03T09:39:28Z",
+      "side": 1,
+      "message": "nit: DCGW",
+      "range": {
+        "startLine": 193,
+        "startChar": 49,
+        "endLine": 193,
+        "endChar": 53
+      },
+      "revId": "918c5b0fe1134349834b4e1f6c09e01cf58e3752",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
