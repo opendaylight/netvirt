@@ -12,7 +12,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -106,15 +105,17 @@ public class NatRouterInterfaceListener
         final String interfaceName = interfaceInfo.getInterfaceId();
 
         //Delete the RouterInterfaces maintained in the ODL:L3VPN configuration model
-        WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-        writeTxn.delete(LogicalDatastoreType.CONFIGURATION, NatUtil.getRouterInterfaceId(interfaceName));
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx -> {
+            confTx.delete(LogicalDatastoreType.CONFIGURATION, NatUtil.getRouterInterfaceId(interfaceName));
+        }), LOG, "Error handling NAT router interface removal");
 
-        //Delete the NeutronRouterDpnMap from the ODL:L3VPN operational model
-        NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerId, interfaceName, interfaceManager, writeTxn);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
+            //Delete the NeutronRouterDpnMap from the ODL:L3VPN operational model
+            NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerId, interfaceName, interfaceManager, operTx);
 
-        //Delete the DpnRouterMap from the ODL:L3VPN operational model
-        NatUtil.removeFromDpnRoutersMap(dataBroker, routerId, interfaceName, interfaceManager, writeTxn);
-        writeTxn.submit();
+            //Delete the DpnRouterMap from the ODL:L3VPN operational model
+            NatUtil.removeFromDpnRoutersMap(dataBroker, routerId, interfaceName, interfaceManager, operTx);
+        }), LOG, "Error handling NAT router interface removal");
     }
 
     @Override

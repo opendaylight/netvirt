@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.ListenableFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -30,11 +31,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -55,6 +58,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -1873,6 +1877,12 @@ public final class NatUtil {
                 .child(VpnToDpnList.class, new VpnToDpnListKey(dpnId)).build();
     }
 
+    @Nullable
+    public static String getPrimaryRd(String vpnName, ReadTransaction tx) throws ReadFailedException {
+        return tx.read(LogicalDatastoreType.CONFIGURATION,
+                getVpnInstanceIdentifier(vpnName)).checkedGet().toJavaUtil().map(NatUtil::getPrimaryRd).orElse(null);
+    }
+
     public static String getPrimaryRd(DataBroker dataBroker, String vpnName) {
         InstanceIdentifier<VpnInstance> id  = getVpnInstanceIdentifier(vpnName);
         Optional<VpnInstance> vpnInstance =
@@ -1958,34 +1968,43 @@ public final class NatUtil {
         return false;
     }
 
-    public static void installRouterGwFlows(DataBroker dataBroker, IVpnManager vpnManager, Routers router,
-            BigInteger primarySwitchId, int addOrRemove) {
-        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-        List<ExternalIps> externalIps = router.getExternalIps();
-        List<String> externalIpsSting = new ArrayList<>();
+    public static void installRouterGwFlows(ManagedNewTransactionRunner txRunner, IVpnManager vpnManager,
+            Routers router, BigInteger primarySwitchId, int addOrRemove) {
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            List<ExternalIps> externalIps = router.getExternalIps();
+            List<String> externalIpsSting = new ArrayList<>();
 
-        if (externalIps.isEmpty()) {
-            LOG.error("installRouterGwFlows: setupRouterGwFlows no externalIP present");
-            return;
+            if (externalIps.isEmpty()) {
+                LOG.error("installRouterGwFlows: setupRouterGwFlows no externalIP present");
+                return;
+            }
+            for (ExternalIps externalIp : externalIps) {
+                externalIpsSting.add(externalIp.getIpAddress());
+            }
+            Uuid subnetVpnName = externalIps.get(0).getSubnetId();
+            if (addOrRemove == NwConstants.ADD_FLOW) {
+                vpnManager.addRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
+                        router.getNetworkId(), subnetVpnName.getValue(), tx);
+                vpnManager.addArpResponderFlowsToExternalNetworkIps(router.getRouterName(), externalIpsSting,
+                        router.getExtGwMacAddress(), primarySwitchId,
+                        router.getNetworkId(), tx);
+            } else {
+                vpnManager.removeRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
+                        router.getNetworkId(), subnetVpnName.getValue(), tx);
+                vpnManager.removeArpResponderFlowsToExternalNetworkIps(router.getRouterName(), externalIpsSting,
+                        router.getExtGwMacAddress(), primarySwitchId,
+                        router.getNetworkId());
+            }
+        }), LOG, "Error installing router gateway flows");
+    }
+
+    public static ListenableFuture<Void> waitForTransactionToComplete(ListenableFuture<Void> future) {
+        try {
+            future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error writing to datastore {}", e);
         }
-        for (ExternalIps externalIp : externalIps) {
-            externalIpsSting.add(externalIp.getIpAddress());
-        }
-        Uuid subnetVpnName = externalIps.get(0).getSubnetId();
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            vpnManager.addRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
-                    router.getNetworkId(), subnetVpnName.getValue(), writeTx);
-            vpnManager.addArpResponderFlowsToExternalNetworkIps(router.getRouterName(), externalIpsSting,
-                    router.getExtGwMacAddress(), primarySwitchId,
-                    router.getNetworkId(), writeTx);
-        } else {
-            vpnManager.removeRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
-                    router.getNetworkId(), subnetVpnName.getValue(), writeTx);
-            vpnManager.removeArpResponderFlowsToExternalNetworkIps(router.getRouterName(), externalIpsSting,
-                    router.getExtGwMacAddress(), primarySwitchId,
-                    router.getNetworkId());
-        }
-        writeTx.submit();
+        return future;
     }
 
     public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(

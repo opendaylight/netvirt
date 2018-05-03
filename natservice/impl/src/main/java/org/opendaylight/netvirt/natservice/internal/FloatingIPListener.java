@@ -8,11 +8,11 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -22,6 +22,8 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -43,6 +45,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -66,6 +69,7 @@ import org.slf4j.LoggerFactory;
 public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<InternalToExternalPortMap, FloatingIPListener> {
     private static final Logger LOG = LoggerFactory.getLogger(FloatingIPListener.class);
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IMdsalApiManager mdsalManager;
     private final OdlInterfaceRpcService interfaceManager;
     private final FloatingIPHandler floatingIPHandler;
@@ -80,6 +84,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                               final JobCoordinator coordinator) {
         super(InternalToExternalPortMap.class, FloatingIPListener.class);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
         this.interfaceManager = interfaceManager;
         this.floatingIPHandler = floatingIPHandler;
@@ -380,14 +385,10 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         String interfaceName = pKey.getPortName();
 
         InstanceIdentifier<RouterPorts> portIid = identifier.firstIdentifierOf(RouterPorts.class);
-        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + mapping.getKey(), () -> {
-            WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            createNATFlowEntries(interfaceName, mapping, portIid, routerId, writeFlowInvTx);
-            //final submit call for writeFlowInvTx
-            futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
-            return futures;
-        }, NatConstants.NAT_DJC_MAX_RETRIES);
+        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + mapping.getKey(), () -> Collections.singletonList(
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    tx -> createNATFlowEntries(interfaceName, mapping, portIid, routerId, tx))),
+                NatConstants.NAT_DJC_MAX_RETRIES);
     }
 
     private void processFloatingIPDel(final InstanceIdentifier<InternalToExternalPortMap> identifier,
@@ -399,14 +400,10 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         String interfaceName = pKey.getPortName();
 
         InstanceIdentifier<RouterPorts> portIid = identifier.firstIdentifierOf(RouterPorts.class);
-        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + mapping.getKey(), () -> {
-            WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            removeNATFlowEntries(interfaceName, mapping, portIid, routerId, null, removeFlowInvTx);
-            //final submit call for removeFlowInvTx
-            futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
-            return futures;
-        }, NatConstants.NAT_DJC_MAX_RETRIES);
+        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + mapping.getKey(), () -> Collections.singletonList(
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    tx -> removeNATFlowEntries(interfaceName, mapping, portIid, routerId, null, tx))),
+                NatConstants.NAT_DJC_MAX_RETRIES);
     }
 
     private InetAddress getInetAddress(String ipAddr) {
@@ -772,10 +769,11 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
     private void addOrDelDefaultFibRouteForDnat(BigInteger dpnId, String routerName,
                                                 long routerId, WriteTransaction tx, boolean create) {
-        Boolean wrTxPresent = true;
         if (tx == null) {
-            wrTxPresent = false;
-            tx = dataBroker.newWriteOnlyTransaction();
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                newTx -> addOrDelDefaultFibRouteForDnat(dpnId, routerName, routerId, newTx, create)), LOG,
+                "Error handling default FIB route for DNAT");
+            return;
         }
         //Check if the router to bgp-vpn association is present
         long associatedVpnId = NatConstants.INVALID_ID;
@@ -803,9 +801,6 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                         + "with vpn-id {}", dpnId, routerName, routerId);
                 defaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, routerId, tx);
             }
-        }
-        if (!wrTxPresent) {
-            tx.submit();
         }
     }
 }
