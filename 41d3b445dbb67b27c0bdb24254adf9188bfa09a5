@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "184d2eb3_fcd6c472",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-03T09:39:28Z",
+      "side": 1,
+      "message": "Okay, thanks.",
+      "parentUuid": "50b6f5a0_390bc896",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 25
+      },
+      "revId": "41d3b445dbb67b27c0bdb24254adf9188bfa09a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "238d9d89_33d1e4cb",
         "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
         "patchSetId": 1
