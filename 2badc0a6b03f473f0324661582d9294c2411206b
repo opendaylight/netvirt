@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "ff0b6438_d8e9b833",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-03T17:27:20Z",
+      "side": 1,
+      "message": "a given vpn-interface is always available on only one network and so am wondering why you want to use Adjacency for this. Would you not want to rather update the config-vpn-interface itself to have the network-attributes and use that to reflect it into OPERATIONAL prefix-to-interface?",
+      "parentUuid": "1201d7c9_aa87759c",
+      "revId": "2badc0a6b03f473f0324661582d9294c2411206b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "176c11df_92ecad92",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 3
