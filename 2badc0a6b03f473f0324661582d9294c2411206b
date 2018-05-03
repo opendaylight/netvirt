@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1201d7c9_aa87759c",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-03T12:05:52Z",
+      "side": 1,
+      "message": "Can we have placeholder for these network-attributes in both config-vpn-interface Adjacency and operational-prefix-to-interface.\n\nThese network-attributes will be populated to config-vpn-interface Adjacency by neutronvpn and then in vpnInterfaceManager, these values will be populated to operational-prefix-to interface.\n\nSince while constructing remote-fib flows, we have reference to prefixes only, if we are not keeping these attributes in prefixes, then we need to get config-vpn-interface for the corresponding prefix and identify the right adjacency(with ip) and then get network attributes(type/segmentation-id).\n\nWith these way, we can avoid backpulling from neutron-vpn and also avoid unnecessary querying of config-vpn-interface during FIB flow construction.",
+      "parentUuid": "0e778dde_55d7d3db",
+      "revId": "2badc0a6b03f473f0324661582d9294c2411206b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "176c11df_92ecad92",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 3
