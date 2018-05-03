@@ -13,7 +13,6 @@ from odltools.netvirt import utils
 
 def print_keys(ifaces, ifstates):
     print "InterfaceNames: {}\n".format(ifaces.keys())
-    print
     print "IfStateNames: {}".format(ifstates.keys())
 
 

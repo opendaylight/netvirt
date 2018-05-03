@@ -24,7 +24,7 @@ class Nodes(Model):
             dpnid = self.get_dpn_from_ofnodeid(node['id'])
             for group in node.get(Nodes.NODE_GROUP, []):
                 if group_dict.get(dpnid) and group_dict.get(dpnid).get(group[key]):
-                    print 'Duplicate:', dpnid, group[key]
+                    print "Duplicate: dpn_id: {}, group: {}".format(dpnid, group[key])
                 group_dict[dpnid][group[key]] = group
         return dict(group_dict)
 
