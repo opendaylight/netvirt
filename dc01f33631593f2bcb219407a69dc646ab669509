@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e21c3c28_d2367205",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-03T11:59:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cccdafde_b9f4af59",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e9feb6c9_f02de69d",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 9
@@ -47,6 +65,24 @@
       "writtenOn": "2018-05-02T18:04:37Z",
       "side": 1,
       "message": "Use \u0027designated dpn\u0027 instead of \u0027landing ovs\u0027.  A dpn is eligible for becoming a \u0027designated dpn\u0027 only if there is atleast one active VM IPv6 port on the subnet on that dpn (wherein this subnet also hosts the hidden IPv6 address)",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc05f2c1_03a9bde2",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-03T11:59:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "616f4b2f_ba3a3703",
       "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +123,24 @@
     },
     {
       "key": {
+        "uuid": "ee6b7e16_22be9b6d",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-03T11:59:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55162f05_6b630652",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33de5aa7_3522c3e4",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 9
@@ -115,6 +169,24 @@
       "writtenOn": "2018-05-02T18:04:37Z",
       "side": 1,
       "message": "this is incorrect.  We never configure Hidden IPs on loopback interfaces of the VMs and so we donot know the effect of the same.",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67d8b45b_e79907a4",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-03T11:59:50Z",
+      "side": 1,
+      "message": "Corrected",
+      "parentUuid": "078f1bf0_b61eca2b",
       "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +227,24 @@
     },
     {
       "key": {
+        "uuid": "626e7f07_ceac1ca0",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-03T11:59:50Z",
+      "side": 1,
+      "message": "Mostly Yes, unless any special handling required for IPv6.",
+      "parentUuid": "d9860402_61041d51",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ace9f4bc_c712a503",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 9
@@ -166,6 +256,24 @@
       "writtenOn": "2018-05-02T18:04:37Z",
       "side": 1,
       "message": "ditto here too",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "970d91b3_7b32760d",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-03T11:59:50Z",
+      "side": 1,
+      "message": "Yes",
+      "parentUuid": "ace9f4bc_c712a503",
       "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +297,24 @@
     },
     {
       "key": {
+        "uuid": "87c6a930_4b4e5aec",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-03T11:59:50Z",
+      "side": 1,
+      "message": "Sure Vivek.",
+      "parentUuid": "9dd86c22_83b52417",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "727d3571_933dd4ce",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 9
@@ -206,6 +332,24 @@
     },
     {
       "key": {
+        "uuid": "a600d5ba_714e099c",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-03T11:59:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "727d3571_933dd4ce",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7d9afa7b_140c1598",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 9
@@ -217,6 +361,24 @@
       "writtenOn": "2018-05-02T18:04:37Z",
       "side": 1,
       "message": "Isn\u0027t here we are re-using the same aliveness manager that we used for IPv4 learnt addresses (or) are we proposing something different here for IPv6 learnt addresses?",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bc403c9b_d3816f0a",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-03T11:59:50Z",
+      "side": 1,
+      "message": "We will be re-using the aliveness manager for IPv6 learnt addresses as well.",
+      "parentUuid": "7d9afa7b_140c1598",
       "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -257,6 +419,24 @@
     },
     {
       "key": {
+        "uuid": "224db713_399752f7",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-03T11:59:50Z",
+      "side": 1,
+      "message": "It\u0027s ELAN tag.",
+      "parentUuid": "5e53da95_3d9f3f33",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e70432e5_daa01c4f",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 9
@@ -274,6 +454,24 @@
     },
     {
       "key": {
+        "uuid": "40dee7fa_7e37d3b9",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-03T11:59:50Z",
+      "side": 1,
+      "message": "It doesn\u0027t overlap with IPv6 ND Responder as in this case we are matching on NA packets here.",
+      "parentUuid": "e70432e5_daa01c4f",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a9f92b5a_69384f9e",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 9
@@ -285,6 +483,24 @@
       "writtenOn": "2018-05-02T18:04:37Z",
       "side": 1,
       "message": "this RPC will be used by aliveness-monitor for periodically sending NS to specific port holding the hidden ipv6 address?",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "006416d2_f315e187",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-03T11:59:50Z",
+      "side": 1,
+      "message": "Yes, this RPC is used for below two cases:\n1. To learn hidden IPv6 addresses when packet matches subnet route flow in FIB table.\n2. Aliveness-monitor for periodically sending NS to specific port holding the hidden ipv6 address.",
+      "parentUuid": "a9f92b5a_69384f9e",
       "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -325,6 +541,24 @@
     },
     {
       "key": {
+        "uuid": "0964ad6b_3208aead",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-03T11:59:50Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "4cfc831c_64f2eef0",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "389a84ce_9b9f808c",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 9
@@ -342,6 +576,24 @@
     },
     {
       "key": {
+        "uuid": "4292d97c_ce2db9e1",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-03T11:59:50Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "389a84ce_9b9f808c",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c9e81ed_803f0c8c",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 9
@@ -353,6 +605,24 @@
       "writtenOn": "2018-05-02T18:04:37Z",
       "side": 1,
       "message": "are you going to support this whole thing for dual router model?  If so why :) when the dual router implementation itself has not landed?",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a81ed63_70ad8e40",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-03T11:59:50Z",
+      "side": 1,
+      "message": "Removed :)",
+      "parentUuid": "2c9e81ed_803f0c8c",
       "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
