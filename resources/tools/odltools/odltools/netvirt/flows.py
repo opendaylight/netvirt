@@ -246,7 +246,7 @@ def get_iface_for_lport(ifaces, ifindexes, lport):
 
 
 def get_eltag_for_iface(eifaces, einsts, iface):
-    print eifaces
+    print "eifaces: {}".format(eifaces)
     ifname = iface.get('name') if iface else None
     eiface = eifaces.get(ifname) if ifname else None
     einst_name = eiface.get('elan-instance-name') if eiface else None
