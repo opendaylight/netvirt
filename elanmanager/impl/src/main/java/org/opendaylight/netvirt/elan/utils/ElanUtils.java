@@ -287,18 +287,22 @@ public class ElanUtils {
         }
     }
 
+    public static <T extends DataObject> void delete(ManagedNewTransactionRunner txRunner,
+            LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
+        Futures.addCallback(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(datastoreType, path)), DEFAULT_CALLBACK, MoreExecutors.directExecutor());
+    }
+
     public static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
             InstanceIdentifier<T> path) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.delete(datastoreType, path);
-        Futures.addCallback(tx.submit(), DEFAULT_CALLBACK, MoreExecutors.directExecutor());
+        Futures.addCallback(new ManagedNewTransactionRunnerImpl(broker).callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(datastoreType, path)), DEFAULT_CALLBACK, MoreExecutors.directExecutor());
     }
 
     public static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
             InstanceIdentifier<T> path, FutureCallback<Void> callback) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.delete(datastoreType, path);
-        Futures.addCallback(tx.submit(), callback, MoreExecutors.directExecutor());
+        Futures.addCallback(new ManagedNewTransactionRunnerImpl(broker).callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(datastoreType, path)), callback, MoreExecutors.directExecutor());
     }
 
     public static InstanceIdentifier<ElanInstance> getElanInstanceIdentifier() {
@@ -1374,18 +1378,6 @@ public class ElanUtils {
                             .ietf.interfaces.rev140508.interfaces.state.InterfaceKey(
                                 interfaceName));
         return idBuilder.build();
-    }
-
-    public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(
-            WriteTransaction tx) {
-        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
-        try {
-            futures.get();
-        } catch (InterruptedException | ExecutionException e) {
-            // NETVIRT-1215: Do not log.error() here, only debug()
-            LOG.debug("Error writing to datastore", e);
-        }
-        return futures;
     }
 
     public static boolean isVxlan(@Nullable ElanInstance elanInstance) {
