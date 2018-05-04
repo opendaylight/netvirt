@@ -54,9 +54,13 @@ public interface Ipv6Constants {
     String IP_VERSION_V6 = "IPv6";
     String NETWORK_ROUTER_INTERFACE = "network:router_interface";
     String NETWORK_ROUTER_GATEWAY = "network:router_gateway";
+    String DEVICE_OWNER_FLOATING_IP = "network:floatingip";
+    String DEVICE_OWNER_DHCP = "network:dhcp";
+
 
     BigInteger INVALID_DPID = new BigInteger("-1");
     short DEFAULT_FLOW_PRIORITY = 50;
+    short DEFAULT_OVS_FLOW_PRIORITY = 60;
     String FLOWID_PREFIX = "IPv6.";
     String FLOWID_SEPARATOR = ".";
 
@@ -73,6 +77,7 @@ public interface Ipv6Constants {
     String DEF_MCAST_MAC = "33:33:00:00:00:01";
     //default periodic RA transmission interval. timeunit in sec
     long PERIODIC_RA_INTERVAL = 60;
+    int FIRST_OR_LAST_VM_ONDPN = 1;
 
     enum Ipv6RtrAdvertType {
         UNSOLICITED_ADVERTISEMENT,
