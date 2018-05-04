@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "4683e6c9_6fadadbc",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-04T14:24:08Z",
+      "side": 1,
+      "message": "Hi Vivek,\n\nHave updated the spec and the code changes as per above comments. Testing in progress. Request to let me know for any further comments on these changes.\n\nThanks,\nChetan",
+      "parentUuid": "ff0b6438_d8e9b833",
+      "revId": "2badc0a6b03f473f0324661582d9294c2411206b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "176c11df_92ecad92",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 3
