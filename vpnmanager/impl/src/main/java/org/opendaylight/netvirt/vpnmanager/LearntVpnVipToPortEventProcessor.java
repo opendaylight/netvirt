@@ -21,10 +21,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
@@ -58,6 +59,7 @@ public class LearntVpnVipToPortEventProcessor
         extends AsyncClusteredDataTreeChangeListenerBase<LearntVpnVipToPortEvent, LearntVpnVipToPortEventProcessor> {
     private static final Logger LOG = LoggerFactory.getLogger(LearntVpnVipToPortEventProcessor.class);
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final OdlInterfaceRpcService interfaceRpc;
     private final IMdsalApiManager mdsalManager;
     private final AlivenessMonitorService alivenessManager;
@@ -77,6 +79,7 @@ public class LearntVpnVipToPortEventProcessor
                                             IdManagerService idManagerService, final JobCoordinator jobCoordinator) {
         super(LearntVpnVipToPortEvent.class, LearntVpnVipToPortEventProcessor.class);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.interfaceRpc = interfaceRpc;
         this.mdsalManager = mdsalManager;
         this.alivenessManager = alivenessManager;
@@ -173,17 +176,13 @@ public class LearntVpnVipToPortEventProcessor
         }
 
         @Override
-        public List<ListenableFuture<Void>> call() throws Exception {
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-            WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-            addMipAdjacency(vpnName, interfaceName,
-                    srcIpAddress, macAddress, destIpAddress);
-            VpnUtil.createLearntVpnVipToPort(dataBroker, vpnName, srcIpAddress,
-                    interfaceName, macAddress, writeOperTxn);
-            futures.add(writeConfigTxn.submit());
-            futures.add(writeOperTxn.submit());
-            return futures;
+        public List<ListenableFuture<Void>> call() {
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
+                addMipAdjacency(vpnName, interfaceName,
+                        srcIpAddress, macAddress, destIpAddress);
+                VpnUtil.createLearntVpnVipToPort(dataBroker, vpnName, srcIpAddress,
+                        interfaceName, macAddress, operTx);
+            }));
         }
 
         private void addMipAdjacency(String vpnInstName, String vpnInterface, String srcPrefix, String mipMacAddress,

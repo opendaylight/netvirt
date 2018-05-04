@@ -22,6 +22,8 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -186,11 +188,13 @@ public class VpnManagerImpl implements IVpnManager {
     public void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
             Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
             VrfEntry.EncapType encapType, WriteTransaction writeConfigTxn) {
-
-        Boolean writeConfigTxnPresent = true;
         if (writeConfigTxn == null) {
-            writeConfigTxnPresent = false;
-            writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+            String finalNextHop = nextHop;
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+                addExtraRoute(vpnName, destination, finalNextHop, rd, routerID, l3vni, origin, intfName, operationalAdj,
+                        encapType, tx)),
+                    LOG, "Error adding extra route");
+            return;
         }
 
         //add extra route to vpn mapping; advertise with nexthop as tunnel ip
@@ -253,10 +257,6 @@ public class VpnManagerImpl implements IVpnManager {
                 }
             }
         }
-
-        if (!writeConfigTxnPresent) {
-            writeConfigTxn.submit();
-        }
     }
 
     @Override
@@ -268,12 +268,13 @@ public class VpnManagerImpl implements IVpnManager {
     @Override
     public void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
             String intfName, WriteTransaction writeConfigTxn) {
-        Boolean writeConfigTxnPresent = true;
-        BigInteger dpnId = null;
         if (writeConfigTxn == null) {
-            writeConfigTxnPresent = false;
-            writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+                delExtraRoute(vpnName, destination, nextHop, rd, routerID, intfName, tx)),
+                    LOG, "Error deleting extra route");
+            return;
         }
+        BigInteger dpnId = null;
         String tunnelIp = nextHop;
         if (intfName != null && !intfName.isEmpty()) {
             dpnId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, intfName);
@@ -294,9 +295,6 @@ public class VpnManagerImpl implements IVpnManager {
             fibManager.removeOrUpdateFibEntry(routerID, destination, tunnelIp, writeConfigTxn);
             LOG.info("delExtraRoute: Removed extra route {} from interface {} for rd {}", destination, intfName,
                     routerID);
-        }
-        if (!writeConfigTxnPresent) {
-            writeConfigTxn.submit();
         }
     }
 
@@ -355,13 +353,18 @@ public class VpnManagerImpl implements IVpnManager {
     @Override
     public boolean isVPNConfigured() {
         InstanceIdentifier<VpnInstances> vpnsIdentifier = InstanceIdentifier.builder(VpnInstances.class).build();
-        Optional<VpnInstances> optionalVpns = TransactionUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-            vpnsIdentifier);
-        if (!optionalVpns.isPresent()
-            || optionalVpns.get().getVpnInstance() == null
-            || optionalVpns.get().getVpnInstance().isEmpty()) {
-            LOG.trace("isVPNConfigured: No VPNs configured.");
-            return false;
+        try {
+            Optional<VpnInstances> optionalVpns =
+                    SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            vpnsIdentifier);
+            if (!optionalVpns.isPresent()
+                    || optionalVpns.get().getVpnInstance() == null
+                    || optionalVpns.get().getVpnInstance().isEmpty()) {
+                LOG.trace("isVPNConfigured: No VPNs configured.");
+                return false;
+            }
+        } catch (ReadFailedException e) {
+            throw new RuntimeException("Error reading VPN " + vpnsIdentifier, e);
         }
         LOG.trace("isVPNConfigured: VPNs are configured on the system.");
         return true;
