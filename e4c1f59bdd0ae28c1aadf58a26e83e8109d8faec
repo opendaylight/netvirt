@@ -16,6 +16,24 @@
       "revId": "e4c1f59bdd0ae28c1aadf58a26e83e8109d8faec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "512f306e_0629a134",
+        "filename": "fibmanager/api/src/main/java/org/opendaylight/netvirt/fibmanager/api/RouteOrigin.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-05-04T11:56:12Z",
+      "side": 1,
+      "message": "VpnInterfaceManager.update() was being called for both extra-route and invisibleIP processing and it used to set both the routes as \"static\"\nNow, as part of l3vpn-robustness(Area#3 that handles Invisible IP learning, the new engine, when creating the FIB for Invisible IPs, will use this new RouteOrigin)",
+      "parentUuid": "60f3efb0_1d0713d3",
+      "revId": "e4c1f59bdd0ae28c1aadf58a26e83e8109d8faec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
