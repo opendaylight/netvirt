@@ -25,7 +25,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <modules>
         <module>binding-parent</module>
         <module>checkstyle</module>
-        <module>managed-tx-parent</module>
     </modules>
 
     <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
