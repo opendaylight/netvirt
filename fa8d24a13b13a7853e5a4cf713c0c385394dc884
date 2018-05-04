@@ -16,6 +16,24 @@
       "revId": "fa8d24a13b13a7853e5a4cf713c0c385394dc884",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "206ad021_28f1e63e",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityGroupListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2018-05-04T10:06:18Z",
+      "side": 1,
+      "message": "There would not be race conditions as ACL is only deleted from this listener (SG listener).",
+      "parentUuid": "056da7ac_a87354d8",
+      "revId": "fa8d24a13b13a7853e5a4cf713c0c385394dc884",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
