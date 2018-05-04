@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "e366a04d_c3fd7f17",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-04T12:02:27Z",
+      "side": 1,
+      "message": "Currently, subnet routing for hidden IPv4 addresses works only when router is associated with\nBGPVPN. As part of this spec, it will be changed (for both IPv4 and IPv6) to support even plain\nrouter use cases (i.e., with just subnets associated to router) without BGPVPN configurations.",
+      "parentUuid": "e9feb6c9_f02de69d",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "616f4b2f_ba3a3703",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 9
@@ -152,6 +170,24 @@
       "writtenOn": "2018-05-02T18:04:37Z",
       "side": 1,
       "message": "this is incorrect.  Only if a router is in VPN and if the subnet is present as an arm of the router, the discovery will happen.\n\nIf the discovery happens just for plain routers internal subnets (note - not external subnets), then we have a bug which has to be fixed before this feature lands.",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ccc04ddd_6f1c9924",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-04T12:02:27Z",
+      "side": 1,
+      "message": "As part of this spec, subnet routing will be changed (for both IPv4 and IPv6) to support even plain\nrouter use cases (i.e., with just subnets associated to router) without BGPVPN configurations.\n\nIt will be implemented in two phases:\n\n**Phase-I:** Adhering to the current design of IPv4, subnet routing for hidden IPv6 addresses will\nbe supported only when router is associated to BGPVPN.\n\n**Phase-II:** Subnet routing for both IPv4 and IPv6 will be supported even for plain router use\ncases (i.e., with just subnets associated to router) without BGPVPN configurations.\n\n\nPlease provide details about the bug so that it can be addressed in Phase-II.",
+      "parentUuid": "33de5aa7_3522c3e4",
       "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -402,6 +438,24 @@
     },
     {
       "key": {
+        "uuid": "a8fa16d9_aef662e9",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-04T12:02:27Z",
+      "side": 1,
+      "message": "Removed this statement.\n\nAs part of this spec, subnet routing will be changed (for both IPv4 and IPv6) to support even plain router use cases (i.e., with just subnets associated to router) without BGPVPN configurations.\nAs replied in the other comment, it will be implemented in two phases. Same has been updated in spec as well.",
+      "parentUuid": "2c4e90b0_f8bb0c8f",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5e53da95_3d9f3f33",
         "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
         "patchSetId": 9
@@ -640,6 +694,24 @@
       "writtenOn": "2018-05-02T18:04:37Z",
       "side": 1,
       "message": "please add details of testsuite and testcases you will be constructing for this feature into NetVirt CSIT.",
+      "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48d7f57b_d18a02ed",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-05-04T12:02:27Z",
+      "side": 1,
+      "message": "Added testcases (in general).",
+      "parentUuid": "37082b04_c1088421",
       "revId": "dc01f33631593f2bcb219407a69dc646ab669509",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
