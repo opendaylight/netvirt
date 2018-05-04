@@ -17,6 +17,8 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddInterfaceToDpnOnVpnEvent;
@@ -34,10 +36,12 @@ import org.slf4j.LoggerFactory;
 public class DpnInVpnChangeListener implements OdlL3vpnListener {
     private static final Logger LOG = LoggerFactory.getLogger(DpnInVpnChangeListener.class);
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
 
     @Inject
     public DpnInVpnChangeListener(DataBroker dataBroker) {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
     @Override
@@ -71,10 +75,8 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                     }
                 }
                 if (flushDpnsOnVpn) {
-                    WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                    deleteDpn(vpnToDpnList, rd, writeTxn);
                     try {
-                        writeTxn.submit().get();
+                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> deleteDpn(vpnToDpnList, rd, tx)).get();
                     } catch (InterruptedException | ExecutionException e) {
                         LOG.error("Error removing dpnToVpnList for vpn {} ", vpnName);
                         throw new RuntimeException(e.getMessage(), e);

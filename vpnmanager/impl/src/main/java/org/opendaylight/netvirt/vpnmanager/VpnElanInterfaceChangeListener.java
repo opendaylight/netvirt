@@ -18,6 +18,9 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
@@ -38,12 +41,14 @@ public class VpnElanInterfaceChangeListener
     private static final Logger LOG = LoggerFactory.getLogger(VpnElanInterfaceChangeListener.class);
 
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IElanService elanService;
 
     @Inject
     public VpnElanInterfaceChangeListener(final DataBroker broker, final IElanService elanService) {
         super(ElanInterface.class, VpnElanInterfaceChangeListener.class);
         this.broker = broker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.elanService = elanService;
     }
 
@@ -72,7 +77,9 @@ public class VpnElanInterfaceChangeListener
         }
 
         InstanceIdentifier<VpnInterface> vpnInterfaceIdentifier = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
-        VpnUtil.delete(broker, LogicalDatastoreType.CONFIGURATION, vpnInterfaceIdentifier);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+            tx.delete(LogicalDatastoreType.CONFIGURATION, vpnInterfaceIdentifier)), LOG,
+                "Error removing VPN interface {}", vpnInterfaceIdentifier);
         LOG.info("remove: Removed VPN interface {}", interfaceName);
     }
 

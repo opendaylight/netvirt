@@ -11,9 +11,7 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterators;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -41,7 +39,10 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
@@ -60,6 +61,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
@@ -217,7 +219,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
-import org.opendaylight.yangtools.yang.data.impl.schema.tree.SchemaValidationFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -601,14 +602,15 @@ public final class VpnUtil {
         Optional<VrfTables> vrfTablesOpc = read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid);
         if (vrfTablesOpc.isPresent()) {
             VrfTables vrfTables = vrfTablesOpc.get();
-            WriteTransaction tx = broker.newWriteOnlyTransaction();
-            for (VrfEntry vrfEntry : vrfTables.getVrfEntry()) {
-                if (origin == RouteOrigin.value(vrfEntry.getOrigin())) {
-                    tx.delete(LogicalDatastoreType.CONFIGURATION,
-                            vpnVrfTableIid.child(VrfEntry.class, vrfEntry.getKey()));
-                }
-            }
-            tx.submit();
+            ListenableFutures.addErrorLogging(
+                    new ManagedNewTransactionRunnerImpl(broker).callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                        for (VrfEntry vrfEntry : vrfTables.getVrfEntry()) {
+                            if (origin == RouteOrigin.value(vrfEntry.getOrigin())) {
+                                tx.delete(LogicalDatastoreType.CONFIGURATION,
+                                        vpnVrfTableIid.child(VrfEntry.class, vrfEntry.getKey()));
+                            }
+                        }
+                    }), LOG, "Error removing VRF entries by origin");
         }
     }
 
@@ -633,11 +635,13 @@ public final class VpnUtil {
     public static void removeVrfEntries(DataBroker broker, String rd, List<VrfEntry> vrfEntries) {
         InstanceIdentifier<VrfTables> vpnVrfTableIid =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        for (VrfEntry vrfEntry : vrfEntries) {
-            tx.delete(LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid.child(VrfEntry.class, vrfEntry.getKey()));
-        }
-        tx.submit();
+        ListenableFutures.addErrorLogging(
+                new ManagedNewTransactionRunnerImpl(broker).callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                    for (VrfEntry vrfEntry : vrfEntries) {
+                        tx.delete(LogicalDatastoreType.CONFIGURATION,
+                                vpnVrfTableIid.child(VrfEntry.class, vrfEntry.getKey()));
+                    }
+                }), LOG, "Error removing VRF entries");
     }
 
     // TODO Clean up the exception handling
@@ -817,6 +821,7 @@ public final class VpnUtil {
 
         };
 
+    @Deprecated
     public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
                                                           InstanceIdentifier<T> path) {
         try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
@@ -826,78 +831,24 @@ public final class VpnUtil {
         }
     }
 
-    public static <T extends DataObject> void asyncUpdate(DataBroker broker, LogicalDatastoreType datastoreType,
-        InstanceIdentifier<T> path, T data) {
-        asyncUpdate(broker, datastoreType, path, data, DEFAULT_CALLBACK);
-    }
-
-    public static <T extends DataObject> void asyncUpdate(DataBroker broker, LogicalDatastoreType datastoreType,
-        InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.merge(datastoreType, path, data, true);
-        Futures.addCallback(tx.submit(), callback, MoreExecutors.directExecutor());
-    }
-
-    public static <T extends DataObject> void asyncWrite(DataBroker broker, LogicalDatastoreType datastoreType,
-        InstanceIdentifier<T> path, T data) {
-        asyncWrite(broker, datastoreType, path, data, DEFAULT_CALLBACK);
-    }
-
-    public static <T extends DataObject> void asyncWrite(DataBroker broker, LogicalDatastoreType datastoreType,
-        InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.put(datastoreType, path, data, WriteTransaction.CREATE_MISSING_PARENTS);
-        Futures.addCallback(tx.submit(), callback, MoreExecutors.directExecutor());
-    }
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public static <T extends DataObject> void tryDelete(DataBroker broker, LogicalDatastoreType datastoreType,
-        InstanceIdentifier<T> path) {
-        try {
-            delete(broker, datastoreType, path, DEFAULT_CALLBACK);
-        } catch (SchemaValidationFailedException sve) {
-            LOG.info("tryDelete: Could not delete {}. SchemaValidationFailedException: {}", path, sve.getMessage());
-        } catch (Exception e) {
-            LOG.info("tryDelete: Could not delete {}. Unhandled error: {}", path, e.getMessage());
-        }
-    }
-
-    public static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
-        InstanceIdentifier<T> path) {
-        delete(broker, datastoreType, path, DEFAULT_CALLBACK);
-    }
-
-
-    public static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
-        InstanceIdentifier<T> path, FutureCallback<Void> callback) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.delete(datastoreType, path);
-        Futures.addCallback(tx.submit(), callback, MoreExecutors.directExecutor());
-    }
-
+    @Deprecated
     public static <T extends DataObject> void syncWrite(DataBroker broker, LogicalDatastoreType datastoreType,
         InstanceIdentifier<T> path, T data) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.put(datastoreType, path, data, WriteTransaction.CREATE_MISSING_PARENTS);
-
         try {
-            tx.submit().get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("syncWrite: Error writing to datastore (path, data) : ({}, {})", path, data);
+            SingleTransactionDataBroker.syncWrite(broker, datastoreType, path, data);
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("syncWrite: Error writing to datastore (path, data) : ({}, {})", path, data, e);
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
+    @Deprecated
     public static <T extends DataObject> void syncUpdate(DataBroker broker, LogicalDatastoreType datastoreType,
         InstanceIdentifier<T> path, T data) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.merge(datastoreType, path, data, true);
-
         try {
-            tx.submit().get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("syncUpdate: Error writing to datastore (path, data) : ({}, {})", path, data);
+            SingleTransactionDataBroker.syncUpdate(broker, datastoreType, path, data);
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("syncUpdate: Error writing to datastore (path, data) : ({}, {})", path, data, e);
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -959,138 +910,37 @@ public final class VpnUtil {
                 .build();
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public static void removePrefixToInterfaceForVpnId(DataBroker broker, long vpnId, WriteTransaction writeTxn) {
-        try {
-            // Clean up PrefixToInterface Operational DS
-            if (writeTxn != null) {
-                writeTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                    InstanceIdentifier.builder(PrefixToInterface.class).child(
-                        VpnIds.class, new VpnIdsKey(vpnId)).build());
-            } else {
-                delete(broker, LogicalDatastoreType.OPERATIONAL,
-                    InstanceIdentifier.builder(PrefixToInterface.class).child(VpnIds.class,
-                        new VpnIdsKey(vpnId)).build(),
-                    DEFAULT_CALLBACK);
-            }
-        } catch (Exception e) {
-            LOG.error("removePrefixToInterfaceForVpnId: Exception during cleanup of PrefixToInterface for VPN ID {}",
-                    vpnId, e);
-        }
+    public static void removePrefixToInterfaceForVpnId(long vpnId, @Nonnull WriteTransaction operTx) {
+        // Clean up PrefixToInterface Operational DS
+        operTx.delete(LogicalDatastoreType.OPERATIONAL,
+            InstanceIdentifier.builder(PrefixToInterface.class).child(VpnIds.class, new VpnIdsKey(vpnId)).build());
+    }
+
+    public static void removeVpnExtraRouteForVpn(String vpnName, @Nonnull WriteTransaction operTx) {
+        // Clean up VPNExtraRoutes Operational DS
+        operTx.delete(LogicalDatastoreType.OPERATIONAL,
+                InstanceIdentifier.builder(VpnToExtraroutes.class).child(Vpn.class, new VpnKey(vpnName)).build());
     }
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public static void removeVpnExtraRouteForVpn(DataBroker broker, String vpnName, WriteTransaction writeTxn) {
-        try {
-            // Clean up VPNExtraRoutes Operational DS
-            if (writeTxn != null) {
-                writeTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                        InstanceIdentifier.builder(VpnToExtraroutes.class)
-                                .child(Vpn.class, new VpnKey(vpnName)).build());
-            } else {
-                delete(broker, LogicalDatastoreType.OPERATIONAL,
-                        InstanceIdentifier.builder(VpnToExtraroutes.class)
-                                .child(Vpn.class, new VpnKey(vpnName)).build(),
-                        DEFAULT_CALLBACK);
-            }
-        } catch (Exception e) {
-            LOG.error("removeVpnExtraRouteForVpna: Exception during cleanup of VPNToExtraRoute for VPN {}",
-                    vpnName, e);
-        }
+    public static void removeVpnOpInstance(String vpnName, @Nonnull WriteTransaction operTx) {
+        // Clean up VPNInstanceOpDataEntry
+        operTx.delete(LogicalDatastoreType.OPERATIONAL, getVpnInstanceOpDataIdentifier(vpnName));
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public static void removeVpnOpInstance(DataBroker broker, String vpnName, WriteTransaction writeTxn) {
-        try {
-            // Clean up VPNInstanceOpDataEntry
-            if (writeTxn != null) {
-                writeTxn.delete(LogicalDatastoreType.OPERATIONAL, getVpnInstanceOpDataIdentifier(vpnName));
-            } else {
-                delete(broker, LogicalDatastoreType.OPERATIONAL, getVpnInstanceOpDataIdentifier(vpnName),
-                    DEFAULT_CALLBACK);
-            }
-        } catch (Exception e) {
-            LOG.error("removeVpnOpInstance: Exception during cleanup of VPNInstanceOpDataEntry for VPN {}",
-                    vpnName, e);
-        }
+    public static void removeVpnInstanceToVpnId(String vpnName, @Nonnull WriteTransaction confTx) {
+        confTx.delete(LogicalDatastoreType.CONFIGURATION, VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName));
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public static void removeVpnInstanceToVpnId(DataBroker broker, String vpnName, WriteTransaction writeTxn) {
-        try {
-            if (writeTxn != null) {
-                writeTxn.delete(LogicalDatastoreType.CONFIGURATION,
-                                VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName));
-            } else {
-                delete(broker, LogicalDatastoreType.CONFIGURATION,
-                       VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName),
-                    DEFAULT_CALLBACK);
-            }
-        } catch (Exception e) {
-            LOG.error("removeVpnInstanceToVpnId: Exception during clean up of VpnInstanceToVpnId for VPN {}",
-                    vpnName, e);
-        }
+    public static void removeVpnIdToVpnInstance(long vpnId, @Nonnull WriteTransaction confTx) {
+        confTx.delete(LogicalDatastoreType.CONFIGURATION, getVpnIdToVpnInstanceIdentifier(vpnId));
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public static void removeVpnIdToVpnInstance(DataBroker broker, long vpnId, WriteTransaction writeTxn) {
-        try {
-            if (writeTxn != null) {
-                writeTxn.delete(LogicalDatastoreType.CONFIGURATION, getVpnIdToVpnInstanceIdentifier(vpnId));
-            } else {
-                delete(broker, LogicalDatastoreType.CONFIGURATION, getVpnIdToVpnInstanceIdentifier(vpnId),
-                    DEFAULT_CALLBACK);
-            }
-        } catch (Exception e) {
-            LOG.error("removeVpnIdToVpnInstance: Exception during clean up of VpnIdToVpnInstance for VPNID {}",
-                    vpnId, e);
-        }
-    }
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public static void removeVrfTableForVpn(DataBroker broker, String vpnName, WriteTransaction writeTxn) {
-        // Clean up FIB Entries Config DS
-        try {
-            if (writeTxn != null) {
-                writeTxn.delete(LogicalDatastoreType.CONFIGURATION,
-                    InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class,
-                        new VrfTablesKey(vpnName)).build());
-            } else {
-                delete(broker, LogicalDatastoreType.CONFIGURATION,
-                    InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class,
-                        new VrfTablesKey(vpnName)).build(),
-                    DEFAULT_CALLBACK);
-            }
-        } catch (Exception e) {
-            LOG.error("removeVrfTableForVpn: Exception during clean up of VrfTable from FIB for VPN {}",
-                    vpnName, e);
-        }
-    }
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public static void removeL3nexthopForVpnId(DataBroker broker, long vpnId, WriteTransaction writeTxn) {
-        try {
-            // Clean up L3NextHop Operational DS
-            if (writeTxn != null) {
-                writeTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                    InstanceIdentifier.builder(L3nexthop.class).child(VpnNexthops.class,
-                        new VpnNexthopsKey(vpnId)).build());
-            } else {
-                delete(broker, LogicalDatastoreType.OPERATIONAL,
-                    InstanceIdentifier.builder(L3nexthop.class).child(VpnNexthops.class,
-                        new VpnNexthopsKey(vpnId)).build(),
-                    DEFAULT_CALLBACK);
-            }
-        } catch (Exception e) {
-            LOG.error("removeL3nexthopForVpnId: Exception during cleanup of L3NextHop for VPN ID {}", vpnId, e);
-        }
+    public static void removeL3nexthopForVpnId(long vpnId, @Nonnull WriteTransaction operTx) {
+        // Clean up L3NextHop Operational DS
+        operTx.delete(LogicalDatastoreType.OPERATIONAL,
+            InstanceIdentifier.builder(L3nexthop.class).child(VpnNexthops.class, new VpnNexthopsKey(vpnId)).build());
     }
 
     public static void scheduleVpnInterfaceForRemoval(DataBroker broker,String interfaceName, BigInteger dpnId,
@@ -1589,16 +1439,16 @@ public final class VpnUtil {
     static void bindService(final String vpnInstanceName, final String interfaceName, DataBroker dataBroker,
                             boolean isTunnelInterface, JobCoordinator jobCoordinator) {
         jobCoordinator.enqueueJob(interfaceName,
-            () -> {
-                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                BoundServices serviceInfo = isTunnelInterface
-                        ? VpnUtil.getBoundServicesForTunnelInterface(vpnInstanceName, interfaceName)
-                        : getBoundServicesForVpnInterface(dataBroker, vpnInstanceName, interfaceName);
-                writeTxn.put(LogicalDatastoreType.CONFIGURATION, InterfaceUtils.buildServiceId(interfaceName,
-                        ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
-                        serviceInfo, WriteTransaction.CREATE_MISSING_PARENTS);
-                return Collections.singletonList(writeTxn.submit());
-            }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
+            () -> Collections.singletonList(
+                    new ManagedNewTransactionRunnerImpl(dataBroker).callWithNewReadWriteTransactionAndSubmit(tx -> {
+                        BoundServices serviceInfo = isTunnelInterface
+                                ? VpnUtil.getBoundServicesForTunnelInterface(vpnInstanceName, interfaceName)
+                                : getBoundServicesForVpnInterface(dataBroker, vpnInstanceName, interfaceName);
+                        tx.put(LogicalDatastoreType.CONFIGURATION, InterfaceUtils.buildServiceId(interfaceName,
+                                ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
+                                        NwConstants.L3VPN_SERVICE_INDEX)),
+                                serviceInfo, WriteTransaction.CREATE_MISSING_PARENTS);
+                    })), SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
     }
 
     static BoundServices getBoundServicesForVpnInterface(DataBroker broker, String vpnName, String interfaceName) {
@@ -1637,17 +1487,13 @@ public final class VpnUtil {
             JobCoordinator jobCoordinator) {
         if (!isInterfaceStateDown) {
             jobCoordinator.enqueueJob(vpnInterfaceName,
-                () -> {
-                    WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                    writeTxn.delete(LogicalDatastoreType.CONFIGURATION,
-                            InterfaceUtils.buildServiceId(vpnInterfaceName,
-                                    ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
-                                            NwConstants.L3VPN_SERVICE_INDEX)));
-
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    futures.add(writeTxn.submit());
-                    return futures;
-                }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
+                () -> Collections.singletonList(new ManagedNewTransactionRunnerImpl(
+                        dataBroker).callWithNewWriteOnlyTransactionAndSubmit(tx ->
+                        tx.delete(LogicalDatastoreType.CONFIGURATION,
+                                InterfaceUtils.buildServiceId(vpnInterfaceName,
+                                        ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
+                                                NwConstants.L3VPN_SERVICE_INDEX))))),
+                SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         }
     }
 
@@ -2265,6 +2111,14 @@ public final class VpnUtil {
     public static void removePrefixToInterfaceAdj(DataBroker dataBroker, Adjacency adj, long vpnId,
                                                   VpnInterfaceOpDataEntry vpnInterfaceOpDataEntry,
                                                   WriteTransaction writeOperTxn) {
+        if (writeOperTxn == null) {
+            ListenableFutures.addErrorLogging(
+                    new ManagedNewTransactionRunnerImpl(dataBroker).callWithNewWriteOnlyTransactionAndSubmit(tx ->
+                        removePrefixToInterfaceAdj(dataBroker, adj, vpnId, vpnInterfaceOpDataEntry, tx)), LOG,
+                    "Error removing prefix");
+            return;
+        }
+
         Optional<Prefixes> prefix = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                 VpnUtil.getPrefixToInterfaceIdentifier(vpnId,
                         VpnUtil.getIpPrefix(adj.getIpAddress())));
@@ -2288,14 +2142,8 @@ public final class VpnUtil {
         }
         for (Prefixes pref : prefixToInterface) {
             if (VpnUtil.isMatchedPrefixToInterface(pref, vpnInterfaceOpDataEntry)) {
-                if (writeOperTxn != null) {
-                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                            VpnUtil.getPrefixToInterfaceIdentifier(vpnId, pref.getIpAddress()));
-                } else {
-                    VpnUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                            VpnUtil.getPrefixToInterfaceIdentifier(vpnId, pref.getIpAddress()),
-                            VpnUtil.DEFAULT_CALLBACK);
-                }
+                writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                        VpnUtil.getPrefixToInterfaceIdentifier(vpnId, pref.getIpAddress()));
             }
         }
     }
