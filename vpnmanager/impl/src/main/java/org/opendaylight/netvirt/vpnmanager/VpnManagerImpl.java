@@ -196,11 +196,13 @@ public class VpnManagerImpl implements IVpnManager {
     public void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
             Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
             VrfEntry.EncapType encapType, WriteTransaction writeConfigTxn) {
-
-        Boolean writeConfigTxnPresent = true;
         if (writeConfigTxn == null) {
-            writeConfigTxnPresent = false;
-            writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+            String finalNextHop = nextHop;
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+                addExtraRoute(vpnName, destination, finalNextHop, rd, routerID, l3vni, origin, intfName, operationalAdj,
+                        encapType, tx)),
+                    LOG, "Error adding extra route");
+            return;
         }
 
         //add extra route to vpn mapping; advertise with nexthop as tunnel ip
@@ -263,32 +265,24 @@ public class VpnManagerImpl implements IVpnManager {
                 }
             }
         }
-
-        if (!writeConfigTxnPresent) {
-            writeConfigTxn.submit();
-        }
     }
 
     @Override
     public void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID) {
         LOG.info("Deleting extra route with destination {} and nextHop {}", destination, nextHop);
-        delExtraRoute(vpnName, destination, nextHop, rd, routerID, null, null, null);
+        delExtraRoute(vpnName, destination, nextHop, rd, routerID, null, null);
     }
 
     @Override
     public void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-            String intfName, WriteTransaction writeConfigTxn, WriteTransaction writeOperTx) {
-        Boolean writeConfigTxnPresent = true;
-        Boolean writeOperTxnPresent = true;
-        BigInteger dpnId = null;
+            String intfName, WriteTransaction writeConfigTxn) {
         if (writeConfigTxn == null) {
-            writeConfigTxnPresent = false;
-            writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+                delExtraRoute(vpnName, destination, nextHop, rd, routerID, intfName, tx)),
+                    LOG, "Error deleting extra route");
+            return;
         }
-        if (writeOperTx == null) {
-            writeOperTxnPresent = false;
-            writeOperTx = dataBroker.newWriteOnlyTransaction();
-        }
+        BigInteger dpnId = null;
         String tunnelIp = nextHop;
         if (intfName != null && !intfName.isEmpty()) {
             dpnId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, intfName);
@@ -303,19 +297,13 @@ public class VpnManagerImpl implements IVpnManager {
         if (rd != null) {
             String primaryRd = VpnUtil.getVpnRd(dataBroker, vpnName);
             removePrefixFromBGP(vpnName, primaryRd, rd, intfName, destination, nextHop, tunnelIp, dpnId,
-                    writeConfigTxn, writeOperTx);
+                    writeConfigTxn);
             LOG.info("delExtraRoute: Removed extra route {} from interface {} for rd {}", destination, intfName, rd);
         } else {
             // add FIB route directly
             fibManager.removeOrUpdateFibEntry(routerID, destination, tunnelIp, writeConfigTxn);
             LOG.info("delExtraRoute: Removed extra route {} from interface {} for rd {}", destination, intfName,
                     routerID);
-        }
-        if (!writeConfigTxnPresent) {
-            writeConfigTxn.submit();
-        }
-        if (!writeOperTxnPresent) {
-            writeOperTx.submit();
         }
     }
 
@@ -324,12 +312,12 @@ public class VpnManagerImpl implements IVpnManager {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void removePrefixFromBGP(String vpnName, String primaryRd, String extraRouteRd, String vpnInterfaceName,
                                     String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId,
-                                    WriteTransaction writeConfigTxn, WriteTransaction writeOperTx) {
+                                    WriteTransaction writeConfigTxn) {
         try {
             String vpnNamePrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
             synchronized (vpnNamePrefixKey.intern()) {
                 if (VpnUtil.removeOrUpdateDSForExtraRoute(dataBroker, fibManager, vpnName, primaryRd, extraRouteRd,
-                        vpnInterfaceName, prefix, nextHop, nextHopTunnelIp, writeOperTx)) {
+                        vpnInterfaceName, prefix, nextHop, nextHopTunnelIp, writeConfigTxn)) {
                     return;
                 }
                 fibManager.removeOrUpdateFibEntry(primaryRd, prefix, nextHopTunnelIp, writeConfigTxn);
@@ -348,13 +336,18 @@ public class VpnManagerImpl implements IVpnManager {
     @Override
     public boolean isVPNConfigured() {
         InstanceIdentifier<VpnInstances> vpnsIdentifier = InstanceIdentifier.builder(VpnInstances.class).build();
-        Optional<VpnInstances> optionalVpns = TransactionUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-            vpnsIdentifier);
-        if (!optionalVpns.isPresent()
-            || optionalVpns.get().getVpnInstance() == null
-            || optionalVpns.get().getVpnInstance().isEmpty()) {
-            LOG.trace("isVPNConfigured: No VPNs configured.");
-            return false;
+        try {
+            Optional<VpnInstances> optionalVpns =
+                    SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            vpnsIdentifier);
+            if (!optionalVpns.isPresent()
+                    || optionalVpns.get().getVpnInstance() == null
+                    || optionalVpns.get().getVpnInstance().isEmpty()) {
+                LOG.trace("isVPNConfigured: No VPNs configured.");
+                return false;
+            }
+        } catch (ReadFailedException e) {
+            throw new RuntimeException("Error reading VPN " + vpnsIdentifier, e);
         }
         LOG.trace("isVPNConfigured: VPNs are configured on the system.");
         return true;
