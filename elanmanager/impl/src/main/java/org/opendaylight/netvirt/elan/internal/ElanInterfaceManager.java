@@ -934,11 +934,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     public void removeFilterEqualsTable(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
             WriteTransaction deleteFlowGroupTx) {
         int ifTag = interfaceInfo.getInterfaceTag();
-        Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
-                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag, "group"), 9, elanInfo.getElanInstanceName(), 0,
-                0, ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
-                ElanUtils.getTunnelIdMatchForFilterEqualsLPortTag(ifTag),
-                elanUtils.getInstructionsInPortForOutGroup(interfaceInfo.getInterfaceName()));
+        Flow flow = MDSALUtil.buildFlow(NwConstants.ELAN_FILTER_EQUALS_TABLE,
+                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag, "group"));
 
         mdsalManager.removeFlowToTx(interfaceInfo.getDpId(), flow, deleteFlowGroupTx);
 
