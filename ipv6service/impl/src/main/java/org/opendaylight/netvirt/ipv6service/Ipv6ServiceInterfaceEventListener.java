@@ -151,6 +151,8 @@ public class Ipv6ServiceInterfaceEventListener
                 }
                 // Check and program icmpv6 punt flows on the dpnID if its the first VM on the host.
                 ifMgr.programIcmpv6PuntFlowsIfNecessary(portId, dpId, routerPort);
+                //OVS Based NA responder flow program
+                ifMgr.programIcmpv6NSRespFlowsIfNecessary(portId, dpId, port, routerPort);
 
                 if (!port.getServiceBindingStatus()) {
                     jobCoordinator.enqueueJob("IPv6-" + String.valueOf(portId), () -> {
