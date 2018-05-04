@@ -916,6 +916,11 @@ public class NexthopManager implements AutoCloseable {
             }
             Long label = FibUtil.getLabelFromRoutePaths(vrfEntry).get();
             Prefixes prefixInfo = fibUtil.getPrefixToInterface(vpnId, nextHopPrefixIp);
+            if (prefixInfo == null) {
+                LOG.error("No prefix info found for prefix {} in rd {} for VPN {}", vrfEntry.getDestPrefix(), rd,
+                        vpnId);
+                return;
+            }
             BigInteger tunnelId;
             if (fibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(prefixInfo.getSubnetId(), vpnId,
                     rd)) {
