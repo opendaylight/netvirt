@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "6e33da42_86f68e2d",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-04T09:51:50Z",
+      "side": 1,
+      "message": "Thanks @Ashvin for driving it. I\u0027m a bit confused now. My question is - currently we are updating the NS to NA in Table45 and sending the packet to Table81 because of the limitations. Does this work on OVS 2.7 or do we require some patched OVS to work?",
+      "parentUuid": "c6a584a5_11d6afa1",
+      "range": {
+        "startLine": 70,
+        "startChar": 44,
+        "endLine": 70,
+        "endChar": 55
+      },
+      "revId": "3e117adffc6b94109bb9251f269fd37ea3bd4f06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5e500c02_db6b527d",
         "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
         "patchSetId": 7
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "In Flourine, the OF Plugin is Lithium is it not? Hence the modifications will be done on Lithium plugin.",
       "parentUuid": "5e500c02_db6b527d",
+      "range": {
+        "startLine": 75,
+        "startChar": 10,
+        "endLine": 75,
+        "endChar": 17
+      },
+      "revId": "3e117adffc6b94109bb9251f269fd37ea3bd4f06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ce941f17_f147282e",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-04T09:51:50Z",
+      "side": 1,
+      "message": "Just had a quick look at netvirt dependencies and see that we are using \"0.7.0-SNAPSHOT\", which is the master branch of openflowplugin and not Lithium. Am I missing something?\n\nhttps://github.com/opendaylight/netvirt/blob/master/commons/binding-parent/pom.xml#L32",
+      "parentUuid": "d94c671a_50bcdf75",
       "range": {
         "startLine": 75,
         "startChar": 10,
@@ -249,6 +297,30 @@
       "side": 1,
       "message": "Hi Ashvin/Sridhar,\n\n  During my ipv6 testing i could see always VM is initiating the NS request for resolving the MAC address of the router port LLA address only.Please confirm at what circumstance VM will initiate NS request for resolving the MAC address of subnet CIDR GW IP?.",
       "parentUuid": "b8513b36_32d0e457",
+      "range": {
+        "startLine": 171,
+        "startChar": 42,
+        "endLine": 171,
+        "endChar": 61
+      },
+      "revId": "3e117adffc6b94109bb9251f269fd37ea3bd4f06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9fb4abe9_91482d85",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-04T09:51:50Z",
+      "side": 1,
+      "message": "Your observation is correct. For L3 Communication, VM would send the packet to the default gateway. In case of IPv6, the default gateway would point to the LLA of the neutron router. \nSo we should actually program rules for LLA.\n\nIf a user explicitly configures the default gateway to point to Subnet CIDR then it would try to resolve it, but AFAIK in normal use-cases it would try resolving the LLA.",
+      "parentUuid": "6b9d4d70_4214c3fe",
       "range": {
         "startLine": 171,
         "startChar": 42,
