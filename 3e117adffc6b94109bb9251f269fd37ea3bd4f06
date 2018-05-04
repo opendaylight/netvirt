@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "73aab2ff_bbcb4d90",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-05-04T10:19:58Z",
+      "side": 1,
+      "message": "I do not understand the question. I do not understand why sending packet from Table 45 to Table 81 has some bearing on OVS version. Can you clarify?\n\nGiven that the code requires NEW extensions, which will be committed to OVS MASTER, it is unlikely that it would work directly with OVS 2.7. It needs additional work.",
+      "parentUuid": "6e33da42_86f68e2d",
+      "range": {
+        "startLine": 70,
+        "startChar": 44,
+        "endLine": 70,
+        "endChar": 55
+      },
+      "revId": "3e117adffc6b94109bb9251f269fd37ea3bd4f06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5e500c02_db6b527d",
         "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
         "patchSetId": 7
@@ -132,6 +156,30 @@
       "side": 1,
       "message": "Just had a quick look at netvirt dependencies and see that we are using \"0.7.0-SNAPSHOT\", which is the master branch of openflowplugin and not Lithium. Am I missing something?\n\nhttps://github.com/opendaylight/netvirt/blob/master/commons/binding-parent/pom.xml#L32",
       "parentUuid": "d94c671a_50bcdf75",
+      "range": {
+        "startLine": 75,
+        "startChar": 10,
+        "endLine": 75,
+        "endChar": 17
+      },
+      "revId": "3e117adffc6b94109bb9251f269fd37ea3bd4f06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6f0e0feb_731bf725",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-05-04T10:19:58Z",
+      "side": 1,
+      "message": "@Karthikeyan, this should be updated to master then.",
+      "parentUuid": "ce941f17_f147282e",
       "range": {
         "startLine": 75,
         "startChar": 10,
@@ -439,6 +487,30 @@
       "side": 1,
       "message": "Hi Ashvin/Sridhar,\n\n  During my ipv6 testing i could see always VM is initiating the NS request for resolving the MAC address of the router port LLA address only.Please confirm at what circumstance VM will initiate NS request for resolving the MAC address of subnet CIDR GW IP?",
       "parentUuid": "15ae4ef1_0bc41838",
+      "range": {
+        "startLine": 207,
+        "startChar": 69,
+        "endLine": 207,
+        "endChar": 82
+      },
+      "revId": "3e117adffc6b94109bb9251f269fd37ea3bd4f06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8189e504_ff1f90a6",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-05-04T10:19:58Z",
+      "side": 1,
+      "message": "@Karthikeyan, the question here is about the Source IP of the VM. What would the Source IP be?",
+      "parentUuid": "acab5823_e140bffb",
       "range": {
         "startLine": 207,
         "startChar": 69,
