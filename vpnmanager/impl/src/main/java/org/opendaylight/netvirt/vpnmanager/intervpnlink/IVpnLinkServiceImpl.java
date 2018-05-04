@@ -23,8 +23,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -59,6 +62,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(IVpnLinkServiceImpl.class);
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IdManagerService idManager;
     private final IBgpManager bgpManager;
     private final IFibManager fibManager;
@@ -68,6 +72,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
     public IVpnLinkServiceImpl(final DataBroker dataBroker, final IdManagerService idMgr, final IBgpManager bgpMgr,
                                final IFibManager fibMgr, final InterVpnLinkCache interVpnLinkCache) {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = idMgr;
         this.bgpManager = bgpMgr;
         this.fibManager = fibMgr;
@@ -172,7 +177,9 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                               .child(VrfTables.class, new VrfTablesKey(dstVpnRd))
                               .child(VrfEntry.class, new VrfEntryKey(newVrfEntry.getDestPrefix()))
                               .build();
-        VpnUtil.asyncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, newVrfEntryIid, newVrfEntry);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+            tx.put(LogicalDatastoreType.CONFIGURATION, newVrfEntryIid, newVrfEntry)),
+                LOG, "Error adding VRF entry {}", newVrfEntry);
 
         // Finally, route is advertised it to the DC-GW. But while in the FibEntries the nexthop is the other
         // endpoint's IP, in the DC-GW the nexthop for those prefixes are the IPs of those DPNs where the target

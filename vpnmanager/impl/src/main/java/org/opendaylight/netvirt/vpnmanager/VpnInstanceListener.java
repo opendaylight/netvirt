@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,6 +27,8 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -41,6 +42,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -68,6 +70,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     private static final String LOGGING_PREFIX_ADD = "VPN-ADD:";
     private static final String LOGGING_PREFIX_DELETE = "VPN-REMOVE:";
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IdManagerService idManager;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final IFibManager fibManager;
@@ -82,6 +85,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             final JobCoordinator jobCoordinator) {
         super(VpnInstance.class, VpnInstanceListener.class);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = idManager;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.fibManager = fibManager;
@@ -128,17 +132,17 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                     vpnName);
             return;
         } else {
-            jobCoordinator.enqueueJob("VPN-" + vpnName, () -> {
-                VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder().setVrfId(primaryRd)
-                        .setVpnState(VpnInstanceOpDataEntry.VpnState.PendingDelete);
-                InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd);
-                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                writeTxn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build());
+            jobCoordinator.enqueueJob("VPN-" + vpnName, () ->
+                Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                    VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder().setVrfId(primaryRd)
+                            .setVpnState(VpnInstanceOpDataEntry.VpnState.PendingDelete);
+                    InstanceIdentifier<VpnInstanceOpDataEntry> id =
+                            VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd);
+                    tx.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build());
 
-                LOG.info("{} call: Operational status set to PENDING_DELETE for vpn {} with rd {}",
-                        LOGGING_PREFIX_DELETE, vpnName, primaryRd);
-                return Collections.singletonList(writeTxn.submit());
-            }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
+                    LOG.info("{} call: Operational status set to PENDING_DELETE for vpn {} with rd {}",
+                            LOGGING_PREFIX_DELETE, vpnName, primaryRd);
+                })), SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         }
     }
 
@@ -173,19 +177,15 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         public List<ListenableFuture<Void>> call() {
             // If another renderer(for eg : CSS) needs to be supported, check can be performed here
             // to call the respective helpers.
-            WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
-            WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
-            addVpnInstance(vpnInstance, writeConfigTxn, writeOperTxn);
-            try {
-                writeOperTxn.submit().get();
-            } catch (InterruptedException | ExecutionException e) {
-                log.error("{} call: Error creating vpn {} ", LOGGING_PREFIX_ADD, vpnInstance.getVpnInstanceName());
-                throw new RuntimeException(e.getMessage(), e);
-            }
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(writeConfigTxn.submit());
-            ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
-            Futures.addCallback(listenableFuture,
+            List<ListenableFuture<Void>> futures = new ArrayList<>(2);
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx -> {
+                ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx ->
+                        addVpnInstance(vpnInstance, confTx, operTx));
+                ListenableFutures.addErrorLogging(future, LOG, "{} call: error creating VPN {}", LOGGING_PREFIX_ADD,
+                        vpnInstance.getVpnInstanceName());
+                futures.add(future);
+            }));
+            Futures.addCallback(Futures.allAsList(futures),
                                 new PostAddVpnInstanceWorker(vpnInstance , vpnInstance.getVpnInstanceName()),
                                 MoreExecutors.directExecutor());
             return futures;
@@ -196,6 +196,16 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void addVpnInstance(VpnInstance value, WriteTransaction writeConfigTxn,
         WriteTransaction writeOperTxn) {
+        if (writeConfigTxn == null) {
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+                addVpnInstance(value, tx, writeOperTxn)), LOG, "Error adding VPN instance {}", value);
+            return;
+        }
+        if (writeOperTxn == null) {
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+                addVpnInstance(value, writeConfigTxn, tx)), LOG, "Error adding VPN instance {}", value);
+            return;
+        }
         VpnAfConfig config = value.getIpv4Family();
         String vpnInstanceName = value.getVpnInstanceName();
 
@@ -211,28 +221,16 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance
             vpnInstanceToVpnId = VpnUtil.getVpnInstanceToVpnId(vpnInstanceName, vpnId, primaryRd);
 
-        if (writeConfigTxn != null) {
-            writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION,
-                VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnInstanceName),
-                vpnInstanceToVpnId, WriteTransaction.CREATE_MISSING_PARENTS);
-        } else {
-            TransactionUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnInstanceName),
-                vpnInstanceToVpnId);
-        }
+        writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION,
+            VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnInstanceName),
+            vpnInstanceToVpnId, WriteTransaction.CREATE_MISSING_PARENTS);
 
         VpnIds vpnIdToVpnInstance = VpnUtil.getVpnIdToVpnInstance(vpnId, value.getVpnInstanceName(),
             primaryRd, VpnUtil.isBgpVpn(vpnInstanceName, primaryRd));
 
-        if (writeConfigTxn != null) {
-            writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION,
-                VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId),
-                vpnIdToVpnInstance, WriteTransaction.CREATE_MISSING_PARENTS);
-        } else {
-            TransactionUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId),
-                vpnIdToVpnInstance);
-        }
+        writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION,
+            VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId),
+            vpnIdToVpnInstance, WriteTransaction.CREATE_MISSING_PARENTS);
 
         try {
             String cachedTransType = fibManager.getConfTransType();
@@ -290,15 +288,9 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         } else {
             builder.setBgpvpnType(VpnInstanceOpDataEntry.BgpvpnType.VPN);
         }
-        if (writeOperTxn != null) {
-            writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd),
-                builder.build(), true);
-        } else {
-            TransactionUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd),
-                builder.build());
-        }
+        writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
+            VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd),
+            builder.build(), true);
         LOG.info("{} addVpnInstance: VpnInstanceOpData populated successfully for vpn {} rd {}", LOGGING_PREFIX_ADD,
                 vpnInstanceName, primaryRd);
     }
@@ -404,12 +396,12 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
     protected VpnInstanceOpDataEntry getVpnInstanceOpData(String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData =
-            TransactionUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-        if (vpnInstanceOpData.isPresent()) {
-            return vpnInstanceOpData.get();
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    id).orNull();
+        } catch (ReadFailedException e) {
+            throw new RuntimeException("Error reading VPN instance data for " + rd, e);
         }
-        return null;
     }
 
     private List<String> getDcGatewayTunnelInterfaceNameList() {

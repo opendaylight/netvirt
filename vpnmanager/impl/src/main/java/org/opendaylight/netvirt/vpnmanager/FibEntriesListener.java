@@ -16,6 +16,9 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -31,12 +34,14 @@ import org.slf4j.LoggerFactory;
 public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry, FibEntriesListener> {
     private static final Logger LOG = LoggerFactory.getLogger(FibEntriesListener.class);
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final VpnInstanceListener vpnInstanceListener;
 
     @Inject
     public FibEntriesListener(final DataBroker dataBroker, final VpnInstanceListener vpnInstanceListener) {
         super(VrfEntry.class, FibEntriesListener.class);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.vpnInstanceListener = vpnInstanceListener;
     }
 
@@ -105,10 +110,12 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
                     routeIds.add(label);
                 }
             });
-            TransactionUtil.asyncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                    VpnUtil.getVpnInstanceOpDataIdentifier(rd),
-                    new VpnInstanceOpDataEntryBuilder(vpnInstanceOpData).setRouteEntryId(routeIds).build(),
-                    TransactionUtil.DEFAULT_CALLBACK);
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+                            tx.put(LogicalDatastoreType.OPERATIONAL,
+                                    VpnUtil.getVpnInstanceOpDataIdentifier(rd),
+                                    new VpnInstanceOpDataEntryBuilder(vpnInstanceOpData).setRouteEntryId(routeIds)
+                                            .build())),
+                    LOG, "Error adding label to VPN instance");
         } else {
             LOG.warn("No VPN Instance found for RD: {}", rd);
         }
@@ -125,12 +132,12 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
             } else {
                 LOG.debug("Removing label from vpn info - {}", labels);
                 routeIds.removeAll(labels);
-                TransactionUtil.asyncWrite(
-                        dataBroker,
-                        LogicalDatastoreType.OPERATIONAL,
-                        VpnUtil.getVpnInstanceOpDataIdentifier(rd),
-                        new VpnInstanceOpDataEntryBuilder(vpnInstanceOpData).setRouteEntryId(
-                                routeIds).build(), TransactionUtil.DEFAULT_CALLBACK);
+                ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+                                tx.put(LogicalDatastoreType.OPERATIONAL,
+                                        VpnUtil.getVpnInstanceOpDataIdentifier(rd),
+                                        new VpnInstanceOpDataEntryBuilder(vpnInstanceOpData).setRouteEntryId(routeIds)
+                                                .build())),
+                        LOG, "Error removing label from VPN instance");
             }
         } else {
             LOG.warn("No VPN Instance found for RD: {}", rd);

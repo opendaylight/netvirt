@@ -27,14 +27,16 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
@@ -80,6 +82,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         TunnelInterfaceStateListener> {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelInterfaceStateListener.class);
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IFibManager fibManager;
     private final OdlInterfaceRpcService intfRpcService;
     private final VpnInterfaceManager vpnInterfaceManager;
@@ -108,6 +111,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                                         final JobCoordinator jobCoordinator) {
         super(StateTunnelList.class, TunnelInterfaceStateListener.class);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.fibManager = fibManager;
         this.intfRpcService = ifaceMgrRpcService;
         this.vpnInterfaceManager = vpnInterfaceManager;
@@ -166,35 +170,35 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             LOG.trace("update: No vpnInstanceOpdata present");
             return;
         }
-        WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-        vpnInstanceOpData.stream().filter(opData -> {
-            if (opData.getVpnToDpnList() == null) {
-                return false;
-            }
-            return opData.getVpnToDpnList().stream().anyMatch(vpnToDpn -> vpnToDpn.getDpnId().equals(srcDpnId));
-        }).forEach(opData -> {
-            List<DestPrefixes> prefixes = VpnExtraRouteHelper.getExtraRouteDestPrefixes(dataBroker,
-                    opData.getVpnId());
-            prefixes.forEach(destPrefix -> {
-                VrfEntry vrfEntry = VpnUtil.getVrfEntry(dataBroker, opData.getVrfId(),
-                        destPrefix.getDestPrefix());
-                if (vrfEntry == null || vrfEntry.getRoutePaths() == null) {
-                    return;
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx ->
+            vpnInstanceOpData.stream().filter(opData -> {
+                if (opData.getVpnToDpnList() == null) {
+                    return false;
                 }
-                List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
-                routePaths.forEach(routePath -> {
-                    if (routePath.getNexthopAddress().equals(srcTepIp)) {
-                        String prefix = destPrefix.getDestPrefix();
-                        String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(opData.getVpnInstanceName(),
-                                prefix);
-                        synchronized (vpnPrefixKey.intern()) {
-                            fibManager.refreshVrfEntry(opData.getVrfId(), prefix);
-                        }
+                return opData.getVpnToDpnList().stream().anyMatch(vpnToDpn -> vpnToDpn.getDpnId().equals(srcDpnId));
+            }).forEach(opData -> {
+                List<DestPrefixes> prefixes = VpnExtraRouteHelper.getExtraRouteDestPrefixes(dataBroker,
+                    opData.getVpnId());
+                prefixes.forEach(destPrefix -> {
+                    VrfEntry vrfEntry = VpnUtil.getVrfEntry(dataBroker, opData.getVrfId(),
+                        destPrefix.getDestPrefix());
+                    if (vrfEntry == null || vrfEntry.getRoutePaths() == null) {
+                        return;
                     }
+                    List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
+                    routePaths.forEach(routePath -> {
+                        if (routePath.getNexthopAddress().equals(srcTepIp)) {
+                            String prefix = destPrefix.getDestPrefix();
+                            String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(opData.getVpnInstanceName(),
+                                prefix);
+                            synchronized (vpnPrefixKey.intern()) {
+                                fibManager.refreshVrfEntry(opData.getVrfId(), prefix);
+                            }
+                        }
+                    });
                 });
-            });
-        });
-        writeConfigTxn.submit();
+            })
+        ), LOG, "Error updating route paths for FIB entries");
     }
 
     @Override
@@ -515,26 +519,19 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
         @Override
         public List<ListenableFuture<Void>> call() {
-            WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            List<ListenableFuture<Void>> futures = new ArrayList<>(2);
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx ->
+                    futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
+                        if (tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
+                            vpnInterfaceManager.updateVpnInterfaceOnTepAdd(vpnInterface, stateTunnelList, confTx,
+                                    operTx);
+                        }
 
-            if (tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
-                vpnInterfaceManager.updateVpnInterfaceOnTepAdd(vpnInterface,
-                        stateTunnelList,
-                        writeConfigTxn,
-                        writeOperTxn);
-            }
-
-            if (tunnelAction == TunnelAction.TUNNEL_EP_DELETE && isTepDeletedOnDpn) {
-                vpnInterfaceManager.updateVpnInterfaceOnTepDelete(vpnInterface,
-                        stateTunnelList,
-                        writeConfigTxn,
-                        writeOperTxn);
-            }
-
-            futures.add(writeOperTxn.submit());
-            futures.add(writeConfigTxn.submit());
+                        if (tunnelAction == TunnelAction.TUNNEL_EP_DELETE && isTepDeletedOnDpn) {
+                            vpnInterfaceManager.updateVpnInterfaceOnTepDelete(vpnInterface, stateTunnelList, confTx,
+                                    operTx);
+                        }
+                    }))));
             return futures;
         }
     }

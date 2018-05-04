@@ -37,11 +37,10 @@ public interface IVpnManager {
     void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID);
 
     void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-            String intfName, WriteTransaction writeConfigTxn, WriteTransaction writeOperTx);
+            String intfName, WriteTransaction writeConfigTxn);
 
     void removePrefixFromBGP(String vpnName, String primaryRd, String extraRouteRd, String vpnInterfaceName,
-            String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId, WriteTransaction writeConfigTxn,
-            WriteTransaction writeOperTx);
+            String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId, WriteTransaction writeConfigTxn);
 
     /**
      * Returns true if the specified VPN exists.
