@@ -54,9 +54,13 @@ public interface Ipv6Constants {
     String IP_VERSION_V6 = "IPv6";
     String NETWORK_ROUTER_INTERFACE = "network:router_interface";
     String NETWORK_ROUTER_GATEWAY = "network:router_gateway";
+    String DEVICE_OWNER_FLOATING_IP = "network:floatingip";
+    String DEVICE_OWNER_DHCP = "network:dhcp";
+
 
     BigInteger INVALID_DPID = new BigInteger("-1");
     short DEFAULT_FLOW_PRIORITY = 50;
+    short DEFAULT_OVS_FLOW_PRIORITY = 60;
     String FLOWID_PREFIX = "IPv6.";
     String FLOWID_SEPARATOR = ".";
 
