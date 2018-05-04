@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c6a584a5_11d6afa1",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-05-04T03:33:55Z",
+      "side": 1,
+      "message": "@Sridhar, we are working with the OVS community to develop an OF extension to support programming\n\n1. Reserved Field of the NS message\n2. Convert the Options type from 1 (SLL) to 2 (TLL)\n\nOnce this is reviewed, it would be merged to the master branch of OVS. It is unlikely that natively OVS will support this in OVS 2.7. However, ODL can test it as soon as ODL migrates to the latest OVS build. \n\nIn the downstream, users can back port the changes to OVS to support the same feature on earlier branches.",
+      "parentUuid": "d0cd5b9f_b057b783",
+      "range": {
+        "startLine": 70,
+        "startChar": 44,
+        "endLine": 70,
+        "endChar": 55
+      },
+      "revId": "3e117adffc6b94109bb9251f269fd37ea3bd4f06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5e500c02_db6b527d",
         "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-03T12:39:40Z",
       "side": 1,
       "message": "@Ashvin, please take a look at this :)",
+      "range": {
+        "startLine": 75,
+        "startChar": 10,
+        "endLine": 75,
+        "endChar": 17
+      },
+      "revId": "3e117adffc6b94109bb9251f269fd37ea3bd4f06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d94c671a_50bcdf75",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-05-04T03:33:55Z",
+      "side": 1,
+      "message": "In Flourine, the OF Plugin is Lithium is it not? Hence the modifications will be done on Lithium plugin.",
+      "parentUuid": "5e500c02_db6b527d",
       "range": {
         "startLine": 75,
         "startChar": 10,
@@ -117,6 +165,30 @@
     },
     {
       "key": {
+        "uuid": "b8513b36_32d0e457",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-05-04T03:33:55Z",
+      "side": 1,
+      "message": "Hi Sridhar,\nThe goal here is to enable L3 forwarding during controller down times. Do the VMs need to resolve the MAC address of the LLA for L3 forwarding? If yes, then we need to include a flow for LLA as well. \n\nThanks,\nAshvin",
+      "parentUuid": "e222d726_5fa5ff6a",
+      "range": {
+        "startLine": 171,
+        "startChar": 42,
+        "endLine": 171,
+        "endChar": 61
+      },
+      "revId": "3e117adffc6b94109bb9251f269fd37ea3bd4f06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "93794674_efbf1147",
         "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
         "patchSetId": 7
@@ -151,6 +223,30 @@
       "writtenOn": "2018-05-03T12:39:40Z",
       "side": 1,
       "message": "Can this be VM LLA?",
+      "range": {
+        "startLine": 207,
+        "startChar": 69,
+        "endLine": 207,
+        "endChar": 82
+      },
+      "revId": "3e117adffc6b94109bb9251f269fd37ea3bd4f06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "15ae4ef1_0bc41838",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-05-04T03:33:55Z",
+      "side": 1,
+      "message": "The main goal is L3 forwarding during controller down time. I would expect that the VM would NOT be sending flows with LLA as Src IP when the intention is L3 forwarding. Can you please confirm?",
+      "parentUuid": "76df232b_deb80a21",
       "range": {
         "startLine": 207,
         "startChar": 69,
