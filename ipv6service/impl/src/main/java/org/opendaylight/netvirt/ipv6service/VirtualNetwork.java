@@ -34,16 +34,16 @@ public class VirtualNetwork implements IVirtualNetwork {
         return networkUUID;
     }
 
-    public void updateDpnPortInfo(BigInteger dpnId, Long ofPort, int addOrRemove) {
+    public void updateDpnPortInfo(BigInteger dpnId, Long ofPort, Uuid portId, int addOrRemove) {
         if (dpnId == null) {
             return;
         }
 
         DpnInterfaceInfo dpnInterface = dpnIfaceList.computeIfAbsent(dpnId, key -> new DpnInterfaceInfo(dpnId));
         if (addOrRemove == Ipv6Constants.ADD_ENTRY) {
-            dpnInterface.updateofPortList(ofPort);
+            dpnInterface.updateofPortMap(ofPort, portId);
         } else {
-            dpnInterface.removeOfPortFromList(ofPort);
+            dpnInterface.removeOfPortFromMap(ofPort);
         }
     }
 
@@ -106,12 +106,12 @@ public class VirtualNetwork implements IVirtualNetwork {
     public static class DpnInterfaceInfo {
         BigInteger dpId;
         int rsPuntFlowConfigured;
-        List<Long> ofPortList;
+        ConcurrentMap<Long, Uuid> ofPortMap;
         List<Ipv6Address> ndTargetFlowsPunted;
 
         DpnInterfaceInfo(BigInteger dpnId) {
             dpId = dpnId;
-            ofPortList = new ArrayList<>();
+            ofPortMap = new ConcurrentHashMap();
             ndTargetFlowsPunted = new ArrayList<>();
             rsPuntFlowConfigured = Ipv6Constants.FLOWS_NOT_CONFIGURED;
         }
@@ -148,22 +148,22 @@ public class VirtualNetwork implements IVirtualNetwork {
             this.ndTargetFlowsPunted.clear();
         }
 
-        public void updateofPortList(Long ofPort) {
-            this.ofPortList.add(ofPort);
+        public void updateofPortMap(Long ofPort, Uuid portId) {
+            this.ofPortMap.put(ofPort, portId);
         }
 
-        public void removeOfPortFromList(Long ofPort) {
-            this.ofPortList.remove(ofPort);
+        public void removeOfPortFromMap(Long ofPort) {
+            this.ofPortMap.remove(ofPort);
         }
 
         public void clearOfPortList() {
-            this.ofPortList.clear();
+            this.ofPortMap.clear();
         }
 
         @Override
         public String toString() {
             return "DpnInterfaceInfo [dpId=" + dpId + " rsPuntFlowConfigured=" + rsPuntFlowConfigured + " ofPortList="
-                    + ofPortList + "]";
+                    + ofPortMap + "]";
         }
     }
 }

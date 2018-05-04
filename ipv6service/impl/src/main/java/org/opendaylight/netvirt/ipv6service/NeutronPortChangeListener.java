@@ -59,6 +59,15 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
             return;
         }
 
+        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.DEVICE_OWNER_DHCP)) {
+            LOG.info("IPv6Service (TODO): Skipping network_dhcp port {} for add event", port);
+            return;
+        }
+
+        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.DEVICE_OWNER_FLOATING_IP)) {
+            LOG.info("IPv6Service (TODO): Skipping network_floatingip port {} for add event", port);
+            return;
+        }
         LOG.debug("Add port notification handler is invoked for port {} ", port);
         List<FixedIps> ipList = port.getFixedIps();
         for (FixedIps fixedip : ipList) {
