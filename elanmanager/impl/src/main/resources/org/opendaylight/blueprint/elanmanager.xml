@@ -14,6 +14,8 @@
     interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
   <reference id="iInterfaceManager"
     interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
+  <reference id="iITMProvider"
+             interface="org.opendaylight.genius.itm.api.IITMProvider" />
   <reference id="iVpnManager"
              interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" availability="optional"/>
   <reference id="iBgpManager"

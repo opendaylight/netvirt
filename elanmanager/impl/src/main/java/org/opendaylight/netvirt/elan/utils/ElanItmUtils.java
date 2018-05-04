@@ -174,7 +174,9 @@ public class ElanItmUtils {
      */
     public List<Action> buildTunnelItmEgressActions(String tunnelIfaceName, Long tunnelKey, boolean ineternal) {
         if (tunnelIfaceName != null && !tunnelIfaceName.isEmpty()) {
-            return buildItmEgressActions(tunnelIfaceName, tunnelKey, ineternal);
+            List<Action> actions = buildItmEgressActions(tunnelIfaceName, tunnelKey, ineternal);
+            LOG.trace("###Egress actions for {} \n are {}", tunnelIfaceName, actions);
+            return actions;
         }
         return Collections.emptyList();
     }
