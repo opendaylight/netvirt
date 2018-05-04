@@ -17,6 +17,8 @@ import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.vpnmanager.VpnFootprintService;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
@@ -42,6 +44,7 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
     private static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
 
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final BigInteger dpnId;
     private final IMdsalApiManager mdsalManager;
     private final VpnFootprintService vpnFootprintService;
@@ -51,6 +54,7 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
             final VpnFootprintService vpnFootprintService, final BigInteger dpnId,
             final InterVpnLinkCache interVpnLinkCache) {
         this.broker = broker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.mdsalManager = mdsalMgr;
         this.vpnFootprintService = vpnFootprintService;
         this.dpnId = dpnId;
@@ -104,11 +108,10 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
             new InterVpnLinkStateBuilder(interVpnLinkState).setState(InterVpnLinkState.State.Active)
                     .setFirstEndpointState(firstEndPointState).setSecondEndpointState(secondEndPointState)
                     .build();
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.merge(LogicalDatastoreType.CONFIGURATION,
-            InterVpnLinkUtil.getInterVpnLinkStateIid(interVpnLinkState.getInterVpnLinkName()), newInterVpnLinkState,
-            true);
-        return tx.submit();
+        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+            tx.merge(LogicalDatastoreType.CONFIGURATION,
+                    InterVpnLinkUtil.getInterVpnLinkStateIid(interVpnLinkState.getInterVpnLinkName()),
+                    newInterVpnLinkState, WriteTransaction.CREATE_MISSING_PARENTS));
     }
 
     private void installLPortDispatcherTable(InterVpnLinkState interVpnLinkState, List<BigInteger> firstDpnList,

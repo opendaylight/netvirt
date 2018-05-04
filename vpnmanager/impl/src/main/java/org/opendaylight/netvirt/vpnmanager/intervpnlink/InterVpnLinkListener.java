@@ -26,11 +26,14 @@ import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -82,6 +85,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     private static final long INVALID_ID = 0;
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IMdsalApiManager mdsalManager;
     private final IdManagerService idManager;
     private final IBgpManager bgpManager;
@@ -105,6 +109,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                                 final JobCoordinator jobCoordinator,
                                 final InterVpnLinkCache interVpnLinkCache) {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = idManager;
         this.mdsalManager = mdsalManager;
         this.bgpManager = bgpManager;
@@ -352,7 +357,9 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         // Removing the InterVpnLinkState
         InstanceIdentifier<InterVpnLinkState> interVpnLinkStateIid =
             InterVpnLinkUtil.getInterVpnLinkStateIid(del.getName());
-        VpnUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, interVpnLinkStateIid);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+            tx.delete(LogicalDatastoreType.CONFIGURATION, interVpnLinkStateIid)), LOG,
+                "Error deleting inter-VPN link state {}", interVpnLinkStateIid);
     }
 
     // We're catching Exception here to continue deleting as much as possible
@@ -451,10 +458,10 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             new InterVpnLinkStateBuilder(vpnLinkState).setState(InterVpnLinkState.State.Error)
                 .setErrorDescription(errorMsg)
                 .build();
-        WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-        tx.put(LogicalDatastoreType.CONFIGURATION, vpnLinkStateIid, vpnLinkErrorState,
-                WriteTransaction.CREATE_MISSING_PARENTS);
-        tx.submit();
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+            tx.put(LogicalDatastoreType.CONFIGURATION, vpnLinkStateIid, vpnLinkErrorState,
+                    WriteTransaction.CREATE_MISSING_PARENTS)),
+                LOG, "Error storing the VPN link error state for {}, {}", vpnLinkStateIid, vpnLinkErrorState);
 
         // Sending out an error Notification
         InterVpnLinkCreationErrorMessage errMsg =
