@@ -90,6 +90,34 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             </execution>
           </executions>
         </plugin>
+        <plugin>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <dependencies>
+            <dependency>
+              <groupId>org.opendaylight.netvirt</groupId>
+              <artifactId>checkstyle</artifactId>
+              <version>0.7.0-SNAPSHOT</version>
+            </dependency>
+          </dependencies>
+          <executions>
+            <execution>
+              <id>check-databroker</id>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              <phase>process-sources</phase>
+              <configuration>
+                <configLocation>databroker-checks.xml</configLocation>
+                <includeResources>false</includeResources>
+                <includeTestSourceDirectory>false</includeTestSourceDirectory>
+                <includeTestResources>false</includeTestResources>
+                <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+                <failsOnError>true</failsOnError>
+                <consoleOutput>true</consoleOutput>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
