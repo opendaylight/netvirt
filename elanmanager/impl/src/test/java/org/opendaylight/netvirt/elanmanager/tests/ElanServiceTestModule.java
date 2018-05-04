@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.elanmanager.tests;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 
 import com.google.common.base.Optional;
-
 import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
@@ -20,11 +19,13 @@ import org.opendaylight.genius.interfacemanager.commons.InterfaceManagerCommonUt
 import org.opendaylight.genius.interfacemanager.commons.InterfaceMetaUtils;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.interfacemanager.renderer.ovs.utilities.BatchingUtils;
+import org.opendaylight.genius.itm.api.IITMProvider;
 import org.opendaylight.genius.lockmanager.impl.LockManagerServiceImpl;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.internal.MDSALManager;
 import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
+import org.opendaylight.genius.testutils.TestItmProvider;
 import org.opendaylight.genius.testutils.itm.ItmRpcTestImpl;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.internal.HwvtepNodeHACacheImpl;
@@ -99,6 +100,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         // Bindings to test infra (fakes & mocks)
 
         TestInterfaceManager testInterfaceManager = TestInterfaceManager.newInstance(dataBroker);
+        IITMProvider testItmProvider = TestItmProvider.newInstance();
         ItmRpcService itmRpcService = new ItmRpcTestImpl();
 
         bind(DataBroker.class).toInstance(dataBroker);
@@ -106,6 +108,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         bind(IdManagerService.class).toInstance(Mockito.mock(IdHelper.class,  CALLS_REAL_METHODS));
         bind(IInterfaceManager.class).toInstance(testInterfaceManager);
         bind(TestInterfaceManager.class).toInstance(testInterfaceManager);
+        bind(IITMProvider.class).toInstance(testItmProvider);
         InterfaceMetaUtils interfaceMetaUtils = new InterfaceMetaUtils(dataBroker,
                 Mockito.mock(IdHelper.class,  CALLS_REAL_METHODS),
                 Mockito.mock(BatchingUtils.class));
