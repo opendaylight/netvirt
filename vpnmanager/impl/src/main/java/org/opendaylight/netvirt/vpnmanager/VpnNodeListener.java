@@ -20,6 +20,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -48,6 +50,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     private static final String FLOWID_PREFIX = "L3.";
 
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IMdsalApiManager mdsalManager;
     private final JobCoordinator jobCoordinator;
     private final List<BigInteger> connectedDpnIds;
@@ -56,6 +59,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     public VpnNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, JobCoordinator jobCoordinator) {
         super(Node.class, VpnNodeListener.class);
         this.broker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
         this.jobCoordinator = jobCoordinator;
         this.connectedDpnIds = new CopyOnWriteArrayList<>();
@@ -101,17 +105,15 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
 
     private void processNodeAdd(BigInteger dpId) {
         jobCoordinator.enqueueJob("VPNNODE-" + dpId.toString(),
-            () -> {
-                WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                 LOG.debug("Received notification to install TableMiss entries for dpn {} ", dpId);
-                makeTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                makeL3IntfTblMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                makeSubnetRouteTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                createTableMissForVpnGwFlow(writeFlowTx, dpId);
-                createL3GwMacArpFlows(writeFlowTx, dpId);
-                programTableMissForVpnVniDemuxTable(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                return Collections.singletonList(writeFlowTx.submit());
-            }, 3);
+                makeTableMissFlow(tx, dpId, NwConstants.ADD_FLOW);
+                makeL3IntfTblMissFlow(tx, dpId, NwConstants.ADD_FLOW);
+                makeSubnetRouteTableMissFlow(tx, dpId, NwConstants.ADD_FLOW);
+                createTableMissForVpnGwFlow(tx, dpId);
+                createL3GwMacArpFlows(tx, dpId);
+                programTableMissForVpnVniDemuxTable(tx, dpId, NwConstants.ADD_FLOW);
+            })), 3);
     }
 
     private void makeTableMissFlow(WriteTransaction writeFlowTx, BigInteger dpnId, int addOrRemove) {

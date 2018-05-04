@@ -12,8 +12,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -24,20 +25,18 @@ public class InterVpnLinkRemoverTask implements Callable<List<ListenableFuture<V
 
     private final InstanceIdentifier<InterVpnLink> interVpnLinkIid;
     private final String interVpnLinkName;
-    private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
 
     public InterVpnLinkRemoverTask(DataBroker dataBroker, InstanceIdentifier<InterVpnLink> interVpnLinkPath) {
         this.interVpnLinkIid = interVpnLinkPath;
         this.interVpnLinkName = interVpnLinkPath.firstKeyOf(InterVpnLink.class).getName();
-        this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
     @Override
     public List<ListenableFuture<Void>> call() {
         LOG.debug("Removing InterVpnLink {} from storage", interVpnLinkName);
-        WriteTransaction removeTx = dataBroker.newWriteOnlyTransaction();
-        removeTx.delete(LogicalDatastoreType.CONFIGURATION, this.interVpnLinkIid);
-
-        return Collections.singletonList(removeTx.submit());
+        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+            tx.delete(LogicalDatastoreType.CONFIGURATION, this.interVpnLinkIid)));
     }
 }
