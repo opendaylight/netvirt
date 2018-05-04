@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -25,7 +24,6 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
@@ -37,11 +35,7 @@ import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComp
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
@@ -361,78 +355,6 @@ public final class InterVpnLinkUtil {
 
         return interVpnLinksOpData.isPresent() ? interVpnLinksOpData.get().getInterVpnLink()
             : new ArrayList<>();
-    }
-
-    /**
-     * Leaks a route from one VPN to another. By default, the origin for this leaked route is INTERVPN.
-     *
-     * @param broker dataBroker service reference
-     * @param bgpManager Used to advertise routes to the BGP Router
-     * @param interVpnLink Reference to the object that holds the info about the link between the 2 VPNs
-     * @param srcVpnUuid UUID of the VPN that has the route that is going to be leaked to the other VPN
-     * @param dstVpnUuid UUID of the VPN that is going to receive the route
-     * @param prefix Prefix of the route
-     * @param label Label of the route in the original VPN
-     */
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public static void leakRoute(DataBroker broker, IBgpManager bgpManager, InterVpnLink interVpnLink,
-        String srcVpnUuid, String dstVpnUuid, String prefix, Long label) {
-        Preconditions.checkNotNull(interVpnLink);
-
-        // The source VPN must participate in the InterVpnLink
-        Preconditions.checkArgument(interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(srcVpnUuid)
-                || interVpnLink.getSecondEndpoint().getVpnUuid().getValue().equals(srcVpnUuid),
-            "The source VPN {} does not participate in the interVpnLink {}",
-            srcVpnUuid, interVpnLink.getName());
-        // The destination VPN must participate in the InterVpnLink
-        Preconditions.checkArgument(interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(dstVpnUuid)
-                || interVpnLink.getSecondEndpoint().getVpnUuid().getValue().equals(dstVpnUuid),
-            "The destination VPN {} does not participate in the interVpnLink {}",
-            dstVpnUuid, interVpnLink.getName());
-
-        boolean destinationIs1stEndpoint = interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(dstVpnUuid);
-
-        String endpointIp = destinationIs1stEndpoint ? interVpnLink.getSecondEndpoint().getIpAddress().getValue()
-            : interVpnLink.getFirstEndpoint().getIpAddress().getValue();
-
-        VrfEntry newVrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, endpointIp, RouteOrigin.INTERVPN,
-                null /* parentVpnRd */).build();
-
-        String dstVpnRd = VpnUtil.getVpnRd(broker, dstVpnUuid);
-        InstanceIdentifier<VrfEntry> newVrfEntryIid =
-            InstanceIdentifier.builder(FibEntries.class)
-                .child(VrfTables.class, new VrfTablesKey(dstVpnRd))
-                .child(VrfEntry.class, new VrfEntryKey(newVrfEntry.getDestPrefix()))
-                .build();
-        VpnUtil.asyncWrite(broker, LogicalDatastoreType.CONFIGURATION, newVrfEntryIid, newVrfEntry);
-
-        // Finally, route is advertised it to the DC-GW. But while in the FibEntries the nexthop is the other
-        // endpoint's IP, in the DC-GW the nexthop for those prefixes are the IPs of those DPNs where the target
-        // VPN has been instantiated
-        Optional<InterVpnLinkState> optVpnLinkState = getInterVpnLinkState(broker, interVpnLink.getName());
-        if (optVpnLinkState.isPresent()) {
-            InterVpnLinkState vpnLinkState = optVpnLinkState.get();
-            List<BigInteger> dpnIdList = destinationIs1stEndpoint ? vpnLinkState.getFirstEndpointState().getDpId()
-                : vpnLinkState.getSecondEndpointState().getDpId();
-            List<String> nexthops = new ArrayList<>();
-            for (BigInteger dpnId : dpnIdList) {
-                nexthops.add(InterfaceUtils.getEndpointIpAddressForDPN(broker, dpnId));
-            }
-            try {
-                LOG.debug("Advertising route in VPN={} [prefix={} label={}  nexthops={}] to DC-GW",
-                    dstVpnRd, newVrfEntry.getDestPrefix(), label.intValue(), nexthops);
-                bgpManager.advertisePrefix(dstVpnRd, null /*macAddress*/, newVrfEntry.getDestPrefix(), nexthops,
-                        VrfEntry.EncapType.Mplsgre, label.intValue(), 0 /*l3vni*/, 0 /*l2vni*/,
-                        null /*gatewayMacAddress*/);
-            } catch (Exception ex) {
-                LOG.error("Could not advertise prefix {} with label {} to VPN rd={}",
-                    newVrfEntry.getDestPrefix(), label.intValue(), dstVpnRd, ex);
-            }
-        } else {
-            LOG.warn("Error when advertising leaked routes: Could not find State for InterVpnLink={}",
-                interVpnLink.getName());
-        }
     }
 
     public static void handleStaticRoute(InterVpnLinkDataComposite interVpnLink, String vpnName,
