@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c7d3d446_535a3969",
+        "filename": "vpnmanager/api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-07T12:58:16Z",
+      "side": 1,
+      "message": "Akash,\n\nCan you plese split the operational (i.e, config \"false\") as a separate group ?",
+      "revId": "e8342b6340f8afed22828b1cd1cb59c2175b1f72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
