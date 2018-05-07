@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "01bc6c91_0823b338",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-07T06:39:10Z",
+      "side": 1,
+      "message": "please always put vpnName {} rd {}  prefix {} in all logs.",
+      "revId": "82f1df29302efc8e45a0b8a0a6e86fd9634e9623",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
