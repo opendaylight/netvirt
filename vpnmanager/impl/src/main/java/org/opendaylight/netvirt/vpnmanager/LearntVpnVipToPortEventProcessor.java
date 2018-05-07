@@ -145,14 +145,12 @@ public class LearntVpnVipToPortEventProcessor
         String vpnName;
         String interfaceName;
         String srcIpAddress;
-        String destIpAddress;
         String macAddress;
 
         AddMipAdjacencyWorker(LearntVpnVipToPortEvent event) {
             this.vpnName = event.getVpnName();
             this.interfaceName = event.getPortName();
             this.srcIpAddress = event.getSrcFixedip();
-            this.destIpAddress = event.getDestFixedip();
             this.macAddress = event.getMacAddress();
         }
 
@@ -161,8 +159,7 @@ public class LearntVpnVipToPortEventProcessor
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
             WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-            addMipAdjacency(vpnName, interfaceName,
-                    srcIpAddress, macAddress, destIpAddress);
+            addMipAdjacency(vpnName, interfaceName, srcIpAddress, macAddress);
             VpnUtil.createLearntVpnVipToPort(dataBroker, vpnName, srcIpAddress,
                     interfaceName, macAddress, writeOperTxn);
             futures.add(writeConfigTxn.submit());
@@ -170,8 +167,7 @@ public class LearntVpnVipToPortEventProcessor
             return futures;
         }
 
-        private void addMipAdjacency(String vpnInstName, String vpnInterface, String srcPrefix, String mipMacAddress,
-                                     String dstPrefix) {
+        private void addMipAdjacency(String vpnInstName, String vpnInterface, String srcPrefix, String mipMacAddress) {
             LOG.trace("Adding {} adjacency to VPN Interface {} ", srcPrefix, vpnInterface);
             InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface);
             InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
@@ -181,10 +177,10 @@ public class LearntVpnVipToPortEventProcessor
                 String nextHopMacAddress = null;
                 String ip = srcPrefix;
                 if (interfaceManager.isExternalInterface(vpnInterface)) {
-                    String subnetId = getSubnetId(vpnInstName, dstPrefix);
+                    String subnetId = getSubnetId(vpnInstName, srcPrefix);
                     if (subnetId == null) {
-                        LOG.trace("Can't find corresponding subnet for src IP {}, src MAC {}, dst IP {},  in VPN {}",
-                                srcPrefix, mipMacAddress, dstPrefix, vpnInstName);
+                        LOG.trace("Can't find corresponding subnet for src IP {}, src MAC {}, in VPN {}",
+                                srcPrefix, mipMacAddress, srcPrefix, vpnInstName);
                         return;
                     }
                     ip = VpnUtil.getIpPrefix(ip);
