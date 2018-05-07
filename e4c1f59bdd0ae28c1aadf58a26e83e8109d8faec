@@ -34,6 +34,24 @@
       "revId": "e4c1f59bdd0ae28c1aadf58a26e83e8109d8faec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3f75ecc9_2ecac823",
+        "filename": "fibmanager/api/src/main/java/org/opendaylight/netvirt/fibmanager/api/RouteOrigin.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-07T13:00:13Z",
+      "side": 1,
+      "message": "Ok thanks",
+      "parentUuid": "512f306e_0629a134",
+      "revId": "e4c1f59bdd0ae28c1aadf58a26e83e8109d8faec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
