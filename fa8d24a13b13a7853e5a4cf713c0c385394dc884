@@ -34,6 +34,24 @@
       "revId": "fa8d24a13b13a7853e5a4cf713c0c385394dc884",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "52d8352f_ce40e84a",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityGroupListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-05-07T09:47:58Z",
+      "side": 1,
+      "message": "Thanks, I was worried about the out of order events, but as you observed in the packet capture, it is in order.\nThis change looks good.",
+      "parentUuid": "206ad021_28f1e63e",
+      "revId": "fa8d24a13b13a7853e5a4cf713c0c385394dc884",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
