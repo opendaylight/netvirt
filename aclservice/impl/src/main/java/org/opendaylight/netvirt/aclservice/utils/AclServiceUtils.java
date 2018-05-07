@@ -32,6 +32,7 @@ import java.util.concurrent.Future;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -1514,11 +1515,10 @@ public final class AclServiceUtils {
         return inetAddress;
     }
 
-    public static Boolean isIpv6RaAllowedFromExternalRouters(List<SubnetInfo> subnetInfoList) {
+    public static Boolean isIpv6Subnet(List<SubnetInfo> subnetInfoList) {
         if (subnetInfoList != null && !subnetInfoList.isEmpty()) {
             for (SubnetInfo subnetInfo : subnetInfoList) {
-                if (subnetInfo != null && IpVersionV6.class.equals(subnetInfo.getIpVersion())
-                        && subnetInfo.getIpv6RaMode() == null) {
+                if (subnetInfo != null && IpVersionV6.class.equals(subnetInfo.getIpVersion())) {
                     return true;
                 }
             }
