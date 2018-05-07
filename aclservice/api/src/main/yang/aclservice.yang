@@ -155,6 +155,10 @@ module aclservice {
                     type inet:ip-address;
                     description "default gateway used by devices in this subnet";
                 }
+                leaf gateway-mac-address {
+                     type yang:mac-address;
+                     description "default gateway mac address used by devices in this subnet";
+                }
             }
         }
     }
