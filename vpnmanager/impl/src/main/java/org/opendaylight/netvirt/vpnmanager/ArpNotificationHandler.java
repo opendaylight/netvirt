@@ -10,16 +10,23 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -30,10 +37,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Ma
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventAction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.MipAdjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.mip.adjacency.MipParent;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.mip.adjacency.MipParentKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.mip.adjacency.mip.parent.MipIp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.mip.adjacency.mip.parent.MipIpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.mip.adjacency.mip.parent.MipIpKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +61,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
     private final IdManagerService idManager;
     private final IInterfaceManager interfaceManager;
     private final VpnConfig config;
+    private final ManagedNewTransactionRunner txRunner;
 
     @Inject
     public ArpNotificationHandler(DataBroker dataBroker, IdManagerService idManager,
@@ -61,6 +76,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
         migrateArpCache =
                 CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(duration,
                         TimeUnit.MILLISECONDS).build();
+        txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
     @Override
@@ -127,7 +143,6 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     LOG.info("Received ARP for sender MAC {} and sender IP {} via interface {}",
                               srcMac.getValue(), srcIP.getIpv4Address().getValue(), srcInterface);
                     String srcIpToQuery = srcIP.getIpv4Address().getValue();
-                    String destIpToQuery = dstIP.getIpv4Address().getValue();
                     LOG.info("ARP being processed for Source IP {}", srcIpToQuery);
                     VpnPortipToPort vpnPortipToPort =
                             VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, srcIpToQuery);
@@ -140,15 +155,14 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     LearntVpnVipToPort learntVpnVipToPort = VpnUtil.getLearntVpnVipToPort(dataBroker,
                               vpnName, srcIpToQuery);
                     if (learntVpnVipToPort != null) {
-                        String oldPortName = learntVpnVipToPort.getPortName();
                         String oldMac = learntVpnVipToPort.getMacAddress();
                         if (!oldMac.equalsIgnoreCase(srcMac.getValue())) {
                             //MAC has changed for requested IP
                             LOG.info("ARP Source IP/MAC data modified for IP {} with MAC {} and Port {}",
                                     srcIpToQuery, srcMac, srcInterface);
                             synchronized ((vpnName + srcIpToQuery).intern()) {
-                                VpnUtil.createLearntVpnVipToPortEvent(dataBroker, vpnName, srcIpToQuery, destIpToQuery,
-                                        oldPortName, oldMac, LearntVpnVipToPortEventAction.Delete, null);
+                                populateMipAdjacencyContainer(vpnName, srcInterface, VpnUtil.getIpPrefix(srcIpToQuery),
+                                        srcMac.getValue(), LearntVpnVipToPortEventAction.Delete);
                                 putVpnIpToMigrateArpCache(vpnName, srcIpToQuery, srcMac);
                             }
                         }
@@ -168,11 +182,36 @@ public class ArpNotificationHandler implements OdlArputilListener {
     private void learnMacFromArpPackets(String vpnName, String srcInterface,
         IpAddress srcIP, PhysAddress srcMac, IpAddress dstIP) {
         String srcIpToQuery = srcIP.getIpv4Address().getValue();
-        String destIpToQuery = dstIP.getIpv4Address().getValue();
         synchronized ((vpnName + srcIpToQuery).intern()) {
-            VpnUtil.createLearntVpnVipToPortEvent(dataBroker, vpnName, srcIpToQuery, destIpToQuery, srcInterface,
-                    srcMac.getValue(), LearntVpnVipToPortEventAction.Add, null);
+            populateMipAdjacencyContainer(vpnName, srcInterface, VpnUtil.getIpPrefix(srcIpToQuery), srcMac.getValue(),
+                    LearntVpnVipToPortEventAction.Add);
         }
+    }
+
+    private List<ListenableFuture<Void>> populateMipAdjacencyContainer(String vpnName, String interfaceName,
+                                                                       String ipAddress, String macAddress,
+                                                                       LearntVpnVipToPortEventAction action) {
+        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeConfigTxn -> {
+            InstanceIdentifier<MipIp> mipId = InstanceIdentifier.builder(MipAdjacency.class).child(MipParent.class,
+                    new MipParentKey(interfaceName, vpnName)).child(MipIp.class, new MipIpKey(ipAddress)).build();
+            MipIp mipToWrite = new MipIpBuilder().setIpAddress(ipAddress).setMacAddress(macAddress).build();
+            switch (action) {
+                case Add: {
+                    writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, mipId, mipToWrite,
+                            WriteTransaction.CREATE_MISSING_PARENTS);
+                }
+                break;
+                case Delete: {
+                    writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, mipId);
+                }
+                break;
+                default: {
+                    LOG.warn("populateMipAdjacencyContainer: Incorrect value for switch {}", action);
+                }
+            }
+            LOG.trace("poplulateMipAdjacencyContainer: vpn {} interface {} mip {} mac {}.", vpnName, interfaceName,
+                    ipAddress, macAddress);
+        }));
     }
 
     private void putVpnIpToMigrateArpCache(String vpnName, String ipToQuery, PhysAddress srcMac) {
