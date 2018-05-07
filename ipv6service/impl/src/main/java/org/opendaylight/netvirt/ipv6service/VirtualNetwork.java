@@ -34,16 +34,16 @@ public class VirtualNetwork implements IVirtualNetwork {
         return networkUUID;
     }
 
-    public void updateDpnPortInfo(BigInteger dpnId, Long ofPort, int addOrRemove) {
+    public void updateDpnPortInfo(BigInteger dpnId, Uuid port, int addOrRemove) {
         if (dpnId == null) {
             return;
         }
 
         DpnInterfaceInfo dpnInterface = dpnIfaceList.computeIfAbsent(dpnId, key -> new DpnInterfaceInfo(dpnId));
         if (addOrRemove == Ipv6Constants.ADD_ENTRY) {
-            dpnInterface.updateofPortList(ofPort);
+            dpnInterface.updateofPortList(port);
         } else {
-            dpnInterface.removeOfPortFromList(ofPort);
+            dpnInterface.removeOfPortFromList(port);
         }
     }
 
@@ -106,12 +106,12 @@ public class VirtualNetwork implements IVirtualNetwork {
     public static class DpnInterfaceInfo {
         BigInteger dpId;
         int rsPuntFlowConfigured;
-        List<Long> ofPortList;
+        List<Uuid> portList;
         List<Ipv6Address> ndTargetFlowsPunted;
 
         DpnInterfaceInfo(BigInteger dpnId) {
             dpId = dpnId;
-            ofPortList = new ArrayList<>();
+            portList = new ArrayList<>();
             ndTargetFlowsPunted = new ArrayList<>();
             rsPuntFlowConfigured = Ipv6Constants.FLOWS_NOT_CONFIGURED;
         }
@@ -148,22 +148,22 @@ public class VirtualNetwork implements IVirtualNetwork {
             this.ndTargetFlowsPunted.clear();
         }
 
-        public void updateofPortList(Long ofPort) {
-            this.ofPortList.add(ofPort);
+        public void updateofPortList(Uuid port) {
+            this.portList.add(port);
         }
 
-        public void removeOfPortFromList(Long ofPort) {
-            this.ofPortList.remove(ofPort);
+        public void removeOfPortFromList(Uuid port) {
+            this.portList.remove(port);
         }
 
         public void clearOfPortList() {
-            this.ofPortList.clear();
+            this.portList.clear();
         }
 
         @Override
         public String toString() {
-            return "DpnInterfaceInfo [dpId=" + dpId + " rsPuntFlowConfigured=" + rsPuntFlowConfigured + " ofPortList="
-                    + ofPortList + "]";
+            return "DpnInterfaceInfo [dpId=" + dpId + " rsPuntFlowConfigured=" + rsPuntFlowConfigured + " portList="
+                    + portList + "]";
         }
     }
 }
