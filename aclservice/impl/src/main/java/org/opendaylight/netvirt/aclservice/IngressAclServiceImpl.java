@@ -23,6 +23,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.genius.utils.ServiceIndex;
@@ -37,6 +38,8 @@ import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
@@ -272,23 +275,39 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
 
     @Override
     protected void programIcmpv6RARule(AclInterface port, List<SubnetInfo> subnets, int addOrRemove) {
-        // Allow ICMPv6 Router Advertisement packets from external routers only if ipv6_ra_mode is not
-        // specified for an IPv6 subnet.
-        if (!AclServiceUtils.isIpv6RaAllowedFromExternalRouters(subnets)) {
-            return;
-        }
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
         List<MatchInfoBase> matches =
-                AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_RA, 0, port.getLPortTag(), serviceMode);
-        // Allow ICMPv6 Router Advertisement packets if originating from any LinkLocal Address.
-        matches.addAll(AclServiceUtils.buildIpMatches(
-                new IpPrefixOrAddress(new IpPrefix(AclConstants.IPV6_LINK_LOCAL_PREFIX.toCharArray())),
-                AclServiceManager.MatchCriteria.MATCH_SOURCE));
-
-        String flowName = "Ingress_ICMPv6" + "_" + port.getDpId() + "_" + port.getLPortTag() + "_"
-                + AclConstants.ICMPV6_TYPE_RA + "_LinkLocal_Permit_";
-        syncFlow(port.getDpId(), getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL",
-                0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+                AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_RA, 0,
+                        port.getLPortTag(), serviceMode);
+        String flowName = null;
+        if (!AclServiceUtils.isIpv6RaAllowedFromExternalRouters(subnets)) {
+            // Allow ICMPv6 Router Advertisement packets from ODL controller
+            MacAddress subnetRtrIntMacAddr = AclServiceUtils.getIpv6SubnetRouterIntMacAddr(subnets);
+            if (subnetRtrIntMacAddr != null) {
+                Ipv6Address subnetRtrllAddr = AclServiceUtils
+                        .getIpv6LinkLocalAddressFromMac(subnetRtrIntMacAddr);
+                matches.add(new MatchIpv6Source(new Ipv6Prefix(subnetRtrllAddr.getValue()
+                        + AclConstants.IPV6_DEFAULT_PREFIX_CIDR)));
+                flowName = "Ingress_ICMPv6" + "_" + port.getDpId() + "_" + port.getLPortTag() + "_"
+                        + subnetRtrllAddr.getValue() + "_" + AclConstants.ICMPV6_TYPE_RA
+                        + "_LinkLocal_Permit_";
+            }
+        } else {
+            /* Allow ICMPv6 Router Advertisement packets from external routers only if ipv6_ra_mode is not
+             * specified for an IPv6 subnet.
+             * Allow ICMPv6 Router Advertisement packets if originating from any LinkLocal Address.
+             */
+            matches.addAll(AclServiceUtils.buildIpMatches(
+                    new IpPrefixOrAddress(new IpPrefix(AclConstants.IPV6_LINK_LOCAL_PREFIX.toCharArray())),
+                    AclServiceManager.MatchCriteria.MATCH_SOURCE));
+            flowName = "Ingress_ICMPv6" + "_" + port.getDpId() + "_" + port.getLPortTag() + "_"
+                    + AclConstants.ICMPV6_TYPE_RA + "_LinkLocal_Permit_";
+        }
+        if (flowName != null) {
+            syncFlow(port.getDpId(), getAclAntiSpoofingTable(), flowName,
+                    AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0,
+                    0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        }
     }
 
     /**
