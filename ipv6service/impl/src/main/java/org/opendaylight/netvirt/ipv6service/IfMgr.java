@@ -44,22 +44,17 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -438,7 +433,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
             // Update the network <--> List[dpnIds, List<ports>] cache.
             VirtualNetwork vnet = getNetwork(intf.getNetworkID());
             if (null != vnet) {
-                vnet.updateDpnPortInfo(dpId, ofPort, Ipv6Constants.ADD_ENTRY);
+                vnet.updateDpnPortInfo(dpId, portId, Ipv6Constants.ADD_ENTRY);
             }
         }
     }
@@ -492,7 +487,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
                 VirtualNetwork vnet = getNetwork(networkID);
                 if (null != vnet) {
                     BigInteger dpId = intf.getDpId();
-                    vnet.updateDpnPortInfo(dpId, intf.getOfPort(), Ipv6Constants.DEL_ENTRY);
+                    vnet.updateDpnPortInfo(dpId, portId, Ipv6Constants.DEL_ENTRY);
                 }
             }
         }
@@ -680,28 +675,18 @@ public class IfMgr implements ElementCache, AutoCloseable {
     }
 
     private void transmitRouterAdvertisement(VirtualPort intf, Ipv6RtrAdvertType advType) {
-        Ipv6RouterAdvt ipv6RouterAdvert = new Ipv6RouterAdvt(packetService);
+        Ipv6RouterAdvt ipv6RouterAdvert = new Ipv6RouterAdvt(packetService, this);
 
         LOG.debug("in transmitRouterAdvertisement for {}", advType);
         VirtualNetwork vnet = getNetwork(intf.getNetworkID());
         if (vnet != null) {
-            String nodeName;
-            String outPort;
             Collection<VirtualNetwork.DpnInterfaceInfo> dpnIfaceList = vnet.getDpnIfaceList();
             for (VirtualNetwork.DpnInterfaceInfo dpnIfaceInfo : dpnIfaceList) {
-                nodeName = Ipv6Constants.OPENFLOW_NODE_PREFIX + dpnIfaceInfo.getDpId();
-                List<NodeConnectorRef> ncRefList = new ArrayList<>();
-                for (Long ofPort: dpnIfaceInfo.ofPortList) {
-                    outPort = nodeName + ":" + ofPort;
-                    LOG.debug("Transmitting RA {} for node {}, port {}", advType, nodeName, outPort);
-                    InstanceIdentifier<NodeConnector> outPortId = InstanceIdentifier.builder(Nodes.class)
-                            .child(Node.class, new NodeKey(new NodeId(nodeName)))
-                            .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(outPort)))
-                            .build();
-                    ncRefList.add(new NodeConnectorRef(outPortId));
-                }
-                if (!ncRefList.isEmpty()) {
-                    ipv6RouterAdvert.transmitRtrAdvertisement(advType, intf, ncRefList, null);
+                LOG.debug("transmitRouterAdvertisement: Transmitting RA {} for portList {}",
+                        advType, dpnIfaceInfo.portList);
+                if (dpnIfaceInfo.portList != null && !dpnIfaceInfo.portList.isEmpty()) {
+                    ipv6RouterAdvert.transmitRtrAdvertisement(advType, intf, dpnIfaceInfo.portList,
+                            null, dpnIfaceInfo.getDpId());
                 }
             }
         }
@@ -764,5 +749,25 @@ public class IfMgr implements ElementCache, AutoCloseable {
             virtualRouter.add(vrouter);
         }
         return virtualRouter;
+    }
+
+    public List<Action> getEgressAction(String interfaceName) {
+        List<Action> actions = null;
+        try {
+            GetEgressActionsForInterfaceInputBuilder egressAction =
+                    new GetEgressActionsForInterfaceInputBuilder().setIntfName(interfaceName);
+            Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
+                    interfaceManagerRpc.getEgressActionsForInterface(egressAction.build());
+            RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
+            if (!rpcResult.isSuccessful()) {
+                LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
+                        interfaceName, rpcResult.getErrors());
+            } else {
+                actions = rpcResult.getResult().getAction();
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when egress actions for interface {}", interfaceName, e);
+        }
+        return actions;
     }
 }

@@ -8,10 +8,15 @@
 
 package org.opendaylight.netvirt.ipv6service;
 
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants.Ipv6RtrAdvertType;
@@ -20,9 +25,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.RouterAdvertisementPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.RouterAdvertisementPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.RouterSolicitationPacket;
@@ -30,32 +34,44 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.pack
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.router.advertisement.packet.PrefixListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Ipv6RouterAdvt {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6RouterAdvt.class);
     private final PacketProcessingService packetService;
+    private final IfMgr ifMgr;
+    private final ConcurrentMap<Uuid, List<Action>> egressActionForInterfaceMap = new ConcurrentHashMap();
 
-    public Ipv6RouterAdvt(PacketProcessingService packetService) {
+    public Ipv6RouterAdvt(PacketProcessingService packetService, IfMgr ifMgr) {
         this.packetService = packetService;
+        this.ifMgr = ifMgr;
     }
 
     public boolean transmitRtrAdvertisement(Ipv6RtrAdvertType raType, VirtualPort routerPort,
-                                            List<NodeConnectorRef> outportList, RouterSolicitationPacket rsPdu) {
+                                            List<Uuid> outportList, RouterSolicitationPacket rsPdu,
+                                            BigInteger dpnId) {
         RouterAdvertisementPacketBuilder raPacket = new RouterAdvertisementPacketBuilder();
         updateRAResponse(raType, rsPdu, raPacket, routerPort);
         // Serialize the response packet
         byte[] txPayload = fillRouterAdvertisementPacket(raPacket.build());
-        for (NodeConnectorRef outport: outportList) {
-            InstanceIdentifier<Node> outNode = outport.getValue().firstIdentifierOf(Node.class);
-            TransmitPacketInput input = new TransmitPacketInputBuilder().setPayload(txPayload)
-                    .setNode(new NodeRef(outNode))
-                    .setEgress(outport).build();
-            LOG.debug("Transmitting the Router Advt packet out {}", outport);
+        for (Uuid outport: outportList) {
+            if (egressActionForInterfaceMap.isEmpty() || egressActionForInterfaceMap.get(outport) == null) {
+                List<Action> actions = ifMgr.getEgressAction(outport.getValue());
+                if (actions == null) {
+                    LOG.warn("Egress action is null for interface {}. Continue on next port iteration",
+                            outport.getValue());
+                    continue;
+                }
+                egressActionForInterfaceMap.put(outport, actions);
+            }
+            TransmitPacketInput input = MDSALUtil.getPacketOut(egressActionForInterfaceMap.get(outport), txPayload,
+                    dpnId);
+            LOG.debug("Transmitting the Router Advt packet out {}", outport.getValue());
             JdkFutures.addErrorLogging(packetService.transmitPacket(input), LOG, "transmitPacket");
+            if (raType == Ipv6RtrAdvertType.CEASE_ADVERTISEMENT) {
+                egressActionForInterfaceMap.remove(outport);
+            }
         }
         return true;
     }
