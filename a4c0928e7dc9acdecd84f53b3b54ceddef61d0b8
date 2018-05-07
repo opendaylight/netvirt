@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "23a6e051_dd748bdf",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.txt",
+        "patchSetId": 5
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-07T08:57:03Z",
+      "side": 1,
+      "message": "I hope the idea is to include a link to Trello Card here and not Jira. Is there any change in this area @Sam/@Vivek?",
+      "range": {
+        "startLine": 177,
+        "startChar": 0,
+        "endLine": 177,
+        "endChar": 49
+      },
+      "revId": "a4c0928e7dc9acdecd84f53b3b54ceddef61d0b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c4dfbd8a_076600ab",
+        "filename": "docs/specs/fluorine/index.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-07T08:57:03Z",
+      "side": 1,
+      "message": "Ideally this should not be part of this patch-set. Can you please remove it.",
+      "range": {
+        "startLine": 9,
+        "startChar": 3,
+        "endLine": 9,
+        "endChar": 47
+      },
+      "revId": "a4c0928e7dc9acdecd84f53b3b54ceddef61d0b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
