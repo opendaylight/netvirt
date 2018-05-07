@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d946df1f_f0bec1a5",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1306,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-07T10:04:46Z",
+      "side": 1,
+      "message": "Will it be OK to have flowId with suffixed with -1 value under subnetVpnId\u003d\u003dVpnConstants.INVALID_ID ??",
+      "revId": "f24c9d90346758c48bbb29799f6c7fd488196362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
