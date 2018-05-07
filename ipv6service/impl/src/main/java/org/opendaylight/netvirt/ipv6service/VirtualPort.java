@@ -41,7 +41,6 @@ public class VirtualPort implements IVirtualPort  {
     private final String deviceOwner;
     private final ConcurrentMap<Uuid, SubnetInfo> snetInfo = new ConcurrentHashMap<>();
 
-    private volatile Long ofPort;
     private volatile BigInteger dpId;
     private volatile boolean serviceBindingStatus;
     private volatile Ipv6PeriodicTimer periodicTimer;
@@ -160,14 +159,6 @@ public class VirtualPort implements IVirtualPort  {
         return dpId;
     }
 
-    public void setOfPort(Long ofPort) {
-        this.ofPort = ofPort;
-    }
-
-    public Long getOfPort() {
-        return ofPort;
-    }
-
     public void setServiceBindingStatus(Boolean status) {
         this.serviceBindingStatus = status;
     }
@@ -193,8 +184,8 @@ public class VirtualPort implements IVirtualPort  {
     @Override
     public String toString() {
         return "VirtualPort[IntfUUid=" + intfUUID + " subnetInfo="
-                + snetInfo + " NetworkId=" + networkID + " mac=" + macAddress + " ofPort="
-                + ofPort + " routerFlag=" + routerIntfFlag + " dpId=" + dpId + "]";
+                + snetInfo + " NetworkId=" + networkID + " mac=" + macAddress + " routerFlag="
+                + routerIntfFlag + " dpId=" + dpId + "]";
     }
 
     public void setPeriodicTimer(Ipv6PeriodicTrQueue ipv6Queue) {
