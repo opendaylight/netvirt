@@ -476,4 +476,8 @@ public class Ipv6ServiceUtils {
                 buildServiceId(interfaceName, ServiceIndex.getIndex(NwConstants.IPV6_SERVICE_NAME,
                         NwConstants.IPV6_SERVICE_INDEX)));
     }
+
+    public static long getRemoteBCGroup(long elanTag) {
+        return Ipv6Constants.ELAN_GID_MIN + elanTag % Ipv6Constants.ELAN_GID_MIN * 2;
+    }
 }
