@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f3e05f5e_19bde5f8",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-07T05:24:24Z",
+      "side": 1,
+      "message": "The bug I was mentioning is here:\n\nPNF discovery for internal plain routed networks was abandoned two years ago due to problems with modeling:\n\nhttps://git.opendaylight.org/gerrit/#/c/53984/\n\nAs part of Phase II, we need to address this modeling first.  \n\nWill Phase II be a separate spec (or) would this spec cover the yang changes required to accomplish the same.",
+      "revId": "7bdaeca3fe6011a7195619187e7ae13ff3547d51",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
