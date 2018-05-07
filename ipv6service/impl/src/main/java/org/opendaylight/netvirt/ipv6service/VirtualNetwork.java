@@ -19,6 +19,7 @@ import org.opendaylight.netvirt.ipv6service.api.IVirtualNetwork;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 
 public class VirtualNetwork implements IVirtualNetwork {
     private final Uuid networkUUID;
@@ -34,16 +35,16 @@ public class VirtualNetwork implements IVirtualNetwork {
         return networkUUID;
     }
 
-    public void updateDpnPortInfo(BigInteger dpnId, Long ofPort, int addOrRemove) {
+    public void updateDpnPortInfo(BigInteger dpnId, Uuid port, List<Action> egressAction, int addOrRemove) {
         if (dpnId == null) {
             return;
         }
 
         DpnInterfaceInfo dpnInterface = dpnIfaceList.computeIfAbsent(dpnId, key -> new DpnInterfaceInfo(dpnId));
         if (addOrRemove == Ipv6Constants.ADD_ENTRY) {
-            dpnInterface.updateofPortList(ofPort);
+            dpnInterface.updateofPortMap(port, egressAction);
         } else {
-            dpnInterface.removeOfPortFromList(ofPort);
+            dpnInterface.removeOfPortFromMap(port);
         }
     }
 
@@ -96,7 +97,7 @@ public class VirtualNetwork implements IVirtualNetwork {
 
     public void removeSelf() {
         dpnIfaceList.values().forEach(dpnInterfaceInfo -> {
-            dpnInterfaceInfo.clearOfPortList();
+            dpnInterfaceInfo.clearOfPortMap();
             dpnInterfaceInfo.clearNdTargetFlowInfo();
         });
 
@@ -106,12 +107,12 @@ public class VirtualNetwork implements IVirtualNetwork {
     public static class DpnInterfaceInfo {
         BigInteger dpId;
         int rsPuntFlowConfigured;
-        List<Long> ofPortList;
+        ConcurrentMap<Uuid, List<Action>> portToEgressActionMap;
         List<Ipv6Address> ndTargetFlowsPunted;
 
         DpnInterfaceInfo(BigInteger dpnId) {
             dpId = dpnId;
-            ofPortList = new ArrayList<>();
+            portToEgressActionMap = new ConcurrentHashMap<>();
             ndTargetFlowsPunted = new ArrayList<>();
             rsPuntFlowConfigured = Ipv6Constants.FLOWS_NOT_CONFIGURED;
         }
@@ -148,22 +149,22 @@ public class VirtualNetwork implements IVirtualNetwork {
             this.ndTargetFlowsPunted.clear();
         }
 
-        public void updateofPortList(Long ofPort) {
-            this.ofPortList.add(ofPort);
+        public void updateofPortMap(Uuid port, List<Action> egressAction) {
+            this.portToEgressActionMap.put(port, egressAction);
         }
 
-        public void removeOfPortFromList(Long ofPort) {
-            this.ofPortList.remove(ofPort);
+        public void removeOfPortFromMap(Uuid port) {
+            this.portToEgressActionMap.remove(port);
         }
 
-        public void clearOfPortList() {
-            this.ofPortList.clear();
+        public void clearOfPortMap() {
+            this.portToEgressActionMap.clear();
         }
 
         @Override
         public String toString() {
-            return "DpnInterfaceInfo [dpId=" + dpId + " rsPuntFlowConfigured=" + rsPuntFlowConfigured + " ofPortList="
-                    + ofPortList + "]";
+            return "DpnInterfaceInfo [dpId=" + dpId + " rsPuntFlowConfigured=" + rsPuntFlowConfigured
+                    + " portToEgressActionMap=" + portToEgressActionMap + "]";
         }
     }
 }
