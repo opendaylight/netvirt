@@ -49,17 +49,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -681,26 +673,16 @@ public class IfMgr implements ElementCache, AutoCloseable {
     private void transmitRouterAdvertisement(VirtualPort intf, Ipv6RtrAdvertType advType) {
         Ipv6RouterAdvt ipv6RouterAdvert = new Ipv6RouterAdvt(packetService);
 
-        LOG.debug("in transmitRouterAdvertisement for {}", advType);
         VirtualNetwork vnet = getNetwork(intf.getNetworkID());
         if (vnet != null) {
-            String nodeName;
-            String outPort;
+            long elanTag = vnet.getElanTag();
             Collection<VirtualNetwork.DpnInterfaceInfo> dpnIfaceList = vnet.getDpnIfaceList();
             for (VirtualNetwork.DpnInterfaceInfo dpnIfaceInfo : dpnIfaceList) {
-                nodeName = Ipv6Constants.OPENFLOW_NODE_PREFIX + dpnIfaceInfo.getDpId();
-                List<NodeConnectorRef> ncRefList = new ArrayList<>();
-                for (Long ofPort: dpnIfaceInfo.ofPortList) {
-                    outPort = nodeName + ":" + ofPort;
-                    LOG.debug("Transmitting RA {} for node {}, port {}", advType, nodeName, outPort);
-                    InstanceIdentifier<NodeConnector> outPortId = InstanceIdentifier.builder(Nodes.class)
-                            .child(Node.class, new NodeKey(new NodeId(nodeName)))
-                            .child(NodeConnector.class, new NodeConnectorKey(new NodeConnectorId(outPort)))
-                            .build();
-                    ncRefList.add(new NodeConnectorRef(outPortId));
-                }
-                if (!ncRefList.isEmpty()) {
-                    ipv6RouterAdvert.transmitRtrAdvertisement(advType, intf, ncRefList, null);
+                LOG.debug("transmitRouterAdvertisement: Transmitting RA {} for ELAN Tag {}",
+                        advType, elanTag);
+                if (dpnIfaceInfo.getDpId() != null) {
+                    ipv6RouterAdvert.transmitRtrAdvertisement(advType, intf, elanTag, null,
+                            dpnIfaceInfo.getDpId());
                 }
             }
         }
