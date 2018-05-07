@@ -141,7 +141,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RouterInterfaces;
@@ -158,7 +157,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.lea
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.event.data.LearntVpnVipToPortEvent;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.event.data.LearntVpnVipToPortEventBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.event.data.LearntVpnVipToPortEventKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIdsBuilder;
@@ -1177,26 +1175,6 @@ public final class VpnUtil {
             LOG.debug("removeLearntVpnVipToPort: Delete learned ARP for fixedIp: {}, vpn {} removed from"
                     + " VpnPortipToPort DS", fixedIp, vpnName);
         }
-    }
-
-    protected static void createLearntVpnVipToPortEvent(DataBroker broker, String vpnName, String srcIp, String destIP,
-                                                        String portName, String macAddress,
-                                                        LearntVpnVipToPortEventAction action,
-                                                        WriteTransaction writeOperTxn) {
-        String eventId = MicroTimestamp.INSTANCE.get();
-
-        InstanceIdentifier<LearntVpnVipToPortEvent> id = buildLearntVpnVipToPortEventIdentifier(eventId);
-        LearntVpnVipToPortEventBuilder builder = new LearntVpnVipToPortEventBuilder().setKey(
-                new LearntVpnVipToPortEventKey(eventId)).setVpnName(vpnName).setSrcFixedip(srcIp)
-                .setDestFixedip(destIP).setPortName(portName)
-                .setMacAddress(macAddress.toLowerCase(Locale.getDefault())).setEventAction(action);
-        if (writeOperTxn != null) {
-            writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, id);
-        } else {
-            MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
-        }
-        LOG.info("createLearntVpnVipToPortEvent: ARP learned for fixedIp: {}, vpn {}, interface {}, mac {},"
-                + "added to VpnPortipToPort DS", srcIp, vpnName, portName, macAddress);
     }
 
     private static InstanceIdentifier<LearntVpnVipToPortEvent> buildLearntVpnVipToPortEventIdentifier(String eventId) {
