@@ -30,7 +30,7 @@ import org.opendaylight.openflowplugin.libraries.liblldp.BufferException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.Ipv6Header;
@@ -306,7 +306,8 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             BigInteger metadata = packet.getMatch().getMetadata().getMetadata();
             long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
             String interfaceName = ifMgr.getInterfaceNameFromTag(portTag);
-            VirtualPort port = ifMgr.obtainV6Interface(new Uuid(interfaceName));
+            Uuid portId = new Uuid(interfaceName);
+            VirtualPort port = ifMgr.obtainV6Interface(portId);
             if (port == null) {
                 pktProccessedCounter.incrementAndGet();
                 LOG.info("Port {} not found, skipping.", interfaceName);
@@ -320,11 +321,18 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
                 return;
             }
             Ipv6RouterAdvt ipv6RouterAdvert = new Ipv6RouterAdvt(pktService);
-            List<NodeConnectorRef> ncRefList = new ArrayList<>();
-            ncRefList.add(packet.getIngress());
-            ipv6RouterAdvert.transmitRtrAdvertisement(Ipv6RtrAdvertType.SOLICITED_ADVERTISEMENT,
-                                                      routerPort, ncRefList, rsPdu);
-            pktProccessedCounter.incrementAndGet();
+            List<Uuid> outPortIdList = new ArrayList<>();
+            outPortIdList.add(portId);
+            for (Uuid outport: outPortIdList) {
+                List<Action> actions = ifMgr.getEgressAction(outport.getValue());
+                if (actions == null) {
+                    LOG.error("Egress action is null for interface {}", outport.getValue());
+                    continue;
+                }
+                ipv6RouterAdvert.transmitRtrAdvertisement(Ipv6RtrAdvertType.SOLICITED_ADVERTISEMENT,
+                        routerPort, outport, rsPdu, port.getDpId(), actions);
+                pktProccessedCounter.incrementAndGet();
+            }
         }
 
         private RouterSolicitationPacket deserializeRSPacket(byte[] data) {
