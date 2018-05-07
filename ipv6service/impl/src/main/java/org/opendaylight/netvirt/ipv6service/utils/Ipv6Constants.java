@@ -73,6 +73,7 @@ public interface Ipv6Constants {
     String DEF_MCAST_MAC = "33:33:00:00:00:01";
     //default periodic RA transmission interval. timeunit in sec
     long PERIODIC_RA_INTERVAL = 60;
+    int ELAN_GID_MIN = 200000;
 
     enum Ipv6RtrAdvertType {
         UNSOLICITED_ADVERTISEMENT,

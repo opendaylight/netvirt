@@ -32,6 +32,8 @@ import java.util.concurrent.Future;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -81,6 +83,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -1527,6 +1530,17 @@ public final class AclServiceUtils {
         return false;
     }
 
+    public static MacAddress getIpv6SubnetRouterIntMacAddr(List<SubnetInfo> subnetInfoList) {
+        if (subnetInfoList != null && !subnetInfoList.isEmpty()) {
+            for (SubnetInfo subnetInfo : subnetInfoList) {
+                if (subnetInfo != null && IpVersionV6.class.equals(subnetInfo.getIpVersion())) {
+                    return subnetInfo.getGatewayMacAddress();
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Gets the subnet difference by performing (subnetInfo1 - subnetInfo2).
      *
@@ -1544,5 +1558,55 @@ public final class AclServiceUtils {
         }
         newSubnetList.removeAll(subnetInfo2);
         return newSubnetList;
+    }
+
+    /**
+     * Get IPv6 LLA from MAC address.
+     *
+     * @param mac the mac address of the interface.
+     * @return LLA.
+     */
+
+    public static Ipv6Address getIpv6LinkLocalAddressFromMac(MacAddress mac) {
+        byte[] octets = bytesFromHexString(mac.getValue());
+
+        /* As per the RFC2373, steps involved to generate a LLA include
+           1. Convert the 48 bit MAC address to 64 bit value by inserting 0xFFFE
+              between OUI and NIC Specific part.
+           2. Invert the Universal/Local flag in the OUI portion of the address.
+           3. Use the prefix "FE80::/10" along with the above 64 bit Interface
+              identifier to generate the IPv6 LLA. */
+
+        StringBuilder interfaceID = new StringBuilder();
+        short u8byte = (short) (octets[0] & 0xff);
+        u8byte ^= 1 << 1;
+        interfaceID.append(Integer.toHexString(0xFF & u8byte));
+        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[1]), 2, "0"));
+        interfaceID.append(":");
+        interfaceID.append(Integer.toHexString(0xFF & octets[2]));
+        interfaceID.append("ff:fe");
+        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[3]), 2, "0"));
+        interfaceID.append(":");
+        interfaceID.append(Integer.toHexString(0xFF & octets[4]));
+        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[5]), 2, "0"));
+
+        // Return the address in its fully expanded format.
+        Ipv6Address ipv6LLA = new Ipv6Address(InetAddresses.forString(
+                "fe80:0:0:0:" + interfaceID.toString()).getHostAddress());
+        return ipv6LLA;
+    }
+
+    public static byte[] bytesFromHexString(String values) {
+        String target = "";
+        if (values != null) {
+            target = values;
+        }
+        String[] octets = target.split(":");
+
+        byte[] ret = new byte[octets.length];
+        for (int i = 0; i < octets.length; i++) {
+            ret[i] = Integer.valueOf(octets[i], 16).byteValue();
+        }
+        return ret;
     }
 }

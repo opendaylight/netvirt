@@ -730,6 +730,7 @@ public class NeutronvpnUtils {
         for (FixedIps portFixedIp : portFixedIps) {
             Uuid subnetId = portFixedIp.getSubnetId();
             Subnet subnet = getNeutronSubnet(subnetId);
+            String subnetRouterIntMacAddr = getSubnetRouterIntMacAddr(subnetId);
             if (subnet != null) {
                 Class<? extends IpVersionBase> ipVersion =
                         NeutronSecurityRuleConstants.IP_VERSION_MAP.get(subnet.getIpVersion());
@@ -737,7 +738,9 @@ public class NeutronvpnUtils {
                         : NeutronSecurityRuleConstants.RA_MODE_MAP.get(subnet.getIpv6RaMode());
                 SubnetInfo subnetInfo = new SubnetInfoBuilder().setKey(new SubnetInfoKey(subnetId))
                         .setIpVersion(ipVersion).setIpPrefix(new IpPrefixOrAddress(subnet.getCidr()))
-                        .setIpv6RaMode(raMode).setGatewayIp(subnet.getGatewayIp()).build();
+                        .setIpv6RaMode(raMode).setGatewayIp(subnet.getGatewayIp())
+                        .setGatewayMacAddress(subnetRouterIntMacAddr != null ? new MacAddress(subnetRouterIntMacAddr)
+                                : null).build();
                 subnetInfoList.add(subnetInfo);
             }
         }
@@ -757,6 +760,16 @@ public class NeutronvpnUtils {
             subnet = sn.get();
         }
         return subnet;
+    }
+
+    protected String getSubnetRouterIntMacAddr(Uuid subnetId) {
+        InstanceIdentifier<Subnetmap> subnetmapId = InstanceIdentifier
+                .builder(Subnetmaps.class)
+                .child(Subnetmap.class, new SubnetmapKey(subnetId))
+                .build();
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                LogicalDatastoreType.CONFIGURATION, subnetmapId).toJavaUtil().map(Subnetmap::getRouterIntfMacAddress)
+                .orElse(null);
     }
 
     @Nonnull
