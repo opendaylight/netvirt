@@ -724,11 +724,30 @@ module odl-l3vpn {
             key "learnt-vpn-vip-event-id";
             leaf vpn-name { type string; }
             leaf src-fixedip { type string; }
-            leaf dest-fixedip { type string; }
             leaf port-name { type string; }
             leaf mac-address { type string; }
             leaf event-action { type learnt-vpn-vip-to-port-event-action; }
             leaf learnt-vpn-vip-event-id { type string; }
+        }
+    }
+
+    container mip-adjacency {
+        config true;
+        list mip-dpn {
+            key "dpn-id";
+            leaf dpn-id { type uint64; }
+            list mip-vpn {
+                key "vpn-name";
+                leaf vpn-name { type string; }
+                list mip-ip {
+                    key "ip-address";
+                    leaf ip-address { type string; }
+                    leaf port-name { type string; }
+                    leaf mac-address { type string; }
+                    leaf gateway-ip { type string; }
+                    leaf creating-time { type string; }
+                }
+            }
         }
     }
 }
