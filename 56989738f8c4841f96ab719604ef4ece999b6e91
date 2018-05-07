@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1964234_fc3911ef",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-07T06:02:20Z",
+      "side": 1,
+      "message": "Can you please quote a sentence or two here on the difference (or definitions) of what is TSP and TFP?",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df76ffa7_82222e4d",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-07T06:02:20Z",
+      "side": 1,
+      "message": "before pushing spec for review, can you please do:\n\ntox -e docs\n\nthis line seems to be too lengthy!",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fe0122c6_eda9e5b3",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-07T06:02:20Z",
+      "side": 1,
+      "message": "can you please choose 180, 181",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b0bb935d_d3b62631",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-07T06:02:20Z",
+      "side": 1,
+      "message": "can you please let us know why this tunnel is used for?",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "deebb5a9_022066c2",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-07T06:02:20Z",
+      "side": 1,
+      "message": "this looks to be a special VNI used on the dataplane.\n\nDoes TaaS spec quotes that the VNI used to send from TapFlowPort to TapServicePort can be proprietary?",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "553687bf_7de5a8c8",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-07T06:02:20Z",
+      "side": 1,
+      "message": "original packet will be resubmitted",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2299225f_4b757fc3",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-07T06:02:20Z",
+      "side": 1,
+      "message": "does TaaS run on only one Cluster node in a 3 PL Cluster?",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eab71ae8_ddd48975",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-07T06:02:20Z",
+      "side": 1,
+      "message": "this looks to become a tap-service-port.  can you please quote explicitly \n1. First create a tap-service-port which should have port-security-disabled.",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8bf7ea01_b263e4f6",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-07T06:02:20Z",
+      "side": 1,
+      "message": "can you please add a spec into networking-odl for this feature?",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
