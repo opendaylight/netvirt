@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "de849d25_8c98d960",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1388,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-07T09:26:17Z",
+      "side": 1,
+      "message": "so i will check for\nadjacencyOptional.get().getAdjacencyType() !\u003d Adjacency.AdjacencyType.Primary",
+      "parentUuid": "c3d371f1_f57fe8b7",
+      "revId": "9e38ad07e5b75c11d34c573edb477fa1ebf50ade",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3cd737c0_2eb6cbcc",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2018-05-07T08:55:13Z",
       "side": 1,
       "message": "unfortuanately the above read will not include the latest tx.merge(mark-for-delete).  so where do you consider that?",
+      "revId": "9e38ad07e5b75c11d34c573edb477fa1ebf50ade",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6548c2c2_40ec4871",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1400,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-07T09:26:17Z",
+      "side": 1,
+      "message": "If we are doing in the same tx then this tx.read should return the above-merged value right?\nBecause we are using the same tx.",
+      "parentUuid": "3cd737c0_2eb6cbcc",
       "revId": "9e38ad07e5b75c11d34c573edb477fa1ebf50ade",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
