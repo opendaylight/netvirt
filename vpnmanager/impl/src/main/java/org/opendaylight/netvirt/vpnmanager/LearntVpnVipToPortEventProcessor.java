@@ -177,8 +177,7 @@ public class LearntVpnVipToPortEventProcessor
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
             WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-            addMipAdjacency(vpnName, interfaceName,
-                    srcIpAddress, macAddress, destIpAddress);
+            addMipAdjacency(vpnName, interfaceName, srcIpAddress, macAddress, destIpAddress);
             VpnUtil.createLearntVpnVipToPort(dataBroker, vpnName, srcIpAddress,
                     interfaceName, macAddress, writeOperTxn);
             futures.add(writeConfigTxn.submit());
@@ -199,7 +198,7 @@ public class LearntVpnVipToPortEventProcessor
                 if (interfaceManager.isExternalInterface(vpnInterface)) {
                     String subnetId = getSubnetId(vpnInstName, dstPrefix);
                     if (subnetId == null) {
-                        LOG.trace("Can't find corresponding subnet for src IP {}, src MAC {}, dst IP {},  in VPN {}",
+                        LOG.trace("Can't find corresponding subnet for src IP {}, src MAC {}, dst IP {} in VPN {}",
                                 srcPrefix, mipMacAddress, dstPrefix, vpnInstName);
                         return;
                     }

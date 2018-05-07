@@ -731,4 +731,16 @@ module odl-l3vpn {
             leaf learnt-vpn-vip-event-id { type string; }
         }
     }
+
+    container mip-adjacency {
+        config true;
+        list mip {
+            key "vpn-name ip-address";
+            leaf vpn-name { type string; }
+            leaf ip-address { type string; }
+            leaf port-name { type string; }
+            leaf mac-address { type string; }
+            leaf arp-response-destination-ip { type string; }
+        }
+    }
 }
