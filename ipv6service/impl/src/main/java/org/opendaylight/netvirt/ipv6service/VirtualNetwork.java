@@ -34,19 +34,6 @@ public class VirtualNetwork implements IVirtualNetwork {
         return networkUUID;
     }
 
-    public void updateDpnPortInfo(BigInteger dpnId, Long ofPort, int addOrRemove) {
-        if (dpnId == null) {
-            return;
-        }
-
-        DpnInterfaceInfo dpnInterface = dpnIfaceList.computeIfAbsent(dpnId, key -> new DpnInterfaceInfo(dpnId));
-        if (addOrRemove == Ipv6Constants.ADD_ENTRY) {
-            dpnInterface.updateofPortList(ofPort);
-        } else {
-            dpnInterface.removeOfPortFromList(ofPort);
-        }
-    }
-
     @Override
     public Long getElanTag() {
         return elanTag;
@@ -96,7 +83,6 @@ public class VirtualNetwork implements IVirtualNetwork {
 
     public void removeSelf() {
         dpnIfaceList.values().forEach(dpnInterfaceInfo -> {
-            dpnInterfaceInfo.clearOfPortList();
             dpnInterfaceInfo.clearNdTargetFlowInfo();
         });
 
@@ -106,12 +92,10 @@ public class VirtualNetwork implements IVirtualNetwork {
     public static class DpnInterfaceInfo {
         BigInteger dpId;
         int rsPuntFlowConfigured;
-        List<Long> ofPortList;
         List<Ipv6Address> ndTargetFlowsPunted;
 
         DpnInterfaceInfo(BigInteger dpnId) {
             dpId = dpnId;
-            ofPortList = new ArrayList<>();
             ndTargetFlowsPunted = new ArrayList<>();
             rsPuntFlowConfigured = Ipv6Constants.FLOWS_NOT_CONFIGURED;
         }
@@ -148,22 +132,9 @@ public class VirtualNetwork implements IVirtualNetwork {
             this.ndTargetFlowsPunted.clear();
         }
 
-        public void updateofPortList(Long ofPort) {
-            this.ofPortList.add(ofPort);
-        }
-
-        public void removeOfPortFromList(Long ofPort) {
-            this.ofPortList.remove(ofPort);
-        }
-
-        public void clearOfPortList() {
-            this.ofPortList.clear();
-        }
-
         @Override
         public String toString() {
-            return "DpnInterfaceInfo [dpId=" + dpId + " rsPuntFlowConfigured=" + rsPuntFlowConfigured + " ofPortList="
-                    + ofPortList + "]";
+            return "DpnInterfaceInfo [dpId=" + dpId + " rsPuntFlowConfigured=" + rsPuntFlowConfigured + "]";
         }
     }
 }
