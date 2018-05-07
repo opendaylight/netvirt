@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19e94b45_f9e324ef",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 923,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-07T05:29:26Z",
+      "side": 1,
+      "message": "can you please print some Error with related context before returning empty?\n\nOr is the invoker printing any error?",
+      "revId": "eb64a95760178953b32288478fde666e1a4a8657",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
