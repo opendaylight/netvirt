@@ -20,6 +20,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -27,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
@@ -284,8 +287,13 @@ public class Ipv6PktHandlerTest {
     @Test
     public void testonPacketReceivedRouterSolicitationWithSingleSubnet() throws Exception {
         VirtualPort intf = Mockito.mock(VirtualPort.class);
+        when(intf.getDpId()).thenReturn(new BigInteger(String.valueOf(1)));
+        when(intf.getIntfUUID()).thenReturn(Uuid.getDefaultInstance("ddec9dba-d831-4ad7-84b9-00d7f65f052f"));
         when(intf.getMacAddress()).thenReturn("fa:16:3e:4e:18:0c");
         when(ifMgrInstance.getInterfaceNameFromTag(anyLong())).thenReturn("ddec9dba-d831-4ad7-84b9-00d7f65f052f");
+        List<Action> actions = new ArrayList<>();
+        actions.add(new ActionNxResubmit(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE).buildAction());
+        when(ifMgrInstance.getEgressAction(any())).thenReturn(actions);
         when(ifMgrInstance.obtainV6Interface(any())).thenReturn(intf);
         when(ifMgrInstance.getRouterV6InterfaceForNetwork(any())).thenReturn(intf);
 
@@ -364,16 +372,21 @@ public class Ipv6PktHandlerTest {
                 "20 01 0D B8 00 00 00 00 00 00 00 00 00 00 00 00"  // Prefix
         );
         verify(pktProcessService).transmitPacket(new TransmitPacketInputBuilder().setPayload(expectedPayload)
-                .setNode(new NodeRef(ncId)).setEgress(ncRef).build());
+                .setNode(new NodeRef(ncId)).setEgress(ncRef).setIngress(ncRef).setAction(any(List.class)).build());
     }
 
     @Test
     public void testonPacketReceivedRouterSolicitationWithMultipleSubnets() throws Exception {
         VirtualPort intf = Mockito.mock(VirtualPort.class);
+        when(intf.getDpId()).thenReturn(new BigInteger(String.valueOf(1)));
         when(intf.getMacAddress()).thenReturn("50:7B:9D:78:54:F3");
+        when(intf.getIntfUUID()).thenReturn(Uuid.getDefaultInstance("ddec9dba-d831-4ad7-84b9-00d7f65f052f"));
         when(ifMgrInstance.obtainV6Interface(any())).thenReturn(intf);
         when(ifMgrInstance.getInterfaceNameFromTag(anyLong())).thenReturn("ddec9dba-d831-4ad7-84b9-00d7f65f052f");
         when(ifMgrInstance.getRouterV6InterfaceForNetwork(any())).thenReturn(intf);
+        List<Action> actions = new ArrayList<>();
+        actions.add(new ActionNxResubmit(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE).buildAction());
+        when(ifMgrInstance.getEgressAction(any())).thenReturn(actions);
 
         IpAddress gwIpAddress = Mockito.mock(IpAddress.class);
         when(gwIpAddress.getIpv4Address()).thenReturn(null);
@@ -481,7 +494,7 @@ public class Ipv6PktHandlerTest {
 
         verify(pktProcessService).transmitPacket(new TransmitPacketInputBuilder().setPayload(expectedPayload)
                 .setNode(new NodeRef(ncId))
-                .setEgress(ncRef).build());
+                .setEgress(ncRef).setIngress(ncRef).setAction(any(List.class)).build());
     }
 
     private void waitForPacketProcessing() throws InterruptedException {

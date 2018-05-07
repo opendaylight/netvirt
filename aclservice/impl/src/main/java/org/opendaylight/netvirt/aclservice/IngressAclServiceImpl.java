@@ -272,23 +272,24 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
 
     @Override
     protected void programIcmpv6RARule(AclInterface port, List<SubnetInfo> subnets, int addOrRemove) {
-        // Allow ICMPv6 Router Advertisement packets from external routers only if ipv6_ra_mode is not
-        // specified for an IPv6 subnet.
-        if (!AclServiceUtils.isIpv6RaAllowedFromExternalRouters(subnets)) {
-            return;
+        if (AclServiceUtils.isIpv6Subnet(subnets)) {
+            /* Allow ICMPv6 Router Advertisement packets from external routers as well as internal routers
+             * if subnet is configured with IPv6 version
+             * Allow ICMPv6 Router Advertisement packets if originating from any LinkLocal Address.
+             */
+            List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
+            List<MatchInfoBase> matches =
+                    AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_RA, 0,
+                            port.getLPortTag(), serviceMode);
+            matches.addAll(AclServiceUtils.buildIpMatches(
+                    new IpPrefixOrAddress(new IpPrefix(AclConstants.IPV6_LINK_LOCAL_PREFIX.toCharArray())),
+                    AclServiceManager.MatchCriteria.MATCH_SOURCE));
+            String flowName = "Ingress_ICMPv6" + "_" + port.getDpId() + "_" + port.getLPortTag() + "_"
+                    + AclConstants.ICMPV6_TYPE_RA + "_LinkLocal_Permit_";
+            syncFlow(port.getDpId(), getAclAntiSpoofingTable(), flowName,
+                    AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0,
+                    0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         }
-        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
-        List<MatchInfoBase> matches =
-                AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_RA, 0, port.getLPortTag(), serviceMode);
-        // Allow ICMPv6 Router Advertisement packets if originating from any LinkLocal Address.
-        matches.addAll(AclServiceUtils.buildIpMatches(
-                new IpPrefixOrAddress(new IpPrefix(AclConstants.IPV6_LINK_LOCAL_PREFIX.toCharArray())),
-                AclServiceManager.MatchCriteria.MATCH_SOURCE));
-
-        String flowName = "Ingress_ICMPv6" + "_" + port.getDpId() + "_" + port.getLPortTag() + "_"
-                + AclConstants.ICMPV6_TYPE_RA + "_LinkLocal_Permit_";
-        syncFlow(port.getDpId(), getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL",
-                0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
     /**
