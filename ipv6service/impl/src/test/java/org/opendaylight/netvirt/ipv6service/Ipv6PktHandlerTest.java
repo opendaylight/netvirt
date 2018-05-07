@@ -364,7 +364,7 @@ public class Ipv6PktHandlerTest {
                 "20 01 0D B8 00 00 00 00 00 00 00 00 00 00 00 00"  // Prefix
         );
         verify(pktProcessService).transmitPacket(new TransmitPacketInputBuilder().setPayload(expectedPayload)
-                .setNode(new NodeRef(ncId)).setEgress(ncRef).build());
+                .setNode(new NodeRef(ncId)).setEgress(ncRef).setIngress(ncRef).setAction(any(List.class)).build());
     }
 
     @Test
@@ -481,7 +481,7 @@ public class Ipv6PktHandlerTest {
 
         verify(pktProcessService).transmitPacket(new TransmitPacketInputBuilder().setPayload(expectedPayload)
                 .setNode(new NodeRef(ncId))
-                .setEgress(ncRef).build());
+                .setEgress(ncRef).setIngress(ncRef).setAction(any(List.class)).build());
     }
 
     private void waitForPacketProcessing() throws InterruptedException {
