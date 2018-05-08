@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ab8e9f37_3ff0018d",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-05-08T11:39:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4fd3e287_a4d862e8",
+      "range": {
+        "startLine": 137,
+        "startChar": 20,
+        "endLine": 137,
+        "endChar": 39
+      },
+      "revId": "0012bf27b1e13e1799030dcd6180e8c89d9120df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2a1d3358_a46f6410",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-08T04:06:59Z",
       "side": 1,
       "message": "dpnId is unused. Please remove it.",
+      "range": {
+        "startLine": 430,
+        "startChar": 65,
+        "endLine": 430,
+        "endChar": 70
+      },
+      "revId": "0012bf27b1e13e1799030dcd6180e8c89d9120df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1b7f3cd6_a6479f67",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-05-08T11:39:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a1d3358_a46f6410",
       "range": {
         "startLine": 430,
         "startChar": 65,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "d8797b27_fd8cc06e",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-05-08T11:39:29Z",
+      "side": 1,
+      "message": "Replied in the earlier patch comment",
+      "parentUuid": "15547519_d8a4763d",
+      "range": {
+        "startLine": 445,
+        "startChar": 40,
+        "endLine": 445,
+        "endChar": 49
+      },
+      "revId": "0012bf27b1e13e1799030dcd6180e8c89d9120df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d125a959_a1b12229",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 7
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "7bdeaa5b_148416d9",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1998,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-05-08T11:39:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d125a959_a1b12229",
+      "range": {
+        "startLine": 1998,
+        "startChar": 54,
+        "endLine": 1998,
+        "endChar": 62
+      },
+      "revId": "0012bf27b1e13e1799030dcd6180e8c89d9120df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a85d8bd9_c19096ae",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 7
@@ -105,6 +201,30 @@
       "writtenOn": "2018-05-08T04:06:59Z",
       "side": 1,
       "message": "nit: ExternalRouter\u0027s\u0027",
+      "range": {
+        "startLine": 2055,
+        "startChar": 37,
+        "endLine": 2055,
+        "endChar": 51
+      },
+      "revId": "0012bf27b1e13e1799030dcd6180e8c89d9120df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3f7766d1_8448e709",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 2055,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-05-08T11:39:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a85d8bd9_c19096ae",
       "range": {
         "startLine": 2055,
         "startChar": 37,
