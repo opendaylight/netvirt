@@ -265,6 +265,30 @@
     },
     {
       "key": {
+        "uuid": "5b82f220_879b0714",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-05-08T06:55:54Z",
+      "side": 1,
+      "message": "Hi Sridhar,\nWe have validated the ability to generate NA from NS using standard OF rules. \n\nHowever, this has two problems\n1. R, S \u0026 O fields are not settable with standard OF rules. This requires extensions. \n\n2. When we change SLL to TLL, the type must be modified from 1 to 2. This also is not possible today with standard OF rules. It requires extensions.\n\nToday, therefore, we get a NA that contains\n1. reserved field\u003d0 \n2. NO TLL. This is because, the NS contains a SLL field. When we change the NS packet type to 136, it would appear to OVS as a NA packet with SLL option. When we further attempt to setfield (TLL), this results in a no-op because the packet does NOT have a TLL field.   \n\nClearly, this is unusable from the VM\u0027s perspective.\n\nWhat we have validated is the boiler plate code, which receives a NS and outputs a NA. We are working with OVS community to make sure that the final solution is actually usable by the VM.",
+      "parentUuid": "e265886a_dbaa05a7",
+      "range": {
+        "startLine": 70,
+        "startChar": 44,
+        "endLine": 70,
+        "endChar": 55
+      },
+      "revId": "3e117adffc6b94109bb9251f269fd37ea3bd4f06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5e500c02_db6b527d",
         "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
         "patchSetId": 7
