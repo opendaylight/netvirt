@@ -23,6 +23,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -107,6 +108,14 @@ public final class FibHelper {
 
     public static boolean isControllerManagedNonSelfImportedRoute(RouteOrigin routeOrigin) {
         return routeOrigin != RouteOrigin.SELF_IMPORTED;
+    }
+
+    public static boolean isControllerManagedSubnetRoute(RouteOrigin routeOrigin) {
+        return routeOrigin == RouteOrigin.CONNECTED;
+    }
+
+    public static boolean isControllerManagedRouterInterfaceRoute(VrfEntry vrfEntry) {
+        return (vrfEntry.getAugmentation(RouterInterface.class) != null);
     }
 
     public static void sortIpAddress(List<RoutePaths> routePathList) {
