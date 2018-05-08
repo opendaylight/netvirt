@@ -1139,8 +1139,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         vrfEntry.getRoutePaths().forEach(routePath -> {
                             String nh = routePath.getNexthopAddress();
                             int label = routePath.getLabel().intValue();
-                            if (FibHelper.isControllerManagedVpnInterfaceRoute(RouteOrigin.value(
-                                    vrfEntry.getOrigin()))) {
+                            if (FibHelper.isControllerManagedVpnInterfaceRoute(RouteOrigin.value(vrfEntry.getOrigin()))
+                                   && (vrfEntry.getAugmentation(RouterInterface.class) == null)) {
                                 LOG.info("handleVpnsExportingRoutesImporting: Importing fib entry rd {} prefix {}"
                                         + " nexthop {} label {} to vpn {} vpnRd {}", vpn.getVrfId(), prefix, nh, label,
                                         vpnName, vpnRd);
