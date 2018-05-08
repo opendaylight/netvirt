@@ -217,6 +217,30 @@
     },
     {
       "key": {
+        "uuid": "3f2e3c79_e5a61a68",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-05-08T05:58:41Z",
+      "side": 1,
+      "message": "@Sridhar,\nAs Ashvin clarified in the comments already for NS reserved fields(flags) and SLL to TLL logic\u0027s are dependent for implementing this feature. We are assuming that we will be getting the exact OVS version(Including the support for NS reserved fields and SLL-\u003eTLL options type) details to claim this feature is ready for the customer. At that time we can update the spec with mandatory OVS version to test this feature functionality. Based on this approach only provided example flows in the spec which includes ICMPv6 options SLL-\u003eTLL conversion and NS reserved flags as below mentioned way.\n\nset_field:2-\u003eicmpv6_options_type \nset_field:OxE000-\u003eOFPXMT_OFB_ICMPV6_ND_RESERVED\n\nNote:\nStill not yet confirmed these options are available starting from which OVS release?.\n\nThanks,\nKarthikeyan.",
+      "parentUuid": "66a63641_06f61207",
+      "range": {
+        "startLine": 70,
+        "startChar": 44,
+        "endLine": 70,
+        "endChar": 55
+      },
+      "revId": "3e117adffc6b94109bb9251f269fd37ea3bd4f06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5e500c02_db6b527d",
         "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
         "patchSetId": 7
