@@ -289,6 +289,30 @@
     },
     {
       "key": {
+        "uuid": "8e821b31_c4a879f8",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-05-08T07:12:49Z",
+      "side": 1,
+      "message": "@Sridhar,\n\nSorry for the little confusion here. Please find the final conclusion of the requested queries. Please let me know if you need any further clarification as well.\n\n 1) I have tried added OVS flows manually (OVS 2.9.0) as mentioned in the spec example flows without setting the below attributes.\n\nTABLE 45\n-----------\nsudo ovs-ofctl -O OpenFlow13 add-flow br-int \"\ntable\u003d45,priority\u003d102,icmp6,metadata\u003d0x1389000000/0xffff000000,icmpv6_type\u003d135,icmpv6_code\u003d0,nd_target\u003dfe80:0:0:0:f816:3eff:fe7d:3c2c, actions\u003dset_field:136-\u003eicmpv6_type,set_field:0-\u003eicmpv6_code,goto_table:81\"\n\nHere missing SLL-\u003eTLL option set field (set_field:2-\u003eicmpv6_options_type)\n\n\nTABLE 81\n----------\nsudo ovs-ofctl -O OpenFlow13 add-flow br-int \"table\u003d81,priority\u003d105,icmp6,metadata\u003d0x1389000000/0xffff000000,icmp_type\u003d136,icmp_code\u003d0,nd_target\u003dfe80:0:0:0:f816:3eff:fe7d:3c2c, actions\u003dmove:NXM_OF_ETH_SRC[]-\u003eNXM_OF_ETH_DST[],set_field:fa:16:3e:7d:3c:2c-\u003eeth_src,move:NXM_NX_IPV6_SRC[]-\u003eNXM_NX_IPV6_DST[],set_field:fe80:0:0:0:f816:3eff:fe7d:3c2c-\u003eipv6_src,set_field:fe80:0:0:0:f816:3eff:fe7d:3c2c-\u003end_target,set_field:fa:16:3e:7d:3c:2c-\u003end_tll,load:0-\u003eNXM_OF_IN_PORT[],output:7\" \n\nHere missing NA reserved flags (set_field:OxE000-\u003eOFPXMT_OFB_ICMPV6_ND_RESERVED)\n\n\nOverall Observation:\n--------------------\nWhen we convert NS to NA, it is still carrying the SLL. Since TLL field is NOT present in the packet. Set-field of TLL (which is NOT in the packet) would result in a no-OP.\n\n\n2) In the spec, mentioned example flows included the missing NS options and NA reserved fields also. Since we expected the same should appear in the OVS fixed verion patch.",
+      "parentUuid": "e265886a_dbaa05a7",
+      "range": {
+        "startLine": 70,
+        "startChar": 44,
+        "endLine": 70,
+        "endChar": 55
+      },
+      "revId": "3e117adffc6b94109bb9251f269fd37ea3bd4f06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5e500c02_db6b527d",
         "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
         "patchSetId": 7
