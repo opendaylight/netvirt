@@ -1136,11 +1136,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         }
                         String prefix = vrfEntry.getDestPrefix();
                         String gwMac = vrfEntry.getGatewayMacAddress();
+                        Boolean isControllerManagedVpnInterfaceRoute =
+                            FibHelper.isControllerManagedVpnInterfaceRoute(RouteOrigin.value(vrfEntry.getOrigin()));
+                        Boolean isRouterInterfaceRoute = (vrfEntry.getAugmentation(RouterInterface.class) != null);
+                        Boolean isSubnetRoute = (vrfEntry.getAugmentation(SubnetRoute.class) != null);
                         vrfEntry.getRoutePaths().forEach(routePath -> {
                             String nh = routePath.getNexthopAddress();
                             int label = routePath.getLabel().intValue();
-                            if (FibHelper.isControllerManagedVpnInterfaceRoute(RouteOrigin.value(
-                                    vrfEntry.getOrigin()))) {
+                            if (isControllerManagedVpnInterfaceRoute && !isRouterInterfaceRoute) {
                                 LOG.info("handleVpnsExportingRoutesImporting: Importing fib entry rd {} prefix {}"
                                         + " nexthop {} label {} to vpn {} vpnRd {}", vpn.getVrfId(), prefix, nh, label,
                                         vpnName, vpnRd);
@@ -1148,7 +1151,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                         Collections.singletonList(nh), VrfEntry.EncapType.Mplsgre, label,
                                         0 /*l3vni*/, gwMac,  vpn.getVrfId(), RouteOrigin.SELF_IMPORTED,
                                         writeConfigTxn);
-                            } else {
+                            } else if (isSubnetRoute) {
                                 LOG.info("handleVpnsExportingRoutes: Importing subnet route fib entry rd {} prefix {}"
                                         + " nexthop {} label {} to vpn {} vpnRd {}", vpn.getVrfId(), prefix, nh, label,
                                         vpnName, vpnRd);
