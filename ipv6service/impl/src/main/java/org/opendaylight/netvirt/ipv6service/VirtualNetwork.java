@@ -8,9 +8,9 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
@@ -38,12 +38,13 @@ public class VirtualNetwork implements IVirtualNetwork {
         if (dpnId == null) {
             return;
         }
-
-        DpnInterfaceInfo dpnInterface = dpnIfaceList.computeIfAbsent(dpnId, key -> new DpnInterfaceInfo(dpnId));
-        if (addOrRemove == Ipv6Constants.ADD_ENTRY) {
-            dpnInterface.updateofPortList(ofPort);
-        } else {
-            dpnInterface.removeOfPortFromList(ofPort);
+        synchronized (networkUUID.getValue()) {
+            DpnInterfaceInfo dpnInterface = dpnIfaceList.computeIfAbsent(dpnId, key -> new DpnInterfaceInfo(dpnId));
+            if (addOrRemove == Ipv6Constants.ADD_ENTRY) {
+                dpnInterface.updateofPortList(ofPort);
+            } else {
+                dpnInterface.removeOfPortFromList(ofPort);
+            }
         }
     }
 
@@ -95,24 +96,26 @@ public class VirtualNetwork implements IVirtualNetwork {
     }
 
     public void removeSelf() {
-        dpnIfaceList.values().forEach(dpnInterfaceInfo -> {
-            dpnInterfaceInfo.clearOfPortList();
-            dpnInterfaceInfo.clearNdTargetFlowInfo();
-        });
+        synchronized (networkUUID.getValue()) {
+            dpnIfaceList.values().forEach(dpnInterfaceInfo -> {
+                dpnInterfaceInfo.clearOfPortList();
+                dpnInterfaceInfo.clearNdTargetFlowInfo();
+            });
 
-        clearDpnInterfaceList();
+            clearDpnInterfaceList();
+        }
     }
 
     public static class DpnInterfaceInfo {
         BigInteger dpId;
         int rsPuntFlowConfigured;
-        List<Long> ofPortList;
-        List<Ipv6Address> ndTargetFlowsPunted;
+        Set<Long> ofPortList;
+        Set<Ipv6Address> ndTargetFlowsPunted;
 
         DpnInterfaceInfo(BigInteger dpnId) {
             dpId = dpnId;
-            ofPortList = new ArrayList<>();
-            ndTargetFlowsPunted = new ArrayList<>();
+            ofPortList = ConcurrentHashMap.newKeySet();
+            ndTargetFlowsPunted =  ConcurrentHashMap.newKeySet();
             rsPuntFlowConfigured = Ipv6Constants.FLOWS_NOT_CONFIGURED;
         }
 
@@ -132,7 +135,7 @@ public class VirtualNetwork implements IVirtualNetwork {
             return rsPuntFlowConfigured;
         }
 
-        public List<Ipv6Address> getNDTargetFlows() {
+        public Set<Ipv6Address> getNDTargetFlows() {
             return ndTargetFlowsPunted;
         }
 

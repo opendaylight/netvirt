@@ -11,9 +11,9 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -320,7 +320,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
                 return;
             }
             Ipv6RouterAdvt ipv6RouterAdvert = new Ipv6RouterAdvt(pktService);
-            List<NodeConnectorRef> ncRefList = new ArrayList<>();
+            Set<NodeConnectorRef> ncRefList = ConcurrentHashMap.newKeySet();
             ncRefList.add(packet.getIngress());
             ipv6RouterAdvert.transmitRtrAdvertisement(Ipv6RtrAdvertType.SOLICITED_ADVERTISEMENT,
                                                       routerPort, ncRefList, rsPdu);
