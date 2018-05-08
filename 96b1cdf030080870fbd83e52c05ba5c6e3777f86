@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "04f173fb_0aba1299",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-05-08T11:39:29Z",
+      "side": 1,
+      "message": "Done , now using the cache instead of DS. Also reduced the last external router check to one call.",
+      "parentUuid": "1b9a1e25_16cf817a",
+      "range": {
+        "startLine": 151,
+        "startChar": 12,
+        "endLine": 151,
+        "endChar": 32
+      },
+      "revId": "96b1cdf030080870fbd83e52c05ba5c6e3777f86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7f7db1e2_7033cc93",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2018-04-29T18:54:17Z",
       "side": 1,
       "message": "wrong warning log, please fix it.",
+      "range": {
+        "startLine": 423,
+        "startChar": 26,
+        "endLine": 423,
+        "endChar": 73
+      },
+      "revId": "96b1cdf030080870fbd83e52c05ba5c6e3777f86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7127b776_0e18f1ec",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-05-08T11:39:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f7db1e2_7033cc93",
       "range": {
         "startLine": 423,
         "startChar": 26,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "e130698c_ceff0443",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-05-08T11:39:29Z",
+      "side": 1,
+      "message": "I am removing the entries which matches the vpn name. It still can have other relevant entries not matching the vpn name",
+      "parentUuid": "dae6962a_9505d1f3",
+      "range": {
+        "startLine": 444,
+        "startChar": 40,
+        "endLine": 444,
+        "endChar": 49
+      },
+      "revId": "96b1cdf030080870fbd83e52c05ba5c6e3777f86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cdc082dd_cde36fbe",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
         "patchSetId": 4
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "1de00d50_1a128ac0",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-05-08T11:39:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cdc082dd_cde36fbe",
+      "range": {
+        "startLine": 448,
+        "startChar": 22,
+        "endLine": 448,
+        "endChar": 66
+      },
+      "revId": "96b1cdf030080870fbd83e52c05ba5c6e3777f86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a088540_e176924f",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 4
@@ -105,6 +201,30 @@
       "writtenOn": "2018-04-29T18:54:17Z",
       "side": 1,
       "message": "nit: Since it is a list of ext-routers, please rename the API as getExternalRouter\u0027s\u0027 (i.e., plural)",
+      "range": {
+        "startLine": 2013,
+        "startChar": 29,
+        "endLine": 2013,
+        "endChar": 46
+      },
+      "revId": "96b1cdf030080870fbd83e52c05ba5c6e3777f86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "05ac5988_ddc9782e",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 2013,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-05-08T11:39:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a088540_e176924f",
       "range": {
         "startLine": 2013,
         "startChar": 29,
