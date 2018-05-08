@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d484bb50_d649ca1c",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-08T13:32:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1964234_fc3911ef",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df76ffa7_82222e4d",
         "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2018-05-07T06:02:20Z",
       "side": 1,
       "message": "before pushing spec for review, can you please do:\n\ntox -e docs\n\nthis line seems to be too lengthy!",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "44042cfd_19ef860a",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-08T13:32:47Z",
+      "side": 1,
+      "message": "checked with rstcheck",
+      "parentUuid": "df76ffa7_82222e4d",
       "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "a8281268_987785ec",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-08T13:32:47Z",
+      "side": 1,
+      "message": "Done. Pipeline diagram is also updated.",
+      "parentUuid": "fe0122c6_eda9e5b3",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b0bb935d_d3b62631",
         "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2018-05-07T06:02:20Z",
       "side": 1,
       "message": "can you please let us know why this tunnel is used for?",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9d3e14d8_5da9a667",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-08T13:32:47Z",
+      "side": 1,
+      "message": "Tunnel Id corresponding to the Tap Service id will sent over the tunnel.So on the receiving DPN the Tap service port to which the packet to be delivered can be identified.",
+      "parentUuid": "b0bb935d_d3b62631",
       "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "39bff9b4_134763aa",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-08T13:32:47Z",
+      "side": 1,
+      "message": "Yes, a unique id to identify the Tap Services can be sent in the VNI field.",
+      "parentUuid": "deebb5a9_022066c2",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "553687bf_7de5a8c8",
         "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
         "patchSetId": 3
@@ -98,6 +188,24 @@
       "writtenOn": "2018-05-07T06:02:20Z",
       "side": 1,
       "message": "original packet will be resubmitted",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a6a5ea6c_72194728",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-08T13:32:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "553687bf_7de5a8c8",
       "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "52c69023_7f27509f",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-08T13:32:47Z",
+      "side": 1,
+      "message": "TaaS will run in a  3 PL Cluster same as other services.",
+      "parentUuid": "2299225f_4b757fc3",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eab71ae8_ddd48975",
         "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
         "patchSetId": 3
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "e8ef066f_a56c12a2",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-08T13:32:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eab71ae8_ddd48975",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8bf7ea01_b263e4f6",
         "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
         "patchSetId": 3
@@ -149,6 +293,24 @@
       "writtenOn": "2018-05-07T06:02:20Z",
       "side": 1,
       "message": "can you please add a spec into networking-odl for this feature?",
+      "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2100c11_7ed3d394",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-08T13:32:47Z",
+      "side": 1,
+      "message": "I will initiate a mail to find out about who will be implementing the networking-odl.",
+      "parentUuid": "8bf7ea01_b263e4f6",
       "revId": "56989738f8c4841f96ab719604ef4ece999b6e91",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
