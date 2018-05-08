@@ -1127,36 +1127,39 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             if (vrfEntries != null) {
                 for (VrfEntry vrfEntry : vrfEntries) {
                     try {
-                        if (!FibHelper.isControllerManagedNonInterVpnLinkRoute(
-                                RouteOrigin.value(vrfEntry.getOrigin()))) {
+                        if (FibHelper.isControllerManagedRouterInterfaceRoute(vrfEntry)) {
                             LOG.info("handleVpnsExportingRoutes: vrfEntry with rd {} prefix {}"
-                                    + " is not a controller managed non intervpn link route. Ignoring.",
-                                    vpn.getVrfId(), vrfEntry.getDestPrefix());
+                                     + " is a route for router interface. Ignoring.",
+                                     vpn.getVrfId(), vrfEntry.getDestPrefix());
                             continue;
                         }
                         String prefix = vrfEntry.getDestPrefix();
                         String gwMac = vrfEntry.getGatewayMacAddress();
-                        vrfEntry.getRoutePaths().forEach(routePath -> {
-                            String nh = routePath.getNexthopAddress();
-                            int label = routePath.getLabel().intValue();
-                            if (FibHelper.isControllerManagedVpnInterfaceRoute(RouteOrigin.value(
-                                    vrfEntry.getOrigin()))) {
+                        if (FibHelper.isControllerManagedVpnInterfaceRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
+                            vrfEntry.getRoutePaths().forEach(routePath -> {
+                                String nh = routePath.getNexthopAddress();
+                                int label = routePath.getLabel().intValue();
                                 LOG.info("handleVpnsExportingRoutesImporting: Importing fib entry rd {} prefix {}"
-                                        + " nexthop {} label {} to vpn {} vpnRd {}", vpn.getVrfId(), prefix, nh, label,
-                                        vpnName, vpnRd);
+                                         + " nexthop {} label {} to vpn {} vpnRd {}", vpn.getVrfId(), prefix, nh,
+                                         label, vpnName, vpnRd);
                                 fibManager.addOrUpdateFibEntry(vpnRd, null /*macAddress*/, prefix,
-                                        Collections.singletonList(nh), VrfEntry.EncapType.Mplsgre, label,
-                                        0 /*l3vni*/, gwMac,  vpn.getVrfId(), RouteOrigin.SELF_IMPORTED,
-                                        writeConfigTxn);
-                            } else {
+                                                               Collections.singletonList(nh),
+                                                               VrfEntry.EncapType.Mplsgre, label,
+                                                               0 /*l3vni*/, gwMac,  vpn.getVrfId(),
+                                                               RouteOrigin.SELF_IMPORTED, writeConfigTxn);
+                            });
+                        } else if (FibHelper.isControllerManagedSubnetRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
+                            vrfEntry.getRoutePaths().forEach(routePath -> {
+                                String nh = routePath.getNexthopAddress();
+                                int label = routePath.getLabel().intValue();
                                 LOG.info("handleVpnsExportingRoutes: Importing subnet route fib entry rd {} prefix {}"
-                                        + " nexthop {} label {} to vpn {} vpnRd {}", vpn.getVrfId(), prefix, nh, label,
-                                        vpnName, vpnRd);
+                                         + " nexthop {} label {} to vpn {} vpnRd {}", vpn.getVrfId(), prefix, nh,
+                                         label, vpnName, vpnRd);
                                 SubnetRoute route = vrfEntry.getAugmentation(SubnetRoute.class);
                                 importSubnetRouteForNewVpn(vpnRd, prefix, nh, label, route, vpn.getVrfId(),
-                                        writeConfigTxn);
-                            }
-                        });
+                                                           writeConfigTxn);
+                            });
+                        }
                     } catch (RuntimeException e) {
                         LOG.error("getNextHopAddressList: Exception occurred while importing route with rd {}"
                                 + " prefix {} routePaths {} to vpn {} vpnRd {}", vpn.getVrfId(),
