@@ -46,10 +46,11 @@ import org.opendaylight.netvirt.elan.arp.responder.ArpResponderConstant;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg4;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -57,7 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, ElanNodeListener> {
+public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, ElanNodeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanNodeListener.class);
     private static final int LEARN_MATCH_REG4_VALUE = 1;
@@ -89,27 +90,23 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
     }
 
     @Override
-    protected InstanceIdentifier<Node> getWildCardPath() {
-        return InstanceIdentifier.create(Nodes.class).child(Node.class);
+    protected InstanceIdentifier<FlowCapableNode> getWildCardPath() {
+        return InstanceIdentifier.create(Nodes.class).child(Node.class).augmentation(FlowCapableNode.class);
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Node> identifier, Node del) {
+    protected void remove(InstanceIdentifier<FlowCapableNode> identifier, FlowCapableNode del) {
     }
 
     @Override
-    protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
+    protected void update(InstanceIdentifier<FlowCapableNode> identifier, FlowCapableNode original,
+            FlowCapableNode update) {
     }
 
     @Override
-    protected void add(InstanceIdentifier<Node> identifier, Node add) {
-        NodeId nodeId = add.getId();
-        String[] node = nodeId.getValue().split(":");
-        if (node.length < 2) {
-            LOG.warn("Unexpected nodeId {}", nodeId.getValue());
-            return;
-        }
-        BigInteger dpId = new BigInteger(node[1]);
+    protected void add(InstanceIdentifier<FlowCapableNode> identifier, FlowCapableNode add) {
+        NodeKey nodeKey = identifier.firstKeyOf(Node.class);
+        BigInteger dpId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         createTableMissEntry(dpId);
         createMulticastFlows(dpId);
         createArpDefaultFlowsForArpCheckTable(dpId);
