@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants.Ipv6RtrAdvertType;
@@ -44,7 +45,7 @@ public class Ipv6RouterAdvt {
     }
 
     public boolean transmitRtrAdvertisement(Ipv6RtrAdvertType raType, VirtualPort routerPort,
-                                            List<NodeConnectorRef> outportList, RouterSolicitationPacket rsPdu) {
+                                            Set<NodeConnectorRef> outportList, RouterSolicitationPacket rsPdu) {
         RouterAdvertisementPacketBuilder raPacket = new RouterAdvertisementPacketBuilder();
         updateRAResponse(raType, rsPdu, raPacket, routerPort);
         // Serialize the response packet
