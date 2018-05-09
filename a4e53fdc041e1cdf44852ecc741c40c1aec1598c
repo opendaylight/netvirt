@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "888d5a51_44d173df",
+        "filename": "vpnmanager/api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 737,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2018-05-09T07:36:56Z",
+      "side": 1,
+      "message": "I think the key to this \"mip-parent\" container is not correct, for the following reason :\n* When MIP moves to back-up VM , GARP/Arp Response gets punted to controller , we have \"VPN-Name + Port-Name of back-up VM\". With this info , we will not be able to retrieve the existing MIP info. \n\nHence this container needs a change as below:\n\ncontainer mip-adjacency {\n        config true;\n        list mip-parent {\n            key dpnId;\n            leaf dpnId { type uint64;}\n\t\t\tlist mip-info {\n\t\t\t\tkey vpn-name;\n\t\t\t\tleaf vpn-name { type string; }\n\t\t\t\tlist mip-entries {\n\t\t\t\t\tkey mip-ip-addr;\n\t\t\t\t\tleaf mip-ip-addr { type string;}\n\t\t\t\t\tleaf port-name { type string; }\n\t\t\t\t\tleaf mac-address { type string; }\n\t\t\t\t\tleaf gateway-ip-addr { type string;}\n\t\t\t\t\tleaf creation-time { type string; }\n\t\t\t\t}\t\t\t\n\t\t\t}\n        }\n}",
+      "revId": "a4e53fdc041e1cdf44852ecc741c40c1aec1598c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
