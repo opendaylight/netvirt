@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92abaf20_541f8fbb",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-09T06:35:08Z",
+      "side": 1,
+      "message": "There are plenty of other places where we can run into this exception. Generally, we have terrible argument checking when pushing flows, majority of code over netvirt and genius assumes we\u0027re filling flows with correct values.",
+      "revId": "9a42019f869781b7a92a47ffe9ff9e9697bb3ff9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09ca10c3_0451c44b",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-09T06:35:08Z",
+      "side": 1,
+      "message": "Not 100% sure if this is correct approach as this requires entire code to be truly asynchronous. Do we want to retry with timeout and fail? Expectation is data should come in eventually. Current fix assumes it is okay to return and do rest of processing and do this when router comes in. But if rest of calling code requires this to be done before we return, then might be better to have a blocking read with retries and timeouts.",
+      "revId": "9a42019f869781b7a92a47ffe9ff9e9697bb3ff9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
