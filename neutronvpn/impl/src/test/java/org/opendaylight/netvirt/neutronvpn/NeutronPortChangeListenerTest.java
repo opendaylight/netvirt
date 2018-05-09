@@ -29,6 +29,7 @@ import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.caches.baseimpl.internal.CacheManagersRegistryImpl;
 import org.opendaylight.infrautils.caches.guava.internal.GuavaCacheProvider;
@@ -89,6 +90,8 @@ public class NeutronPortChangeListenerTest {
     NeutronvpnUtils neutronvpnUtils;
     @Mock
     IPV6InternetDefaultRouteProgrammer ipV6InternetDefRt;
+    @Mock
+    DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar;
 
     MetricProvider metricProvider = new TestMetricProviderImpl();
 
@@ -104,7 +107,8 @@ public class NeutronPortChangeListenerTest {
         neutronPortChangeListener = new NeutronPortChangeListener(dataBroker, neutronvpnManager, neutronvpnNatManager,
                 gwMacResolver, elanService, jobCoordinator, new NeutronvpnUtils(dataBroker, idManager, jobCoordinator,
                         ipV6InternetDefRt),
-                new HostConfigCache(dataBroker, new GuavaCacheProvider(new CacheManagersRegistryImpl())));
+                new HostConfigCache(dataBroker, new GuavaCacheProvider(new CacheManagersRegistryImpl())),
+                dataTreeEventCallbackRegistrar);
         InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class,
                         new ElanInstanceKey(new Uuid("12345678-1234-1234-1234-123456789012").getValue())).build();
