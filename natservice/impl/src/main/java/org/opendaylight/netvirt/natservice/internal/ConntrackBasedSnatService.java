@@ -107,6 +107,10 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void installSnatMissEntryForPrimrySwch(BigInteger dpnId, Long routerId, int elanId, int addOrRemove) {
+        if (routerId == NatConstants.INVALID_ID) {
+            LOG.error("InvalidRouterId: Unable to create entry for Terminating Service Table on dpn{}", dpnId);
+            return;
+        }
         LOG.info("installSnatSpecificEntriesForNaptSwitch : called for the primary NAPT switch dpnId {}", dpnId);
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
@@ -128,6 +132,10 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void installTerminatingServiceTblEntry(BigInteger dpnId, Long  routerId, int elanId, int addOrRemove) {
+        if (routerId == NatConstants.INVALID_ID) {
+            LOG.error("InvalidRouterId: Unable to create entry for Terminating Service Table on dpn{}", dpnId);
+            return;
+        }
         LOG.info("installTerminatingServiceTblEntry : creating entry for Terminating Service Table "
                 + "for switch {}, routerId {}", dpnId, routerId);
         List<MatchInfo> matches = new ArrayList<>();
