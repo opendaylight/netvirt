@@ -128,6 +128,10 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void installTerminatingServiceTblEntry(BigInteger dpnId, Long  routerId, int elanId, int addOrRemove) {
+        if (routerId < 0) {
+            LOG.error("InvalidRouterId {}, unable to create entry for Terminating Service Table", routerId);
+            return;
+        }
         LOG.info("installTerminatingServiceTblEntry : creating entry for Terminating Service Table "
                 + "for switch {}, routerId {}", dpnId, routerId);
         List<MatchInfo> matches = new ArrayList<>();
