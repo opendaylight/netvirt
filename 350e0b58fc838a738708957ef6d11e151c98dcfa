@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6e5fcf7_02ed152d",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T14:13:48Z",
+      "side": 1,
+      "message": "prefix must be printed value as nextHopPrefixIp as that is what you are searching for.",
+      "revId": "350e0b58fc838a738708957ef6d11e151c98dcfa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
