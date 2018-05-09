@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d03ab9fb_8923e649",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 751,
+      "author": {
+        "id": 8015
+      },
+      "writtenOn": "2018-05-09T13:08:03Z",
+      "side": 1,
+      "message": "can we have null check for prefixInfo to avoid NPE?",
+      "range": {
+        "startLine": 751,
+        "startChar": 34,
+        "endLine": 751,
+        "endChar": 60
+      },
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "087b4a4f_262a2658",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2213,
+      "author": {
+        "id": 8015
+      },
+      "writtenOn": "2018-05-09T13:08:03Z",
+      "side": 1,
+      "message": "if I am not wrong, networkParams is supposed to be present, if its not present something went wrong, shouldn\u0027t we return from this function in this case?",
+      "range": {
+        "startLine": 2208,
+        "startChar": 0,
+        "endLine": 2213,
+        "endChar": 13
+      },
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
