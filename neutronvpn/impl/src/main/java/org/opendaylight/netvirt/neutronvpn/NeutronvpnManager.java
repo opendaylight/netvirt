@@ -792,7 +792,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
             Uuid routerId = snTemp != null ? snTemp.getRouterId() : null;
             if (snTemp != null && snTemp.getInternetVpnId() != null) {
-                neutronvpnUtils.createVpnPortFixedIpToPort(sn.getInternetVpnId().getValue(),
+                neutronvpnUtils.createVpnPortFixedIpToPort(snTemp.getInternetVpnId().getValue(),
                     ipValue, infName, port.getMacAddress().getValue(), isRouterInterface, wrtConfigTxn);
             }
             if (routerId != null) {
