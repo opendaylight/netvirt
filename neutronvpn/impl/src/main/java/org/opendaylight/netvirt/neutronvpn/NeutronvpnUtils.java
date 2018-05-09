@@ -374,6 +374,12 @@ public class NeutronvpnUtils {
         return router;
     }
 
+    public InstanceIdentifier<Router> getNeutronRouterIid(Uuid routerId) {
+        return InstanceIdentifier.create(Neutron.class).child(Routers.class).child(Router
+                .class, new RouterKey(routerId));
+
+    }
+
     protected Network getNeutronNetwork(Uuid networkId) {
         Network network = null;
         network = networkMap.get(networkId);
