@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a672e51_6191f07c",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T09:19:32Z",
+      "side": 1,
+      "message": "in this case can you please educate how will the initial ARP resolution happen before the first packet is attempted from R-IOV-VM1-DC1 to SR-IOV-VM2-DC2 ?",
+      "revId": "384d6ebed82c9d59c2ab4a248174d9bd62971e30",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f124671a_0e4028cd",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T09:19:32Z",
+      "side": 1,
+      "message": "Does the workflow for ARP and normal IP packets for this different in control (or) dataplane from UC 1 above?",
+      "revId": "384d6ebed82c9d59c2ab4a248174d9bd62971e30",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "64c3f00c_9d67dfd7",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T09:19:32Z",
+      "side": 1,
+      "message": "Why do we require RT3 support for this spec?\n\nIsn\u0027t RT2 alone sufficient?",
+      "revId": "384d6ebed82c9d59c2ab4a248174d9bd62971e30",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
