@@ -51,6 +51,108 @@
       "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dcad9230_caf25c22",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-05-09T11:19:26Z",
+      "side": 1,
+      "message": "should we name it as INGRESS_LPORT_DISPATCHER_TABLE for clarity?",
+      "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9f1398c6_778b1e5d",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-05-09T11:19:26Z",
+      "side": 1,
+      "message": "For tunnels also, it will goto egress dispatcher table if ITM direct tunnels disabled?",
+      "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "446d9549_80a82b8d",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-05-09T11:19:26Z",
+      "side": 1,
+      "message": "Have you checked whether output + resubmit in the same flow works in OVS?",
+      "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8823645c_fcb951a4",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-05-09T11:19:26Z",
+      "side": 1,
+      "message": "which module this yang belongs to?",
+      "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "399dbcdd_c064ca21",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-05-09T11:19:26Z",
+      "side": 1,
+      "message": "port_security_enabled\" set to \"false\".",
+      "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "980427f7_565adf65",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-05-09T11:19:26Z",
+      "side": 1,
+      "message": "does netvirt have ITs? If not, this should be moved to CSIT",
+      "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
