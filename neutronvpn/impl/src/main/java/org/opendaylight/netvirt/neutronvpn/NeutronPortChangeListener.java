@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2015, 2018 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -33,6 +33,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -85,6 +86,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private final JobCoordinator jobCoordinator;
     private final NeutronvpnUtils neutronvpnUtils;
     private final HostConfigCache hostConfigCache;
+    private final DataTreeEventCallbackRegistrar eventCallbacks;
 
     public NeutronPortChangeListener(final DataBroker dataBroker,
                                      final NeutronvpnManager neutronvpnManager,
@@ -93,7 +95,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                                      final IElanService elanService,
                                      final JobCoordinator jobCoordinator,
                                      final NeutronvpnUtils neutronvpnUtils,
-                                     final HostConfigCache hostConfigCache) {
+                                     final HostConfigCache hostConfigCache,
+                                     final DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar) {
         super(Port.class, NeutronPortChangeListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -104,6 +107,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         this.jobCoordinator = jobCoordinator;
         this.neutronvpnUtils = neutronvpnUtils;
         this.hostConfigCache = hostConfigCache;
+        this.eventCallbacks = dataTreeEventCallbackRegistrar;
     }
 
     @Override
@@ -437,6 +441,13 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         if (router == null) {
             LOG.warn("No router found for router GW port {} for router {}", routerGwPort.getUuid().getValue(),
                     routerId.getValue());
+            // NETVIRT-1249
+            eventCallbacks.onAddOrUpdate(LogicalDatastoreType.CONFIGURATION,
+                    neutronvpnUtils.getNeutronRouterIid(routerId), (unused, newRouter) -> {
+                    gwMacResolver.sendArpRequestsToExtGateways(newRouter);
+                    setExternalGwMac(routerGwPort, routerId);
+                    return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
+                });
             return;
         }
         gwMacResolver.sendArpRequestsToExtGateways(router);
