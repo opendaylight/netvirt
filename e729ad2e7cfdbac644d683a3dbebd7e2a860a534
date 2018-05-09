@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "34a9e932_363a052a",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-09T05:55:36Z",
+      "side": 1,
+      "message": "there should be an existing constants for this defined somewhere. any inputs?",
+      "revId": "e729ad2e7cfdbac644d683a3dbebd7e2a860a534",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
