@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7d0f50e5_5362b097",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-09T12:52:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "532960aa_a355787a",
+      "revId": "b926e02a50c107fb68ebaf88fd4a2b23594e4368",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f22f1a2a_9f8de2e8",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
         "patchSetId": 12
@@ -30,6 +48,24 @@
       "writtenOn": "2018-05-07T11:33:05Z",
       "side": 1,
       "message": "name this updateMetrics instead of updateCounter",
+      "revId": "b926e02a50c107fb68ebaf88fd4a2b23594e4368",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6501309a_a7a41b6f",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-09T12:52:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f22f1a2a_9f8de2e8",
       "revId": "b926e02a50c107fb68ebaf88fd4a2b23594e4368",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "a5135f63_ce51a8d0",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-09T12:52:41Z",
+      "side": 1,
+      "message": "But meter has the support of up to 3 labels only.\nBut we required more here.",
+      "parentUuid": "a00c4d4c_ea1e6206",
+      "revId": "b926e02a50c107fb68ebaf88fd4a2b23594e4368",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eb35738f_55c63ac2",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
         "patchSetId": 12
@@ -64,6 +118,24 @@
       "writtenOn": "2018-05-07T11:33:05Z",
       "side": 1,
       "message": "perhaps clearer to use module(\"elanmanager\") instead of \"l2gw\", because that is where that counter is?",
+      "revId": "b926e02a50c107fb68ebaf88fd4a2b23594e4368",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "474d8cf7_776ca059",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-09T12:52:41Z",
+      "side": 1,
+      "message": "L2gw is sub-set of elan, and as we are doing work here precisely to l2gw, I would like to keep it that way.",
+      "parentUuid": "eb35738f_55c63ac2",
       "revId": "b926e02a50c107fb68ebaf88fd4a2b23594e4368",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fa215d31_c3e8e56c",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-09T12:52:41Z",
+      "side": 1,
+      "message": "Same",
+      "parentUuid": "12e3856d_cac199a0",
+      "revId": "b926e02a50c107fb68ebaf88fd4a2b23594e4368",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5355e0c6_91fc25b6",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
         "patchSetId": 12
@@ -98,6 +188,24 @@
       "writtenOn": "2018-05-07T11:33:05Z",
       "side": 1,
       "message": "could this type cast be avoided by using InstanceIdentifier\u003cLogicalSwitches\u003e instead of a raw InstanceIdentifier as argument to this method?",
+      "revId": "b926e02a50c107fb68ebaf88fd4a2b23594e4368",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97885124_7d9ad97a",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-09T12:52:41Z",
+      "side": 1,
+      "message": "We are passing InstanceIdentifier\u003c?\u003e here always as part of return object from any Object extending DataObject inside map declared above.\nIf we change it to InstanceIdentifier\u003cLogicalSwitches\u003e then we have to cast the same where we are passing the iid.\nSo better we keep it here.",
+      "parentUuid": "5355e0c6_91fc25b6",
       "revId": "b926e02a50c107fb68ebaf88fd4a2b23594e4368",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "8dbfe7e1_50277963",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/L2GatewayConnectionListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-09T12:52:41Z",
+      "side": 1,
+      "message": "Same as before.",
+      "parentUuid": "f9b3b292_9621edb9",
+      "revId": "b926e02a50c107fb68ebaf88fd4a2b23594e4368",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d08183ae_546d61e8",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/L2GatewayConnectionListener.java",
         "patchSetId": 12
@@ -132,6 +258,24 @@
       "writtenOn": "2018-05-07T11:33:05Z",
       "side": 1,
       "message": "nit pick: indent this 2nd line with 4 spaces",
+      "revId": "b926e02a50c107fb68ebaf88fd4a2b23594e4368",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "624660fd_df5d1b9f",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/L2GatewayConnectionListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-09T12:52:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d08183ae_546d61e8",
       "revId": "b926e02a50c107fb68ebaf88fd4a2b23594e4368",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
