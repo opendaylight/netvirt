@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "721279e1_5648fbfc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T13:45:45Z",
+      "side": 1,
+      "message": "it would be good to mention why they should not be exported before describing the fix.\n\nrouter-interface-ip addresses are not exposed as BGP routes, as a result we should not be handling such routes for Importing VPNs.\n\nPlease note that we donot create an operational vpn-interface for a router-interface, however we do create a fib-entry for a router-interface which in turn is consequently used by VrfEngine to program the L3_GW_MAC_TABLE (table 19) and the PING RESPONDER rules in FIB-TABLE (table 21)\u003e",
+      "revId": "c99da3b779c93d1b96d85fd1ec822438b2801447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0dad9cec_1739ebb9",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1143,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T13:45:45Z",
+      "side": 1,
+      "message": "can\u0027t this check be just after L1136 instead of being inside the route-path loop?",
+      "revId": "c99da3b779c93d1b96d85fd1ec822438b2801447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
