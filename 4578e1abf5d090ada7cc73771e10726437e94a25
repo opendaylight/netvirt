@@ -2,6 +2,108 @@
   "comments": [
     {
       "key": {
+        "uuid": "2cac241e_1fdcf458",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/BaseVrfEntryHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T13:25:49Z",
+      "side": 1,
+      "message": "please remove this method altogther..",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c377156_08d6e959",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/EvpnVrfEntryHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T13:25:49Z",
+      "side": 1,
+      "message": "ditto comment.",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1bbff759_e5c3a745",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 735,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T13:25:49Z",
+      "side": 1,
+      "message": "is this method required..",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "face54b2_79cbeb01",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 742,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T13:25:49Z",
+      "side": 1,
+      "message": "since this method already checks for VXLAN type, istn\u0027t this sufficient to be called everywhere.",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c21e2eff_e8c3614a",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 746,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T13:25:49Z",
+      "side": 1,
+      "message": "Optional.absent() is what you wanted?",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a94c72e5_73673cfd",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 749,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T13:25:49Z",
+      "side": 1,
+      "message": "please remove this method",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d03ab9fb_8923e649",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 6
@@ -19,6 +121,57 @@
         "endLine": 751,
         "endChar": 60
       },
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "53937112_46720dcf",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 918,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T13:25:49Z",
+      "side": 1,
+      "message": "ditto comment here",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1de6719b_b95dfd3e",
+        "filename": "vpnmanager/api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T13:25:49Z",
+      "side": 1,
+      "message": "can\u0027t \u0027uses\u0027 be used for l3vpn:vpn-interface too instead of unnecessarily creating another augmentation?",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f26e7be6_4d182dc3",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1777,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T13:25:49Z",
+      "side": 1,
+      "message": "physical network function is always supported only for external interface.. so why should you use networkParams here at all?",
       "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
