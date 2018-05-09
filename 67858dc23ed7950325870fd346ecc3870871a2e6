@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "08cbf406_e2f7d7f3",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T17:58:51Z",
+      "side": 1,
+      "message": "can you please educate us what is a silent host?  Why for that host the RT2 won\u0027t be sent?",
+      "revId": "67858dc23ed7950325870fd346ecc3870871a2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2fa020e8_66d4001b",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T17:58:51Z",
+      "side": 1,
+      "message": "RT2 and RT5 donot support IPv6 today for EVPN in NetVirt.. So can you please clarify what you mean by IPv6 address for Router\u0027s \n IP support claimed here?",
+      "revId": "67858dc23ed7950325870fd346ecc3870871a2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8142f1ca_b12ddf52",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T17:58:51Z",
+      "side": 1,
+      "message": "can you please add disassociate network1 from evpn1 test here when the VMs are still available?",
+      "revId": "67858dc23ed7950325870fd346ecc3870871a2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "33313e48_ffdb4c70",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T17:58:51Z",
+      "side": 1,
+      "message": "would this feature be supporting VM Migration and VM Evacuation?",
+      "revId": "67858dc23ed7950325870fd346ecc3870871a2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
