@@ -125,6 +125,24 @@
     },
     {
       "key": {
+        "uuid": "514a3d99_050120ed",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-09T15:55:15Z",
+      "side": 1,
+      "message": "Raised \nhttps://git.opendaylight.org/gerrit/#/c/71896/",
+      "parentUuid": "981cbabd_a478a1f5",
+      "revId": "b926e02a50c107fb68ebaf88fd4a2b23594e4368",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eb35738f_55c63ac2",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
         "patchSetId": 12
