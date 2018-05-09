@@ -77,6 +77,10 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         Long routerId = NatUtil.getVpnId(getDataBroker(), routerName);
         int elanId = NatUtil.getElanInstanceByName(routers.getNetworkId().getValue(), getDataBroker())
                 .getElanTag().intValue();
+        if (routerId == NatConstants.INVALID_ID) {
+            LOG.error("InvalidRouterId: unable to installSnatSpecificEntriesForNaptSwitch on dpn {}", dpnId);
+            return;
+        }
         /* Install Outbound NAT entries */
 
         installSnatMissEntryForPrimrySwch(dpnId, routerId, elanId, addOrRemove);
