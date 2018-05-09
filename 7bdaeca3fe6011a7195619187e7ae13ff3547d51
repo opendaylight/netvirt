@@ -34,6 +34,24 @@
       "revId": "7bdaeca3fe6011a7195619187e7ae13ff3547d51",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2fc6f6c_00cc47df",
+        "filename": "docs/specs/fluorine/subnet-routing-for-hidden-ipv6.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T13:32:41Z",
+      "side": 1,
+      "message": "Ok thanks for the clarification.",
+      "parentUuid": "299b5a16_c4a81b8c",
+      "revId": "7bdaeca3fe6011a7195619187e7ae13ff3547d51",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
