@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1d70494_0cb1d26e",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1285,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-09T13:30:50Z",
+      "side": 1,
+      "message": "if you are able to pass the external IP along as a parameter from the callers, you can check for (subnetVpnId !\u003d INVALID) and then use the external-ip to derive the ip-version.\n\nIn that way you can avoid this backpull.. Do you think that is feasible in this review?\n\nIf not, not a problem we can have chetan\u0027s review address the same: https://git.opendaylight.org/gerrit/70897",
+      "revId": "26dc15bac5f83d5becac00c42e1f7ad3684aded7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
