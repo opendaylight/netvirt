@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "6bb090a3_97bc9384",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-10T06:27:31Z",
+      "side": 1,
+      "message": "Thanks for this clarification.",
+      "parentUuid": "79ad42bf_d394590b",
+      "revId": "c17876fe44eb8bb7aca8cf04ab7f117abff32549",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8c0a05ce_2119f9a2",
         "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
         "patchSetId": 12
@@ -72,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "e70331e1_80aa0031",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-10T06:27:31Z",
+      "side": 1,
+      "message": "Ok",
+      "parentUuid": "637169ab_21589739",
+      "revId": "c17876fe44eb8bb7aca8cf04ab7f117abff32549",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "442452c4_0ccedd5f",
         "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
         "patchSetId": 12
@@ -101,6 +137,24 @@
       "side": 1,
       "message": "If we change the knob, then the expectation is that the stale flows are deleted.",
       "parentUuid": "442452c4_0ccedd5f",
+      "revId": "c17876fe44eb8bb7aca8cf04ab7f117abff32549",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "34e2c4d4_3284fa67",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-10T06:27:31Z",
+      "side": 1,
+      "message": "thanks for this clarification.  Can we explicitly state this here and enforce it in implementation.\n\nOtherwise, there need to be off the band tools to clean things up with old-flow-id key?\n\nKarthikeyan, do you agree with the expectation posted by Ashvin?",
+      "parentUuid": "d3710b41_128f66fd",
       "revId": "c17876fe44eb8bb7aca8cf04ab7f117abff32549",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -207,6 +261,30 @@
       "side": 1,
       "message": "No. That is outside the scope of this spec.",
       "parentUuid": "4f9b25c6_cddcdd1d",
+      "range": {
+        "startLine": 485,
+        "startChar": 3,
+        "endLine": 485,
+        "endChar": 70
+      },
+      "revId": "c17876fe44eb8bb7aca8cf04ab7f117abff32549",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "69a6ad60_be4fb4db",
+        "filename": "docs/specs/fluorine/ovs_based_na_responder_for_gw.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-10T06:27:31Z",
+      "side": 1,
+      "message": "Ok, use the term \u0027remove subnet from router\u0027 and \u0027add subnet to router\u0027.",
+      "parentUuid": "7dd5204c_0b2e00ed",
       "range": {
         "startLine": 485,
         "startChar": 3,
