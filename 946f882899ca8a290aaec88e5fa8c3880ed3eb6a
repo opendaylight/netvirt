@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb2fe3a7_6eeb8760",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-05-10T12:30:20Z",
+      "side": 1,
+      "message": "Are you going to support all unsupported features in below table?",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 9
+      },
+      "revId": "946f882899ca8a290aaec88e5fa8c3880ed3eb6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e6f8632_0718e61e",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-05-10T12:30:20Z",
+      "side": 1,
+      "message": "Add all required details (pipeline, yang ...)",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 3
+      },
+      "revId": "946f882899ca8a290aaec88e5fa8c3880ed3eb6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
