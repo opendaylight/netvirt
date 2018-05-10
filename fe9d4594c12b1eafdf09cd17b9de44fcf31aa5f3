@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3598fab_e95a3e1a",
+        "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-10T09:12:24Z",
+      "side": 1,
+      "message": "same switch getting elected for multiple routers is a side problem.\n\nmain issue this spec addresses is attempting to retain the NAPT swtich across an upgrade in order to minimize dataplane churn for existing NAT sessions.  So please mention this as the first problem.",
+      "revId": "fe9d4594c12b1eafdf09cd17b9de44fcf31aa5f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "38a2712c_9f5f3071",
+        "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-10T09:12:24Z",
+      "side": 1,
+      "message": "how does the software know how many switches will connect back on upgrade?",
+      "revId": "fe9d4594c12b1eafdf09cd17b9de44fcf31aa5f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb328e29_0ac15085",
+        "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-10T09:12:24Z",
+      "side": 1,
+      "message": "is it like you will install a datastore listener for \u0027upgradeInProgress\u0027 flag..",
+      "revId": "fe9d4594c12b1eafdf09cd17b9de44fcf31aa5f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "27d97e04_14a15f47",
+        "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-10T09:12:24Z",
+      "side": 1,
+      "message": "i sincerely believe this entire thing can go as a bug fix and still wondering why you raised a spec for simple behavioural change assuming \u0027upgradeInProgress\u0027 is reliable..",
+      "revId": "fe9d4594c12b1eafdf09cd17b9de44fcf31aa5f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e26925e7_7c569f0b",
+        "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-10T09:12:24Z",
+      "side": 1,
+      "message": "from the link it looks like upgradeInProgress shoudl be driven to \u0027True\u0027 (or) False\u0027 manually after the upgrade is over.. is that true?",
+      "revId": "fe9d4594c12b1eafdf09cd17b9de44fcf31aa5f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
