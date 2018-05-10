@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "841f8cc1_b5e271ad",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1918,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2018-05-10T06:44:16Z",
+      "side": 1,
+      "message": "Even if interfaceName is null , you continue to read VpnInterface container below. It will fail. Is it intentional ?\nIf you have done for a scenario, where extra-route is configured first and then VM is booted , is it the right way to handle it ? Earlier error was thrown and returned.",
+      "revId": "dcbd7a6995b2d75c1a23d37bc6b07d1c7ffc0ea0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
