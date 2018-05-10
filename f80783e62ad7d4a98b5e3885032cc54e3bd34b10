@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "443ca7ca_4f65a639",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-10T23:31:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "097f192f_8fb3ff49",
+      "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95f4f9ed_d8441c1d",
         "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
         "patchSetId": 4
@@ -54,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "384ab81b_fd595783",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-10T23:31:03Z",
+      "side": 1,
+      "message": "I have used 170, 171 for Table Ids as this is only first phase of TaaS with few use cases. There will be more use cases and hence took a block starting 170",
+      "parentUuid": "507b05a9_3ee6f078",
+      "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dcad9230_caf25c22",
         "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
         "patchSetId": 4
@@ -65,6 +101,24 @@
       "writtenOn": "2018-05-09T11:19:26Z",
       "side": 1,
       "message": "should we name it as INGRESS_LPORT_DISPATCHER_TABLE for clarity?",
+      "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c548b95_1fdc67a7",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-10T23:31:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dcad9230_caf25c22",
       "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -88,6 +142,24 @@
     },
     {
       "key": {
+        "uuid": "50668ae8_6c07b294",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-10T23:31:03Z",
+      "side": 1,
+      "message": "Not addressing as the reviewer also feels its not a valid comment.",
+      "parentUuid": "9f1398c6_778b1e5d",
+      "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "446d9549_80a82b8d",
         "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
         "patchSetId": 4
@@ -99,6 +171,24 @@
       "writtenOn": "2018-05-09T11:19:26Z",
       "side": 1,
       "message": "Have you checked whether output + resubmit in the same flow works in OVS?",
+      "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7dc24b20_6f52660b",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-10T23:31:03Z",
+      "side": 1,
+      "message": "Yes, output + resubmit will work in OVS.",
+      "parentUuid": "446d9549_80a82b8d",
       "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -122,6 +212,24 @@
     },
     {
       "key": {
+        "uuid": "642265dc_2bf8c2c6",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-10T23:31:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8823645c_fcb951a4",
+      "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "399dbcdd_c064ca21",
         "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
         "patchSetId": 4
@@ -139,6 +247,24 @@
     },
     {
       "key": {
+        "uuid": "ac7f33f9_c7a7df1a",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-10T23:31:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "399dbcdd_c064ca21",
+      "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "980427f7_565adf65",
         "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
         "patchSetId": 4
@@ -150,6 +276,24 @@
       "writtenOn": "2018-05-09T11:19:26Z",
       "side": 1,
       "message": "does netvirt have ITs? If not, this should be moved to CSIT",
+      "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab0e828c_891ab012",
+        "filename": "docs/specs/fluorine/Tap-as-a-Service.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2018-05-10T23:31:03Z",
+      "side": 1,
+      "message": "Moved under CSIT",
+      "parentUuid": "980427f7_565adf65",
       "revId": "f80783e62ad7d4a98b5e3885032cc54e3bd34b10",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
