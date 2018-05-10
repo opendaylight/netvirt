@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e1e98442_a10654d6",
+        "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-10T12:17:30Z",
+      "side": 1,
+      "message": "Updated.",
+      "parentUuid": "c3598fab_e95a3e1a",
+      "revId": "fe9d4594c12b1eafdf09cd17b9de44fcf31aa5f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "38a2712c_9f5f3071",
         "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2018-05-10T09:12:24Z",
       "side": 1,
       "message": "how does the software know how many switches will connect back on upgrade?",
+      "revId": "fe9d4594c12b1eafdf09cd17b9de44fcf31aa5f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "639108c7_a3c0c50d",
+        "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-10T12:17:30Z",
+      "side": 1,
+      "message": "As per understanding, Upgrade orchstrator takes care of setting this flag manually before Opening firewall gates for OVSs to connect and after Resync Completion timer expiry.",
+      "parentUuid": "38a2712c_9f5f3071",
       "revId": "fe9d4594c12b1eafdf09cd17b9de44fcf31aa5f3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "3ebb97e7_230f00c1",
+        "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-10T12:17:30Z",
+      "side": 1,
+      "message": "Yes. We already have a listener on this flag and will reuse the same to support this feature.",
+      "parentUuid": "cb328e29_0ac15085",
+      "revId": "fe9d4594c12b1eafdf09cd17b9de44fcf31aa5f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "27d97e04_14a15f47",
         "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
         "patchSetId": 4
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "a310218c_3b9c428b",
+        "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-10T12:17:30Z",
+      "side": 1,
+      "message": "As per request from Daya to raise a small spec so reviewers get an idea of overrall the design changes.",
+      "parentUuid": "27d97e04_14a15f47",
+      "revId": "fe9d4594c12b1eafdf09cd17b9de44fcf31aa5f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e26925e7_7c569f0b",
         "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
         "patchSetId": 4
@@ -81,6 +153,24 @@
       "writtenOn": "2018-05-10T09:12:24Z",
       "side": 1,
       "message": "from the link it looks like upgradeInProgress shoudl be driven to \u0027True\u0027 (or) False\u0027 manually after the upgrade is over.. is that true?",
+      "revId": "fe9d4594c12b1eafdf09cd17b9de44fcf31aa5f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d5d96831_27775675",
+        "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-10T12:17:30Z",
+      "side": 1,
+      "message": "yes. Upgrade Orchestrator driven manually by set this to true/false using suitable RPCs",
+      "parentUuid": "e26925e7_7c569f0b",
       "revId": "fe9d4594c12b1eafdf09cd17b9de44fcf31aa5f3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
