@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "668b5ed3_8be9ec96",
+        "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-05-10T23:11:58Z",
+      "side": 1,
+      "message": "configuration",
+      "range": {
+        "startLine": 34,
+        "startChar": 24,
+        "endLine": 34,
+        "endChar": 35
+      },
+      "revId": "219118fe209ddd93e0ef135bacabcb908b591d8c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "307f0197_02f11b8d",
+        "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-05-10T23:11:58Z",
+      "side": 1,
+      "message": "this sounds more like a test case, rather than a use case.",
+      "range": {
+        "startLine": 50,
+        "startChar": 2,
+        "endLine": 50,
+        "endChar": 10
+      },
+      "revId": "219118fe209ddd93e0ef135bacabcb908b591d8c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e84febf9_421efb73",
+        "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-05-10T23:11:58Z",
+      "side": 1,
+      "message": "there is a upgrade suite under review. It should be possible to include a test for this feature.",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 166,
+        "endChar": 3
+      },
+      "revId": "219118fe209ddd93e0ef135bacabcb908b591d8c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4ee3ece4_38007319",
+        "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-05-10T23:11:58Z",
+      "side": 1,
+      "message": "maybe include a link to the previous napt selection spec?",
+      "revId": "219118fe209ddd93e0ef135bacabcb908b591d8c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
