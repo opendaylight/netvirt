@@ -100,7 +100,7 @@ public class AclNodeDefaultFlowsTxBuilder {
         InstructionInfo writeMetatdata = AclServiceUtils.getWriteMetadataForDropFlag();
         List<InstructionInfo> instructions = Lists.newArrayList(writeMetatdata);
         addGotoOrResubmitTableMissFlow(NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE,
-                NwConstants.INGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE, instructions);
+                NwConstants.INGRESS_ACL_COMMITTER_TABLE, instructions);
 
         writeMetatdata = AclServiceUtils
                 .getWriteMetadataForAclClassifierType(AclConntrackClassifierType.NON_CONNTRACK_SUPPORTED);
@@ -132,7 +132,7 @@ public class AclNodeDefaultFlowsTxBuilder {
 
         InstructionInfo writeMetatdata = AclServiceUtils.getWriteMetadataForDropFlag();
         List<InstructionInfo> instructions = Lists.newArrayList(writeMetatdata);
-        addGotoOrResubmitTableMissFlow(NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE,
+        addGotoOrResubmitTableMissFlow(NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE,
                 NwConstants.EGRESS_ACL_COMMITTER_TABLE, instructions);
 
         writeMetatdata = AclServiceUtils
