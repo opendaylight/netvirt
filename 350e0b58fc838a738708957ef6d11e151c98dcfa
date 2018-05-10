@@ -16,6 +16,24 @@
       "revId": "350e0b58fc838a738708957ef6d11e151c98dcfa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dbb64d31_9f514ddb",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 924,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2018-05-10T06:16:28Z",
+      "side": 1,
+      "message": "Done. Thanks :)",
+      "parentUuid": "f6e5fcf7_02ed152d",
+      "revId": "350e0b58fc838a738708957ef6d11e151c98dcfa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
