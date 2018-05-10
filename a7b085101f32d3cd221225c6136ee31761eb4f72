@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c78a566_2e967a06",
+        "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-10T15:01:44Z",
+      "side": 1,
+      "message": "SNAT sessions during and after upgrade..",
+      "revId": "a7b085101f32d3cd221225c6136ee31761eb4f72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "31ed467a_83161a01",
+        "filename": "docs/specs/fluorine/retain-napt-switch-after-upgrade-for-snat.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-10T15:01:44Z",
+      "side": 1,
+      "message": "Also, when we elect a newNAPT as part of upgrade for routers, there is this possibility of",
+      "revId": "a7b085101f32d3cd221225c6136ee31761eb4f72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
