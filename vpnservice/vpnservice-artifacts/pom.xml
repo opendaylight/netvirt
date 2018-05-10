@@ -20,7 +20,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>vpnservice-artifacts</artifactId>
   <name>ODL :: netvirt :: ${project.artifactId}</name>
-  <version>0.5.3-SNAPSHOT</version>
+  <version>0.5.4-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <dependencyManagement>
