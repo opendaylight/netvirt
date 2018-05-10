@@ -16,6 +16,24 @@
       "revId": "a4e53fdc041e1cdf44852ecc741c40c1aec1598c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b43f6638_90b8da7b",
+        "filename": "vpnmanager/api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 737,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-05-10T09:27:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "888d5a51_44d173df",
+      "revId": "a4e53fdc041e1cdf44852ecc741c40c1aec1598c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
