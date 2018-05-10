@@ -13,3 +13,4 @@ Contents:
    Support Neutron BGPVPN API on OpenDaylight L3VPN Service
    Tap as a Service <Tap-as-a-Service>
    EVPN and l2gw integration <evpn-l2gw-integration>
+   Support for virtual MAC movement inside DC.
