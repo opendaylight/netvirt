@@ -8,3 +8,4 @@ Contents:
 
    Controller punt protection <controller-punt-protection>
    Subnet routing for hidden IPv6 addresses <subnet-routing-for-hidden-ipv6>
+   Support for virtual MAC movement inside DC.
