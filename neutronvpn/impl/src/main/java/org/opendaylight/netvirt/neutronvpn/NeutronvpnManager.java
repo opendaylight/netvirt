@@ -2292,17 +2292,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                                    + "another VPN %s", nw.getValue(), networkVpnId.getValue()));
                     continue;
                 }
-                if (neutronvpnUtils.getIsExternal(network)) {
-                    if (associateExtNetworkToVpn(vpnId, network)) {
-                        passedNwList.add(nw);
-                        continue;
-                    } else {
-                        LOG.error("associateNetworksToVpn: Failed to associate Provider Network {} with VPN {}",
-                                  nw.getValue(), vpnId.getValue());
-                        failedNwList.add(String.format("Failed to associate Provider Network %s with VPN %s",
-                                                       nw.getValue(), vpnId.getValue()));
-                        continue;
-                    }
+                if (neutronvpnUtils.getIsExternal(network) && !associateExtNetworkToVpn(vpnId, network)) {
+                    LOG.error("associateNetworksToVpn: Failed to associate Provider Network {} with VPN {}",
+                            nw.getValue(), vpnId.getValue());
+                    failedNwList.add(String.format("Failed to associate Provider Network %s with VPN %s",
+                            nw.getValue(), vpnId.getValue()));
+                    continue;
                 }
                 List<Uuid> networkSubnets = neutronvpnUtils.getSubnetIdsFromNetworkId(nw);
                 if (networkSubnets == null) {
@@ -2323,10 +2318,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(),
                                 NeutronvpnUtils.getIpVersionFromString(sm.getSubnetIp()), true);
                     }
-                    LOG.debug("associateNetworksToVpn: Add subnet {} to VPN {}", subnet.getValue(), vpnId.getValue());
-                    addSubnetToVpn(vpnId, subnet, null);
-                    passedNwList.add(nw);
+                    if (!neutronvpnUtils.getIsExternal(network)) {
+                        LOG.debug("associateNetworksToVpn: Add subnet {} to VPN {}", subnet.getValue(),
+                                vpnId.getValue());
+                        addSubnetToVpn(vpnId, subnet, null);
+                    }
                 }
+                passedNwList.add(nw);
             }
         } catch (ReadFailedException e) {
             LOG.error("associateNetworksToVpn: Failed to associate VPN {} with networks {}: ", vpnId.getValue(),
