@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "83f77a5d_9a691ee0",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-11T13:38:07Z",
+      "side": 1,
+      "message": "We are checking if \"(routerId \u003d\u003d NatConstants.INVALID_ID)\" only in these api, but its also used in the subsequent APIs below. Any specific reason why its only validated in these apis alone?",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 80
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bedf7269_29a142dc",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-11T13:38:07Z",
+      "side": 1,
+      "message": "Does invoking the setExternalGwMac() API ultimately trigger handleSnatAllSwitch/handleSnat()?",
+      "range": {
+        "startLine": 447,
+        "startChar": 20,
+        "endLine": 447,
+        "endChar": 60
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a264dce2_15b013db",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 3
