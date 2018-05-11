@@ -389,7 +389,9 @@ public final class AclServiceOFFlowBuilder {
         return portMap;
     }
 // This method is created by taking the duplicate lines of code from programTcpFlow() and programUdpFlow () methods
-    public static Map<String,List<MatchInfoBase>> updateFlowMatches(AceIp acl, Map<Integer, Integer> portMaskMap, String sourceOrDestination){
+
+    public static Map<String,List<MatchInfoBase>> updateFlowMatches(AceIp acl, Map<Integer,
+            Integer> portMaskMap, String sourceOrDestination) {
         Map<String,List<MatchInfoBase>> flowMatchesMap = new HashMap<>();
 
         for (Entry<Integer, Integer> entry: portMaskMap.entrySet()) {
@@ -402,13 +404,13 @@ public final class AclServiceOFFlowBuilder {
             if (mask != AclConstants.ALL_LAYER4_PORT_MASK && sourceOrDestination.equals(TCP_SOURCE)) {
                 flowMatches.add(new NxMatchTcpSourcePort(port, mask));
 
-            }else if (mask != AclConstants.ALL_LAYER4_PORT_MASK && sourceOrDestination.equals(UDP_SOURCE)){
+            } else if (mask != AclConstants.ALL_LAYER4_PORT_MASK && sourceOrDestination.equals(UDP_SOURCE)) {
                 flowMatches.add(new NxMatchUdpSourcePort(port, mask));
 
-            }else if (mask != AclConstants.ALL_LAYER4_PORT_MASK && sourceOrDestination.equals(TCP_DESTINATION)) {
+            } else if (mask != AclConstants.ALL_LAYER4_PORT_MASK && sourceOrDestination.equals(TCP_DESTINATION)) {
                 flowMatches.add(new NxMatchTcpDestinationPort(port, mask));
 
-            }else if (mask != AclConstants.ALL_LAYER4_PORT_MASK && sourceOrDestination.equals(UDP_DESTINATION)) {
+            } else if (mask != AclConstants.ALL_LAYER4_PORT_MASK && sourceOrDestination.equals(UDP_DESTINATION)) {
                 flowMatches.add(new NxMatchUdpDestinationPort(port, mask));
             }
             flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
