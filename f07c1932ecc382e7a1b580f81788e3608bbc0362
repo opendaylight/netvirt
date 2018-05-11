@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "cff3006b_22bf0d68",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-11T13:55:31Z",
+      "side": 1,
+      "message": "Basically, we are registering a transient listener to update the ext-routers model with the ext_gw_mac_address when router is created, but we are going ahead and creating the neutron port in the DB (Line 163: API handleNeutronPortCreated). Will this have any other side-effect?",
+      "parentUuid": "bedf7269_29a142dc",
+      "range": {
+        "startLine": 447,
+        "startChar": 20,
+        "endLine": 447,
+        "endChar": 60
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a264dce2_15b013db",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 3
