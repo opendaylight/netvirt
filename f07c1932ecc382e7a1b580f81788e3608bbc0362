@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a264dce2_15b013db",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-05-11T11:19:29Z",
+      "side": 1,
+      "message": "what does this call back do? the idea is to invoke snatServiceManagerImpl.notify(...) again once the router id is in place?",
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
