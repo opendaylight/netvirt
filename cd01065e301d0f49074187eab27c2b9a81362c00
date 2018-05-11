@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "efa9718c_c9cacff1",
+        "filename": "docs/specs/igmp-snooping.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5089
+      },
+      "writtenOn": "2018-05-11T00:12:24Z",
+      "side": 1,
+      "message": "I\u0027m taking this statement to mean multicast packets should be forwarded based on group membership.  Is that right?  If so maybe make this more clear.",
+      "range": {
+        "startLine": 26,
+        "startChar": 18,
+        "endLine": 26,
+        "endChar": 57
+      },
+      "revId": "cd01065e301d0f49074187eab27c2b9a81362c00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eadb4ee5_b4df98c2",
+        "filename": "docs/specs/igmp-snooping.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5089
+      },
+      "writtenOn": "2018-05-11T00:12:24Z",
+      "side": 1,
+      "message": "Forwarded on all ports of a switch?  For router it says:\n\nThe range of addresses between 224.0.0.0 and 224.0.0.255, inclusive,\nis reserved for the use of routing protocols and other low-level\ntopology discovery or maintenance protocols, such as gateway discovery\nand group membership reporting.  Multicast routers should not forward\nany multicast datagram with destination addresses in this range,\nregardless of its TTL.",
+      "range": {
+        "startLine": 27,
+        "startChar": 2,
+        "endLine": 27,
+        "endChar": 119
+      },
+      "revId": "cd01065e301d0f49074187eab27c2b9a81362c00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff5aef74_d745000e",
+        "filename": "docs/specs/igmp-snooping.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5089
+      },
+      "writtenOn": "2018-05-11T00:12:24Z",
+      "side": 1,
+      "message": "what is MC BC Group?",
+      "range": {
+        "startLine": 79,
+        "startChar": 73,
+        "endLine": 79,
+        "endChar": 84
+      },
+      "revId": "cd01065e301d0f49074187eab27c2b9a81362c00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d2756f66_59698ec3",
+        "filename": "docs/specs/igmp-snooping.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5089
+      },
+      "writtenOn": "2018-05-11T00:12:24Z",
+      "side": 1,
+      "message": "maybe out of scope of this spec, but what about configuring the neutron router to be an IGMP querier?",
+      "range": {
+        "startLine": 83,
+        "startChar": 1,
+        "endLine": 83,
+        "endChar": 29
+      },
+      "revId": "cd01065e301d0f49074187eab27c2b9a81362c00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81786f88_e6abd0c1",
+        "filename": "docs/specs/igmp-snooping.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5089
+      },
+      "writtenOn": "2018-05-11T00:12:24Z",
+      "side": 1,
+      "message": "I think this is related to the MC BC Group.  IIUC you are saying create a broadcast group in ODL or OVS and add all the multicast members to that group for traffic forwarding.  Maybe this should be stated before line 79 where you reference an \"MC BC Group\".",
+      "range": {
+        "startLine": 94,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 75
+      },
+      "revId": "cd01065e301d0f49074187eab27c2b9a81362c00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e343fbaa_91315b49",
+        "filename": "docs/specs/igmp-snooping.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5089
+      },
+      "writtenOn": "2018-05-11T00:12:24Z",
+      "side": 1,
+      "message": "is this just a change in networking-odl?",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 109,
+        "endChar": 128
+      },
+      "revId": "cd01065e301d0f49074187eab27c2b9a81362c00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
