@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Aswin Suryanarayanan <asuryana@redhat.com>
+Submitted-by: Aswin Suryanarayanan <asuryana@redhat.com>
+Submitted-at: Fri, 11 May 2018 16:56:22 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/71569
+Project: netvirt
+Branch: refs/heads/stable/oxygen
