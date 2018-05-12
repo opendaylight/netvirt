@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "52645b0f_e3a997e9",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-05-12T05:04:34Z",
+      "side": 1,
+      "message": "edited the text. That was wrongly written.",
+      "parentUuid": "08cbf406_e2f7d7f3",
+      "revId": "67858dc23ed7950325870fd346ecc3870871a2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2fa020e8_66d4001b",
         "filename": "docs/specs/fluorine/evpn-rt3-support.rst",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2018-05-09T17:58:51Z",
       "side": 1,
       "message": "RT2 and RT5 donot support IPv6 today for EVPN in NetVirt.. So can you please clarify what you mean by IPv6 address for Router\u0027s \n IP support claimed here?",
+      "revId": "67858dc23ed7950325870fd346ecc3870871a2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "822dbead_c8999c2c",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-05-12T05:04:34Z",
+      "side": 1,
+      "message": "corrected",
+      "parentUuid": "2fa020e8_66d4001b",
       "revId": "67858dc23ed7950325870fd346ecc3870871a2e6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "16bfae32_d6330b9f",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-05-12T05:04:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8142f1ca_b12ddf52",
+      "revId": "67858dc23ed7950325870fd346ecc3870871a2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33313e48_ffdb4c70",
         "filename": "docs/specs/fluorine/evpn-rt3-support.rst",
         "patchSetId": 8
@@ -64,6 +118,24 @@
       "writtenOn": "2018-05-09T17:58:51Z",
       "side": 1,
       "message": "would this feature be supporting VM Migration and VM Evacuation?",
+      "revId": "67858dc23ed7950325870fd346ecc3870871a2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf6c84cd_1b6c7dfa",
+        "filename": "docs/specs/fluorine/evpn-rt3-support.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-05-12T05:04:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33313e48_ffdb4c70",
       "revId": "67858dc23ed7950325870fd346ecc3870871a2e6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
