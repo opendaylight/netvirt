@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a3628d84_8ae9f041",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-14T06:58:00Z",
+      "side": 1,
+      "message": "Yes, that is the plan. Could you give inputs on current status as captured in this table?",
+      "parentUuid": "eb2fe3a7_6eeb8760",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 9
+      },
+      "revId": "946f882899ca8a290aaec88e5fa8c3880ed3eb6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0e6f8632_0718e61e",
         "filename": "docs/specs/fluorine/qos.rst",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-10T12:30:20Z",
       "side": 1,
       "message": "Add all required details (pipeline, yang ...)",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 3
+      },
+      "revId": "946f882899ca8a290aaec88e5fa8c3880ed3eb6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc3dde1d_cb7603dd",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-14T06:58:00Z",
+      "side": 1,
+      "message": "That will come, first want to make sure scope is correctly captured. Based on that this content will come in.",
+      "parentUuid": "0e6f8632_0718e61e",
       "range": {
         "startLine": 53,
         "startChar": 0,
