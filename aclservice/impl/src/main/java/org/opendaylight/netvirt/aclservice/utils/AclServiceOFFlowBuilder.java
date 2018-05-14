@@ -48,6 +48,10 @@ import org.slf4j.LoggerFactory;
 
 public final class AclServiceOFFlowBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceOFFlowBuilder.class);
+    public static final String TCP_SOURCE = "TCP_SOURCE_";
+    public static final String UDP_SOURCE = "UDP_SOURCE_";
+    public static final String TCP_DESTINATION = "TCP_DESTINATION_";
+    public static final String UDP_DESTINATION = "UDP_DESTINATION_";
 
     private AclServiceOFFlowBuilder() {
     }
@@ -182,37 +186,14 @@ public final class AclServiceOFFlowBuilder {
         }
         if (sourcePortRange != null) {
             Map<Integer, Integer> portMaskMap = getLayer4MaskForRange(sourcePortRange.getLowerPort().getValue(),
-                sourcePortRange.getUpperPort().getValue());
-            for (Entry<Integer, Integer> entry: portMaskMap.entrySet()) {
-                Integer port = entry.getKey();
-                List<MatchInfoBase> flowMatches = new ArrayList<>();
-                flowMatches.addAll(addSrcIpMatches(acl));
-                flowMatches.addAll(addDstIpMatches(acl));
-                Integer mask = entry.getValue();
-                if (mask != AclConstants.ALL_LAYER4_PORT_MASK) {
-                    flowMatches.add(new NxMatchTcpSourcePort(port, mask));
-                }
-                flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
-                String flowId = "TCP_SOURCE_" + port + "_" + mask;
-                flowMatchesMap.put(flowId,flowMatches);
-            }
+                    sourcePortRange.getUpperPort().getValue());
+            AclServiceOFFlowBuilder.updateFlowMatches(acl, portMaskMap, flowMatchesMap, TCP_SOURCE);
         }
         if (destinationPortRange != null) {
             Map<Integer, Integer> portMaskMap = getLayer4MaskForRange(destinationPortRange.getLowerPort().getValue(),
-                destinationPortRange.getUpperPort().getValue());
-            for (Entry<Integer, Integer> entry: portMaskMap.entrySet()) {
-                Integer port = entry.getKey();
-                List<MatchInfoBase> flowMatches = new ArrayList<>();
-                flowMatches.addAll(addSrcIpMatches(acl));
-                flowMatches.addAll(addDstIpMatches(acl));
-                Integer mask = entry.getValue();
-                if (mask != AclConstants.ALL_LAYER4_PORT_MASK) {
-                    flowMatches.add(new NxMatchTcpDestinationPort(port, mask));
-                }
-                flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
-                String flowId = "TCP_DESTINATION_" + port + "_" + mask;
-                flowMatchesMap.put(flowId,flowMatches);
-            }
+                    destinationPortRange.getUpperPort().getValue());
+            AclServiceOFFlowBuilder.updateFlowMatches(acl, portMaskMap,
+                    flowMatchesMap, TCP_DESTINATION);
         }
         return flowMatchesMap;
     }
@@ -236,37 +217,13 @@ public final class AclServiceOFFlowBuilder {
         }
         if (sourcePortRange != null) {
             Map<Integer, Integer> portMaskMap = getLayer4MaskForRange(sourcePortRange.getLowerPort().getValue(),
-                sourcePortRange.getUpperPort().getValue());
-            for (Entry<Integer, Integer> entry: portMaskMap.entrySet()) {
-                Integer port = entry.getKey();
-                List<MatchInfoBase> flowMatches = new ArrayList<>();
-                flowMatches.addAll(addSrcIpMatches(acl));
-                flowMatches.addAll(addDstIpMatches(acl));
-                Integer mask = entry.getValue();
-                if (mask != AclConstants.ALL_LAYER4_PORT_MASK) {
-                    flowMatches.add(new NxMatchUdpSourcePort(port, mask));
-                }
-                flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
-                String flowId = "UDP_SOURCE_" + port + "_" + mask;
-                flowMatchesMap.put(flowId ,flowMatches);
-            }
+                    sourcePortRange.getUpperPort().getValue());
+            AclServiceOFFlowBuilder.updateFlowMatches(acl, portMaskMap, flowMatchesMap, UDP_SOURCE);
         }
         if (destinationPortRange != null) {
             Map<Integer, Integer> portMaskMap = getLayer4MaskForRange(destinationPortRange.getLowerPort().getValue(),
-                destinationPortRange.getUpperPort().getValue());
-            for (Entry<Integer, Integer> entry: portMaskMap.entrySet()) {
-                Integer port = entry.getKey();
-                List<MatchInfoBase> flowMatches = new ArrayList<>();
-                flowMatches.addAll(addSrcIpMatches(acl));
-                flowMatches.addAll(addDstIpMatches(acl));
-                Integer mask = entry.getValue();
-                if (mask != AclConstants.ALL_LAYER4_PORT_MASK) {
-                    flowMatches.add(new NxMatchUdpDestinationPort(port, mask));
-                }
-                flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
-                String flowId = "UDP_DESTINATION_" + port + "_" + mask;
-                flowMatchesMap.put(flowId, flowMatches);
-            }
+                    destinationPortRange.getUpperPort().getValue());
+            AclServiceOFFlowBuilder.updateFlowMatches(acl, portMaskMap, flowMatchesMap, UDP_DESTINATION);
         }
 
         return flowMatchesMap;
@@ -431,6 +388,43 @@ public final class AclServiceOFFlowBuilder {
             }
         }
         return portMap;
+    }
+
+    /**
+     * Updates flow matches based on TCP and UDP source and destination matches.
+     *
+     * @param acl the access control list.
+     * @param portMaskMap portMaskMap.
+     * @param flowMatchesMap flowMatchesMap.
+     * @param sourceOrDestination either source or Destination.
+     *
+     */
+    public static void updateFlowMatches(AceIp acl, Map<Integer, Integer> portMaskMap,
+                                                                    Map<String,List<MatchInfoBase>> flowMatchesMap,
+                                                                    String sourceOrDestination) {
+        for (Entry<Integer, Integer> entry: portMaskMap.entrySet()) {
+            Integer port = entry.getKey();
+            List<MatchInfoBase> flowMatches = new ArrayList<>();
+            flowMatches.addAll(addSrcIpMatches(acl));
+            flowMatches.addAll(addDstIpMatches(acl));
+            Integer mask = entry.getValue();
+
+            if (mask != AclConstants.ALL_LAYER4_PORT_MASK && sourceOrDestination.equals(TCP_SOURCE)) {
+                flowMatches.add(new NxMatchTcpSourcePort(port, mask));
+
+            } else if (mask != AclConstants.ALL_LAYER4_PORT_MASK && sourceOrDestination.equals(UDP_SOURCE)) {
+                flowMatches.add(new NxMatchUdpSourcePort(port, mask));
+
+            } else if (mask != AclConstants.ALL_LAYER4_PORT_MASK && sourceOrDestination.equals(TCP_DESTINATION)) {
+                flowMatches.add(new NxMatchTcpDestinationPort(port, mask));
+
+            } else if (mask != AclConstants.ALL_LAYER4_PORT_MASK && sourceOrDestination.equals(UDP_DESTINATION)) {
+                flowMatches.add(new NxMatchUdpDestinationPort(port, mask));
+            }
+            flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
+            String updatedFlowId = sourceOrDestination + port + "_" + mask;
+            flowMatchesMap.put(updatedFlowId, flowMatches);
+        }
     }
 
 }

@@ -63,6 +63,13 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
 
     /**
      * Initialize the member variables.
+     *
+     * @param dataBroker the data broker instance.
+     * @param mdsalManager the mdsal manager.
+     * @param aclDataUtil the acl data util.
+     * @param aclServiceUtils the acl service util.
+     * @param jobCoordinator the job coordinator
+     * @param aclInterfaceCache the acl interface cache
      */
     public EgressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil,
             AclServiceUtils aclServiceUtils, JobCoordinator jobCoordinator, AclInterfaceCache aclInterfaceCache) {
