@@ -93,6 +93,23 @@
       "revId": "946f882899ca8a290aaec88e5fa8c3880ed3eb6a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f671eff_bf76da4e",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-14T17:05:12Z",
+      "side": 1,
+      "message": "looks like this feature in ODL might first need enhancement to existing Neutron QoS v2 driver, right?",
+      "revId": "946f882899ca8a290aaec88e5fa8c3880ed3eb6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
