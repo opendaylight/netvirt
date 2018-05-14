@@ -20,5 +20,11 @@ module natservice-config {
             }
             default "controller";
         }
+        leaf snat-punt-timeout {
+            description "hard timeout value for learnt flows for snat punts in seconds.
+                To turn off the rate limiting and installation of learnt flows, it should be set to 0,";
+            type uint32;
+            default 5;
+        }
    }
 }
