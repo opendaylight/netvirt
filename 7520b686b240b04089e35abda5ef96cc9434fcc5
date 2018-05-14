@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48f2805e_0e9bb71e",
+        "filename": "docs/specs/fluorine/seamless-movement-mip-vmac.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-14T16:13:34Z",
+      "side": 1,
+      "message": "Enable discovery of Virtual IPs (or Movable IPs) holding Virtual MACs",
+      "revId": "7520b686b240b04089e35abda5ef96cc9434fcc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b12cc9d0_4892b0bf",
+        "filename": "docs/specs/fluorine/seamless-movement-mip-vmac.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-14T16:13:34Z",
+      "side": 1,
+      "message": "the topic name and filename usually needs to match.",
+      "revId": "7520b686b240b04089e35abda5ef96cc9434fcc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e03f1a95_2fc29bca",
+        "filename": "docs/specs/fluorine/seamless-movement-mip-vmac.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-14T16:13:34Z",
+      "side": 1,
+      "message": "Enable discovery of Movable (or Virtual IPs) which have their own sticky Virtual MACs, in an L3VPN domain.  \n\nThe discovery of these virtual IPs will be triggered by either IP traffic originated from a source outside the DC (same L3VPN domain) towards such Virtual IPs (or) from IP traffic originated from a source within the DC (again within same L3VPN domain) towards such Virtual IPs.\n\nAlso ensure to enforce discovery of new locations of such Virtual IPs (along with their Virtual MACs) when they move inside the DC and program the routes appropriately thereby providing continual L3 connectivity towards such Virtual IPs, both from within and from outside DC.",
+      "revId": "7520b686b240b04089e35abda5ef96cc9434fcc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d475114c_f053e1ba",
+        "filename": "docs/specs/fluorine/seamless-movement-mip-vmac.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-14T16:13:34Z",
+      "side": 1,
+      "message": "can we please make lines that donot cross 80 chars..would make it easier to review.",
+      "revId": "7520b686b240b04089e35abda5ef96cc9434fcc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50780883_9d301aff",
+        "filename": "docs/specs/fluorine/seamless-movement-mip-vmac.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-14T16:13:34Z",
+      "side": 1,
+      "message": "1. Discovery of Virtual IPs that have sticky Virtual MACs ending up with providing L3 connectivity for such Virtual IPs.\n\n2. Discovery of new location of Virtual IPs (with sticky Virtual MACs), when such Virtual IPs move within an L3VPN domain in the cloud, ending up with continual L3 connectivity maintained for such Virtual IPs.\n\n3. Virtual IPs with sticky Virtual MACs to work on L3VPNs that have export/import relationship with other L3VPNs configured in the cloud, ending up with L3 connectivity for such Virtual IPs from related L3VPNs.\n\n4. When a Virtual IP belongs to only one VM port and VM migrates to a new location carrying along the Virtual IP, ending up with L3 connecitivty for such Virtual IPs retained intact.\n \n5. Tear down of such Virtual IPs (ie., VIP route) when the only hosting VM port is deleted, ending up with removal of routes representing the Virtual IP.\n\n6. If a VM port (and its Virtual IP) remained intact during cluster reboot, then both during cluster reboot and after cluster reboot there should be no dataplane traffic loss to/from the Virtual IP within the L3VPN domain in the cloud.",
+      "revId": "7520b686b240b04089e35abda5ef96cc9434fcc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cbe01013_33a9e5c4",
+        "filename": "docs/specs/fluorine/seamless-movement-mip-vmac.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-14T16:13:34Z",
+      "side": 1,
+      "message": "looks extremely small proposed change, can you please elaborate this .",
+      "revId": "7520b686b240b04089e35abda5ef96cc9434fcc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "330dedb4_bbcf1669",
+        "filename": "docs/specs/fluorine/seamless-movement-mip-vmac.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-14T16:13:34Z",
+      "side": 1,
+      "message": "are we sure there are no pipeline changes?",
+      "revId": "7520b686b240b04089e35abda5ef96cc9434fcc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c9f95e2_fcc7f3a2",
+        "filename": "docs/specs/fluorine/seamless-movement-mip-vmac.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-14T16:13:34Z",
+      "side": 1,
+      "message": "ditto?",
+      "revId": "7520b686b240b04089e35abda5ef96cc9434fcc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "20a86f61_bafa2024",
+        "filename": "docs/specs/fluorine/seamless-movement-mip-vmac.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-14T16:13:34Z",
+      "side": 1,
+      "message": "can you please remove the above two lines?",
+      "revId": "7520b686b240b04089e35abda5ef96cc9434fcc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "82d2302e_5956bb9d",
+        "filename": "docs/specs/fluorine/seamless-movement-mip-vmac.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-14T16:13:34Z",
+      "side": 1,
+      "message": "you can state\n\n\"enhance the current ARP learning suite with the new use-cases quooted in the use-case section above thereby providing CSIT coverage for this feature.\"",
+      "revId": "7520b686b240b04089e35abda5ef96cc9434fcc5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
