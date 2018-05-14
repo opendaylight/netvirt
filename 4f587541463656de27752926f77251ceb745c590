@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22dc405c_2c496ff7",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-14T16:52:45Z",
+      "side": 1,
+      "message": "Remote Ucast Table of TOR2",
+      "revId": "4f587541463656de27752926f77251ceb745c590",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bf13c5ac_8511d755",
+        "filename": "docs/specs/fluorine/evpn-l2gw-integration.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-14T16:52:45Z",
+      "side": 1,
+      "message": "since L2VNI is used here for traffic between SR-IOV VMs across two different DCs,  you will be specifying this L2VNI when you create an L2GW Connection?",
+      "revId": "4f587541463656de27752926f77251ceb745c590",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
