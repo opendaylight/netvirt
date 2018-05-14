@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3cb1b0f_e622a011",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceOFFlowBuilder.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2018-05-14T07:32:01Z",
+      "side": 1,
+      "message": "source port range\u0027s  flowMatchesMap are overwritten here. this could be the reason for UT failures, re-look and fix it.",
+      "range": {
+        "startLine": 195,
+        "startChar": 12,
+        "endLine": 195,
+        "endChar": 53
+      },
+      "revId": "f1d5f41e86ee817b75a46ff1aee0b3354f3c7500",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec6f18d3_ca77d979",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceOFFlowBuilder.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2018-05-14T07:32:01Z",
+      "side": 1,
+      "message": "same as above",
+      "range": {
+        "startLine": 225,
+        "startChar": 12,
+        "endLine": 225,
+        "endChar": 53
+      },
+      "revId": "f1d5f41e86ee817b75a46ff1aee0b3354f3c7500",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8f164ebf_e79b6814",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceOFFlowBuilder.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2018-05-14T07:32:01Z",
+      "side": 1,
+      "message": "you could explain what parameters are expected and what is the output of this method. no need to say it\u0027s duplicate code in source-code comments.",
+      "range": {
+        "startLine": 391,
+        "startChar": 0,
+        "endLine": 391,
+        "endChar": 69
+      },
+      "revId": "f1d5f41e86ee817b75a46ff1aee0b3354f3c7500",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
