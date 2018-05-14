@@ -49,6 +49,53 @@
     },
     {
       "key": {
+        "uuid": "37fcb0f8_afb2daf7",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-14T07:37:09Z",
+      "side": 1,
+      "message": "In that case, can we add a check in Line 70 and remove it from the apis below? IMHO, this is still not the right way because if we are returning, there should be an event that invokes the api again once the routerId is available.",
+      "parentUuid": "3b3b9a30_36f680dd",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 80
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bb11efe7_7a349c03",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-14T07:37:09Z",
+      "side": 1,
+      "message": "Looks like its a CP error. The debug message should be updated.",
+      "range": {
+        "startLine": 111,
+        "startChar": 57,
+        "endLine": 111,
+        "endChar": 92
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bedf7269_29a142dc",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 3
@@ -132,6 +179,54 @@
       "side": 1,
       "message": "That is the million dollar question here (: Should we do this or make a read-with-retry.",
       "parentUuid": "cff3006b_22bf0d68",
+      "range": {
+        "startLine": 447,
+        "startChar": 20,
+        "endLine": 447,
+        "endChar": 60
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "731a9414_56a99f83",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-14T07:37:09Z",
+      "side": 1,
+      "message": "My main concern is that this issue is seen during scale (i.e., only reproduced when there is an out-of-band events) and we are trying to address it. So I want to ensure that the fix indeed addresses the problem. \n\nWe can surely try this fix again in the scale lab, but as a developer testing we can try the following.\n1. In eventCallbacks.onAddOrUpdate(), add some small delay for few seconds to see how the code is reacting.\n2. Shall we apply the same logic in add() event and delay neutronPortCreation until the router is populated in the DB. So that the possibilities of side effects are minimized?\n\nWhat are your thoughts?",
+      "parentUuid": "a2ecaca8_ab0330cc",
+      "range": {
+        "startLine": 447,
+        "startChar": 20,
+        "endLine": 447,
+        "endChar": 60
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b54ca0c_24be202f",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-14T07:37:09Z",
+      "side": 1,
+      "message": "So if we are handling this properly here, we should no longer see the exception in ConntrackBasedSnatService right?",
+      "parentUuid": "304f466c_d20bfe37",
       "range": {
         "startLine": 447,
         "startChar": 20,
