@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33abcc2a_34fd8812",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1136,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-14T03:16:57Z",
+      "side": 1,
+      "message": "if (!FibHelper.isControllerManagedRouterInterfaceRoute() {\n  continue;\n}\n\nif (FibHelper.isSubnetRoute()) {\n   /* do subnet route logic */\n}\n\n/* here do the vpnInterface processing without any if check */",
+      "revId": "69679964d368df0f87d9427989a52ae59f18a82d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
