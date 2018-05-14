@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3b3b9a30_36f680dd",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-14T07:02:40Z",
+      "side": 1,
+      "message": "Just coz this is where we\u0027ve hit it so far, though we should handle in all cases. Ideally, syncFlow should throw back IAE and calling code should catch it correctly, but that would be too big a change for the scope of this fix.",
+      "parentUuid": "83f77a5d_9a691ee0",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 80
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bedf7269_29a142dc",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 3
@@ -60,6 +84,54 @@
       "side": 1,
       "message": "Basically, we are registering a transient listener to update the ext-routers model with the ext_gw_mac_address when router is created, but we are going ahead and creating the neutron port in the DB (Line 163: API handleNeutronPortCreated). Will this have any other side-effect?",
       "parentUuid": "bedf7269_29a142dc",
+      "range": {
+        "startLine": 447,
+        "startChar": 20,
+        "endLine": 447,
+        "endChar": 60
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "304f466c_d20bfe37",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-14T07:02:40Z",
+      "side": 1,
+      "message": "Think so, setExternalGwMac is the one that populates the routerId that is used all over SNAT code.",
+      "parentUuid": "bedf7269_29a142dc",
+      "range": {
+        "startLine": 447,
+        "startChar": 20,
+        "endLine": 447,
+        "endChar": 60
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a2ecaca8_ab0330cc",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-14T07:02:40Z",
+      "side": 1,
+      "message": "That is the million dollar question here (: Should we do this or make a read-with-retry.",
+      "parentUuid": "cff3006b_22bf0d68",
       "range": {
         "startLine": 447,
         "startChar": 20,
