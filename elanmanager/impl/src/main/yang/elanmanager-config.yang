@@ -42,6 +42,12 @@ module elan-config {
             type uint16;
             default 10;
         }
+        leaf arp-punt-timeout {
+            description "hard timeout value for learnt flows for arp punts (unit - seconds).
+                To turn off the rate limiting and installation of learnt flows, it should be set to 0";
+            type uint32;
+            default 5;
+        }
         leaf punt-lldp-to-controller {
             description "Determines whether LLDP are punt to controller or dropped";
             type boolean;
