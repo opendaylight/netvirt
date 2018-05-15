@@ -87,9 +87,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
@@ -117,7 +114,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.RouterIdName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCounters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
@@ -245,8 +241,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-        createGroupIdPool();
+        // This class handles ExternalRouters for Controller SNAT mode.
+        // For Conntrack SNAT mode, its handled in SnatExternalRoutersListener.java
+        if (natMode == NatMode.Controller) {
+            registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+            NatUtil.createGroupIdPool(idManager);
+        }
     }
 
     @Override
@@ -264,43 +264,31 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         NatUtil.createRouterIdsConfigDS(dataBroker, routerId, routerName);
         Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
-        if (natMode == NatMode.Conntrack && !upgradeState.isUpgradeInProgress()) {
-            if (bgpVpnUuid != null) {
-                return;
-            }
-            List<ExternalIps> externalIps = routers.getExternalIps();
-            // Allocate Primary Napt Switch for this router
-            if (routers.isEnableSnat() && externalIps != null && !externalIps.isEmpty()) {
-                centralizedSwitchScheduler.scheduleCentralizedSwitch(routers);
-            }
-            //snatServiceManger.notify(routers, null, Action.ADD);
-        } else {
-            try {
-                coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routers.key(),
-                    () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                        LOG.info("add : Installing NAT default route on all dpns part of router {}", routerName);
-                        long bgpVpnId = NatConstants.INVALID_ID;
-                        if (bgpVpnUuid != null) {
-                            bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
+        try {
+            coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routers.key(),
+                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                    LOG.info("add : Installing NAT default route on all dpns part of router {}", routerName);
+                    long bgpVpnId = NatConstants.INVALID_ID;
+                    if (bgpVpnUuid != null) {
+                        bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
+                    }
+                    addOrDelDefFibRouteToSNAT(routerName, routerId, bgpVpnId, bgpVpnUuid, true, tx);
+                    // Allocate Primary Napt Switch for this router
+                    BigInteger primarySwitchId = getPrimaryNaptSwitch(routerName);
+                    if (primarySwitchId != null && !primarySwitchId.equals(BigInteger.ZERO)) {
+                        if (!routers.isEnableSnat()) {
+                            LOG.info("add : SNAT is disabled for external router {} ", routerName);
+                            /* If SNAT is disabled on ext-router though L3_FIB_TABLE(21) -> PSNAT_TABLE(26) flow
+                             * is required for DNAT. Hence writeFlowInvTx object submit is required.
+                             */
+                            return;
                         }
-                        addOrDelDefFibRouteToSNAT(routerName, routerId, bgpVpnId, bgpVpnUuid, true, tx);
-                        // Allocate Primary Napt Switch for this router
-                        BigInteger primarySwitchId = getPrimaryNaptSwitch(routerName);
-                        if (primarySwitchId != null && !primarySwitchId.equals(BigInteger.ZERO)) {
-                            if (!routers.isEnableSnat()) {
-                                LOG.info("add : SNAT is disabled for external router {} ", routerName);
-                                /* If SNAT is disabled on ext-router though L3_FIB_TABLE(21) -> PSNAT_TABLE(26) flow
-                                 * is required for DNAT. Hence writeFlowInvTx object submit is required.
-                                 */
-                                return;
-                            }
-                            handleEnableSnat(routers, routerId, primarySwitchId, bgpVpnId, tx);
-                        }
-                    })), NatConstants.NAT_DJC_MAX_RETRIES);
-            } catch (Exception ex) {
-                LOG.error("add : Exception while Installing NAT flows on all dpns as part of router {}",
-                        routerName, ex);
-            }
+                        handleEnableSnat(routers, routerId, primarySwitchId, bgpVpnId, tx);
+                    }
+                })), NatConstants.NAT_DJC_MAX_RETRIES);
+        } catch (Exception ex) {
+            LOG.error("add : Exception while Installing NAT flows on all dpns as part of router {}",
+                    routerName, ex);
         }
     }
 
@@ -893,24 +881,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         return 0;
     }
 
-    protected void createGroupIdPool() {
-        CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
-            .setPoolName(NatConstants.SNAT_IDPOOL_NAME)
-            .setLow(NatConstants.SNAT_ID_LOW_VALUE)
-            .setHigh(NatConstants.SNAT_ID_HIGH_VALUE)
-            .build();
-        try {
-            Future<RpcResult<CreateIdPoolOutput>> result = idManager.createIdPool(createPool);
-            if (result != null && result.get().isSuccessful()) {
-                LOG.debug("createGroupIdPool : GroupIdPool created successfully");
-            } else {
-                LOG.error("createGroupIdPool : Unable to create GroupIdPool");
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("createGroupIdPool : Failed to create PortPool for NAPT Service", e);
-        }
-    }
-
     protected void handleSwitches(BigInteger dpnId, String routerName, long routerId, BigInteger primarySwitchId) {
         LOG.debug("handleSwitches : Installing SNAT miss entry in switch {}", dpnId);
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
@@ -1287,352 +1257,331 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         boolean updatedSNATEnabled = update.isEnableSnat();
         LOG.debug("update :called with originalFlag and updatedFlag for SNAT enabled "
             + "as {} and {}", originalSNATEnabled, updatedSNATEnabled);
-        if (natMode == NatMode.Conntrack && !upgradeState.isUpgradeInProgress()) {
-            if (originalSNATEnabled != updatedSNATEnabled) {
-                BigInteger primarySwitchId;
-                if (originalSNATEnabled) {
-                    //SNAT disabled for the router
-                    centralizedSwitchScheduler.releaseCentralizedSwitch(update);
-                } else {
-                    centralizedSwitchScheduler.scheduleCentralizedSwitch(update);
-                }
-            } else if (updatedSNATEnabled) {
-                centralizedSwitchScheduler.updateCentralizedSwitch(original,update);
-            }
-            List<ExternalIps> originalExternalIps = original.getExternalIps();
-            List<ExternalIps> updateExternalIps = update.getExternalIps();
-            if (!Objects.equals(originalExternalIps, updateExternalIps)) {
-                if (originalExternalIps == null || originalExternalIps.isEmpty()) {
-                    centralizedSwitchScheduler.scheduleCentralizedSwitch(update);
-                }
-            }
-        } else {
-            /* Get Primary Napt Switch for existing router from "router-to-napt-switch" DS.
-             * if dpnId value is null or zero then go for electing new Napt switch for existing router.
-             */
-            long bgpVpnId = NatConstants.INVALID_ID;
-            Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
-            if (bgpVpnUuid != null) {
-                bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
-            }
-            BigInteger dpnId = getPrimaryNaptSwitch(routerName);
-            if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
-                // Router has no interface attached
-                return;
-            }
-            final long finalBgpVpnId = bgpVpnId;
-            coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.key(), () -> {
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeFlowInvTx -> {
-                    futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(removeFlowInvTx -> {
-                        Uuid networkId = original.getNetworkId();
-                        if (originalSNATEnabled != updatedSNATEnabled) {
-                            if (originalSNATEnabled) {
-                                //SNAT disabled for the router
-                                Uuid networkUuid = original.getNetworkId();
-                                LOG.info("update : SNAT disabled for Router {}", routerName);
-                                Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
-                                handleDisableSnat(original, networkUuid, externalIps, false, null, dpnId, routerId,
-                                        removeFlowInvTx);
-                            } else {
-                                LOG.info("update : SNAT enabled for Router {}", original.getRouterName());
-                                handleEnableSnat(original, routerId, dpnId, finalBgpVpnId, removeFlowInvTx);
+        /* Get Primary Napt Switch for existing router from "router-to-napt-switch" DS.
+         * if dpnId value is null or zero then go for electing new Napt switch for existing router.
+         */
+        long bgpVpnId = NatConstants.INVALID_ID;
+        Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
+        if (bgpVpnUuid != null) {
+            bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
+        }
+        BigInteger dpnId = getPrimaryNaptSwitch(routerName);
+        if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
+            // Router has no interface attached
+            return;
+        }
+        final long finalBgpVpnId = bgpVpnId;
+        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.key(), () -> {
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeFlowInvTx -> {
+                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(removeFlowInvTx -> {
+                    Uuid networkId = original.getNetworkId();
+                    if (originalSNATEnabled != updatedSNATEnabled) {
+                        if (originalSNATEnabled) {
+                            //SNAT disabled for the router
+                            Uuid networkUuid = original.getNetworkId();
+                            LOG.info("update : SNAT disabled for Router {}", routerName);
+                            Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
+                            handleDisableSnat(original, networkUuid, externalIps, false, null, dpnId, routerId,
+                                    removeFlowInvTx);
+                        } else {
+                            LOG.info("update : SNAT enabled for Router {}", original.getRouterName());
+                            handleEnableSnat(original, routerId, dpnId, finalBgpVpnId, removeFlowInvTx);
+                        }
+                    }
+                    if (!Objects.equals(original.getExtGwMacAddress(), update.getExtGwMacAddress())) {
+                        NatUtil.installRouterGwFlows(txRunner, vpnManager, original, dpnId, NwConstants.DEL_FLOW);
+                        NatUtil.installRouterGwFlows(txRunner, vpnManager, update, dpnId, NwConstants.ADD_FLOW);
+                    }
+
+                    //Check if the Update is on External IPs
+                    LOG.debug("update : Checking if this is update on External IPs");
+                    List<String> originalExternalIps = NatUtil.getIpsListFromExternalIps(original.getExternalIps());
+                    List<String> updatedExternalIps = NatUtil.getIpsListFromExternalIps(update.getExternalIps());
+
+                    //Check if the External IPs are added during the update.
+                    Set<String> addedExternalIps = new HashSet<>(updatedExternalIps);
+                    addedExternalIps.removeAll(originalExternalIps);
+                    if (addedExternalIps.size() != 0) {
+                        LOG.debug("update : Start processing of the External IPs addition during the update "
+                                + "operation");
+                        vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName, addedExternalIps,
+                                update.getExtGwMacAddress(), dpnId,
+                                update.getNetworkId(), null);
+
+                        for (String addedExternalIp : addedExternalIps) {
+                /*
+                    1) Do nothing in the IntExtIp model.
+                    2) Initialise the count of the added external IP to 0 in the ExternalCounter model.
+                 */
+                            String[] externalIpParts = NatUtil.getExternalIpAndPrefix(addedExternalIp);
+                            String externalIp = externalIpParts[0];
+                            String externalIpPrefix = externalIpParts[1];
+                            String externalpStr = externalIp + "/" + externalIpPrefix;
+                            LOG.debug("update : Initialise the count mapping of the external IP {} for the "
+                                            + "router ID {} in the ExternalIpsCounter model.",
+                                    externalpStr, routerId);
+                            naptManager.initialiseNewExternalIpCounter(routerId, externalpStr);
+                        }
+                        LOG.debug(
+                                "update : End processing of the External IPs addition during the update operation");
+                    }
+
+                    //Check if the External IPs are removed during the update.
+                    Set<String> removedExternalIps = new HashSet<>(originalExternalIps);
+                    removedExternalIps.removeAll(updatedExternalIps);
+                    if (removedExternalIps.size() > 0) {
+                        LOG.debug("update : Start processing of the External IPs removal during the update "
+                                + "operation");
+                        vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerName,
+                                removedExternalIps, original.getExtGwMacAddress(),
+                                dpnId, networkId);
+
+                        for (String removedExternalIp : removedExternalIps) {
+                /*
+                    1) Remove the mappings in the IntExt IP model which has external IP.
+                    2) Remove the external IP in the ExternalCounter model.
+                    3) For the corresponding subnet IDs whose external IP mapping was removed, allocate one of the
+                       least loaded external IP.
+                       Store the subnet IP and the reallocated external IP mapping in the IntExtIp model.
+                    4) Increase the count of the allocated external IP by one.
+                    5) Advertise to the BGP if external IP is allocated for the first time for the router
+                     i.e. the route for the external IP is absent.
+                    6) Remove the NAPT translation entries from Inbound and Outbound NAPT tables for
+                     the removed external IPs and also from the model.
+                    7) Advertise to the BGP for removing the route for the removed external IPs.
+                 */
+
+                            String[] externalIpParts = NatUtil.getExternalIpAndPrefix(removedExternalIp);
+                            String externalIp = externalIpParts[0];
+                            String externalIpPrefix = externalIpParts[1];
+                            String externalIpAddrStr = externalIp + "/" + externalIpPrefix;
+
+                            LOG.debug("update : Clear the routes from the BGP and remove the FIB and TS "
+                                    + "entries for removed external IP {}", externalIpAddrStr);
+                            Uuid vpnUuId = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
+                            String vpnName = "";
+                            if (vpnUuId != null) {
+                                vpnName = vpnUuId.getValue();
                             }
-                        }
-                        if (!Objects.equals(original.getExtGwMacAddress(), update.getExtGwMacAddress())) {
-                            NatUtil.installRouterGwFlows(txRunner, vpnManager, original, dpnId, NwConstants.DEL_FLOW);
-                            NatUtil.installRouterGwFlows(txRunner, vpnManager, update, dpnId, NwConstants.ADD_FLOW);
-                        }
+                            clrRtsFromBgpAndDelFibTs(dpnId, routerId, externalIpAddrStr, vpnName, networkId,
+                                    update.getExtGwMacAddress(), removeFlowInvTx);
 
-                        //Check if the Update is on External IPs
-                        LOG.debug("update : Checking if this is update on External IPs");
-                        List<String> originalExternalIps = NatUtil.getIpsListFromExternalIps(original.getExternalIps());
-                        List<String> updatedExternalIps = NatUtil.getIpsListFromExternalIps(update.getExternalIps());
-
-                        //Check if the External IPs are added during the update.
-                        Set<String> addedExternalIps = new HashSet<>(updatedExternalIps);
-                        addedExternalIps.removeAll(originalExternalIps);
-                        if (addedExternalIps.size() != 0) {
-                            LOG.debug("update : Start processing of the External IPs addition during the update "
-                                    + "operation");
-                            vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName, addedExternalIps,
-                                    update.getExtGwMacAddress(), dpnId,
-                                    update.getNetworkId(), null);
-
-                            for (String addedExternalIp : addedExternalIps) {
-                    /*
-                        1) Do nothing in the IntExtIp model.
-                        2) Initialise the count of the added external IP to 0 in the ExternalCounter model.
-                     */
-                                String[] externalIpParts = NatUtil.getExternalIpAndPrefix(addedExternalIp);
-                                String externalIp = externalIpParts[0];
-                                String externalIpPrefix = externalIpParts[1];
-                                String externalpStr = externalIp + "/" + externalIpPrefix;
-                                LOG.debug("update : Initialise the count mapping of the external IP {} for the "
-                                                + "router ID {} in the ExternalIpsCounter model.",
-                                        externalpStr, routerId);
-                                naptManager.initialiseNewExternalIpCounter(routerId, externalpStr);
+                            LOG.debug("update : Remove the mappings in the IntExtIP model which has external IP.");
+                            //Get the internal IPs which are associated to the removed external IPs
+                            List<IpMap> ipMaps = naptManager.getIpMapList(dataBroker, routerId);
+                            List<String> removedInternalIps = new ArrayList<>();
+                            for (IpMap ipMap : ipMaps) {
+                                if (ipMap.getExternalIp().equals(externalIpAddrStr)) {
+                                    removedInternalIps.add(ipMap.getInternalIp());
+                                }
                             }
-                            LOG.debug(
-                                    "update : End processing of the External IPs addition during the update operation");
-                        }
 
-                        //Check if the External IPs are removed during the update.
-                        Set<String> removedExternalIps = new HashSet<>(originalExternalIps);
-                        removedExternalIps.removeAll(updatedExternalIps);
-                        if (removedExternalIps.size() > 0) {
-                            LOG.debug("update : Start processing of the External IPs removal during the update "
-                                    + "operation");
-                            vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerName,
-                                    removedExternalIps, original.getExtGwMacAddress(),
-                                    dpnId, networkId);
+                            LOG.debug("update : Remove the mappings of the internal IPs from the IntExtIP model.");
+                            for (String removedInternalIp : removedInternalIps) {
+                                LOG.debug("update : Remove the IP mapping of the internal IP {} for the "
+                                                + "router ID {} from the IntExtIP model",
+                                        removedInternalIp, routerId);
+                                naptManager.removeFromIpMapDS(routerId, removedInternalIp);
+                            }
 
-                            for (String removedExternalIp : removedExternalIps) {
-                    /*
-                        1) Remove the mappings in the IntExt IP model which has external IP.
-                        2) Remove the external IP in the ExternalCounter model.
-                        3) For the corresponding subnet IDs whose external IP mapping was removed, allocate one of the
-                           least loaded external IP.
-                           Store the subnet IP and the reallocated external IP mapping in the IntExtIp model.
-                        4) Increase the count of the allocated external IP by one.
-                        5) Advertise to the BGP if external IP is allocated for the first time for the router
-                         i.e. the route for the external IP is absent.
-                        6) Remove the NAPT translation entries from Inbound and Outbound NAPT tables for
-                         the removed external IPs and also from the model.
-                        7) Advertise to the BGP for removing the route for the removed external IPs.
-                     */
+                            LOG.debug("update : Remove the count mapping of the external IP {} for the "
+                                            + "router ID {} from the ExternalIpsCounter model.",
+                                    externalIpAddrStr, routerId);
+                            naptManager.removeExternalIpCounter(routerId, externalIpAddrStr);
 
-                                String[] externalIpParts = NatUtil.getExternalIpAndPrefix(removedExternalIp);
-                                String externalIp = externalIpParts[0];
-                                String externalIpPrefix = externalIpParts[1];
-                                String externalIpAddrStr = externalIp + "/" + externalIpPrefix;
+                            LOG.debug("update : Allocate the least loaded external IPs to the subnets "
+                                    + "whose external IPs were removed.");
+                            for (String removedInternalIp : removedInternalIps) {
+                                allocateExternalIp(dpnId, update, routerId, routerName, networkId,
+                                        removedInternalIp, writeFlowInvTx);
+                            }
 
-                                LOG.debug("update : Clear the routes from the BGP and remove the FIB and TS "
-                                        + "entries for removed external IP {}", externalIpAddrStr);
-                                Uuid vpnUuId = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
-                                String vpnName = "";
-                                if (vpnUuId != null) {
-                                    vpnName = vpnUuId.getValue();
-                                }
-                                clrRtsFromBgpAndDelFibTs(dpnId, routerId, externalIpAddrStr, vpnName, networkId,
-                                        update.getExtGwMacAddress(), removeFlowInvTx);
-
-                                LOG.debug("update : Remove the mappings in the IntExtIP model which has external IP.");
-                                //Get the internal IPs which are associated to the removed external IPs
-                                List<IpMap> ipMaps = naptManager.getIpMapList(dataBroker, routerId);
-                                List<String> removedInternalIps = new ArrayList<>();
-                                for (IpMap ipMap : ipMaps) {
-                                    if (ipMap.getExternalIp().equals(externalIpAddrStr)) {
-                                        removedInternalIps.add(ipMap.getInternalIp());
-                                    }
-                                }
-
-                                LOG.debug("update : Remove the mappings of the internal IPs from the IntExtIP model.");
-                                for (String removedInternalIp : removedInternalIps) {
-                                    LOG.debug("update : Remove the IP mapping of the internal IP {} for the "
-                                                    + "router ID {} from the IntExtIP model",
-                                            removedInternalIp, routerId);
-                                    naptManager.removeFromIpMapDS(routerId, removedInternalIp);
-                                }
-
-                                LOG.debug("update : Remove the count mapping of the external IP {} for the "
-                                                + "router ID {} from the ExternalIpsCounter model.",
-                                        externalIpAddrStr, routerId);
-                                naptManager.removeExternalIpCounter(routerId, externalIpAddrStr);
-
-                                LOG.debug("update : Allocate the least loaded external IPs to the subnets "
-                                        + "whose external IPs were removed.");
-                                for (String removedInternalIp : removedInternalIps) {
-                                    allocateExternalIp(dpnId, update, routerId, routerName, networkId,
-                                            removedInternalIp, writeFlowInvTx);
-                                }
-
-                                LOG.debug("update : Remove the NAPT translation entries from "
-                                        + "Inbound and Outbound NAPT tables for the removed external IPs.");
-                                //Get the internalIP and internal Port which were associated to the removed external IP.
-                                List<Integer> externalPorts = new ArrayList<>();
-                                Map<ProtocolTypes, List<String>> protoTypesIntIpPortsMap = new HashMap<>();
-                                InstanceIdentifier<IpPortMapping> ipPortMappingId = InstanceIdentifier
-                                        .builder(IntextIpPortMap.class)
-                                        .child(IpPortMapping.class, new IpPortMappingKey(routerId)).build();
-                                Optional<IpPortMapping> ipPortMapping =
-                                        MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, ipPortMappingId);
-                                if (ipPortMapping.isPresent()) {
-                                    List<IntextIpProtocolType> intextIpProtocolTypes = ipPortMapping.get()
-                                            .getIntextIpProtocolType();
-                                    for (IntextIpProtocolType intextIpProtocolType : intextIpProtocolTypes) {
-                                        ProtocolTypes protoType = intextIpProtocolType.getProtocol();
-                                        List<IpPortMap> ipPortMaps = intextIpProtocolType.getIpPortMap();
-                                        for (IpPortMap ipPortMap : ipPortMaps) {
-                                            IpPortExternal ipPortExternal = ipPortMap.getIpPortExternal();
-                                            if (ipPortExternal.getIpAddress().equals(externalIp)) {
-                                                externalPorts.add(ipPortExternal.getPortNum());
-                                                List<String> removedInternalIpPorts =
-                                                        protoTypesIntIpPortsMap.get(protoType);
-                                                if (removedInternalIpPorts != null) {
-                                                    removedInternalIpPorts.add(ipPortMap.getIpPortInternal());
-                                                    protoTypesIntIpPortsMap.put(protoType, removedInternalIpPorts);
-                                                } else {
-                                                    removedInternalIpPorts = new ArrayList<>();
-                                                    removedInternalIpPorts.add(ipPortMap.getIpPortInternal());
-                                                    protoTypesIntIpPortsMap.put(protoType, removedInternalIpPorts);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                //Remove the IP port map from the intext-ip-port-map model, which were containing
-                                // the removed external IP.
-                                Set<Map.Entry<ProtocolTypes, List<String>>> protoTypesIntIpPorts =
-                                        protoTypesIntIpPortsMap.entrySet();
-                                Map<String, List<String>> internalIpPortMap = new HashMap<>();
-                                for (Map.Entry protoTypesIntIpPort : protoTypesIntIpPorts) {
-                                    ProtocolTypes protocolType = (ProtocolTypes) protoTypesIntIpPort.getKey();
-                                    List<String> removedInternalIpPorts = (List<String>) protoTypesIntIpPort.getValue();
-                                    for (String removedInternalIpPort : removedInternalIpPorts) {
-                                        // Remove the IP port map from the intext-ip-port-map model,
-                                        // which were containing the removed external IP
-                                        naptManager.removeFromIpPortMapDS(routerId, removedInternalIpPort,
-                                                protocolType);
-                                        //Remove the IP port incomint packer map.
-                                        naptPacketInHandler.removeIncomingPacketMap(
-                                                routerId + NatConstants.COLON_SEPARATOR + removedInternalIpPort);
-                                        String[] removedInternalIpPortParts = removedInternalIpPort
-                                                .split(NatConstants.COLON_SEPARATOR);
-                                        if (removedInternalIpPortParts.length == 2) {
-                                            String removedInternalIp = removedInternalIpPortParts[0];
-                                            String removedInternalPort = removedInternalIpPortParts[1];
-                                            List<String> removedInternalPortsList =
-                                                    internalIpPortMap.get(removedInternalPort);
-                                            if (removedInternalPortsList != null) {
-                                                removedInternalPortsList.add(removedInternalPort);
-                                                internalIpPortMap.put(removedInternalIp, removedInternalPortsList);
+                            LOG.debug("update : Remove the NAPT translation entries from "
+                                    + "Inbound and Outbound NAPT tables for the removed external IPs.");
+                            //Get the internalIP and internal Port which were associated to the removed external IP.
+                            List<Integer> externalPorts = new ArrayList<>();
+                            Map<ProtocolTypes, List<String>> protoTypesIntIpPortsMap = new HashMap<>();
+                            InstanceIdentifier<IpPortMapping> ipPortMappingId = InstanceIdentifier
+                                    .builder(IntextIpPortMap.class)
+                                    .child(IpPortMapping.class, new IpPortMappingKey(routerId)).build();
+                            Optional<IpPortMapping> ipPortMapping =
+                                    MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, ipPortMappingId);
+                            if (ipPortMapping.isPresent()) {
+                                List<IntextIpProtocolType> intextIpProtocolTypes = ipPortMapping.get()
+                                        .getIntextIpProtocolType();
+                                for (IntextIpProtocolType intextIpProtocolType : intextIpProtocolTypes) {
+                                    ProtocolTypes protoType = intextIpProtocolType.getProtocol();
+                                    List<IpPortMap> ipPortMaps = intextIpProtocolType.getIpPortMap();
+                                    for (IpPortMap ipPortMap : ipPortMaps) {
+                                        IpPortExternal ipPortExternal = ipPortMap.getIpPortExternal();
+                                        if (ipPortExternal.getIpAddress().equals(externalIp)) {
+                                            externalPorts.add(ipPortExternal.getPortNum());
+                                            List<String> removedInternalIpPorts =
+                                                    protoTypesIntIpPortsMap.get(protoType);
+                                            if (removedInternalIpPorts != null) {
+                                                removedInternalIpPorts.add(ipPortMap.getIpPortInternal());
+                                                protoTypesIntIpPortsMap.put(protoType, removedInternalIpPorts);
                                             } else {
-                                                removedInternalPortsList = new ArrayList<>();
-                                                removedInternalPortsList.add(removedInternalPort);
-                                                internalIpPortMap.put(removedInternalIp, removedInternalPortsList);
+                                                removedInternalIpPorts = new ArrayList<>();
+                                                removedInternalIpPorts.add(ipPortMap.getIpPortInternal());
+                                                protoTypesIntIpPortsMap.put(protoType, removedInternalIpPorts);
                                             }
                                         }
                                     }
                                 }
+                            }
 
-                                // Delete the entry from SnatIntIpPortMap DS
-                                Set<String> internalIps = internalIpPortMap.keySet();
-                                for (String internalIp : internalIps) {
-                                    LOG.debug("update : Removing IpPort having the internal IP {} from the "
-                                            + "model SnatIntIpPortMap", internalIp);
-                                    naptManager.removeFromSnatIpPortDS(routerId, internalIp);
-                                }
-
-                                naptManager.removeNaptPortPool(externalIp);
-
-                                LOG.debug("update : Remove the NAPT translation entries from Inbound NAPT tables for "
-                                        + "the removed external IP {}", externalIp);
-                                for (Integer externalPort : externalPorts) {
-                                    //Remove the NAPT translation entries from Inbound NAPT table
-                                    naptEventHandler.removeNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
-                                            routerId, externalIp, externalPort);
-                                }
-
-                                Set<Map.Entry<String, List<String>>> internalIpPorts = internalIpPortMap.entrySet();
-                                for (Map.Entry<String, List<String>> internalIpPort : internalIpPorts) {
-                                    String internalIp = internalIpPort.getKey();
-                                    LOG.debug("update : Remove the NAPT translation entries from Outbound NAPT tables "
-                                            + "for the removed internal IP {}", internalIp);
-                                    List<String> internalPorts = internalIpPort.getValue();
-                                    for (String internalPort : internalPorts) {
-                                        //Remove the NAPT translation entries from Outbound NAPT table
-                                        naptPacketInHandler.removeIncomingPacketMap(
-                                                routerId + NatConstants.COLON_SEPARATOR + internalIp
-                                                        + NatConstants.COLON_SEPARATOR + internalPort);
-                                        naptEventHandler.removeNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE,
-                                                routerId, internalIp, Integer.parseInt(internalPort));
+                            //Remove the IP port map from the intext-ip-port-map model, which were containing
+                            // the removed external IP.
+                            Set<Map.Entry<ProtocolTypes, List<String>>> protoTypesIntIpPorts =
+                                    protoTypesIntIpPortsMap.entrySet();
+                            Map<String, List<String>> internalIpPortMap = new HashMap<>();
+                            for (Map.Entry protoTypesIntIpPort : protoTypesIntIpPorts) {
+                                ProtocolTypes protocolType = (ProtocolTypes) protoTypesIntIpPort.getKey();
+                                List<String> removedInternalIpPorts = (List<String>) protoTypesIntIpPort.getValue();
+                                for (String removedInternalIpPort : removedInternalIpPorts) {
+                                    // Remove the IP port map from the intext-ip-port-map model,
+                                    // which were containing the removed external IP
+                                    naptManager.removeFromIpPortMapDS(routerId, removedInternalIpPort,
+                                            protocolType);
+                                    //Remove the IP port incomint packer map.
+                                    naptPacketInHandler.removeIncomingPacketMap(
+                                            routerId + NatConstants.COLON_SEPARATOR + removedInternalIpPort);
+                                    String[] removedInternalIpPortParts = removedInternalIpPort
+                                            .split(NatConstants.COLON_SEPARATOR);
+                                    if (removedInternalIpPortParts.length == 2) {
+                                        String removedInternalIp = removedInternalIpPortParts[0];
+                                        String removedInternalPort = removedInternalIpPortParts[1];
+                                        List<String> removedInternalPortsList =
+                                                internalIpPortMap.get(removedInternalPort);
+                                        if (removedInternalPortsList != null) {
+                                            removedInternalPortsList.add(removedInternalPort);
+                                            internalIpPortMap.put(removedInternalIp, removedInternalPortsList);
+                                        } else {
+                                            removedInternalPortsList = new ArrayList<>();
+                                            removedInternalPortsList.add(removedInternalPort);
+                                            internalIpPortMap.put(removedInternalIp, removedInternalPortsList);
+                                        }
                                     }
                                 }
                             }
-                            LOG.debug(
-                                    "update : End processing of the External IPs removal during the update operation");
+
+                            // Delete the entry from SnatIntIpPortMap DS
+                            Set<String> internalIps = internalIpPortMap.keySet();
+                            for (String internalIp : internalIps) {
+                                LOG.debug("update : Removing IpPort having the internal IP {} from the "
+                                        + "model SnatIntIpPortMap", internalIp);
+                                naptManager.removeFromSnatIpPortDS(routerId, internalIp);
+                            }
+
+                            naptManager.removeNaptPortPool(externalIp);
+
+                            LOG.debug("update : Remove the NAPT translation entries from Inbound NAPT tables for "
+                                    + "the removed external IP {}", externalIp);
+                            for (Integer externalPort : externalPorts) {
+                                //Remove the NAPT translation entries from Inbound NAPT table
+                                naptEventHandler.removeNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
+                                        routerId, externalIp, externalPort);
+                            }
+
+                            Set<Map.Entry<String, List<String>>> internalIpPorts = internalIpPortMap.entrySet();
+                            for (Map.Entry<String, List<String>> internalIpPort : internalIpPorts) {
+                                String internalIp = internalIpPort.getKey();
+                                LOG.debug("update : Remove the NAPT translation entries from Outbound NAPT tables "
+                                        + "for the removed internal IP {}", internalIp);
+                                List<String> internalPorts = internalIpPort.getValue();
+                                for (String internalPort : internalPorts) {
+                                    //Remove the NAPT translation entries from Outbound NAPT table
+                                    naptPacketInHandler.removeIncomingPacketMap(
+                                            routerId + NatConstants.COLON_SEPARATOR + internalIp
+                                                    + NatConstants.COLON_SEPARATOR + internalPort);
+                                    naptEventHandler.removeNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE,
+                                            routerId, internalIp, Integer.parseInt(internalPort));
+                                }
+                            }
                         }
+                        LOG.debug(
+                                "update : End processing of the External IPs removal during the update operation");
+                    }
 
-                        //Check if its Update on subnets
-                        LOG.debug("update : Checking if this is update on subnets");
-                        List<Uuid> originalSubnetIds = original.getSubnetIds();
-                        List<Uuid> updatedSubnetIds = update.getSubnetIds();
-                        Set<Uuid> addedSubnetIds = new HashSet<>(updatedSubnetIds);
-                        addedSubnetIds.removeAll(originalSubnetIds);
+                    //Check if its Update on subnets
+                    LOG.debug("update : Checking if this is update on subnets");
+                    List<Uuid> originalSubnetIds = original.getSubnetIds();
+                    List<Uuid> updatedSubnetIds = update.getSubnetIds();
+                    Set<Uuid> addedSubnetIds = new HashSet<>(updatedSubnetIds);
+                    addedSubnetIds.removeAll(originalSubnetIds);
 
-                        //Check if the Subnet IDs are added during the update.
-                        if (addedSubnetIds.size() != 0) {
-                            LOG.debug(
-                                    "update : Start processing of the Subnet IDs addition during the update operation");
-                            for (Uuid addedSubnetId : addedSubnetIds) {
+                    //Check if the Subnet IDs are added during the update.
+                    if (addedSubnetIds.size() != 0) {
+                        LOG.debug(
+                                "update : Start processing of the Subnet IDs addition during the update operation");
+                        for (Uuid addedSubnetId : addedSubnetIds) {
+                /*
+                    1) Select the least loaded external IP for the subnet and store the mapping of the
+                    subnet IP and the external IP in the IntExtIp model.
+                    2) Increase the count of the selected external IP by one.
+                    3) Advertise to the BGP if external IP is allocated for the first time for the
+                    router i.e. the route for the external IP is absent.
+                 */
+                            String subnetIp = NatUtil.getSubnetIp(dataBroker, addedSubnetId);
+                            if (subnetIp != null) {
+                                allocateExternalIp(dpnId, update, routerId, routerName, networkId, subnetIp,
+                                        writeFlowInvTx);
+                            }
+                        }
+                        LOG.debug("update : End processing of the Subnet IDs addition during the update operation");
+                    }
+
+                    //Check if the Subnet IDs are removed during the update.
+                    Set<Uuid> removedSubnetIds = new HashSet<>(originalSubnetIds);
+                    removedSubnetIds.removeAll(updatedSubnetIds);
+                    if (removedSubnetIds.size() != 0) {
+                        LOG.debug(
+                                "update : Start processing of the Subnet IDs removal during the update operation");
+                        for (Uuid removedSubnetId : removedSubnetIds) {
+                            String[] subnetAddr = NatUtil.getSubnetIpAndPrefix(dataBroker, removedSubnetId);
+                            if (subnetAddr != null) {
                     /*
-                        1) Select the least loaded external IP for the subnet and store the mapping of the
-                        subnet IP and the external IP in the IntExtIp model.
-                        2) Increase the count of the selected external IP by one.
-                        3) Advertise to the BGP if external IP is allocated for the first time for the
-                        router i.e. the route for the external IP is absent.
-                     */
-                                String subnetIp = NatUtil.getSubnetIp(dataBroker, addedSubnetId);
-                                if (subnetIp != null) {
-                                    allocateExternalIp(dpnId, update, routerId, routerName, networkId, subnetIp,
-                                            writeFlowInvTx);
+                        1) Remove the subnet IP and the external IP in the IntExtIp map
+                        2) Decrease the count of the coresponding external IP by one.
+                        3) Advertise to the BGP for removing the routes of the corresponding external
+                        IP if its not allocated to any other internal IP.
+                    */
+
+                                String externalIp = naptManager.getExternalIpAllocatedForSubnet(routerId,
+                                        subnetAddr[0] + "/" + subnetAddr[1]);
+                                if (externalIp == null) {
+                                    LOG.error("update : No mapping found for router ID {} and internal IP {}",
+                                            routerId, subnetAddr[0]);
+                                    return;
                                 }
-                            }
-                            LOG.debug("update : End processing of the Subnet IDs addition during the update operation");
-                        }
 
-                        //Check if the Subnet IDs are removed during the update.
-                        Set<Uuid> removedSubnetIds = new HashSet<>(originalSubnetIds);
-                        removedSubnetIds.removeAll(updatedSubnetIds);
-                        if (removedSubnetIds.size() != 0) {
-                            LOG.debug(
-                                    "update : Start processing of the Subnet IDs removal during the update operation");
-                            for (Uuid removedSubnetId : removedSubnetIds) {
-                                String[] subnetAddr = NatUtil.getSubnetIpAndPrefix(dataBroker, removedSubnetId);
-                                if (subnetAddr != null) {
-                        /*
-                            1) Remove the subnet IP and the external IP in the IntExtIp map
-                            2) Decrease the count of the coresponding external IP by one.
-                            3) Advertise to the BGP for removing the routes of the corresponding external
-                            IP if its not allocated to any other internal IP.
-                        */
-
-                                    String externalIp = naptManager.getExternalIpAllocatedForSubnet(routerId,
-                                            subnetAddr[0] + "/" + subnetAddr[1]);
-                                    if (externalIp == null) {
-                                        LOG.error("update : No mapping found for router ID {} and internal IP {}",
-                                                routerId, subnetAddr[0]);
-                                        return;
-                                    }
-
-                                    naptManager.updateCounter(routerId, externalIp, false);
-                                    // Traverse entire model of external-ip counter whether external ip is not
-                                    // used by any other internal ip in any router
-                                    if (!isExternalIpAllocated(externalIp)) {
-                                        LOG.debug("update : external ip is not allocated to any other "
-                                                + "internal IP so proceeding to remove routes");
-                                        clrRtsFromBgpAndDelFibTs(dpnId, routerId, networkId,
-                                                Collections.singleton(externalIp), null, update.getExtGwMacAddress(),
-                                                removeFlowInvTx);
-                                        LOG.debug("update : Successfully removed fib entries in switch {} for "
-                                                        + "router {} with networkId {} and externalIp {}",
-                                                dpnId, routerId, networkId, externalIp);
-                                    }
-
-                                    LOG.debug("update : Remove the IP mapping for the router ID {} and "
-                                            + "internal IP {} external IP {}", routerId, subnetAddr[0], externalIp);
-                                    naptManager.removeIntExtIpMapDS(routerId, subnetAddr[0] + "/" + subnetAddr[1]);
+                                naptManager.updateCounter(routerId, externalIp, false);
+                                // Traverse entire model of external-ip counter whether external ip is not
+                                // used by any other internal ip in any router
+                                if (!isExternalIpAllocated(externalIp)) {
+                                    LOG.debug("update : external ip is not allocated to any other "
+                                            + "internal IP so proceeding to remove routes");
+                                    clrRtsFromBgpAndDelFibTs(dpnId, routerId, networkId,
+                                            Collections.singleton(externalIp), null, update.getExtGwMacAddress(),
+                                            removeFlowInvTx);
+                                    LOG.debug("update : Successfully removed fib entries in switch {} for "
+                                                    + "router {} with networkId {} and externalIp {}",
+                                            dpnId, routerId, networkId, externalIp);
                                 }
+
+                                LOG.debug("update : Remove the IP mapping for the router ID {} and "
+                                        + "internal IP {} external IP {}", routerId, subnetAddr[0], externalIp);
+                                naptManager.removeIntExtIpMapDS(routerId, subnetAddr[0] + "/" + subnetAddr[1]);
                             }
-                            LOG.debug("update : End processing of the Subnet IDs removal during the update operation");
                         }
-                    }));
+                        LOG.debug("update : End processing of the Subnet IDs removal during the update operation");
+                    }
                 }));
-                return futures;
-            }, NatConstants.NAT_DJC_MAX_RETRIES);
-        } //end of controller based SNAT
+            }));
+            return futures;
+        }, NatConstants.NAT_DJC_MAX_RETRIES);
     }
 
     private boolean isExternalIpAllocated(String externalIp) {
@@ -1740,71 +1689,63 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     @Override
     protected void remove(InstanceIdentifier<Routers> identifier, Routers router) {
         LOG.trace("remove : Router delete method");
-        {
-            /*
-            ROUTER DELETE SCENARIO
-            1) Get the router ID from the event.
-            2) Build the cookie information from the router ID.
-            3) Get the primary and secondary switch DPN IDs using the router ID from the model.
-            4) Build the flow with the cookie value.
-            5) Delete the flows which matches the cookie information from the NAPT outbound, inbound tables.
-            6) Remove the flows from the other switches which points to the primary and secondary
-             switches for the flows related the router ID.
-            7) Get the list of external IP address maintained for the router ID.
-            8) Use the NaptMananager removeMapping API to remove the list of IP addresses maintained.
-            9) Withdraw the corresponding routes from the BGP.
-             */
+        /*
+        ROUTER DELETE SCENARIO
+        1) Get the router ID from the event.
+        2) Build the cookie information from the router ID.
+        3) Get the primary and secondary switch DPN IDs using the router ID from the model.
+        4) Build the flow with the cookie value.
+        5) Delete the flows which matches the cookie information from the NAPT outbound, inbound tables.
+        6) Remove the flows from the other switches which points to the primary and secondary
+         switches for the flows related the router ID.
+        7) Get the list of external IP address maintained for the router ID.
+        8) Use the NaptMananager removeMapping API to remove the list of IP addresses maintained.
+        9) Withdraw the corresponding routes from the BGP.
+         */
 
-            if (identifier == null || router == null) {
-                LOG.error("remove : returning without processing since routers is null");
-                return;
-            }
-
-            String routerName = router.getRouterName();
-            if (natMode == NatMode.Conntrack) {
-                if (router.isEnableSnat()) {
-                    centralizedSwitchScheduler.releaseCentralizedSwitch(router);
-                }
-            } else {
-                coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + router.key(),
-                    () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                        LOG.info("remove : Removing default NAT route from FIB on all dpns part of router {} ",
-                                routerName);
-                        List<ListenableFuture<Void>> futures = new ArrayList<>();
-                        Long routerId = NatUtil.getVpnId(dataBroker, routerName);
-                        if (routerId == NatConstants.INVALID_ID) {
-                            LOG.error("remove : Remove external router event - Invalid routerId for routerName {}",
-                                    routerName);
-                            return;
-                        }
-                        long bgpVpnId = NatConstants.INVALID_ID;
-                        Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
-                        if (bgpVpnUuid != null) {
-                            bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
-                        }
-                        addOrDelDefFibRouteToSNAT(routerName, routerId, bgpVpnId, bgpVpnUuid, false,
-                                tx);
-                        Uuid networkUuid = router.getNetworkId();
-
-                        BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
-                        if (primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)) {
-                            // No NAPT switch for external router, probably because the router is not attached to
-                            // any
-                            // internal networks
-                            LOG.debug(
-                                    "No NAPT switch for router {}, check if router is attached to any internal "
-                                            + "network",
-                                    routerName);
-                            return;
-                        } else {
-                            Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
-                            handleDisableSnat(router, networkUuid, externalIps, true, null, primarySwitchId,
-                                    routerId, tx);
-                        }
-                        NatOverVxlanUtil.releaseVNI(routerName, idManager);
-                    })), NatConstants.NAT_DJC_MAX_RETRIES);
-            }
+        if (identifier == null || router == null) {
+            LOG.error("remove : returning without processing since routers is null");
+            return;
         }
+
+        String routerName = router.getRouterName();
+        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + router.key(),
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                LOG.info("remove : Removing default NAT route from FIB on all dpns part of router {} ",
+                        routerName);
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                Long routerId = NatUtil.getVpnId(dataBroker, routerName);
+                if (routerId == NatConstants.INVALID_ID) {
+                    LOG.error("remove : Remove external router event - Invalid routerId for routerName {}",
+                            routerName);
+                    return;
+                }
+                long bgpVpnId = NatConstants.INVALID_ID;
+                Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
+                if (bgpVpnUuid != null) {
+                    bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
+                }
+                addOrDelDefFibRouteToSNAT(routerName, routerId, bgpVpnId, bgpVpnUuid, false,
+                        tx);
+                Uuid networkUuid = router.getNetworkId();
+
+                BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
+                if (primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)) {
+                    // No NAPT switch for external router, probably because the router is not attached to
+                    // any
+                    // internal networks
+                    LOG.debug(
+                            "No NAPT switch for router {}, check if router is attached to any internal "
+                                    + "network",
+                            routerName);
+                    return;
+                } else {
+                    Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
+                    handleDisableSnat(router, networkUuid, externalIps, true, null, primarySwitchId,
+                            routerId, tx);
+                }
+                NatOverVxlanUtil.releaseVNI(routerName, idManager);
+            })), NatConstants.NAT_DJC_MAX_RETRIES);
     }
 
     // TODO Clean up the exception handling
