@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "610348d6_e32bc8b5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-05-15T09:52:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26b25335_d348f9c4",
+      "range": {
+        "startLine": 16,
+        "startChar": 55,
+        "endLine": 16,
+        "endChar": 62
+      },
+      "revId": "393cf7cac887ca6f7b4306408b032fbdab515167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "321c5a3d_db584923",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-05-15T09:52:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32abcd1b_9a69c70c",
+      "range": {
+        "startLine": 16,
+        "startChar": 37,
+        "endLine": 16,
+        "endChar": 44
+      },
+      "revId": "393cf7cac887ca6f7b4306408b032fbdab515167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aedabbca_659e28c8",
         "filename": "/COMMIT_MSG",
         "patchSetId": 2
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "c2957991_9e9cba80",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-05-15T09:52:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aedabbca_659e28c8",
+      "range": {
+        "startLine": 19,
+        "startChar": 50,
+        "endLine": 19,
+        "endChar": 61
+      },
+      "revId": "393cf7cac887ca6f7b4306408b032fbdab515167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b26b416f_db74bf83",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6RouterAdvt.java",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2018-05-14T14:08:08Z",
       "side": 1,
       "message": "This is not going to scale, as we have to do this in a loop for \"all the ports\" and \"every minute\". \n\nYou are doing a data-store read operation and in a cluster setup, its going be become worse. Please think of a better way to address it.",
+      "range": {
+        "startLine": 56,
+        "startChar": 41,
+        "endLine": 56,
+        "endChar": 56
+      },
+      "revId": "393cf7cac887ca6f7b4306408b032fbdab515167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7ba15f6e_50493774",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6RouterAdvt.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-05-15T09:52:36Z",
+      "side": 1,
+      "message": "Thanks a lot sridhar for bringing this scale issue.\nI have done cache based concurrent hash map for getting actions for each IPv6 VM ports. To this approach at-least we can avoid querying DS for existing IPv6 VM ports in case of periodic unsolicited RA packet out for minute.\n\nPlease let me know if this approach is suitable for some level of optimization.\n\nThanks,\nKarthikeyan.",
+      "parentUuid": "b26b416f_db74bf83",
       "range": {
         "startLine": 56,
         "startChar": 41,
