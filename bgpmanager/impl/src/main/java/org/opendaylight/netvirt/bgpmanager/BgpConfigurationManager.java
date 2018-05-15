@@ -2868,6 +2868,14 @@ public class BgpConfigurationManager implements EbgpService {
         delete(iid);
     }
 
+    public void delVrf(String rd) {
+        InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
+                InstanceIdentifier.builder(Bgp.class)
+                        .child(Vrfs.class, new VrfsKey(rd));
+        InstanceIdentifier<Vrfs> iid = iib.build();
+        delete(iid);
+    }
+
     public boolean delVrf(String rd, AddressFamily addressFamily) {
         if (addressFamily == null) {
             LOG.error("delVrf: vrf {}, addressFamily invalid", rd);
