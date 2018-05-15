@@ -38,6 +38,12 @@ public interface IBgpManager {
      */
     void deleteVrf(String rd, boolean removeFibTable, AddressFamily addressFamily);
 
+    /** Delete a VRF table with prefixes.
+     *
+     * @param rd the route distinguisher to define the vrf to delete
+     */
+    void deleteVrfwithPrefix(String rd);
+
     /**
      * Adds one or more routes, as many as nexthops provided, in a BGP neighbour. It persists VrfEntry in datastore
      * and sends the BGP message.
