@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "04b3b0d1_97f09e96",
+        "filename": "docs/specs/fluorine/odl-mtu.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2018-05-15T17:46:38Z",
+      "side": 1,
+      "message": "It would be worth to noting that the value will be json string because the openstack oslo.config accepets various type of configuration. e.g. sigle string, list of values, key value etc.",
+      "parentUuid": "d4d6cad9_0e766481",
+      "revId": "2199267312443c56fb4a71ab12eb2554729fff24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e55b2fba_5b0fa2a9",
         "filename": "docs/specs/fluorine/odl-mtu.rst",
         "patchSetId": 1
@@ -54,6 +72,70 @@
     },
     {
       "key": {
+        "uuid": "e044a448_c87479da",
+        "filename": "docs/specs/fluorine/odl-mtu.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2018-05-15T17:46:38Z",
+      "side": 1,
+      "message": "+1.\nFor this config, we can safely push down those config from networking-odl to ODL Neutron Northbound.\nFor multiple neutron deployment, it\u0027s assumed that their configs are consistent in some sense.\nOtherwise, it\u0027s broken deployment we would say.\n\nnetworking-odl also should be aware that neutron-config is available or not. it depends on ODL version.",
+      "parentUuid": "cbd610c3_bffc1fcc",
+      "revId": "2199267312443c56fb4a71ab12eb2554729fff24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa7369fd_5e99aa06",
+        "filename": "docs/specs/fluorine/odl-mtu.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2018-05-15T17:46:38Z",
+      "side": 1,
+      "message": "Just for debugging/audit purpose, netvirt may populate operational space.\nBut it\u0027s just optional.",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 5
+      },
+      "revId": "2199267312443c56fb4a71ab12eb2554729fff24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d04d532a_f10b99ef",
+        "filename": "docs/specs/fluorine/odl-mtu.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2018-05-15T17:46:38Z",
+      "side": 1,
+      "message": "Is this operational?\nI suppose this is copy-and-paste bug from neutron-extension.",
+      "range": {
+        "startLine": 51,
+        "startChar": 15,
+        "endLine": 51,
+        "endChar": 28
+      },
+      "revId": "2199267312443c56fb4a71ab12eb2554729fff24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "24bbb82f_8301bed7",
         "filename": "docs/specs/fluorine/odl-mtu.rst",
         "patchSetId": 1
@@ -83,6 +165,29 @@
       "side": 1,
       "message": "Case 2 is per network MTU.  We need to get global mtu working first, and then see if per network MTU actually works.  That case is a legit one I think.  There has also been newer Neutron API exposed to set the network MTU rather than doing it in conf:\nhttps://review.openstack.org/#/c/483518/\n\nCase 3 is path_mtu being used as the MTU for VXLAN/GRE overlay networks instead of global physnet MTU.  To me this naming/usage isn\u0027t clear.  I think we can avoid this for now and just use global network mtu and the per network.",
       "parentUuid": "24bbb82f_8301bed7",
+      "revId": "2199267312443c56fb4a71ab12eb2554729fff24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a119fc00_21c5ea77",
+        "filename": "docs/specs/fluorine/odl-mtu.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2018-05-15T17:46:38Z",
+      "side": 1,
+      "message": "it would be good to add an example with more complex value which requires json string.",
+      "range": {
+        "startLine": 116,
+        "startChar": 31,
+        "endLine": 116,
+        "endChar": 49
+      },
       "revId": "2199267312443c56fb4a71ab12eb2554729fff24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
