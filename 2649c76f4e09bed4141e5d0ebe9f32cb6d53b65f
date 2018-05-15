@@ -16,6 +16,24 @@
       "revId": "2649c76f4e09bed4141e5d0ebe9f32cb6d53b65f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "555d3511_17b68992",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1157,
+      "author": {
+        "id": 536
+      },
+      "writtenOn": "2018-05-15T04:49:04Z",
+      "side": 1,
+      "message": "I assumed log statements were used for debugging purposes. Will remove them.",
+      "parentUuid": "8b4d68cb_7fbd1cc8",
+      "revId": "2649c76f4e09bed4141e5d0ebe9f32cb6d53b65f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
