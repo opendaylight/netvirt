@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d4d6cad9_0e766481",
+        "filename": "docs/specs/fluorine/odl-mtu.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-15T15:27:37Z",
+      "side": 1,
+      "message": "good idea ! was about to state the same..",
+      "revId": "2199267312443c56fb4a71ab12eb2554729fff24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e55b2fba_5b0fa2a9",
+        "filename": "docs/specs/fluorine/odl-mtu.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-15T15:27:37Z",
+      "side": 1,
+      "message": "The existing full-sync logic in ODL can be enhanced to send neutron.conf attributes to ODL ..  And we need to send this configuration just once upon the neutron-server restart.",
+      "revId": "2199267312443c56fb4a71ab12eb2554729fff24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "24bbb82f_8301bed7",
+        "filename": "docs/specs/fluorine/odl-mtu.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-15T15:27:37Z",
+      "side": 1,
+      "message": "we can call out here that we will support only Case 1 in the reference [1] below:\n\nhttps://docs.openstack.org/mitaka/networking-guide/config-mtu.html\n\nThey have said in the document Case 2 and Case 3 must usually be avoided.",
+      "revId": "2199267312443c56fb4a71ab12eb2554729fff24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
