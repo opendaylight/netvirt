@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "34911bca_48d09008",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-15T05:45:06Z",
+      "side": 1,
+      "message": "That is being handled through the change in port listener. It is better to retry at the root than at 10 other places it cascades the event to. This is just extra logging/check, if we still see this it means we\u0027re missing another code path that can lead us here.\n\nagree, better to move the check to line70, wanted to make sure it was correct way to do it. Should we similarly check for elanId too?",
+      "parentUuid": "37fcb0f8_afb2daf7",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 80
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bb11efe7_7a349c03",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
         "patchSetId": 3
@@ -84,6 +108,30 @@
       "writtenOn": "2018-05-14T07:37:09Z",
       "side": 1,
       "message": "Looks like its a CP error. The debug message should be updated.",
+      "range": {
+        "startLine": 111,
+        "startChar": 57,
+        "endLine": 111,
+        "endChar": 92
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5976cc5b_039c83b7",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-15T05:45:06Z",
+      "side": 1,
+      "message": "will do.",
+      "parentUuid": "bb11efe7_7a349c03",
       "range": {
         "startLine": 111,
         "startChar": 57,
@@ -227,6 +275,54 @@
       "side": 1,
       "message": "So if we are handling this properly here, we should no longer see the exception in ConntrackBasedSnatService right?",
       "parentUuid": "304f466c_d20bfe37",
+      "range": {
+        "startLine": 447,
+        "startChar": 20,
+        "endLine": 447,
+        "endChar": 60
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9bbaf329_6ef27d01",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-15T05:45:06Z",
+      "side": 1,
+      "message": "I been thinking about how to test this. One thing we can do is manually create in wrong order through rest API, don\u0027t even need openstack for it. Will be easy enough to even add test case in CSIT this way. Agree?",
+      "parentUuid": "731a9414_56a99f83",
+      "range": {
+        "startLine": 447,
+        "startChar": 20,
+        "endLine": 447,
+        "endChar": 60
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "765f39ba_137b71d1",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-15T05:45:06Z",
+      "side": 1,
+      "message": "Yes, that is the expectation. The log over there, if shows up, means we missing a code path.",
+      "parentUuid": "3b54ca0c_24be202f",
       "range": {
         "startLine": 447,
         "startChar": 20,
