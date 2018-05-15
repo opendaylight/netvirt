@@ -79,6 +79,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
@@ -2069,5 +2071,23 @@ public final class NatUtil {
         return InstanceIdentifier.builder(ElanDpnInterfaces.class)
                 .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName))
                 .child(DpnInterfaces.class, new DpnInterfacesKey(dpId)).build();
+    }
+
+    public static void createGroupIdPool(IdManagerService idManager) {
+        CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
+                .setPoolName(NatConstants.SNAT_IDPOOL_NAME)
+                .setLow(NatConstants.SNAT_ID_LOW_VALUE)
+                .setHigh(NatConstants.SNAT_ID_HIGH_VALUE)
+                .build();
+        try {
+            Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
+            if (result != null && result.get().isSuccessful()) {
+                LOG.debug("createGroupIdPool : GroupIdPool created successfully");
+            } else {
+                LOG.error("createGroupIdPool : Unable to create GroupIdPool");
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("createGroupIdPool : Failed to create PortPool for NAPT Service", e);
+        }
     }
 }
