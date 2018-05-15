@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "cbd610c3_bffc1fcc",
+        "filename": "docs/specs/fluorine/odl-mtu.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5089
+      },
+      "writtenOn": "2018-05-15T15:51:03Z",
+      "side": 1,
+      "message": "I think as Isaku pointed out in an email that Neutron is going to support reloading config without restarting the process:\nhttps://review.openstack.org/#/c/554259/\n\nTherefore we need to periodically check if the config has changed.  I think the idea of leveraging full-sync is a perfect candidate for this.",
+      "parentUuid": "e55b2fba_5b0fa2a9",
+      "revId": "2199267312443c56fb4a71ab12eb2554729fff24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "24bbb82f_8301bed7",
         "filename": "docs/specs/fluorine/odl-mtu.rst",
         "patchSetId": 1
@@ -47,6 +65,24 @@
       "writtenOn": "2018-05-15T15:27:37Z",
       "side": 1,
       "message": "we can call out here that we will support only Case 1 in the reference [1] below:\n\nhttps://docs.openstack.org/mitaka/networking-guide/config-mtu.html\n\nThey have said in the document Case 2 and Case 3 must usually be avoided.",
+      "revId": "2199267312443c56fb4a71ab12eb2554729fff24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "07b9f722_9434b787",
+        "filename": "docs/specs/fluorine/odl-mtu.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5089
+      },
+      "writtenOn": "2018-05-15T15:51:03Z",
+      "side": 1,
+      "message": "Case 2 is per network MTU.  We need to get global mtu working first, and then see if per network MTU actually works.  That case is a legit one I think.  There has also been newer Neutron API exposed to set the network MTU rather than doing it in conf:\nhttps://review.openstack.org/#/c/483518/\n\nCase 3 is path_mtu being used as the MTU for VXLAN/GRE overlay networks instead of global physnet MTU.  To me this naming/usage isn\u0027t clear.  I think we can avoid this for now and just use global network mtu and the per network.",
+      "parentUuid": "24bbb82f_8301bed7",
       "revId": "2199267312443c56fb4a71ab12eb2554729fff24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
