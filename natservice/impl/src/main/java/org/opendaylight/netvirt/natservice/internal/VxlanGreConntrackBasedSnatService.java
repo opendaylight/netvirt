@@ -41,6 +41,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -68,9 +69,10 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
                                              IdManagerService idManager, NAPTSwitchSelector naptSwitchSelector,
                                              ExternalRoutersListener externalRouterListener, IElanService elanManager,
                                              IInterfaceManager interfaceManager,
-                                             IVpnFootprintService vpnFootprintService) {
+                                             IVpnFootprintService vpnFootprintService,
+                                             IFibManager fibManager) {
         super(dataBroker, mdsalManager, itmManager, idManager, naptSwitchSelector, odlInterfaceRpcService,
-                interfaceManager, vpnFootprintService);
+                interfaceManager, vpnFootprintService, fibManager);
         this.externalRouterListener = externalRouterListener;
         this.elanManager = elanManager;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
