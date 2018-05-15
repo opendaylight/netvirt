@@ -16,6 +16,24 @@
       "revId": "26dc15bac5f83d5becac00c42e1f7ad3684aded7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2aa7cb2c_beed83e2",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1285,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-15T06:18:17Z",
+      "side": 1,
+      "message": "I\u0027m not fully familiar with the calling contexts, so can we please address it in Chetan\u0027s patch? Thanks.",
+      "parentUuid": "b1d70494_0cb1d26e",
+      "revId": "26dc15bac5f83d5becac00c42e1f7ad3684aded7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
