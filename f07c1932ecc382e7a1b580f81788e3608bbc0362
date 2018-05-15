@@ -383,6 +383,30 @@
     },
     {
       "key": {
+        "uuid": "b5e9033c_582b8b41",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-15T08:13:12Z",
+      "side": 1,
+      "message": "that is the question to consider. Retry read is a simpler way to do it this way. I\u0027ve reached out to Vivek for his inputs.",
+      "parentUuid": "c986c57c_e0c84eae",
+      "range": {
+        "startLine": 447,
+        "startChar": 20,
+        "endLine": 447,
+        "endChar": 60
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a264dce2_15b013db",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 3
