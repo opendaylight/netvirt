@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "ce704abc_95b9526f",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-15T06:30:05Z",
+      "side": 1,
+      "message": "Yeah please check for (routerId \u003d\u003d null) at L70 and you can remove it from the two apis.\n\nW.r.t ELAN I don\u0027t think we have seen an issue where networkInfo/ElanInfo is missing. So, we can ignore it for now.",
+      "parentUuid": "34911bca_48d09008",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 80
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bb11efe7_7a349c03",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
         "patchSetId": 3
@@ -323,6 +347,30 @@
       "side": 1,
       "message": "Yes, that is the expectation. The log over there, if shows up, means we missing a code path.",
       "parentUuid": "3b54ca0c_24be202f",
+      "range": {
+        "startLine": 447,
+        "startChar": 20,
+        "endLine": 447,
+        "endChar": 60
+      },
+      "revId": "f07c1932ecc382e7a1b580f81788e3608bbc0362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c986c57c_e0c84eae",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-15T06:30:05Z",
+      "side": 1,
+      "message": "Sure, that is one way of validating the change. \n\nW.r.t the actual fix, shall we consider this - \"Shall we apply the same logic in add() event and delay neutronPortCreation until the router is populated in the DB. So that the possibilities of side effects are minimized?\"",
+      "parentUuid": "9bbaf329_6ef27d01",
       "range": {
         "startLine": 447,
         "startChar": 20,
