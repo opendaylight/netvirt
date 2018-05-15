@@ -9,35 +9,36 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadMetadata;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
-import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -49,7 +50,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -71,12 +73,14 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected final OdlInterfaceRpcService odlInterfaceRpcService;
     protected final IInterfaceManager interfaceManager;
     protected final IVpnFootprintService vpnFootprintService;
+    protected final IFibManager fibManager;
 
     protected AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                   final ItmRpcService itmManager, final OdlInterfaceRpcService odlInterfaceRpcService,
                                   final IdManagerService idManager, final NAPTSwitchSelector naptSwitchSelector,
                                   final IInterfaceManager interfaceManager,
-                                  final IVpnFootprintService vpnFootprintService) {
+                                  final IVpnFootprintService vpnFootprintService,
+                                  final IFibManager fibManager) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
@@ -85,6 +89,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         this.naptSwitchSelector = naptSwitchSelector;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.vpnFootprintService = vpnFootprintService;
+        this.fibManager = fibManager;
     }
 
     protected DataBroker getDataBroker() {
@@ -153,7 +158,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         if (addOrRemove == NwConstants.ADD_FLOW) {
             extSubnetId = NatUtil.getExternalSubnetVpnId(dataBroker,externalSubnetId);
         }
-        installInboundFibEntry(dpnId, externalIp, routerId, extSubnetId, addOrRemove);
+        installInboundFibEntry(dpnId, externalIp, routerId, extSubnetId, routers.getNetworkId()
+                .getValue(), externalSubnetId.getValue(), addOrRemove);
         installInboundTerminatingServiceTblEntry(dpnId, routerId, extSubnetId, addOrRemove);
     }
 
@@ -176,7 +182,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         }
 
         installDefaultFibRouteForSNAT(dpnId, routerId, addOrRemove);
-        installSnatMissEntry(dpnId, routerId, routerName, primarySwitchId, externalIp, extSubnetId, addOrRemove);
+        installSnatMissEntry(dpnId, routerId, routerName, primarySwitchId, externalIp, routers.getNetworkId()
+                .getValue(), externalSubnetId.getValue(), extSubnetId, addOrRemove);
     }
 
     protected abstract void installSnatSpecificEntriesForNaptSwitch(Routers routers, BigInteger dpnId,
@@ -186,7 +193,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             int addOrRemove);
 
     protected void installInboundFibEntry(BigInteger dpnId, String externalIp, Long routerId,
-            long extSubnetId, int addOrRemove) {
+            long extSubnetId, String externalNetId, String subNetId, int addOrRemove) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         if (addOrRemove == NwConstants.ADD_FLOW) {
@@ -208,68 +215,30 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         flowRef = flowRef + "inbound" + externalIp;
         syncFlow(dpnId, NwConstants.L3_FIB_TABLE, flowRef, NatConstants.SNAT_FIB_FLOW_PRIORITY, flowRef,
                 NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo, addOrRemove);
+        List<Instruction> instruction = new ArrayList<>();
+        BigInteger subnetIdMetaData = MetaDataUtil.getVpnIdMetadata(extSubnetId);
+        String rd = NatUtil.getVpnRd(dataBroker, externalNetId);
+        String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
+        String ipPrefix = externalIp + "/32";
+        instruction.add(new InstructionWriteMetadata(subnetIdMetaData,
+                MetaDataUtil.METADATA_MASK_VRFID).buildInstruction(0));
+        instruction.add(new InstructionGotoTable(NwConstants.INBOUND_NAPT_TABLE).buildInstruction(1));
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            NatUtil.addPrefixToInterface(dataBroker, NatUtil.getVpnId(dataBroker, externalNetId),
+                    null, ipPrefix, dpnId, new Uuid(subNetId), Prefixes.PrefixCue.Nat);
+
+            fibManager.addOrUpdateFibEntry(rd, null, ipPrefix,
+                    Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, extSubnetId,
+                    0, null /*gatewayMacAddress*/, externalNetId, RouteOrigin.STATIC, null);
+        } else {
+            fibManager.removeFibEntry(rd, ipPrefix, null);
+            NatUtil.deletePrefixToInterface(dataBroker, NatUtil.getVpnId(dataBroker, externalNetId), ipPrefix);
+        }
     }
 
     protected void installSnatMissEntry(BigInteger dpnId, Long routerId, String routerName, BigInteger primarySwitchId,
-            String externalIp, long extSubnetId, int addOrRemove) {
-        LOG.debug("installSnatMissEntry : Installing SNAT miss entry in switch {}", dpnId);
-        List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
-        String ifNamePrimary = getTunnelInterfaceName(dpnId, primarySwitchId);
-        List<BucketInfo> listBucketInfo = new ArrayList<>();
-        if (ifNamePrimary != null) {
-            LOG.debug("installSnatMissEntry : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
-            listActionInfoPrimary = NatUtil.getEgressActionsForInterface(odlInterfaceRpcService, itmManager,
-                    interfaceManager, ifNamePrimary, routerId);
-        }
-        BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
-        listBucketInfo.add(0, bucketPrimary);
-        LOG.debug("installSnatMissEntry : installSnatMissEntry called for dpnId {} with primaryBucket {} ", dpnId,
-                listBucketInfo.get(0));
-        // Install the select group
-        long groupId = createGroupId(getGroupIdKey(routerName));
-        GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll,
-                listBucketInfo);
-        LOG.debug("installSnatMissEntry : installing the SNAT to NAPT GroupEntity:{}", groupEntity);
-        mdsalManager.installGroup(groupEntity);
-        // Install miss entry pointing to group
-        LOG.debug("installSnatMissEntry : buildSnatFlowEntity is called for dpId {}, routerName {} and groupId {}",
-                dpnId, routerName, groupId);
-        List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchEthernetType(0x0800L));
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
-
-
-        List<ActionInfo> actionsInfo = new ArrayList<>();
-        actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(routerId)));
-        LOG.debug("installSnatMissEntry : Setting the tunnel to the list of action infos {}", actionsInfo);
-        actionsInfo.add(new ActionGroup(groupId));
-        List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionApplyActions(actionsInfo));
-        String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
-        syncFlow(dpnId, NwConstants.PSNAT_TABLE, flowRef,  NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
-        //Install the FIB entry for traffic destined to SNAT IP in Non-NAPT switch.
-        matches = new ArrayList<>();
-        actionsInfo = new ArrayList<>();
-        matches.add(new MatchEthernetType(0x0800L));
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            if (extSubnetId == NatConstants.INVALID_ID) {
-                LOG.error("installSnatMissEntry : external subnet id is invalid.");
-                return;
-            }
-            actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(extSubnetId)));
-            matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extSubnetId),
-                    MetaDataUtil.METADATA_MASK_VRFID));
-        }
-        matches.add(new MatchIpv4Destination(externalIp, "32"));
-        LOG.debug("installSnatMissEntry : Setting the tunnel to the list of action infos {}", actionsInfo);
-        actionsInfo.add(new ActionGroup(groupId));
-        instructions = new ArrayList<>();
-        instructions.add(new InstructionApplyActions(actionsInfo));
-        flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, routerId);
-        flowRef = flowRef + "inboundmiss" + externalIp;
-        syncFlow(dpnId, NwConstants.L3_FIB_TABLE, flowRef,  NatConstants.SNAT_FIB_FLOW_PRIORITY, flowRef,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
+            String externalIp, String externalNetId, String subNetId, long extSubnetId, int addOrRemove) {
+        /*do nothing*/
     }
 
     protected void installInboundTerminatingServiceTblEntry(BigInteger dpnId, Long routerId,

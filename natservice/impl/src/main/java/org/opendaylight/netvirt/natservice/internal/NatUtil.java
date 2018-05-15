@@ -675,6 +675,20 @@ public final class NatUtil {
         }
     }
 
+    public static void deletePrefixToInterface(DataBroker broker, long vpnId, String ipPrefix) {
+        try {
+            SingleTransactionDataBroker.syncDelete(broker, LogicalDatastoreType.OPERATIONAL,
+                    InstanceIdentifier.builder(PrefixToInterface.class)
+                    .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface
+                            .VpnIds.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
+                            .prefix.to._interface.VpnIdsKey(vpnId)).child(Prefixes.class, new PrefixesKey(ipPrefix))
+                    .build());
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("addPrefixToInterface : Failed to write prefxi-to-interface for vpn-id {}",
+                    vpnId, e);
+        }
+    }
+
     static InstanceIdentifier<Ports> buildPortToIpMapIdentifier(String routerId, String portName) {
         InstanceIdentifier<Ports> ipPortMapId = InstanceIdentifier.builder(FloatingIpInfo.class)
             .child(RouterPorts.class, new RouterPortsKey(routerId)).child(Ports.class, new PortsKey(portName)).build();
