@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "941798f0_62d03501",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/BaseVrfEntryHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-15T13:18:07Z",
+      "side": 1,
+      "message": "For a VXLAN based network, we must always use only the VNI provided by Openstack.  We should not be using LPortTag anywhere for across compute traffic after this review lands :)",
+      "parentUuid": "f22130ad_64ae3092",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3c377156_08d6e959",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/EvpnVrfEntryHandler.java",
         "patchSetId": 6
