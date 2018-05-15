@@ -120,6 +120,27 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     @Override
+    public void deleteVrfwithPrefix(String rd) {
+        Bgp config = getConfig();
+        if (config == null) {
+            LOG.info("deleteVrfwithPrefix for RD {}: No BGP configs present", rd);
+            return;
+        }
+        List<Networks> ln = config.getNetworks();
+        if (ln != null) {
+            for (Networks net : ln) {
+                if (net.getRd().equals(rd)) {
+                    bcm.delPrefix(rd, net.getPrefixLen());
+                    LOG.info("deleteVrfwithPrefix: Removed Prefix rd {} prefix {}",
+                            rd, net.getPrefixLen());
+                }
+            }
+        }
+        bcm.delVrf(rd);
+        LOG.info("deleteVrfwithPrefix: Removed vrf {}", rd);
+    }
+
+    @Override
     public void addPrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
                           VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
                           String gatewayMac, RouteOrigin origin) {
