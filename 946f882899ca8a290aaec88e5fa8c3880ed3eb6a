@@ -110,6 +110,24 @@
       "revId": "946f882899ca8a290aaec88e5fa8c3880ed3eb6a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b2cd726_6efd70e0",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-15T05:39:32Z",
+      "side": 1,
+      "message": "Yes. I\u0027ve added more design details including detailing changes required in each component. It covers most of high level design, enough to review the approach being taken esp as Ingress limit and FIP QoS are not as simple.",
+      "parentUuid": "1f671eff_bf76da4e",
+      "revId": "946f882899ca8a290aaec88e5fa8c3880ed3eb6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
