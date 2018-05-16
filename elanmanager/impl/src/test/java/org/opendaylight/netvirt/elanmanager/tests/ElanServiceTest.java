@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elanmanager.tests;
 
 import static java.util.Arrays.asList;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.base.Optional;
 
@@ -29,9 +30,10 @@ import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorTestModule
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.cache.InstanceIdDataObjectCache;
 import org.opendaylight.genius.testutils.interfacemanager.TunnelInterfaceDetails;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
-import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.infrautils.caches.CacheProvider;
 import org.opendaylight.infrautils.caches.testutils.CacheModule;
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -55,6 +57,7 @@ import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepPhysicalSwitchListener
 import org.opendaylight.netvirt.elan.l2gw.listeners.L2GatewayConnectionListener;
 import org.opendaylight.netvirt.elan.l2gw.listeners.LocalUcastMacListener;
 import org.opendaylight.netvirt.elan.l2gw.nodehandlertest.DataProvider;
+import org.opendaylight.netvirt.elan.l2gw.nodehandlertest.PhysicalSwitchHelper;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -67,6 +70,7 @@ import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Networks;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -75,9 +79,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.I
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepNodeName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -129,6 +137,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
     private @Inject ElanInstanceDpnsCache elanInstanceDpnsCache;
     private @Inject ElanExtnTepConfigListener elanExtnTepConfigListener;
     private @Inject ElanExtnTepListener elanExtnTepListener;
+    private @Inject CacheProvider cacheProvider;
 
     private L2GatewayListener l2gwListener;
     private MetricProvider metricProvider = new TestMetricProviderImpl();
@@ -138,9 +147,28 @@ public class ElanServiceTest extends  ElanServiceTestBase {
 
     private SingleTransactionDataBroker singleTxdataBroker;
 
-    @Before public void before() throws Exception {
+    private InstanceIdDataObjectCache<LogicalSwitches> logicalSwitchCache;
 
+    @Before public void before() throws Exception {
         singleTxdataBroker = new SingleTransactionDataBroker(dataBroker);
+        logicalSwitchCache = new InstanceIdDataObjectCache<LogicalSwitches>(
+                LogicalSwitches.class, dataBroker, CONFIGURATION,
+                InstanceIdentifier.builder(NetworkTopology.class)
+                        .child(Topology.class, new TopologyKey(new TopologyId(new Uri("hwvtep:1"))))
+                        .child(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang
+                                .network.topology.rev131021.network.topology.topology.Node.class)
+                        .augmentation(HwvtepGlobalAugmentation.class)
+                        .child(LogicalSwitches.class).build(), cacheProvider) {
+            protected void added(InstanceIdentifier<LogicalSwitches> path, LogicalSwitches dataObject) {
+                new Thread(() -> {
+                    try {
+                        singleTxdataBroker.syncWrite(OPERATIONAL, path, dataObject);
+                    } catch (TransactionCommitFailedException e) {
+                        LOG.error("Failed to write to oper ds");
+                    }
+                }).start();
+            }
+        };
         verifications = new Verifications(singleTxdataBroker, odlInterfaceRpcService, EXTN_INTFS, getAwaiter());
         l2gwBuilders = new L2gwBuilders(singleTxdataBroker);
         JobCoordinator jobCoordinator = new JobCoordinatorImpl(metricProvider);
@@ -169,11 +197,11 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         // Intentionally empty; the goal is just to first test the ElanServiceTestModule
     }
 
-    void createL2gwL2gwconn(InstanceIdentifier<Node> nodePath,
-                            String l2gwName,
-                            String deviceName,
-                            List<String> ports,
-                            String connectionName)
+    void createL2gwAndConnection(InstanceIdentifier<Node> nodePath,
+                                 String l2gwName,
+                                 String deviceName,
+                                 List<String> ports,
+                                 String connectionName)
             throws InterruptedException, TransactionCommitFailedException {
 
         //Create l2gw
@@ -186,21 +214,6 @@ public class ElanServiceTest extends  ElanServiceTestBase {
                 l2gwBuilders.buildConnectionIid(connectionName), l2gwBuilders.buildConnection(connectionName,
                         l2gwName, ExpectedObjects.ELAN1, 100));
         awaitForData(LogicalDatastoreType.CONFIGURATION, l2gwBuilders.buildConnectionIid(connectionName));
-
-        //check for Config Logical Switch creation
-        InstanceIdentifier logicalSwitchesInstanceIdentifier =
-                HwvtepSouthboundUtils.createLogicalSwitchesInstanceIdentifier(
-                        nodePath.firstKeyOf(Node.class).getNodeId(),
-                        new HwvtepNodeName(ExpectedObjects.ELAN1));
-        awaitForData(LogicalDatastoreType.CONFIGURATION, logicalSwitchesInstanceIdentifier);
-
-        //create operational logical switch
-        Optional<LogicalSwitches> logicalSwitchesOptional =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, logicalSwitchesInstanceIdentifier);
-        LogicalSwitches logicalSwitches = logicalSwitchesOptional.isPresent() ? logicalSwitchesOptional.get() : null ;
-        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                logicalSwitchesInstanceIdentifier, logicalSwitches);
-        awaitForData(LogicalDatastoreType.OPERATIONAL, logicalSwitchesInstanceIdentifier);
     }
 
     @Test public void checkSMAC() throws Exception {
@@ -287,10 +300,10 @@ public class ElanServiceTest extends  ElanServiceTestBase {
 
         // Read and Compare DMAC flow in DPN1 for MAC1 of DPN2
         String flowId = ElanUtils.getKnownDynamicmacFlowRef((short)51,
-                        DPN1_ID,
-                        DPN2_ID,
-                        interfaceInfo.getMacAddress().toString(),
-                        actualElanInstances.getElanTag());
+                DPN1_ID,
+                DPN2_ID,
+                interfaceInfo.getMacAddress().toString(),
+                actualElanInstances.getElanTag());
 
         InstanceIdentifier<Flow> flowInstanceIidDst = getFlowIid(NwConstants.ELAN_DMAC_TABLE,
                 new FlowId(flowId), DPN1_ID);
@@ -449,12 +462,30 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         addElanInterface(ExpectedObjects.ELAN1, interfaceInfo, DPN2IP2);
         verifications.verifyLocalBcGroup(DPN2_ID, 2);
 
-        createL2gwL2gwconn(TOR1_NODE_IID, L2GW1, PS1, DataProvider.getPortNameListD1(), L2GW_CONN1);
+        createL2gwAndConnection(TOR1_NODE_IID, L2GW1, PS1, DataProvider.getPortNameListD1(), L2GW_CONN1);
 
         verifications.verifyThatMcastMacTepsCreated(TOR1_NODE_IID, asList(DPN1_TEPIP, DPN2_TEPIP));
         verifications.verifyThatUcastCreated(TOR1_NODE_IID, asList(DPN1MAC1, DPN1MAC2, DPN2MAC1, DPN2MAC2));
         verifications.verifyThatDpnGroupUpdated(DPN1_ID, asList(DPN2_ID), asList(TOR1_TEPIP));
         verifications.verifyThatDpnGroupUpdated(DPN2_ID, asList(DPN1_ID), asList(TOR1_TEPIP));
+    }
+
+    @Test
+    public void verifyL2gwPreProvisioning() throws Exception {
+
+        createElanInstance(ExpectedObjects.ELAN1, ExpectedObjects.ELAN1_SEGMENT_ID);
+        addElanInterface(ExpectedObjects.ELAN1, ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC1).getLeft(), DPN1IP1);
+
+        singleTxdataBroker.syncDelete(OPERATIONAL, TOR1_NODE_IID);
+        singleTxdataBroker.syncDelete(OPERATIONAL,
+                PhysicalSwitchHelper.getPhysicalSwitchInstanceIdentifier(TOR1_NODE_IID, PS1));
+
+        createL2gwAndConnection(TOR1_NODE_IID, L2GW1, PS1, DataProvider.getPortNameListD1(), L2GW_CONN1);
+
+        l2gwBuilders.buildTorNode(TOR1_NODE_ID, PS1, TOR1_TEPIP);
+
+        verifications.verifyThatMcastMacTepsCreated(TOR1_NODE_IID, asList(DPN1_TEPIP));
+        verifications.verifyThatUcastCreated(TOR1_NODE_IID, asList(DPN1MAC1));
     }
 
     public void verifyL2gwMac1InDpns() throws Exception {
@@ -466,7 +497,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
     public void verifyL2gw2Connection() throws Exception {
         verifyL2gwMac1InDpns();
         // TOR Node 2 creation
-        createL2gwL2gwconn(TOR2_NODE_IID, L2GW2, PS2, DataProvider.getPortNameListTor2(), L2GW_CONN2);
+        createL2gwAndConnection(TOR2_NODE_IID, L2GW2, PS2, DataProvider.getPortNameListTor2(), L2GW_CONN2);
         //check for remote mcast mac in tor2 against TEPs of dpn1, dpn2 and dpn3, tor1)
         verifications.verifyThatMcastMacTepsCreated(TOR2_NODE_IID, asList(DPN1_TEPIP, DPN2_TEPIP, TOR1_TEPIP));
         verifications.verifyThatMcastMacTepsCreated(TOR1_NODE_IID, asList(DPN1_TEPIP, DPN2_TEPIP, TOR2_TEPIP));
