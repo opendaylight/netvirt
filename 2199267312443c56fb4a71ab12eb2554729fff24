@@ -171,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "b14a3e4d_559adcd4",
+        "filename": "docs/specs/fluorine/odl-mtu.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-16T10:26:19Z",
+      "side": 1,
+      "message": "The MTU related documentation is a bit confusing on what are the latest tunable params. As per the following link[@] we can see the following params.\n\nglobal_physnet_mtu\nphysical_network_mtus\npath_mtu\n\nOTOH, according to RHEL7 documentation and [#], I see the following options.\n\npath_mtu \nsegment_mtu\nphysical_network_mtus\n\nSo can we please check if we are considering the right params in this RFE? Another important thing w.r.t MTU is that its advertised via dhcp/ipv6-RAs. For this, neutron stores the recommended MTU info as part of neutron network - http://paste.openstack.org/show/721081/\n\nDoes this RFE include/store the mtu info in the NeutronPort YANG so that IPv6Service (and if required ODL DHCP Service) can advertise this info to its clients?\n\n[@] https://docs.openstack.org/mitaka/networking-guide/config-mtu.html\n\n[*] https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux_openstack_platform/7/html/networking_guide/sec-mtu\n[#] https://specs.openstack.org/openstack/neutron-specs/specs/kilo/mtu-selection-and-advertisement.html#other-deployer-impact",
+      "parentUuid": "07b9f722_9434b787",
+      "revId": "2199267312443c56fb4a71ab12eb2554729fff24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a119fc00_21c5ea77",
         "filename": "docs/specs/fluorine/odl-mtu.rst",
         "patchSetId": 1
