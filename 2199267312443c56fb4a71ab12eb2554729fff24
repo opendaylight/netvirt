@@ -191,6 +191,30 @@
       "revId": "2199267312443c56fb4a71ab12eb2554729fff24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae0814a1_6aae9323",
+        "filename": "docs/specs/fluorine/odl-mtu.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-16T05:28:12Z",
+      "side": 1,
+      "message": "bridge_mappings would be a good example to add?",
+      "parentUuid": "a119fc00_21c5ea77",
+      "range": {
+        "startLine": 116,
+        "startChar": 31,
+        "endLine": 116,
+        "endChar": 49
+      },
+      "revId": "2199267312443c56fb4a71ab12eb2554729fff24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
