@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e859dfed_2bac92a9",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6RouterAdvt.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-05-16T08:35:08Z",
+      "side": 1,
+      "message": "Sorry for the late response. Is egress action already cached by Interfacemgr? Do we need an additional map here",
+      "revId": "412ad7a26dd3357826e74709d00d827d7f994dae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
