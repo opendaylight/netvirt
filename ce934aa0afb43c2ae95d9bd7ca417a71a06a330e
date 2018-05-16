@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7539551a_9e68056d",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceOFFlowBuilder.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-05-16T16:19:25Z",
+      "side": 1,
+      "message": "These don\u0027t add anything, please leave the string constants in the code.",
+      "revId": "ce934aa0afb43c2ae95d9bd7ca417a71a06a330e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6f96fe00_9b2c024f",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceOFFlowBuilder.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-05-16T16:19:25Z",
+      "side": 1,
+      "message": "This should be private.",
+      "revId": "ce934aa0afb43c2ae95d9bd7ca417a71a06a330e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c5c7f63c_9a76cb34",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceOFFlowBuilder.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-05-16T16:19:25Z",
+      "side": 1,
+      "message": "Please don\u0027t use a string as a type; you can pass the contructor in instead (NxMatchTcpSourcePort::new etc.).",
+      "revId": "ce934aa0afb43c2ae95d9bd7ca417a71a06a330e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
