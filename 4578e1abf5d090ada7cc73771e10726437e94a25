@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "1dd16941_9c215be9",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/EvpnVrfEntryHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-16T10:57:46Z",
+      "side": 1,
+      "message": "Done. Change done to have VXLAN network type change before using segmentation id as tun_id",
+      "parentUuid": "3c377156_08d6e959",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1bbff759_e5c3a745",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 6
@@ -83,6 +101,24 @@
       "writtenOn": "2018-05-09T13:25:49Z",
       "side": 1,
       "message": "is this method required..",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9335a1d_8fc60fe5",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 735,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-16T10:57:46Z",
+      "side": 1,
+      "message": "Required as VNI only need to be used for VXLAN provider network for carrying traffic across compute nodes(As it is assumed all internal network of type VXLAN and compute nodes are connected via VXLAN tunnel only)",
+      "parentUuid": "1bbff759_e5c3a745",
       "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -106,6 +142,24 @@
     },
     {
       "key": {
+        "uuid": "081ec612_eb211568",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 742,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-16T10:57:46Z",
+      "side": 1,
+      "message": "This method no longer required.",
+      "parentUuid": "face54b2_79cbeb01",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c21e2eff_e8c3614a",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 6
@@ -123,6 +177,24 @@
     },
     {
       "key": {
+        "uuid": "21956f2d_45dd8d20",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 746,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-16T10:57:46Z",
+      "side": 1,
+      "message": "This method no longer required.",
+      "parentUuid": "c21e2eff_e8c3614a",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a94c72e5_73673cfd",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 6
@@ -134,6 +206,24 @@
       "writtenOn": "2018-05-09T13:25:49Z",
       "side": 1,
       "message": "please remove this method",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "71088096_bc39f6ec",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 749,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-16T10:57:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a94c72e5_73673cfd",
       "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -163,6 +253,30 @@
     },
     {
       "key": {
+        "uuid": "cba9ab72_fcabf35d",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 751,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-16T10:57:46Z",
+      "side": 1,
+      "message": "Not Required. As this check is done in callerr API\u0027s",
+      "parentUuid": "d03ab9fb_8923e649",
+      "range": {
+        "startLine": 751,
+        "startChar": 34,
+        "endLine": 751,
+        "endChar": 60
+      },
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "53937112_46720dcf",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 6
@@ -174,6 +288,24 @@
       "writtenOn": "2018-05-09T13:25:49Z",
       "side": 1,
       "message": "ditto comment here",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a398a954_94883642",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 918,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-16T10:57:46Z",
+      "side": 1,
+      "message": "Removed and only VXLAN network type check kept here",
+      "parentUuid": "53937112_46720dcf",
       "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -197,6 +329,24 @@
     },
     {
       "key": {
+        "uuid": "4765cc13_0d3f374e",
+        "filename": "vpnmanager/api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-16T10:57:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1de6719b_b95dfd3e",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f26e7be6_4d182dc3",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 6
@@ -214,6 +364,24 @@
     },
     {
       "key": {
+        "uuid": "244b0799_5a3dae4b",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1777,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-16T10:57:46Z",
+      "side": 1,
+      "message": "Removed populating network params for PNFs.",
+      "parentUuid": "f26e7be6_4d182dc3",
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "087b4a4f_262a2658",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 6
@@ -225,6 +393,30 @@
       "writtenOn": "2018-05-09T13:08:03Z",
       "side": 1,
       "message": "if I am not wrong, networkParams is supposed to be present, if its not present something went wrong, shouldn\u0027t we return from this function in this case?",
+      "range": {
+        "startLine": 2208,
+        "startChar": 0,
+        "endLine": 2213,
+        "endChar": 13
+      },
+      "revId": "4578e1abf5d090ada7cc73771e10726437e94a25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "47c9e914_84b76182",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2213,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-16T10:57:46Z",
+      "side": 1,
+      "message": "This is removed now as here I was retrieved and passing network params only for PNFs.",
+      "parentUuid": "087b4a4f_262a2658",
       "range": {
         "startLine": 2208,
         "startChar": 0,
