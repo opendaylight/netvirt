@@ -59,6 +59,16 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
             return;
         }
 
+        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.DEVICE_OWNER_DHCP)) {
+            LOG.info("IPv6Service (TODO): Skipping network_dhcp port {} for add event", port);
+            return;
+        }
+
+        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.DEVICE_OWNER_FLOATING_IP)) {
+            LOG.info("IPv6Service (TODO): Skipping network_floatingip port {} for add event", port);
+            return;
+        }
+
         LOG.debug("Add port notification handler is invoked for port {} ", port);
         List<FixedIps> ipList = port.getFixedIps();
         for (FixedIps fixedip : ipList) {
@@ -77,6 +87,16 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
             return;
         }
 
+        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.DEVICE_OWNER_DHCP)) {
+            LOG.info("IPv6Service (TODO): Skipping network_dhcp port {} for remove event", port);
+            return;
+        }
+
+        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.DEVICE_OWNER_FLOATING_IP)) {
+            LOG.info("IPv6Service (TODO): Skipping network_floatingip port {} for remove event", port);
+            return;
+        }
+
         LOG.debug("remove port notification handler is invoked for port {}", port);
         ifMgr.removePort(port.getUuid());
     }
@@ -86,6 +106,16 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
         if (update.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_GATEWAY)) {
             // Todo: revisit when IPv6 north-south support is implemented.
             LOG.info("IPv6Service (TODO): Skipping router_gateway port {} for update event", update);
+            return;
+        }
+
+        if (update.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.DEVICE_OWNER_DHCP)) {
+            LOG.info("IPv6Service (TODO): Skipping network_dhcp port {} for update event", update);
+            return;
+        }
+
+        if (update.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.DEVICE_OWNER_FLOATING_IP)) {
+            LOG.info("IPv6Service (TODO): Skipping network_floatingip port {} for add event", update);
             return;
         }
 

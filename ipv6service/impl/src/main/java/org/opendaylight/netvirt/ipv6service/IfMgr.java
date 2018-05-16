@@ -433,7 +433,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
             // Update the network <--> List[dpnIds, List<ports>] cache.
             VirtualNetwork vnet = getNetwork(intf.getNetworkID());
             if (null != vnet) {
-                vnet.updateDpnPortInfo(dpId, ofPort, Ipv6Constants.ADD_ENTRY);
+                vnet.updateDpnPortInfo(dpId, ofPort, portId, Ipv6Constants.ADD_ENTRY);
             }
         }
     }
@@ -487,7 +487,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
                 VirtualNetwork vnet = getNetwork(networkID);
                 if (null != vnet) {
                     BigInteger dpId = intf.getDpId();
-                    vnet.updateDpnPortInfo(dpId, intf.getOfPort(), Ipv6Constants.DEL_ENTRY);
+                    vnet.updateDpnPortInfo(dpId, intf.getOfPort(), portId, Ipv6Constants.DEL_ENTRY);
                 }
             }
         }
