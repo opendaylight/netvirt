@@ -94,6 +94,23 @@
     },
     {
       "key": {
+        "uuid": "6551f775_584f800f",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-05-16T06:55:59Z",
+      "side": 1,
+      "message": "will this support OVS dpdk data path?\nAlso, the queues are created on the physical interface, how will OVS map the VM ports to physical ports for deciding about queue creation?",
+      "revId": "446aae62dede35cdb85b32e2d9911c7735169259",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3514087b_64a6b211",
         "filename": "docs/specs/fluorine/qos.rst",
         "patchSetId": 4
