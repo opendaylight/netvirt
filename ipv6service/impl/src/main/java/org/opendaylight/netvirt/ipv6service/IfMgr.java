@@ -438,7 +438,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
             // Update the network <--> List[dpnIds, List<ports>] cache.
             VirtualNetwork vnet = getNetwork(intf.getNetworkID());
             if (null != vnet) {
-                vnet.updateDpnPortInfo(dpId, ofPort, Ipv6Constants.ADD_ENTRY);
+                vnet.updateDpnPortInfo(dpId, ofPort, portId, Ipv6Constants.ADD_ENTRY);
             }
         }
     }
@@ -492,7 +492,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
                 VirtualNetwork vnet = getNetwork(networkID);
                 if (null != vnet) {
                     BigInteger dpId = intf.getDpId();
-                    vnet.updateDpnPortInfo(dpId, intf.getOfPort(), Ipv6Constants.DEL_ENTRY);
+                    vnet.updateDpnPortInfo(dpId, intf.getOfPort(), portId, Ipv6Constants.DEL_ENTRY);
                 }
             }
         }
@@ -691,7 +691,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
             for (VirtualNetwork.DpnInterfaceInfo dpnIfaceInfo : dpnIfaceList) {
                 nodeName = Ipv6Constants.OPENFLOW_NODE_PREFIX + dpnIfaceInfo.getDpId();
                 List<NodeConnectorRef> ncRefList = new ArrayList<>();
-                for (Long ofPort: dpnIfaceInfo.ofPortList) {
+                for (Long ofPort: dpnIfaceInfo.ofPortMap.keySet()) {
                     outPort = nodeName + ":" + ofPort;
                     LOG.debug("Transmitting RA {} for node {}, port {}", advType, nodeName, outPort);
                     InstanceIdentifier<NodeConnector> outPortId = InstanceIdentifier.builder(Nodes.class)
