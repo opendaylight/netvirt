@@ -84,7 +84,6 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
             LOG.info("IPv6Service: Skipping network_dhcp port {} for remove event", port);
             return;
         }
-
         LOG.debug("remove port notification handler is invoked for port {}", port);
         ifMgr.removePort(port.getUuid());
     }
@@ -100,7 +99,6 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
             LOG.info("IPv6Service: Skipping network_dhcp port {} for update event", update);
             return;
         }
-
         LOG.debug("update port notification handler is invoked for port {} ", update);
 
         Set<FixedIps> ipsBefore = getFixedIpSet(original.getFixedIps());

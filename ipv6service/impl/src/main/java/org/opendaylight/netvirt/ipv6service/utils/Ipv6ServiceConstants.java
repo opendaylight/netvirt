@@ -24,7 +24,6 @@ public interface Ipv6ServiceConstants {
     String NETWORK_ROUTER_GATEWAY = "network:router_gateway";
     String DEVICE_OWNER_DHCP = "network:dhcp";
     String DEVICE_OWNER_COMPUTE_NOVA = "compute:nova";
-
     BigInteger INVALID_DPID = new BigInteger("-1");
     short DEFAULT_FLOW_PRIORITY = 50;
     short PUNT_NA_FLOW_PRIORITY = 40;
