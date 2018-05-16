@@ -35,16 +35,16 @@ public class VirtualNetwork implements IVirtualNetwork {
         return networkUUID;
     }
 
-    public void updateDpnPortInfo(BigInteger dpnId, Long ofPort, int addOrRemove) {
+    public void updateDpnPortInfo(BigInteger dpnId, Long ofPort, Uuid portId, int addOrRemove) {
         if (dpnId == null) {
             return;
         }
         synchronized (networkUUID.getValue()) {
             DpnInterfaceInfo dpnInterface = dpnIfaceList.computeIfAbsent(dpnId, key -> new DpnInterfaceInfo(dpnId));
             if (addOrRemove == Ipv6ServiceConstants.ADD_ENTRY) {
-                dpnInterface.updateofPortList(ofPort);
+                dpnInterface.updateofPortMap(ofPort, portId);
             } else {
-                dpnInterface.removeOfPortFromList(ofPort);
+                dpnInterface.removeOfPortFromMap(ofPort);
             }
         }
     }
@@ -99,11 +99,11 @@ public class VirtualNetwork implements IVirtualNetwork {
     public void removeSelf() {
         synchronized (networkUUID.getValue()) {
             dpnIfaceList.values().forEach(dpnInterfaceInfo -> {
-                dpnInterfaceInfo.clearOfPortList();
+                dpnInterfaceInfo.clearOfPortMap();
                 dpnInterfaceInfo.clearNdTargetFlowInfo();
                 dpnInterfaceInfo.clearsubnetCidrPuntFlowInfo();
+                dpnInterfaceInfo.clearOvsNaResponderFlowConfigured();
             });
-
             clearDpnInterfaceList();
         }
     }
@@ -112,12 +112,15 @@ public class VirtualNetwork implements IVirtualNetwork {
         BigInteger dpId;
         int rsPuntFlowConfigured;
         final Set<Uuid> subnetCidrPuntFlowList = ConcurrentHashMap.newKeySet();
-        final Set<Long> ofPortList = ConcurrentHashMap.newKeySet();
+        ConcurrentMap<Long, Uuid> ofPortMap;
         final Set<Ipv6Address> ndTargetFlowsPunted = ConcurrentHashMap.newKeySet();
+        ConcurrentMap<Uuid, Integer> ovsNaResponderFlowConfigured;
 
         DpnInterfaceInfo(BigInteger dpnId) {
             dpId = dpnId;
+            ofPortMap = new ConcurrentHashMap();
             rsPuntFlowConfigured = Ipv6ServiceConstants.FLOWS_NOT_CONFIGURED;
+            ovsNaResponderFlowConfigured = new ConcurrentHashMap();
         }
 
         public void setDpId(BigInteger dpId) {
@@ -172,16 +175,28 @@ public class VirtualNetwork implements IVirtualNetwork {
             this.ndTargetFlowsPunted.clear();
         }
 
-        public void updateofPortList(Long ofPort) {
-            this.ofPortList.add(ofPort);
+        public void setOvsNaResponderFlowConfiguredStatus(Uuid interfaceName, int lportTag, int addOrRemove) {
+            if (addOrRemove == Ipv6ServiceConstants.ADD_ENTRY) {
+                this.ovsNaResponderFlowConfigured.put(interfaceName, lportTag);
+            } else {
+                this.ovsNaResponderFlowConfigured.remove(interfaceName);
+            }
         }
 
-        public void removeOfPortFromList(Long ofPort) {
-            this.ofPortList.remove(ofPort);
+        public void clearOvsNaResponderFlowConfigured() {
+            this.ovsNaResponderFlowConfigured.clear();
         }
 
-        public void clearOfPortList() {
-            this.ofPortList.clear();
+        public void updateofPortMap(Long ofPort, Uuid portId) {
+            this.ofPortMap.put(ofPort, portId);
+        }
+
+        public void removeOfPortFromMap(Long ofPort) {
+            this.ofPortMap.remove(ofPort);
+        }
+
+        public void clearOfPortMap() {
+            this.ofPortMap.clear();
         }
 
         public void clearsubnetCidrPuntFlowInfo() {
@@ -191,8 +206,8 @@ public class VirtualNetwork implements IVirtualNetwork {
         @Override
         public String toString() {
             return "DpnInterfaceInfo [dpId=" + dpId + " rsPuntFlowConfigured=" + rsPuntFlowConfigured
-                    + "subnetCidrPuntFlowList=" + subnetCidrPuntFlowList + " ofPortList="
-                    + ofPortList + "]";
+                    + "subnetCidrPuntFlowList=" + subnetCidrPuntFlowList + " ofPortMap="
+                    + ofPortMap + "]";
         }
     }
 }
