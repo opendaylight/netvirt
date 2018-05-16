@@ -207,6 +207,24 @@
     },
     {
       "key": {
+        "uuid": "c03bbe7f_760aac50",
+        "filename": "docs/specs/fluorine/odl-mtu.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-16T17:22:26Z",
+      "side": 1,
+      "message": "Yeah the \"NeutronPort YANG\" in my description above was actually a Typo. It should indeed be Neutron network yang model.\n\nSo @Isaku, it looks like neutron server is already taking into consideration the path_mtu (that is configured in ml2_conf.ini) and is updating the network[mtu] attribute. \nIf we can get this info populated in ODL Neutron Network yang model, ODL-ipv6service/ODL-DHCPServer can use this info for advertising to the clients.\n\nApart from advertising this info to clients, do you think there is anything else (i.e., like configuring the mtu on VM tap interfaces?) that ODL has to do w.r.t to network[mtu]?",
+      "parentUuid": "3d16dc03_352773dd",
+      "revId": "2199267312443c56fb4a71ab12eb2554729fff24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a119fc00_21c5ea77",
         "filename": "docs/specs/fluorine/odl-mtu.rst",
         "patchSetId": 1
