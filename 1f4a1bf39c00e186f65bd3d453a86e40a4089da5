@@ -22,6 +22,30 @@
       "revId": "1f4a1bf39c00e186f65bd3d453a86e40a4089da5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c0d483b_d4a38a52",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1029,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-05-16T07:37:01Z",
+      "side": 1,
+      "message": "I think the aim of the work to remove statics was to reduce the need to pass references around, in particular, references to other services (such as the data broker). In this particular case, the target method is a pure data transformation method with no external dependencies, so it’s “naturally” static and should be used that way. Making *this* kind of change helps reduce inter-service dependencies, which is also good...",
+      "parentUuid": "630a0e90_ff598645",
+      "range": {
+        "startLine": 1029,
+        "startChar": 50,
+        "endLine": 1029,
+        "endChar": 59
+      },
+      "revId": "1f4a1bf39c00e186f65bd3d453a86e40a4089da5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
