@@ -129,10 +129,8 @@ public class HwvtepPhysicalSwitchListener
 
         childConnectedAfterParent = (l2GwDevice, globalIid) -> {
             return !hwvtepNodeHACache.isHAParentNode(globalIid)
-                    && l2GwDevice != null;
-            // FIXME: The following call to equals compares different types (String and InstanceIdentifier) and
-            // thus will always return false. I don't know what the intention is here so commented out for now.
-            //&& !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalIid);
+                    && l2GwDevice != null && l2GwDevice.getHwvtepNodeId() != null
+                    && !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalIid.firstKeyOf(Node.class));
         };
 
         parentConnectedAfterChild = (l2GwDevice, globalIid) -> {
@@ -141,12 +139,11 @@ public class HwvtepPhysicalSwitchListener
                 existingIid = HwvtepHAUtil.convertToInstanceIdentifier(l2GwDevice.getHwvtepNodeId());
             }
             return hwvtepNodeHACache.isHAParentNode(globalIid)
-                    && l2GwDevice != null
-                    // FIXME: The following call to equals compares different types (String and InstanceIdentifier) and
-                    // thus will always return false. I don't know what the intention is here so commented out for now.
-                    //&& !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalIid)
+                    && l2GwDevice != null && l2GwDevice.getHwvtepNodeId() != null
+                    && !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalIid.firstKeyOf(Node.class))
                     && Objects.equals(globalIid, hwvtepNodeHACache.getParent(existingIid));
         };
+        LOG.error("New jar ver3 added");
     }
 
     @Override
