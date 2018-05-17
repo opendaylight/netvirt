@@ -12,7 +12,6 @@ import java.math.BigInteger;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
@@ -28,10 +27,9 @@ public class FlatVlanConntrackBasedSnatService extends ConntrackBasedSnatService
     public FlatVlanConntrackBasedSnatService(DataBroker dataBroker, IMdsalApiManager mdsalManager,
                                              ItmRpcService itmManager, OdlInterfaceRpcService odlInterfaceRpcService,
                                              IdManagerService idManager, NAPTSwitchSelector naptSwitchSelector,
-                                             IInterfaceManager interfaceManager,
-                                             IVpnFootprintService vpnFootprintService) {
+                                             IInterfaceManager interfaceManager) {
         super(dataBroker, mdsalManager, itmManager, idManager, naptSwitchSelector,
-                odlInterfaceRpcService, interfaceManager, vpnFootprintService);
+                odlInterfaceRpcService, interfaceManager);
     }
 
     @Override
