@@ -19,6 +19,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -143,9 +144,15 @@ public class ArpMonitoringHandler
                 String vpnName =  value.getVpnName();
                 MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, value.getPortName(),
                         value.getCreationTime());
-                jobCoordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
-                        new ArpMonitorStartTask(macEntry, arpMonitorProfileId, dataBroker, alivenessManager,
-                                neutronVpnService, interfaceManager));
+
+                if (NWUtil.isIpv4Address(value.getPortFixedip())) {
+                    jobCoordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
+                            new ArpMonitorStartTask(macEntry, arpMonitorProfileId, dataBroker, alivenessManager,
+                                    neutronVpnService, interfaceManager));
+                } else {
+                    // TODO: Handle for IPv6 case
+                    LOG.warn("IPv6 address monitoring is not yet supported - add(). LearntVpnVipToPort={}", value);
+                }
             } catch (UnknownHostException e) {
                 LOG.error("Error in deserializing packet {} with exception", value, e);
             }
@@ -166,8 +173,14 @@ public class ArpMonitoringHandler
                 String interfaceName =  value.getPortName();
                 MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, interfaceName,
                         value.getCreationTime());
-                jobCoordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
-                        new ArpMonitorStopTask(macEntry, dataBroker, alivenessManager, Boolean.FALSE));
+
+                if (NWUtil.isIpv4Address(value.getPortFixedip())) {
+                    jobCoordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
+                            new ArpMonitorStopTask(macEntry, dataBroker, alivenessManager, Boolean.FALSE));
+                } else {
+                    // TODO: Handle for IPv6 case
+                    LOG.warn("IPv6 address monitoring is not yet supported - remove(). LearntVpnVipToPort={}", value);
+                }
             } catch (UnknownHostException e) {
                 LOG.error("Error in deserializing packet {} with exception", value, e);
             }
