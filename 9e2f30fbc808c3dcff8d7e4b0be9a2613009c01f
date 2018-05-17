@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "233973df_afe79b93",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-05-17T10:24:16Z",
+      "side": 1,
+      "message": "globalIid.firstKeyOf(Node.class).getNodeId().getValue() ?",
+      "range": {
+        "startLine": 133,
+        "startChar": 94,
+        "endLine": 133,
+        "endChar": 95
+      },
+      "revId": "9e2f30fbc808c3dcff8d7e4b0be9a2613009c01f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
