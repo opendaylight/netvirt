@@ -59,6 +59,7 @@ public interface Ipv6Constants {
 
     BigInteger INVALID_DPID = new BigInteger("-1");
     short DEFAULT_FLOW_PRIORITY = 50;
+    short DEFAULT_OVS_FLOW_PRIORITY = 60;
     String FLOWID_PREFIX = "IPv6.";
     String FLOWID_SEPARATOR = ".";
 
@@ -76,6 +77,7 @@ public interface Ipv6Constants {
     //default periodic RA transmission interval. timeunit in sec
     long PERIODIC_RA_INTERVAL = 60;
     int ELAN_GID_MIN = 200000;
+    int FIRST_OR_LAST_VM_ON_DPN = 1;
 
     enum Ipv6RtrAdvertType {
         UNSOLICITED_ADVERTISEMENT,
