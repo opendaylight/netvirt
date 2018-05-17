@@ -59,6 +59,7 @@ public interface Ipv6Constants {
 
     BigInteger INVALID_DPID = new BigInteger("-1");
     short DEFAULT_FLOW_PRIORITY = 50;
+    short DEFAULT_OVS_FLOW_PRIORITY = 60;
     String FLOWID_PREFIX = "IPv6.";
     String FLOWID_SEPARATOR = ".";
 
@@ -75,6 +76,7 @@ public interface Ipv6Constants {
     String DEF_MCAST_MAC = "33:33:00:00:00:01";
     //default periodic RA transmission interval. timeunit in sec
     long PERIODIC_RA_INTERVAL = 60;
+    int FIRST_OR_LAST_VM_ON_DPN = 1;
 
     enum Ipv6RtrAdvertType {
         UNSOLICITED_ADVERTISEMENT,
