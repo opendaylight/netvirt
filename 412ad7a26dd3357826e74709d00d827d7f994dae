@@ -57,6 +57,30 @@
       "revId": "412ad7a26dd3357826e74709d00d827d7f994dae",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec6a0d94_1fa2403b",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6RouterAdvt.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-05-17T09:36:46Z",
+      "side": 1,
+      "message": "Thanks for your valuable comment.\n\nI have re-implemented in different way. This time i am keeping cache in existing VM interface list with additionally storing egress action as well. This will be taking care of both ADD/REMOVE of the cache. With this changes i have locally tested and working as expected.\n\nNote: In Ipv6Service Module(NeutronPortChangeListener.java) we need to ignore DHCP (Both ODL and Openstack q-dhcp) port and IPv4 Floating-IP addition/removal. Since as of now DHCP and Floating-Ip ports are consider as a host interface.\n\nPlease let me know if you have any concern about this changes.\n\nThanks in Advance,\nKarthikeyan.",
+      "parentUuid": "50bb7538_6b495b8c",
+      "range": {
+        "startLine": 66,
+        "startChar": 16,
+        "endLine": 66,
+        "endChar": 66
+      },
+      "revId": "412ad7a26dd3357826e74709d00d827d7f994dae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
