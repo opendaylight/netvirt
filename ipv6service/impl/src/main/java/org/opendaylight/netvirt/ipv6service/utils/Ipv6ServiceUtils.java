@@ -461,7 +461,7 @@ public class Ipv6ServiceUtils {
         instructions.add(new InstructionApplyActions(actionsInfos));
 
         for (Ipv6Address ipv6Address : vmPort.getIpv6Addresses()) {
-            matches.add(new MatchIpv6Source(ipv6Address.getValue()));
+            matches.add(new MatchIpv6Source(ipv6Address.getValue() + NwConstants.IPV6PREFIX));
             String flowId = getIPv6FlowRef(dpId, elanTag,
                     vmPort.getIntfUUID().getValue() + Ipv6Constants.FLOWID_SEPARATOR + ipv6Address.getValue());
             FlowEntity rsFlowEntity =
