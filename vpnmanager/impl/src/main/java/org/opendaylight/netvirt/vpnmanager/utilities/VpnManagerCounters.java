@@ -14,6 +14,7 @@ public enum VpnManagerCounters {
     subnet_route_packet_ignored,
     subnet_route_packet_failed,
     subnet_route_packet_arp_sent,
+    subnet_route_packet_ns_sent,
     garp_add_notification,
     garp_update_notification,
     garp_sent,
