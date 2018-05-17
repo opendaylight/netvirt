@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.config.rev180720.Ipv6serviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,7 @@ public class Ipv6ServiceInterfaceEventListener
     private final Ipv6ServiceUtils ipv6ServiceUtils;
     private final JobCoordinator jobCoordinator;
     private final Ipv6ServiceEosHandler ipv6ServiceEosHandler;
+    private Ipv6serviceConfig.NaResponderMode naResponderMode;
 
     /**
      * Intialize the member variables.
@@ -47,13 +49,19 @@ public class Ipv6ServiceInterfaceEventListener
      */
     @Inject
     public Ipv6ServiceInterfaceEventListener(DataBroker broker, IfMgr ifMgr, Ipv6ServiceUtils ipv6ServiceUtils,
-            final JobCoordinator jobCoordinator, Ipv6ServiceEosHandler ipv6ServiceEosHandler) {
+            final JobCoordinator jobCoordinator, Ipv6ServiceEosHandler ipv6ServiceEosHandler,
+                                             Ipv6serviceConfig ipv6serviceConfig) {
         super(Interface.class, Ipv6ServiceInterfaceEventListener.class);
         this.dataBroker = broker;
         this.ifMgr = ifMgr;
         this.ipv6ServiceUtils = ipv6ServiceUtils;
         this.jobCoordinator = jobCoordinator;
         this.ipv6ServiceEosHandler = ipv6ServiceEosHandler;
+        if (ipv6serviceConfig != null) {
+            this.naResponderMode = ipv6serviceConfig.getNaResponderMode();
+        } else {
+            this.naResponderMode = Ipv6serviceConfig.NaResponderMode.Controller;
+        }
     }
 
     @PostConstruct
@@ -96,13 +104,23 @@ public class Ipv6ServiceInterfaceEventListener
                 // Unbind Service
                 ipv6ServiceUtils.unbindIpv6Service(portId.getValue());
                 port.setServiceBindingStatus(false);
+                NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
+                BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+                if (naResponderMode == Ipv6serviceConfig.NaResponderMode.Switch) {
+                    ifMgr.checkIcmpv6NsMatchAndResponderFlow(dpnId, del.getIfIndex(), port,
+                            Ipv6ServiceConstants.DEL_FLOW);
+                }
+                VirtualNetwork vnet = ifMgr.getNetwork(port.getNetworkID());
+                if (vnet != null) {
+                    vnet.updateDpnPortInfo(dpnId, port.getOfPort(), portId, Ipv6ServiceConstants.DEL_FLOW);
+                }
                 return Collections.emptyList();
             }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         }
 
         VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
         ifMgr.handleInterfaceStateEvent(port, ipv6ServiceUtils.getDpIdFromInterfaceState(del), routerPort,
-                Ipv6ServiceConstants.DEL_FLOW);
+                del.getIfIndex(), Ipv6ServiceConstants.DEL_FLOW);
     }
 
     @Override
@@ -110,6 +128,10 @@ public class Ipv6ServiceInterfaceEventListener
         if (before.getType() == null && L2vlan.class.equals(after.getType())) {
             add(key, after);
         }
+    }
+
+    public void updateNaResponderMode(Ipv6serviceConfig.NaResponderMode mode) {
+        this.naResponderMode = mode;
     }
 
     private boolean isNeutronPort(String name) {
@@ -164,7 +186,9 @@ public class Ipv6ServiceInterfaceEventListener
                     LOG.info("Port {} is not associated to a Router, skipping.", portId);
                     return;
                 }
-                ifMgr.handleInterfaceStateEvent(port, dpId, routerPort, Ipv6ServiceConstants.ADD_FLOW);
+                // Check and program icmpv6 punt flows on the dpnID if its the first VM on the host.
+                ifMgr.handleInterfaceStateEvent(port, dpId, routerPort, add.getIfIndex().intValue(),
+                        Ipv6ServiceConstants.ADD_FLOW);
 
                 if (!port.getServiceBindingStatus()) {
                     jobCoordinator.enqueueJob("IPv6-" + String.valueOf(portId), () -> {
