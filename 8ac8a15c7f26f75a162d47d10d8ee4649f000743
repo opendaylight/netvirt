@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "edd46d0e_4e63140a",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-17T07:30:26Z",
+      "side": 1,
+      "message": "this and the commit message line heading should be the same.\n\nSame heading should go into index.rst.",
+      "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57d44858_246b2dc8",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-17T07:30:26Z",
+      "side": 1,
+      "message": "Discovery of Virtual IPs , which hold the MAC address of their hosted Virtual Ports (instead of holding their own Virtual MAC) is already supported by L3VPN service today via the SubnetRoute feature.\n\nIn NFVI production environments that run VNFs, for providing high-availability for those VNFs , VRRP is run between two such VNF instances.  With VRRP configuration, a Virtual IP is chosen and that Virtual IP is used to access the VNF by the tenants.   This Virtual IP will move around between the two VNF instances based on whichever is alive (or whichever has higher priority).  If only a Virtual IP is used by VRRP with the MAC being the same as the hosting VNF interface MAC,  then that use-case is already supported by SubnetRoute feature.\n\nHowever, it is possible to configure Virtual MAC to such Virtual IPs wherein those Virtual MACs are different from the VNF hosting interface MAC Addresses.   When this is being done, L3VPN service is unable to provide L3 connectivity to such IPs because L3VPN service points up the incorrect hosting interface MAC Address (in lieu of using the Virtual MAC itself) in the packets sent to Virtual IP which makes the Virtual IP ignore such packets.\n\nThis feature is thence an attempt to enhance the existing VIP discovery (and L3 plumbing of such VIPs) such that L3VPN service can support Virtual IPs that carry their own Virtual MACs.  In addition to the same this feature will track  movement of such Virtual IPs in the cloud will be tracked and appropriate flows would be pushed in, to provide continual L3 connectivity (intra+inter-dc) to such Virtual IPs within an L3VPN domain.",
+      "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b0943dd_fd51967e",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-17T07:30:26Z",
+      "side": 1,
+      "message": "7. Discovery of Virtual IPs (without Virtual MACs) should happen, ending up with L3 connectivity established for such Virtual IPs.",
+      "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4c251495_b59dcd01",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-17T07:30:26Z",
+      "side": 1,
+      "message": "As the current code stands, we are using the same GroupId in the dataplane for both the primary VM and MIP discovered on that VM.\n\nWith this feature, we will be carving out a new Group for specifically managing MIPs and this new Group will be different from the datapalane Group used to steer traffic to primary hosting interface for the MIP.",
+      "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f634eedf_f2217e65",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-17T07:30:26Z",
+      "side": 1,
+      "message": "connectivity to all movable ip (vip) with vmac, should remain intact during cluster reboot.\nconnectivity to all movable ip (vip) with vmac, should remain intact after cluster reboot.\nconnectivity to all movable ip (vip) with vmac, should remain intact during cluster upgrade.\nconnectivity to all movable ip (vip) with vmac, should remain intact after cluster upgrade.\n\nconnectivity to all movable ip (vip) without vmac, should remain intact during cluster reboot.\nconnectivity to all movable ip (vip) without vmac, should remain intact after cluster reboot.\nconnectivity to all movable ip (vip) without vmac, should remain intact during cluster upgrade.\nconnectivity to all movable ip (vip) without vmac, should remain intact after cluster upgrade.",
+      "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68cc958a_5c87eddc",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-17T07:30:26Z",
+      "side": 1,
+      "message": "the last two can be removed",
+      "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
