@@ -81,6 +81,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames.AssociatedSubnetType;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNamesBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -136,6 +137,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.Ipv6NdutilService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.SendNeighborSolicitationToOfGroupInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.SendNeighborSolicitationToOfGroupInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.L3nexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
@@ -231,8 +235,6 @@ import org.slf4j.LoggerFactory;
 
 public final class VpnUtil {
     private static final Logger LOG = LoggerFactory.getLogger(VpnUtil.class);
-    private static final int DEFAULT_PREFIX_LENGTH = 32;
-    private static final String PREFIX_SEPARATOR = "/";
 
     /**
      * Class to generate timestamps with microsecond precision.
@@ -261,12 +263,12 @@ public final class VpnUtil {
     private VpnUtil() {
     }
 
-    static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
+    public static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
         return InstanceIdentifier.builder(VpnInterfaces.class)
             .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).build();
     }
 
-    static InstanceIdentifier<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntryIdentifier(
+    public static InstanceIdentifier<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntryIdentifier(
                                                              String vpnInterfaceName, String vpnName) {
         return InstanceIdentifier.builder(VpnInterfaceOpData.class)
             .child(VpnInterfaceOpDataEntry.class,
@@ -438,7 +440,7 @@ public final class VpnUtil {
         return null;
     }
 
-    static List<Adjacency> getAdjacenciesForVpnInterfaceFromConfig(DataBroker broker, String intfName) {
+    public static List<Adjacency> getAdjacenciesForVpnInterfaceFromConfig(DataBroker broker, String intfName) {
         final InstanceIdentifier<VpnInterface> identifier = getVpnInterfaceIdentifier(intfName);
         InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
         Optional<Adjacencies> adjacencies = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path);
@@ -475,7 +477,7 @@ public final class VpnUtil {
         return new AllocatedRdsBuilder().setKey(new AllocatedRdsKey(nexthop)).setNexthop(nexthop).setRd(rd);
     }
 
-    static Adjacencies getVpnInterfaceAugmentation(List<Adjacency> nextHopList) {
+    public static Adjacencies getVpnInterfaceAugmentation(List<Adjacency> nextHopList) {
         return new AdjacenciesBuilder().setAdjacency(nextHopList).build();
     }
 
@@ -803,7 +805,8 @@ public final class VpnUtil {
         return read(broker, LogicalDatastoreType.CONFIGURATION, interfaceId).isPresent();
     }
 
-    static Optional<List<String>> getVpnHandlingIpv4AssociatedWithInterface(DataBroker broker, String interfaceName) {
+    public static Optional<List<String>> getVpnHandlingAssociatedWithInterface(DataBroker broker,
+            String interfaceName) {
         InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
         Optional<List<String>> vpnOptional = Optional.absent();
         Optional<VpnInterface> optConfiguredVpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION,
@@ -815,9 +818,6 @@ public final class VpnUtil {
             if (optVpnInstanceList.isPresent()) {
                 List<String> vpnList = new ArrayList<>();
                 for (VpnInstanceNames vpnInstance : optVpnInstanceList.get()) {
-                    if (vpnInstance.getAssociatedSubnetType().equals(AssociatedSubnetType.V6Subnet)) {
-                        continue;
-                    }
                     vpnList.add(vpnInstance.getVpnName());
                 }
                 vpnOptional = Optional.of(vpnList);
@@ -829,7 +829,7 @@ public final class VpnUtil {
     public static String getIpPrefix(String prefix) {
         String[] prefixValues = prefix.split("/");
         if (prefixValues.length == 1) {
-            prefix = prefix + PREFIX_SEPARATOR + DEFAULT_PREFIX_LENGTH;
+            prefix = NWUtil.toIpPrefix(prefix);
         }
         return prefix;
     }
@@ -1140,7 +1140,7 @@ public final class VpnUtil {
         }
     }
 
-    protected static void createLearntVpnVipToPort(DataBroker broker, String vpnName, String fixedIp, String
+    public static void createLearntVpnVipToPort(DataBroker broker, String vpnName, String fixedIp, String
             portName, String macAddress, WriteTransaction writeOperTxn) {
         synchronized ((vpnName + fixedIp).intern()) {
             InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
@@ -1154,7 +1154,7 @@ public final class VpnUtil {
             } else {
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
             }
-            LOG.debug("createLearntVpnVipToPort: ARP learned for fixedIp: {}, vpn {}, interface {}, mac {},"
+            LOG.debug("createLearntVpnVipToPort: ARP/NA learned for fixedIp: {}, vpn {}, interface {}, mac {},"
                     + " added to VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress);
         }
     }
@@ -1165,8 +1165,8 @@ public final class VpnUtil {
                 new LearntVpnVipToPortKey(fixedIp, vpnName)).build();
     }
 
-    protected static void removeLearntVpnVipToPort(DataBroker broker, String vpnName, String fixedIp,
-                                                   WriteTransaction writeOperTxn) {
+    public static void removeLearntVpnVipToPort(DataBroker broker, String vpnName, String fixedIp,
+            WriteTransaction writeOperTxn) {
         synchronized ((vpnName + fixedIp).intern()) {
             InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
             if (writeOperTxn != null) {
@@ -1179,7 +1179,7 @@ public final class VpnUtil {
         }
     }
 
-    protected static void createLearntVpnVipToPortEvent(DataBroker broker, String vpnName, String srcIp, String destIP,
+    public static void createLearntVpnVipToPortEvent(DataBroker broker, String vpnName, String srcIp, String destIP,
                                                         String portName, String macAddress,
                                                         LearntVpnVipToPortEventAction action,
                                                         WriteTransaction writeOperTxn) {
@@ -1283,7 +1283,7 @@ public final class VpnUtil {
         return null;
     }
 
-    static LearntVpnVipToPort getLearntVpnVipToPort(DataBroker broker, String vpnName, String fixedIp) {
+    public static LearntVpnVipToPort getLearntVpnVipToPort(DataBroker broker, String vpnName, String fixedIp) {
         InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
         Optional<LearntVpnVipToPort> learntVpnVipToPort = read(broker, LogicalDatastoreType.OPERATIONAL, id);
         if (learntVpnVipToPort.isPresent()) {
@@ -1364,7 +1364,7 @@ public final class VpnUtil {
         return extNetwork != null ? extNetwork.getVpnid() : null;
     }
 
-    static List<Uuid> getExternalNetworkRouterIds(DataBroker dataBroker, Uuid networkId) {
+    public static List<Uuid> getExternalNetworkRouterIds(DataBroker dataBroker, Uuid networkId) {
         Networks extNetwork = getExternalNetwork(dataBroker, networkId);
         return extNetwork != null ? extNetwork.getRouterIds() : Collections.emptyList();
     }
@@ -1794,7 +1794,7 @@ public final class VpnUtil {
         return optionalSubnets.isPresent() ? optionalSubnets.get() : null;
     }
 
-    static Uuid getSubnetFromExternalRouterByIp(DataBroker dataBroker, Uuid routerId, String ip) {
+    public static Uuid getSubnetFromExternalRouterByIp(DataBroker dataBroker, Uuid routerId, String ip) {
         Routers externalRouter = VpnUtil.getExternalRouter(dataBroker, routerId.getValue());
         if (externalRouter != null && externalRouter.getExternalIps() != null) {
             for (ExternalIps externalIp : externalRouter.getExternalIps()) {
@@ -2417,6 +2417,23 @@ public final class VpnUtil {
                             VpnUtil.DEFAULT_CALLBACK);
                 }
             }
+        }
+    }
+
+    public static void sendNeighborSolicationToOfGroup(Ipv6NdutilService ipv6NdutilService, Ipv6Address srcIpv6Address,
+            MacAddress srcMac, Ipv6Address dstIpv6Address, Long ofGroupId, BigInteger dpId) {
+        SendNeighborSolicitationToOfGroupInput input = new SendNeighborSolicitationToOfGroupInputBuilder()
+                .setSourceIpv6(srcIpv6Address).setSourceLlAddress(srcMac).setTargetIpAddress(dstIpv6Address)
+                .setOfGroupId(ofGroupId).setDpId(dpId).build();
+        try {
+            Future<RpcResult<Void>> result = ipv6NdutilService.sendNeighborSolicitationToOfGroup(input);
+            RpcResult<Void> rpcResult = result.get();
+            if (!rpcResult.isSuccessful()) {
+                LOG.error("sendNeighborSolicitationToOfGroup: RPC Call failed for input={} and Errors={}", input,
+                        rpcResult.getErrors());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Failed to send NS packet to ELAN group, input={}", input, e);
         }
     }
 }
