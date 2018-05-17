@@ -18,6 +18,7 @@ public class VpnManagerCounters {
     private final Meter subnetRoutePacketIgnoredMeter;
     private final Meter subnetRoutePacketFailedMeter;
     private final Meter subnetRoutePacketArpSentMeter;
+    private final Meter subnetRoutePacketNsSentMeter;
     private final Meter garpAddNotificationMeter;
     private final Meter garpUpdateNotificationMeter;
     private final Meter garpSentMeter;
@@ -30,6 +31,7 @@ public class VpnManagerCounters {
         this.subnetRoutePacketIgnoredMeter = meter(metricProvider, "subnet_route_packet_ignored");
         this.subnetRoutePacketFailedMeter = meter(metricProvider, "subnet_route_packet_failed");
         this.subnetRoutePacketArpSentMeter = meter(metricProvider, "subnet_route_packet_arp_sent");
+        this.subnetRoutePacketNsSentMeter = meter(metricProvider, "subnet_route_packet_ns_sent");
         this.garpAddNotificationMeter = meter(metricProvider, "garp_add_notification");
         this.garpUpdateNotificationMeter = meter(metricProvider, "garp_update_notification");
         this.garpSentMeter = meter(metricProvider, "garp_sent");
@@ -53,6 +55,10 @@ public class VpnManagerCounters {
 
     public void subnetRoutePacketArpSent() {
         subnetRoutePacketArpSentMeter.mark();
+    }
+
+    public void subnetRoutePacketNsSent() {
+        subnetRoutePacketNsSentMeter.mark();
     }
 
     public void garpAddNotification() {
