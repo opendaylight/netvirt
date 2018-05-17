@@ -46,6 +46,8 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService" />
   <odl:rpc-service id="itmRpcService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService"/>
+  <odl:rpc-service id="ipv6NdutilService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.Ipv6NdutilService"/>
 
   <service ref="dpnInVpnChangeListener" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener" />
@@ -69,6 +71,10 @@
   <service ref="arpNotificationHandler" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilListener" />
   <odl:notification-listener ref="arpNotificationHandler" />
+
+  <service ref="naNotificationHandler" odl:type="default"
+           interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.Ipv6NdutilListener" />
+  <odl:notification-listener ref="naNotificationHandler" />
 
   <service ref="vpnManagerImpl"
            interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
