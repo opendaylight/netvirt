@@ -13,53 +13,69 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
+import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.ipv6util.api.Icmpv6Type;
 import org.opendaylight.genius.ipv6util.api.Ipv6Constants;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
-import org.opendaylight.genius.mdsalutil.MetaDataUtil;
-import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
+import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationEth;
+import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationIpv6;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetIcmpv6Type;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetIpv6NdTarget;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetIpv6NdTll;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetSourceIpv6;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv6NdSll;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6NdTarget;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.ServiceIndex;
-import org.opendaylight.netvirt.ipv6service.VirtualSubnet;
+import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.ipv6service.api.IVirtualPort;
+import org.opendaylight.netvirt.ipv6service.VirtualSubnet;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceTypeFlowBased;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflowBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfoKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -215,6 +231,24 @@ public class Ipv6ServiceUtils {
         }
     }
 
+    private static String getIPv6OvsFlowRef(short tableId, BigInteger dpId, int lportTag, String ndTargetAddr) {
+        return new StringBuffer().append(Ipv6ServiceConstants.FLOWID_PREFIX)
+                .append(dpId).append(Ipv6ServiceConstants.FLOWID_SEPARATOR)
+                .append(tableId).append(Ipv6ServiceConstants.FLOWID_SEPARATOR)
+                .append(lportTag).append(Ipv6ServiceConstants.FLOWID_SEPARATOR)
+                .append(ndTargetAddr).toString();
+    }
+
+    private static String getIPv6OvsFlowRef(short tableId, BigInteger dpId, int lportTag, String ndTargetAddr,
+                                            String vmMacAddress) {
+        return new StringBuffer().append(Ipv6ServiceConstants.FLOWID_PREFIX)
+                .append(dpId).append(Ipv6ServiceConstants.FLOWID_SEPARATOR)
+                .append(tableId).append(Ipv6ServiceConstants.FLOWID_SEPARATOR)
+                .append(lportTag).append(Ipv6ServiceConstants.FLOWID_SEPARATOR)
+                .append(vmMacAddress).append(Ipv6ServiceConstants.FLOWID_SEPARATOR)
+                .append(ndTargetAddr).toString();
+    }
+
     public void installIcmpv6NsPuntFlow(short tableId, BigInteger dpId,  Long elanTag, String ipv6Address,
             int addOrRemove) {
         List<MatchInfo> neighborSolicitationMatch = getIcmpv6NSMatch(elanTag, ipv6Address);
@@ -259,7 +293,7 @@ public class Ipv6ServiceUtils {
     }
 
     public void installIcmpv6NaForwardFlow(short tableId, IVirtualPort vmPort, BigInteger dpId, Long elanTag,
-            int addOrRemove) {
+                                           int addOrRemove) {
         List<MatchInfo> matches = getIcmpv6NAMatch(elanTag);
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -286,7 +320,7 @@ public class Ipv6ServiceUtils {
     }
 
     public void installIcmpv6NaPuntFlow(short tableId, Ipv6Prefix ipv6Prefix, BigInteger dpId, Long elanTag,
-            int addOrRemove) {
+                                        int addOrRemove) {
         List<MatchInfo> naMatch = getIcmpv6NAMatch(elanTag);
         naMatch.add(new MatchIpv6Source(ipv6Prefix));
 
@@ -375,5 +409,179 @@ public class Ipv6ServiceUtils {
             return false;
         }
         return subnet.getIpVersion().equals(Ipv6ServiceConstants.IP_VERSION_V6) ? true : false;
+    }
+
+    public ActionInfo getLearnActionForNsDrop(int hardTimeout) {
+
+        List<ActionLearn.FlowMod> flowMods = Arrays.asList(
+                new ActionLearn.MatchFromValue(NwConstants.ETHTYPE_IPV6,
+                        NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getType(),
+                        NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLenInt()),
+                new ActionLearn.MatchFromValue(58, NwConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getType(),
+                        NwConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLenInt()),
+                new ActionLearn.MatchFromField(NwConstants.NxmOfFieldType.OXM_OF_METADATA.getType(),
+                        MetaDataUtil.METADATA_ELAN_TAG_OFFSET, NwConstants.NxmOfFieldType.OXM_OF_METADATA.getType(),
+                        MetaDataUtil.METADATA_ELAN_TAG_OFFSET, Ipv6ServiceConstants.ELAN_TAG_LENGTH),
+                new ActionLearn.MatchFromValue(135, NwConstants.NxmOfFieldType.OXM_OF_ICMPV6_TYPE.getType(),
+                        NwConstants.NxmOfFieldType.OXM_OF_ICMPV6_TYPE.getFlowModHeaderLenInt()),
+                new ActionLearn.MatchFromField(NwConstants.NxmOfFieldType.OXM_OF_IPV6_ND_TARGET.getType(),
+                        NwConstants.NxmOfFieldType.OXM_OF_IPV6_ND_TARGET.getType(),
+                        NwConstants.NxmOfFieldType.OXM_OF_IPV6_ND_TARGET.getFlowModHeaderLenInt()),
+                new ActionLearn.MatchFromField(NwConstants.NxmOfFieldType.NXM_NX_IPV6_SRC.getType(),
+                        NwConstants.NxmOfFieldType.NXM_NX_IPV6_SRC.getType(),
+                        NwConstants.NxmOfFieldType.NXM_NX_IPV6_SRC.getFlowModHeaderLenInt()),
+                new ActionLearn.MatchFromField(NwConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getType(),
+                        NwConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getType(),
+                        NwConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getFlowModHeaderLenInt()));
+        return new ActionLearn(0, hardTimeout, Ipv6ServiceConstants.SLOW_PATH_PROTECTION_PRIORITY,
+                NwConstants.COOKIE_IPV6_TABLE, 0,
+                NwConstants.IPV6_TABLE, 0, 0, flowMods);
+
+    }
+
+    public void instIcmpv6NsMatchFlow(short tableId, BigInteger dpId, Long elanTag, int lportTag, String vmMacAddress,
+                                      Ipv6Address ndTargetAddr, int addOrRemove,  WriteTransaction installFlowInvTx,
+                                      WriteTransaction removeFlowInvTx, Boolean isSllOptionSet) {
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(getLearnActionForNsDrop(30));
+        actionsInfos.add(new ActionSetIcmpv6Type(Icmpv6Type.NEIGHBOR_ADVERTISEMENT.getValue()));
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        instructions.add(new InstructionGotoTable(NwConstants.ARP_RESPONDER_TABLE));
+
+        List<MatchInfo> neighborSolicitationMatch = getIcmpv6NsMatchFlow(elanTag, lportTag, vmMacAddress,
+                ndTargetAddr, isSllOptionSet);
+
+        FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
+                Boolean.TRUE.equals(isSllOptionSet)
+                        ? getIPv6OvsFlowRef(tableId, dpId, lportTag, ndTargetAddr.getValue(), vmMacAddress) :
+                        getIPv6OvsFlowRef(tableId, dpId, lportTag, ndTargetAddr.getValue()),
+                Ipv6ServiceConstants.DEFAULT_FLOW_PRIORITY,
+                "IPv6NS", 0, 0, NwConstants.COOKIE_IPV6_TABLE,
+                neighborSolicitationMatch, instructions);
+
+        if (addOrRemove == Ipv6ServiceConstants.DEL_FLOW) {
+            LOG.debug("installIcmpv6NsResponderFlow: Removing IPv6 Neighbor Solicitation Flow on "
+                            + "DpId {} for NDTraget {}, elanTag {}, lportTag {}", dpId, ndTargetAddr.getValue(),
+                    elanTag, lportTag);
+            mdsalUtil.removeFlowToTx(rsFlowEntity, removeFlowInvTx);
+        } else {
+            LOG.debug("installIcmpv6NsResponderFlow: Installing IPv6 Neighbor Solicitation Flow on "
+                            + "DpId {} for NDTraget {} elanTag {}, lportTag {}", dpId, ndTargetAddr.getValue(),
+                    elanTag, lportTag);
+            mdsalUtil.addFlowToTx(rsFlowEntity, installFlowInvTx);
+        }
+    }
+
+
+    public void installIcmpv6NaResponderFlow(short tableId, BigInteger dpId,
+                                             Long elanTag, int lportTag, IVirtualPort intf, Ipv6Address ndTargetAddr,
+                                             String rtrIntMacAddress, int addOrRemove,
+                                             WriteTransaction installFlowInvTx, WriteTransaction removeFlowInvTx,
+                                             Boolean isTllOptionSet) {
+
+        List<MatchInfo> neighborAdvertisementMatch = getIcmpv6NaResponderMatch(elanTag, lportTag, intf.getMacAddress(),
+                ndTargetAddr, isTllOptionSet);
+
+        if (addOrRemove == Ipv6ServiceConstants.DEL_FLOW) {
+            FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
+                    Boolean.TRUE.equals(isTllOptionSet)
+                            ? getIPv6OvsFlowRef(tableId, dpId, lportTag, ndTargetAddr.getValue(),
+                            intf.getMacAddress()) : getIPv6OvsFlowRef(tableId, dpId, lportTag, ndTargetAddr.getValue()),
+                    Ipv6ServiceConstants.DEFAULT_FLOW_PRIORITY,
+                    "IPv6NA", 0, 0, NwConstants.COOKIE_IPV6_TABLE,
+                    neighborAdvertisementMatch, null);
+            LOG.debug("installIcmpv6NaResponderFlow: Removing IPv6 Neighbor Advertisement Flow on "
+                            + "DpId {} for the NDTraget {}, elanTag {}, lportTag {}", dpId, ndTargetAddr.getValue(),
+                    elanTag, lportTag);
+
+            mdsalUtil.removeFlowToTx(rsFlowEntity, removeFlowInvTx);
+        } else {
+            List<ActionInfo> actionsInfos = new ArrayList<>();
+            // Move Eth Src to Eth Dst
+            actionsInfos.add(new ActionMoveSourceDestinationEth());
+            actionsInfos.add(new ActionSetFieldEthernetSource(new MacAddress(rtrIntMacAddress)));
+
+            // Move Ipv6 Src to Ipv6 Dst
+            actionsInfos.add(new ActionMoveSourceDestinationIpv6());
+            actionsInfos.add(new ActionSetSourceIpv6(ndTargetAddr.getValue()));
+
+            actionsInfos.add(new ActionSetIpv6NdTarget(ndTargetAddr));
+            if (Boolean.TRUE.equals(isTllOptionSet)) {
+                actionsInfos.add(new ActionSetIpv6NdTll(new MacAddress(rtrIntMacAddress)));
+            }
+            actionsInfos.add(new ActionNxLoadInPort(BigInteger.ZERO));
+            actionsInfos.add(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
+
+            List<InstructionInfo> instructions = new ArrayList<>();
+            instructions.add(new InstructionApplyActions(actionsInfos));
+
+            FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
+                    Boolean.TRUE.equals(isTllOptionSet)
+                            ? getIPv6OvsFlowRef(tableId, dpId, lportTag, ndTargetAddr.getValue(),
+                            intf.getMacAddress()) : getIPv6OvsFlowRef(tableId, dpId, lportTag, ndTargetAddr.getValue()),
+                    Ipv6ServiceConstants.DEFAULT_FLOW_PRIORITY,
+                    "IPv6NA", 0, 0, NwConstants.COOKIE_IPV6_TABLE,
+                    neighborAdvertisementMatch, instructions);
+            LOG.debug("installIcmpv6NaResponderFlow: Installing IPv6 Neighbor Advertisement Flow on "
+                            + "DpId {} for the NDTraget {},  elanTag {}, lportTag {}", dpId, ndTargetAddr.getValue(),
+                    elanTag, lportTag);
+
+            mdsalUtil.addFlowToTx(rsFlowEntity, installFlowInvTx);
+        }
+    }
+
+    public void installIcmpv6NsDefaultPuntFlow(short tableId, BigInteger dpId,  Long elanTag, String ipv6Address,
+                                               int addOrRemove, WriteTransaction installFlowInvTx,
+                                               WriteTransaction removeFlowInvTx) {
+        List<MatchInfo> neighborSolicitationMatch = getIcmpv6NSMatch(elanTag, ipv6Address);
+        neighborSolicitationMatch.add(new MatchIpv6Source(UNSPECIFIED_ADDR.getValue() + "/128"));
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionPuntToController());
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
+                getIPv6FlowRef(dpId, elanTag, ipv6Address),Ipv6ServiceConstants.DEFAULT_OVS_FLOW_PRIORITY, "IPv6NS",
+                0, 0, NwConstants.COOKIE_IPV6_TABLE, neighborSolicitationMatch, instructions);
+        if (addOrRemove == Ipv6ServiceConstants.DEL_FLOW) {
+            LOG.debug("installIcmpv6NsDefaultPuntFlow: Removing OVS based NA responder default subnet punt flow on "
+                    + "DpId {}, elanTag {}", dpId, elanTag);
+            mdsalUtil.removeFlowToTx(rsFlowEntity, removeFlowInvTx);
+        } else {
+            LOG.debug("installIcmpv6NsDefaultPuntFlow: Installing OVS based NA responder default subnet punt flow on "
+                    + "DpId {}, elanTag {}", dpId, elanTag);
+            mdsalUtil.addFlowToTx(rsFlowEntity, installFlowInvTx);
+        }
+    }
+
+    private List<MatchInfo> getIcmpv6NsMatchFlow(Long elanTag, int lportTag, String vmMacAddress,
+                                                 Ipv6Address ndTargetAddr,
+                                                 Boolean isSllOptionSet) {
+        List<MatchInfo> matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV6);
+        matches.add(MatchIpProtocol.ICMPV6);
+        matches.add(new MatchIcmpv6(Icmpv6Type.NEIGHBOR_SOLICITATION.getValue(), (short) 0));
+        matches.add(new MatchIpv6NdTarget(new Ipv6Address(ndTargetAddr)));
+        if (Boolean.TRUE.equals(isSllOptionSet)) {
+            matches.add(new MatchIpv6NdSll(new MacAddress(vmMacAddress)));
+        }
+        matches.add(new MatchMetadata(ElanHelper.getElanMetadataLabel(elanTag, lportTag),
+                ElanHelper.getElanMetadataMask()));
+        return matches;
+    }
+
+    private List<MatchInfo> getIcmpv6NaResponderMatch(Long elanTag, int lportTag, String vmMacAddress,
+                                                      Ipv6Address ndTarget, Boolean isTllOptionSet) {
+        List<MatchInfo> matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV6);
+        matches.add(MatchIpProtocol.ICMPV6);
+        matches.add(new MatchIcmpv6(Icmpv6Type.NEIGHBOR_ADVERTISEMENT.getValue(), (short) 0));
+        matches.add(new MatchIpv6NdTarget(new Ipv6Address(ndTarget)));
+        if (Boolean.TRUE.equals(isTllOptionSet)) {
+            matches.add(new MatchEthernetSource(new MacAddress(vmMacAddress)));
+        }
+        matches.add(new MatchMetadata(ElanHelper.getElanMetadataLabel(elanTag, lportTag),
+                ElanHelper.getElanMetadataMask()));
+        return matches;
     }
 }
