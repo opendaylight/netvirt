@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ab0f677a_1bdc28cc",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-17T10:13:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "edd46d0e_4e63140a",
+      "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b23c8ad_4a5e4b0d",
         "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2018-05-17T09:19:33Z",
       "side": 1,
       "message": "Virtual IP and Moveable IP are used interchangeably in this spec and both of them simply represent a moveable virtual IP.",
+      "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e3fdadac_d2faf3dc",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-17T10:13:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b23c8ad_4a5e4b0d",
       "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "f1ac45db_cf8bd447",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-17T10:13:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "57d44858_246b2dc8",
+      "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b0943dd_fd51967e",
         "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
         "patchSetId": 6
@@ -64,6 +118,24 @@
       "writtenOn": "2018-05-17T07:30:26Z",
       "side": 1,
       "message": "7. Discovery of Virtual IPs (without Virtual MACs) should happen, ending up with L3 connectivity established for such Virtual IPs.",
+      "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98dacc2f_04c88791",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-17T10:13:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b0943dd_fd51967e",
       "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "768bb882_87cab73f",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-17T10:13:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4c251495_b59dcd01",
+      "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a4b3781d_67110e0a",
         "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
         "patchSetId": 6
@@ -98,6 +188,24 @@
       "writtenOn": "2018-05-17T09:19:33Z",
       "side": 1,
       "message": "All along current code has been using the MAC-address in the GARP request packet-Ins to decide if a VIP movement has happened.   This logic is ok and works for VIPs that donot hold any Virtual MACs of their own.\n\nBut going forward as this spec support VIPs holding Virtual MACs,  we will be using the interface-name (or neutron-port-id) from which the GARP packets are received by the NetVirt ARP Handler service to track VIP movements in general thereby replacing the logic that used MAC-Addresses in incoming GARP packet used earlier.",
+      "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca5cc714_1122edb5",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-17T10:13:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4b3781d_67110e0a",
       "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "2d9d5ee2_306dde8f",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-17T10:13:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f634eedf_f2217e65",
+      "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "68cc958a_5c87eddc",
         "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
         "patchSetId": 6
@@ -132,6 +258,24 @@
       "writtenOn": "2018-05-17T07:30:26Z",
       "side": 1,
       "message": "the last two can be removed",
+      "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7dc0725e_b98f3a45",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-17T10:13:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "68cc958a_5c87eddc",
       "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "f622679e_d2157015",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-17T10:13:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1278cab5_1a852972",
+      "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "82f91e53_38682777",
         "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
         "patchSetId": 6
@@ -166,6 +328,24 @@
       "writtenOn": "2018-05-17T09:19:33Z",
       "side": 1,
       "message": "can you please tell me what are these.. I tend to think that the unit-tests should be same as the use-cases .  So I tend to think you can simply state refer to the use-cases section.",
+      "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1529ec26_a2a12b92",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-05-17T10:13:24Z",
+      "side": 1,
+      "message": "I will say the Unit test cases are part which can be tested individually by using JUnit test framework.\nFor example, the first point is a unit function on its own just to verify the mac moment for this feature.\nWhile use cases will cover the entire workflow from end to end.",
+      "parentUuid": "82f91e53_38682777",
       "revId": "8ac8a15c7f26f75a162d47d10d8ee4649f000743",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
