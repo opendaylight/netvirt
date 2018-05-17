@@ -39,6 +39,11 @@ public interface VpnConstants {
     long LOWER_PSEUDO_LPORT_TAG = Long.getLong("lower.lport.gid", 170001);
     long UPPER_PSEUDO_LPORT_TAG = Long.getLong("upper.lport.gid", 270000);
 
+    int IP_V6_ETHTYPE = 0x86DD;
+    int ETHTYPE_START = 96;
+    int TWO_BYTES = 16;
+    int IP_V6_HDR_START = 112;
+
     enum ITMTunnelLocType {
         Invalid(0), Internal(1), External(2), Hwvtep(3);
 

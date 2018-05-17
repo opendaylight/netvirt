@@ -96,6 +96,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>elanmanager-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ipv6service-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Testing dependencies -->
         <dependency>
