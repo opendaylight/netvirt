@@ -34,6 +34,29 @@
       "revId": "412ad7a26dd3357826e74709d00d827d7f994dae",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50bb7538_6b495b8c",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6RouterAdvt.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-17T05:47:32Z",
+      "side": 1,
+      "message": "I\u0027m afraid this will not work @Karthik as we create a new Ipv6RouterAdvt() object everytime we want to send an RA. The entries added to egressActionForInterfaceMap() will be deleted as soon as the object is deleted.\n\nAlso, on the other hand, if we are caching the GetEgressActionsForInterface and if there is any change in the egressActions (will there be any changes?), then how do we update our cache?",
+      "range": {
+        "startLine": 66,
+        "startChar": 16,
+        "endLine": 66,
+        "endChar": 66
+      },
+      "revId": "412ad7a26dd3357826e74709d00d827d7f994dae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
