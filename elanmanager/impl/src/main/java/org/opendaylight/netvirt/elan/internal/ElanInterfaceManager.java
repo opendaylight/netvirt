@@ -631,7 +631,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             for (String remoteIf : remoteElanInterfaces) {
                 ElanInterfaceMac elanIfMac = elanUtils.getElanInterfaceMacByInterfaceName(remoteIf);
                 InterfaceInfo remoteInterface = interfaceManager.getInterfaceInfo(remoteIf);
-                if (elanIfMac == null) {
+                if (elanIfMac == null || remoteInterface == null) {
                     continue;
                 }
                 List<MacEntry> remoteMacEntries = elanIfMac.getMacEntry();
