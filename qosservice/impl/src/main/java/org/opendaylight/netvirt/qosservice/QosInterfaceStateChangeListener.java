@@ -23,7 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
@@ -105,9 +104,7 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
                             }
                         }
                     }
-                    if (qosNeutronUtils.hasBandwidthLimitRule(port)) {
-                        qosAlertManager.addToQosAlertCache(port);
-                    }
+                    qosAlertManager.processInterfaceUpEvent(interfaceName);
                 });
             }
         } catch (Exception e) {
@@ -145,7 +142,7 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
 
                 String lowerLayerIf = intrf.getLowerLayerIf().get(0);
                 LOG.trace("lowerLayerIf {}", lowerLayerIf);
-                qosAlertManager.removeFromQosAlertCache(new NodeConnectorId(lowerLayerIf));
+                qosAlertManager.removeLowerLayerIfFromQosAlertCache(lowerLayerIf);
                 QosPortExtension removeQos = port.getAugmentation(QosPortExtension.class);
                 if (removeQos != null) {
                     qosNeutronUtils.handleNeutronPortRemove(port, removeQos.getQosPolicyId(), intrf);

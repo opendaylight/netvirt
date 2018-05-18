@@ -52,19 +52,17 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
     private static final Logger LOG = LoggerFactory.getLogger(QosPolicyChangeListener.class);
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
-    private final QosAlertManager qosAlertManager;
     private final QosNeutronUtils qosNeutronUtils;
     private final JobCoordinator jobCoordinator;
 
     @Inject
-    public QosPolicyChangeListener(final DataBroker dataBroker, final QosAlertManager qosAlertManager,
+    public QosPolicyChangeListener(final DataBroker dataBroker,
                                    final QosNeutronUtils qosNeutronUtils, final JobCoordinator jobCoordinator,
                                    final ServiceRecoveryRegistry serviceRecoveryRegistry,
                                    final QosServiceRecoveryHandler qosServiceRecoveryHandler) {
         super(QosPolicy.class, QosPolicyChangeListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
-        this.qosAlertManager = qosAlertManager;
         this.qosNeutronUtils = qosNeutronUtils;
         this.jobCoordinator = jobCoordinator;
         serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
@@ -169,11 +167,9 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
         for (Network network : qosNeutronUtils.getQosNetworks(qosUuid)) {
             qosNeutronUtils.handleNeutronNetworkQosUpdate(network, qosUuid);
-            qosAlertManager.addToQosAlertCache(network);
         }
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
-            qosAlertManager.addToQosAlertCache(port);
             jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> Collections.singletonList(
                     txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                         tx -> qosNeutronUtils.setPortBandwidthLimits(port, input, tx))));
@@ -212,12 +208,10 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
                 bwLimitBuilder.setMaxBurstKbps(BigInteger.ZERO).setMaxKbps(BigInteger.ZERO).build();
 
         for (Network network : qosNeutronUtils.getQosNetworks(qosUuid)) {
-            qosAlertManager.removeFromQosAlertCache(network);
             qosNeutronUtils.handleNeutronNetworkQosBwRuleRemove(network, zeroBwLimitRule);
         }
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
-            qosAlertManager.removeFromQosAlertCache(port);
             jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> Collections.singletonList(
                     txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                         tx -> qosNeutronUtils.setPortBandwidthLimits(port, zeroBwLimitRule, tx))));
