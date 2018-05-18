@@ -213,13 +213,26 @@ public class NaptSwitchHA {
             NatUtil.removePreDnatToSnatTableEntry(mdsalManager, naptSwitch, removeFlowInvTx);
         }
         //Remove the Outbound flow entry which forwards the packet to Outbound NAPT Table
-        String outboundNatFlowRef = externalRouterListener.getFlowRefOutbound(naptSwitch,
-            NwConstants.OUTBOUND_NAPT_TABLE, routerId);
-        FlowEntity outboundNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch,
-            NwConstants.OUTBOUND_NAPT_TABLE, outboundNatFlowRef);
         LOG.info("Remove the flow in table {} for the old napt switch with the DPN ID {} and router ID {}",
-            NwConstants.OUTBOUND_NAPT_TABLE, naptSwitch, routerId);
-        mdsalManager.removeFlowToTx(outboundNatFlowEntity, removeFlowInvTx);
+                NwConstants.OUTBOUND_NAPT_TABLE, naptSwitch, routerId);
+
+        String outboundTcpNatFlowRef = externalRouterListener.getFlowRefOutbound(naptSwitch,
+            NwConstants.OUTBOUND_NAPT_TABLE, routerId, NwConstants.IP_PROT_TCP);
+        FlowEntity outboundTcpNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch,
+            NwConstants.OUTBOUND_NAPT_TABLE, outboundTcpNatFlowRef);
+        mdsalManager.removeFlowToTx(outboundTcpNatFlowEntity, removeFlowInvTx);
+
+        String outboundUdpNatFlowRef = externalRouterListener.getFlowRefOutbound(naptSwitch,
+                NwConstants.OUTBOUND_NAPT_TABLE, routerId, NwConstants.IP_PROT_UDP);
+        FlowEntity outboundUdpNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch,
+                NwConstants.OUTBOUND_NAPT_TABLE, outboundUdpNatFlowRef);
+        mdsalManager.removeFlowToTx(outboundUdpNatFlowEntity, removeFlowInvTx);
+
+        String icmpDropFlowRef = externalRouterListener.getFlowRefOutbound(naptSwitch,
+                NwConstants.OUTBOUND_NAPT_TABLE, routerId, NwConstants.IP_PROT_ICMP);
+        FlowEntity icmpDropFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE,
+                icmpDropFlowRef);
+        mdsalManager.removeFlowToTx(icmpDropFlowEntity, removeFlowInvTx);
 
         //Remove the NAPT PFIB TABLE (47->21) which forwards the incoming packet to FIB Table matching on the
         // External Subnet Vpn Id.
