@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.qosservice;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
@@ -26,14 +27,12 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetNodeConnectorStatisticsInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetNodeConnectorStatisticsOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
@@ -41,7 +40,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.qosalert.config.rev170301.QosalertConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.qosalert.config.rev170301.QosalertConfigBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.node.connector.statistics.and.port.number.map.NodeConnectorStatisticsAndPortNumberMap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -64,7 +62,8 @@ public final class QosAlertManager implements Runnable {
     private final OpendaylightDirectStatisticsService odlDirectStatisticsService;
     private final QosNeutronUtils qosNeutronUtils;
     private final QosEosHandler qosEosHandler;
-    private final INeutronVpnManager neutronVpnManager;
+    private final IInterfaceManager interfaceManager;
+    private final Set unprocessedInterfaceIds = ConcurrentHashMap.newKeySet();
     private final ConcurrentMap<BigInteger, ConcurrentMap<String, QosAlertPortData>> qosAlertDpnPortNumberMap =
             new ConcurrentHashMap<>();
     private final AlertThresholdSupplier alertThresholdSupplier = new AlertThresholdSupplier();
@@ -73,15 +72,14 @@ public final class QosAlertManager implements Runnable {
     public QosAlertManager(final DataBroker dataBroker,
             final OpendaylightDirectStatisticsService odlDirectStatisticsService, final QosalertConfig defaultConfig,
             final QosNeutronUtils qosNeutronUtils, final QosEosHandler qosEosHandler,
-            final INeutronVpnManager neutronVpnManager) {
-
+            final IInterfaceManager interfaceManager) {
         LOG.debug("{} created",  getClass().getSimpleName());
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.odlDirectStatisticsService = odlDirectStatisticsService;
+        this.interfaceManager = interfaceManager;
         this.defaultConfig = defaultConfig;
         this.qosNeutronUtils = qosNeutronUtils;
         this.qosEosHandler = qosEosHandler;
-        this.neutronVpnManager = neutronVpnManager;
         LOG.debug("QosAlert default config poll alertEnabled:{} threshold:{} pollInterval:{}",
                 defaultConfig.isQosAlertEnabled(), defaultConfig.getQosDropPacketThreshold(),
                 defaultConfig.getQosAlertPollInterval());
@@ -194,17 +192,39 @@ public final class QosAlertManager implements Runnable {
         writeConfigDataStore(enable, alertThresholdSupplier.get().shortValue(), pollInterval);
     }
 
-    public void addToQosAlertCache(Port port) {
-        LOG.trace("Adding port {} in cache", port.getUuid());
+    public void addInterfaceIdInQoSAlertCache(String ifaceId) {
+        LOG.trace("Adding interface id {} in cache", ifaceId);
+        InterfaceInfo interfaceInfo =
+                interfaceManager.getInterfaceInfoFromOperationalDataStore(ifaceId);
+        if (interfaceInfo == null) {
+            LOG.debug("Interface not found {}. Add in cache now and process later ", ifaceId);
+            unprocessedInterfaceIds.add(ifaceId);
+        } else {
+            addToQosAlertCache(interfaceInfo);
+        }
+    }
 
-        BigInteger dpnId = qosNeutronUtils.getDpnForInterface(port.getUuid().getValue());
+    public void processInterfaceUpEvent(String ifaceId) {
+        LOG.trace("processInterfaceUpEvent {}", ifaceId);
+        if (unprocessedInterfaceIds.remove(ifaceId)) {
+            addInterfaceIdInQoSAlertCache(ifaceId);
+        }
+    }
 
-        if (dpnId.equals(BigInteger.ZERO)) {
-            LOG.debug("DPN ID for port {} not found", port.getUuid());
+    private void addToQosAlertCache(InterfaceInfo interfaceInfo) {
+        BigInteger dpnId = interfaceInfo.getDpId();
+        if (dpnId.equals(IfmConstants.INVALID_DPID)) {
+            LOG.error("Interface {} has INVALID_DPID", interfaceInfo.getInterfaceName());
             return;
         }
 
-        String portNumber = qosNeutronUtils.getPortNumberForInterface(port.getUuid().getValue());
+        Port port = qosNeutronUtils.getNeutronPort(interfaceInfo.getInterfaceName());
+        if (port == null) {
+            LOG.error("Port {} not found", interfaceInfo.getInterfaceName());
+            return;
+        }
+
+        String portNumber = String.valueOf(interfaceInfo.getPortNo());
 
         LOG.trace("Adding DPN ID {} with port {} port number {}", dpnId, port.getUuid(), portNumber);
 
@@ -212,88 +232,39 @@ public final class QosAlertManager implements Runnable {
                 .put(portNumber, new QosAlertPortData(port, qosNeutronUtils, alertThresholdSupplier));
     }
 
-    public void addToQosAlertCache(Network network) {
-        LOG.trace("Adding network {} in cache", network.getUuid());
+    public void removeInterfaceIdFromQosAlertCache(String ifaceId) {
 
-        List<Uuid> subnetIds = qosNeutronUtils.getSubnetIdsFromNetworkId(network.getUuid());
-
-        for (Uuid subnetId : subnetIds) {
-            List<Uuid> portIds = qosNeutronUtils.getPortIdsFromSubnetId(subnetId);
-            for (Uuid portId : portIds) {
-                Port port = qosNeutronUtils.getNeutronPort(portId);
-                if (port != null && !qosNeutronUtils.portHasQosPolicy(port)) {
-                    LOG.trace("Adding network {} port {} in cache", network.getUuid(), port.getUuid());
-                    addToQosAlertCache(port);
-                }
-            }
-        }
-    }
-
-    public void removeFromQosAlertCache(Port port) {
-        LOG.trace("Removing port {} from cache", port.getUuid());
-
-        BigInteger dpnId = qosNeutronUtils.getDpnForInterface(port.getUuid().getValue());
-
-        if (dpnId.equals(BigInteger.ZERO)) {
-            LOG.debug("DPN ID for port {} not found", port.getUuid());
+        LOG.trace("If present, remove interface {} from cache", ifaceId);
+        unprocessedInterfaceIds.remove(ifaceId);
+        InterfaceInfo interfaceInfo =
+                interfaceManager.getInterfaceInfoFromOperationalDataStore(ifaceId);
+        if (interfaceInfo == null) {
             return;
         }
-
-        String portNumber = qosNeutronUtils.getPortNumberForInterface(port.getUuid().getValue());
-
+        BigInteger dpnId = interfaceInfo.getDpId();
+        String portNumber = String.valueOf(interfaceInfo.getPortNo());
         removeFromQosAlertCache(dpnId, portNumber);
     }
 
-    public void removeFromQosAlertCache(NodeConnectorId nodeConnectorId) {
-        LOG.trace("Removing node connector {} from cache", nodeConnectorId.getValue());
-
-        long nodeId = MDSALUtil.getDpnIdFromPortName(nodeConnectorId);
-
-        if (nodeId == -1) {
-            LOG.debug("Node ID for node connector {} not found", nodeConnectorId.getValue());
+    public void removeLowerLayerIfFromQosAlertCache(String lowerLayerIf) {
+        LOG.trace("If present, remove lowerLayerIf {} from cache", lowerLayerIf);
+        BigInteger dpnId = qosNeutronUtils.getDpnIdFromLowerLayerIf(lowerLayerIf);
+        String portNumber = qosNeutronUtils.getPortNumberFromLowerLayerIf(lowerLayerIf);
+        if (dpnId == null || portNumber == null) {
+            LOG.error("interface {} not in openflow:dpnid:portnum format", lowerLayerIf);
             return;
         }
-
-        BigInteger dpnId = new BigInteger(String.valueOf(nodeId));
-
-        long portId = MDSALUtil.getOfPortNumberFromPortName(nodeConnectorId);
-
-        String portNumber = String.valueOf(portId);
-
         removeFromQosAlertCache(dpnId, portNumber);
     }
 
     private void removeFromQosAlertCache(BigInteger dpnId, String portNumber) {
-        boolean removed = false;
-        ConcurrentMap<String, QosAlertPortData> portDataMap = qosAlertDpnPortNumberMap.get(dpnId);
-        if (portDataMap != null) {
-            removed = portDataMap.remove(portNumber) != null;
-            if (portDataMap.isEmpty()) {
-                LOG.trace("DPN {} empty. Removing from cache", dpnId);
-                qosAlertDpnPortNumberMap.remove(dpnId, portDataMap);
-            }
-        }
-
-        if (removed) {
-            LOG.trace("Removed DPN {} port number {} from cache", dpnId, portNumber);
-        } else {
-            LOG.trace("DPN {} port number {} not found in cache", dpnId, portNumber);
-        }
-    }
-
-    public void removeFromQosAlertCache(Network network) {
-        LOG.trace("Removing network {} from cache", network.getUuid());
-
-        List<Uuid> subnetIds = qosNeutronUtils.getSubnetIdsFromNetworkId(network.getUuid());
-
-        for (Uuid subnetId : subnetIds) {
-            List<Uuid> portIds = qosNeutronUtils.getPortIdsFromSubnetId(subnetId);
-            for (Uuid portId : portIds) {
-                Port port = qosNeutronUtils.getNeutronPort(portId);
-                if (port != null && !qosNeutronUtils.portHasQosPolicy(port)) {
-                    LOG.trace("Removing network {} port {} from cache", network.getUuid(), port.getUuid());
-                    removeFromQosAlertCache(port);
-                }
+        if (qosAlertDpnPortNumberMap.containsKey(dpnId)
+                && qosAlertDpnPortNumberMap.get(dpnId).containsKey(portNumber)) {
+            qosAlertDpnPortNumberMap.get(dpnId).remove(portNumber);
+            LOG.debug("Removed interace {}:{} from cache", dpnId, portNumber);
+            if (qosAlertDpnPortNumberMap.get(dpnId).isEmpty()) {
+                LOG.debug("DPN {} empty. Removing dpn from cache as well", dpnId);
+                qosAlertDpnPortNumberMap.remove(dpnId);
             }
         }
     }
