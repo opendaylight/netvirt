@@ -81,11 +81,13 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
      * Method updates the original PortChain to the update PortChain.
      * Both are identified by same InstanceIdentifier.
      *
+     * @param origPortChain     - original PortChain
      * @param updatePortChain     - changed PortChain (contain updates)
      */
     @Override
-    public void update(PortChain updatePortChain) {
-        //TODO: Add support for chain update
+    public void update(PortChain origPortChain, PortChain updatePortChain) {
+        // Handle Flow Classifier Updates first
+        processOldFlowClassifiers(origPortChain.getFlowClassifiers());
     }
 
     /**
@@ -173,10 +175,10 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
         // The RSP will automatically be created from the SFP added above.
 
         // Add ACLs from flow classifiers
-        processFlowClassifiers(newPortChain, newPortChain.getFlowClassifiers(), sfp.getName().getValue());
+        processNewFlowClassifiers(newPortChain, newPortChain.getFlowClassifiers(), sfp.getName().getValue());
     }
 
-    private void processFlowClassifiers(PortChain pc, List<Uuid> flowClassifiers, String sfpName) {
+    private void processNewFlowClassifiers(PortChain pc, List<Uuid> flowClassifiers, String sfpName) {
         for (Uuid uuid : flowClassifiers) {
             SfcFlowClassifier fc = neutronMdsalHelper.getNeutronFlowClassifier(uuid);
             if (fc != null) {
@@ -193,4 +195,22 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
             }
         }
     }
+
+    private void processOldFlowClassifiers(List<Uuid> flowClassifiers) {
+        for (Uuid uuid : flowClassifiers) {
+            SfcFlowClassifier fc = neutronMdsalHelper.getNeutronFlowClassifier(uuid);
+            if (fc != null) {
+                Acl acl = FlowClassifierTranslator.buildAcl(fc);
+                if (acl != null) {
+                    sfcMdsalHelper.removeAclFlowClassifier(acl);
+                } else {
+                    LOG.warn("Acl Removing failed for flow classifier {}. Traffic might not be redirected correctly", fc);
+                }
+
+            } else {
+                LOG.error("Neutron Flow Classifier {} is not present in the neutron data store", uuid);
+            }
+        }
+    }
+
 }
