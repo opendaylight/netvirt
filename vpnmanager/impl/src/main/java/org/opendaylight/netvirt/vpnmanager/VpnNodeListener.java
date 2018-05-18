@@ -25,7 +25,10 @@ import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.NwConstants.NxmOfFieldType;
+import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
@@ -37,6 +40,7 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,14 +55,17 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     private final IMdsalApiManager mdsalManager;
     private final JobCoordinator jobCoordinator;
     private final List<BigInteger> connectedDpnIds;
+    private final VpnConfig vpnConfig;
 
     @Inject
-    public VpnNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, JobCoordinator jobCoordinator) {
+    public VpnNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, JobCoordinator jobCoordinator,
+                           VpnConfig vpnConfig) {
         super(Node.class, VpnNodeListener.class);
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.jobCoordinator = jobCoordinator;
         this.connectedDpnIds = new CopyOnWriteArrayList<>();
+        this.vpnConfig = vpnConfig;
     }
 
     @PostConstruct
@@ -160,8 +167,26 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
         actionsInfos.add(new ActionPuntToController());
+        int learnTimeout = vpnConfig.getSubnetRoutePuntTimeout().intValue();
+        if (learnTimeout != 0) {
+            actionsInfos.add(new ActionLearn(0, learnTimeout, VpnConstants.DEFAULT_FLOW_PRIORITY, cookieTableMiss,
+                    0, NwConstants.L3_SUBNET_ROUTE_TABLE, 0, 0,
+                    Arrays.asList(
+                            new ActionLearn.MatchFromValue(NwConstants.ETHTYPE_IPV4,
+                                    NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getType(),
+                                    NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLenInt()),
+                            new ActionLearn.MatchFromField(NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getType(),
+                                    NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getType(),
+                                    NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getFlowModHeaderLenInt()),
+                            new ActionLearn.MatchFromField(NxmOfFieldType.OXM_OF_METADATA.getType(),
+                                    MetaDataUtil.METADATA_VPN_ID_OFFSET,
+                                    NxmOfFieldType.OXM_OF_METADATA.getType(), MetaDataUtil.METADATA_VPN_ID_OFFSET,
+                                    MetaDataUtil.METADATA_VPN_ID_BITLEN))));
+        }
+
         instructions.add(new InstructionApplyActions(actionsInfos));
         List<MatchInfo> matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV4);
         String flowRef = getTableMissFlowRef(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, NwConstants.TABLE_MISS_FLOW);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, flowRef,
             NwConstants.TABLE_MISS_PRIORITY, "Subnet Route Table Miss", 0, 0, cookieTableMiss, matches, instructions);
