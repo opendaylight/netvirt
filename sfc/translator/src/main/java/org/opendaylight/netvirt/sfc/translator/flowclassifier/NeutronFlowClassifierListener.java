@@ -53,10 +53,12 @@ public class NeutronFlowClassifierListener extends DelegatingDataTreeListener<Sf
      * @param updatedSfcFlowClassifier     - changed SfcFlowClassifier (contain updates)
      */
     @Override
-    public void update(SfcFlowClassifier updatedSfcFlowClassifier) {
+    public void update(SfcFlowClassifier origSfcFlowClassifier,SfcFlowClassifier updatedSfcFlowClassifier) {
 
-        Acl aclFlowClassifier = FlowClassifierTranslator.buildAcl(updatedSfcFlowClassifier);
-        sfcMdsalHelper.updateAclFlowClassifier(aclFlowClassifier);
+        Acl aclFlowClassifierOld = FlowClassifierTranslator.buildAcl(origSfcFlowClassifier);
+        sfcMdsalHelper.removeAclFlowClassifier(aclFlowClassifierOld);
+        Acl aclFlowClassifierNew = FlowClassifierTranslator.buildAcl(updatedSfcFlowClassifier);
+        sfcMdsalHelper.updateAclFlowClassifier(aclFlowClassifierNew);
     }
 
     /**

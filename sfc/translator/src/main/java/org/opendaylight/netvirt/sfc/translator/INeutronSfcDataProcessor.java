@@ -27,7 +27,7 @@ public interface INeutronSfcDataProcessor<D extends DataObject> {
      * Both are identified by same InstanceIdentifier.
      *
      * @param update - changed DataObject (contain updates)*/
-    void update(D update);
+    void update(D orig, D update);
 
     /**
      * Method adds the DataObject which is identified by InstanceIdentifier

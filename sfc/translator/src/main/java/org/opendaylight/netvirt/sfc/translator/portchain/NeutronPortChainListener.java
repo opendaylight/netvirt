@@ -84,7 +84,7 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
      * @param updatePortChain     - changed PortChain (contain updates)
      */
     @Override
-    public void update(PortChain updatePortChain) {
+    public void update(PortChain origPortChain,PortChain updatePortChain) {
         //TODO: Add support for chain update
     }
 
