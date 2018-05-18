@@ -1,3 +1,4 @@
 <natservice-config xmlns="urn:opendaylight:netvirt:natservice:config">
   <nat-mode>controller</nat-mode>
+  <snat-punt-timeout>5</snat-punt-timeout>
 </natservice-config>
