@@ -19,6 +19,7 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,8 +49,12 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.NwConstants.NxmOfFieldType;
 import org.opendaylight.genius.mdsalutil.UpgradeState;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
+import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
+import org.opendaylight.genius.mdsalutil.actions.ActionLearn.MatchFromField;
+import org.opendaylight.genius.mdsalutil.actions.ActionLearn.MatchFromValue;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionPopMpls;
@@ -60,6 +65,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
@@ -170,6 +176,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private final JobCoordinator coordinator;
     private final UpgradeState upgradeState;
     private final IInterfaceManager interfaceManager;
+    private final int snatPuntTimeout;
 
     @Inject
     public ExternalRoutersListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -219,8 +226,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         this.interfaceManager = interfaceManager;
         if (config != null) {
             this.natMode = config.getNatMode();
+            this.snatPuntTimeout = config.getSnatPuntTimeout().intValue();
         } else {
             this.natMode = NatMode.Controller;
+            this.snatPuntTimeout = 0;
         }
     }
 
@@ -592,9 +601,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
     }
 
-    public String getFlowRefOutbound(BigInteger dpnId, short tableId, long routerID) {
+    public String getFlowRefOutbound(BigInteger dpnId, short tableId, long routerID, int protocol) {
         return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
-                .FLOWID_SEPARATOR + routerID;
+                .FLOWID_SEPARATOR + routerID + NatConstants.FLOWID_SEPARATOR + protocol;
     }
 
     private String getFlowRefNaptPreFib(BigInteger dpnId, short tableId, long vpnId) {
@@ -607,21 +616,58 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             BigInteger.valueOf(routerId));
     }
 
-    protected FlowEntity buildOutboundFlowEntity(BigInteger dpId, long routerId) {
+    private ActionLearn getLearnActionForPunt(int protocol, int hardTimeout, BigInteger cookie) {
+        long l4SrcPortField;
+        long l4DstPortField;
+        int l4portFieldLen = NxmOfFieldType.NXM_OF_TCP_SRC.getFlowModHeaderLenInt();
+
+        if (protocol == NwConstants.IP_PROT_TCP) {
+            l4SrcPortField = NxmOfFieldType.NXM_OF_TCP_SRC.getType();
+            l4DstPortField = NxmOfFieldType.NXM_OF_TCP_DST.getType();
+        } else {
+            l4SrcPortField = NxmOfFieldType.NXM_OF_UDP_SRC.getType();
+            l4DstPortField = NxmOfFieldType.NXM_OF_UDP_DST.getType();
+        }
+        List<ActionLearn.FlowMod> flowMods = Arrays.asList(
+                new MatchFromValue(NwConstants.ETHTYPE_IPV4, NxmOfFieldType.NXM_OF_ETH_TYPE.getType(),
+                        NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLenInt()),
+                new MatchFromValue(protocol, NxmOfFieldType.NXM_OF_IP_PROTO.getType(),
+                        NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLenInt()),
+                new MatchFromField(NxmOfFieldType.NXM_OF_IP_SRC.getType(), NxmOfFieldType.NXM_OF_IP_SRC.getType(),
+                        NxmOfFieldType.NXM_OF_IP_SRC.getFlowModHeaderLenInt()),
+                new MatchFromField(NxmOfFieldType.NXM_OF_IP_DST.getType(), NxmOfFieldType.NXM_OF_IP_DST.getType(),
+                        NxmOfFieldType.NXM_OF_IP_DST.getFlowModHeaderLenInt()),
+                new MatchFromField(l4SrcPortField, l4SrcPortField, l4portFieldLen),
+                new MatchFromField(l4DstPortField, l4DstPortField, l4portFieldLen),
+                new MatchFromField(NxmOfFieldType.OXM_OF_METADATA.getType(),
+                        MetaDataUtil.METADATA_VPN_ID_OFFSET,
+                        NxmOfFieldType.OXM_OF_METADATA.getType(), MetaDataUtil.METADATA_VPN_ID_OFFSET,
+                        MetaDataUtil.METADATA_VPN_ID_BITLEN));
+
+        return new ActionLearn(0, hardTimeout, 7, cookie, 0,
+                NwConstants.OUTBOUND_NAPT_TABLE, 0, 0, flowMods);
+    }
+
+    protected FlowEntity buildOutboundFlowEntity(BigInteger dpId, long routerId, int protocol) {
         LOG.debug("buildOutboundFlowEntity : called for dpId {} and routerId{}", dpId, routerId);
+        BigInteger cookie = getCookieOutboundFlow(routerId);
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchIpProtocol((short)protocol));
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionPuntToController());
+        if (snatPuntTimeout != 0) {
+            actionsInfos.add(getLearnActionForPunt(protocol, snatPuntTimeout, cookie));
+        }
+
         instructions.add(new InstructionApplyActions(actionsInfos));
         instructions.add(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(routerId),
             MetaDataUtil.METADATA_MASK_VRFID));
 
-        String flowRef = getFlowRefOutbound(dpId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
-        BigInteger cookie = getCookieOutboundFlow(routerId);
+        String flowRef = getFlowRefOutbound(dpId, NwConstants.OUTBOUND_NAPT_TABLE, routerId, protocol);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef,
             5, flowRef, 0, 0,
             cookie, matches, instructions);
@@ -631,9 +677,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     public void createOutboundTblEntry(BigInteger dpnId, long routerId, WriteTransaction writeFlowInvTx) {
         LOG.debug("createOutboundTblEntry : called for dpId {} and routerId {}", dpnId, routerId);
-        FlowEntity flowEntity = buildOutboundFlowEntity(dpnId, routerId);
-        LOG.debug("createOutboundTblEntry : Installing flow {}", flowEntity);
-        mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
+        FlowEntity tcpflowEntity = buildOutboundFlowEntity(dpnId, routerId, NwConstants.IP_PROT_TCP);
+        FlowEntity udpflowEntity = buildOutboundFlowEntity(dpnId, routerId, NwConstants.IP_PROT_UDP);
+        LOG.debug("createOutboundTblEntry : Installing tcp flow {}", tcpflowEntity);
+        mdsalManager.addFlowToTx(tcpflowEntity, writeFlowInvTx);
+        LOG.debug("createOutboundTblEntry : Installing udp flow {}", tcpflowEntity);
+        mdsalManager.addFlowToTx(udpflowEntity, writeFlowInvTx);
     }
 
     protected String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {
@@ -1874,13 +1923,20 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
 
         //Remove the Outbound flow entry which forwards the packet to FIB Table
-        String outboundNatFlowRef = getFlowRefOutbound(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
-        FlowEntity outboundNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.OUTBOUND_NAPT_TABLE,
-            outboundNatFlowRef);
+        String outboundTcpNatFlowRef = getFlowRefOutbound(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId,
+                NwConstants.IP_PROT_TCP);
+        FlowEntity outboundTcpNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.OUTBOUND_NAPT_TABLE,
+            outboundTcpNatFlowRef);
+
+        String outboundUdpNatFlowRef = getFlowRefOutbound(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId,
+                NwConstants.IP_PROT_UDP);
+        FlowEntity outboundUdpNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.OUTBOUND_NAPT_TABLE,
+                outboundUdpNatFlowRef);
 
         LOG.info("removeNaptFlowsFromActiveSwitch : Remove the flow in the {} for the active switch with the DPN ID {}"
                 + " and router ID {}", NwConstants.OUTBOUND_NAPT_TABLE, dpnId, routerId);
-        mdsalManager.removeFlowToTx(outboundNatFlowEntity, removeFlowInvTx);
+        mdsalManager.removeFlowToTx(outboundTcpNatFlowEntity, removeFlowInvTx);
+        mdsalManager.removeFlowToTx(outboundUdpNatFlowEntity, removeFlowInvTx);
 
         removeNaptFibExternalOutputFlows(routerId, dpnId, networkId, externalIps, removeFlowInvTx);
         //Remove the NAPT PFIB TABLE (47->21) which forwards the incoming packet to FIB Table matching on the
@@ -2754,27 +2810,37 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                                  WriteTransaction writeFlowInvTx) {
         LOG.debug("createOutboundTblEntryWithBgpVpn : called for dpId {} and routerId {}, BGP VPN ID {}",
             dpnId, routerId, changedVpnId);
-        FlowEntity flowEntity = buildOutboundFlowEntityWithBgpVpn(dpnId, routerId, changedVpnId);
-        LOG.debug("createOutboundTblEntryWithBgpVpn : Installing flow {}", flowEntity);
-        mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
+        FlowEntity tcpFlowEntity = buildOutboundFlowEntityWithBgpVpn(dpnId, routerId, changedVpnId,
+                NwConstants.IP_PROT_TCP);
+        FlowEntity udpFlowEntity = buildOutboundFlowEntityWithBgpVpn(dpnId, routerId, changedVpnId,
+                NwConstants.IP_PROT_UDP);
+        LOG.debug("createOutboundTblEntryWithBgpVpn : Installing tcp flow {}", tcpFlowEntity);
+        mdsalManager.addFlowToTx(tcpFlowEntity, writeFlowInvTx);
+        LOG.debug("createOutboundTblEntryWithBgpVpn : Installing udp flow {}", tcpFlowEntity);
+        mdsalManager.addFlowToTx(udpFlowEntity, writeFlowInvTx);
     }
 
-    protected FlowEntity buildOutboundFlowEntityWithBgpVpn(BigInteger dpId, long routerId, long changedVpnId) {
+    protected FlowEntity buildOutboundFlowEntityWithBgpVpn(BigInteger dpId, long routerId,
+                                                           long changedVpnId, int protocol) {
         LOG.debug("buildOutboundFlowEntityWithBgpVpn : called for dpId {} and routerId {}, BGP VPN ID {}",
             dpId, routerId, changedVpnId);
+        BigInteger cookie = getCookieOutboundFlow(routerId);
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchIpProtocol((short)protocol));
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionPuntToController());
+        if (snatPuntTimeout != 0) {
+            actionsInfos.add(getLearnActionForPunt(protocol, snatPuntTimeout, cookie));
+        }
         instructions.add(new InstructionApplyActions(actionsInfos));
         instructions.add(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(changedVpnId),
             MetaDataUtil.METADATA_MASK_VRFID));
 
-        String flowRef = getFlowRefOutbound(dpId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
-        BigInteger cookie = getCookieOutboundFlow(routerId);
+        String flowRef = getFlowRefOutbound(dpId, NwConstants.OUTBOUND_NAPT_TABLE, routerId, protocol);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.OUTBOUND_NAPT_TABLE,
             flowRef, 5, flowRef, 0, 0, cookie, matches, instructions);
         LOG.debug("createOutboundTblEntryWithBgpVpn : returning flowEntity {}", flowEntity);
