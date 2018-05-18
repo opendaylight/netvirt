@@ -29,16 +29,14 @@ public class QosNeutronPortChangeListener extends AsyncClusteredDataTreeChangeLi
                                              QosNeutronPortChangeListener> implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(QosNeutronPortChangeListener.class);
     private final DataBroker dataBroker;
-    private final QosAlertManager qosAlertManager;
     private final QosNeutronUtils qosNeutronUtils;
 
     @Inject
-    public QosNeutronPortChangeListener(final DataBroker dataBroker, final QosAlertManager qosAlertManager,
+    public QosNeutronPortChangeListener(final DataBroker dataBroker,
             final QosNeutronUtils qosNeutronUtils, final QosServiceRecoveryHandler qosServiceRecoveryHandler,
                                         final ServiceRecoveryRegistry serviceRecoveryRegistry) {
         super(Port.class, QosNeutronPortChangeListener.class);
         this.dataBroker = dataBroker;
-        this.qosAlertManager = qosAlertManager;
         this.qosNeutronUtils = qosNeutronUtils;
         serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
                 this);
@@ -69,17 +67,11 @@ public class QosNeutronPortChangeListener extends AsyncClusteredDataTreeChangeLi
     @Override
     protected void add(InstanceIdentifier<Port> instanceIdentifier, Port port) {
         qosNeutronUtils.addToPortCache(port);
-        if (qosNeutronUtils.hasBandwidthLimitRule(port)) {
-            qosAlertManager.addToQosAlertCache(port);
-        }
     }
 
     @Override
     protected void remove(InstanceIdentifier<Port> instanceIdentifier, Port port) {
         qosNeutronUtils.removeFromPortCache(port);
-        if (qosNeutronUtils.hasBandwidthLimitRule(port)) {
-            qosAlertManager.removeFromQosAlertCache(port);
-        }
     }
 
     @Override
@@ -107,12 +99,5 @@ public class QosNeutronPortChangeListener extends AsyncClusteredDataTreeChangeLi
             qosNeutronUtils.removeFromQosPortsCache(originalQos.getQosPolicyId(), original);
         }
 
-        if (qosNeutronUtils.hasBandwidthLimitRule(original)
-                                        && !qosNeutronUtils.hasBandwidthLimitRule(update)) {
-            qosAlertManager.removeFromQosAlertCache(original);
-        } else if (!qosNeutronUtils.hasBandwidthLimitRule(original)
-                                          && qosNeutronUtils.hasBandwidthLimitRule(update)) {
-            qosAlertManager.addToQosAlertCache(update);
-        }
     }
 }
