@@ -29,17 +29,15 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
         QosNeutronNetworkChangeListener> implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(QosNeutronNetworkChangeListener.class);
     private final DataBroker dataBroker;
-    private final QosAlertManager qosAlertManager;
     private final QosNeutronUtils qosNeutronUtils;
 
     @Inject
-    public QosNeutronNetworkChangeListener(final DataBroker dataBroker, final QosAlertManager qosAlertManager,
+    public QosNeutronNetworkChangeListener(final DataBroker dataBroker,
                                            final QosNeutronUtils qosNeutronUtils,
                                            final ServiceRecoveryRegistry serviceRecoveryRegistry,
                                            final QosServiceRecoveryHandler qosServiceRecoveryHandler) {
         super(Network.class, QosNeutronNetworkChangeListener.class);
         this.dataBroker = dataBroker;
-        this.qosAlertManager = qosAlertManager;
         this.qosNeutronUtils = qosNeutronUtils;
         serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
                 this);
@@ -70,9 +68,6 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
     @Override
     protected void remove(InstanceIdentifier<Network> instanceIdentifier, Network network) {
         qosNeutronUtils.removeFromNetworkCache(network);
-        if (qosNeutronUtils.hasBandwidthLimitRule(network)) {
-            qosAlertManager.removeFromQosAlertCache(network);
-        }
     }
 
     @Override
@@ -85,31 +80,14 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
             // qosservice policy add
             qosNeutronUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
             qosNeutronUtils.handleNeutronNetworkQosUpdate(update, updateQos.getQosPolicyId());
-            if (qosNeutronUtils.hasBandwidthLimitRule(update)) {
-                qosAlertManager.addToQosAlertCache(update);
-            }
         } else if (originalQos != null && updateQos != null
                 && !originalQos.getQosPolicyId().equals(updateQos.getQosPolicyId())) {
-
             // qosservice policy update
-
             qosNeutronUtils.removeFromQosNetworksCache(originalQos.getQosPolicyId(), original);
             qosNeutronUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
             qosNeutronUtils.handleNeutronNetworkQosUpdate(update, updateQos.getQosPolicyId());
-
-            if (qosNeutronUtils.hasBandwidthLimitRule(original)
-                                             && !qosNeutronUtils.hasBandwidthLimitRule(update)) {
-                qosAlertManager.removeFromQosAlertCache(original);
-            } else if (!qosNeutronUtils.hasBandwidthLimitRule(original)
-                                              && qosNeutronUtils.hasBandwidthLimitRule(update)) {
-                qosAlertManager.addToQosAlertCache(update);
-            }
-
         } else if (originalQos != null && updateQos == null) {
             // qosservice policy delete
-            if (qosNeutronUtils.hasBandwidthLimitRule(original)) {
-                qosAlertManager.removeFromQosAlertCache(original);
-            }
             qosNeutronUtils.handleNeutronNetworkQosRemove(original, originalQos.getQosPolicyId());
             qosNeutronUtils.removeFromQosNetworksCache(originalQos.getQosPolicyId(), original);
         }
@@ -123,10 +101,6 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
         if (networkQos != null) {
             qosNeutronUtils.addToQosNetworksCache(networkQos.getQosPolicyId(), network);
             qosNeutronUtils.handleNeutronNetworkQosUpdate(network, networkQos.getQosPolicyId());
-            if (qosNeutronUtils.hasBandwidthLimitRule(network)) {
-                qosAlertManager.addToQosAlertCache(network);
-            }
-
         }
     }
 }

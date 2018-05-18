@@ -59,9 +59,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.met
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetPortFromInterfaceInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetPortFromInterfaceInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetPortFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
@@ -752,21 +749,6 @@ public class QosNeutronUtils {
         return String.valueOf(tableId) + dpId + lportTag;
     }
 
-    public String getPortNumberForInterface(String ifName) {
-        GetPortFromInterfaceInput portNumberInput = new GetPortFromInterfaceInputBuilder().setIntfName(ifName).build();
-        Future<RpcResult<GetPortFromInterfaceOutput>> portNumberOutput =
-                odlInterfaceRpcService.getPortFromInterface(portNumberInput);
-        try {
-            RpcResult<GetPortFromInterfaceOutput> portResult = portNumberOutput.get();
-            if (portResult.isSuccessful()) {
-                return portResult.getResult().getPortno().toString();
-            }
-        } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when getting port for interface {}", e);
-        }
-        return null;
-    }
-
     public boolean portHasQosPolicy(Port port) {
         LOG.trace("checking qos policy for port: {}", port.getUuid());
 
@@ -775,57 +757,6 @@ public class QosNeutronUtils {
 
         LOG.trace("portHasQosPolicy for  port: {} return value {}", port.getUuid(), isQosPolicy);
         return isQosPolicy;
-    }
-
-
-
-    public boolean hasBandwidthLimitRule(Port port) {
-        Uuid qosUuid = null;
-        boolean bwLimitRule = false;
-
-        LOG.trace("checking bandwidth limit rule for  port: {}", port.getUuid());
-
-        if (port.getAugmentation(QosPortExtension.class) != null) {
-            qosUuid = port.getAugmentation(QosPortExtension.class).getQosPolicyId();
-        } else {
-            Network network = neutronVpnManager.getNeutronNetwork(port.getNetworkId());
-
-            if (network.getAugmentation(QosNetworkExtension.class) != null) {
-                qosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
-            }
-        }
-
-        if (qosUuid != null) {
-            QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
-            if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
-                    && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
-                bwLimitRule = true;
-            }
-        }
-
-        LOG.trace("Bandwidth limit rule for  port: {} return value {}", port.getUuid(), bwLimitRule);
-        return bwLimitRule;
-    }
-
-    public boolean hasBandwidthLimitRule(Network network) {
-        boolean bwLimitRule = false;
-
-        LOG.trace("checking bandwidth limit rule for  network: {}", network.getUuid());
-
-        if (network.getAugmentation(QosNetworkExtension.class) != null) {
-            Uuid qosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
-
-            if (qosUuid != null) {
-                QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
-                if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
-                        && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
-                    bwLimitRule = true;
-                }
-            }
-        }
-
-        LOG.trace("Bandwidth limit rule for  network: {} return value {}", network.getUuid(), bwLimitRule);
-        return bwLimitRule;
     }
 
     @Nullable
@@ -877,4 +808,21 @@ public class QosNeutronUtils {
     public Network getNeutronNetwork(Uuid networkUuid) {
         return neutronNetworkMap.get(networkUuid);
     }
+
+    public static BigInteger getDpnIdFromLowerLayerIf(String lowerLayerIf) {
+        try {
+            return new BigInteger(lowerLayerIf.substring(lowerLayerIf.indexOf(":") + 1, lowerLayerIf.lastIndexOf(":")));
+        } catch (NullPointerException e) {
+            return null;
+        }
+    }
+
+    public static String getPortNumberFromLowerLayerIf(String lowerLayerIf) {
+        try {
+            return (lowerLayerIf.substring(lowerLayerIf.lastIndexOf(":") + 1));
+        } catch (NullPointerException e) {
+            return null;
+        }
+    }
+
 }

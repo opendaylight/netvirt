@@ -43,17 +43,20 @@ public class QosTerminationPointListener extends
     private final DataBroker dataBroker;
     private final QosNeutronUtils qosNeutronUtils;
     private final QosEosHandler qosEosHandler;
+    private final QosAlertManager qosAlertManager;
     private final JobCoordinator jobCoordinator;
 
     @Inject
     public QosTerminationPointListener(final DataBroker dataBroker,
                                        final QosNeutronUtils qosNeutronUtils,
                                        final QosEosHandler qosEosHandler,
+                                       final QosAlertManager qosAlertManager,
                                        final JobCoordinator jobCoordinator) {
         super(OvsdbTerminationPointAugmentation.class, QosTerminationPointListener.class);
         this.dataBroker = dataBroker;
         this.qosNeutronUtils = qosNeutronUtils;
         this.qosEosHandler = qosEosHandler;
+        this.qosAlertManager = qosAlertManager;
         this.jobCoordinator = jobCoordinator;
     }
 
@@ -73,7 +76,12 @@ public class QosTerminationPointListener extends
     @Override
     protected void remove(InstanceIdentifier<OvsdbTerminationPointAugmentation> instanceIdentifier,
                           OvsdbTerminationPointAugmentation tp) {
-
+        if (isBandwidthRuleApplied(tp)) {
+            String ifaceId = getIfaceId(tp);
+            if (ifaceId != null) {
+                qosAlertManager.removeInterfaceIdFromQosAlertCache(ifaceId);
+            }
+        }
     }
 
     private boolean isBandwidthRuleCleared(OvsdbTerminationPointAugmentation original,
@@ -85,15 +93,37 @@ public class QosTerminationPointListener extends
         return false;
     }
 
+    private boolean isBandwidthRuleApplied(OvsdbTerminationPointAugmentation tp) {
+        if (tp.getIngressPolicingRate() != 0 || tp.getIngressPolicingBurst() != 0) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isBandwidthRuleApplied(OvsdbTerminationPointAugmentation original,
+                                           OvsdbTerminationPointAugmentation update) {
+        if ((original.getIngressPolicingRate() == 0 && original.getIngressPolicingBurst() == 0)
+                && (update.getIngressPolicingRate() != 0 || update.getIngressPolicingBurst() != 0)) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     protected void update(InstanceIdentifier<OvsdbTerminationPointAugmentation> instanceIdentifier,
                           OvsdbTerminationPointAugmentation original,
                           OvsdbTerminationPointAugmentation update) {
+        String ifaceId = getIfaceId(update);
+        if (ifaceId != null) {
+            if (isBandwidthRuleCleared(original, update)) {
+                qosAlertManager.removeInterfaceIdFromQosAlertCache(ifaceId);
+            } else if (isBandwidthRuleApplied(original, update)) {
+                qosAlertManager.addInterfaceIdInQoSAlertCache(ifaceId);
+            }
+        }
         if (!qosEosHandler.isQosClusterOwner()) {
             return;
         }
-        String ifaceId = getIfaceId(update);
-
         // switch restart scenario with openstack newton onwards results in deletion and addition
         // of vhu ports with ovs-dpdk and as a side effect of that, qos parameters for rate limiting
         // get cleared from the port.
@@ -116,11 +146,11 @@ public class QosTerminationPointListener extends
     @Override
     protected void add(InstanceIdentifier<OvsdbTerminationPointAugmentation> instanceIdentifier,
                        OvsdbTerminationPointAugmentation tpAugment) {
-        if (!qosEosHandler.isQosClusterOwner()) {
-            return;
-        }
         String ifaceId = getIfaceId(tpAugment);
-        if (ifaceId != null) {
+        if ((ifaceId != null) && isBandwidthRuleApplied(tpAugment)) {
+            qosAlertManager.addInterfaceIdInQoSAlertCache(ifaceId);
+        }
+        if ((ifaceId != null) && qosEosHandler.isQosClusterOwner()) {
             Port port = qosNeutronUtils.getNeutronPort(ifaceId);
             if (port != null) {
                 LOG.debug("add tp augmentation: iface-id: {}, name: {} ", ifaceId, tpAugment.getName());
