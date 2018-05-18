@@ -69,7 +69,7 @@ public class NeutronPortPairListener extends DelegatingDataTreeListener<PortPair
      * @param updatePortPair     - changed PortPair (contain updates)
      */
     @Override
-    public void update(PortPair updatePortPair) {
+    public void update(PortPair origPortPair,PortPair updatePortPair) {
         //NO-OP
     }
 
