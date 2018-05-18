@@ -50,10 +50,11 @@ public class NeutronFlowClassifierListener extends DelegatingDataTreeListener<Sf
      * Method updates the original SfcFlowClassifier to the update SfcFlowClassifier.
      * Both are identified by same InstanceIdentifier.
      *
+     * @param origSfcFlowClassifier     - original SfcFlowClassifier
      * @param updatedSfcFlowClassifier     - changed SfcFlowClassifier (contain updates)
      */
     @Override
-    public void update(SfcFlowClassifier updatedSfcFlowClassifier) {
+    public void update(SfcFlowClassifier origSfcFlowClassifier, SfcFlowClassifier updatedSfcFlowClassifier) {
 
         Acl aclFlowClassifier = FlowClassifierTranslator.buildAcl(updatedSfcFlowClassifier);
         sfcMdsalHelper.updateAclFlowClassifier(aclFlowClassifier);
