@@ -47,16 +47,22 @@ public class QosAlertPortData {
                            statsData.getReceiveDrops(), statsData.getTransmitDrops());
         if (statsDataInit) {
             calculateAlertCondition(statsData);
+        } else {
+            statsDataInit = true;
         }
         rxPackets = statsData.getPackets().getReceived();
         rxDroppedPackets = statsData.getReceiveDrops();
-        statsDataInit = true;
     }
 
     private void calculateAlertCondition(NodeConnectorStatisticsAndPortNumberMap statsData)  {
         BigInteger rxDiff = statsData.getPackets().getReceived().subtract(rxPackets);
         BigInteger rxDroppedDiff = statsData.getReceiveDrops().subtract(rxDroppedPackets);
 
+        if ((rxDiff.signum() < 0) || (rxDroppedDiff.signum() < 0)) {
+            LOG.debug("Port {} counters reset", port.getUuid());
+            initPortData(); // counters wrapped. wait for one more poll.
+            return;
+        }
         BigInteger rxTotalDiff = rxDiff.add(rxDroppedDiff);
         LOG.trace("Port {} rxDiff:{} rxDropped diff:{} total diff:{}", port.getUuid(), rxDiff,
                                                                             rxDroppedDiff, rxTotalDiff);
