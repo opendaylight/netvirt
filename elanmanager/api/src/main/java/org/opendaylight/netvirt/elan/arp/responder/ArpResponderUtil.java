@@ -37,7 +37,6 @@ import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationEth;
 import org.opendaylight.genius.mdsalutil.actions.ActionMoveSpaToTpa;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
-import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetArpOp;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
@@ -126,27 +125,20 @@ public final class ArpResponderUtil {
      * Get Bucket Actions for ARP Responder Group Flow.
      *
      * <p>
-     * Install Default Groups, Group has 3 Buckets
+     * Install Default Groups, Group has 1 Bucket
      * </p>
      * <ul>
-     * <li>Punt to controller</li>
-     * <li>Resubmit to Table {@link NwConstants#LPORT_DISPATCHER_TABLE}, for
-     * ELAN flooding
      * <li>Resubmit to Table {@link NwConstants#ARP_RESPONDER_TABLE}, for ARP
      * Auto response from DPN itself</li>
      * </ul>
      *
      * @param resubmitTableId
      *            Resubmit Flow Table Id
-     * @param resubmitTableId2
-     *            Resubmit Flow Table Id
      * @return List of bucket actions
      */
-    public static List<BucketInfo> getDefaultBucketInfos(short resubmitTableId, short resubmitTableId2) {
+    public static List<BucketInfo> getDefaultBucketInfos(short resubmitTableId) {
         return Arrays.asList(
-                new BucketInfo(Collections.singletonList(new ActionPuntToController())),
-                new BucketInfo(Collections.singletonList(new ActionNxResubmit(resubmitTableId))),
-                new BucketInfo(Collections.singletonList(new ActionNxResubmit(resubmitTableId2))));
+                new BucketInfo(Collections.singletonList(new ActionNxResubmit(resubmitTableId))));
     }
 
     /**

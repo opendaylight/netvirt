@@ -28,12 +28,18 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.NwConstants.NxmOfFieldType;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
+import org.opendaylight.genius.mdsalutil.actions.ActionLearn.CopyFromValue;
+import org.opendaylight.genius.mdsalutil.actions.ActionLearn.MatchFromField;
+import org.opendaylight.genius.mdsalutil.actions.ActionLearn.MatchFromValue;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
+import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -61,12 +67,17 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanNodeListener.class);
     private static final int LEARN_MATCH_REG4_VALUE = 1;
+    private static final int ARP_LEARN_FLOW_PRIORITY = 10;
+    private static final int ARP_LEARN_MATCH_VALUE = 0x1;
+    private static final int GARP_LEARN_MATCH_VALUE = 0x101;
+    private static final long ARP_LEARN_MATCH_MASK = 0xFFFFL;
 
     private final DataBroker broker;
     private final ManagedNewTransactionRunner txRunner;
     private final IMdsalApiManager mdsalManager;
     private final IdManagerService idManagerService;
     private final int tempSmacLearnTimeout;
+    private final int arpPuntTimeout;
     private final boolean puntLldpToController;
     private final JobCoordinator jobCoordinator;
 
@@ -77,6 +88,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
         this.tempSmacLearnTimeout = elanConfig.getTempSmacLearnTimeout();
+        this.arpPuntTimeout = elanConfig.getArpPuntTimeout().intValue();
         this.puntLldpToController = elanConfig.isPuntLldpToController();
         this.idManagerService = idManagerService;
         this.jobCoordinator = jobCoordinator;
@@ -121,6 +133,9 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
                 LOG.debug("Received notification to install Arp Check Default entries for dpn {} ", dpId);
                 createArpRequestMatchFlows(dpId, tx);
                 createArpResponseMatchFlows(dpId, tx);
+                createArpPuntAndLearnFlow(dpId, tx);
+                addGarpLearnMatchFlow(dpId, tx);
+                addArpLearnMatchFlow(dpId, tx);
             })));
     }
 
@@ -298,26 +313,122 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
     private void createArpRequestMatchFlows(BigInteger dpId, WriteTransaction writeFlowTx) {
 
         long arpRequestGroupId = ArpResponderUtil.retrieveStandardArpResponderGroupId(idManagerService);
-        List<BucketInfo> buckets = ArpResponderUtil.getDefaultBucketInfos(NwConstants.ELAN_BASE_TABLE,
-                NwConstants.ARP_RESPONDER_TABLE);
+        List<BucketInfo> buckets = ArpResponderUtil.getDefaultBucketInfos(NwConstants.ARP_RESPONDER_TABLE);
         ArpResponderUtil.installGroup(mdsalManager, dpId, arpRequestGroupId,
                 ArpResponderConstant.GROUP_FLOW_NAME.value(), buckets);
 
         FlowEntity arpReqArpCheckTbl = ArpResponderUtil.createArpDefaultFlow(dpId, NwConstants.ARP_CHECK_TABLE,
-                NwConstants.ARP_REQUEST, () -> Arrays.asList(MatchEthernetType.ARP, MatchArpOp.REQUEST),
-            () -> Collections.singletonList(new ActionGroup(arpRequestGroupId)));
+                NwConstants.ARP_REQUEST, () -> Arrays.asList(MatchEthernetType.ARP, MatchArpOp.REQUEST), () ->
+                        Arrays.asList(new ActionGroup(arpRequestGroupId),
+                                new ActionNxResubmit(NwConstants.ARP_LEARN_TABLE_1),
+                                new ActionNxResubmit(NwConstants.ARP_LEARN_TABLE_2),
+                                new ActionNxResubmit(NwConstants.ELAN_BASE_TABLE)));
         LOG.trace("Invoking MDSAL to install Arp Rquest Match Flow for table {}", NwConstants.ARP_CHECK_TABLE);
         mdsalManager.addFlowToTx(arpReqArpCheckTbl, writeFlowTx);
-
     }
 
     private void createArpResponseMatchFlows(BigInteger dpId, WriteTransaction writeFlowTx) {
         FlowEntity arpRepArpCheckTbl = ArpResponderUtil.createArpDefaultFlow(dpId, NwConstants.ARP_CHECK_TABLE,
-                NwConstants.ARP_REPLY, () -> Arrays.asList(MatchEthernetType.ARP, MatchArpOp.REPLY),
-            () -> Arrays.asList(new ActionPuntToController(), new ActionNxResubmit(NwConstants.ELAN_BASE_TABLE)));
+                NwConstants.ARP_REPLY, () -> Arrays.asList(MatchEthernetType.ARP, MatchArpOp.REPLY), () ->
+                        Arrays.asList(new ActionNxResubmit(NwConstants.ARP_LEARN_TABLE_1),
+                                new ActionNxResubmit(NwConstants.ARP_LEARN_TABLE_2),
+                                new ActionNxResubmit(NwConstants.ELAN_BASE_TABLE)));
         LOG.trace("Invoking MDSAL to install  Arp Reply Match Flow for Table {} ", NwConstants.ARP_CHECK_TABLE);
         mdsalManager.addFlowToTx(arpRepArpCheckTbl, writeFlowTx);
+    }
 
+    private void createArpPuntAndLearnFlow(BigInteger dpId, WriteTransaction writeFlowTx) {
+        LOG.debug("adding arp punt and learn entry in table {}", NwConstants.ARP_LEARN_TABLE_1);
+
+        List<MatchInfo> matches = new ArrayList<>();
+        List<ActionInfo> actions = new ArrayList<>();
+        BigInteger cookie = new BigInteger("88880000", 16);
+
+        matches.add(MatchEthernetType.ARP);
+        actions.add(new ActionPuntToController());
+        if (arpPuntTimeout != 0) {
+            actions.add(new ActionLearn(0, arpPuntTimeout, ARP_LEARN_FLOW_PRIORITY, cookie, 0,
+                    NwConstants.ARP_LEARN_TABLE_1, 0, 0,
+                    Arrays.asList(
+                            new MatchFromValue(NwConstants.ETHTYPE_ARP, NxmOfFieldType.NXM_OF_ETH_TYPE.getType(),
+                                    NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLenInt()),
+                            new MatchFromField(NxmOfFieldType.NXM_OF_ARP_SPA.getType(),
+                                    NxmOfFieldType.NXM_OF_ARP_SPA.getType(),
+                                    NxmOfFieldType.NXM_OF_ARP_SPA.getFlowModHeaderLenInt()),
+                            new MatchFromField(NxmOfFieldType.NXM_OF_ARP_TPA.getType(),
+                                    NxmOfFieldType.NXM_OF_ARP_TPA.getType(),
+                                    NxmOfFieldType.NXM_OF_ARP_TPA.getFlowModHeaderLenInt()),
+                            new ActionLearn.MatchFromField(NxmOfFieldType.OXM_OF_METADATA.getType(),
+                                    MetaDataUtil.METADATA_ELAN_TAG_OFFSET,
+                                    NxmOfFieldType.OXM_OF_METADATA.getType(), MetaDataUtil.METADATA_ELAN_TAG_OFFSET,
+                                    ElanConstants.ELAN_TAG_LENGTH),
+                            new CopyFromValue(1, NxmOfFieldType.NXM_NX_REG4.getType(), 8))));
+
+            actions.add(new ActionLearn(0, arpPuntTimeout, ARP_LEARN_FLOW_PRIORITY, cookie, 0,
+                    NwConstants.ARP_LEARN_TABLE_2, 0, 0,
+                    Arrays.asList(
+                            new MatchFromValue(NwConstants.ETHTYPE_ARP, NxmOfFieldType.NXM_OF_ETH_TYPE.getType(),
+                                    NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLenInt()),
+                            new MatchFromField(NxmOfFieldType.NXM_OF_ARP_SPA.getType(),
+                                    NxmOfFieldType.NXM_OF_ARP_TPA.getType(),
+                                    NxmOfFieldType.NXM_OF_ARP_SPA.getFlowModHeaderLenInt()),
+                            new MatchFromField(NxmOfFieldType.NXM_OF_ARP_TPA.getType(),
+                                    NxmOfFieldType.NXM_OF_ARP_SPA.getType(),
+                                    NxmOfFieldType.NXM_OF_ARP_TPA.getFlowModHeaderLenInt()),
+                            new ActionLearn.MatchFromField(NxmOfFieldType.OXM_OF_METADATA.getType(),
+                                    MetaDataUtil.METADATA_ELAN_TAG_OFFSET, NxmOfFieldType.OXM_OF_METADATA.getType(),
+                                    MetaDataUtil.METADATA_ELAN_TAG_OFFSET, MetaDataUtil.METADATA_ELAN_TAG_BITLEN),
+                            new CopyFromValue(1, NxmOfFieldType.NXM_NX_REG4.getType(), 8, 8))));
+        }
+
+        List<InstructionInfo> instructions = new ArrayList<>();
+        instructions.add(new InstructionApplyActions(actions));
+        String flowid = String.valueOf(NwConstants.ARP_LEARN_TABLE_1) + NwConstants.FLOWID_SEPARATOR + "arp.punt";
+        FlowEntity flow = MDSALUtil.buildFlowEntity(dpId, NwConstants.ARP_LEARN_TABLE_1, flowid,
+                NwConstants.TABLE_MISS_PRIORITY, "arp punt/learn flow", 0,
+                0, cookie, matches, instructions);
+        mdsalManager.addFlowToTx(flow, writeFlowTx);
+    }
+
+    private void addGarpLearnMatchFlow(BigInteger dpId, WriteTransaction writeFlowTx) {
+        List<ActionInfo> actions = new ArrayList<>();
+        List<MatchInfoBase> matches = new ArrayList<>();
+
+        matches.add(MatchEthernetType.ARP);
+        matches.add(new NxMatchRegister(NxmNxReg4.class, GARP_LEARN_MATCH_VALUE, ARP_LEARN_MATCH_MASK));
+
+        actions.add(new ActionRegLoad(NxmNxReg4.class, 0, 31, 0));
+        actions.add(new ActionPuntToController());
+        actions.add(new ActionNxResubmit(NwConstants.ELAN_SMAC_LEARNED_TABLE));
+        actions.add(new ActionNxResubmit(NwConstants.ELAN_SMAC_TABLE));
+
+        List<InstructionInfo> instructions = new ArrayList<>();
+        instructions.add(new InstructionApplyActions(actions));
+        String flowid = String.valueOf(NwConstants.ELAN_BASE_TABLE) + NwConstants.FLOWID_SEPARATOR + "garp.match";
+        FlowEntity garpFlow = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_BASE_TABLE, flowid,
+                NwConstants.DEFAULT_ARP_FLOW_PRIORITY, "GARP learn match flow", 0, 0,
+                ElanConstants.COOKIE_ELAN_BASE_SMAC, matches, instructions);
+        mdsalManager.addFlowToTx(garpFlow, writeFlowTx);
+    }
+
+    private void addArpLearnMatchFlow(BigInteger dpId, WriteTransaction writeFlowTx) {
+        List<ActionInfo> actions = new ArrayList<>();
+        List<MatchInfoBase> matches = new ArrayList<>();
+
+        matches.add(MatchEthernetType.ARP);
+        matches.add(new NxMatchRegister(NxmNxReg4.class, ARP_LEARN_MATCH_VALUE, ARP_LEARN_MATCH_MASK));
+
+        actions.add(new ActionRegLoad(NxmNxReg4.class, 0, 31, 0));
+        actions.add(new ActionNxResubmit(NwConstants.ELAN_SMAC_LEARNED_TABLE));
+        actions.add(new ActionNxResubmit(NwConstants.ELAN_SMAC_TABLE));
+
+        List<InstructionInfo> instructions = new ArrayList<>();
+        instructions.add(new InstructionApplyActions(actions));
+        String flowid = String.valueOf(NwConstants.ELAN_BASE_TABLE) + NwConstants.FLOWID_SEPARATOR + "arp.match";
+        FlowEntity arpFlow = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_BASE_TABLE, flowid,
+                NwConstants.DEFAULT_ARP_FLOW_PRIORITY, "ARP learn match flow", 0, 0,
+                ElanConstants.COOKIE_ELAN_BASE_SMAC, matches, instructions);
+        mdsalManager.addFlowToTx(arpFlow, writeFlowTx);
     }
 
 }
