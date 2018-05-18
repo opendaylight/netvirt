@@ -2,6 +2,7 @@
   <auto-create-bridge>true</auto-create-bridge>
   <int-bridge-gen-mac>true</int-bridge-gen-mac>
   <temp-smac-learn-timeout>10</temp-smac-learn-timeout>
+  <arp-punt-timeout>5</arp-punt-timeout>
   <punt-lldp-to-controller>false</punt-lldp-to-controller>
   <!--
   <controller-max-backoff>5000</controller-max-backoff>
