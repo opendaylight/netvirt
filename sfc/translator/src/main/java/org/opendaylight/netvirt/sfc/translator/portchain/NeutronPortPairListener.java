@@ -66,10 +66,11 @@ public class NeutronPortPairListener extends DelegatingDataTreeListener<PortPair
      * Method updates the original PortPair to the update PortPair.
      * Both are identified by same InstanceIdentifier.
      *
+     * @param origPortPair       - original PortPair
      * @param updatePortPair     - changed PortPair (contain updates)
      */
     @Override
-    public void update(PortPair updatePortPair) {
+    public void update(PortPair origPortPair, PortPair updatePortPair) {
         //NO-OP
     }
 

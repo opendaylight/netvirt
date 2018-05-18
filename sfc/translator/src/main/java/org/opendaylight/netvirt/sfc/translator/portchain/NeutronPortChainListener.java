@@ -70,11 +70,23 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
      * Method updates the original PortChain to the update PortChain.
      * Both are identified by same InstanceIdentifier.
      *
+     * @param origPortChain       - original PortChain
      * @param updatePortChain     - changed PortChain (contain updates)
      */
     @Override
-    public void update(PortChain updatePortChain) {
-        //TODO: Add support for chain update
+    public void update(PortChain origPortChain, PortChain updatePortChain) {
+        List<Uuid> oldFcList = origPortChain.getFlowClassifiers();
+        oldFcList.removeAll(updatePortChain.getFlowClassifiers());
+        if (!oldFcList.isEmpty()) {
+            LOG.debug("Removing old list {}", oldFcList);
+            processFlowClassifiers(origPortChain, oldFcList, null, false);
+        }
+        List<Uuid> newFcList = updatePortChain.getFlowClassifiers();
+        newFcList.removeAll(origPortChain.getFlowClassifiers());
+        if (!newFcList.isEmpty()) {
+            LOG.debug("Adding new list {}", newFcList);
+            processFlowClassifiers(updatePortChain, newFcList, null, true);
+        }
     }
 
     /**
@@ -162,16 +174,20 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
         // The RSP will automatically be created from the SFP added above.
 
         // Add ACLs from flow classifiers
-        processFlowClassifiers(newPortChain, newPortChain.getFlowClassifiers(), sfp.getName().getValue());
+        processFlowClassifiers(newPortChain, newPortChain.getFlowClassifiers(), sfp.getName().getValue(), true);
     }
 
-    private void processFlowClassifiers(PortChain pc, List<Uuid> flowClassifiers, String sfpName) {
+    private void processFlowClassifiers(PortChain pc, List<Uuid> flowClassifiers, String sfpName, boolean added) {
         for (Uuid uuid : flowClassifiers) {
             SfcFlowClassifier fc = neutronMdsalHelper.getNeutronFlowClassifier(uuid);
             if (fc != null) {
                 Acl acl = FlowClassifierTranslator.buildAcl(fc, sfpName);
                 if (acl != null) {
-                    sfcMdsalHelper.addAclFlowClassifier(acl);
+                    if (added) {
+                        sfcMdsalHelper.addAclFlowClassifier(acl);
+                    } else {
+                        sfcMdsalHelper.removeAclFlowClassifier(acl);
+                    }
                 } else {
                     LOG.warn("Acl building failed for flow classifier {}. Traffic might not be redirected to RSP", fc);
                 }

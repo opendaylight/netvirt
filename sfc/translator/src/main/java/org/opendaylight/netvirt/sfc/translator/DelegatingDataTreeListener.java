@@ -69,13 +69,13 @@ public abstract class DelegatingDataTreeListener<T extends DataObject> implement
                     dataProcessor.remove(mod.getDataBefore());
                     break;
                 case SUBTREE_MODIFIED:
-                    dataProcessor.update(mod.getDataAfter());
+                    dataProcessor.update(mod.getDataBefore(), mod.getDataAfter());
                     break;
                 case WRITE:
                     if (mod.getDataBefore() == null) {
                         dataProcessor.add(mod.getDataAfter());
                     } else {
-                        dataProcessor.update(mod.getDataAfter());
+                        dataProcessor.update(mod.getDataBefore(), mod.getDataAfter());
                     }
                     break;
                 default:
