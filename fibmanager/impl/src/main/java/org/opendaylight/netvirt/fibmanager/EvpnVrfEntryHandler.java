@@ -159,7 +159,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                         if (localNextHopInfo != null) {
                             localNextHopIP = nextHopIp + "/32";
                             BigInteger dpnId = checkCreateLocalEvpnFlows(localNextHopInfo, localNextHopIP, vpnId,
-                                    rd, vrfEntry);
+                                    vpnId, rd, vrfEntry);
                             returnLocalDpnId.add(dpnId);
                         }
                     }
@@ -184,7 +184,8 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                         if (localNextHopInfo != null) {
                             LOG.debug("Fetched IpPrefixInfo for rd {} prefix {}", parentPrimaryRd,
                                     vrfEntry.getDestPrefix());
-                            checkCreateLocalEvpnFlows(localNextHopInfo, localNextHopIP, vpnId, rd, vrfEntry);
+                            checkCreateLocalEvpnFlows(localNextHopInfo, localNextHopIP, vpnId, ipPrefixInfo.getParentVpnid(),
+                                 rd, vrfEntry);
                         } else {
                             LOG.error("Unable to fetch prefixes for rd {} prefix {}", rd, vrfEntry.getDestPrefix());
                         }
@@ -195,18 +196,18 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             LOG.info("Creating local EVPN flows for prefix {} rd {} route-paths {} evi {}.",
                     vrfEntry.getDestPrefix(), rd, vrfEntry.getRoutePaths(), vrfEntry.getL3vni());
             BigInteger dpnId = checkCreateLocalEvpnFlows(localNextHopInfo, localNextHopIP, vpnId,
-                    rd, vrfEntry);
+                    vpnId, rd, vrfEntry);
             returnLocalDpnId.add(dpnId);
         }
         return returnLocalDpnId;
     }
 
     private BigInteger checkCreateLocalEvpnFlows(Prefixes localNextHopInfo, String localNextHopIP,
-                                                 final Long vpnId, final String rd,
+                                                 final Long vpnId, final Long parentVpnId, final String rd,
                                                  final VrfEntry vrfEntry) {
         final BigInteger dpnId = localNextHopInfo.getDpnId();
         String jobKey = "FIB-" + vpnId.toString() + "-" + dpnId.toString() + "-" + vrfEntry.getDestPrefix();
-        final long groupId = nexthopManager.createLocalNextHop(vpnId, dpnId,
+        final long groupId = nexthopManager.createLocalNextHop(vpnId, parentVpnId, dpnId,
             localNextHopInfo.getVpnInterfaceName(), localNextHopIP, vrfEntry.getDestPrefix(),
             vrfEntry.getGatewayMacAddress(), jobKey);
         LOG.debug("LocalNextHopGroup {} created/reused for prefix {} rd {} evi {} route-paths {}", groupId,

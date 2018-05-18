@@ -727,7 +727,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     localNextHopSeen = true;
                     BigInteger dpnId =
                             checkCreateLocalFibEntry(localNextHopInfoLocal, localNextHopInfoLocal.getIpAddress(),
-                                    vpnId, rd, vrfEntry, vpnExtraRoute, vpnExtraRoutes);
+                                    vpnId, vpnId, rd, vrfEntry, vpnExtraRoute, vpnExtraRoutes);
                     returnLocalDpnId.add(dpnId);
                 }
             }
@@ -752,13 +752,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                     vrfEntry.getDestPrefix());
                             if (vpnExtraRoutes.isEmpty()) {
                                 BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP,
-                                        vpnId, rd, vrfEntry, null,
-                                        vpnExtraRoutes);
+                                        vpnId, ipPrefixInfo.getParentVpnid(), rd, vrfEntry, null, vpnExtraRoutes);
                                 returnLocalDpnId.add(dpnId);
                             } else {
                                 for (Routes extraRoutes : vpnExtraRoutes) {
                                     BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo,
-                                            localNextHopIP, vpnId, rd, vrfEntry, extraRoutes, vpnExtraRoutes);
+                                            localNextHopIP, vpnId, ipPrefixInfo.getParentVpnid(),
+                                            rd, vrfEntry, extraRoutes, vpnExtraRoutes);
                                     returnLocalDpnId.add(dpnId);
                                 }
                             }
@@ -772,7 +772,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 LOG.error("Local DPNID is empty for rd {}, vpnId {}, vrfEntry {}", rd, vpnId, vrfEntry);
             }
         } else {
-            BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP, vpnId,
+            BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP, vpnId, vpnId,
                     rd, vrfEntry, /*routes*/ null, /*vpnExtraRoutes*/ null);
             if (dpnId != null) {
                 returnLocalDpnId.add(dpnId);
@@ -782,7 +782,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     }
 
     private BigInteger checkCreateLocalFibEntry(Prefixes localNextHopInfo, String localNextHopIP,
-                                                final Long vpnId, final String rd,
+                                                final Long vpnId, final Long parentVpnId, final String rd,
                                                 final VrfEntry vrfEntry,
                                                 Routes routes, List<Routes> vpnExtraRoutes) {
         String vpnName = fibUtil.getVpnNameFromId(vpnId);
@@ -826,13 +826,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             vpnExtraRoutes);
                     localGroupId = groupId;
                 } else {
-                    groupId = nextHopManager.createLocalNextHop(vpnId, dpnId, interfaceName, localNextHopIP,
+                    groupId = nextHopManager.createLocalNextHop(vpnId, parentVpnId, dpnId, interfaceName, localNextHopIP,
                             prefix, gwMacAddress, jobKey);
                     localGroupId = groupId;
                 }
             } else {
-                groupId = nextHopManager.createLocalNextHop(vpnId, dpnId, interfaceName, localNextHopIP, prefix,
-                        gwMacAddress, jobKey);
+                groupId = nextHopManager.createLocalNextHop(vpnId, parentVpnId, dpnId, interfaceName,
+                        localNextHopIP, prefix, gwMacAddress, jobKey);
                 localGroupId = groupId;
             }
             if (groupId == FibConstants.INVALID_GROUP_ID) {

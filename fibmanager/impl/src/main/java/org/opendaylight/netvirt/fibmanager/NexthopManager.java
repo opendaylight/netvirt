@@ -363,14 +363,14 @@ public class NexthopManager implements AutoCloseable {
         return groupId;
     }
 
-    public long createLocalNextHop(long vpnId, BigInteger dpnId, String ifName,
+    public long createLocalNextHop(long vpnId, long parentVpnId, BigInteger dpnId, String ifName,
                                    String primaryIpAddress, String currDestIpPrefix,
                                    String gwMacAddress, String jobKey) {
-        String vpnName = fibUtil.getVpnNameFromId(vpnId);
-        if (vpnName == null) {
+        String parentVpnName = fibUtil.getVpnNameFromId(parentVpnId);
+        if (parentVpnName == null) {
             return 0;
         }
-        String macAddress = fibUtil.getMacAddressFromPrefix(ifName, vpnName, primaryIpAddress);
+        String macAddress = fibUtil.getMacAddressFromPrefix(ifName, parentVpnName, primaryIpAddress);
 
         long groupId = createNextHopPointer(getNextHopKey(vpnId, primaryIpAddress));
         if (groupId == 0) {
@@ -387,7 +387,8 @@ public class NexthopManager implements AutoCloseable {
                             primaryIpAddress, ifName, dpnId);
                     if (nexthop == null) {
                         String encMacAddress = macAddress == null
-                                ? fibUtil.getMacAddressFromPrefix(ifName, vpnName, primaryIpAddress) : macAddress;
+                                ? fibUtil.getMacAddressFromPrefix(ifName, parentVpnName, primaryIpAddress)
+                                : macAddress;
                         List<BucketInfo> listBucketInfo = new ArrayList<>();
                         List<ActionInfo> listActionInfo = new ArrayList<>();
                         int actionKey = 0;
