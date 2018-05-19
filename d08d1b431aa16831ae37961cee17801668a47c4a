@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7526bc63_1f37b7a9",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-19T14:14:00Z",
+      "side": 1,
+      "message": "Any specific reason why you are changing List to a Set? Did you see that there are multiple entries getting added to the list?",
+      "range": {
+        "startLine": 78,
+        "startChar": 38,
+        "endLine": 78,
+        "endChar": 41
+      },
+      "revId": "d08d1b431aa16831ae37961cee17801668a47c4a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "34afec4e_9be88fb0",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-19T14:14:00Z",
+      "side": 1,
+      "message": "It is not clear to me why you are doing this. Please explain in detail on what is the issue and why this is necessary.",
+      "range": {
+        "startLine": 538,
+        "startChar": 19,
+        "endLine": 538,
+        "endChar": 43
+      },
+      "revId": "d08d1b431aa16831ae37961cee17801668a47c4a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f2b0ae5a_83e40215",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 722,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-19T14:14:00Z",
+      "side": 1,
+      "message": "AFAIU today all the listeners (i.e., neutron network/subnet/router/port/interface etc) are cluster listeners so we should have the same cache on all of the Controllers irrespective of whether its a shard leader or not. \n\nPlease explain why this is necessary and what is happening?",
+      "revId": "d08d1b431aa16831ae37961cee17801668a47c4a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
