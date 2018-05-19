@@ -8,11 +8,9 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -22,12 +20,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdPools;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.id.pools.IdPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.id.pools.IdPoolKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -80,8 +81,7 @@ public final class NatOverVxlanUtil {
         ReleaseIdInput releaseIdInput = new ReleaseIdInputBuilder().setPoolName(NatConstants.ODL_VNI_POOL_NAME)
             .setIdKey(vniKey).build();
         try {
-            Future<RpcResult<Void>> result = idManager.releaseId(releaseIdInput);
-            RpcResult<Void> rpcResult = result.get();
+            RpcResult<ReleaseIdOutput> rpcResult = idManager.releaseId(releaseIdInput).get();
             if (!rpcResult.isSuccessful()) {
                 LOG.warn("releaseVNI : Unable to release ID {} from OpenDaylight VXLAN VNI range pool. Error {}",
                         vniKey, rpcResult.getErrors());
@@ -142,7 +142,7 @@ public final class NatOverVxlanUtil {
         CreateIdPoolInput createPool = null;
         createPool = new CreateIdPoolInputBuilder().setPoolName(poolName).setLow(lowLimit).setHigh(highLimit).build();
         try {
-            Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
+            Future<RpcResult<CreateIdPoolOutput>> result = idManager.createIdPool(createPool);
             if (result != null && result.get().isSuccessful()) {
                 LOG.debug("createOpenDaylightVniRangesPool : Created OpenDaylight VXLAN VNI range pool {} "
                         + "with range {}-{}", poolName, lowLimit, highLimit);
@@ -159,7 +159,7 @@ public final class NatOverVxlanUtil {
     public static void deleteOpenDaylightVniRangesPool(IdManagerService idManager, String poolName) {
 
         DeleteIdPoolInput deletePool = new DeleteIdPoolInputBuilder().setPoolName(poolName).build();
-        Future<RpcResult<Void>> result = idManager.deleteIdPool(deletePool);
+        Future<RpcResult<DeleteIdPoolOutput>> result = idManager.deleteIdPool(deletePool);
         try {
             if (result != null && result.get().isSuccessful()) {
                 LOG.debug("deleteOpenDaylightVniRangesPool : Deleted OpenDaylight VXLAN VNI range pool {} successfully",

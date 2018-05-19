@@ -11,8 +11,8 @@ import static org.mockito.Mockito.mock;
 import static org.opendaylight.yangtools.testutils.mockito.MoreAnswers.realOrException;
 
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.inject.AbstractModule;
-import java.util.concurrent.Future;
 import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
@@ -31,9 +31,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -85,12 +91,12 @@ public class AclServiceTestModule extends AbstractModule {
     private abstract static class TestIdManagerService implements IdManagerService {
 
         @Override
-        public Future<RpcResult<Void>> createIdPool(CreateIdPoolInput input) {
-            return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
+        public ListenableFuture<RpcResult<CreateIdPoolOutput>> createIdPool(CreateIdPoolInput input) {
+            return RpcResultBuilder.success(new CreateIdPoolOutputBuilder().build()).buildFuture();
         }
 
         @Override
-        public Future<RpcResult<AllocateIdOutput>> allocateId(AllocateIdInput input) {
+        public ListenableFuture<RpcResult<AllocateIdOutput>> allocateId(AllocateIdInput input) {
             String key = input.getIdKey();
             long id = IdHelper.getId(key) == null ? AclConstants.PROTO_MATCH_PRIORITY
                     : IdHelper.getId(key);
@@ -105,13 +111,13 @@ public class AclServiceTestModule extends AbstractModule {
         }
 
         @Override
-        public Future<RpcResult<Void>> releaseId(ReleaseIdInput input) {
-            return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
+        public ListenableFuture<RpcResult<ReleaseIdOutput>> releaseId(ReleaseIdInput input) {
+            return RpcResultBuilder.success(new ReleaseIdOutputBuilder().build()).buildFuture();
         }
 
         @Override
-        public Future<RpcResult<java.lang.Void>> deleteIdPool(DeleteIdPoolInput poolName) {
-            return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
+        public ListenableFuture<RpcResult<DeleteIdPoolOutput>> deleteIdPool(DeleteIdPoolInput poolName) {
+            return RpcResultBuilder.success(new DeleteIdPoolOutputBuilder().build()).buildFuture();
         }
     }
 

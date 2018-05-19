@@ -9,8 +9,8 @@
 package org.opendaylight.netvirt.aclservice.stats;
 
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
-import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -60,7 +60,8 @@ public class AclLiveStatisticsRpcServiceImpl implements AclLiveStatisticsService
     }
 
     @Override
-    public Future<RpcResult<GetAclPortStatisticsOutput>> getAclPortStatistics(GetAclPortStatisticsInput input) {
+    public ListenableFuture<RpcResult<GetAclPortStatisticsOutput>> getAclPortStatistics(
+            GetAclPortStatisticsInput input) {
         LOG.trace("Get ACL port statistics for input: {}", input);
         RpcResultBuilder<GetAclPortStatisticsOutput> rpcResultBuilder;
 
@@ -68,7 +69,7 @@ public class AclLiveStatisticsRpcServiceImpl implements AclLiveStatisticsService
             rpcResultBuilder = RpcResultBuilder.failed();
             rpcResultBuilder.withError(ErrorType.APPLICATION, "operation-not-supported",
                     "Operation not supported for ACL " + this.securityGroupMode + " mode");
-            return Futures.immediateFuture(rpcResultBuilder.build());
+            return rpcResultBuilder.buildFuture();
         }
         // Default direction is Both
         Direction direction = input.getDirection() == null ? Direction.Both : input.getDirection();

@@ -95,6 +95,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdPools;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.id.pools.IdPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.id.pools.IdPoolKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.IfIndexesInterfaceMap;
@@ -109,8 +110,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev16041
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TimeUnits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.UnlockInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.UnlockInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.UnlockOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanTagNameMap;
@@ -250,7 +253,7 @@ public final class VpnUtil {
 
         public String get() {
             long microSeconds = (System.nanoTime() - this.startNanoseconds) / 1000 ;
-            long date = this.startDate + (microSeconds / 1000) ;
+            long date = this.startDate + microSeconds / 1000 ;
             return this.dateFormat.format(date) + String.format("%03d", microSeconds % 1000) ;
         }
     }
@@ -531,8 +534,7 @@ public final class VpnUtil {
     public static void releaseId(IdManagerService idManager, String poolName, String idKey) {
         ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
         try {
-            Future<RpcResult<Void>> result = idManager.releaseId(idInput);
-            RpcResult<Void> rpcResult = result.get();
+            RpcResult<ReleaseIdOutput> rpcResult = idManager.releaseId(idInput).get();
             if (!rpcResult.isSuccessful()) {
                 LOG.error("releaseId: RPC Call to release Id for key {} from pool {} returned with Errors {}",
                         idKey, poolName, rpcResult.getErrors());
@@ -1424,7 +1426,7 @@ public final class VpnUtil {
     public static void lockSubnet(LockManagerService lockManager, String subnetId) {
         TryLockInput input =
             new TryLockInputBuilder().setLockName(subnetId).setTime(3000L).setTimeUnit(TimeUnits.Milliseconds).build();
-        Future<RpcResult<Void>> result = lockManager.tryLock(input);
+        Future<RpcResult<TryLockOutput>> result = lockManager.tryLock(input);
         try {
             if (result != null && result.get().isSuccessful()) {
                 LOG.debug("lockSubnet: Acquired lock for {}", subnetId);
@@ -1442,7 +1444,7 @@ public final class VpnUtil {
     @SuppressWarnings("checkstyle:AvoidHidingCauseException")
     public static void unlockSubnet(LockManagerService lockManager, String subnetId) {
         UnlockInput input = new UnlockInputBuilder().setLockName(subnetId).build();
-        Future<RpcResult<Void>> result = lockManager.unlock(input);
+        Future<RpcResult<UnlockOutput>> result = lockManager.unlock(input);
         try {
             if (result != null && result.get().isSuccessful()) {
                 LOG.debug("unlockSubnet: Unlocked {}", subnetId);
@@ -2144,7 +2146,7 @@ public final class VpnUtil {
     }
 
     public static Set<BigInteger> getDpnInElan(DataBroker dataBroker,  Map<String,String> elanInstanceRouterPortMap) {
-        Set<BigInteger> dpnIdSet = new HashSet<BigInteger>();
+        Set<BigInteger> dpnIdSet = new HashSet<>();
         for (String elanInstanceName : elanInstanceRouterPortMap.keySet()) {
             InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationalDataPath(
                     elanInstanceName);
@@ -2288,7 +2290,7 @@ public final class VpnUtil {
     }
 
     public static Map<String, String> getElanInstanceRouterPortMap(DataBroker dataBroker, String vpnName) {
-        Map<String, String> elanInstanceRouterPortMap = new HashMap<String, String>();
+        Map<String, String> elanInstanceRouterPortMap = new HashMap<>();
         Optional<Subnetmaps> subnetMapsData =
                 read(dataBroker, LogicalDatastoreType.CONFIGURATION, buildSubnetMapsWildCardPath());
         if (subnetMapsData.isPresent()) {

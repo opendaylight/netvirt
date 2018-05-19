@@ -10,11 +10,10 @@ package org.opendaylight.netvirt.sfc.classifier.providers;
 
 import static org.opendaylight.yangtools.testutils.mockito.MoreAnswers.realOrException;
 
-import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 import org.mockito.Mockito;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -39,7 +38,7 @@ public abstract class TestOdlInterfaceRpcService implements OdlInterfaceRpcServi
     }
 
     @Override
-    public Future<RpcResult<GetEndpointIpForDpnOutput>> getEndpointIpForDpn(GetEndpointIpForDpnInput input) {
+    public ListenableFuture<RpcResult<GetEndpointIpForDpnOutput>> getEndpointIpForDpn(GetEndpointIpForDpnInput input) {
         BigInteger dpnId = input.getDpid();
 
         // if the dpnId is DPN_ID_NO_EXIST, then an empty response will be returned
@@ -49,16 +48,16 @@ public abstract class TestOdlInterfaceRpcService implements OdlInterfaceRpcServi
             localIpList.add(new IpAddress(new Ipv4Address(GeniusProviderTestParams.IPV4_ADDRESS_STR)));
             builder.setLocalIps(localIpList);
         } else if (dpnId == GeniusProviderTestParams.DPN_ID_INVALID) {
-            return Futures.immediateFuture(RpcResultBuilder.<GetEndpointIpForDpnOutput>failed()
-                    .withError(ErrorType.APPLICATION, "Invalid data.").build());
+            return RpcResultBuilder.<GetEndpointIpForDpnOutput>failed()
+                    .withError(ErrorType.APPLICATION, "Invalid data.").buildFuture();
         }
 
-        return Futures.immediateFuture(RpcResultBuilder
-                .<GetEndpointIpForDpnOutput>success(builder.build()).build());
+        return RpcResultBuilder.success(builder.build()).buildFuture();
     }
 
     @Override
-    public Future<RpcResult<GetDpidFromInterfaceOutput>> getDpidFromInterface(GetDpidFromInterfaceInput input) {
+    public ListenableFuture<RpcResult<GetDpidFromInterfaceOutput>> getDpidFromInterface(
+            GetDpidFromInterfaceInput input) {
         String ifName = input.getIntfName();
 
         // if the ifName is INTERFACE_NAME_NO_EXIST, then an empty response will be returned
@@ -66,16 +65,15 @@ public abstract class TestOdlInterfaceRpcService implements OdlInterfaceRpcServi
         if (ifName == GeniusProviderTestParams.INTERFACE_NAME) {
             builder.setDpid(GeniusProviderTestParams.DPN_ID);
         } else if (ifName == GeniusProviderTestParams.INTERFACE_NAME_INVALID) {
-            return Futures.immediateFuture(RpcResultBuilder.<GetDpidFromInterfaceOutput>failed()
-                    .withError(ErrorType.APPLICATION, "Invalid data.").build());
+            return RpcResultBuilder.<GetDpidFromInterfaceOutput>failed()
+                    .withError(ErrorType.APPLICATION, "Invalid data.").buildFuture();
         }
 
-        return Futures.immediateFuture(RpcResultBuilder
-                .<GetDpidFromInterfaceOutput>success(builder.build()).build());
+        return RpcResultBuilder.success(builder.build()).buildFuture();
     }
 
     @Override
-    public Future<RpcResult<GetNodeconnectorIdFromInterfaceOutput>>
+    public ListenableFuture<RpcResult<GetNodeconnectorIdFromInterfaceOutput>>
         getNodeconnectorIdFromInterface(GetNodeconnectorIdFromInterfaceInput input)  {
         String ifName = input.getIntfName();
 
@@ -86,12 +84,11 @@ public abstract class TestOdlInterfaceRpcService implements OdlInterfaceRpcServi
                     GeniusProviderTestParams.NODE_CONNECTOR_ID_PREFIX
                     + GeniusProviderTestParams.INTERFACE_NAME));
         } else if (ifName == GeniusProviderTestParams.INTERFACE_NAME_INVALID) {
-            return Futures.immediateFuture(RpcResultBuilder.<GetNodeconnectorIdFromInterfaceOutput>failed()
-                    .withError(ErrorType.APPLICATION, "Invalid data.").build());
+            return RpcResultBuilder.<GetNodeconnectorIdFromInterfaceOutput>failed()
+                    .withError(ErrorType.APPLICATION, "Invalid data.").buildFuture();
         }
 
-        return Futures.immediateFuture(RpcResultBuilder
-                .<GetNodeconnectorIdFromInterfaceOutput>success(builder.build()).build());
+        return RpcResultBuilder.success(builder.build()).buildFuture();
     }
 
 }

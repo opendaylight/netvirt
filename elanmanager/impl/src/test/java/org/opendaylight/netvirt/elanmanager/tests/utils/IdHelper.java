@@ -10,11 +10,9 @@ package org.opendaylight.netvirt.elanmanager.tests.utils;
 
 import static org.opendaylight.netvirt.elanmanager.tests.ElanServiceTestBase.ELAN1;
 
-import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Future;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutputBuilder;
@@ -31,9 +29,8 @@ public abstract class IdHelper implements
     }
 
     @Override
-    public Future<RpcResult<AllocateIdOutput>> allocateId(AllocateIdInput allocateIdInput) {
+    public ListenableFuture<RpcResult<AllocateIdOutput>> allocateId(AllocateIdInput allocateIdInput) {
         Long id = ids.get(allocateIdInput.getIdKey());
-        return Futures.immediateFuture(RpcResultBuilder.success(
-                new AllocateIdOutputBuilder().setIdValue(id).build()).build());
+        return RpcResultBuilder.success(new AllocateIdOutputBuilder().setIdValue(id).build()).buildFuture();
     }
 }

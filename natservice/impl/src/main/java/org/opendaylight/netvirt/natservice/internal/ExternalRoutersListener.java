@@ -11,7 +11,6 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
@@ -81,6 +80,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
@@ -92,9 +92,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.I
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
@@ -132,6 +134,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.G
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -825,7 +828,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             .setHigh(NatConstants.SNAT_ID_HIGH_VALUE)
             .build();
         try {
-            Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
+            Future<RpcResult<CreateIdPoolOutput>> result = idManager.createIdPool(createPool);
             if (result != null && result.get().isSuccessful()) {
                 LOG.debug("createGroupIdPool : GroupIdPool created successfully");
             } else {
@@ -998,12 +1001,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         //Generate VPN label for the external IP
         GenerateVpnLabelInput labelInput = new GenerateVpnLabelInputBuilder().setVpnName(vpnName)
             .setIpPrefix(externalIp).build();
-        Future<RpcResult<GenerateVpnLabelOutput>> labelFuture = vpnService.generateVpnLabel(labelInput);
+        ListenableFuture<RpcResult<GenerateVpnLabelOutput>> labelFuture = vpnService.generateVpnLabel(labelInput);
 
         //On successful generation of the VPN label, advertise the route to the BGP and install the FIB routes.
-        ListenableFuture<RpcResult<Void>> future =
-            Futures.transformAsync(JdkFutureAdapters.listenInPoolThread(labelFuture),
-                (AsyncFunction<RpcResult<GenerateVpnLabelOutput>, RpcResult<Void>>) result -> {
+        ListenableFuture<RpcResult<CreateFibEntryOutput>> future =
+            Futures.transformAsync(labelFuture,
+                (AsyncFunction<RpcResult<GenerateVpnLabelOutput>, RpcResult<CreateFibEntryOutput>>) result -> {
                     if (result.isSuccessful()) {
                         LOG.debug("advToBgpAndInstallFibAndTsFlows : inside apply with result success");
                         GenerateVpnLabelOutput output = result.getResult();
@@ -1080,8 +1083,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             .setSourceDpid(dpnId).setIpAddress(fibExternalIp).setServiceId(label)
                             .setIpAddressSource(CreateFibEntryInput.IpAddressSource.ExternalFixedIP)
                             .setInstruction(fibTableCustomInstructions).build();
-                        Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
-                        return JdkFutureAdapters.listenInPoolThread(future1);
+                        return fibService.createFibEntry(input);
                     } else {
                         LOG.error("advToBgpAndInstallFibAndTsFlows : inside apply with result failed");
                         String errMsg = String.format("Could not retrieve the label for prefix %s in VPN %s, %s",
@@ -1090,7 +1092,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     }
                 }, MoreExecutors.directExecutor());
 
-        Futures.addCallback(future, new FutureCallback<RpcResult<Void>>() {
+        Futures.addCallback(future, new FutureCallback<RpcResult<CreateFibEntryOutput>>() {
 
             @Override
             public void onFailure(@Nonnull Throwable error) {
@@ -1098,7 +1100,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             }
 
             @Override
-            public void onSuccess(@Nonnull RpcResult<Void> result) {
+            public void onSuccess(@Nonnull RpcResult<CreateFibEntryOutput> result) {
                 if (result.isSuccessful()) {
                     LOG.info("advToBgpAndInstallFibAndTsFlows : Successfully installed custom FIB routes for prefix {}",
                             externalIp);
@@ -2228,7 +2230,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
                 .setSourceDpid(dpnId).setIpAddress(externalIp).setServiceId(label)
                 .setIpAddressSource(RemoveFibEntryInput.IpAddressSource.ExternalFixedIP).build();
-        Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
+        ListenableFuture<RpcResult<RemoveFibEntryOutput>> future = fibService.removeFibEntry(input);
 
         removeTunnelTableEntry(dpnId, label, removeFlowInvTx);
         removeLFibTableEntry(dpnId, label, removeFlowInvTx);
@@ -2237,26 +2239,24 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             NatUtil.removePreDnatToSnatTableEntry(mdsalManager, dpnId, removeFlowInvTx);
         }
         if (!switchOver) {
-            ListenableFuture<RpcResult<Void>> labelFuture =
-                    Futures.transformAsync(JdkFutureAdapters.listenInPoolThread(future),
-                            (AsyncFunction<RpcResult<Void>, RpcResult<Void>>) result -> {
+            ListenableFuture<RpcResult<RemoveVpnLabelOutput>> labelFuture =
+                    Futures.transformAsync(future, result -> {
                                 //Release label
-                            if (result.isSuccessful()) {
-                                NatUtil.removePreDnatToSnatTableEntry(mdsalManager, dpnId, removeFlowInvTx);
-                                RemoveVpnLabelInput labelInput = new RemoveVpnLabelInputBuilder()
-                                        .setVpnName(vpnName).setIpPrefix(externalIp).build();
-                                Future<RpcResult<Void>> labelFuture1 = vpnService.removeVpnLabel(labelInput);
-                                return JdkFutureAdapters.listenInPoolThread(labelFuture1);
-                            } else {
-                                String errMsg =
-                                        String.format("RPC call to remove custom FIB entries on dpn %s for "
-                                                + "prefix %s Failed - %s", dpnId, externalIp, result.getErrors());
-                                LOG.error(errMsg);
-                                return Futures.immediateFailedFuture(new RuntimeException(errMsg));
-                            }
-                        });
+                        if (result.isSuccessful()) {
+                            NatUtil.removePreDnatToSnatTableEntry(mdsalManager, dpnId, removeFlowInvTx);
+                            RemoveVpnLabelInput labelInput = new RemoveVpnLabelInputBuilder()
+                                    .setVpnName(vpnName).setIpPrefix(externalIp).build();
+                            return vpnService.removeVpnLabel(labelInput);
+                        } else {
+                            String errMsg =
+                                    String.format("RPC call to remove custom FIB entries on dpn %s for "
+                                            + "prefix %s Failed - %s", dpnId, externalIp, result.getErrors());
+                            LOG.error(errMsg);
+                            return Futures.immediateFailedFuture(new RuntimeException(errMsg));
+                        }
+                    }, MoreExecutors.directExecutor());
 
-            Futures.addCallback(labelFuture, new FutureCallback<RpcResult<Void>>() {
+            Futures.addCallback(labelFuture, new FutureCallback<RpcResult<RemoveVpnLabelOutput>>() {
 
                 @Override
                 public void onFailure(@Nonnull Throwable error) {
@@ -2265,7 +2265,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 }
 
                 @Override
-                public void onSuccess(@Nonnull RpcResult<Void> result) {
+                public void onSuccess(@Nonnull RpcResult<RemoveVpnLabelOutput> result) {
                     if (result.isSuccessful()) {
                         LOG.debug("delFibTsAndReverseTraffic : Successfully removed the label for the prefix {} "
                             + "from VPN {}", externalIp, vpnName);
@@ -2335,7 +2335,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder()
                 .setVpnName(vpnName).setSourceDpid(dpnId).setIpAddress(externalIp)
                 .setIpAddressSource(RemoveFibEntryInput.IpAddressSource.ExternalFixedIP).setServiceId(label).build();
-        Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
+        ListenableFuture<RpcResult<RemoveFibEntryOutput>> future = fibService.removeFibEntry(input);
 
         removeTunnelTableEntry(dpnId, label, removeFlowInvTx);
         removeLFibTableEntry(dpnId, label, removeFlowInvTx);
@@ -2344,26 +2344,24 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             NatUtil.removePreDnatToSnatTableEntry(mdsalManager, dpnId, removeFlowInvTx);
         }
         if (!switchOver) {
-            ListenableFuture<RpcResult<Void>> labelFuture =
-                    Futures.transformAsync(JdkFutureAdapters.listenInPoolThread(future),
-                            (AsyncFunction<RpcResult<Void>, RpcResult<Void>>) result -> {
-                                //Release label
-                            if (result.isSuccessful()) {
-                                RemoveVpnLabelInput labelInput = new RemoveVpnLabelInputBuilder()
-                                        .setVpnName(vpnName).setIpPrefix(externalIp).build();
-                                Future<RpcResult<Void>> labelFuture1 = vpnService.removeVpnLabel(labelInput);
-                                return JdkFutureAdapters.listenInPoolThread(labelFuture1);
-                            } else {
-                                String errMsg =
-                                        String.format("RPC call to remove custom FIB entries on dpn %s for "
-                                                        + "prefix %s Failed - %s",
-                                                dpnId, externalIp, result.getErrors());
-                                LOG.error(errMsg);
-                                return Futures.immediateFailedFuture(new RuntimeException(errMsg));
-                            }
-                        });
+            ListenableFuture<RpcResult<RemoveVpnLabelOutput>> labelFuture =
+                    Futures.transformAsync(future, result -> {
+                        //Release label
+                        if (result.isSuccessful()) {
+                            RemoveVpnLabelInput labelInput = new RemoveVpnLabelInputBuilder()
+                                    .setVpnName(vpnName).setIpPrefix(externalIp).build();
+                            return vpnService.removeVpnLabel(labelInput);
+                        } else {
+                            String errMsg =
+                                    String.format("RPC call to remove custom FIB entries on dpn %s for "
+                                            + "prefix %s Failed - %s",
+                                            dpnId, externalIp, result.getErrors());
+                            LOG.error(errMsg);
+                            return Futures.immediateFailedFuture(new RuntimeException(errMsg));
+                        }
+                    }, MoreExecutors.directExecutor());
 
-            Futures.addCallback(labelFuture, new FutureCallback<RpcResult<Void>>() {
+            Futures.addCallback(labelFuture, new FutureCallback<RpcResult<RemoveVpnLabelOutput>>() {
 
                 @Override
                 public void onFailure(@Nonnull Throwable error) {
@@ -2371,7 +2369,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 }
 
                 @Override
-                public void onSuccess(@Nonnull RpcResult<Void> result) {
+                public void onSuccess(@Nonnull RpcResult<RemoveVpnLabelOutput> result) {
                     if (result.isSuccessful()) {
                         LOG.debug("delFibTsAndReverseTraffic : Successfully removed the label for the prefix {} "
                             + "from VPN {}", externalIp, vpnName);

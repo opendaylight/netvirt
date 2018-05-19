@@ -117,6 +117,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.ext
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.RemoveTerminatingServiceActionsInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.RemoveTerminatingServiceActionsInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.RemoveTerminatingServiceActionsOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -1240,9 +1241,10 @@ public class ElanUtils {
     public void removeTerminatingServiceAction(BigInteger destDpId, int serviceId) {
         RemoveTerminatingServiceActionsInput input = new RemoveTerminatingServiceActionsInputBuilder()
                 .setDpnId(destDpId).setServiceId(serviceId).build();
-        Future<RpcResult<Void>> futureObject = itmRpcService.removeTerminatingServiceActions(input);
+        Future<RpcResult<RemoveTerminatingServiceActionsOutput>> futureObject =
+                itmRpcService.removeTerminatingServiceActions(input);
         try {
-            RpcResult<Void> result = futureObject.get();
+            RpcResult<RemoveTerminatingServiceActionsOutput> result = futureObject.get();
             if (result.isSuccessful()) {
                 LOG.debug("Successfully completed removeTerminatingServiceActions for ELAN with serviceId {} on "
                                 + "dpn {}", serviceId, destDpId);

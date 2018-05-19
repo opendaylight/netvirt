@@ -12,7 +12,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
@@ -21,7 +20,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -62,9 +60,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tun
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.DpnRoutersList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.dpn.routers.list.RoutersList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
@@ -762,10 +762,9 @@ public class NatTunnelInterfaceStateListener
                     new CreateFibEntryInputBuilder().setVpnName(externalVpnName).setSourceDpid(srcDpnId)
                     .setInstruction(customInstructions).setIpAddress(fibExternalIp)
                     .setServiceId(serviceId).setInstruction(customInstructions).build();
-            Future<RpcResult<Void>> future = fibRpcService.createFibEntry(input);
-            ListenableFuture<RpcResult<Void>> listenableFuture = JdkFutureAdapters.listenInPoolThread(future);
+            ListenableFuture<RpcResult<CreateFibEntryOutput>> listenableFuture = fibRpcService.createFibEntry(input);
 
-            Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<Void>>() {
+            Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<CreateFibEntryOutput>>() {
 
                 @Override
                 public void onFailure(@Nonnull Throwable error) {
@@ -774,7 +773,7 @@ public class NatTunnelInterfaceStateListener
                 }
 
                 @Override
-                public void onSuccess(@Nonnull RpcResult<Void> result) {
+                public void onSuccess(@Nonnull RpcResult<CreateFibEntryOutput> result) {
                     if (result.isSuccessful()) {
                         LOG.info("hndlTepAddOnNaptSwitch : SNAT -> Successfully installed custom FIB routes "
                                 + "for prefix {}", externalIp);
@@ -895,10 +894,10 @@ public class NatTunnelInterfaceStateListener
                     .setSourceDpid(fipCfgdDpnId).setInstruction(customInstructions)
                     .setIpAddress(fibExternalIp).setServiceId(serviceId).setInstruction(customInstructions)
                         .build();
-                Future<RpcResult<Void>> future = fibRpcService.createFibEntry(input);
-                ListenableFuture<RpcResult<Void>> listenableFuture = JdkFutureAdapters.listenInPoolThread(future);
+                ListenableFuture<RpcResult<CreateFibEntryOutput>> listenableFuture =
+                        fibRpcService.createFibEntry(input);
 
-                Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<Void>>() {
+                Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<CreateFibEntryOutput>>() {
 
                     @Override
                     public void onFailure(@Nonnull Throwable error) {
@@ -907,7 +906,7 @@ public class NatTunnelInterfaceStateListener
                     }
 
                     @Override
-                    public void onSuccess(@Nonnull RpcResult<Void> result) {
+                    public void onSuccess(@Nonnull RpcResult<CreateFibEntryOutput> result) {
                         if (result.isSuccessful()) {
                             LOG.info("hndlTepAddForDnatInEachRtr : DNAT -> Successfully installed custom FIB routes "
                                     + "for prefix {}", externalIp);
@@ -1095,10 +1094,10 @@ public class NatTunnelInterfaceStateListener
                 RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
                     .setSourceDpid(fipCfgdDpnId).setIpAddress(externalIp).setServiceId(serviceId)
                     .setIpAddressSource(RemoveFibEntryInput.IpAddressSource.FloatingIP).build();
-                Future<RpcResult<Void>> future = fibRpcService.removeFibEntry(input);
-                ListenableFuture<RpcResult<Void>> listenableFuture = JdkFutureAdapters.listenInPoolThread(future);
+                ListenableFuture<RpcResult<RemoveFibEntryOutput>> listenableFuture =
+                        fibRpcService.removeFibEntry(input);
 
-                Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<Void>>() {
+                Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<RemoveFibEntryOutput>>() {
 
                     @Override
                     public void onFailure(@Nonnull Throwable error) {
@@ -1107,7 +1106,7 @@ public class NatTunnelInterfaceStateListener
                     }
 
                     @Override
-                    public void onSuccess(@Nonnull RpcResult<Void> result) {
+                    public void onSuccess(@Nonnull RpcResult<RemoveFibEntryOutput> result) {
                         if (result.isSuccessful()) {
                             LOG.info("hndlTepDelForDnatInEachRtr : DNAT -> Successfully removed the entry pushing the "
                                 + "MPLS label to the tunnel");

@@ -8,11 +8,9 @@
 package org.opendaylight.netvirt.natservice.rpcservice;
 
 import com.google.common.util.concurrent.Futures;
-
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -48,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +63,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
     }
 
     @Override
-    public Future<RpcResult<GetNatTranslationsOnVpnOutput>> getNatTranslationsOnVpn(
+    public ListenableFuture<RpcResult<GetNatTranslationsOnVpnOutput>> getNatTranslationsOnVpn(
             GetNatTranslationsOnVpnInput input) {
         RpcResultBuilder<GetNatTranslationsOnVpnOutput> rpcResultBuilder = null;
 
@@ -76,7 +73,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
                     input.getVpnUuid().getValue());
             rpcResultBuilder = RpcResultBuilder.<GetNatTranslationsOnVpnOutput>failed()
                     .withError(RpcError.ErrorType.APPLICATION, errMsg);
-            return Futures.immediateFuture(rpcResultBuilder.build());
+            return rpcResultBuilder.buildFuture();
         }
         List<RouterNat> natRouterList = new ArrayList<>();
         for (Uuid routerUuid : routerUuidList) {
@@ -95,7 +92,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
     }
 
     @Override
-    public Future<RpcResult<GetNatTranslationsOnRouterOutput>> getNatTranslationsOnRouter(
+    public ListenableFuture<RpcResult<GetNatTranslationsOnRouterOutput>> getNatTranslationsOnRouter(
             GetNatTranslationsOnRouterInput input) {
         RpcResultBuilder<GetNatTranslationsOnRouterOutput> rpcResultBuilder = null;
         long routerId = NatUtil.getVpnId(dataBroker, input.getRouterUuid().getValue());
@@ -104,7 +101,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
                     input.getRouterUuid().getValue());
             rpcResultBuilder = RpcResultBuilder.<GetNatTranslationsOnRouterOutput>failed()
                     .withError(RpcError.ErrorType.APPLICATION, errMsg);
-            return Futures.immediateFuture(rpcResultBuilder.build());
+            return rpcResultBuilder.buildFuture();
         }
 
         List<RouterNat> routerNatList = constructNatInformation(input.getRouterUuid(), routerId);
@@ -113,11 +110,12 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
                 .setRouterNat(routerNatList);
         rpcResultBuilder = RpcResultBuilder.success();
         rpcResultBuilder.withResult(output.build());
-        return Futures.immediateFuture(rpcResultBuilder.build());
+        return rpcResultBuilder.buildFuture();
     }
 
-    public Future<RpcResult<GetNatTranslationsForNetworkAndIpaddressOutput>> getNatTranslationsForNetworkAndIpaddress(
-            GetNatTranslationsForNetworkAndIpaddressInput input) {
+    @Override
+    public ListenableFuture<RpcResult<GetNatTranslationsForNetworkAndIpaddressOutput>>
+            getNatTranslationsForNetworkAndIpaddress(GetNatTranslationsForNetworkAndIpaddressInput input) {
 
         String ipAddress = String.valueOf(input.getIpAddress().getValue());
         RpcResultBuilder<GetNatTranslationsForNetworkAndIpaddressOutput> rpcResultBuilder = null;
@@ -129,7 +127,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
                     input.getNetworkUuid().getValue());
             rpcResultBuilder = RpcResultBuilder.<GetNatTranslationsForNetworkAndIpaddressOutput>failed()
                     .withError(RpcError.ErrorType.APPLICATION, errMsg);
-            return Futures.immediateFuture(rpcResultBuilder.build());
+            return rpcResultBuilder.buildFuture();
         }
         Subnet subNet = null;
         Boolean isIpInSubnet = Boolean.FALSE;
@@ -153,7 +151,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
                     + " of Network {%s}", ipAddress, input.getNetworkUuid().getValue());
             rpcResultBuilder = RpcResultBuilder.<GetNatTranslationsForNetworkAndIpaddressOutput>failed()
                     .withError(RpcError.ErrorType.APPLICATION, errMsg);
-            return Futures.immediateFuture(rpcResultBuilder.build());
+            return rpcResultBuilder.buildFuture();
         }
 
         Subnetmap subnetMap = NatUtil.getSubnetMap(dataBroker, subNet.getUuid());
@@ -172,7 +170,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
                                     .setNatTranslation("DNAT");
                         rpcResultBuilder = RpcResultBuilder.success();
                         rpcResultBuilder.withResult(output.build());
-                        return Futures.immediateFuture(rpcResultBuilder.build());
+                        return rpcResultBuilder.buildFuture();
                     }
                 }
             }
@@ -196,7 +194,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
                                 .setProtocol(protocolType.getProtocol().getName());
                         rpcResultBuilder = RpcResultBuilder.success();
                         rpcResultBuilder.withResult(output.build());
-                        return Futures.immediateFuture(rpcResultBuilder.build());
+                        return rpcResultBuilder.buildFuture();
                     }
                 }
             }
@@ -205,7 +203,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
         String errMsg = String.format("404 Not Found - No NAT Translation found for IP {%s}", ipAddress);
         rpcResultBuilder = RpcResultBuilder.<GetNatTranslationsForNetworkAndIpaddressOutput>failed()
                 .withError(RpcError.ErrorType.APPLICATION, errMsg);
-        return Futures.immediateFuture(rpcResultBuilder.build());
+        return rpcResultBuilder.buildFuture();
     }
 
     private List<RouterNat> constructNatInformation(Uuid routerUuid, long routerId) {

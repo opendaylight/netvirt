@@ -9,13 +9,14 @@
 package org.opendaylight.netvirt.neutronvpn.l2gw;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.AddL2GwDeviceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.AddL2GwDeviceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.DeleteL2GwDeviceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.DeleteL2GwDeviceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -28,15 +29,15 @@ public final class L2GatewayUtils {
     private L2GatewayUtils() { }
 
     protected static boolean isGatewayAssociatedToL2Device(L2GatewayDevice l2GwDevice) {
-        return (l2GwDevice.getL2GatewayIds().size() > 0);
+        return l2GwDevice.getL2GatewayIds().size() > 0;
     }
 
     protected static boolean isLastL2GatewayBeingDeleted(L2GatewayDevice l2GwDevice) {
-        return (l2GwDevice.getL2GatewayIds().size() == 1);
+        return l2GwDevice.getL2GatewayIds().size() == 1;
     }
 
     protected static boolean isItmTunnelsCreatedForL2Device(L2GatewayDevice l2GwDevice) {
-        return (l2GwDevice.getHwvtepNodeId() != null && l2GwDevice.getL2GatewayIds().size() > 0);
+        return l2GwDevice.getHwvtepNodeId() != null && l2GwDevice.getL2GatewayIds().size() > 0;
     }
 
     protected static void createItmTunnels(ItmRpcService itmRpcService, String hwvtepId, String psName,
@@ -46,8 +47,7 @@ public final class L2GatewayUtils {
         builder.setNodeId(HwvtepSouthboundUtils.createManagedNodeId(new NodeId(hwvtepId), psName).getValue());
         builder.setIpAddress(tunnelIp);
         try {
-            Future<RpcResult<Void>> result = itmRpcService.addL2GwDevice(builder.build());
-            RpcResult<Void> rpcResult = result.get();
+            RpcResult<AddL2GwDeviceOutput> rpcResult = itmRpcService.addL2GwDevice(builder.build()).get();
             if (rpcResult.isSuccessful()) {
                 LOG.info("Created ITM tunnels for {}", hwvtepId);
             } else {
@@ -65,8 +65,7 @@ public final class L2GatewayUtils {
         builder.setNodeId(HwvtepSouthboundUtils.createManagedNodeId(new NodeId(hwvtepId), psName).getValue());
         builder.setIpAddress(tunnelIp);
         try {
-            Future<RpcResult<Void>> result = itmRpcService.deleteL2GwDevice(builder.build());
-            RpcResult<Void> rpcResult = result.get();
+            RpcResult<DeleteL2GwDeviceOutput> rpcResult = itmRpcService.deleteL2GwDevice(builder.build()).get();
             if (rpcResult.isSuccessful()) {
                 LOG.info("Deleted ITM tunnels for {}", hwvtepId);
             } else {
