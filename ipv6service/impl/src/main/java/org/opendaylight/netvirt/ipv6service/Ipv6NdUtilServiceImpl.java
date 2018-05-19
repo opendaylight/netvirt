@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.ipv6service;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.Ipv6NdutilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.SendNeighborSolicitationInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.SendNeighborSolicitationOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.interfaces.InterfaceAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.yang.common.RpcError;
@@ -52,9 +53,10 @@ public class Ipv6NdUtilServiceImpl implements Ipv6NdutilService {
     }
 
     @Override
-    public Future<RpcResult<Void>> sendNeighborSolicitation(SendNeighborSolicitationInput ndInput) {
-        RpcResultBuilder<Void> failureBuilder = RpcResultBuilder.failed();
-        RpcResultBuilder<Void> successBuilder = RpcResultBuilder.success();
+    public ListenableFuture<RpcResult<SendNeighborSolicitationOutput>> sendNeighborSolicitation(
+            SendNeighborSolicitationInput ndInput) {
+        RpcResultBuilder<SendNeighborSolicitationOutput> failureBuilder = RpcResultBuilder.failed();
+        RpcResultBuilder<SendNeighborSolicitationOutput> successBuilder = RpcResultBuilder.success();
         Ipv6Address targetIpv6Address = null;
         Ipv6Address srcIpv6Address;
         String interfaceName = null;
@@ -96,10 +98,10 @@ public class Ipv6NdUtilServiceImpl implements Ipv6NdutilService {
         }
         if (localErrorCount == ndInput.getInterfaceAddress().size()) {
             // Failed to send IPv6 Neighbor Solicitation on all the interfaces, return failure.
-            return Futures.immediateFuture(failureBuilder.build());
+            return failureBuilder.buildFuture();
         }
 
-        return Futures.immediateFuture(successBuilder.build());
+        return successBuilder.buildFuture();
     }
 
     private GetPortFromInterfaceOutput getPortFromInterface(String interfaceName) {

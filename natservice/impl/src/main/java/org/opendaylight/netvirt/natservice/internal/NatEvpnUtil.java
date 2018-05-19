@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -41,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -84,8 +84,7 @@ public final class NatEvpnUtil {
                 .setPoolName(IfmConstants.IFM_IDPOOL_NAME).setIdKey(routerName)
                 .build();
         try {
-            Future<RpcResult<Void>> result = idManager.releaseId(getIdInput);
-            RpcResult<Void> rpcResult = result.get();
+            RpcResult<ReleaseIdOutput> rpcResult = idManager.releaseId(getIdInput).get();
             if (!rpcResult.isSuccessful()) {
                 LOG.error("releaseLPortTagForRouter:ID manager failed while releasing allocated lport_tag "
                         + "for router {}. Exception {} ", routerName, rpcResult.getErrors());
@@ -137,7 +136,7 @@ public final class NatEvpnUtil {
     }
 
     private static boolean isL3VpnOverVxLan(Long l3Vni) {
-        return (l3Vni != null && l3Vni != 0);
+        return l3Vni != null && l3Vni != 0;
     }
 
     static ProviderTypes getExtNwProvTypeFromRouterName(DataBroker dataBroker, String routerName,
@@ -185,7 +184,7 @@ public final class NatEvpnUtil {
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE,
                     l3Vni, gwMacAddress, null /* parent-vpn-rd */, origin, writeTx);
             /* Publish to Bgp only if its an INTERNET VPN */
-            if ((rd != null) && (!rd.equalsIgnoreCase(vpnName))) {
+            if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
                         VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE, l3Vni, 0 /*l2vni*/,
                         gwMacAddress);

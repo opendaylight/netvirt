@@ -10,13 +10,11 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -36,9 +34,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryOutput;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,11 +134,10 @@ public class EvpnSnatFlowProgrammer {
                 + "NAPT Switch {} with l3Vni {}, ExternalFixedIp {}, ExternalVpnName {} for RouterId {}",
                 NwConstants.L3_FIB_TABLE, tableId, dpnId, l3Vni, externalIp, vpnName, routerId);
 
-        Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
-        ListenableFuture<RpcResult<Void>> futureVxlan = JdkFutureAdapters.listenInPoolThread(future1);
+        ListenableFuture<RpcResult<CreateFibEntryOutput>> futureVxlan = fibService.createFibEntry(input);
 
         final long finalL3Vni = l3Vni;
-        Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<Void>>() {
+        Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<CreateFibEntryOutput>>() {
             @Override
             public void onFailure(@Nonnull Throwable error) {
                 LOG.error("evpnAdvToBgpAndInstallFibAndTsFlows : Error in custom fib routes install process for "
@@ -147,7 +146,7 @@ public class EvpnSnatFlowProgrammer {
             }
 
             @Override
-            public void onSuccess(@Nonnull RpcResult<Void> result) {
+            public void onSuccess(@Nonnull RpcResult<CreateFibEntryOutput> result) {
                 if (result.isSuccessful()) {
                     LOG.info("evpnAdvToBgpAndInstallFibAndTsFlows : Successfully installed custom FIB routes for "
                             + "External Fixed IP {} on DPN {} with l3Vni {}, ExternalVpnName {} for RouterId {}",
@@ -222,10 +221,9 @@ public class EvpnSnatFlowProgrammer {
                         + "NAPT Switch {} with l3Vni {}, ExternalFixedIp {}, ExternalVpnName {} for RouterId {}",
                 NwConstants.L3_FIB_TABLE, NwConstants.INBOUND_NAPT_TABLE, dpnId, l3Vni, externalIp, vpnName, routerId);
 
-        Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
-        ListenableFuture<RpcResult<Void>> futureVxlan = JdkFutureAdapters.listenInPoolThread(future);
+        ListenableFuture<RpcResult<RemoveFibEntryOutput>> futureVxlan = fibService.removeFibEntry(input);
         final long finalL3Vni = l3Vni;
-        Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<Void>>() {
+        Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<RemoveFibEntryOutput>>() {
             @Override
             public void onFailure(@Nonnull Throwable error) {
                 LOG.error("evpnDelFibTsAndReverseTraffic : Error in custom fib routes remove process for "
@@ -234,7 +232,7 @@ public class EvpnSnatFlowProgrammer {
             }
 
             @Override
-            public void onSuccess(@Nonnull RpcResult<Void> result) {
+            public void onSuccess(@Nonnull RpcResult<RemoveFibEntryOutput> result) {
                 if (result.isSuccessful()) {
                     LOG.info("evpnDelFibTsAndReverseTraffic : Successfully removed custom FIB routes for "
                             + "External Fixed IP {} on DPN {} with l3Vni {}, ExternalVpnName {} for "

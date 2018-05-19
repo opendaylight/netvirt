@@ -8,11 +8,11 @@
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.DeleteL2GwDeviceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.DeleteL2GwDeviceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -31,8 +31,7 @@ public final class L2GatewayUtils {
         builder.setNodeId(HwvtepSouthboundUtils.createManagedNodeId(new NodeId(hwvtepId), psName).getValue());
         builder.setIpAddress(tunnelIp);
         try {
-            Future<RpcResult<Void>> result = itmRpcService.deleteL2GwDevice(builder.build());
-            RpcResult<Void> rpcResult = result.get();
+            RpcResult<DeleteL2GwDeviceOutput> rpcResult = itmRpcService.deleteL2GwDevice(builder.build()).get();
             if (rpcResult.isSuccessful()) {
                 LOG.info("Deleted ITM tunnels for {}", hwvtepId);
             } else {

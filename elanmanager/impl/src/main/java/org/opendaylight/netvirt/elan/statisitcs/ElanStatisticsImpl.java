@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.elan.statisitcs;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
-import java.util.concurrent.Future;
+import com.google.common.util.concurrent.ListenableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
@@ -43,7 +43,7 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
     }
 
     @Override
-    public Future<RpcResult<GetElanInterfaceStatisticsOutput>> getElanInterfaceStatistics(
+    public ListenableFuture<RpcResult<GetElanInterfaceStatisticsOutput>> getElanInterfaceStatistics(
         GetElanInterfaceStatisticsInput input) {
         String interfaceName = input.getInterfaceName();
         LOG.debug("getElanInterfaceStatistics is called for elan interface {}", interfaceName);
@@ -73,12 +73,11 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
         if (!interfaceInfo.isOperational()) {
             LOG.debug("interface {} is down and returning with no statistics", interfaceName);
             rpcResultBuilder = RpcResultBuilder.success();
-            return Futures
-                    .immediateFuture(rpcResultBuilder.withResult(new GetElanInterfaceStatisticsOutputBuilder()
+            return rpcResultBuilder.withResult(new GetElanInterfaceStatisticsOutputBuilder()
                             .setStatResult(
                                     new StatResultBuilder().setStatResultCode(ResultCode.NotFound).setByteRxCount(0L)
                                             .setByteTxCount(0L).setPacketRxCount(0L).setPacketTxCount(0L).build())
-                            .build()).build());
+                            .build()).buildFuture();
         }
         rpcResultBuilder = RpcResultBuilder.success();
         return Futures.immediateFuture(rpcResultBuilder
@@ -121,10 +120,10 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
         return null;
     }
 
-    private Future<RpcResult<GetElanInterfaceStatisticsOutput>> getFutureWithAppErrorMessage(
+    private ListenableFuture<RpcResult<GetElanInterfaceStatisticsOutput>> getFutureWithAppErrorMessage(
         RpcResultBuilder<GetElanInterfaceStatisticsOutput> rpcResultBuilder, String message) {
         rpcResultBuilder.withError(ErrorType.APPLICATION, message);
-        return Futures.immediateFuture(rpcResultBuilder.build());
+        return rpcResultBuilder.buildFuture();
     }
 
 }

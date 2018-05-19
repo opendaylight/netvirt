@@ -94,11 +94,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
@@ -928,8 +931,7 @@ public final class AclServiceUtils {
     public static void releaseId(IdManagerService idManager, String poolName, String idKey) {
         ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
         try {
-            Future<RpcResult<Void>> result = idManager.releaseId(idInput);
-            RpcResult<Void> rpcResult = result.get();
+            RpcResult<ReleaseIdOutput> rpcResult = idManager.releaseId(idInput).get();
             if (!rpcResult.isSuccessful()) {
                 LOG.error("RPC Call to release Id with Key {} from pool {} returned with Errors {}",
                         idKey, poolName, rpcResult.getErrors());
@@ -1001,7 +1003,7 @@ public final class AclServiceUtils {
                 .setPoolName(poolName).setLow(AclConstants.ACL_TAG_POOL_START)
                 .setHigh(AclConstants.ACL_TAG_POOL_END).build();
         try {
-            Future<RpcResult<Void>> result = this.idManager.createIdPool(createPool);
+            Future<RpcResult<CreateIdPoolOutput>> result = this.idManager.createIdPool(createPool);
             if (result != null && result.get().isSuccessful()) {
                 LOG.debug("Created IdPool for {}", poolName);
             }
@@ -1019,7 +1021,7 @@ public final class AclServiceUtils {
     public void deleteIdPool(String poolName) {
         DeleteIdPoolInput deletePool = new DeleteIdPoolInputBuilder().setPoolName(poolName).build();
         try {
-            Future<RpcResult<Void>> result = this.idManager.deleteIdPool(deletePool);
+            Future<RpcResult<DeleteIdPoolOutput>> result = this.idManager.deleteIdPool(deletePool);
             if (result != null && result.get().isSuccessful()) {
                 LOG.debug("Deleted IdPool for {}", poolName);
             }

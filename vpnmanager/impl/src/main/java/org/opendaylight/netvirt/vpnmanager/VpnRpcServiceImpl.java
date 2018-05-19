@@ -8,10 +8,10 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -33,7 +33,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.G
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcError.ErrorType;
@@ -70,7 +74,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
      * Generate label for the given ip prefix from the associated VPN.
      */
     @Override
-    public Future<RpcResult<GenerateVpnLabelOutput>> generateVpnLabel(GenerateVpnLabelInput input) {
+    public ListenableFuture<RpcResult<GenerateVpnLabelOutput>> generateVpnLabel(GenerateVpnLabelInput input) {
         String vpnName = input.getVpnName();
         String ipPrefix = input.getIpPrefix();
         SettableFuture<RpcResult<GenerateVpnLabelOutput>> futureResult = SettableFuture.create();
@@ -92,15 +96,13 @@ public class VpnRpcServiceImpl implements VpnRpcService {
      * Remove label for the given ip prefix from the associated VPN.
      */
     @Override
-    public Future<RpcResult<Void>> removeVpnLabel(RemoveVpnLabelInput input) {
+    public ListenableFuture<RpcResult<RemoveVpnLabelOutput>> removeVpnLabel(RemoveVpnLabelInput input) {
         String vpnName = input.getVpnName();
         String ipPrefix = input.getIpPrefix();
         String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
-        SettableFuture<RpcResult<Void>> futureResult = SettableFuture.create();
         VpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME,
             VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
-        futureResult.set(RpcResultBuilder.<Void>success().build());
-        return futureResult;
+        return RpcResultBuilder.success(new RemoveVpnLabelOutputBuilder().build()).buildFuture();
     }
 
     private Collection<RpcError> validateAddStaticRouteInput(AddStaticRouteInput input) {
@@ -126,7 +128,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
-    public Future<RpcResult<AddStaticRouteOutput>> addStaticRoute(AddStaticRouteInput input) {
+    public ListenableFuture<RpcResult<AddStaticRouteOutput>> addStaticRoute(AddStaticRouteInput input) {
 
         SettableFuture<RpcResult<AddStaticRouteOutput>> result = SettableFuture.create();
         String destination = input.getDestination();
@@ -209,9 +211,9 @@ public class VpnRpcServiceImpl implements VpnRpcService {
     }
 
     @Override
-    public Future<RpcResult<Void>> removeStaticRoute(RemoveStaticRouteInput input) {
+    public ListenableFuture<RpcResult<RemoveStaticRouteOutput>> removeStaticRoute(RemoveStaticRouteInput input) {
 
-        SettableFuture<RpcResult<Void>> result = SettableFuture.create();
+        SettableFuture<RpcResult<RemoveStaticRouteOutput>> result = SettableFuture.create();
 
         String destination = input.getDestination();
         String vpnInstanceName = input.getVpnInstanceName();
@@ -220,14 +222,15 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             destination, nexthop, vpnInstanceName);
         Collection<RpcError> rpcErrors = validateRemoveStaticRouteInput(input);
         if (!rpcErrors.isEmpty()) {
-            result.set(RpcResultBuilder.<Void>failed().withRpcErrors(rpcErrors).build());
+            result.set(RpcResultBuilder.<RemoveStaticRouteOutput>failed().withRpcErrors(rpcErrors).build());
             return result;
         }
 
         String vpnRd = VpnUtil.getVpnRd(dataBroker, input.getVpnInstanceName());
         if (vpnRd == null) {
             String message = "Could not find Route-Distinguisher for VpnName " + vpnInstanceName;
-            result.set(RpcResultBuilder.<Void>failed().withError(RpcError.ErrorType.APPLICATION, message).build());
+            result.set(RpcResultBuilder.<RemoveStaticRouteOutput>failed()
+                    .withError(RpcError.ErrorType.APPLICATION, message).build());
             return result;
         }
 
@@ -239,7 +242,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             vpnManager.delExtraRoute(vpnInstanceName, destination,
                     nexthop, vpnRd, null /* routerId */, null /* intfName */, null);
         }
-        result.set(RpcResultBuilder.<Void>success().build());
+        result.set(RpcResultBuilder.success(new RemoveStaticRouteOutputBuilder().build()).build());
 
         return result;
     }

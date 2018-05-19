@@ -24,6 +24,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.natservice.internal.IPAddress;
 import org.opendaylight.netvirt.natservice.internal.NaptManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.IpMapping;
@@ -56,8 +57,8 @@ public class NaptManagerTest {
     public void init() {
         MockitoAnnotations.initMocks(this);
         naptManager = new NaptManager(dataBroker, idMgr);
-        when(idMgr.createIdPool(any(CreateIdPoolInput.class)))
-            .thenReturn(Futures.immediateFuture(RpcResultBuilder.<Void>success().build()));
+        when(idMgr.createIdPool(any(CreateIdPoolInput.class))).thenReturn(
+                Futures.immediateFuture(RpcResultBuilder.success(new CreateIdPoolOutputBuilder().build()).build()));
 
         PowerMockito.mockStatic(MDSALUtil.class);
     }

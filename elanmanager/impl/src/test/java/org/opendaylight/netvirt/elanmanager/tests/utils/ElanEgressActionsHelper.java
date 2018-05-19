@@ -9,9 +9,8 @@ package org.opendaylight.netvirt.elanmanager.tests.utils;
 
 import static org.opendaylight.yangtools.testutils.mockito.MoreAnswers.realOrException;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
-import java.util.concurrent.Future;
-
 import org.mockito.Mockito;
 import org.opendaylight.genius.interfacemanager.IfmUtil;
 import org.opendaylight.genius.interfacemanager.commons.InterfaceManagerCommonUtils;
@@ -26,7 +25,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yangtools.yang.common.RpcResult;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +43,7 @@ public abstract class ElanEgressActionsHelper implements OdlInterfaceRpcService 
     }
 
     @Override
-    public Future<RpcResult<GetEgressActionsForInterfaceOutput>> getEgressActionsForInterface(
+    public ListenableFuture<RpcResult<GetEgressActionsForInterfaceOutput>> getEgressActionsForInterface(
             GetEgressActionsForInterfaceInput input) {
         return FutureRpcResults.fromBuilder(LOG, input, () -> {
             List<Action> actionsList = IfmUtil.getEgressActionsForInterface(input.getIntfName(), input.getTunnelKey(),
@@ -55,7 +53,7 @@ public abstract class ElanEgressActionsHelper implements OdlInterfaceRpcService 
     }
 
     @Override
-    public Future<RpcResult<GetDpidFromInterfaceOutput>> getDpidFromInterface(
+    public ListenableFuture<RpcResult<GetDpidFromInterfaceOutput>> getDpidFromInterface(
             GetDpidFromInterfaceInput input) {
         return FutureRpcResults.fromBuilder(LOG, input, () -> {
             return new GetDpidFromInterfaceOutputBuilder().setDpid(

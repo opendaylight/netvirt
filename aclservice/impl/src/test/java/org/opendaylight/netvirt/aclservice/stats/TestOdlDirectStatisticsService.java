@@ -8,11 +8,10 @@
 
 package org.opendaylight.netvirt.aclservice.stats;
 
-import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
@@ -45,23 +44,23 @@ public abstract class TestOdlDirectStatisticsService implements OpendaylightDire
     protected FlowCookie aclDropFlowCookieMask = new FlowCookie(AclLiveStatisticsHelper.COOKIE_ACL_DROP_FLOW_MASK);
 
     @Override
-    public Future<RpcResult<GetNodeConnectorStatisticsOutput>> getNodeConnectorStatistics(
+    public ListenableFuture<RpcResult<GetNodeConnectorStatisticsOutput>> getNodeConnectorStatistics(
             GetNodeConnectorStatisticsInput input) {
-        return Futures.immediateFuture(RpcResultBuilder.<GetNodeConnectorStatisticsOutput>success().build());
+        return RpcResultBuilder.<GetNodeConnectorStatisticsOutput>success().buildFuture();
     }
 
     @Override
-    public Future<RpcResult<GetQueueStatisticsOutput>> getQueueStatistics(GetQueueStatisticsInput input) {
-        return Futures.immediateFuture(RpcResultBuilder.<GetQueueStatisticsOutput>success().build());
+    public ListenableFuture<RpcResult<GetQueueStatisticsOutput>> getQueueStatistics(GetQueueStatisticsInput input) {
+        return RpcResultBuilder.<GetQueueStatisticsOutput>success().buildFuture();
     }
 
     @Override
-    public Future<RpcResult<GetGroupStatisticsOutput>> getGroupStatistics(GetGroupStatisticsInput input) {
-        return Futures.immediateFuture(RpcResultBuilder.<GetGroupStatisticsOutput>success().build());
+    public ListenableFuture<RpcResult<GetGroupStatisticsOutput>> getGroupStatistics(GetGroupStatisticsInput input) {
+        return RpcResultBuilder.<GetGroupStatisticsOutput>success().buildFuture();
     }
 
     @Override
-    public Future<RpcResult<GetFlowStatisticsOutput>> getFlowStatistics(GetFlowStatisticsInput input) {
+    public ListenableFuture<RpcResult<GetFlowStatisticsOutput>> getFlowStatistics(GetFlowStatisticsInput input) {
         LOG.info("getFlowStatistics rpc input = {}", input);
 
         List<FlowAndStatisticsMapList> flowStatsList = new ArrayList<>();
@@ -93,7 +92,7 @@ public abstract class TestOdlDirectStatisticsService implements OpendaylightDire
 
         RpcResultBuilder<GetFlowStatisticsOutput> rpcResultBuilder = RpcResultBuilder.success();
         rpcResultBuilder.withResult(output);
-        return Futures.immediateFuture(rpcResultBuilder.build());
+        return rpcResultBuilder.buildFuture();
     }
 
     private FlowAndStatisticsMapList buildFlowStats(short tableId, Integer priority, Integer lportTag, long byteCount,
@@ -108,8 +107,8 @@ public abstract class TestOdlDirectStatisticsService implements OpendaylightDire
     }
 
     @Override
-    public Future<RpcResult<GetMeterStatisticsOutput>> getMeterStatistics(GetMeterStatisticsInput input) {
-        return Futures.immediateFuture(RpcResultBuilder.<GetMeterStatisticsOutput>success().build());
+    public ListenableFuture<RpcResult<GetMeterStatisticsOutput>> getMeterStatistics(GetMeterStatisticsInput input) {
+        return RpcResultBuilder.<GetMeterStatisticsOutput>success().buildFuture();
     }
 
 }

@@ -10,13 +10,12 @@ package org.opendaylight.netvirt.fibmanager;
 import static org.opendaylight.netvirt.fibmanager.FibConstants.DEFAULT_FIB_FLOW_PRIORITY;
 import static org.opendaylight.netvirt.fibmanager.FibConstants.FLOWID_PREFIX;
 
-import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -35,10 +34,18 @@ import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CleanupDpnForVpnInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CleanupDpnForVpnOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CleanupDpnForVpnOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.PopulateFibOnDpnInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.PopulateFibOnDpnOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.PopulateFibOnDpnOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -76,7 +83,7 @@ public class FibRpcServiceImpl implements FibRpcService {
      * To install FIB routes on specified dpn with given instructions.
      */
     @Override
-    public Future<RpcResult<Void>> createFibEntry(CreateFibEntryInput input) {
+    public ListenableFuture<RpcResult<CreateFibEntryOutput>> createFibEntry(CreateFibEntryInput input) {
 
         BigInteger dpnId = input.getSourceDpid();
         String vpnName = input.getVpnName();
@@ -92,14 +99,14 @@ public class FibRpcServiceImpl implements FibRpcService {
         vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, vpnRd, null /* interfaceName*/,
                 new ImmutablePair<>(ipAddressSource, ipAddress), true /*add*/);
         LOG.info("ADD: Added Custom Fib Entry rd {} prefix {} label {}", vpnRd, ipAddress, input.getServiceId());
-        return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
+        return RpcResultBuilder.success(new CreateFibEntryOutputBuilder().build()).buildFuture();
     }
 
     /**
      * To remove FIB/LFIB/TST routes from specified dpn.
      */
     @Override
-    public Future<RpcResult<Void>> removeFibEntry(RemoveFibEntryInput input) {
+    public ListenableFuture<RpcResult<RemoveFibEntryOutput>> removeFibEntry(RemoveFibEntryInput input) {
         BigInteger dpnId = input.getSourceDpid();
         String vpnName = input.getVpnName();
         long vpnId = getVpnId(dataBroker, vpnName);
@@ -115,20 +122,20 @@ public class FibRpcServiceImpl implements FibRpcService {
         vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, vpnRd, null /* interfaceName*/,
                 new ImmutablePair<>(ipAddressSource, ipAddress), false /*add*/);
         LOG.info("REMOVE: Removed Custom Fib Entry rd {} prefix {} label {}", vpnRd, ipAddress, input.getServiceId());
-        return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
+        return RpcResultBuilder.success(new RemoveFibEntryOutputBuilder().build()).buildFuture();
     }
 
 
     @Override
-    public Future<RpcResult<Void>> populateFibOnDpn(PopulateFibOnDpnInput input) {
+    public ListenableFuture<RpcResult<PopulateFibOnDpnOutput>> populateFibOnDpn(PopulateFibOnDpnInput input) {
         fibManager.populateFibOnNewDpn(input.getDpid(), input.getVpnId(), input.getRd(), null);
-        return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
+        return RpcResultBuilder.success(new PopulateFibOnDpnOutputBuilder().build()).buildFuture();
     }
 
     @Override
-    public Future<RpcResult<Void>> cleanupDpnForVpn(CleanupDpnForVpnInput input) {
+    public ListenableFuture<RpcResult<CleanupDpnForVpnOutput>> cleanupDpnForVpn(CleanupDpnForVpnInput input) {
         fibManager.cleanUpDpnForVpn(input.getDpid(), input.getVpnId(), input.getRd(), null);
-        return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
+        return RpcResultBuilder.success(new CleanupDpnForVpnOutputBuilder().build()).buildFuture();
     }
 
     private void removeLocalFibEntry(BigInteger dpnId, long vpnId, String ipPrefix) {

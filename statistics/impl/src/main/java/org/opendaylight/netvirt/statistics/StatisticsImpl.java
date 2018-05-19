@@ -11,7 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -27,7 +27,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -52,10 +51,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdPools;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.id.pools.IdPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.id.pools.IdPoolKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
@@ -128,7 +129,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
 
     @Override
     @SuppressWarnings("checkstyle:illegalCatch")
-    public Future<RpcResult<GetNodeCountersOutput>> getNodeCounters(GetNodeCountersInput input) {
+    public ListenableFuture<RpcResult<GetNodeCountersOutput>> getNodeCounters(GetNodeCountersInput input) {
         BigInteger dpId = input.getNodeId();
         LOG.trace("getting node counters for node {}", dpId);
         GetNodeCountersOutputBuilder gncob = new GetNodeCountersOutputBuilder();
@@ -153,7 +154,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
 
     @Override
     @SuppressWarnings("checkstyle:illegalCatch")
-    public Future<RpcResult<GetNodeAggregatedCountersOutput>> getNodeAggregatedCounters(
+    public ListenableFuture<RpcResult<GetNodeAggregatedCountersOutput>> getNodeAggregatedCounters(
             GetNodeAggregatedCountersInput input) {
         BigInteger dpId = input.getNodeId();
         LOG.trace("getting aggregated node counters for node {}", dpId);
@@ -180,7 +181,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
 
     @Override
     @SuppressWarnings("checkstyle:illegalCatch")
-    public Future<RpcResult<GetNodeConnectorCountersOutput>> getNodeConnectorCounters(
+    public ListenableFuture<RpcResult<GetNodeConnectorCountersOutput>> getNodeConnectorCounters(
             GetNodeConnectorCountersInput input) {
         String portId = input.getPortId();
         LOG.trace("getting port counters of port {}", portId);
@@ -217,7 +218,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
     }
 
     @Override
-    public Future<RpcResult<AcquireElementCountersRequestHandlerOutput>> acquireElementCountersRequestHandler(
+    public ListenableFuture<RpcResult<AcquireElementCountersRequestHandlerOutput>> acquireElementCountersRequestHandler(
             AcquireElementCountersRequestHandlerInput input) {
         AcquireElementCountersRequestHandlerOutputBuilder aecrhob =
                 new AcquireElementCountersRequestHandlerOutputBuilder();
@@ -295,7 +296,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
     }
 
     @Override
-    public Future<RpcResult<ReleaseElementCountersRequestHandlerOutput>> releaseElementCountersRequestHandler(
+    public ListenableFuture<RpcResult<ReleaseElementCountersRequestHandlerOutput>> releaseElementCountersRequestHandler(
             ReleaseElementCountersRequestHandlerInput input) {
         InstanceIdentifier<CounterRequests> ingressPath =
                 InstanceIdentifier.builder(IngressElementCountersRequestConfig.class)
@@ -347,7 +348,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
     }
 
     @Override
-    public Future<RpcResult<GetElementCountersByHandlerOutput>> getElementCountersByHandler(
+    public ListenableFuture<RpcResult<GetElementCountersByHandlerOutput>> getElementCountersByHandler(
             GetElementCountersByHandlerInput input) {
         InstanceIdentifier<CounterRequests> ingressPath =
                 InstanceIdentifier.builder(IngressElementCountersRequestConfig.class)
@@ -429,7 +430,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
     }
 
     @Override
-    public Future<RpcResult<CleanAllElementCounterRequestsOutput>> cleanAllElementCounterRequests(
+    public ListenableFuture<RpcResult<CleanAllElementCounterRequestsOutput>> cleanAllElementCounterRequests(
             CleanAllElementCounterRequestsInput input) {
         ReadOnlyTransaction tx = db.newReadOnlyTransaction();
         CheckedFuture<Optional<IngressElementCountersRequestConfig>, ReadFailedException> iecrc =
@@ -950,8 +951,8 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
                 .setPoolName(CountersServiceUtils.COUNTERS_PULL_NAME).setLow(CountersServiceUtils.COUNTERS_PULL_START)
                 .setHigh(CountersServiceUtils.COUNTERS_PULL_START + CountersServiceUtils.COUNTERS_PULL_END).build();
-        Future<RpcResult<Void>> result = idManagerService.createIdPool(createPool);
-        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(result), new FutureCallback<RpcResult<Void>>() {
+        ListenableFuture<RpcResult<CreateIdPoolOutput>> result = idManagerService.createIdPool(createPool);
+        Futures.addCallback(result, new FutureCallback<RpcResult<CreateIdPoolOutput>>() {
 
             @Override
             public void onFailure(Throwable error) {
@@ -959,7 +960,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
             }
 
             @Override
-            public void onSuccess(@Nonnull RpcResult<Void> rpcResult) {
+            public void onSuccess(@Nonnull RpcResult<CreateIdPoolOutput> rpcResult) {
                 if (rpcResult.isSuccessful()) {
                     LOG.debug("Created IdPool for tap");
                 } else {
@@ -973,8 +974,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(CountersServiceUtils.COUNTERS_PULL_NAME)
                 .setIdKey(idKey).build();
         try {
-            Future<RpcResult<Void>> result = idManagerService.releaseId(idInput);
-            RpcResult<Void> rpcResult = result.get();
+            RpcResult<ReleaseIdOutput> rpcResult = idManagerService.releaseId(idInput).get();
             if (!rpcResult.isSuccessful()) {
                 LOG.warn("RPC Call to release Id with Key {} returned with Errors {}", idKey, rpcResult.getErrors());
             }

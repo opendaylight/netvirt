@@ -57,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
@@ -139,7 +140,7 @@ public class VpnManagerImpl implements IVpnManager {
             .setHigh(VpnConstants.VPN_IDPOOL_HIGH)
             .build();
         try {
-            Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
+            Future<RpcResult<CreateIdPoolOutput>> result = idManager.createIdPool(createPool);
             if (result != null && result.get().isSuccessful()) {
                 LOG.info("Created IdPool for VPN Service");
             }
@@ -154,7 +155,7 @@ public class VpnManagerImpl implements IVpnManager {
                 .setHigh(VpnConstants.UPPER_PSEUDO_LPORT_TAG)
                 .build();
         try {
-            Future<RpcResult<Void>> result = idManager.createIdPool(createPseudoLporTagPool);
+            Future<RpcResult<CreateIdPoolOutput>> result = idManager.createIdPool(createPseudoLporTagPool);
             if (result.get().isSuccessful()) {
                 LOG.debug("Created IdPool for Pseudo Port tags");
             } else {
@@ -540,7 +541,8 @@ public class VpnManagerImpl implements IVpnManager {
             ListenableFutures.addErrorLogging(listenableFuture, LOG,
                     "Error while configuring arp responder for ext. interface");
 
-            return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER; });
+            return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
+        });
 
     }
 

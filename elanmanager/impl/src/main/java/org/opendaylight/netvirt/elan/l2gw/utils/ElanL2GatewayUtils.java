@@ -75,6 +75,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.TransportZones;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.DeviceVteps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.AddL2GwDeviceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.AddL2GwDeviceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
@@ -984,8 +985,7 @@ public class ElanL2GatewayUtils {
         builder.setIpAddress(tunnelIp);
         try {
             deleteStaleTunnelsOfHwvtepInITM(dataBroker, itmRpcService, hwvtepId, psName, tunnelIp);
-            Future<RpcResult<Void>> result = itmRpcService.addL2GwDevice(builder.build());
-            RpcResult<Void> rpcResult = result.get();
+            RpcResult<AddL2GwDeviceOutput> rpcResult = itmRpcService.addL2GwDevice(builder.build()).get();
             if (rpcResult.isSuccessful()) {
                 LOG.info("Created ITM tunnels for {}", hwvtepId);
             } else {

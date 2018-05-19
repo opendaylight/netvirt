@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.BgpvpnTypeBase;
@@ -279,7 +280,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                 .setLow(NeutronConstants.RD_IDPOOL_START)
                 .setHigh(new BigInteger(NeutronConstants.RD_IDPOOL_SIZE).longValue()).build();
         try {
-            Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
+            Future<RpcResult<CreateIdPoolOutput>> result = idManager.createIdPool(createPool);
             if (result != null && result.get().isSuccessful()) {
                 LOG.info("Created IdPool for Bgpvpn RD");
             } else {

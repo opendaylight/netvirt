@@ -43,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.Fl
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
@@ -51,8 +52,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev16041
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TimeUnits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.UnlockInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.UnlockInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.UnlockOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.BucketId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.Buckets;
@@ -223,8 +226,7 @@ public class FibUtil {
     void releaseId(String poolName, String idKey) {
         ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
         try {
-            Future<RpcResult<Void>> result = idManager.releaseId(idInput);
-            RpcResult<Void> rpcResult = result.get();
+            RpcResult<ReleaseIdOutput> rpcResult = idManager.releaseId(idInput).get();
             if (!rpcResult.isSuccessful()) {
                 LOG.error("RPC Call to Get Unique Id for key {} returned with Errors {}", idKey, rpcResult.getErrors());
             }
@@ -837,10 +839,10 @@ public class FibUtil {
     public static boolean lockCluster(LockManagerService lockManager, String lockName, long tryLockPeriod) {
         TryLockInput input = new TryLockInputBuilder().setLockName(lockName).setTime(tryLockPeriod)
                 .setTimeUnit(TimeUnits.Milliseconds).build();
-        Future<RpcResult<Void>> result = lockManager.tryLock(input);
+        Future<RpcResult<TryLockOutput>> result = lockManager.tryLock(input);
         boolean lockAcquired;
         try {
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.debug("lockCluster: Acquired lock for {}", lockName);
                 lockAcquired = true;
             } else {
@@ -857,9 +859,9 @@ public class FibUtil {
 
     public static void unlockCluster(LockManagerService lockManager, String lockName) {
         UnlockInput input = new UnlockInputBuilder().setLockName(lockName).build();
-        Future<RpcResult<Void>> result = lockManager.unlock(input);
+        Future<RpcResult<UnlockOutput>> result = lockManager.unlock(input);
         try {
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.debug("unlockCluster: Unlocked {}", lockName);
             } else {
                 LOG.error("unlockCluster: Unable to release lock for {}", lockName);

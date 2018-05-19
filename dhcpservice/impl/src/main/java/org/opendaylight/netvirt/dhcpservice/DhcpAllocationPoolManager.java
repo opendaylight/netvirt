@@ -32,8 +32,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
@@ -182,7 +184,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
         CreateIdPoolInput createPool = new CreateIdPoolInputBuilder().setPoolName(poolName).setLow(low).setHigh(high)
                 .build();
         try {
-            Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
+            Future<RpcResult<CreateIdPoolOutput>> result = idManager.createIdPool(createPool);
             if (result != null && result.get().isSuccessful()) {
                 LOG.info("DHCP Allocation Pool Service : Created IdPool name {}", poolName);
             } else {
@@ -197,7 +199,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
         String poolName = getPoolKeyIdByAllocationPool(networkId, pool);
         DeleteIdPoolInput deletePool = new DeleteIdPoolInputBuilder().setPoolName(poolName).build();
         try {
-            Future<RpcResult<Void>> result = idManager.deleteIdPool(deletePool);
+            Future<RpcResult<DeleteIdPoolOutput>> result = idManager.deleteIdPool(deletePool);
             if (result != null && result.get().isSuccessful()) {
                 LOG.info("DHCP Allocation Pool Service : Deleted IdPool name {}", poolName);
             } else {

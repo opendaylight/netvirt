@@ -69,9 +69,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeMplsOverGre;
@@ -146,7 +148,7 @@ public class NexthopManager implements AutoCloseable {
     private final ItmRpcService itmManager;
     private final IdManagerService idManager;
     private final IElanService elanService;
-    private LockManagerService lockManager;
+    private final LockManagerService lockManager;
     private final SalGroupService salGroupService;
     private final JobCoordinator jobCoordinator;
     private final FibUtil fibUtil;
@@ -197,7 +199,7 @@ public class NexthopManager implements AutoCloseable {
             .setHigh(175000L)
             .build();
         try {
-            Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
+            Future<RpcResult<CreateIdPoolOutput>> result = idManager.createIdPool(createPool);
             if (result != null && result.get().isSuccessful()) {
                 LOG.info("Created IdPool for NextHopPointerPool");
             }
@@ -234,8 +236,7 @@ public class NexthopManager implements AutoCloseable {
             .setPoolName(NEXTHOP_ID_POOL_NAME)
             .setIdKey(nexthopKey).build();
         try {
-            Future<RpcResult<Void>> result = idManager.releaseId(idInput);
-            RpcResult<Void> rpcResult = result.get();
+            RpcResult<ReleaseIdOutput> rpcResult = idManager.releaseId(idInput).get();
             if (!rpcResult.isSuccessful()) {
                 LOG.error("RPC Call to Get Unique Id for nexthopKey {} returned with Errors {}",
                         nexthopKey, rpcResult.getErrors());

@@ -10,17 +10,14 @@ package org.opendaylight.netvirt.natservice.internal;
 import static org.opendaylight.netvirt.natservice.internal.NatUtil.buildfloatingIpIdToPortMappingIdentifier;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -66,9 +63,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.in
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
@@ -78,6 +77,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.G
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -193,73 +193,71 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
          */
         GenerateVpnLabelInput labelInput = new GenerateVpnLabelInputBuilder().setVpnName(vpnName)
             .setIpPrefix(externalIp).build();
-        Future<RpcResult<GenerateVpnLabelOutput>> labelFuture = vpnService.generateVpnLabel(labelInput);
+        ListenableFuture<RpcResult<GenerateVpnLabelOutput>> labelFuture = vpnService.generateVpnLabel(labelInput);
 
-        ListenableFuture<RpcResult<Void>> future = Futures.transformAsync(
-                JdkFutureAdapters.listenInPoolThread(labelFuture),
-                (AsyncFunction<RpcResult<GenerateVpnLabelOutput>, RpcResult<Void>>) result -> {
-                if (result.isSuccessful()) {
-                    GenerateVpnLabelOutput output = result.getResult();
-                    long label = output.getLabel();
-                    LOG.debug("onAddFloatingIp : Generated label {} for prefix {}", label, externalIp);
-                    FloatingIPListener.updateOperationalDS(dataBroker, routerUuid, interfaceName, label,
+        ListenableFuture<RpcResult<CreateFibEntryOutput>> future = Futures.transformAsync(labelFuture, result -> {
+            if (result.isSuccessful()) {
+                GenerateVpnLabelOutput output = result.getResult();
+                long label = output.getLabel();
+                LOG.debug("onAddFloatingIp : Generated label {} for prefix {}", label, externalIp);
+                FloatingIPListener.updateOperationalDS(dataBroker, routerUuid, interfaceName, label,
                         internalIp, externalIp);
-                    /*
-                     * For external network of type VXLAN all packets going from VMs within the DC, towards the
-                     * external gateway device via the External VXLAN Tunnel,we are setting the VXLAN Tunnel ID to
-                     * the L3VNI value of VPNInstance to which the VM belongs to.
-                     */
-                    long l3vni = 0;
-                    if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanService, provType)) {
-                        l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
-                    }
-                    String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
-                    //Inform BGP
-                    NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, subnetId,
-                            fibExternalIp, nextHopIp, networkId.getValue(), floatingIpPortMacAddress,
-                            label, l3vni, RouteOrigin.STATIC, dpnId);
+                /*
+                 * For external network of type VXLAN all packets going from VMs within the DC, towards the
+                 * external gateway device via the External VXLAN Tunnel,we are setting the VXLAN Tunnel ID to
+                 * the L3VNI value of VPNInstance to which the VM belongs to.
+                 */
+                long l3vni = 0;
+                if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanService, provType)) {
+                    l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
+                }
+                String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
+                //Inform BGP
+                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, subnetId,
+                        fibExternalIp, nextHopIp, networkId.getValue(), floatingIpPortMacAddress,
+                        label, l3vni, RouteOrigin.STATIC, dpnId);
 
-                    List<Instruction> instructions = new ArrayList<>();
-                    List<ActionInfo> actionsInfos = new ArrayList<>();
-                    actionsInfos.add(new ActionNxResubmit(NwConstants.PDNAT_TABLE));
-                    instructions.add(new InstructionApplyActions(actionsInfos).buildInstruction(0));
-                    makeTunnelTableEntry(vpnName, dpnId, label, instructions, writeFlowInvTx, provType);
+                List<Instruction> instructions = new ArrayList<>();
+                List<ActionInfo> actionsInfos = new ArrayList<>();
+                actionsInfos.add(new ActionNxResubmit(NwConstants.PDNAT_TABLE));
+                instructions.add(new InstructionApplyActions(actionsInfos).buildInstruction(0));
+                makeTunnelTableEntry(vpnName, dpnId, label, instructions, writeFlowInvTx, provType);
 
-                    //Install custom FIB routes
-                    List<ActionInfo> actionInfoFib = new ArrayList<>();
-                    List<Instruction> customInstructions = new ArrayList<>();
-                    actionInfoFib.add(new ActionSetFieldEthernetDestination(new MacAddress(floatingIpPortMacAddress)));
-                    customInstructions.add(new InstructionApplyActions(actionInfoFib).buildInstruction(0));
-                    customInstructions.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(1));
+                //Install custom FIB routes
+                List<ActionInfo> actionInfoFib = new ArrayList<>();
+                List<Instruction> customInstructions = new ArrayList<>();
+                actionInfoFib.add(new ActionSetFieldEthernetDestination(new MacAddress(floatingIpPortMacAddress)));
+                customInstructions.add(new InstructionApplyActions(actionInfoFib).buildInstruction(0));
+                customInstructions.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(1));
 
-                    makeLFibTableEntry(dpnId, label, floatingIpPortMacAddress, NwConstants.PDNAT_TABLE, writeFlowInvTx);
-                    CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
+                makeLFibTableEntry(dpnId, label, floatingIpPortMacAddress, NwConstants.PDNAT_TABLE, writeFlowInvTx);
+                CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
                         .setSourceDpid(dpnId).setInstruction(customInstructions)
                         .setIpAddress(fibExternalIp).setServiceId(label)
                         .setIpAddressSource(CreateFibEntryInput.IpAddressSource.FloatingIP)
                         .setInstruction(customInstructions).build();
-                    //Future<RpcResult<java.lang.Void>> createFibEntry(CreateFibEntryInput input);
-                    Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
-                    LOG.debug("onAddFloatingIp : Add Floating Ip {} , found associated to fixed port {}",
-                            externalIp, interfaceName);
-                    String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId);
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                        vpnManager.addSubnetMacIntoVpnInstance(networkVpnName, subnetVpnName,
-                                floatingIpPortMacAddress, dpnId, tx);
-                        vpnManager.addArpResponderFlowsToExternalNetworkIps(routerUuid,
-                                Collections.singleton(externalIp),
-                                floatingIpPortMacAddress, dpnId, networkId, tx);
-                    });
-                    return JdkFutureAdapters.listenInPoolThread(future1);
-                } else {
-                    String errMsg = String.format("onAddFloatingIp : Could not retrieve the label for prefix %s "
-                            + "in VPN %s, %s", externalIp, vpnName, result.getErrors());
-                    LOG.error(errMsg);
-                    return Futures.immediateFailedFuture(new RuntimeException(errMsg));
-                }
-            }, MoreExecutors.directExecutor());
+                //Future<RpcResult<java.lang.Void>> createFibEntry(CreateFibEntryInput input);
+                ListenableFuture<RpcResult<CreateFibEntryOutput>> future1 = fibService.createFibEntry(input);
+                LOG.debug("onAddFloatingIp : Add Floating Ip {} , found associated to fixed port {}",
+                        externalIp, interfaceName);
+                String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId);
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                    vpnManager.addSubnetMacIntoVpnInstance(networkVpnName, subnetVpnName,
+                            floatingIpPortMacAddress, dpnId, tx);
+                    vpnManager.addArpResponderFlowsToExternalNetworkIps(routerUuid,
+                            Collections.singleton(externalIp),
+                            floatingIpPortMacAddress, dpnId, networkId, tx);
+                });
+                return future1;
+            } else {
+                String errMsg = String.format("onAddFloatingIp : Could not retrieve the label for prefix %s "
+                        + "in VPN %s, %s", externalIp, vpnName, result.getErrors());
+                LOG.error(errMsg);
+                return Futures.immediateFailedFuture(new RuntimeException(errMsg));
+            }
+        }, MoreExecutors.directExecutor());
 
-        Futures.addCallback(future, new FutureCallback<RpcResult<Void>>() {
+        Futures.addCallback(future, new FutureCallback<RpcResult<CreateFibEntryOutput>>() {
 
             @Override
             public void onFailure(@Nonnull Throwable error) {
@@ -267,7 +265,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             }
 
             @Override
-            public void onSuccess(@Nonnull RpcResult<Void> result) {
+            public void onSuccess(@Nonnull RpcResult<CreateFibEntryOutput> result) {
                 if (result.isSuccessful()) {
                     LOG.info("onAddFloatingIp : Successfully installed custom FIB routes for prefix {}", externalIp);
                 } else {
@@ -344,39 +342,36 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
             .setSourceDpid(dpnId).setIpAddress(fibExternalIp).setServiceId(label)
             .setIpAddressSource(RemoveFibEntryInput.IpAddressSource.FloatingIP).build();
-        Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
+        ListenableFuture<RpcResult<RemoveFibEntryOutput>> future = fibService.removeFibEntry(input);
 
-        ListenableFuture<RpcResult<Void>> labelFuture = Futures.transformAsync(
-                JdkFutureAdapters.listenInPoolThread(future),
-                (AsyncFunction<RpcResult<Void>, RpcResult<Void>>) result -> {
-                //Release label
-                if (result.isSuccessful()) {
+        ListenableFuture<RpcResult<RemoveVpnLabelOutput>> labelFuture = Futures.transformAsync(future, result -> {
+            //Release label
+            if (result.isSuccessful()) {
                 /*  check if any floating IP information is available in vpn-to-dpn-list for given dpn id. If exist any
                  *  floating IP then do not remove INTERNAL_TUNNEL_TABLE (table=36) -> PDNAT_TABLE (table=25) flow entry
                  */
-                    Boolean removeTunnelFlow = Boolean.TRUE;
-                    if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanService, provType)) {
-                        if (NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp, false)) {
-                            removeTunnelFlow = Boolean.FALSE;
-                        }
+                Boolean removeTunnelFlow = Boolean.TRUE;
+                if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanService, provType)) {
+                    if (NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp, false)) {
+                        removeTunnelFlow = Boolean.FALSE;
                     }
-                    if (removeTunnelFlow) {
-                        removeTunnelTableEntry(dpnId, label, removeFlowInvTx);
-                    }
-                    removeLFibTableEntry(dpnId, label, removeFlowInvTx);
-                    RemoveVpnLabelInput labelInput = new RemoveVpnLabelInputBuilder()
-                        .setVpnName(vpnName).setIpPrefix(externalIp).build();
-                    Future<RpcResult<Void>> labelFuture1 = vpnService.removeVpnLabel(labelInput);
-                    return JdkFutureAdapters.listenInPoolThread(labelFuture1);
-                } else {
-                    String errMsg = String.format("onRemoveFloatingIp :RPC call to remove custom FIB entries "
-                            + "on dpn %s for prefix %s Failed - %s", dpnId, externalIp, result.getErrors());
-                    LOG.error(errMsg);
-                    return Futures.immediateFailedFuture(new RuntimeException(errMsg));
                 }
-            }, MoreExecutors.directExecutor());
+                if (removeTunnelFlow) {
+                    removeTunnelTableEntry(dpnId, label, removeFlowInvTx);
+                }
+                removeLFibTableEntry(dpnId, label, removeFlowInvTx);
+                RemoveVpnLabelInput labelInput = new RemoveVpnLabelInputBuilder()
+                        .setVpnName(vpnName).setIpPrefix(externalIp).build();
+                return vpnService.removeVpnLabel(labelInput);
+            } else {
+                String errMsg = String.format("onRemoveFloatingIp :RPC call to remove custom FIB entries "
+                        + "on dpn %s for prefix %s Failed - %s", dpnId, externalIp, result.getErrors());
+                LOG.error(errMsg);
+                return Futures.immediateFailedFuture(new RuntimeException(errMsg));
+            }
+        }, MoreExecutors.directExecutor());
 
-        Futures.addCallback(labelFuture, new FutureCallback<RpcResult<Void>>() {
+        Futures.addCallback(labelFuture, new FutureCallback<RpcResult<RemoveVpnLabelOutput>>() {
 
             @Override
             public void onFailure(@Nonnull Throwable error) {
@@ -384,7 +379,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             }
 
             @Override
-            public void onSuccess(@Nonnull RpcResult<Void> result) {
+            public void onSuccess(@Nonnull RpcResult<RemoveVpnLabelOutput> result) {
                 if (result.isSuccessful()) {
                     LOG.debug("onRemoveFloatingIp : Successfully removed the label for the prefix {} from VPN {}",
                             externalIp, vpnName);

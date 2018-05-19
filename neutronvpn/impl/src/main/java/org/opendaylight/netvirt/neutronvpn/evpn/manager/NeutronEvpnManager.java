@@ -8,10 +8,10 @@
 package org.opendaylight.netvirt.neutronvpn.evpn.manager;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -62,7 +62,7 @@ public class NeutronEvpnManager {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public Future<RpcResult<CreateEVPNOutput>> createEVPN(CreateEVPNInput input) {
+    public ListenableFuture<RpcResult<CreateEVPNOutput>> createEVPN(CreateEVPNInput input) {
         CreateEVPNOutputBuilder opBuilder = new CreateEVPNOutputBuilder();
         SettableFuture<RpcResult<CreateEVPNOutput>> result = SettableFuture.create();
         List<RpcError> errorList = new ArrayList<>();
@@ -120,12 +120,12 @@ public class NeutronEvpnManager {
                 errorResponseList.add("EVPN creation successful with no errors");
             }
             opBuilder.setResponse(errorResponseList);
-            result.set(RpcResultBuilder.<CreateEVPNOutput>success().withResult(opBuilder.build()).build());
+            result.set(RpcResultBuilder.success(opBuilder.build()).build());
         }
         return result;
     }
 
-    public Future<RpcResult<GetEVPNOutput>> getEVPN(GetEVPNInput input) {
+    public ListenableFuture<RpcResult<GetEVPNOutput>> getEVPN(GetEVPNInput input) {
         GetEVPNOutputBuilder opBuilder = new GetEVPNOutputBuilder();
         SettableFuture<RpcResult<GetEVPNOutput>> result = SettableFuture.create();
         Uuid inputVpnId = input.getId();
@@ -141,7 +141,7 @@ public class NeutronEvpnManager {
                 }
             } else {
                 // No VPN present
-                result.set(RpcResultBuilder.<GetEVPNOutput>success().withResult(opBuilder.build()).build());
+                result.set(RpcResultBuilder.success(opBuilder.build()).build());
                 return result;
             }
         } else {
@@ -197,11 +197,11 @@ public class NeutronEvpnManager {
         }
 
         opBuilder.setEvpnInstances(evpnList);
-        result.set(RpcResultBuilder.<GetEVPNOutput>success().withResult(opBuilder.build()).build());
+        result.set(RpcResultBuilder.success(opBuilder.build()).build());
         return result;
     }
 
-    public Future<RpcResult<DeleteEVPNOutput>> deleteEVPN(DeleteEVPNInput input) {
+    public ListenableFuture<RpcResult<DeleteEVPNOutput>> deleteEVPN(DeleteEVPNInput input) {
         DeleteEVPNOutputBuilder opBuilder = new DeleteEVPNOutputBuilder();
         SettableFuture<RpcResult<DeleteEVPNOutput>> result = SettableFuture.create();
         List<RpcError> errorList = new ArrayList<>();
@@ -234,7 +234,7 @@ public class NeutronEvpnManager {
                 errorResponseList.add("Deletion of EVPN operation successful");
             }
             opBuilder.setResponse(errorResponseList);
-            result.set(RpcResultBuilder.<DeleteEVPNOutput>success().withResult(opBuilder.build()).build());
+            result.set(RpcResultBuilder.success(opBuilder.build()).build());
         }
         return result;
     }

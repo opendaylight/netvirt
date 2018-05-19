@@ -66,6 +66,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.Dhcpv6Base;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
@@ -189,7 +190,7 @@ public class NeutronvpnUtils {
     private final ManagedNewTransactionRunner txRunner;
     private final IdManagerService idManager;
     private final JobCoordinator jobCoordinator;
-    private IPV6InternetDefaultRouteProgrammer ipV6InternetDefRt;
+    private final IPV6InternetDefaultRouteProgrammer ipV6InternetDefRt;
 
     @Inject
     public NeutronvpnUtils(final DataBroker dataBroker, final IdManagerService idManager,
@@ -1178,8 +1179,7 @@ public class NeutronvpnUtils {
     protected void releaseRDId(String poolName, String idKey) {
         ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
         try {
-            Future<RpcResult<Void>> result = idManager.releaseId(idInput);
-            RpcResult<Void> rpcResult = result.get();
+            RpcResult<ReleaseIdOutput> rpcResult = idManager.releaseId(idInput).get();
             if (!rpcResult.isSuccessful()) {
                 LOG.error("RPC Call to Get Unique Id returned with errors for poolname {} and ID Key {}: {}",
                         poolName, idKey, rpcResult.getErrors());
@@ -1529,7 +1529,7 @@ public class NeutronvpnUtils {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class,
                 new VpnInstanceKey(vpnId.getValue())).build();
         Optional<VpnInstance> vpnInstance = read(LogicalDatastoreType.CONFIGURATION, id);
-        return (vpnInstance.isPresent()) ? vpnInstance.get() : null;
+        return vpnInstance.isPresent() ? vpnInstance.get() : null;
     }
 
     /**
