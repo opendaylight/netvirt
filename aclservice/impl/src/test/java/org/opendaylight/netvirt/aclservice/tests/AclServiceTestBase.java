@@ -142,8 +142,6 @@ public abstract class AclServiceTestBase {
         // When
         putNewStateInterface(dataBroker, "port1", PORT_MAC_1);
 
-        asyncEventsWaiter.awaitEventsConsumption();
-
         // Then
         newInterfaceCheck();
         LOG.info("newInterface - end");
@@ -178,8 +176,6 @@ public abstract class AclServiceTestBase {
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
-
-        asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
         newInterfaceWithEtherTypeAclCheck();
@@ -216,8 +212,6 @@ public abstract class AclServiceTestBase {
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
 
-        asyncEventsWaiter.awaitEventsConsumption();
-
         // Then
         newInterfaceWithEtherTypeAclCheck();
 
@@ -243,7 +237,6 @@ public abstract class AclServiceTestBase {
         newAllowedAddressPair(PORT_1, sgList, Collections.singletonList(AAP_PORT_1));
         newAllowedAddressPair(PORT_2, sgList, Collections.singletonList(AAP_PORT_2));
 
-        asyncEventsWaiter.awaitEventsConsumption();
         newInterfaceWithMultipleAclCheck();
     }
 
@@ -278,8 +271,6 @@ public abstract class AclServiceTestBase {
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
-
-        asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
         newInterfaceWithTcpDstAclCheck();
@@ -319,8 +310,6 @@ public abstract class AclServiceTestBase {
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
 
-        asyncEventsWaiter.awaitEventsConsumption();
-
         // Then
         newInterfaceWithUdpDstAclCheck();
         LOG.info("newInterfaceWithUdpDstAcl - end");
@@ -344,8 +333,6 @@ public abstract class AclServiceTestBase {
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
-
-        asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
         newInterfaceWithIcmpAclCheck();
@@ -377,8 +364,6 @@ public abstract class AclServiceTestBase {
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
 
-        asyncEventsWaiter.awaitEventsConsumption();
-
         // Then
         newInterfaceWithDstPortRangeCheck();
         LOG.info("newInterfaceWithDstPortRange - end");
@@ -408,8 +393,6 @@ public abstract class AclServiceTestBase {
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
-
-        asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
         newInterfaceWithDstAllPortsCheck();
@@ -450,8 +433,6 @@ public abstract class AclServiceTestBase {
         // When
         putNewStateInterface(dataBroker, PORT_3, PORT_MAC_3);
 
-        asyncEventsWaiter.awaitEventsConsumption();
-
         // Then
         newInterfaceWithTwoAclsHavingSameRulesCheck();
         LOG.info("newInterfaceWithTwoAclsHavingSameRules - end");
@@ -474,8 +455,6 @@ public abstract class AclServiceTestBase {
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_1);
 
-        asyncEventsWaiter.awaitEventsConsumption();
-
         // Then
         newInterfaceWithIcmpAclCheck();
     }
@@ -496,8 +475,6 @@ public abstract class AclServiceTestBase {
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
-
-        asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
         newInterfaceWithAapIpv4AllCheck();
@@ -528,8 +505,6 @@ public abstract class AclServiceTestBase {
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
 
-        asyncEventsWaiter.awaitEventsConsumption();
-
         // Then
         newInterfaceWithAapCheck();
         LOG.info("newInterfaceWithAap test - end");
@@ -540,6 +515,7 @@ public abstract class AclServiceTestBase {
     protected void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
         asyncEventsWaiter.awaitEventsConsumption();
         coordinatorEventsWaiter.awaitEventsConsumption();
+        asyncEventsWaiter.awaitEventsConsumption();
         mdsalApiManager.assertFlowsInAnyOrder(expectedFlows);
     }
 
