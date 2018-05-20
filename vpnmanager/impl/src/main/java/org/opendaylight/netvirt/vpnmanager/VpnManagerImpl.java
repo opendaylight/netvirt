@@ -44,6 +44,7 @@ import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
@@ -563,6 +564,10 @@ public class VpnManagerImpl implements IVpnManager {
             ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 tx -> {
                     for (String fixedIp : fixedIps) {
+                        IpVersionChoice ipVersionChoice = VpnUtil.getIpVersionFromString(fixedIp);
+                        if (ipVersionChoice == IpVersionChoice.IPV6) {
+                            continue;
+                        }
                         installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag,
                                 fixedIp);
                     }
@@ -570,6 +575,10 @@ public class VpnManagerImpl implements IVpnManager {
             ListenableFutures.addErrorLogging(future, LOG, "Commit transaction");
         } else {
             for (String fixedIp : fixedIps) {
+                IpVersionChoice ipVersionChoice = VpnUtil.getIpVersionFromString(fixedIp);
+                if (ipVersionChoice == IpVersionChoice.IPV6) {
+                    continue;
+                }
                 installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag,
                         fixedIp);
             }
