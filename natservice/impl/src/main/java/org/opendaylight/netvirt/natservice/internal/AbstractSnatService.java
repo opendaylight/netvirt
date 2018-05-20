@@ -24,6 +24,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadMetadata;
@@ -147,24 +148,22 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         installDefaultFibRouteForSNAT(dpnId, routerId, addOrRemove);
-        List<ExternalIps> externalIps = routers.getExternalIps();
-        if (externalIps.isEmpty()) {
-            LOG.error("AbstractSnatService: installSnatCommonEntriesForNaptSwitch no externalIP present"
-                    + " for routerId {}",
-                    routerId);
-            return;
-        }
-        //The logic now handle only one external IP per router, others if present will be ignored.
-        String externalIp = externalIps.get(0).getIpAddress();
         String externalGwMac = routers.getExtGwMacAddress();
-        Uuid externalSubnetId = externalIps.get(0).getSubnetId();
-        long extSubnetId = NatConstants.INVALID_ID;
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            extSubnetId = NatUtil.getExternalSubnetVpnId(dataBroker,externalSubnetId);
+        for (ExternalIps externalIp : routers.getExternalIps()) {
+            if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
+                // In this class we handle only IPv4 use-cases.
+                continue;
+            }
+            //The logic now handle only one external IP per router, others if present will be ignored.
+            long extSubnetId = NatConstants.INVALID_ID;
+            if (addOrRemove == NwConstants.ADD_FLOW) {
+                extSubnetId = NatUtil.getExternalSubnetVpnId(dataBroker, externalIp.getSubnetId());
+            }
+            installInboundFibEntry(dpnId, externalIp.getIpAddress(), routerId, extSubnetId,
+                routers.getNetworkId().getValue(), externalIp.getSubnetId().getValue(), externalGwMac, addOrRemove);
+            installInboundTerminatingServiceTblEntry(dpnId, routerId, extSubnetId, addOrRemove);
+            break;
         }
-        installInboundFibEntry(dpnId, externalIp, routerId, extSubnetId, routers.getNetworkId()
-                .getValue(), externalSubnetId.getValue(), externalGwMac, addOrRemove);
-        installInboundTerminatingServiceTblEntry(dpnId, routerId, extSubnetId, addOrRemove);
     }
 
     protected void installSnatCommonEntriesForNonNaptSwitch(Routers routers, BigInteger primarySwitchId,
