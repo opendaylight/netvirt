@@ -34,6 +34,24 @@
       "revId": "a4e53fdc041e1cdf44852ecc741c40c1aec1598c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6fa0d7d9_3e16e1e5",
+        "filename": "vpnmanager/api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 737,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-05-20T14:32:03Z",
+      "side": 1,
+      "message": "It looks like it wont be possible to have a single data model that can with all possible mip situations like learn, migrate, dpn-disconnect, vm-delete and PNF.\nI have added a final version of mip-adjacency to take care of all of the above scenarios except dpn-disconnect.\nFor dpn-disconnect, a new dpn-to-mip/mac model is required, which I will implement as part of the ip-serialization for MIPs in a new review.",
+      "parentUuid": "b43f6638_90b8da7b",
+      "revId": "a4e53fdc041e1cdf44852ecc741c40c1aec1598c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
