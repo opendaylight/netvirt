@@ -1458,6 +1458,10 @@ public final class NatUtil {
             return null;
         }
 
+        if (null != gatewayIp.getIpv6Address()) {
+            return null;
+        }
+
         InstanceIdentifier<VpnPortipToPort> portIpInst = InstanceIdentifier.builder(NeutronVpnPortipPortData.class)
             .child(VpnPortipToPort.class, new VpnPortipToPortKey(gatewayIp.getIpv4Address().getValue(), vpnName))
             .build();
