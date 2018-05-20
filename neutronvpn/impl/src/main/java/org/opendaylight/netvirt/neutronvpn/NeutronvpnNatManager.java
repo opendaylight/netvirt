@@ -200,12 +200,12 @@ public class NeutronvpnNatManager implements AutoCloseable {
                         List<ExternalFixedIps> origExtFixedIps = origExtGw.getExternalFixedIps();
                         HashSet<String> origFixedIpSet = new HashSet<>();
                         for (ExternalFixedIps fixedIps : origExtFixedIps) {
-                            origFixedIpSet.add(fixedIps.getIpAddress().getIpv4Address().getValue());
+                            origFixedIpSet.add(String.valueOf(fixedIps.getIpAddress().getValue()));
                         }
                         List<ExternalFixedIps> newExtFixedIps = newExtGw.getExternalFixedIps();
                         HashSet<String> updFixedIpSet = new HashSet<>();
                         for (ExternalFixedIps fixedIps : newExtFixedIps) {
-                            updFixedIpSet.add(fixedIps.getIpAddress().getIpv4Address().getValue());
+                            updFixedIpSet.add(String.valueOf(fixedIps.getIpAddress().getValue()));
                         }
                         // returns true if external subnets have changed
                         return !origFixedIpSet.equals(updFixedIpSet) ? true : false;
@@ -756,7 +756,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
 
     private void addExternalFixedIpToExternalIpsList(List<ExternalIps> externalIps, ExternalFixedIps fixedIps) {
         Uuid subnetId = fixedIps.getSubnetId();
-        String ip = fixedIps.getIpAddress().getIpv4Address().getValue();
+        String ip = String.valueOf(fixedIps.getIpAddress().getValue());
         ExternalIpsBuilder externalIpsBuilder = new ExternalIpsBuilder();
         externalIpsBuilder.withKey(new ExternalIpsKey(ip, subnetId));
         externalIpsBuilder.setIpAddress(ip);
