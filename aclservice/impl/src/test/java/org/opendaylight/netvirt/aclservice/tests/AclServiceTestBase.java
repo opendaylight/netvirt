@@ -538,8 +538,8 @@ public abstract class AclServiceTestBase {
     abstract void newInterfaceWithAapCheck();
 
     protected void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
-        asyncEventsWaiter.awaitEventsConsumption();
         coordinatorEventsWaiter.awaitEventsConsumption();
+        asyncEventsWaiter.awaitEventsConsumption();
         mdsalApiManager.assertFlowsInAnyOrder(expectedFlows);
     }
 
