@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2d1419f_fc9cbe7d",
+        "filename": "docs/specs/fluorine/vpn_vmac_movement.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-21T14:56:00Z",
+      "side": 1,
+      "message": "8.  All the above steps will be certified for discovered IPv6 addresses with Virtual MAC too as the following spec addresses IPv6 address discovery: https://git.opendaylight.org/gerrit/70912",
+      "revId": "6103e6e1df3bd32220e283098185361f6544e839",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
