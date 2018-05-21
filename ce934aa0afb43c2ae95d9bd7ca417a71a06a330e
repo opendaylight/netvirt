@@ -50,6 +50,24 @@
       "revId": "ce934aa0afb43c2ae95d9bd7ca417a71a06a330e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aac1a358_d9864d88",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceOFFlowBuilder.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 8093
+      },
+      "writtenOn": "2018-05-21T10:33:30Z",
+      "side": 1,
+      "message": "Please elaborate this comment. These String literals are the only way to distinguish between the calling functions.",
+      "parentUuid": "c5c7f63c_9a76cb34",
+      "revId": "ce934aa0afb43c2ae95d9bd7ca417a71a06a330e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
