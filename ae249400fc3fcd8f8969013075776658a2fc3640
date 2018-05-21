@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7220cfa_6c42a8f2",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-21T07:47:00Z",
+      "side": 1,
+      "message": "This change failing for learnt-ip use-cases(for which prefixes are not populated with network-id)",
+      "range": {
+        "startLine": 753,
+        "startChar": 11,
+        "endLine": 754,
+        "endChar": 93
+      },
+      "revId": "ae249400fc3fcd8f8969013075776658a2fc3640",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
