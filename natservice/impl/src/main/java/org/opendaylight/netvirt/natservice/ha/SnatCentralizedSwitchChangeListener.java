@@ -63,9 +63,11 @@ public class SnatCentralizedSwitchChangeListener
     protected void remove(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
         LOG.debug("Deleting {}", routerToNaptSwitch);
         BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
-        Routers router =   natDataUtil.getRouter(routerToNaptSwitch.getRouterName());
-        snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
-        natDataUtil.removeFromRouterMap(router);
+        Routers router = natDataUtil.getRouter(routerToNaptSwitch.getRouterName());
+        if (router != null) {
+            snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+            natDataUtil.removeFromRouterMap(router);
+        }
     }
 
     @Override
@@ -74,8 +76,10 @@ public class SnatCentralizedSwitchChangeListener
         LOG.debug("Updating old {} new {}", origRouterToNaptSwitch, updatedRouterToNaptSwitch);
         BigInteger primarySwitchId = origRouterToNaptSwitch.getPrimarySwitchId();
         Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, origRouterToNaptSwitch.getRouterName());
-        natDataUtil.updateRouterMap(router);
-        snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+        if (router != null) {
+            natDataUtil.updateRouterMap(router);
+            snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+        }
     }
 
     @Override
@@ -83,8 +87,10 @@ public class SnatCentralizedSwitchChangeListener
         LOG.debug("Adding {}", routerToNaptSwitch);
         BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
         Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerToNaptSwitch.getRouterName());
-        natDataUtil.addtoRouterMap(router);
-        snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+        if (router != null) {
+            natDataUtil.addtoRouterMap(router);
+            snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+        }
     }
 
     @Override
