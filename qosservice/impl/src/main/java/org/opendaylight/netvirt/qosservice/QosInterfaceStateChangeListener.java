@@ -15,6 +15,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.srm.RecoverableListener;
 import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
@@ -127,7 +128,8 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
                 return Optional.fromJavaUtil(uuid.toJavaUtil().map(qosNeutronUtils::getNeutronPort));
             }
             LOG.trace("Qos Service : interface {} clearing stale flow entries if any", portName);
-            qosNeutronUtils.removeStaleFlowEntry(intrf);
+            qosNeutronUtils.removeStaleFlowEntry(intrf, NwConstants.ETHTYPE_IPV4);
+            qosNeutronUtils.removeStaleFlowEntry(intrf, NwConstants.ETHTYPE_IPV6);
         }
         return Optional.absent();
     }
