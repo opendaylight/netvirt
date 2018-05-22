@@ -76,6 +76,7 @@ public class SnatCentralizedSwitchChangeListener
         Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, origRouterToNaptSwitch.getRouterName());
         natDataUtil.updateRouterMap(router);
         snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+        snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
     }
 
     @Override
