@@ -11,7 +11,6 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,8 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeNetdev;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeOtherConfigs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeOtherConfigsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ManagedNodeEntry;
@@ -47,8 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -263,27 +258,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
 
     private void copyBridgeToConfig(Node brIntNode) {
         NodeBuilder bridgeNodeBuilder = new NodeBuilder(brIntNode);
-
-        //termination points need to be masssaged to remove the ifindex field
-        //which are not allowed in the config data store
-        List<TerminationPoint> terminationPoints = brIntNode.getTerminationPoint();
-        if (terminationPoints != null) {
-            List<TerminationPoint> newTerminationPoints = new ArrayList<>();
-            for (TerminationPoint tp : terminationPoints) {
-                OvsdbTerminationPointAugmentation ovsdbTerminationPointAugmentation =
-                                                        tp.augmentation(OvsdbTerminationPointAugmentation.class);
-                TerminationPointBuilder tpBuilder = new TerminationPointBuilder(tp);
-                if (ovsdbTerminationPointAugmentation != null) {
-                    OvsdbTerminationPointAugmentationBuilder tpAugmentationBuilder =
-                                new OvsdbTerminationPointAugmentationBuilder(ovsdbTerminationPointAugmentation);
-                    tpAugmentationBuilder.setIfindex(null);
-                    tpBuilder.addAugmentation(OvsdbTerminationPointAugmentation.class, tpAugmentationBuilder.build());
-                }
-                newTerminationPoints.add(tpBuilder.build());
-            }
-            bridgeNodeBuilder.setTerminationPoint(newTerminationPoints);
-        }
-
+        bridgeNodeBuilder.setTerminationPoint(null);
         InstanceIdentifier<Node> brNodeIid = SouthboundUtils.createInstanceIdentifier(brIntNode.getNodeId());
         this.mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, brNodeIid, bridgeNodeBuilder.build());
     }
