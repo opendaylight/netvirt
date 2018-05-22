@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f934c0e3_b7afa769",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-22T05:00:55Z",
+      "side": 1,
+      "message": "This patch is no longer using the ofPort, so we should ideally be removing all these references in the code. Please take a close look at the necessary changes.",
+      "range": {
+        "startLine": 430,
+        "startChar": 27,
+        "endLine": 430,
+        "endChar": 33
+      },
+      "revId": "28f33afc139c67602137796e34ab0dd9175c0ecc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b46bcf3d_37bb07e7",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-22T05:00:55Z",
+      "side": 1,
+      "message": "for DEL_ENTRY, getEgressAction() can be passed as null.",
+      "range": {
+        "startLine": 489,
+        "startChar": 57,
+        "endLine": 489,
+        "endChar": 91
+      },
+      "revId": "28f33afc139c67602137796e34ab0dd9175c0ecc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "16e149b4_00ceef92",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-22T05:00:55Z",
+      "side": 1,
+      "message": "This patch is an improvement over the previous patch. However we still have some issues - for example, we are caching the portToEgressActionMap and using it during periodic unsolicited RAs. If there is any change in the egressActionMap for the port, because of some user-defined actions, we will be missing out on those actions. Can you please check if we can register a listener for these actions and take necessary steps?",
+      "range": {
+        "startLine": 698,
+        "startChar": 12,
+        "endLine": 698,
+        "endChar": 33
+      },
+      "revId": "28f33afc139c67602137796e34ab0dd9175c0ecc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e857a404_d19de202",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6RouterAdvt.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-05-22T05:00:55Z",
+      "side": 1,
+      "message": "While reviewing an RFE, @Som mentioned that we can resubmit a packet to a group (like the LocalBCGroup/RemoteBCGroup) instead of invoking transmitPacket() for each of the VM ports. Can you please sync up with @Som on this and optimize this patch to use that approach. Thanks.",
+      "revId": "28f33afc139c67602137796e34ab0dd9175c0ecc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
