@@ -44,7 +44,6 @@ import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -78,6 +77,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosPortExtension;
@@ -512,7 +512,7 @@ public class QosNeutronUtils {
 
         BigInteger dpnId = getDpnForInterface(port.getUuid().getValue());
         String ifName = port.getUuid().getValue();
-        IpAddress ipAddress = port.getFixedIps().get(0).getIpAddress();
+        Interface ifState = getInterfaceStateFromOperDS(ifName);
         Short dscpValue = dscpMark.getDscpMark();
 
         if (dpnId.equals(BigInteger.ZERO)) {
@@ -520,8 +520,18 @@ public class QosNeutronUtils {
             return;
         }
 
+        int ipVersions = getIpVersions(port);
+
         //1. OF rules
-        addFlow(dpnId, dscpValue, ifName, ipAddress, getInterfaceStateFromOperDS(ifName));
+        if (hasIpv4Addr(ipVersions)) {
+            LOG.trace("setting ipv4 flow for port: {}, dscp: {}", ifName, dscpValue);
+            addFlow(dpnId, dscpValue, ifName, NwConstants.ETHTYPE_IPV4, ifState);
+        }
+        if (hasIpv6Addr(ipVersions)) {
+            LOG.trace("setting ipv6 flow for port: {}, dscp: {}", ifName, dscpValue);
+            addFlow(dpnId, dscpValue, ifName, NwConstants.ETHTYPE_IPV6, ifState);
+        }
+
         if (qosServiceConfiguredPorts.add(port.getUuid())) {
             // bind qos service to interface
             bindservice(ifName);
@@ -542,15 +552,25 @@ public class QosNeutronUtils {
             LOG.info("DPN ID for port {} not found", port);
             return;
         }
+        Interface intf = getInterfaceStateFromOperDS(ifName);
 
         //unbind service from interface
         unbindservice(ifName);
         // 1. OF
-        removeFlow(dpnId, ifName, getInterfaceStateFromOperDS(ifName));
+        int ipVersions = getIpVersions(port);
+        if (hasIpv4Addr(ipVersions)) {
+            removeFlow(dpnId, ifName, NwConstants.ETHTYPE_IPV4, intf);
+        }
+        if (hasIpv6Addr(ipVersions)) {
+            removeFlow(dpnId, ifName, NwConstants.ETHTYPE_IPV6, intf);
+        }
         qosServiceConfiguredPorts.remove(port.getUuid());
     }
 
     public void unsetPortDscpMark(Port port, Interface intrf) {
+        if (!qosEosHandler.isQosClusterOwner()) {
+            return;
+        }
         LOG.trace("Removing dscp marking rule from Port {}", port);
 
         BigInteger dpnId = getDpIdFromInterface(intrf);
@@ -561,7 +581,14 @@ public class QosNeutronUtils {
             return;
         }
         unbindservice(ifName);
-        removeFlow(dpnId, ifName, intrf);
+        int ipVersions = getIpVersions(port);
+        if (hasIpv4Addr(ipVersions)) {
+            removeFlow(dpnId, ifName, NwConstants.ETHTYPE_IPV4, intrf);
+        }
+        if (hasIpv6Addr(ipVersions)) {
+            removeFlow(dpnId, ifName, NwConstants.ETHTYPE_IPV6, intrf);
+        }
+        qosServiceConfiguredPorts.remove(port.getUuid());
     }
 
     private static BigInteger getDpIdFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
@@ -635,7 +662,7 @@ public class QosNeutronUtils {
         return InstanceIdentifier.builder(BridgeInterfaceInfo.class).child(BridgeEntry.class, bridgeEntryKey).build();
     }
 
-    public void removeStaleFlowEntry(Interface intrf) {
+    public void removeStaleFlowEntry(Interface intrf, int ethType) {
         List<MatchInfo> matches = new ArrayList<>();
 
         BigInteger dpnId = getDpIdFromInterface(intrf);
@@ -643,13 +670,13 @@ public class QosNeutronUtils {
         Integer ifIndex = intrf.getIfIndex();
         matches.add(new MatchMetadata(MetaDataUtil.getLportTagMetaData(ifIndex), MetaDataUtil.METADATA_MASK_LPORT_TAG));
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.QOS_DSCP_TABLE,
-                getQosFlowId(NwConstants.QOS_DSCP_TABLE, dpnId, ifIndex),
+                getQosFlowId(NwConstants.QOS_DSCP_TABLE, dpnId, ifIndex, ethType),
                 QosConstants.QOS_DEFAULT_FLOW_PRIORITY, "QoSRemoveFlow", 0, 0, NwConstants.COOKIE_QOS_TABLE,
                 matches, null);
         mdsalUtils.removeFlow(flowEntity);
     }
 
-    private void addFlow(BigInteger dpnId, Short dscpValue, String ifName, IpAddress ipAddress, Interface ifState) {
+    public void addFlow(BigInteger dpnId, Short dscpValue, String ifName, int ethType, Interface ifState) {
         if (ifState == null) {
             LOG.trace("Could not find the ifState for interface {}", ifName);
             return;
@@ -657,11 +684,7 @@ public class QosNeutronUtils {
         Integer ifIndex = ifState.getIfIndex();
 
         List<MatchInfo> matches = new ArrayList<>();
-        if (ipAddress.getIpv4Address() != null) {
-            matches.add(new MatchEthernetType(NwConstants.ETHTYPE_IPV4));
-        } else {
-            matches.add(new MatchEthernetType(NwConstants.ETHTYPE_IPV6));
-        }
+        matches.add(new MatchEthernetType(ethType));
         matches.add(new MatchMetadata(MetaDataUtil.getLportTagMetaData(ifIndex), MetaDataUtil.METADATA_MASK_LPORT_TAG));
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -670,13 +693,13 @@ public class QosNeutronUtils {
 
         List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionsInfos));
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.QOS_DSCP_TABLE,
-                getQosFlowId(NwConstants.QOS_DSCP_TABLE, dpnId, ifIndex),
+                getQosFlowId(NwConstants.QOS_DSCP_TABLE, dpnId, ifIndex, ethType),
                 QosConstants.QOS_DEFAULT_FLOW_PRIORITY, "QoSConfigFlow", 0, 0, NwConstants.COOKIE_QOS_TABLE,
                 matches, instructions);
         mdsalUtils.installFlow(flowEntity);
     }
 
-    private void removeFlow(BigInteger dpnId, String ifName, Interface ifState) {
+    public void removeFlow(BigInteger dpnId, String ifName, int ethType, Interface ifState) {
         if (ifState == null) {
             LOG.trace("Could not find the ifState for interface {}", ifName);
             return;
@@ -684,7 +707,7 @@ public class QosNeutronUtils {
         Integer ifIndex = ifState.getIfIndex();
 
         mdsalUtils.removeFlow(dpnId, NwConstants.QOS_DSCP_TABLE,
-                new FlowId(getQosFlowId(NwConstants.QOS_DSCP_TABLE, dpnId, ifIndex)));
+                new FlowId(getQosFlowId(NwConstants.QOS_DSCP_TABLE, dpnId, ifIndex, ethType)));
     }
 
     @Nullable
@@ -745,8 +768,10 @@ public class QosNeutronUtils {
     }
 
     @Nonnull
-    public static String getQosFlowId(short tableId, BigInteger dpId, int lportTag) {
-        return String.valueOf(tableId) + dpId + lportTag;
+    public static String getQosFlowId(short tableId, BigInteger dpId, int lportTag, int ethType) {
+        return new StringBuilder().append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(dpId)
+                .append(NwConstants.FLOWID_SEPARATOR).append(lportTag)
+                .append(NwConstants.FLOWID_SEPARATOR).append(ethType).toString();
     }
 
     public boolean portHasQosPolicy(Port port) {
@@ -779,6 +804,13 @@ public class QosNeutronUtils {
         }
 
         return qosPolicy;
+    }
+
+    public boolean hasDscpMarkingRule(QosPolicy qosPolicy) {
+        if (qosPolicy != null) {
+            return qosPolicy.getDscpmarkingRules() != null && !qosPolicy.getDscpmarkingRules().isEmpty();
+        }
+        return false;
     }
 
     public void addToPortCache(Port port) {
@@ -825,4 +857,29 @@ public class QosNeutronUtils {
         }
     }
 
+    public int getIpVersions(Port port) {
+        int versions = 0;
+        for (FixedIps fixedIp: port.getFixedIps()) {
+            if (fixedIp.getIpAddress().getIpv4Address() != null) {
+                versions |= (1 << QosConstants.IPV4_ADDR_MASK_BIT);
+            } else if (fixedIp.getIpAddress().getIpv6Address() != null) {
+                versions |= (1 << QosConstants.IPV6_ADDR_MASK_BIT);
+            }
+        }
+        return versions;
+    }
+
+    public boolean hasIpv4Addr(int versions) {
+        if ((versions & (1 << QosConstants.IPV4_ADDR_MASK_BIT)) != 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean hasIpv6Addr(int versions) {
+        if ((versions & (1 << QosConstants.IPV6_ADDR_MASK_BIT)) != 0) {
+            return true;
+        }
+        return false;
+    }
 }

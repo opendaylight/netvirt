@@ -17,4 +17,7 @@ public interface QosConstants {
     String FELIX_FILEINSTALL_FILENAME = "felix.fileinstall.filename";
     String SERVICE_PID = "service.pid";
     String QOS_ALERT_OWNER_ENTITY_TYPE = "netvirt-qos-owner-entity";
+
+    short IPV4_ADDR_MASK_BIT = 0;
+    short IPV6_ADDR_MASK_BIT = 1;
 }
