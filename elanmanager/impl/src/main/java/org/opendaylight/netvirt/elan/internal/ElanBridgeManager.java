@@ -277,6 +277,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
                     OvsdbTerminationPointAugmentationBuilder tpAugmentationBuilder =
                                 new OvsdbTerminationPointAugmentationBuilder(ovsdbTerminationPointAugmentation);
                     tpAugmentationBuilder.setIfindex(null);
+                    tpAugmentationBuilder.setMacInUse(null);
                     tpBuilder.addAugmentation(OvsdbTerminationPointAugmentation.class, tpAugmentationBuilder.build());
                 }
                 newTerminationPoints.add(tpBuilder.build());
