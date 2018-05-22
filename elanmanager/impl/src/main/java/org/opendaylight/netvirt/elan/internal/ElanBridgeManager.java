@@ -266,6 +266,8 @@ public class ElanBridgeManager implements IElanBridgeManager {
 
         //termination points need to be masssaged to remove the ifindex field
         //which are not allowed in the config data store
+        bridgeNodeBuilder.setTerminationPoint(null);
+        /*
         List<TerminationPoint> terminationPoints = brIntNode.getTerminationPoint();
         if (terminationPoints != null) {
             List<TerminationPoint> newTerminationPoints = new ArrayList<>();
@@ -277,12 +279,14 @@ public class ElanBridgeManager implements IElanBridgeManager {
                     OvsdbTerminationPointAugmentationBuilder tpAugmentationBuilder =
                                 new OvsdbTerminationPointAugmentationBuilder(ovsdbTerminationPointAugmentation);
                     tpAugmentationBuilder.setIfindex(null);
+                    tpAugmentationBuilder.setMacInUse(null);
                     tpBuilder.addAugmentation(OvsdbTerminationPointAugmentation.class, tpAugmentationBuilder.build());
                 }
                 newTerminationPoints.add(tpBuilder.build());
             }
             bridgeNodeBuilder.setTerminationPoint(newTerminationPoints);
         }
+        */
 
         InstanceIdentifier<Node> brNodeIid = SouthboundUtils.createInstanceIdentifier(brIntNode.getNodeId());
         this.mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, brNodeIid, bridgeNodeBuilder.build());
