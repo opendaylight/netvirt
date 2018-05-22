@@ -22,6 +22,30 @@
       "revId": "a272701c1c4c6a7c8c963a0e252f70f22f66e12f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a1870912_66e5c1f5",
+        "filename": "vpnmanager/api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/extraroute/IExtraRoutePortBindingService.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-05-22T10:03:12Z",
+      "side": 1,
+      "message": "Maybe compare this with the neutronvpn side code to check which is  better",
+      "parentUuid": "a71b646c_9c9f599d",
+      "range": {
+        "startLine": 14,
+        "startChar": 5,
+        "endLine": 14,
+        "endChar": 77
+      },
+      "revId": "a272701c1c4c6a7c8c963a0e252f70f22f66e12f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
