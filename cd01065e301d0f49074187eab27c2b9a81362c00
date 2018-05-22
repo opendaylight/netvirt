@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "a90eec41_214393ee",
+        "filename": "docs/specs/igmp-snooping.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5089
+      },
+      "writtenOn": "2018-05-22T20:28:27Z",
+      "side": 1,
+      "message": "Right I should have said in a L2 domain.  I think for a router none of those packets will be forwarded.  I was just thinking about routing as well but this spec is really about L2 so N/A.",
+      "parentUuid": "4a999bca_61e45027",
+      "range": {
+        "startLine": 27,
+        "startChar": 2,
+        "endLine": 27,
+        "endChar": 119
+      },
+      "revId": "cd01065e301d0f49074187eab27c2b9a81362c00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ff5aef74_d745000e",
         "filename": "docs/specs/igmp-snooping.rst",
         "patchSetId": 1
