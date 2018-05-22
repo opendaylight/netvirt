@@ -72,10 +72,16 @@ public class SnatCentralizedSwitchChangeListener
     protected void update(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch origRouterToNaptSwitch,
             RouterToNaptSwitch updatedRouterToNaptSwitch) {
         LOG.debug("Updating old {} new {}", origRouterToNaptSwitch, updatedRouterToNaptSwitch);
-        BigInteger primarySwitchId = origRouterToNaptSwitch.getPrimarySwitchId();
-        Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, origRouterToNaptSwitch.getRouterName());
-        natDataUtil.updateRouterMap(router);
-        snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+        BigInteger origPrimarySwitchId = origRouterToNaptSwitch.getPrimarySwitchId();
+        Routers origRouter = NatUtil.getRoutersFromConfigDS(dataBroker, origRouterToNaptSwitch.getRouterName());
+        snatServiceManger.notify(origRouter, origPrimarySwitchId, null,
+                SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+        natDataUtil.removeFromRouterMap(origRouter);
+        BigInteger updatedPrimarySwitchId = updatedRouterToNaptSwitch.getPrimarySwitchId();
+        Routers updatedRouter = NatUtil.getRoutersFromConfigDS(dataBroker, updatedRouterToNaptSwitch.getRouterName());
+        natDataUtil.updateRouterMap(updatedRouter);
+        snatServiceManger.notify(updatedRouter, updatedPrimarySwitchId, null,
+                SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
     }
 
     @Override
