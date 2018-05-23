@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -18,6 +19,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
@@ -38,18 +40,21 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
     private final NeutronvpnNatManager nvpnNatManager;
     private final NeutronSubnetGwMacResolver gwMacResolver;
     private final NeutronvpnUtils neutronvpnUtils;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
     public NeutronRouterChangeListener(final DataBroker dataBroker, final NeutronvpnManager neutronvpnManager,
                                        final NeutronvpnNatManager neutronvpnNatManager,
                                        final NeutronSubnetGwMacResolver gwMacResolver,
-                                       final NeutronvpnUtils neutronvpnUtils) {
+                                       final NeutronvpnUtils neutronvpnUtils,
+                                       final JobCoordinator jobCoordinator) {
         super(Router.class, NeutronRouterChangeListener.class);
         this.dataBroker = dataBroker;
         nvpnManager = neutronvpnManager;
         nvpnNatManager = neutronvpnNatManager;
         this.gwMacResolver = gwMacResolver;
         this.neutronvpnUtils = neutronvpnUtils;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -76,7 +81,10 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         neutronvpnUtils.addToRouterCache(input);
         // Create internal VPN
         nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, input.getUuid(), null);
-        nvpnNatManager.handleExternalNetworkForRouter(null, input);
+        jobCoordinator.enqueueJob(input.getUuid().toString(), () -> {
+            nvpnNatManager.handleExternalNetworkForRouter(null, input);
+            return Collections.emptyList();
+        });
         gwMacResolver.sendArpRequestsToExtGateways(input);
     }
 
@@ -90,7 +98,10 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         if (input.getExternalGatewayInfo() != null) {
             Uuid extNetId = input.getExternalGatewayInfo().getExternalNetworkId();
             List<ExternalFixedIps> externalFixedIps = input.getExternalGatewayInfo().getExternalFixedIps();
-            nvpnNatManager.removeExternalNetworkFromRouter(extNetId, input, externalFixedIps);
+            jobCoordinator.enqueueJob(input.getUuid().toString(), () -> {
+                nvpnNatManager.removeExternalNetworkFromRouter(extNetId, input, externalFixedIps);
+                return Collections.emptyList();
+            });
         }
         //NOTE: Pass an empty routerSubnetIds list, as router interfaces
         //will be removed from VPN by invocations from NeutronPortChangeListener
@@ -136,7 +147,10 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
             handleChangedRoutes(vpnId, newRoutes, NwConstants.ADD_FLOW);
         }
 
-        nvpnNatManager.handleExternalNetworkForRouter(original, update);
+        jobCoordinator.enqueueJob(update.getUuid().toString(), () -> {
+            nvpnNatManager.handleExternalNetworkForRouter(original, update);
+            return Collections.emptyList();
+        });
         gwMacResolver.sendArpRequestsToExtGateways(update);
     }
 
