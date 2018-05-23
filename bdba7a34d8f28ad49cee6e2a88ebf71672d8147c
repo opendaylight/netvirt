@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9b20c191_7d68f978",
+        "filename": "docs/specs/igmp-snooping.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2018-05-23T20:19:17Z",
+      "side": 1,
+      "message": "I was thinking that we would have a configurable timer for both host entries (learned from membership reports) and multicast routers (learned from query).\n\nIf the timer expires (default, perhaps configurable from 1 to 300 secs) without receipt of any Membership report, then remove the host/listener port from the multicast database (and associated flows).\n\nSame for IGMP Query. If timer expires without receipt of any IGMP query for that port, remove the multicast router port from the multicast database (and any associated flows).\n\nI can add this to the spec, any additional input/questions for this part? Good question, thanks!",
+      "parentUuid": "148992aa_a9f325ce",
+      "range": {
+        "startLine": 67,
+        "startChar": 31,
+        "endLine": 67,
+        "endChar": 44
+      },
+      "revId": "bdba7a34d8f28ad49cee6e2a88ebf71672d8147c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8cf01f37_8e06934e",
         "filename": "docs/specs/igmp-snooping.rst",
         "patchSetId": 3
