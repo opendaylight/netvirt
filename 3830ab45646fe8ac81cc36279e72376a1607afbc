@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a35220f9_9bb430e3",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-05-23T07:13:48Z",
+      "side": 1,
+      "message": "We see flows programmed by this node listener missing in cluster environment. But the other node listener which listens for FlowCapableNode is successful. Does that make a difference?",
+      "revId": "3830ab45646fe8ac81cc36279e72376a1607afbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
