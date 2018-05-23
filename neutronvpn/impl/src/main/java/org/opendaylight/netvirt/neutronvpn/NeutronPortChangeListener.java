@@ -339,7 +339,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                             routerPort.getUuid().getValue(), vpnId.getValue());
                 }
                 nvpnManager.addToNeutronRouterInterfacesMap(routerId, routerPort.getUuid().getValue());
-                nvpnNatManager.handleSubnetsForExternalRouter(routerId);
+                jobCoordinator.enqueueJob(routerId.toString(), () -> {
+                    nvpnNatManager.handleSubnetsForExternalRouter(routerId);
+                    return Collections.emptyList();
+                });
                 ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     confTx -> {
                         String portInterfaceName = createOfPortInterface(routerPort, confTx);
@@ -407,7 +410,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     nvpnManager.removeFromNeutronRouterInterfacesMap(routerId, routerPort.getUuid().getValue());
                     deleteElanInterface(routerPort.getUuid().getValue(), confTx);
                     deleteOfPortInterface(routerPort, confTx);
-                    nvpnNatManager.handleSubnetsForExternalRouter(routerId);
+                    jobCoordinator.enqueueJob(routerId.toString(), () -> {
+                        nvpnNatManager.handleSubnetsForExternalRouter(routerId);
+                        return Collections.emptyList();
+                    });
                     if (vpnInstanceIpVersionRemoved) {
                         neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), vpnInstanceIpVersionToRemove,
                                 false);
@@ -465,8 +471,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     private void setupGwMac(Router router, Port routerGwPort, Uuid routerId) {
         gwMacResolver.sendArpRequestsToExtGateways(router);
-        setExternalGwMac(routerGwPort, routerId);
-
+        jobCoordinator.enqueueJob(routerId.toString(), () -> {
+            setExternalGwMac(routerGwPort, routerId);
+            return Collections.emptyList();
+        });
     }
 
     private void setExternalGwMac(Port routerGwPort, Uuid routerId) {
