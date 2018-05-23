@@ -23,6 +23,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
@@ -585,6 +586,31 @@ public class NeutronvpnNatManager implements AutoCloseable {
         } catch (TransactionCommitFailedException | ReadFailedException ex) {
             LOG.error("Updation of internal subnets for extrouters failed for router {}",
                 routerId.getValue(), ex);
+        }
+    }
+
+    public void setExtMacForExternalRouter(Uuid routerId, MacAddress extGwMacAddress) {
+        InstanceIdentifier<Routers> routersIdentifier = NeutronvpnUtils.buildExtRoutersIdentifier(routerId);
+        try {
+            Optional<Routers> optionalRouters = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, routersIdentifier);
+            LOG.trace("Updating ExternalMacAddress for Routers node: {}", routerId.getValue());
+            RoutersBuilder builder = null;
+            if (optionalRouters.isPresent()) {
+                builder = new RoutersBuilder(optionalRouters.get());
+            } else {
+                LOG.error("No Routers element found for router name {}", routerId.getValue());
+                return;
+            }
+            builder.setExtGwMacAddress(extGwMacAddress.getValue());
+            Routers routerss = builder.build();
+            // Add Routers object to the ExtRouters list
+            LOG.trace("Updating extrouters {}", routerss);
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIdentifier,
+                    routerss);
+            LOG.trace("Updated successfully Routers to CONFIG Datastore");
+        } catch (TransactionCommitFailedException | ReadFailedException ex) {
+            LOG.error("Updation of ExternalMacAddress for extrouters failed for router {}", routerId.getValue(), ex);
         }
     }
 
