@@ -2435,12 +2435,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     private boolean associateExtNetworkToVpn(@Nonnull Uuid vpnId, @Nonnull Network extNet) {
+        if (!addExternalNetworkToVpn(extNet, vpnId)) {
+            return false;
+        }
         VpnInstanceOpDataEntry vpnOpDataEntry = neutronvpnUtils.getVpnInstanceOpDataEntryFromVpnId(vpnId.getValue());
         if (vpnOpDataEntry == null) {
             LOG.error("associateExtNetworkToVpn: can not find VpnOpDataEntry for VPN {}", vpnId.getValue());
-            return false;
-        }
-        if (!addExternalNetworkToVpn(extNet, vpnId)) {
             return false;
         }
         if (!vpnOpDataEntry.getBgpvpnType().equals(BgpvpnType.BGPVPNInternet)) {
