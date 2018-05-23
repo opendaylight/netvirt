@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "9b35a426_9b24be8b",
+        "filename": "docs/specs/igmp-snooping.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2018-05-23T23:53:19Z",
+      "side": 1,
+      "message": "we need this scenario to be covered in system test (CSIT),\nbut right now it only indicates that we will cover the 3\nuse cases.\n\nmaybe we can craft these IGMP queries and then validate that\novs has added the right flow rule.",
+      "range": {
+        "startLine": 50,
+        "startChar": 63,
+        "endLine": 52,
+        "endChar": 20
+      },
+      "revId": "bdba7a34d8f28ad49cee6e2a88ebf71672d8147c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "148992aa_a9f325ce",
         "filename": "docs/specs/igmp-snooping.rst",
         "patchSetId": 3
