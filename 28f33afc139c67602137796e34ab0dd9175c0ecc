@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ecc6de2b_209f6eb9",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-05-23T09:45:49Z",
+      "side": 1,
+      "message": "Sure. I will check and remove this reference in whole ipv6 service module.",
+      "parentUuid": "f934c0e3_b7afa769",
+      "range": {
+        "startLine": 430,
+        "startChar": 27,
+        "endLine": 430,
+        "endChar": 33
+      },
+      "revId": "28f33afc139c67602137796e34ab0dd9175c0ecc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b46bcf3d_37bb07e7",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-22T05:00:55Z",
       "side": 1,
       "message": "for DEL_ENTRY, getEgressAction() can be passed as null.",
+      "range": {
+        "startLine": 489,
+        "startChar": 57,
+        "endLine": 489,
+        "endChar": 91
+      },
+      "revId": "28f33afc139c67602137796e34ab0dd9175c0ecc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f66edad_5513787f",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-05-23T09:45:49Z",
+      "side": 1,
+      "message": "Thanks for point out this problem. I will remove this action.",
+      "parentUuid": "b46bcf3d_37bb07e7",
       "range": {
         "startLine": 489,
         "startChar": 57,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "32f160f9_465f658b",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-05-23T09:45:49Z",
+      "side": 1,
+      "message": "@Sridhar, Is this issue is applicable to all the VM interfaces right?. Since as on today ODL netvirt implementation is not handling the user-defined actions for any VM interfaces right? Please correct me if i am wrong.\n\nWe can introduce the config listener for the user-defibed action and we can update the IPv6 cache accordingly. This will take some time to implement and checking the functionality. Is it fine to take this activity as part of this issue itself?\n\nThanks,\nKarthikeyan.",
+      "parentUuid": "16e149b4_00ceef92",
+      "range": {
+        "startLine": 698,
+        "startChar": 12,
+        "endLine": 698,
+        "endChar": 33
+      },
+      "revId": "28f33afc139c67602137796e34ab0dd9175c0ecc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e857a404_d19de202",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6RouterAdvt.java",
         "patchSetId": 6
@@ -82,6 +154,24 @@
       "writtenOn": "2018-05-22T05:00:55Z",
       "side": 1,
       "message": "While reviewing an RFE, @Som mentioned that we can resubmit a packet to a group (like the LocalBCGroup/RemoteBCGroup) instead of invoking transmitPacket() for each of the VM ports. Can you please sync up with @Som on this and optimize this patch to use that approach. Thanks.",
+      "revId": "28f33afc139c67602137796e34ab0dd9175c0ecc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e16ef8df_3b1f9b50",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6RouterAdvt.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-05-23T09:45:49Z",
+      "side": 1,
+      "message": "Yes. Checked the implementation logic for ELAN broadcast group logic for sending the NA packet out to all the VMs in the particular subnet. Still i am seeing the problem with new approach for sending the NA packet to all the sub-interfaces(VLAN) in particular IPv6 subnet. \n\nWith ELAN broadcast approach is working fine for all IPv6 VMs un-tagged interfaces only. If you have any reference for sending URA message to both tagged and un-tagged interfaces, please share those details or share your input on this implementation.\n\nThanks,\nKarthikeyan.",
+      "parentUuid": "e857a404_d19de202",
       "revId": "28f33afc139c67602137796e34ab0dd9175c0ecc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
