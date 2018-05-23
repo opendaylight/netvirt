@@ -16,6 +16,24 @@
       "revId": "3830ab45646fe8ac81cc36279e72376a1607afbc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bb0b7884_0b5ca544",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 6130
+      },
+      "writtenOn": "2018-05-23T10:56:07Z",
+      "side": 1,
+      "message": "AsyncDataTreeChangeListenerBase is a single node listener, you may need to implement clustered listener to get cluster wide notifications.",
+      "parentUuid": "a35220f9_9bb430e3",
+      "revId": "3830ab45646fe8ac81cc36279e72376a1607afbc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
