@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b8ebdcd_cc6dbf09",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/SnatNodeEventListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-23T13:03:37Z",
+      "side": 1,
+      "message": "This will install flow on each OVS which is not correct. The flow is required to be installed only in Napt Switch. Change to add this new flow can be done in place along with the new table\u003d46(tcp/udp) flow change done in ExternalRouterListener/NaptSwitchHA",
+      "range": {
+        "startLine": 94,
+        "startChar": 7,
+        "endLine": 96,
+        "endChar": 9
+      },
+      "revId": "8582e9cf16210fb81a3afec909244a0b7ac0057a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
