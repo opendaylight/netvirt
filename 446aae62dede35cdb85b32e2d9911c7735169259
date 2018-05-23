@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c60514c4_1d00c7db",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-23T12:59:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4167dd2_b7db8e97",
+      "range": {
+        "startLine": 21,
+        "startChar": 23,
+        "endLine": 21,
+        "endChar": 30
+      },
+      "revId": "446aae62dede35cdb85b32e2d9911c7735169259",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f336f563_ba27e25e",
         "filename": "docs/specs/fluorine/qos.rst",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-15T15:42:23Z",
       "side": 1,
       "message": "Might be nice to just add a column for Neutron OVS Agent so that it is easy to compare what is already supported.",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 35
+      },
+      "revId": "446aae62dede35cdb85b32e2d9911c7735169259",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "332c364a_fbac6367",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-23T12:59:43Z",
+      "side": 1,
+      "message": "done, review for accuracy.",
+      "parentUuid": "f336f563_ba27e25e",
       "range": {
         "startLine": 33,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "b8e7b365_c9c1c053",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-23T12:59:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9118fdc8_e39cebd3",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 34
+      },
+      "revId": "446aae62dede35cdb85b32e2d9911c7735169259",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2339e552_af7930ad",
         "filename": "docs/specs/fluorine/qos.rst",
         "patchSetId": 4
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "50f4ba2b_b6ec02c3",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-23T12:59:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2339e552_af7930ad",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 34
+      },
+      "revId": "446aae62dede35cdb85b32e2d9911c7735169259",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6551f775_584f800f",
         "filename": "docs/specs/fluorine/qos.rst",
         "patchSetId": 4
@@ -105,6 +201,24 @@
       "writtenOn": "2018-05-16T06:55:59Z",
       "side": 1,
       "message": "will this support OVS dpdk data path?\nAlso, the queues are created on the physical interface, how will OVS map the VM ports to physical ports for deciding about queue creation?",
+      "revId": "446aae62dede35cdb85b32e2d9911c7735169259",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2e88c6cb_d638459f",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-23T12:59:43Z",
+      "side": 1,
+      "message": "Wanted your inputs on this http://ovs-reviews.readthedocs.io/en/latest/topics/dpdk/vhost-user.html\n\nDoes that cover or is it talking about different queues? Queues are applied to VM ports by configuring with type linux-htb similar to ovs agent - https://docs.openstack.org/neutron/newton/devref/quality_of_service.html#open-vswitch",
+      "parentUuid": "6551f775_584f800f",
       "revId": "446aae62dede35cdb85b32e2d9911c7735169259",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -145,6 +259,30 @@
       "writtenOn": "2018-05-15T15:42:23Z",
       "side": 1,
       "message": "out of curiosity, how are these table numbers decided on?",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 61
+      },
+      "revId": "446aae62dede35cdb85b32e2d9911c7735169259",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "76aec298_07ff58c0",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-23T12:59:43Z",
+      "side": 1,
+      "message": "check with Genius on availability, try to get them in order of service priority though with resubmit action it doesn\u0027t matter. These numbers are not final though, just put something for discussion. Will have to check with other specs on what numbers are available.",
+      "parentUuid": "741cc018_b6eae975",
       "range": {
         "startLine": 111,
         "startChar": 0,
