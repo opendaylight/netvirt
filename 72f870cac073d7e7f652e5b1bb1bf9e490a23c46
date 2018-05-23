@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89c39f41_24e661b1",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 668,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-23T01:38:31Z",
+      "side": 1,
+      "message": "please remove this write-metadata action as we are setting with same value as in match criteria.",
+      "range": {
+        "startLine": 667,
+        "startChar": 8,
+        "endLine": 668,
+        "endChar": 47
+      },
+      "revId": "72f870cac073d7e7f652e5b1bb1bf9e490a23c46",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9da7709c_d0eea518",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-23T01:38:31Z",
+      "side": 1,
+      "message": "can we have one more default flow(table\u003d46) having priority lesser then these other two flows(tcp/udp) with drop action. Currently, icmp packets were also just getting punted to Controller and dropped as controller-based snat doesn\u0027t support SNAT translation. If we have table\u003d46 drop, then they will be logged as dropped under this default flow. otherwise, they are simply dropped without matching the other two flows.",
+      "range": {
+        "startLine": 680,
+        "startChar": 7,
+        "endLine": 685,
+        "endChar": 64
+      },
+      "revId": "72f870cac073d7e7f652e5b1bb1bf9e490a23c46",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a2f59f56_beb40080",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2841,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-23T01:38:31Z",
+      "side": 1,
+      "message": "please remove this write-metadata action as we are setting with same value as in match criteria.",
+      "range": {
+        "startLine": 2840,
+        "startChar": 8,
+        "endLine": 2841,
+        "endChar": 47
+      },
+      "revId": "72f870cac073d7e7f652e5b1bb1bf9e490a23c46",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "13c07cfe_93ee3d67",
+        "filename": "natservice/impl/src/main/resources/initial/netvirt-natservice-config.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-23T01:38:31Z",
+      "side": 1,
+      "message": "any specific reason on deciding this hard-timeout to 5 sec ??",
+      "range": {
+        "startLine": 3,
+        "startChar": 21,
+        "endLine": 3,
+        "endChar": 22
+      },
+      "revId": "72f870cac073d7e7f652e5b1bb1bf9e490a23c46",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
