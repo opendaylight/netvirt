@@ -38,6 +38,7 @@ public interface VpnConstants {
     String PSEUDO_LPORT_TAG_ID_POOL_NAME = System.getProperty("lport.gid.name", "lporttag");
     long LOWER_PSEUDO_LPORT_TAG = Long.getLong("lower.lport.gid", 170001);
     long UPPER_PSEUDO_LPORT_TAG = Long.getLong("upper.lport.gid", 270000);
+    BigInteger COOKIE_SUBNETROUTE_TABLE_MISS = new BigInteger("8000004", 16);
 
     enum ITMTunnelLocType {
         Invalid(0), Internal(1), External(2), Hwvtep(3);
