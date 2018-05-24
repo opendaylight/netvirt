@@ -1,4 +1,5 @@
 <vpnmanager-config xmlns="urn:opendaylight:netvirt:vpn:config">
   <arp-cache-size>10000</arp-cache-size>
   <arp-learn-timeout>2000</arp-learn-timeout>
+  <subnet-route-punt-timeout>10</subnet-route-punt-timeout>
 </vpnmanager-config>
