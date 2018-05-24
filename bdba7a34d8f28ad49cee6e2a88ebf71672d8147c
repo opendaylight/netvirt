@@ -144,6 +144,30 @@
     },
     {
       "key": {
+        "uuid": "c0f5edd2_57853035",
+        "filename": "docs/specs/igmp-snooping.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5089
+      },
+      "writtenOn": "2018-05-24T19:24:10Z",
+      "side": 1,
+      "message": "Right, no listening if no multicast routers on network.  Only caveat there is I don\u0027t know if the multicast router is required to send query, just double check the spec.\n\nNot really sure if there is a great benefit, other than keeping things consistent/clean.  I was just trying to think of all the corner cases that may happen.",
+      "parentUuid": "dc910f81_6bdcfdcf",
+      "range": {
+        "startLine": 67,
+        "startChar": 31,
+        "endLine": 67,
+        "endChar": 44
+      },
+      "revId": "bdba7a34d8f28ad49cee6e2a88ebf71672d8147c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8cf01f37_8e06934e",
         "filename": "docs/specs/igmp-snooping.rst",
         "patchSetId": 3
