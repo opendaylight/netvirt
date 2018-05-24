@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "0423b020_1e0e7048",
+        "filename": "docs/specs/igmp-snooping.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5089
+      },
+      "writtenOn": "2018-05-24T15:54:18Z",
+      "side": 1,
+      "message": "So if IGMP query port times out, and there are no other ports in a network that are query ports, then you can assume there is no longer a IGMP enabled router on the network and also remove all other ports as well on that network, right?",
+      "parentUuid": "9b20c191_7d68f978",
+      "range": {
+        "startLine": 67,
+        "startChar": 31,
+        "endLine": 67,
+        "endChar": 44
+      },
+      "revId": "bdba7a34d8f28ad49cee6e2a88ebf71672d8147c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8cf01f37_8e06934e",
         "filename": "docs/specs/igmp-snooping.rst",
         "patchSetId": 3
