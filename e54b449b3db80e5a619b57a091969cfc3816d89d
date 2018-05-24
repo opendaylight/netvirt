@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "715b1100_e78db1e7",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2852,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-05-24T13:32:34Z",
+      "side": 1,
+      "message": "When Router is associated with internal-vpn, then internal-vpn metadata to be used instead of router metadata. Either u can added new method or pass third parameter(changedvpnid) to buildIcmpDropFlow. if changedvpnid is set, then that should be used as metadata else routerid",
+      "range": {
+        "startLine": 2852,
+        "startChar": 8,
+        "endLine": 2852,
+        "endChar": 69
+      },
+      "revId": "e54b449b3db80e5a619b57a091969cfc3816d89d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
