@@ -117,6 +117,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
                 makeTableMissFlow(tx, dpId, NwConstants.ADD_FLOW);
                 makeL3IntfTblMissFlow(tx, dpId, NwConstants.ADD_FLOW);
                 makeSubnetRouteTableMissFlow(tx, dpId, NwConstants.ADD_FLOW);
+                makeIpv6SubnetRouteTableMissFlow(tx, dpId, NwConstants.ADD_FLOW);
                 createTableMissForVpnGwFlow(tx, dpId);
                 createL3GwMacArpFlows(tx, dpId);
                 programTableMissForVpnVniDemuxTable(tx, dpId, NwConstants.ADD_FLOW);
@@ -165,14 +166,14 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     }
 
     private void makeSubnetRouteTableMissFlow(WriteTransaction writeFlowTx, BigInteger dpnId, int addOrRemove) {
-        final BigInteger cookieTableMiss = new BigInteger("8000004", 16);
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
         actionsInfos.add(new ActionPuntToController());
         int learnTimeout = vpnConfig.getSubnetRoutePuntTimeout().intValue();
         if (learnTimeout != 0) {
-            actionsInfos.add(new ActionLearn(0, learnTimeout, VpnConstants.DEFAULT_FLOW_PRIORITY, cookieTableMiss,
-                    0, NwConstants.L3_SUBNET_ROUTE_TABLE, 0, 0,
+            actionsInfos.add(new ActionLearn(0, learnTimeout, VpnConstants.DEFAULT_FLOW_PRIORITY,
+                    NwConstants.COOKIE_SUBNET_ROUTE_TABLE_MISS, 0, NwConstants.L3_SUBNET_ROUTE_TABLE,
+                    0, 0,
                     Arrays.asList(
                             new ActionLearn.MatchFromValue(NwConstants.ETHTYPE_IPV4,
                                     NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getType(),
@@ -189,13 +190,55 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         instructions.add(new InstructionApplyActions(actionsInfos));
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
-        String flowRef = getTableMissFlowRef(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, NwConstants.TABLE_MISS_FLOW);
+        String flowRef = getSubnetRouteTableMissFlowRef(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE,
+                NwConstants.ETHTYPE_IPV4, NwConstants.TABLE_MISS_FLOW);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, flowRef,
-            NwConstants.TABLE_MISS_PRIORITY, "Subnet Route Table Miss", 0, 0, cookieTableMiss, matches, instructions);
+            NwConstants.TABLE_MISS_PRIORITY, "Subnet Route Table Miss", 0, 0,
+                NwConstants.COOKIE_SUBNET_ROUTE_TABLE_MISS, matches, instructions);
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
             mdsalManager.addFlowToTx(flowEntity, writeFlowTx);
         } else {
+            mdsalManager.removeFlowToTx(flowEntity, writeFlowTx);
+        }
+    }
+
+    private void makeIpv6SubnetRouteTableMissFlow(WriteTransaction writeFlowTx, BigInteger dpnId, int addOrRemove) {
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        List<InstructionInfo> instructions = new ArrayList<>();
+        actionsInfos.add(new ActionPuntToController());
+        int learnTimeout = vpnConfig.getSubnetRoutePuntTimeout().intValue();
+        if (learnTimeout != 0) {
+            actionsInfos.add(new ActionLearn(0, learnTimeout, VpnConstants.DEFAULT_FLOW_PRIORITY,
+                    NwConstants.COOKIE_SUBNET_ROUTE_TABLE_MISS, 0, NwConstants.L3_SUBNET_ROUTE_TABLE,
+                    0, 0,
+                    Arrays.asList(
+                            new ActionLearn.MatchFromValue(NwConstants.ETHTYPE_IPV6,
+                                    NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getType(),
+                                    NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLenInt()),
+                            new ActionLearn.MatchFromField(NwConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getType(),
+                                    NwConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getType(),
+                                    NwConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getFlowModHeaderLenInt()),
+                            new ActionLearn.MatchFromField(NwConstants.NxmOfFieldType.OXM_OF_METADATA.getType(),
+                                    MetaDataUtil.METADATA_VPN_ID_OFFSET,
+                                    NwConstants.NxmOfFieldType.OXM_OF_METADATA.getType(),
+                                    MetaDataUtil.METADATA_VPN_ID_OFFSET,
+                                    MetaDataUtil.METADATA_VPN_ID_BITLEN))));
+        }
+
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        List<MatchInfo> matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV6);
+        String flowRef = getSubnetRouteTableMissFlowRef(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE,
+                NwConstants.ETHTYPE_IPV6, NwConstants.TABLE_MISS_FLOW);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, flowRef,
+                NwConstants.TABLE_MISS_PRIORITY, "IPv6 Subnet Route Table Miss", 0, 0,
+                NwConstants.COOKIE_SUBNET_ROUTE_TABLE_MISS, matches, instructions);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            LOG.debug("makeIpv6SubnetRouteTableMissFlow: Install Ipv6 Subnet Route Table Miss entry");
+            mdsalManager.addFlowToTx(flowEntity, writeFlowTx);
+        } else {
+            LOG.debug("makeIpv6SubnetRouteTableMissFlow: Remove Ipv6 Subnet Route Table Miss entry");
             mdsalManager.removeFlowToTx(flowEntity, writeFlowTx);
         }
     }
@@ -245,8 +288,12 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     }
 
     private String getTableMissFlowRef(BigInteger dpnId, short tableId, int tableMiss) {
-        return new StringBuffer().append(FLOWID_PREFIX).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
-            .append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(tableMiss)
-            .append(FLOWID_PREFIX).toString();
+        return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + tableMiss
+                + FLOWID_PREFIX;
+    }
+
+    private String getSubnetRouteTableMissFlowRef(BigInteger dpnId, short tableId, int etherType, int tableMiss) {
+        return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + etherType
+                + NwConstants.FLOWID_SEPARATOR + tableMiss + FLOWID_PREFIX;
     }
 }
