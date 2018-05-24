@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "dd5956d0_9ea25d0f",
+        "filename": "docs/specs/igmp-snooping.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2018-05-24T16:42:31Z",
+      "side": 1,
+      "message": "Yes Jamo,we will need to test this in CSIT, where we have a multicast router or some way to inject IGMP Query messages. \n\nI\u0027ve looked around a bit today, and found this tool that may help with this:\n\nhttps://ostinato.org/\n\nI haven\u0027t tried it locally yet, but this may work, has a Python API for network test automation! Looks promising....",
+      "parentUuid": "9b35a426_9b24be8b",
+      "range": {
+        "startLine": 50,
+        "startChar": 63,
+        "endLine": 52,
+        "endChar": 20
+      },
+      "revId": "bdba7a34d8f28ad49cee6e2a88ebf71672d8147c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "148992aa_a9f325ce",
         "filename": "docs/specs/igmp-snooping.rst",
         "patchSetId": 3
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "So if IGMP query port times out, and there are no other ports in a network that are query ports, then you can assume there is no longer a IGMP enabled router on the network and also remove all other ports as well on that network, right?",
       "parentUuid": "9b20c191_7d68f978",
+      "range": {
+        "startLine": 67,
+        "startChar": 31,
+        "endLine": 67,
+        "endChar": 44
+      },
+      "revId": "bdba7a34d8f28ad49cee6e2a88ebf71672d8147c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc910f81_6bdcfdcf",
+        "filename": "docs/specs/igmp-snooping.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2018-05-24T16:42:31Z",
+      "side": 1,
+      "message": "Hm, I suppose that could be an option. From this line of thinking, it would also imply, don\u0027t install any host listener ports if there are no multicast routers on the network, right?\n\n\nWhat would be the benefit of this? Seems more like an optimization than a requirement... am I missing something?",
+      "parentUuid": "0423b020_1e0e7048",
       "range": {
         "startLine": 67,
         "startChar": 31,
