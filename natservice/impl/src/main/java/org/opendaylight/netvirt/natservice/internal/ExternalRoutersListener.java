@@ -910,11 +910,24 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         installTerminatingServiceTblEntry(dpnId, routerName, routerId, writeFlowInvTx);
         //Install the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table matching on the router ID.
         installNaptPfibEntry(dpnId, routerId, writeFlowInvTx);
-        Long vpnId = NatUtil.getNetworkVpnIdFromRouterId(dataBroker, routerId);
-        installNaptPfibEntriesForExternalSubnets(routerName, dpnId, writeFlowInvTx);
-        //Install the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table matching on the VPN ID.
-        if (vpnId != null && vpnId != NatConstants.INVALID_ID) {
-            installNaptPfibEntry(dpnId, vpnId, writeFlowInvTx);
+        Uuid networkId = NatUtil.getNetworkIdFromRouterId(dataBroker, routerId);
+        if (networkId != null) {
+            Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
+            if (vpnUuid != null) {
+                Long vpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
+                coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + networkId, () -> {
+                    installNaptPfibEntriesForExternalSubnets(routerName, dpnId, null);
+                    //Install the NAPT PFIB TABLE which forwards outgoing packet to FIB Table matching on the VPN ID.
+                    if (vpnId != null && vpnId != NatConstants.INVALID_ID) {
+                        installNaptPfibEntry(dpnId, vpnId, null);
+                    }
+                    return Collections.emptyList();
+                });
+            } else {
+                LOG.warn("handlePrimaryNaptSwitch : External Vpn ID missing for Ext-Network : {}", networkId);
+            }
+        } else {
+            LOG.warn("handlePrimaryNaptSwitch : External Network not available for router : {}", routerName);
         }
     }
 
@@ -930,7 +943,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     public void installNaptPfibEntry(BigInteger dpnId, long segmentId, WriteTransaction writeFlowInvTx) {
         LOG.debug("installNaptPfibEntry : called for dpnId {} and segmentId {} ", dpnId, segmentId);
         FlowEntity naptPfibFlowEntity = buildNaptPfibFlowEntity(dpnId, segmentId);
-        mdsalManager.addFlowToTx(naptPfibFlowEntity, writeFlowInvTx);
+        if (writeFlowInvTx != null) {
+            mdsalManager.addFlowToTx(naptPfibFlowEntity, writeFlowInvTx);
+        } else {
+            mdsalManager.installFlow(naptPfibFlowEntity);
+        }
     }
 
     public FlowEntity buildNaptPfibFlowEntity(BigInteger dpId, long segmentId) {
