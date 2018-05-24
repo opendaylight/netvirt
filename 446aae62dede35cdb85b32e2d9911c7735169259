@@ -225,6 +225,24 @@
     },
     {
       "key": {
+        "uuid": "85e93e13_f40733b0",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-05-24T07:13:51Z",
+      "side": 1,
+      "message": "This link explains the QoS from OVS dpdk perspective:\nhttp://docs.openvswitch.org/en/latest/topics/dpdk/qos/\n\nlinux-htb will be available for only kernel based datapaths.",
+      "parentUuid": "2e88c6cb_d638459f",
+      "revId": "446aae62dede35cdb85b32e2d9911c7735169259",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3514087b_64a6b211",
         "filename": "docs/specs/fluorine/qos.rst",
         "patchSetId": 4
