@@ -142,14 +142,12 @@ public class BgpConfigurationManager {
     // to have stale FIB map (RD, Prefix)
     //  number of seconds wait for route sync-up between ODL and BGP
     private static final int BGP_RESTART_ROUTE_SYNC_SEC = 600;
-    private static final String DEF_LOGFILE = "/var/log/bgp_debug.log";
-    private static final String DEF_LOGLEVEL = "errors";
     private static final String UPDATE_PORT = "bgp.thrift.service.port";
     private static final String CONFIG_HOST = "vpnservice.bgpspeaker.host.name";
     private static final String CONFIG_PORT = "vpnservice.bgpspeaker.thrift.port";
     private static final String DEF_UPORT = "6644";
     private static final String DEF_CHOST = "255.255.255.255"; // Invalid Host IP
-    private static final String DEF_CPORT = "0";               // Invalid Port
+    private static final String DEF_CPORT = "7644";
     private static final String DEF_BGP_SDNC_MIP = "127.0.0.1";
     private static final String BGP_SDNC_MIP = "vpnservice.bgp.thrift.sdnc.mip";
     private static final int RESTART_DEFAULT_GR = 90;
@@ -742,7 +740,7 @@ public class BgpConfigurationManager {
                     return;
                 }
                 try {
-                    br.setLogging(DEF_LOGFILE, DEF_LOGLEVEL);
+                    br.setLogging(BgpConstants.BGP_DEF_LOG_FILE, BgpConstants.BGP_DEF_LOG_LEVEL);
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
