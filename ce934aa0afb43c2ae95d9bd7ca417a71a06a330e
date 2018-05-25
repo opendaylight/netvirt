@@ -68,6 +68,24 @@
       "revId": "ce934aa0afb43c2ae95d9bd7ca417a71a06a330e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6ec3a5bd_08569f78",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceOFFlowBuilder.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-05-25T09:22:47Z",
+      "side": 1,
+      "message": "See https://git.opendaylight.org/gerrit/72258",
+      "parentUuid": "aac1a358_d9864d88",
+      "revId": "ce934aa0afb43c2ae95d9bd7ca417a71a06a330e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
