@@ -22,6 +22,6 @@ public interface BgpConstants {
     String BGP_COUNTER_RD_ROUTE_COUNT = "BgpRdRouteCount";
     String BGP_COUNTER_TOTAL_PFX = "BgpTotalPrefixes:Bgp_Total_Prefixes";
     String BGP_DEF_LOG_LEVEL = "debugging";
-    String BGP_DEF_LOG_FILE = "/var/log/bgp_debug.log";
+    String BGP_DEF_LOG_FILE = "/opt/quagga/var/log/quagga/qthriftd.init.log";
     long DEFAULT_ETH_TAG = 0L;
 }
