@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "036a031e_67d192c0",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-05-25T11:15:34Z",
+      "side": 1,
+      "message": "in a different patch, we should fix this as it will keep happening. macinuse is a new field included by ovsdb. Seems like consumers shouldn\u0027t have to know to null it out.",
+      "revId": "4058c2ffce4fc53e43dec5a7cbe08834d18f9197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
