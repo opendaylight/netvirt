@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "779a1da0_b9284bf6",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-05-25T01:50:01Z",
+      "side": 1,
+      "message": "the stack trace for the exception is showing this line as where the NPE is included so shouldn\u0027t we find why the getInterfaces is no there?",
+      "range": {
+        "startLine": 630,
+        "startChar": 48,
+        "endLine": 630,
+        "endChar": 78
+      },
+      "revId": "0181ba661572b67d7c58a3d38729b9be658e5570",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
