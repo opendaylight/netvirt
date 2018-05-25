@@ -809,6 +809,13 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         IfL2vlan.L2vlanMode l2VlanMode = IfL2vlan.L2vlanMode.Trunk;
         InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
         IfL2vlanBuilder ifL2vlanBuilder = new IfL2vlanBuilder();
+
+        Network network = neutronvpnUtils.getNeutronNetwork(port.getNetworkId());
+        Boolean isVlanTransparent = network.isVlanTransparent();
+        if (isVlanTransparent != null && isVlanTransparent) {
+            l2VlanMode = IfL2vlan.L2vlanMode.Transparent;
+        }
+
         ifL2vlanBuilder.setL2vlanMode(l2VlanMode);
 
         interfaceBuilder.setEnabled(true).setName(interfaceName).setType(L2vlan.class)
