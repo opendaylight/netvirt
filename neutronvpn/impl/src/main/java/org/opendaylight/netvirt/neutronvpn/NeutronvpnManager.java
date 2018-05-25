@@ -2067,7 +2067,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     vpnId);
             return;
         }
-        List<Routes> routesError = new ArrayList();
         for (Routes route : routeList) {
             // count  the number of nexthops for each same route.getDestingation().getValue()
             String destination = String.valueOf(route.getDestination().getValue());
@@ -2132,14 +2131,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
             if (rdList.size() < nbNextHops) {
                 neutronvpnAlarm.raiseNeutronvpnAlarm(typeAlarm, detailsAlarm.toString());
-                LOG.error("there are too many next hops for prefixe in vpn {}", vpnId);
-                routesError.add(route);
             } else {
                 neutronvpnAlarm.clearNeutronvpnAlarm(typeAlarm, detailsAlarm.toString());
             }
         }
-        //in routesError there are a few route raised in alarm, so they have not to be used
-        routeList.removeAll(routesError);
     }
 
     // TODO Clean up the exception handling
