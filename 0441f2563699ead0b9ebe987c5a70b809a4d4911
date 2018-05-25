@@ -16,6 +16,24 @@
       "revId": "0441f2563699ead0b9ebe987c5a70b809a4d4911",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "49323cf1_750d9ed7",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-25T10:47:04Z",
+      "side": 1,
+      "message": "Yes. Take a look at https://logs.opendaylight.org/releng/vex-yul-odl-jenkins-1/netvirt-csit-1node-openstack-pike-upstream-stateful-oxygen/283/robot-plugin/log_03_external_network.html.gz#s1-t16-k3-k2-k1-k2-k16-k3",
+      "parentUuid": "0cd6dcab_63ebf80b",
+      "revId": "0441f2563699ead0b9ebe987c5a70b809a4d4911",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
