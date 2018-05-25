@@ -117,7 +117,7 @@ public class Ipv6NeighborSolicitation {
         NodeConnectorRef nodeConnectorRef = MDSALUtil.getNodeConnRef(dpnId, "0xfffffffd");
         TransmitPacketInput input = new TransmitPacketInputBuilder().setPayload(txPayload)
                 .setNode(new NodeRef(InstanceIdentifier.builder(Nodes.class)
-                        .child(Node.class, new NodeKey(new NodeId("openflow:" + dpnId))).toInstance()))
+                        .child(Node.class, new NodeKey(new NodeId("openflow:" + dpnId))).build()))
                 .setEgress(nodeRef).setIngress(nodeConnectorRef).build();
 
         // Tx the packet out of the controller.

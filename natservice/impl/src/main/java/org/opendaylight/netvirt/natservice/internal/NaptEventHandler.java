@@ -473,7 +473,7 @@ public class NaptEventHandler {
     private static NodeRef getNodeRef(BigInteger dpnId) {
         NodeId nodeId = new NodeId("openflow:" + dpnId);
         return new NodeRef(InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, new NodeKey(nodeId)).toInstance());
+                .child(Node.class, new NodeKey(nodeId)).build());
     }
 
     public static FlowRef getFlowRef(BigInteger dpId, Flow flow) {

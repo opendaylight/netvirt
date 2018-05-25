@@ -145,7 +145,7 @@ public class CounterRetriever {
     private GetNodeConnectorStatisticsInput getNodeConnectorStatisticsInputBuilder(NodeId nodeId,
             NodeConnectorId nodeConnectorId) {
         NodeRef nodeRef = new NodeRef(
-                InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(nodeId)).toInstance());
+                InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(nodeId)).build());
         GetNodeConnectorStatisticsInputBuilder nodeConnectorBuilder =
                 new GetNodeConnectorStatisticsInputBuilder().setNode(nodeRef).setNodeConnectorId(nodeConnectorId);
         GetNodeConnectorStatisticsInput gncsi = nodeConnectorBuilder.build();
@@ -197,7 +197,7 @@ public class CounterRetriever {
 
     public CounterResultDataStructure getSwitchFlowCountersDirect(BigInteger dpId, Match match) {
         NodeRef nodeRef = new NodeRef(InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, new NodeKey(new NodeId(CountersUtils.getNodeId(dpId)))).toInstance());
+                .child(Node.class, new NodeKey(new NodeId(CountersUtils.getNodeId(dpId)))).build());
         GetFlowStatisticsInputBuilder gfsib = new GetFlowStatisticsInputBuilder();
         gfsib.setNode(nodeRef);
         gfsib.setMatch(match);
