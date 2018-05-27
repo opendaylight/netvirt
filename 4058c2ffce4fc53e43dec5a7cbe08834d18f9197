@@ -16,6 +16,24 @@
       "revId": "4058c2ffce4fc53e43dec5a7cbe08834d18f9197",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "99cd4749_7e375a13",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-05-27T08:25:01Z",
+      "side": 1,
+      "message": "Fix what? I don\u0027t understand what you mean here? This only happens once when the switch is first discovered. \n\nIt would be nice if there were a way to dynamically walk the schema and figure out which fields are \"config false\" and null them, but there is no real API for that.",
+      "parentUuid": "036a031e_67d192c0",
+      "revId": "4058c2ffce4fc53e43dec5a7cbe08834d18f9197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
