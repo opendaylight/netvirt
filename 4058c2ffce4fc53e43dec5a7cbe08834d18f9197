@@ -34,6 +34,24 @@
       "revId": "4058c2ffce4fc53e43dec5a7cbe08834d18f9197",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a119ba3_f2933c80",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-27T08:35:12Z",
+      "side": 1,
+      "message": "I think a better approach would be to pick the fields we want to retain than null out ones we don\u0027t. Drawback with that would be a new field that gets added and we need to have it config. But that would fail some use case and be found, rather than failing write coz we writing config:false to config. So there is no one fixed solution here, this quirk is due to way we are \u0027creating\u0027 bridge that already exists.",
+      "parentUuid": "99cd4749_7e375a13",
+      "revId": "4058c2ffce4fc53e43dec5a7cbe08834d18f9197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
