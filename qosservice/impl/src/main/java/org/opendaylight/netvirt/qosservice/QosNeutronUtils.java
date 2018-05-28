@@ -476,7 +476,8 @@ public class QosNeutronUtils {
                         .child(TerminationPoint.class, new TerminationPointKey(tp.getKey())), tpBuilder.build());
             }
         } catch (Exception e) {
-            LOG.error("Failure while setting BwLimitRule {} to port {}", bwLimit, port, e);
+            LOG.error("Failure while setting BwLimitRule {} to port {}", bwLimit, port);
+            LOG.debug("Failure while setting BwLimitRule {} to port {} exception ", bwLimit, port, e);
         }
 
     }
@@ -517,7 +518,7 @@ public class QosNeutronUtils {
         String ifName = port.getUuid().getValue();
 
         if (dpnId.equals(BigInteger.ZERO)) {
-            LOG.info("DPN ID for port {} not found", port);
+            LOG.trace("DPN ID for port {} not found", port);
             return;
         }
 
@@ -563,7 +564,8 @@ public class QosNeutronUtils {
                 LOG.error("Could not retrieve DPN Id for interface {}", ifName);
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("Exception when getting dpn for interface {}", ifName,  e);
+            LOG.error("Could not retrieve DPN for interface {}", ifName);
+            LOG.debug("Exception when getting DPN for interface {} exception ", ifName, e);
         }
         return nodeId;
     }
@@ -737,7 +739,8 @@ public class QosNeutronUtils {
                 return portResult.getResult().getPortno().toString();
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when getting port for interface {}", e);
+            LOG.warn("Could not retrieve port for interface {}", ifName);
+            LOG.debug("Exception when getting port for interface {}", ifName, e);
         }
         return null;
     }
