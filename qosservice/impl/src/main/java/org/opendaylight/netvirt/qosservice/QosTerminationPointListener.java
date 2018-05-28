@@ -103,7 +103,7 @@ public class QosTerminationPointListener extends
         // bandwidth rules is present for the port, then reapply the qos policy configuration.
 
         if (ifaceId != null && isBandwidthRuleCleared(original, update)) {
-            LOG.debug("update tp augment: iface-id: {}, name: {}, old bw rate, burst = {}, {}, "
+            LOG.trace("update tp augment: iface-id: {}, name: {}, old bw rate, burst = {}, {}, "
                             + "updated bw rate, burst = {}, {}", ifaceId, update.getName(),
                     original.getIngressPolicingRate(), original.getIngressPolicingBurst(),
                     update.getIngressPolicingRate(), update.getIngressPolicingBurst());
@@ -124,7 +124,7 @@ public class QosTerminationPointListener extends
         if (ifaceId != null) {
             Port port = qosNeutronUtils.getNeutronPort(ifaceId);
             if (port != null) {
-                LOG.debug("add tp augmentation: iface-id: {}, name: {} ", ifaceId, tpAugment.getName());
+                LOG.trace("add tp augmentation: iface-id: {}, name: {} ", ifaceId, tpAugment.getName());
                 setPortBandwidthRule(instanceIdentifier, tpAugment, port);
             }
         }
@@ -142,7 +142,7 @@ public class QosTerminationPointListener extends
                 || qosPolicy.getBandwidthLimitRules().isEmpty()) {
             return;
         }
-        LOG.debug("setting bandwidth rule for port: {}, {}, qos policy: {}",
+        LOG.trace("setting bandwidth rule for port: {}, {}, qos policy: {}",
                 port.getUuid(), update.getName(), qosPolicy.getName());
 
         jobCoordinator.enqueueJob("QosPort-" + port.getUuid(), () ->
