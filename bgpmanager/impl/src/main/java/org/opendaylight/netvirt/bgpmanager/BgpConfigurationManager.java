@@ -81,6 +81,8 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 import org.opendaylight.netvirt.bgpmanager.thrift.server.BgpThriftService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
+import org.opendaylight.ovsdb.utils.mdsal.utils.TransactionHistory;
+import org.opendaylight.ovsdb.utils.mdsal.utils.TransactionType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
@@ -161,6 +163,9 @@ public class BgpConfigurationManager {
     private static final String UPD_WARN = "Update operation not supported; Config store updated;"
             + " restore with another Update if needed.";
 
+    private static final int HISTORY_LIMIT = 10000;
+    private static final int HISTORY_THRESHOLD = 7500;
+
     private static final Class<?>[] REACTORS = {
         ConfigServerReactor.class, AsIdReactor.class,
         GracefulRestartReactor.class, LoggingReactor.class,
@@ -226,6 +231,7 @@ public class BgpConfigurationManager {
     private final EntityOwnershipCandidateRegistration candidateRegistration;
     private final EntityOwnershipListenerRegistration entityListenerRegistration;
     private final MetricProvider metricProvider;
+    private final TransactionHistory bgpUpdatesHistory;
 
     @Inject
     public BgpConfigurationManager(final DataBroker dataBroker,
@@ -240,6 +246,7 @@ public class BgpConfigurationManager {
         this.vpnLinkService = vpnLinkSrvce;
         this.bundleContext = bundleContext;
         this.bgpUtil = bgpUtil;
+        bgpUpdatesHistory = new TransactionHistory(HISTORY_LIMIT, HISTORY_THRESHOLD);//TODO make them constants
         this.metricProvider = metricProvider;
         String updatePort = getProperty(UPDATE_PORT, DEF_UPORT);
         hostStartup = getProperty(CONFIG_HOST, DEF_CHOST);
@@ -247,7 +254,7 @@ public class BgpConfigurationManager {
         LOG.info("ConfigServer at {}:{}", hostStartup, portStartup);
         VtyshCli.setHostAddr(hostStartup);
         ClearBgpCli.setHostAddr(hostStartup);
-        bgpRouter = BgpRouter.newInstance(this::getConfig, this::isBGPEntityOwner);
+        bgpRouter = BgpRouter.newInstance(this::getConfig, this::isBGPEntityOwner, bgpUpdatesHistory);
         registerCallbacks();
 
         entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
@@ -320,6 +327,10 @@ public class BgpConfigurationManager {
 
     public long getStaleEndTime() {
         return staleEndTime;
+    }
+
+    public TransactionHistory getBgpUpdatesHistory() {
+        return bgpUpdatesHistory;
     }
 
     public void setStaleEndTime(long staleEndTime) {
@@ -1820,6 +1831,9 @@ public class BgpConfigurationManager {
 
     public void onUpdatePushRoute(protocol_type protocolType, String rd, String prefix, int plen, String nextHop,
                                   String macaddress, int label, int l2label, String routermac, af_afi afi) {
+        PrefixUpdateEvent prefixUpdateEvent = new PrefixUpdateEvent(protocolType,rd,prefix,plen,nextHop,
+                macaddress,label,l2label,routermac,afi);
+        bgpUpdatesHistory.addToHistory(TransactionType.ADD, prefixUpdateEvent);
         boolean addroute = false;
         boolean macupdate = false;
         long l3vni = 0L;
@@ -1890,6 +1904,9 @@ public class BgpConfigurationManager {
 
     public void onUpdateWithdrawRoute(protocol_type protocolType, String rd, String prefix, int plen, String nextHop,
             String macaddress) {
+        PrefixWithdrawEvent prefixWithdrawEvent = new PrefixWithdrawEvent(protocolType,rd,prefix,plen,
+                nextHop,macaddress);
+        bgpUpdatesHistory.addToHistory(TransactionType.ADD, prefixWithdrawEvent);
         long vni = 0L;
         boolean macupdate = false;
         if (protocolType.equals(protocol_type.PROTOCOL_EVPN)) {

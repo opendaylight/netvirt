@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.bgpmanager.thrift.client;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.net.ConnectException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -28,6 +29,8 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.encap_type;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.layer_type;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
+import org.opendaylight.ovsdb.utils.mdsal.utils.TransactionHistory;
+import org.opendaylight.ovsdb.utils.mdsal.utils.TransactionType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
 import org.slf4j.Logger;
@@ -72,6 +75,53 @@ public final class BgpRouter {
             strs = new String[3];
             ints = new int[2];
         }
+
+        BgpOp(BgpOp bgpOp) {
+            strs = new String[3];
+            ints = new int[2];
+            this.afi = bgpOp.afi;
+            this.safi = bgpOp.safi;
+            this.type = bgpOp.type;
+            this.add = bgpOp.add;
+            this.asNumber = bgpOp.asNumber;
+            this.thriftProtocolType = bgpOp.thriftProtocolType;
+            this.thriftLayerType = bgpOp.thriftLayerType;
+            this.ethernetTag = bgpOp.ethernetTag;
+            this.esi = bgpOp.esi;
+            this.macAddress = bgpOp.macAddress;
+            this.l2label = bgpOp.l2label;
+            this.l3label = bgpOp.l3label;
+            this.routermac = bgpOp.routermac;
+            this.thriftEncapType = bgpOp.thriftEncapType;
+            this.delayEOR = bgpOp.delayEOR;
+
+        }
+
+        @Override
+        public String toString() {
+            //TODO pretty print
+            return "BgpOp{"
+                    + "type=" + type
+                    + ", add=" + add
+                    + ", strs=" + Arrays.toString(strs)
+                    + ", ints=" + Arrays.toString(ints)
+                    + ", irts=" + irts
+                    + ", erts=" + erts
+                    + ", asNumber=" + asNumber
+                    + ", thriftLayerType=" + thriftLayerType
+                    + ", thriftProtocolType=" + thriftProtocolType
+                    + ", ethernetTag=" + ethernetTag
+                    + ", esi='" + esi + '\''
+                    + ", macAddress='" + macAddress + '\''
+                    + ", l2label=" + l2label
+                    + ", l3label=" + l3label
+                    + ", thriftEncapType=" + thriftEncapType
+                    + ", routermac='" + routermac + '\''
+                    + ", afi=" + afi
+                    + ", delayEOR=" + delayEOR
+                    + ", safi=" + safi
+                    + '}' + '\n';
+        }
     }
 
     private final BgpOp bop = new BgpOp();
@@ -85,15 +135,18 @@ public final class BgpRouter {
     private volatile long connectTS;
     private volatile long lastConnectedTS;
     private volatile boolean configServerUpdated = false;
+    private final TransactionHistory transactionHistory;
 
-    private BgpRouter(Supplier<Bgp> bgpConfigSupplier, BooleanSupplier isBGPEntityOwner) {
+    private BgpRouter(Supplier<Bgp> bgpConfigSupplier, BooleanSupplier isBGPEntityOwner,
+                      TransactionHistory transactionHistory) {
         this.bgpConfigSupplier = bgpConfigSupplier;
         this.isBGPEntityOwner = isBGPEntityOwner;
+        this.transactionHistory = transactionHistory;
     }
 
     // private ctor FOR UNIT TESTS ONLY
     private BgpRouter(BgpConfigurator.Client bgpClient) {
-        this(() -> null, () -> false);
+        this(() -> null, () -> false, new TransactionHistory(10000, 7500));
         this.bgpClient = bgpClient;
     }
 
@@ -103,8 +156,9 @@ public final class BgpRouter {
         return new BgpRouter(bgpClient);
     }
 
-    public static BgpRouter newInstance(Supplier<Bgp> bgpConfigSupplier, BooleanSupplier isEntityBGPOwner) {
-        return new BgpRouter(bgpConfigSupplier, isEntityBGPOwner);
+    public static BgpRouter newInstance(Supplier<Bgp> bgpConfigSupplier, BooleanSupplier isEntityBGPOwner,
+                                        TransactionHistory transactionHistory) {
+        return new BgpRouter(bgpConfigSupplier, isEntityBGPOwner, transactionHistory);
     }
 
     public TTransport getTransport() {
@@ -213,11 +267,19 @@ public final class BgpRouter {
     private void dispatch(BgpOp op) throws TException, BgpRouterException {
         try {
             dispatchInternal(op);
+            LOG.error("Doing op {}", op);
+            transactionHistory.addToHistory(getTransactionType(op), new BgpOp(op));
+            LOG.error("History size is {}", transactionHistory.getElements().size());
+            transactionHistory.getElements().forEach(ele -> LOG.error("history is {}", ele.getData()));
         } catch (TTransportException tte) {
             LOG.error("dispatch command to qthriftd failed, command: {}, exception:", op.toString(), tte);
             reConnect(tte);
             dispatchInternal(op);
         }
+    }
+
+    private TransactionType getTransactionType(BgpOp op) {
+        return op.add ? TransactionType.ADD : TransactionType.DELETE;
     }
 
     private void reConnect(TTransportException tte) {
