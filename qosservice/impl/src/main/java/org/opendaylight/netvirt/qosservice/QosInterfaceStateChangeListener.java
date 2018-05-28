@@ -57,13 +57,13 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
         this.neutronVpnManager = neutronVpnManager;
         serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
                 this);
-        LOG.debug("{} created",  getClass().getSimpleName());
+        LOG.trace("{} created",  getClass().getSimpleName());
     }
 
     @PostConstruct
     public void init() {
         registerListener();
-        LOG.debug("{} init and registerListener done", getClass().getSimpleName());
+        LOG.trace("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override
@@ -84,31 +84,27 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
-        try {
-            if (L2vlan.class.equals(intrf.getType())) {
-                final String interfaceName = intrf.getName();
-                getNeutronPort(interfaceName).ifPresent(port -> {
-                    Network network = qosNeutronUtils.getNeutronNetwork(port.getNetworkId());
-                    LOG.trace("Qos Service : Received interface {} PORT UP event ", interfaceName);
-                    if (port.augmentation(QosPortExtension.class) != null) {
-                        Uuid portQosUuid = port.augmentation(QosPortExtension.class).getQosPolicyId();
-                        if (portQosUuid != null) {
-                            qosNeutronUtils.addToQosPortsCache(portQosUuid, port);
-                            qosNeutronUtils.handleQosInterfaceAdd(port, portQosUuid);
-                        }
-                    } else {
-                        if (network.augmentation(QosNetworkExtension.class) != null) {
-                            Uuid networkQosUuid = network.augmentation(QosNetworkExtension.class).getQosPolicyId();
-                            if (networkQosUuid != null) {
-                                qosNeutronUtils.handleQosInterfaceAdd(port, networkQosUuid);
-                            }
+        if (L2vlan.class.equals(intrf.getType())) {
+            final String interfaceName = intrf.getName();
+            getNeutronPort(interfaceName).ifPresent(port -> {
+                Network network = qosNeutronUtils.getNeutronNetwork(port.getNetworkId());
+                LOG.debug("Qos Service : Received interface {} PORT UP event ", interfaceName);
+                if (port.augmentation(QosPortExtension.class) != null) {
+                    Uuid portQosUuid = port.augmentation(QosPortExtension.class).getQosPolicyId();
+                    if (portQosUuid != null) {
+                        qosNeutronUtils.addToQosPortsCache(portQosUuid, port);
+                        qosNeutronUtils.handleQosInterfaceAdd(port, portQosUuid);
+                    }
+                } else {
+                    if (network.augmentation(QosNetworkExtension.class) != null) {
+                        Uuid networkQosUuid = network.augmentation(QosNetworkExtension.class).getQosPolicyId();
+                        if (networkQosUuid != null) {
+                            qosNeutronUtils.handleQosInterfaceAdd(port, networkQosUuid);
                         }
                     }
-                    qosAlertManager.processInterfaceUpEvent(interfaceName);
-                });
-            }
-        } catch (Exception e) {
-            LOG.error("Qos:Exception caught in Interface Operational State Up event {}", e);
+                }
+                qosAlertManager.processInterfaceUpEvent(interfaceName);
+            });
         }
     }
 
