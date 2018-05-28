@@ -73,14 +73,13 @@ public final class QosAlertManager implements Runnable {
             final OpendaylightDirectStatisticsService odlDirectStatisticsService, final QosalertConfig defaultConfig,
             final QosNeutronUtils qosNeutronUtils, final QosEosHandler qosEosHandler,
             final IInterfaceManager interfaceManager) {
-        LOG.debug("{} created",  getClass().getSimpleName());
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.odlDirectStatisticsService = odlDirectStatisticsService;
         this.interfaceManager = interfaceManager;
         this.defaultConfig = defaultConfig;
         this.qosNeutronUtils = qosNeutronUtils;
         this.qosEosHandler = qosEosHandler;
-        LOG.debug("QosAlert default config poll alertEnabled:{} threshold:{} pollInterval:{}",
+        LOG.trace("QosAlert default config poll alertEnabled:{} threshold:{} pollInterval:{}",
                 defaultConfig.isQosAlertEnabled(), defaultConfig.getQosDropPacketThreshold(),
                 defaultConfig.getQosAlertPollInterval());
         getDefaultConfig();
@@ -92,7 +91,7 @@ public final class QosAlertManager implements Runnable {
         qosAlertDpnPortNumberMap.clear();
         statsPollThreadStart = true;
         startStatsPollThread();
-        LOG.debug("{} init done", getClass().getSimpleName());
+        LOG.trace("{} init done", getClass().getSimpleName());
     }
 
     @PreDestroy
@@ -101,7 +100,7 @@ public final class QosAlertManager implements Runnable {
         if (thread != null) {
             thread.interrupt();
         }
-        LOG.debug("{} close done", getClass().getSimpleName());
+        LOG.trace("{} close done", getClass().getSimpleName());
     }
 
     private void setQosAlertOwner(boolean isOwner) {
@@ -118,14 +117,14 @@ public final class QosAlertManager implements Runnable {
     public void run() {
         LOG.debug("Qos alert poll thread started");
         while (statsPollThreadStart && alertEnabled) {
-            LOG.debug("Thread loop polling :{} threshold:{} pollInterval:{}",
+            LOG.trace("Thread loop polling :{} threshold:{} pollInterval:{}",
                     alertEnabled, alertThresholdSupplier.get(), pollInterval);
 
             try {
                 pollDirectStatisticsForAllNodes();
                 Thread.sleep(pollInterval * 60L * 1000L); // pollInterval in minutes
             } catch (final InterruptedException e) {
-                LOG.debug("Qos polling thread interrupted");
+                LOG.debug("Qos polling thread interrupted ", e);
             }
         }
         thread = null;
@@ -197,7 +196,7 @@ public final class QosAlertManager implements Runnable {
         InterfaceInfo interfaceInfo =
                 interfaceManager.getInterfaceInfoFromOperationalDataStore(ifaceId);
         if (interfaceInfo == null) {
-            LOG.debug("Interface not found {}. Add in cache now and process later ", ifaceId);
+            LOG.debug("Interface not found {}. Added in cache now to process later ", ifaceId);
             unprocessedInterfaceIds.add(ifaceId);
         } else {
             addToQosAlertCache(interfaceInfo);
@@ -214,13 +213,14 @@ public final class QosAlertManager implements Runnable {
     private void addToQosAlertCache(InterfaceInfo interfaceInfo) {
         BigInteger dpnId = interfaceInfo.getDpId();
         if (dpnId.equals(IfmConstants.INVALID_DPID)) {
-            LOG.error("Interface {} has INVALID_DPID", interfaceInfo.getInterfaceName());
+            LOG.warn("Interface {} could not be added to Qos Alert Cache because Dpn Id is not found",
+                    interfaceInfo.getInterfaceName());
             return;
         }
 
         Port port = qosNeutronUtils.getNeutronPort(interfaceInfo.getInterfaceName());
         if (port == null) {
-            LOG.error("Port {} not found", interfaceInfo.getInterfaceName());
+            LOG.warn("Port {} not added to Qos Alert Cache because it is not found", interfaceInfo.getInterfaceName());
             return;
         }
 
@@ -251,7 +251,7 @@ public final class QosAlertManager implements Runnable {
         BigInteger dpnId = qosNeutronUtils.getDpnIdFromLowerLayerIf(lowerLayerIf);
         String portNumber = qosNeutronUtils.getPortNumberFromLowerLayerIf(lowerLayerIf);
         if (dpnId == null || portNumber == null) {
-            LOG.error("interface {} not in openflow:dpnid:portnum format", lowerLayerIf);
+            LOG.warn("Interface {} not in openflow:dpnid:portnum format, could not remove from cache", lowerLayerIf);
             return;
         }
         removeFromQosAlertCache(dpnId, portNumber);
@@ -261,9 +261,9 @@ public final class QosAlertManager implements Runnable {
         if (qosAlertDpnPortNumberMap.containsKey(dpnId)
                 && qosAlertDpnPortNumberMap.get(dpnId).containsKey(portNumber)) {
             qosAlertDpnPortNumberMap.get(dpnId).remove(portNumber);
-            LOG.debug("Removed interace {}:{} from cache", dpnId, portNumber);
+            LOG.trace("Removed interace {}:{} from cache", dpnId, portNumber);
             if (qosAlertDpnPortNumberMap.get(dpnId).isEmpty()) {
-                LOG.debug("DPN {} empty. Removing dpn from cache as well", dpnId);
+                LOG.trace("DPN {} empty. Removing dpn from cache", dpnId);
                 qosAlertDpnPortNumberMap.remove(dpnId);
             }
         }
@@ -301,7 +301,8 @@ public final class QosAlertManager implements Runnable {
             try {
                 rpcResult = rpcResultFuture.get();
             } catch (InterruptedException | ExecutionException e) {
-                LOG.error("Exception {} occurred with node {} Direct-Statistics get", e, dpn);
+                LOG.info("Could not get Direct-Statistics for node {}", dpn);
+                LOG.debug("Could not get Direct-Statistics for node {} Exception occurred ", dpn, e);
             }
             if (rpcResult != null && rpcResult.isSuccessful() && rpcResult.getResult() != null) {
 
@@ -318,7 +319,7 @@ public final class QosAlertManager implements Runnable {
                     }
                 }
             } else {
-                LOG.error("Direct-Statistics not available for node {}", dpn);
+                LOG.info("Direct-Statistics not available for node {}", dpn);
             }
 
         }
