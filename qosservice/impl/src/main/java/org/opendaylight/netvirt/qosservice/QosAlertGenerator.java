@@ -30,7 +30,11 @@ public class QosAlertGenerator {
         try {
             updateQoSAlertLog4jProperties(getPropertyMap(QosConstants.QOS_ALERT_PROPERTIES_PID));
         } catch (IOException e) {
-            LOG.error("Error updating log4j properties", e);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Error initialising log4j properties ", e);
+            } else {
+                LOG.warn("Qos Alert properties could not be initialised");
+            }
         }
     }
 
@@ -38,7 +42,11 @@ public class QosAlertGenerator {
         try {
             updateQoSAlertLog4jProperties(qosAlertProperties);
         } catch (IOException e) {
-            LOG.error("Error updating log4j properties", e);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Error updating log4j properties ", e);
+            } else {
+                LOG.warn("Qos Alert properties update failed");
+            }
         }
     }
 
@@ -84,7 +92,11 @@ public class QosAlertGenerator {
             log4jConfig.update(updateLog4jProperties);
             log4jConfig.update();
         } catch (IOException ioe) {
-            LOG.error("Exception in configuration {}", ioe);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Exception in configuration ", ioe);
+            } else {
+                LOG.warn("Could not update configuration in Config log");
+            }
         }
     }
 }

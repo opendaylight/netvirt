@@ -29,7 +29,7 @@ public class QosAlertEnableCLI extends OsgiCommandSupport {
 
     public void setQosAlertManager(QosAlertManager qosAlertManager) {
         this.qosAlertManager = qosAlertManager;
-        LOG.debug("Qos manager:{} set", qosAlertManager);
+        LOG.trace("Qos manager:{} set", qosAlertManager);
     }
 
     @Override
