@@ -70,11 +70,10 @@ public class QosEosHandler implements EntityOwnershipListener, AutoCloseable {
                 QosConstants.QOS_ALERT_OWNER_ENTITY_TYPE, QosConstants.QOS_ALERT_OWNER_ENTITY_TYPE);
         try {
             candidateRegistration = entityOwnershipService.registerCandidate(instanceEntity);
+            LOG.trace("entity ownership registeration successful");
         } catch (CandidateAlreadyRegisteredException e) {
-            LOG.warn("qosalert instance entity {} was already "
-                    + "registered for ownership", instanceEntity);
+            LOG.trace("qosalert instance entity {} was already registered for ownership", instanceEntity);
         }
-        LOG.trace("entity ownership registeration successful");
     }
 
     @Override

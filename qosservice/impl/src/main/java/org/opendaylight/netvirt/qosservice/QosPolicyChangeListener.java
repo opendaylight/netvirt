@@ -67,14 +67,14 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
         this.jobCoordinator = jobCoordinator;
         serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
                 this);
-        LOG.debug("{} created",  getClass().getSimpleName());
+        LOG.trace("{} created",  getClass().getSimpleName());
     }
 
     @PostConstruct
     public void init() {
         registerListener();
         supportedQoSRuleTypes();
-        LOG.debug("{} init and registerListener done", getClass().getSimpleName());
+        LOG.trace("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override
@@ -157,12 +157,14 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
     @Override
     protected void add(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
-        LOG.trace("Adding  QosPolicy : key: {}, value={}", identifier, input);
+        LOG.debug("Adding  QosPolicy : key: {}, value={}",
+                identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(),input);
         qosNeutronUtils.addToQosPolicyCache(input);
     }
 
     protected void add(InstanceIdentifier<BandwidthLimitRules> identifier, BandwidthLimitRules input) {
-        LOG.trace("Adding BandwidthlimitRules : key: {}, value={}", identifier, input);
+        LOG.debug("Adding BandwidthlimitRules : key: {}, value={}",
+                identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), input);
 
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
         for (Network network : qosNeutronUtils.getQosNetworks(qosUuid)) {
@@ -177,7 +179,8 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
     }
 
     private void add(InstanceIdentifier<DscpmarkingRules> identifier, DscpmarkingRules input) {
-        LOG.trace("Adding DscpMarkingRules : key: {}, value={}", identifier, input);
+        LOG.debug("Adding DscpMarkingRules : key: {}, value={}",
+                identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), input);
 
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
 
@@ -195,12 +198,14 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
     @Override
     protected void remove(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
-        LOG.trace("Removing QosPolicy : key: {}, value={}", identifier, input);
+        LOG.debug("Removing QosPolicy : key: {}, value={}",
+                identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), input);
         qosNeutronUtils.removeFromQosPolicyCache(input);
     }
 
     private void remove(InstanceIdentifier<BandwidthLimitRules> identifier, BandwidthLimitRules input) {
-        LOG.trace("Removing BandwidthLimitRules : key: {}, value={}", identifier, input);
+        LOG.debug("Removing BandwidthLimitRules : key: {}, value={}",
+                identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), input);
 
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
         BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
@@ -219,7 +224,8 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
     }
 
     private void remove(InstanceIdentifier<DscpmarkingRules> identifier,DscpmarkingRules input) {
-        LOG.trace("Removing DscpMarkingRules : key: {}, value={}", identifier, input);
+        LOG.debug("Removing DscpMarkingRules : key: {}, value={}",
+                identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), input);
 
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
 
@@ -257,13 +263,15 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
     @Override
     protected void update(InstanceIdentifier<QosPolicy> identifier, QosPolicy original, QosPolicy update) {
-        LOG.trace("Updating QosPolicy : key: {}, original value={}, update value={}", identifier, original, update);
+        LOG.debug("Updating QosPolicy : key: {}, original value={}, update value={}",
+                identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), original, update);
         qosNeutronUtils.addToQosPolicyCache(update);
     }
 
     private void update(InstanceIdentifier<BandwidthLimitRules> identifier, BandwidthLimitRules original,
                         BandwidthLimitRules update) {
-        LOG.trace("Updating BandwidthLimitRules : key: {}, original value={}, update value={}", identifier, original,
+        LOG.debug("Updating BandwidthLimitRules : key: {}, original value={}, update value={}",
+                identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), original,
                 update);
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
         update(qosUuid, update);
@@ -283,8 +291,8 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
     private void update(InstanceIdentifier<DscpmarkingRules> identifier, DscpmarkingRules original,
                         DscpmarkingRules update) {
-        LOG.trace("Updating DscpMarkingRules : key: {}, original value={}, update value={}", identifier, original,
-                update);
+        LOG.debug("Updating DscpMarkingRules : key: {}, original value={}, update value={}",
+                identifier.firstKeyOf(QosPolicy.class).getUuid().getValue(), original, update);
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
         update(qosUuid, update);
     }
