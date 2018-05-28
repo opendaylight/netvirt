@@ -42,7 +42,7 @@ public class QosAlertPortData {
     }
 
     public void updatePortStatistics(NodeConnectorStatisticsAndPortNumberMap statsData) {
-        LOG.trace("Port {} rx-packets {} tx-packets {} rx-dropped {} tx-dropped {}", port.getUuid(),
+        LOG.trace("Port {} rx-packets {} tx-packets {} rx-dropped {} tx-dropped {}", port.getUuid().getValue(),
                            statsData.getPackets().getReceived(), statsData.getPackets().getTransmitted(),
                            statsData.getReceiveDrops(), statsData.getTransmitDrops());
         if (statsDataInit) {
@@ -59,12 +59,12 @@ public class QosAlertPortData {
         BigInteger rxDroppedDiff = statsData.getReceiveDrops().subtract(rxDroppedPackets);
 
         if ((rxDiff.signum() < 0) || (rxDroppedDiff.signum() < 0)) {
-            LOG.debug("Port {} counters reset", port.getUuid());
+            LOG.debug("Port {} counters reset", port.getUuid().getValue());
             initPortData(); // counters wrapped. wait for one more poll.
             return;
         }
         BigInteger rxTotalDiff = rxDiff.add(rxDroppedDiff);
-        LOG.trace("Port {} rxDiff:{} rxDropped diff:{} total diff:{}", port.getUuid(), rxDiff,
+        LOG.trace("Port {} rxDiff:{} rxDropped diff:{} total diff:{}", port.getUuid().getValue(), rxDiff,
                                                                             rxDroppedDiff, rxTotalDiff);
         QosPolicy qosPolicy = qosNeutronUtils.getQosPolicy(port);
 
