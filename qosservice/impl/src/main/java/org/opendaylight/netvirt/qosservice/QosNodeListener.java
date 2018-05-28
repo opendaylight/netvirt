@@ -53,14 +53,14 @@ public class QosNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         this.mdsalUtils = mdsalUtils;
         serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
                 this);
-        LOG.debug("{} created",  getClass().getSimpleName());
+        LOG.trace("{} created",  getClass().getSimpleName());
     }
 
     @Override
     @PostConstruct
     public void init() {
         registerListener();
-        LOG.debug("{} init and registerListener done", getClass().getSimpleName());
+        LOG.trace("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override
