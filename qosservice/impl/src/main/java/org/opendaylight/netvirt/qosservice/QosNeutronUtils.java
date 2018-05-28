@@ -197,7 +197,8 @@ public class QosNeutronUtils {
     }
 
     public void handleNeutronPortQosAdd(Port port, Uuid qosUuid) {
-        LOG.trace("Handling Port add and QoS associated: port: {} qos: {}", port.getUuid(), qosUuid);
+        LOG.debug("Handling Port add and QoS associated: port: {} qos: {}", port.getUuid().getValue(),
+                qosUuid.getValue());
 
         QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
 
@@ -217,7 +218,8 @@ public class QosNeutronUtils {
     }
 
     public void handleQosInterfaceAdd(Port port, Uuid qosUuid) {
-        LOG.trace("Handling Port add and QoS associated: port: {} qos: {}", port.getUuid(), qosUuid);
+        LOG.debug("Handling Port add and QoS associated: port: {} qos: {}", port.getUuid().getValue(),
+                qosUuid.getValue());
 
         QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
 
@@ -232,7 +234,8 @@ public class QosNeutronUtils {
     }
 
     public void handleNeutronPortQosUpdate(Port port, Uuid qosUuidNew, Uuid qosUuidOld) {
-        LOG.trace("Handling Port QoS update: port: {} qosservice: {}", port.getUuid(), qosUuidNew);
+        LOG.debug("Handling Port QoS update: port: {} qosservice: {}", port.getUuid().getValue(),
+                qosUuidNew.getValue());
 
         QosPolicy qosPolicyNew = qosPolicyMap.get(qosUuidNew);
         QosPolicy qosPolicyOld = qosPolicyMap.get(qosUuidOld);
@@ -266,7 +269,7 @@ public class QosNeutronUtils {
     }
 
     public void handleNeutronPortQosRemove(Port port, Uuid qosUuid) {
-        LOG.trace("Handling Port QoS removal: port: {} qosservice: {}", port.getUuid(), qosUuid);
+        LOG.debug("Handling Port QoS removal: port: {} qosservice: {}", port.getUuid().getValue(), qosUuid.getValue());
 
         // check for network qosservice to apply
         Network network =  neutronVpnManager.getNeutronNetwork(port.getNetworkId());
@@ -298,7 +301,8 @@ public class QosNeutronUtils {
     }
 
     public void handleNeutronPortRemove(Port port, Uuid qosUuid) {
-        LOG.trace("Handling Port removal and Qos associated: port: {} qos: {}", port.getUuid(), qosUuid);
+        LOG.debug("Handling Port removal and Qos associated: port: {} qos: {}", port.getUuid().getValue(),
+                qosUuid.getValue());
         QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
 
         jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
@@ -312,7 +316,8 @@ public class QosNeutronUtils {
     }
 
     public void handleNeutronPortRemove(Port port, Uuid qosUuid, Interface intrf) {
-        LOG.trace("Handling Port removal and Qos associated: port: {} qos: {}", port.getUuid(), qosUuid);
+        LOG.debug("Handling Port removal and Qos associated: port: {} qos: {}", port.getUuid().getValue(),
+                qosUuid.getValue());
         QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
 
         jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
@@ -326,7 +331,7 @@ public class QosNeutronUtils {
 
 
     public void handleNeutronNetworkQosUpdate(Network network, Uuid qosUuid) {
-        LOG.trace("Handling Network QoS update: net: {} qosservice: {}", network.getUuid(), qosUuid);
+        LOG.debug("Handling Network QoS update: net: {} qosservice: {}", network.getUuid(), qosUuid);
         QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
         if (qosPolicy == null || (qosPolicy.getBandwidthLimitRules() == null
                 || qosPolicy.getBandwidthLimitRules().isEmpty())
@@ -358,7 +363,8 @@ public class QosNeutronUtils {
     }
 
     public void handleNeutronNetworkQosRemove(Network network, Uuid qosUuid) {
-        LOG.trace("Handling Network QoS removal: net: {} qosservice: {}", network.getUuid(), qosUuid);
+        LOG.debug("Handling Network QoS removal: net: {} qosservice: {}", network.getUuid().getValue(),
+                qosUuid.getValue());
         QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
 
         List<Uuid> subnetIds = getSubnetIdsFromNetworkId(network.getUuid());
@@ -388,7 +394,7 @@ public class QosNeutronUtils {
     }
 
     public void handleNeutronNetworkQosBwRuleRemove(Network network, BandwidthLimitRules zeroBwLimitRule) {
-        LOG.trace("Handling Qos Bandwidth Rule Remove, net: {}", network.getUuid());
+        LOG.debug("Handling Qos Bandwidth Rule Remove, net: {}", network.getUuid().getValue());
 
         List<Uuid> subnetIds = getSubnetIdsFromNetworkId(network.getUuid());
 
@@ -407,7 +413,7 @@ public class QosNeutronUtils {
     }
 
     public void handleNeutronNetworkQosDscpRuleRemove(Network network) {
-        LOG.trace("Handling Qos Dscp Rule Remove, net: {}", network.getUuid());
+        LOG.debug("Handling Qos Dscp Rule Remove, net: {}", network.getUuid().getValue());
 
         List<Uuid> subnetIds = getSubnetIdsFromNetworkId(network.getUuid());
 
@@ -430,10 +436,10 @@ public class QosNeutronUtils {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void setPortBandwidthLimits(Port port, BandwidthLimitRules bwLimit, WriteTransaction writeConfigTxn) {
         if (!qosEosHandler.isQosClusterOwner()) {
-            LOG.trace("Not Qos Cluster Owner. Ignoring setting bandwidth limits");
+            LOG.debug("Not Qos Cluster Owner. Ignoring setting bandwidth limits");
             return;
         }
-        LOG.trace("Setting bandwidth limits {} on Port {}", port, bwLimit);
+        LOG.trace("Setting bandwidth limits {} on Port {}", port.getUuid().getValue(), bwLimit);
 
         BigInteger dpId = getDpnForInterface(port.getUuid().getValue());
         if (dpId.equals(BigInteger.ZERO)) {
@@ -473,7 +479,8 @@ public class QosNeutronUtils {
                         .child(TerminationPoint.class, new TerminationPointKey(tp.key())), tpBuilder.build());
             }
         } catch (Exception e) {
-            LOG.error("Failure while setting BwLimitRule {} to port {}", bwLimit, port, e);
+            LOG.error("Failure while setting BwLimitRule {} to port {}", bwLimit, port.getUuid().getValue());
+            LOG.debug("Failure while setting BwLimitRule {} to port {} excep: ", bwLimit, port.getUuid().getValue(), e);
         }
 
     }
@@ -483,7 +490,6 @@ public class QosNeutronUtils {
             LOG.trace("Not Qos Cluster Owner. Ignoring setting DSCP marking");
             return;
         }
-        LOG.trace("Setting DSCP value {} on Port {}", port, dscpMark);
 
         BigInteger dpnId = getDpnForInterface(port.getUuid().getValue());
         String ifName = port.getUuid().getValue();
@@ -491,12 +497,11 @@ public class QosNeutronUtils {
         Short dscpValue = dscpMark.getDscpMark();
 
         if (dpnId.equals(BigInteger.ZERO)) {
-            LOG.info("DPN ID for interface {} not found", port.getUuid().getValue());
+            LOG.info("DPN ID for interface {} not found. Cannot set dscp value {} on port {}",
+                    port.getUuid().getValue(), dscpMark, port.getUuid().getValue());
             return;
         }
-
         int ipVersions = getIpVersions(port);
-
         //1. OF rules
         if (hasIpv4Addr(ipVersions)) {
             LOG.trace("setting ipv4 flow for port: {}, dscp: {}", ifName, dscpValue);
@@ -515,20 +520,19 @@ public class QosNeutronUtils {
 
     public void unsetPortDscpMark(Port port) {
         if (!qosEosHandler.isQosClusterOwner()) {
-            LOG.trace("Not Qos Cluster Owner. Ignoring unsetting DSCP marking");
+            LOG.debug("Not Qos Cluster Owner. Ignoring unsetting DSCP marking");
             return;
         }
-        LOG.trace("Removing dscp marking rule from Port {}", port);
 
         BigInteger dpnId = getDpnForInterface(port.getUuid().getValue());
         String ifName = port.getUuid().getValue();
 
         if (dpnId.equals(BigInteger.ZERO)) {
-            LOG.info("DPN ID for port {} not found", port);
+            LOG.trace("DPN ID for port {} not found. Cannot unset dscp value", port.getUuid().getValue());
             return;
         }
         Interface intf = getInterfaceStateFromOperDS(ifName);
-
+        LOG.trace("Removing dscp marking rule from Port {}", port.getUuid().getValue());
         //unbind service from interface
         unbindservice(ifName);
         // 1. OF
@@ -546,15 +550,14 @@ public class QosNeutronUtils {
         if (!qosEosHandler.isQosClusterOwner()) {
             return;
         }
-        LOG.trace("Removing dscp marking rule from Port {}", port);
-
         BigInteger dpnId = getDpIdFromInterface(intrf);
         String ifName = port.getUuid().getValue();
 
         if (dpnId.equals(BigInteger.ZERO)) {
-            LOG.error("Unable to retrieve DPN Id for interface {}", ifName);
+            LOG.error("Unable to retrieve DPN Id for interface {}. Cannot unset dscp value on port", ifName);
             return;
         }
+        LOG.trace("Removing dscp marking rule from Port {}", port.getUuid().getValue());
         unbindservice(ifName);
         int ipVersions = getIpVersions(port);
         if (hasIpv4Addr(ipVersions)) {
@@ -587,7 +590,8 @@ public class QosNeutronUtils {
                 LOG.error("Could not retrieve DPN Id for interface {}", ifName);
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("Exception when getting dpn for interface {}", ifName,  e);
+            LOG.error("Could not retrieve DPN for interface {}", ifName);
+            LOG.debug("Exception when getting DPN for interface {} exception ", ifName, e);
         }
         return nodeId;
     }
@@ -653,7 +657,7 @@ public class QosNeutronUtils {
 
     public void addFlow(BigInteger dpnId, Short dscpValue, String ifName, int ethType, Interface ifState) {
         if (ifState == null) {
-            LOG.trace("Could not find the ifState for interface {}", ifName);
+            LOG.debug("Could not find the ifState for interface {}", ifName);
             return;
         }
         Integer ifIndex = ifState.getIfIndex();
@@ -676,7 +680,7 @@ public class QosNeutronUtils {
 
     public void removeFlow(BigInteger dpnId, String ifName, int ethType, Interface ifState) {
         if (ifState == null) {
-            LOG.trace("Could not find the ifState for interface {}", ifName);
+            LOG.debug("Could not find the ifState for interface {}", ifName);
             return;
         }
         Integer ifIndex = ifState.getIfIndex();
@@ -750,12 +754,12 @@ public class QosNeutronUtils {
     }
 
     public boolean portHasQosPolicy(Port port) {
-        LOG.trace("checking qos policy for port: {}", port.getUuid());
+        LOG.trace("checking qos policy for port: {}", port.getUuid().getValue());
 
         boolean isQosPolicy = port.augmentation(QosPortExtension.class) != null
                 && port.augmentation(QosPortExtension.class).getQosPolicyId() != null;
 
-        LOG.trace("portHasQosPolicy for  port: {} return value {}", port.getUuid(), isQosPolicy);
+        LOG.trace("portHasQosPolicy for  port: {} return value {}", port.getUuid().getValue(), isQosPolicy);
         return isQosPolicy;
     }
 
