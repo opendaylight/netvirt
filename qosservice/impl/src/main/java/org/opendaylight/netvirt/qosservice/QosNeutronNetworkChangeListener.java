@@ -41,13 +41,13 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
         this.qosNeutronUtils = qosNeutronUtils;
         serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
                 this);
-        LOG.debug("{} created",  getClass().getSimpleName());
+        LOG.trace("{} created",  getClass().getSimpleName());
     }
 
     @PostConstruct
     public void init() {
         registerListener();
-        LOG.debug("{} init and registerListener done", getClass().getSimpleName());
+        LOG.trace("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override

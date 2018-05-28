@@ -67,14 +67,14 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
         this.jobCoordinator = jobCoordinator;
         serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
                 this);
-        LOG.debug("{} created",  getClass().getSimpleName());
+        LOG.trace("{} created",  getClass().getSimpleName());
     }
 
     @PostConstruct
     public void init() {
         registerListener();
         supportedQoSRuleTypes();
-        LOG.debug("{} init and registerListener done", getClass().getSimpleName());
+        LOG.trace("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override

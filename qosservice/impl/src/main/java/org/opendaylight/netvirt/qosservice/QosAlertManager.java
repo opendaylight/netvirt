@@ -73,14 +73,14 @@ public final class QosAlertManager implements Runnable {
             final OpendaylightDirectStatisticsService odlDirectStatisticsService, final QosalertConfig defaultConfig,
             final QosNeutronUtils qosNeutronUtils, final QosEosHandler qosEosHandler,
             final IInterfaceManager interfaceManager) {
-        LOG.debug("{} created",  getClass().getSimpleName());
+        LOG.trace("{} created",  getClass().getSimpleName());
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.odlDirectStatisticsService = odlDirectStatisticsService;
         this.interfaceManager = interfaceManager;
         this.defaultConfig = defaultConfig;
         this.qosNeutronUtils = qosNeutronUtils;
         this.qosEosHandler = qosEosHandler;
-        LOG.debug("QosAlert default config poll alertEnabled:{} threshold:{} pollInterval:{}",
+        LOG.trace("QosAlert default config poll alertEnabled:{} threshold:{} pollInterval:{}",
                 defaultConfig.isQosAlertEnabled(), defaultConfig.getQosDropPacketThreshold(),
                 defaultConfig.getQosAlertPollInterval());
         getDefaultConfig();
@@ -92,7 +92,7 @@ public final class QosAlertManager implements Runnable {
         qosAlertDpnPortNumberMap.clear();
         statsPollThreadStart = true;
         startStatsPollThread();
-        LOG.debug("{} init done", getClass().getSimpleName());
+        LOG.trace("{} init done", getClass().getSimpleName());
     }
 
     @PreDestroy
@@ -101,7 +101,7 @@ public final class QosAlertManager implements Runnable {
         if (thread != null) {
             thread.interrupt();
         }
-        LOG.debug("{} close done", getClass().getSimpleName());
+        LOG.trace("{} close done", getClass().getSimpleName());
     }
 
     private void setQosAlertOwner(boolean isOwner) {
@@ -118,7 +118,7 @@ public final class QosAlertManager implements Runnable {
     public void run() {
         LOG.debug("Qos alert poll thread started");
         while (statsPollThreadStart && alertEnabled) {
-            LOG.debug("Thread loop polling :{} threshold:{} pollInterval:{}",
+            LOG.trace("Thread loop polling :{} threshold:{} pollInterval:{}",
                     alertEnabled, alertThresholdSupplier.get(), pollInterval);
 
             try {
@@ -220,7 +220,7 @@ public final class QosAlertManager implements Runnable {
 
         Port port = qosNeutronUtils.getNeutronPort(interfaceInfo.getInterfaceName());
         if (port == null) {
-            LOG.error("Port {} not found", interfaceInfo.getInterfaceName());
+            LOG.trace("Port {} not found", interfaceInfo.getInterfaceName());
             return;
         }
 
@@ -301,7 +301,8 @@ public final class QosAlertManager implements Runnable {
             try {
                 rpcResult = rpcResultFuture.get();
             } catch (InterruptedException | ExecutionException e) {
-                LOG.error("Exception {} occurred with node {} Direct-Statistics get", e, dpn);
+                LOG.info("Could not get Direct-Statistics for node {}", dpn);
+                LOG.debug("Could not get Direct-Statistics for node {} Exception occurred ", dpn, e);
             }
             if (rpcResult != null && rpcResult.isSuccessful() && rpcResult.getResult() != null) {
 
@@ -318,7 +319,7 @@ public final class QosAlertManager implements Runnable {
                     }
                 }
             } else {
-                LOG.error("Direct-Statistics not available for node {}", dpn);
+                LOG.info("Direct-Statistics not available for node {}", dpn);
             }
 
         }
