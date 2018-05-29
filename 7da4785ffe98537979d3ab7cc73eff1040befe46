@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50bf480e_3bca5fa9",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-05-29T15:48:04Z",
+      "side": 1,
+      "message": "Please use the new version of this method that also accepts a timeout interval and a function to callback in the event of a timeout. This will prevent \"leaked\" listeners.",
+      "revId": "7da4785ffe98537979d3ab7cc73eff1040befe46",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
