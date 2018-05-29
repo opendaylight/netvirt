@@ -30,6 +30,7 @@ Contents:
    Policy based path selection for multiple VxLAN tunnels <policy-based-path-selection>
    QoS Alert <qos-alert>
    Quality of Service <qos>
+   ELAN Service Recovery Test Plan <service-recovery-elan>
    Setup Source-MAC-Address for routed packets to virtual endpoints <setup-smac-for-routed-packets-to-virt-endpoints>
    SR-IOV Hardware Offload for OVS <sriov-hardware-offload>
    Support for compute node scale in and scale out functionality <compute-node-scalein-and-scaleout>
