@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8214be06_ba9a79b4",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-05-30T18:05:39Z",
+      "side": 1,
+      "message": "move the above two methods to a new method and invoke that new method in line 457-459 as well as in 449-450..\n\nare we sure that when you add to the callback registry, the registry will serve the previous callback that happened if any for the same routerId.  Basically say if our callback registration here happened 1msec later than the router-create-notification itself landed from mdsal, would the registry still invoke our callback?",
+      "revId": "590fe69527e2eb0732f76171739e5f8661c7540f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
