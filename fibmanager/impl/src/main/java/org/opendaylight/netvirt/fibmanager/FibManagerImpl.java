@@ -21,6 +21,7 @@ import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.osgi.framework.BundleContext;
@@ -185,10 +186,11 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void programDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
-            String destinationIp, int addRemoveOrUpdate, boolean isTunnelUp) {
+    public void programDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId, String destinationIp,
+                                              int addRemoveOrUpdate, boolean isTunnelUp,
+                                              Class<? extends TunnelTypeBase> tunnelType) {
         nexthopManager.programDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp,
-            addRemoveOrUpdate, isTunnelUp);
+            addRemoveOrUpdate, isTunnelUp, tunnelType);
     }
 
     @Override

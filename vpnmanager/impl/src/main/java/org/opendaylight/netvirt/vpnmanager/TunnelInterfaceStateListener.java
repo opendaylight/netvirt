@@ -554,7 +554,8 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         List<String> availableDcGws = getDcGwIps();
         BigInteger dpId = new BigInteger(tunnelState.getSrcInfo().getTepDeviceId());
         boolean isTunnelUp = TunnelOperStatus.Up == tunnelState.getOperState();
-        fibManager.programDcGwLoadBalancingGroup(availableDcGws, dpId, dcGwIpAddress, addOrRemove, isTunnelUp);
+        fibManager.programDcGwLoadBalancingGroup(availableDcGws, dpId, dcGwIpAddress, addOrRemove, isTunnelUp,
+                tunnelState.getTransportType());
     }
 
     private List<String> getDcGwIps() {
