@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "dc994e83_6f032c93",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertThresholdCLI.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 8007
+      },
+      "writtenOn": "2018-05-30T06:17:28Z",
+      "side": 1,
+      "message": "This method is bound to get executed at bundle start or during cluster restart. So trace is more appropriate than debug.",
+      "parentUuid": "9660ffb2_fd99f8f5",
+      "range": {
+        "startLine": 30,
+        "startChar": 12,
+        "endLine": 30,
+        "endChar": 17
+      },
+      "revId": "aa502933fcd1bc09a759504d177d320a4c1d045a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "805d35b0_bdb4ecf8",
         "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-30T04:24:48Z",
       "side": 1,
       "message": "was try {} catch block unnecessary earlier?",
+      "range": {
+        "startLine": 110,
+        "startChar": 12,
+        "endLine": 110,
+        "endChar": 15
+      },
+      "revId": "aa502933fcd1bc09a759504d177d320a4c1d045a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c8d7f81c_2d1201d1",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 8007
+      },
+      "writtenOn": "2018-05-30T06:17:28Z",
+      "side": 1,
+      "message": "Yes. This method will not hit exception",
+      "parentUuid": "805d35b0_bdb4ecf8",
       "range": {
         "startLine": 110,
         "startChar": 12,
