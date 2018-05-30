@@ -143,11 +143,11 @@ public class FibUtil {
     static InstanceIdentifier<Adjacency> getAdjacencyIdentifierOp(String vpnInterfaceName,
                                       String vpnName, String ipAddress) {
         LOG.debug("getAdjacencyIdentifierOp vpninterface {} vpn {} ip {}", vpnInterfaceName, vpnName, ipAddress);
-        return InstanceIdentifier.builder(getAdjListPathOp(vpnInterfaceName, vpnName)
+        return getAdjListPathOp(vpnInterfaceName, vpnName).builder()
                           .child(org.opendaylight.yang.gen.v1.urn.opendaylight
                           .netvirt.l3vpn.rev130911.adjacency.list.Adjacency.class,
                           new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list
-                              .AdjacencyKey(ipAddress))).build();
+                              .AdjacencyKey(ipAddress)).build();
     }
 
     static InstanceIdentifier<Adjacencies> getAdjListPath(String vpnInterfaceName) {
@@ -162,9 +162,9 @@ public class FibUtil {
     }
 
     static InstanceIdentifier<AdjacenciesOp> getAdjListPathOp(String vpnInterfaceName, String vpnName) {
-        return InstanceIdentifier.builder(getVpnInterfaceOpDataEntryIdentifier(vpnInterfaceName, vpnName)
+        return getVpnInterfaceOpDataEntryIdentifier(vpnInterfaceName, vpnName).builder()
             .augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911
-            .AdjacenciesOp.class)).build();
+            .AdjacenciesOp.class).build();
     }
 
     static InstanceIdentifier<Prefixes> getPrefixToInterfaceIdentifier(long vpnId, String ipPrefix) {
