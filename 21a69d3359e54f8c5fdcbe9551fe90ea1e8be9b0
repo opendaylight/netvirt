@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b2f243a_b43513bc",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-05-30T15:36:20Z",
+      "side": 1,
+      "message": "There were some discussions from Dhiman about using this .intern() for synchronization.. Do we still want to add more usages?",
+      "revId": "21a69d3359e54f8c5fdcbe9551fe90ea1e8be9b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
