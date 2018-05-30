@@ -333,14 +333,15 @@ public class NexthopManager implements AutoCloseable {
     }
 
     protected String getTunnelInterfaceName(BigInteger srcDpId, org.opendaylight.yang.gen.v1.urn.ietf.params
-        .xml.ns.yang.ietf.inet.types.rev130715.IpAddress dstIp) {
-        Class<? extends TunnelTypeBase> tunType = getReqTunType(getReqTransType().toUpperCase(Locale.getDefault()));
+        .xml.ns.yang.ietf.inet.types.rev130715.IpAddress dstIp, Class<? extends TunnelTypeBase> tunnelType) {
         Future<RpcResult<GetInternalOrExternalInterfaceNameOutput>> result;
         try {
+            LOG.debug("Trying to fetch tunnel interface name for source dpn {} destIp {} tunType {}", srcDpId,
+                    dstIp.getValue(), tunnelType.getName());
             result = itmManager.getInternalOrExternalInterfaceName(new GetInternalOrExternalInterfaceNameInputBuilder()
                 .setSourceDpid(srcDpId)
                 .setDestinationIp(dstIp)
-                .setTunnelType(tunType)
+                .setTunnelType(tunnelType)
                 .build());
             RpcResult<GetInternalOrExternalInterfaceNameOutput> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
@@ -527,7 +528,7 @@ public class NexthopManager implements AutoCloseable {
     }
 
     public AdjacencyResult getRemoteNextHopPointer(BigInteger remoteDpnId, long vpnId, String prefixIp,
-            String nextHopIp) {
+            String nextHopIp, Class<? extends TunnelTypeBase> tunnelType) {
         String egressIfName = null;
         LOG.trace("getRemoteNextHopPointer: input [remoteDpnId {}, vpnId {}, prefixIp {}, nextHopIp {} ]", remoteDpnId,
             vpnId, prefixIp, nextHopIp);
@@ -542,7 +543,7 @@ public class NexthopManager implements AutoCloseable {
         }
 
         if (Tunnel.class.equals(egressIfType)) {
-            egressIfName = getTunnelRemoteNextHopPointer(remoteDpnId, nextHopIp);
+            egressIfName = getTunnelRemoteNextHopPointer(remoteDpnId, nextHopIp, tunnelType);
         } else {
             egressIfName = getExtPortRemoteNextHopPointer(remoteDpnId, elanInstance);
         }
@@ -713,13 +714,14 @@ public class NexthopManager implements AutoCloseable {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private String getTunnelRemoteNextHopPointer(BigInteger remoteDpnId, String nextHopIp) {
+    private String getTunnelRemoteNextHopPointer(BigInteger remoteDpnId, String nextHopIp,
+                                                 Class<? extends TunnelTypeBase> tunnelType) {
         if (nextHopIp != null && !nextHopIp.isEmpty()) {
             try {
                 // here use the config for tunnel type param
                 return getTunnelInterfaceName(remoteDpnId,
                     org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder
-                        .getDefaultInstance(nextHopIp));
+                        .getDefaultInstance(nextHopIp), tunnelType);
             } catch (Exception ex) {
                 LOG.error("Error while retrieving nexthop pointer for nexthop {} remoteDpn {}",
                         nextHopIp, remoteDpnId, ex);
@@ -902,7 +904,7 @@ public class NexthopManager implements AutoCloseable {
             // There would be only one nexthop address for a VM ip which would be the tep Ip
             String tepIp = tepIpAddresses.get(0);
             AdjacencyResult adjacencyResult = getRemoteNextHopPointer(dpnId, vpnId,
-                    vrfEntry.getDestPrefix(), tepIp);
+                    vrfEntry.getDestPrefix(), tepIp, TunnelTypeVxlan.class);
             if (adjacencyResult == null) {
                 return;
             }
@@ -970,7 +972,8 @@ public class NexthopManager implements AutoCloseable {
         return listBucketInfo;
     }
 
-    public void createDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId, String destinationIp) {
+    public void createDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId, String destinationIp,
+                                             Class<? extends TunnelTypeBase> tunnelType) {
         Preconditions.checkNotNull(availableDcGws, "There are no dc-gws present");
         int noOfDcGws = availableDcGws.size();
         if (noOfDcGws == 1) {
@@ -982,8 +985,8 @@ public class NexthopManager implements AutoCloseable {
         Long groupId = createNextHopPointer(groupIdKey);
         List<Bucket> listBucket = new ArrayList<>();
         for (int index = 0; index < noOfDcGws; index++) {
-            if (isTunnelUp(availableDcGws.get(index), dpnId)) {
-                listBucket.add(buildBucketForDcGwLbGroup(availableDcGws.get(index), dpnId, index));
+            if (isTunnelUp(availableDcGws.get(index), dpnId, tunnelType)) {
+                listBucket.add(buildBucketForDcGwLbGroup(availableDcGws.get(index), dpnId, index, tunnelType));
             }
         }
         Group group = MDSALUtil.buildGroup(groupId, groupIdKey, GroupTypes.GroupSelect,
@@ -997,8 +1000,8 @@ public class NexthopManager implements AutoCloseable {
         LOG.trace("LB group {} towards DC-GW installed on dpn {}. Group - {}", groupIdKey, dpnId, group);
     }
 
-    private boolean isTunnelUp(String dcGwIp, BigInteger dpnId) {
-        String tunnelName = getTunnelRemoteNextHopPointer(dpnId, dcGwIp);
+    private boolean isTunnelUp(String dcGwIp, BigInteger dpnId, Class<? extends TunnelTypeBase> tunnelType) {
+        String tunnelName = getTunnelRemoteNextHopPointer(dpnId, dcGwIp, tunnelType);
         if (tunnelName != null) {
             InstanceIdentifier<StateTunnelList> tunnelStateId =
                     InstanceIdentifier.builder(TunnelsState.class).child(
@@ -1085,7 +1088,7 @@ public class NexthopManager implements AutoCloseable {
      * The bucket is directly removed/added based on the operational status of the tunnel.
      */
     public void updateDcGwLoadBalancingGroup(List<String> availableDcGws,
-            BigInteger dpnId, String destinationIp, boolean isTunnelUp) {
+            BigInteger dpnId, String destinationIp, boolean isTunnelUp, Class<? extends TunnelTypeBase> tunnelType) {
         Preconditions.checkNotNull(availableDcGws, "There are no dc-gws present");
         ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx -> {
             // TODO : Place the logic to construct all possible DC-GW combination here.
@@ -1104,7 +1107,7 @@ public class NexthopManager implements AutoCloseable {
                 final String groupId = nexthops.getGroupId();
                 final long groupIdValue = Long.parseLong(groupId);
                 if (isTunnelUp) {
-                    Bucket bucket = buildBucketForDcGwLbGroup(destinationIp, dpnId, bucketId);
+                    Bucket bucket = buildBucketForDcGwLbGroup(destinationIp, dpnId, bucketId, tunnelType);
                     LOG.trace("Added bucket {} to group {} on dpn {}.", bucket, groupId, dpnId);
                     mdsalApiManager.addBucketToTx(dpnId, groupIdValue, bucket , confTx);
                 } else {
@@ -1115,15 +1118,15 @@ public class NexthopManager implements AutoCloseable {
         }), LOG, "Error updating load-balancing group");
     }
 
-    private Bucket buildBucketForDcGwLbGroup(String ipAddress, BigInteger dpnId,
-            int index) {
+    private Bucket buildBucketForDcGwLbGroup(String ipAddress, BigInteger dpnId, int index,
+                                             Class<? extends TunnelTypeBase> tunnelType) {
         List<Action> listAction = new ArrayList<>();
         // ActionKey 0 goes to mpls label.
         int actionKey = 1;
         listAction.add(new ActionPushMpls().buildAction());
         listAction.add(new ActionRegMove(actionKey++, FibConstants.NXM_REG_MAPPING
                 .get(index), 0, 19).buildAction());
-        String tunnelInterfaceName = getTunnelInterfaceName(dpnId, new IpAddress(ipAddress.toCharArray()));
+        String tunnelInterfaceName = getTunnelInterfaceName(dpnId, new IpAddress(ipAddress.toCharArray()), tunnelType);
         List<Action> egressActions = getEgressActions(tunnelInterfaceName, actionKey++);
         if (!egressActions.isEmpty()) {
             listAction.addAll(getEgressActions(tunnelInterfaceName, actionKey++));
@@ -1135,14 +1138,15 @@ public class NexthopManager implements AutoCloseable {
                 MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP);
     }
 
-    public void programDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
-            String destinationIp, int addRemoveOrUpdate, boolean isTunnelUp) {
+    public void programDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId, String destinationIp,
+                                              int addRemoveOrUpdate, boolean isTunnelUp,
+                                              Class<? extends TunnelTypeBase> tunnelType) {
         if (NwConstants.ADD_FLOW == addRemoveOrUpdate) {
-            createDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp);
+            createDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp, tunnelType);
         } else if (NwConstants.DEL_FLOW == addRemoveOrUpdate) {
             removeOrUpdateDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp);
         } else if (NwConstants.MOD_FLOW == addRemoveOrUpdate) {
-            updateDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp, isTunnelUp);
+            updateDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp, isTunnelUp, tunnelType);
         }
     }
 }

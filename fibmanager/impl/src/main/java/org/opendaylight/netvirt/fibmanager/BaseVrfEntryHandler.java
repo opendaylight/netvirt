@@ -67,6 +67,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeMplsOverGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -152,8 +153,10 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         List<String> prefixIpList;
         LOG.trace("resolveAdjacency called with remotedDpnId {}, vpnId{}, VrfEntry {}",
                 remoteDpnId, vpnId, vrfEntry);
+        final Class<? extends TunnelTypeBase> tunnelType;
         try {
             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
+                tunnelType = TunnelTypeVxlan.class;
                 List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
                 List<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
                         fibUtil.getVpnNameFromId(vpnId), usedRds, vrfEntry.getDestPrefix());
@@ -185,13 +188,18 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                 }
             } else {
                 prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
+                if (vrfEntry.getEncapType() == VrfEntry.EncapType.Mplsgre) {
+                    tunnelType = TunnelTypeMplsOverGre.class;
+                } else {
+                    tunnelType = TunnelTypeVxlan.class;
+                }
             }
 
             for (String prefixIp : prefixIpList) {
                 if (routePaths == null || routePaths.isEmpty()) {
                     LOG.trace("Processing Destination IP {} without NextHop IP", prefixIp);
                     AdjacencyResult adjacencyResult = nextHopManager.getRemoteNextHopPointer(remoteDpnId, vpnId,
-                            prefixIp, null);
+                            prefixIp, null, tunnelType);
                     addAdjacencyResultToList(adjacencyList, adjacencyResult);
                     continue;
                 }
@@ -200,7 +208,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                             LOG.debug("NextHop IP for destination {} is {}", prefixIp,
                                     routePath.getNexthopAddress());
                             return nextHopManager.getRemoteNextHopPointer(remoteDpnId, vpnId,
-                                    prefixIp, routePath.getNexthopAddress());
+                                    prefixIp, routePath.getNexthopAddress(), tunnelType);
                         })
                         .filter(adjacencyResult -> adjacencyResult != null && !adjacencyList.contains(adjacencyResult))
                         .distinct()
