@@ -376,11 +376,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             if (vpnToDpnList != null) {
                 jobCoordinator.enqueueJob(FibUtil.getJobKeyForRdPrefix(rd, vrfEntry.getDestPrefix()), () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                    for (final VpnToDpnList curDpn : vpnToDpnList) {
-                        if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                            installSubnetRouteInFib(curDpn.getDpnId(), elanTag, rd, vpnId, vrfEntry, tx);
-                            installSubnetBroadcastAddrDropRule(curDpn.getDpnId(), rd, vpnId.longValue(),
-                                    vrfEntry, NwConstants.ADD_FLOW, tx);
+                    synchronized (vpnInstance.getVpnInstanceName().intern()) {
+                        for (final VpnToDpnList curDpn : vpnToDpnList) {
+                            if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                                installSubnetRouteInFib(curDpn.getDpnId(), elanTag, rd, vpnId, vrfEntry, tx);
+                                installSubnetBroadcastAddrDropRule(curDpn.getDpnId(), rd, vpnId.longValue(),
+                                        vrfEntry, NwConstants.ADD_FLOW, tx);
+                            }
                         }
                     }
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
