@@ -208,7 +208,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
     private void readAndCopyChildPsOpToParent(Node childNode, ReadWriteTransaction tx) {
         String childGlobalNodeId = childNode.getNodeId().getValue();
         List<InstanceIdentifier> childPsIids = new ArrayList<>();
-        HwvtepGlobalAugmentation hwvtepGlobalAugmentation = childNode.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation hwvtepGlobalAugmentation = childNode.augmentation(HwvtepGlobalAugmentation.class);
         if (hwvtepGlobalAugmentation == null || HwvtepHAUtil.isEmpty(hwvtepGlobalAugmentation.getSwitches())) {
             haOpClusteredListener.getConnectedNodes()
                     .stream()

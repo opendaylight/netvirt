@@ -57,7 +57,7 @@ public class IdentifiedAceBuilder implements DataTreeIdentifierDataObjectPairBui
     @Override
     public Ace dataObject() {
         return new AceBuilder()
-            .setKey(new AceKey(ruleName))
+            .withKey(new AceKey(ruleName))
             .setRuleName(ruleName)
             .setMatches(matches)
             .setActions(new ActionsBuilder()

@@ -35,7 +35,7 @@ public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuild
 
     @Override
     public InstanceIdentifier<TerminationPoint> generateId(InstanceIdentifier<Node> id, TerminationPoint node) {
-        return id.child(TerminationPoint.class, node.getKey());
+        return id.child(TerminationPoint.class, node.key());
     }
 
     @Override
@@ -45,7 +45,7 @@ public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuild
 
     @Override
     public Identifier getKey(TerminationPoint data) {
-        return data.getKey();
+        return data.key();
     }
 
     @Override
@@ -56,9 +56,9 @@ public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuild
     @Override
     public boolean areEqual(TerminationPoint updated, TerminationPoint orig) {
         HwvtepPhysicalLocatorAugmentation updatedPhysicalLocator =
-                updated.getAugmentation(HwvtepPhysicalLocatorAugmentation.class);
+                updated.augmentation(HwvtepPhysicalLocatorAugmentation.class);
         HwvtepPhysicalLocatorAugmentation origPhysicalLocator =
-                orig.getAugmentation(HwvtepPhysicalLocatorAugmentation.class);
+                orig.augmentation(HwvtepPhysicalLocatorAugmentation.class);
         return updatedPhysicalLocator.getDstIp().equals(origPhysicalLocator.getDstIp())
                 && updatedPhysicalLocator.getEncapsulationType() == origPhysicalLocator.getEncapsulationType();
     }

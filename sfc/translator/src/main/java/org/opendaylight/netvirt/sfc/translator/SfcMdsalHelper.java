@@ -55,7 +55,7 @@ public class SfcMdsalHelper {
 
     //ACL Flow Classifier data store utility methods
     public void addAclFlowClassifier(Acl aclFlowClassifier) {
-        InstanceIdentifier<Acl> aclIid = getAclPath(aclFlowClassifier.getKey());
+        InstanceIdentifier<Acl> aclIid = getAclPath(aclFlowClassifier.key());
         LOG.info("Write ACL FlowClassifier {} to config data store at {}",aclFlowClassifier, aclIid);
         try {
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, aclIid,
@@ -66,7 +66,7 @@ public class SfcMdsalHelper {
     }
 
     public void updateAclFlowClassifier(Acl aclFlowClassifier) {
-        InstanceIdentifier<Acl> aclIid = getAclPath(aclFlowClassifier.getKey());
+        InstanceIdentifier<Acl> aclIid = getAclPath(aclFlowClassifier.key());
         LOG.info("Update ACL FlowClassifier {} in config data store at {}",aclFlowClassifier, aclIid);
         try {
             SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, aclIid,
@@ -77,7 +77,7 @@ public class SfcMdsalHelper {
     }
 
     public void removeAclFlowClassifier(Acl aclFlowClassifier) {
-        InstanceIdentifier<Acl> aclIid = getAclPath(aclFlowClassifier.getKey());
+        InstanceIdentifier<Acl> aclIid = getAclPath(aclFlowClassifier.key());
         LOG.info("Remove ACL FlowClassifier {} from config data store at {}",aclFlowClassifier, aclIid);
         try {
             SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, aclIid);
@@ -95,7 +95,7 @@ public class SfcMdsalHelper {
     }
 
     public void addServiceFunction(ServiceFunction sf) {
-        InstanceIdentifier<ServiceFunction> sfIid = getSFPath(sf.getKey());
+        InstanceIdentifier<ServiceFunction> sfIid = getSFPath(sf.key());
         LOG.info("Write Service Function {} to config data store at {}",sf, sfIid);
         try {
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, sfIid, sf);
@@ -105,7 +105,7 @@ public class SfcMdsalHelper {
     }
 
     public void updateServiceFunction(ServiceFunction sf) {
-        InstanceIdentifier<ServiceFunction> sfIid = getSFPath(sf.getKey());
+        InstanceIdentifier<ServiceFunction> sfIid = getSFPath(sf.key());
         LOG.info("Update Service Function {} in config data store at {}",sf, sfIid);
         try {
             SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, sfIid, sf);
@@ -133,7 +133,7 @@ public class SfcMdsalHelper {
     }
 
     public void addServiceFunctionForwarder(ServiceFunctionForwarder sff) {
-        InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sff.getKey());
+        InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sff.key());
         LOG.info("Write Service Function Forwarder {} to config data store at {}",sff, sffIid);
         try {
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, sffIid, sff);
@@ -143,7 +143,7 @@ public class SfcMdsalHelper {
     }
 
     public void updateServiceFunctionForwarder(ServiceFunctionForwarder sff) {
-        InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sff.getKey());
+        InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sff.key());
         LOG.info("Update Service Function Forwarder {} to config data store at {}",sff, sffIid);
         try {
             SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, sffIid, sff);
@@ -163,7 +163,7 @@ public class SfcMdsalHelper {
     }
 
     public void addServiceFunctionChain(ServiceFunctionChain sfc) {
-        InstanceIdentifier<ServiceFunctionChain> sfcIid = getSFCPath(sfc.getKey());
+        InstanceIdentifier<ServiceFunctionChain> sfcIid = getSFCPath(sfc.key());
         LOG.info("Write Service Function Chain {} to config data store at {}",sfc, sfcIid);
         try {
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, sfcIid, sfc);
@@ -183,7 +183,7 @@ public class SfcMdsalHelper {
     }
 
     public void addServiceFunctionPath(ServiceFunctionPath sfp) {
-        InstanceIdentifier<ServiceFunctionPath> sfpIid = getSFPPath(sfp.getKey());
+        InstanceIdentifier<ServiceFunctionPath> sfpIid = getSFPPath(sfp.key());
         LOG.info("Write Service Function Path {} to config data store at {}",sfp, sfpIid);
         try {
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, sfpIid, sfp);

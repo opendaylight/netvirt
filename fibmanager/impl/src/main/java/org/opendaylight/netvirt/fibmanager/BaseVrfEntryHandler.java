@@ -267,7 +267,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         Node nodeDpn = FibUtil.buildDpnNode(dpId);
 
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                .child(Node.class, nodeDpn.key()).augmentation(FlowCapableNode.class)
                 .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flowKey).build();
 
         if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {

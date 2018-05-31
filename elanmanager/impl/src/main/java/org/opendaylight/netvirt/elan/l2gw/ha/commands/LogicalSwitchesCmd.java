@@ -38,7 +38,7 @@ public class LogicalSwitchesCmd extends MergeCommand<LogicalSwitches,
 
     @Override
     public InstanceIdentifier<LogicalSwitches> generateId(InstanceIdentifier<Node> id, LogicalSwitches node) {
-        return id.augmentation(HwvtepGlobalAugmentation.class).child(LogicalSwitches.class, node.getKey());
+        return id.augmentation(HwvtepGlobalAugmentation.class).child(LogicalSwitches.class, node.key());
     }
 
     @Override
@@ -50,7 +50,7 @@ public class LogicalSwitchesCmd extends MergeCommand<LogicalSwitches,
 
     @Override
     public Identifier getKey(LogicalSwitches data) {
-        return data.getKey();
+        return data.key();
     }
 
     @Override

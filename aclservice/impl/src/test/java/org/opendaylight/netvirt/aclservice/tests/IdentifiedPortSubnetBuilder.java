@@ -30,7 +30,7 @@ public class IdentifiedPortSubnetBuilder implements DataTreeIdentifierDataObject
     @Override
     public PortSubnet dataObject() {
         return new PortSubnetBuilder()
-            .setKey(new PortSubnetKey(newInterfaceName))
+            .withKey(new PortSubnetKey(newInterfaceName))
             .setPortId(newInterfaceName)
             .setSubnetInfo(subnetInfoList)
             .build();

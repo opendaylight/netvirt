@@ -74,8 +74,8 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
     protected void update(InstanceIdentifier<Network> instanceIdentifier, Network original, Network update) {
         qosNeutronUtils.addToNetworkCache(update);
 
-        QosNetworkExtension updateQos = update.getAugmentation(QosNetworkExtension.class);
-        QosNetworkExtension originalQos = original.getAugmentation(QosNetworkExtension.class);
+        QosNetworkExtension updateQos = update.augmentation(QosNetworkExtension.class);
+        QosNetworkExtension originalQos = original.augmentation(QosNetworkExtension.class);
         if (originalQos == null && updateQos != null) {
             // qosservice policy add
             qosNeutronUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
@@ -97,7 +97,7 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
     protected void add(InstanceIdentifier<Network> instanceIdentifier, Network network) {
         qosNeutronUtils.addToNetworkCache(network);
 
-        QosNetworkExtension networkQos = network.getAugmentation(QosNetworkExtension.class);
+        QosNetworkExtension networkQos = network.augmentation(QosNetworkExtension.class);
         if (networkQos != null) {
             qosNeutronUtils.addToQosNetworksCache(networkQos.getQosPolicyId(), network);
             qosNeutronUtils.handleNeutronNetworkQosUpdate(network, networkQos.getQosPolicyId());

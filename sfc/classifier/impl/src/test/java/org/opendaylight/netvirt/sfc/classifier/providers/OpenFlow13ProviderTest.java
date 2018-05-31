@@ -357,19 +357,19 @@ public class OpenFlow13ProviderTest {
         assertNull(match.getIpMatch());
         assertNull(match.getLayer3Match());
         assertNull(match.getLayer4Match());
-        assertNull(match.getAugmentation(GeneralAugMatchNodesNodeTableFlow.class));
+        assertNull(match.augmentation(GeneralAugMatchNodesNodeTableFlow.class));
     }
 
     private void checkMatchVxgpeNsh(Match match) {
         GeneralAugMatchNodesNodeTableFlow genAug =
-                match.getAugmentation(GeneralAugMatchNodesNodeTableFlow.class);
+                match.augmentation(GeneralAugMatchNodesNodeTableFlow.class);
 
         assertNotNull(genAug);
 
         List<ExtensionList> extensions = genAug.getExtensionList();
         for (ExtensionList extensionList : extensions) {
             Extension extension = extensionList.getExtension();
-            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.getAugmentation(NxAugMatchNodesNodeTableFlow.class);
+            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.augmentation(NxAugMatchNodesNodeTableFlow.class);
 
             if (nxAugMatch.getNxmNxTunGpeNp() != null) {
                 assertEquals(nxAugMatch.getNxmNxTunGpeNp().getValue().shortValue(), OpenFlow13Utils.TUN_GPE_NP_NSH);
@@ -379,14 +379,14 @@ public class OpenFlow13ProviderTest {
 
     private void checkMatchTunId(Match match, long value) {
         GeneralAugMatchNodesNodeTableFlow genAug =
-                match.getAugmentation(GeneralAugMatchNodesNodeTableFlow.class);
+                match.augmentation(GeneralAugMatchNodesNodeTableFlow.class);
 
         assertNotNull(genAug);
 
         List<ExtensionList> extensions = genAug.getExtensionList();
         for (ExtensionList extensionList : extensions) {
             Extension extension = extensionList.getExtension();
-            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.getAugmentation(NxAugMatchNodesNodeTableFlow.class);
+            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.augmentation(NxAugMatchNodesNodeTableFlow.class);
 
             if (nxAugMatch.getNxmNxTunId() != null) {
                 assertEquals(nxAugMatch.getNxmNxTunId().getValue().longValue(), value);
@@ -396,14 +396,14 @@ public class OpenFlow13ProviderTest {
 
     private void checkMatchTunDstIp(Match match, Ipv4Address value) {
         GeneralAugMatchNodesNodeTableFlow genAug =
-                match.getAugmentation(GeneralAugMatchNodesNodeTableFlow.class);
+                match.augmentation(GeneralAugMatchNodesNodeTableFlow.class);
 
         assertNotNull(genAug);
 
         List<ExtensionList> extensions = genAug.getExtensionList();
         for (ExtensionList extensionList : extensions) {
             Extension extension = extensionList.getExtension();
-            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.getAugmentation(NxAugMatchNodesNodeTableFlow.class);
+            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.augmentation(NxAugMatchNodesNodeTableFlow.class);
 
             if (nxAugMatch.getNxmNxTunIpv4Dst() != null) {
                 assertEquals(nxAugMatch.getNxmNxTunIpv4Dst().getIpv4Address(), value);
@@ -413,14 +413,14 @@ public class OpenFlow13ProviderTest {
 
     private void checkMatchEthNsh(Match match) {
         GeneralAugMatchNodesNodeTableFlow genAug =
-                match.getAugmentation(GeneralAugMatchNodesNodeTableFlow.class);
+                match.augmentation(GeneralAugMatchNodesNodeTableFlow.class);
 
         assertNotNull(genAug);
 
         List<ExtensionList> extensions = genAug.getExtensionList();
         for (ExtensionList extensionList : extensions) {
             Extension extension = extensionList.getExtension();
-            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.getAugmentation(NxAugMatchNodesNodeTableFlow.class);
+            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.augmentation(NxAugMatchNodesNodeTableFlow.class);
 
             if (nxAugMatch.getNxmNxEncapEthType() != null) {
                 assertEquals(nxAugMatch.getNxmNxEncapEthType().getValue().intValue(), OpenFlow13Utils.ETHERTYPE_NSH);
@@ -430,14 +430,14 @@ public class OpenFlow13ProviderTest {
 
     private void checkMatchNshMdType1(Match match) {
         GeneralAugMatchNodesNodeTableFlow genAug =
-                match.getAugmentation(GeneralAugMatchNodesNodeTableFlow.class);
+                match.augmentation(GeneralAugMatchNodesNodeTableFlow.class);
 
         assertNotNull(genAug);
 
         List<ExtensionList> extensions = genAug.getExtensionList();
         for (ExtensionList extensionList : extensions) {
             Extension extension = extensionList.getExtension();
-            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.getAugmentation(NxAugMatchNodesNodeTableFlow.class);
+            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.augmentation(NxAugMatchNodesNodeTableFlow.class);
 
             if (nxAugMatch.getNxmNxNshMdtype() != null) {
                 assertEquals(nxAugMatch.getNxmNxNshMdtype().getValue().shortValue(),
@@ -452,14 +452,14 @@ public class OpenFlow13ProviderTest {
 
     private void checkMatchC1(Match match, long c1) {
         GeneralAugMatchNodesNodeTableFlow genAug =
-                match.getAugmentation(GeneralAugMatchNodesNodeTableFlow.class);
+                match.augmentation(GeneralAugMatchNodesNodeTableFlow.class);
 
         assertNotNull(genAug);
 
         List<ExtensionList> extensions = genAug.getExtensionList();
         for (ExtensionList extensionList : extensions) {
             Extension extension = extensionList.getExtension();
-            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.getAugmentation(NxAugMatchNodesNodeTableFlow.class);
+            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.augmentation(NxAugMatchNodesNodeTableFlow.class);
 
             if (nxAugMatch.getNxmNxNshc1() != null) {
                 assertEquals(nxAugMatch.getNxmNxNshc1().getValue().longValue(), c1);
@@ -469,14 +469,14 @@ public class OpenFlow13ProviderTest {
 
     private void checkMatchC2(Match match, long c2) {
         GeneralAugMatchNodesNodeTableFlow genAug =
-                match.getAugmentation(GeneralAugMatchNodesNodeTableFlow.class);
+                match.augmentation(GeneralAugMatchNodesNodeTableFlow.class);
 
         assertNotNull(genAug);
 
         List<ExtensionList> extensions = genAug.getExtensionList();
         for (ExtensionList extensionList : extensions) {
             Extension extension = extensionList.getExtension();
-            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.getAugmentation(NxAugMatchNodesNodeTableFlow.class);
+            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.augmentation(NxAugMatchNodesNodeTableFlow.class);
 
             if (nxAugMatch.getNxmNxNshc2() != null) {
                 assertEquals(nxAugMatch.getNxmNxNshc2().getValue().longValue(), c2);
@@ -486,14 +486,14 @@ public class OpenFlow13ProviderTest {
 
     private void checkMatchNsp(Match match, long nsp) {
         GeneralAugMatchNodesNodeTableFlow genAug =
-                match.getAugmentation(GeneralAugMatchNodesNodeTableFlow.class);
+                match.augmentation(GeneralAugMatchNodesNodeTableFlow.class);
 
         assertNotNull(genAug);
 
         List<ExtensionList> extensions = genAug.getExtensionList();
         for (ExtensionList extensionList : extensions) {
             Extension extension = extensionList.getExtension();
-            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.getAugmentation(NxAugMatchNodesNodeTableFlow.class);
+            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.augmentation(NxAugMatchNodesNodeTableFlow.class);
 
             if (nxAugMatch.getNxmNxNsp() != null) {
                 assertEquals(nxAugMatch.getNxmNxNsp().getValue().longValue(), nsp);
@@ -503,14 +503,14 @@ public class OpenFlow13ProviderTest {
 
     private void checkMatchNsi(Match match, short nsi) {
         GeneralAugMatchNodesNodeTableFlow genAug =
-                match.getAugmentation(GeneralAugMatchNodesNodeTableFlow.class);
+                match.augmentation(GeneralAugMatchNodesNodeTableFlow.class);
 
         assertNotNull(genAug);
 
         List<ExtensionList> extensions = genAug.getExtensionList();
         for (ExtensionList extensionList : extensions) {
             Extension extension = extensionList.getExtension();
-            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.getAugmentation(NxAugMatchNodesNodeTableFlow.class);
+            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.augmentation(NxAugMatchNodesNodeTableFlow.class);
 
             if (nxAugMatch.getNxmNxNsi() != null) {
                 assertEquals(nxAugMatch.getNxmNxNsi().getNsi().shortValue(), nsi);

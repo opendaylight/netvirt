@@ -157,7 +157,7 @@ public final class OpenFlow13Utils {
     private static void addExtension(MatchBuilder match, Class<? extends ExtensionKey> extensionKey,
                                      NxAugMatchNodesNodeTableFlow am) {
         GeneralAugMatchNodesNodeTableFlow existingAugmentations = match
-            .getAugmentation(GeneralAugMatchNodesNodeTableFlow.class);
+            .augmentation(GeneralAugMatchNodesNodeTableFlow.class);
         List<ExtensionList> extensions = null;
         if (existingAugmentations != null) {
             extensions = existingAugmentations.getExtensionList();
@@ -343,7 +343,7 @@ public final class OpenFlow13Utils {
     public static ActionBuilder createActionBuilder(int order) {
         ActionBuilder ab = new ActionBuilder();
         ab.setOrder(order);
-        ab.setKey(new ActionKey(order));
+        ab.withKey(new ActionKey(order));
 
         return ab;
     }
@@ -357,7 +357,7 @@ public final class OpenFlow13Utils {
         InstructionBuilder ib = new InstructionBuilder();
         ib.setInstruction(new ApplyActionsCaseBuilder().setApplyActions(aab.build()).build());
         ib.setOrder(0);
-        ib.setKey(new InstructionKey(0));
+        ib.withKey(new InstructionKey(0));
 
         // Put our Instruction in a list of Instructions
         List<Instruction> instructions = new ArrayList<>();
@@ -370,7 +370,7 @@ public final class OpenFlow13Utils {
                                                 InstructionsBuilder isb) {
         FlowBuilder flow = new FlowBuilder();
         flow.setId(new FlowId(flowIdStr));
-        flow.setKey(new FlowKey(new FlowId(flowIdStr)));
+        flow.withKey(new FlowKey(new FlowId(flowIdStr)));
         flow.setTableId(table);
         flow.setFlowName(flowName);
         flow.setCookie(new FlowCookie(cookieValue));
@@ -401,7 +401,7 @@ public final class OpenFlow13Utils {
     public static Instruction createGotoTableInstruction(short nextTableId, int order) {
         GoToTableBuilder gotoIngress = createActionGotoTable(nextTableId);
 
-        return new InstructionBuilder().setKey(new InstructionKey(order)).setOrder(order)
+        return new InstructionBuilder().withKey(new InstructionKey(order)).setOrder(order)
             .setInstruction(new GoToTableCaseBuilder().setGoToTable(gotoIngress.build()).build()).build();
     }
 
@@ -428,7 +428,7 @@ public final class OpenFlow13Utils {
             org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action action, int order) {
         return new ActionBuilder()
                 .setOrder(order)
-                .setKey(new ActionKey(order))
+                .withKey(new ActionKey(order))
                 .setAction(action)
                 .build();
     }

@@ -78,8 +78,8 @@ public class QosNeutronPortChangeListener extends AsyncClusteredDataTreeChangeLi
     protected void update(InstanceIdentifier<Port> instanceIdentifier, Port original, Port update) {
         qosNeutronUtils.addToPortCache(update);
         // check for QoS updates
-        QosPortExtension updateQos = update.getAugmentation(QosPortExtension.class);
-        QosPortExtension originalQos = original.getAugmentation(QosPortExtension.class);
+        QosPortExtension updateQos = update.augmentation(QosPortExtension.class);
+        QosPortExtension originalQos = original.augmentation(QosPortExtension.class);
 
         if (originalQos == null && updateQos != null) {
             // qosservice policy add

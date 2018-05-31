@@ -44,7 +44,7 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
         LOG.debug("Executing Get EtreeInterface command for the corresponding Etree Instance {}", etreeName);
         if (etreeName != null) {
             ElanInstance elanInstance = elanProvider.getElanInstance(etreeName);
-            if (elanInstance == null || elanInstance.getAugmentation(EtreeInstance.class) == null) {
+            if (elanInstance == null || elanInstance.augmentation(EtreeInstance.class) == null) {
                 session.getConsole().println("Etree instance doesn't exist or isn't configured as etree: " + etreeName);
                 return null;
             }

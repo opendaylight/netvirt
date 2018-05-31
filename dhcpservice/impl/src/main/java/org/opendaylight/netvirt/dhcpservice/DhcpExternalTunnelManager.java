@@ -291,7 +291,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         DesignatedSwitchForTunnel designatedSwitchForTunnel =
                 new DesignatedSwitchForTunnelBuilder().setDpId(dpnId.longValue())
                         .setElanInstanceName(elanInstanceName).setTunnelRemoteIpAddress(tunnelIp)
-                        .setKey(designatedSwitchForTunnelKey).build();
+                        .withKey(designatedSwitchForTunnelKey).build();
         LOG.trace("Writing into CONFIG DS tunnelIp {}, elanInstanceName {}, dpnId {}", tunnelIp, elanInstanceName,
                 dpnId);
         MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier, designatedSwitchForTunnel);
@@ -813,7 +813,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
                 .setMacEntryKey(new MacAddress(UNKNOWN_DMAC))
                 .setLogicalSwitchRef(lsRef).build();
         InstanceIdentifier<RemoteMcastMacs> iid = HwvtepSouthboundUtils.createRemoteMcastMacsInstanceIdentifier(
-                dstDevice.getNodeId(), remoteMcastMacs.getKey());
+                dstDevice.getNodeId(), remoteMcastMacs.key());
         ReadOnlyTransaction transaction = broker.newReadOnlyTransaction();
         try {
             //TODO do async mdsal read
@@ -870,7 +870,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
                 }
                 return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(
                     tx -> putRemoteMcastMac(tx, elanInstanceName, device,
-                            tunnelInterface.getAugmentation(IfTunnel.class).getTunnelSource())));
+                            tunnelInterface.augmentation(IfTunnel.class).getTunnelSource())));
             }
             return Collections.emptyList();
         });

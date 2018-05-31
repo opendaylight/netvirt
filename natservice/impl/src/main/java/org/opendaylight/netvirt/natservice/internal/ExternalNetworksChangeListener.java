@@ -121,7 +121,7 @@ public class ExternalNetworksChangeListener
         //Check for VPN disassociation
         Uuid originalVpn = original.getVpnid();
         Uuid updatedVpn = update.getVpnid();
-        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.getKey(),
+        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.key(),
             () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                 if (originalVpn == null && updatedVpn != null) {
                     //external network is dis-associated from L3VPN instance

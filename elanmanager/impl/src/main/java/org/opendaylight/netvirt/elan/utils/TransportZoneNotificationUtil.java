@@ -122,7 +122,7 @@ public class TransportZoneNotificationUtil {
     private TransportZone createZone(String subnetIp, String zoneName) {
         List<Subnets> subnets = new ArrayList<>();
         subnets.add(buildSubnets(subnetIp));
-        TransportZoneBuilder tzb = new TransportZoneBuilder().setKey(new TransportZoneKey(zoneName))
+        TransportZoneBuilder tzb = new TransportZoneBuilder().withKey(new TransportZoneKey(zoneName))
                 .setTunnelType(TunnelTypeVxlan.class).setZoneName(zoneName).setSubnets(subnets);
         return tzb.build();
     }
@@ -427,7 +427,7 @@ public class TransportZoneNotificationUtil {
     private Subnets buildSubnets(String subnetIp) {
         SubnetsBuilder subnetsBuilder = new SubnetsBuilder().setDeviceVteps(new ArrayList<>())
                 .setGatewayIp(new IpAddress(ALL_SUBNETS_GW.toCharArray()))
-                .setKey(new SubnetsKey(new IpPrefix(subnetIp.toCharArray()))).setVlanId(0)
+                .withKey(new SubnetsKey(new IpPrefix(subnetIp.toCharArray()))).setVlanId(0)
                 .setVteps(new ArrayList<>());
         return subnetsBuilder.build();
     }

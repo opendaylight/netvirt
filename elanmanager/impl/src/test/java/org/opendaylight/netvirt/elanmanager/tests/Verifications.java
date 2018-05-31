@@ -117,7 +117,7 @@ public class Verifications {
     private boolean checkForRemoteMcastMac(InstanceIdentifier<Node> torNodeId, String tepIp, boolean checkForExists) {
         try {
             Node node = singleTxdataBroker.syncRead(LogicalDatastoreType.CONFIGURATION, torNodeId);
-            HwvtepGlobalAugmentation augmentation = node.getAugmentation(HwvtepGlobalAugmentation.class);
+            HwvtepGlobalAugmentation augmentation = node.augmentation(HwvtepGlobalAugmentation.class);
             if (augmentation == null || augmentation.getRemoteMcastMacs() == null
                     || augmentation.getRemoteMcastMacs().isEmpty()) {
                 if (checkForExists) {
@@ -161,7 +161,7 @@ public class Verifications {
     public boolean checkForRemoteUcastMac(InstanceIdentifier<Node> torNodeId, String dpnMac, boolean checkForExists) {
         try {
             Node node = singleTxdataBroker.syncRead(LogicalDatastoreType.CONFIGURATION, torNodeId);
-            HwvtepGlobalAugmentation augmentation = node.getAugmentation(HwvtepGlobalAugmentation.class);
+            HwvtepGlobalAugmentation augmentation = node.augmentation(HwvtepGlobalAugmentation.class);
             if (augmentation == null || augmentation.getRemoteUcastMacs() == null
                     || augmentation.getRemoteUcastMacs().isEmpty()) {
                 if (checkForExists) {
@@ -273,7 +273,7 @@ public class Verifications {
     private Set<Bucket> modifyBucketId(List<Bucket> input) {
         return input.stream()
                 .map(bucket -> new BucketBuilder(bucket).setBucketId(new BucketId(1L))
-                        .setKey(new BucketKey(new BucketId(1L))).build())
+                        .withKey(new BucketKey(new BucketId(1L))).build())
                 .collect(Collectors.toSet());
     }
 
@@ -408,10 +408,10 @@ public class Verifications {
         FlowKey flowKey = new FlowKey(new FlowId(flowid));
         NodeId nodeId = GET_OPENFLOW_NODE_ID.apply(dpnId);
         org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node nodeDpn =
-                new NodeBuilder().setId(nodeId).setKey(new NodeKey(nodeId)).build();
+                new NodeBuilder().setId(nodeId).withKey(new NodeKey(nodeId)).build();
         return InstanceIdentifier.builder(Nodes.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class,
-                        nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                        nodeDpn.key()).augmentation(FlowCapableNode.class)
                 .child(Table.class, new TableKey(tableId)).child(Flow.class, flowKey).build();
     }
 

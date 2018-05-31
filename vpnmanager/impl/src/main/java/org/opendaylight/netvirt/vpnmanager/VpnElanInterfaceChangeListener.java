@@ -116,7 +116,7 @@ public class VpnElanInterfaceChangeListener
             .getVpnInterfaceVpnInstanceNames(vpnId.getValue(), AssociatedSubnetType.V4AndV6Subnets);
         List<VpnInstanceNames> listVpn = new ArrayList<>();
         listVpn.add(vpnInstance);
-        VpnInterface vpnInterface = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName))
+        VpnInterface vpnInterface = new VpnInterfaceBuilder().withKey(new VpnInterfaceKey(interfaceName))
             .setVpnInstanceNames(listVpn)
             .setScheduledForRemove(Boolean.FALSE)
             .build();

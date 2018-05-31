@@ -28,7 +28,7 @@ public final class DpnNodeBuilders {
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId("openflow:" + dpnId);
         org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node nodeDpn =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder().setId(nodeId)
-                        .setKey(new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes
+                        .withKey(new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes
                                 .NodeKey(nodeId)).build();
         return nodeDpn;
     }
@@ -45,7 +45,7 @@ public final class DpnNodeBuilders {
         InstanceIdentifier groupInstanceId =
                 InstanceIdentifier.builder(Nodes.class)
                         .child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class,
-                                nodeDpn.getKey()).augmentation(FlowCapableNode.class).child(Group.class,
+                                nodeDpn.key()).augmentation(FlowCapableNode.class).child(Group.class,
                         new GroupKey(new GroupId(Long.valueOf(groupId)))).build();
         return groupInstanceId;
     }

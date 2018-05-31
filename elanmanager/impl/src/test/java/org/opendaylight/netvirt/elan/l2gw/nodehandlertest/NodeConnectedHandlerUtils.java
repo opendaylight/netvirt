@@ -78,7 +78,7 @@ public class NodeConnectedHandlerUtils {
 
         List<TunnelIps> tunnelIps = new ArrayList<>();
         IpAddress ip = new IpAddress("192.168.122.30".toCharArray());
-        tunnelIps.add(new TunnelIpsBuilder().setKey(new TunnelIpsKey(ip)).setTunnelIpsKey(ip).build());
+        tunnelIps.add(new TunnelIpsBuilder().withKey(new TunnelIpsKey(ip)).setTunnelIpsKey(ip).build());
         physicalSwitchAugmentationBuilder.setTunnelIps(tunnelIps);
 
         nodeBuilder.addAugmentation(PhysicalSwitchAugmentation.class, physicalSwitchAugmentationBuilder.build());

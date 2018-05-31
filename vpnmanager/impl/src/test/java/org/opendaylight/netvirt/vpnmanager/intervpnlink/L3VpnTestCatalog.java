@@ -58,7 +58,7 @@ public final class L3VpnTestCatalog {
 
     static List<VpnTarget> makeVpnTargetsByType(List<String> rtList, VpnTarget.VrfRTType type) {
         return rtList.stream()
-                     .map(rt -> new VpnTargetBuilder().setKey(new VpnTargetKey(rt))
+                     .map(rt -> new VpnTargetBuilder().withKey(new VpnTargetKey(rt))
                                                  .setVrfRTValue(rt).setVrfRTType(type).build())
                      .collect(Collectors.toList());
     }

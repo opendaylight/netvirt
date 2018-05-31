@@ -94,7 +94,7 @@ public final class TestBuilders {
         TerminationPointKey tpKey = new TerminationPointKey(new TpId("vxlan_over_ipv4:" + ip));
         TerminationPointBuilder tpBuilder = new TerminationPointBuilder();
         if (nodeIid != null && tpKey != null) {
-            tpBuilder.setKey(tpKey);
+            tpBuilder.withKey(tpKey);
             tpBuilder.setTpId(tpKey.getTpId());
             InstanceIdentifier<TerminationPoint> tpPath =
                     buildTpId(nodeIid, ip);
@@ -110,7 +110,7 @@ public final class TestBuilders {
 
     public static LogicalSwitches buildLogicalSwitch(String logicalSwitch, String tunnelKey) {
         LogicalSwitchesBuilder logicalSwitchesBuilder = new LogicalSwitchesBuilder();
-        logicalSwitchesBuilder.setKey(new LogicalSwitchesKey(new HwvtepNodeName(logicalSwitch)));
+        logicalSwitchesBuilder.withKey(new LogicalSwitchesKey(new HwvtepNodeName(logicalSwitch)));
         logicalSwitchesBuilder.setHwvtepNodeName(new HwvtepNodeName(logicalSwitch));
         logicalSwitchesBuilder.setTunnelKey(tunnelKey);
         Uuid lgoicalSwitchUuid = getUUid(logicalSwitch);
@@ -161,7 +161,7 @@ public final class TestBuilders {
     public static List<Managers> buildManagers() {
         ManagersBuilder builder1 = new ManagersBuilder();
 
-        builder1.setKey(new ManagersKey(new Uri("test")));
+        builder1.withKey(new ManagersKey(new Uri("test")));
         List<ManagerOtherConfigs> otherConfigses = new ArrayList<>();
 
         otherConfigses.add(buildOtherConfig("ha_enabled", "true"));
@@ -174,7 +174,7 @@ public final class TestBuilders {
 
     public static List<Managers> buildManagers1() {
         ManagersBuilder builder1 = new ManagersBuilder();
-        builder1.setKey(new ManagersKey(new Uri("test")));
+        builder1.withKey(new ManagersKey(new Uri("test")));
         builder1.setManagerOtherConfigs(Collections.emptyList());
         return ImmutableList.of(builder1.build());
     }
@@ -182,7 +182,7 @@ public final class TestBuilders {
     public static ManagerOtherConfigs buildOtherConfig(String key, String val) {
         ManagerOtherConfigsBuilder otherConfigsBuilder = new ManagerOtherConfigsBuilder();
         ManagerOtherConfigsKey managerOtherConfigsKey = new ManagerOtherConfigsKey(key);
-        otherConfigsBuilder.setKey(managerOtherConfigsKey);
+        otherConfigsBuilder.withKey(managerOtherConfigsKey);
         otherConfigsBuilder.setOtherConfigKey(key);
         otherConfigsBuilder.setOtherConfigValue(val);
         return otherConfigsBuilder.build();

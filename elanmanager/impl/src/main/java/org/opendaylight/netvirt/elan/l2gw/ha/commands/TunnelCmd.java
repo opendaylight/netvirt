@@ -60,13 +60,13 @@ public class TunnelCmd  extends MergeCommand<Tunnels, PhysicalSwitchAugmentation
         HwvtepPhysicalLocatorRef hwvtepPhysicalLocatorRef1 =
                 HwvtepHAUtil.convertLocatorRef(src.getRemoteLocatorRef(), nodePath);
 
-        tunnelsBuilder.setKey(new TunnelsKey(hwvtepPhysicalLocatorRef,hwvtepPhysicalLocatorRef1));
+        tunnelsBuilder.withKey(new TunnelsKey(hwvtepPhysicalLocatorRef,hwvtepPhysicalLocatorRef1));
         return tunnelsBuilder.build();
     }
 
     @Override
     public Identifier getKey(Tunnels data) {
-        return data.getKey();
+        return data.key();
     }
 
     @Override

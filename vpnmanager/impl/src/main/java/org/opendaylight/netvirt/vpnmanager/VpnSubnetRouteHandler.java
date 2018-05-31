@@ -163,7 +163,7 @@ public class VpnSubnetRouteHandler {
                 }
                 LOG.debug("{} onSubnetAddedToVpn: Creating new SubnetOpDataEntry node for subnet {} subnetIp {} "
                         + "vpn {}", LOGGING_PREFIX, subnetId.getValue(), subnetIp, vpnName);
-                subOpBuilder = new SubnetOpDataEntryBuilder().setKey(new SubnetOpDataEntryKey(subnetId));
+                subOpBuilder = new SubnetOpDataEntryBuilder().withKey(new SubnetOpDataEntryKey(subnetId));
                 subOpBuilder.setSubnetId(subnetId);
                 subOpBuilder.setSubnetCidr(subnetIp);
                 String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
@@ -203,7 +203,7 @@ public class VpnSubnetRouteHandler {
 
                 optionalSubs = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
                 subOpBuilder =
-                        new SubnetOpDataEntryBuilder(optionalSubs.get()).setKey(new SubnetOpDataEntryKey(subnetId));
+                        new SubnetOpDataEntryBuilder(optionalSubs.get()).withKey(new SubnetOpDataEntryKey(subnetId));
                 List<Uuid> portList = subMap.getPortList();
                 if (portList != null) {
                     for (Uuid port : portList) {

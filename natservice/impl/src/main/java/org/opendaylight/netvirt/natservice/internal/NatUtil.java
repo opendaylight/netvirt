@@ -978,7 +978,7 @@ public final class NatUtil {
                         LogicalDatastoreType.OPERATIONAL, dpnVpnInterfacesListIdentifier);
         org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns
             .router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces routerInterface =
-            new RouterInterfacesBuilder().setKey(new RouterInterfacesKey(interfaceName))
+            new RouterInterfacesBuilder().withKey(new RouterInterfacesKey(interfaceName))
             .setInterface(interfaceName).build();
         if (optionalDpnVpninterfacesList.isPresent()) {
             LOG.debug("addToNeutronRouterDpnsMap : RouterDpnList already present for the Router {} and DPN {} for the "
@@ -1021,7 +1021,7 @@ public final class NatUtil {
                         LogicalDatastoreType.OPERATIONAL, dpnRoutersListIdentifier);
 
         if (optionalDpnRoutersList.isPresent()) {
-            RoutersList routersList = new RoutersListBuilder().setKey(new RoutersListKey(routerName))
+            RoutersList routersList = new RoutersListBuilder().withKey(new RoutersListKey(routerName))
                     .setRouter(routerName).build();
             List<RoutersList> routersListFromDs = optionalDpnRoutersList.get().getRoutersList();
             if (!routersListFromDs.contains(routersList)) {
@@ -1066,7 +1066,7 @@ public final class NatUtil {
                 optionalRouterDpnList.get().getRouterInterfaces();
             org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router
                 .dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces routerInterface =
-                new RouterInterfacesBuilder().setKey(new RouterInterfacesKey(interfaceName))
+                new RouterInterfacesBuilder().withKey(new RouterInterfacesKey(interfaceName))
                     .setInterface(interfaceName).build();
             if (routerInterfaces != null && routerInterfaces.remove(routerInterface)) {
                 if (routerInterfaces.isEmpty()) {
@@ -1121,7 +1121,7 @@ public final class NatUtil {
                 optionalRouterDpnList.get().getRouterInterfaces();
             org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn
                 .list.dpn.vpninterfaces.list.RouterInterfaces routerInterface =
-                new RouterInterfacesBuilder().setKey(new RouterInterfacesKey(vpnInterfaceName))
+                new RouterInterfacesBuilder().withKey(new RouterInterfacesKey(vpnInterfaceName))
                     .setInterface(vpnInterfaceName).build();
 
             if (routerInterfaces != null && routerInterfaces.remove(routerInterface)) {
@@ -1554,7 +1554,7 @@ public final class NatUtil {
             LOG.error("createRouterIdsConfigDS : invalid routerId for routerName {}", routerName);
             return;
         }
-        RouterIds rtrs = new RouterIdsBuilder().setKey(new RouterIdsKey(routerId))
+        RouterIds rtrs = new RouterIdsBuilder().withKey(new RouterIdsKey(routerId))
             .setRouterId(routerId).setRouterName(routerName).build();
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, buildRouterIdentifier(routerId), rtrs);
     }

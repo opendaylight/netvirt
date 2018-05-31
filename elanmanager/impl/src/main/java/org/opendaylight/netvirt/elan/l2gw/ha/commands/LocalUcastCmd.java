@@ -44,7 +44,7 @@ public class LocalUcastCmd
 
     @Override
     public InstanceIdentifier<LocalUcastMacs> generateId(InstanceIdentifier<Node> id, LocalUcastMacs node) {
-        HwvtepLogicalSwitchRef lsRef = HwvtepHAUtil.convertLogicalSwitchRef(node.getKey().getLogicalSwitchRef(), id);
+        HwvtepLogicalSwitchRef lsRef = HwvtepHAUtil.convertLogicalSwitchRef(node.key().getLogicalSwitchRef(), id);
         LocalUcastMacsKey key = new LocalUcastMacsKey(lsRef, node.getMacEntryKey());
 
         return id.augmentation(HwvtepGlobalAugmentation.class).child(LocalUcastMacs.class, key);
@@ -58,13 +58,13 @@ public class LocalUcastCmd
                 HwvtepHAUtil.convertLogicalSwitchRef(src.getLogicalSwitchRef(), nodePath));
         ucmlBuilder.setMacEntryUuid(HwvtepHAUtil.getUUid(src.getMacEntryKey().getValue()));
         LocalUcastMacsKey key = new LocalUcastMacsKey(ucmlBuilder.getLogicalSwitchRef(), ucmlBuilder.getMacEntryKey());
-        ucmlBuilder.setKey(key);
+        ucmlBuilder.withKey(key);
         return ucmlBuilder.build();
     }
 
     @Override
     public Identifier getKey(LocalUcastMacs data) {
-        return data.getKey();
+        return data.key();
     }
 
     @Override

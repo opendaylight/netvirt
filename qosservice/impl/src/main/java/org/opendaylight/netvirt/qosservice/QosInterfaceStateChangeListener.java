@@ -90,15 +90,15 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
                 getNeutronPort(interfaceName).ifPresent(port -> {
                     Network network = qosNeutronUtils.getNeutronNetwork(port.getNetworkId());
                     LOG.trace("Qos Service : Received interface {} PORT UP event ", interfaceName);
-                    if (port.getAugmentation(QosPortExtension.class) != null) {
-                        Uuid portQosUuid = port.getAugmentation(QosPortExtension.class).getQosPolicyId();
+                    if (port.augmentation(QosPortExtension.class) != null) {
+                        Uuid portQosUuid = port.augmentation(QosPortExtension.class).getQosPolicyId();
                         if (portQosUuid != null) {
                             qosNeutronUtils.addToQosPortsCache(portQosUuid, port);
                             qosNeutronUtils.handleQosInterfaceAdd(port, portQosUuid);
                         }
                     } else {
-                        if (network.getAugmentation(QosNetworkExtension.class) != null) {
-                            Uuid networkQosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
+                        if (network.augmentation(QosNetworkExtension.class) != null) {
+                            Uuid networkQosUuid = network.augmentation(QosNetworkExtension.class).getQosPolicyId();
                             if (networkQosUuid != null) {
                                 qosNeutronUtils.handleQosInterfaceAdd(port, networkQosUuid);
                             }
@@ -143,14 +143,14 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
                 String lowerLayerIf = intrf.getLowerLayerIf().get(0);
                 LOG.trace("lowerLayerIf {}", lowerLayerIf);
                 qosAlertManager.removeLowerLayerIfFromQosAlertCache(lowerLayerIf);
-                QosPortExtension removeQos = port.getAugmentation(QosPortExtension.class);
+                QosPortExtension removeQos = port.augmentation(QosPortExtension.class);
                 if (removeQos != null) {
                     qosNeutronUtils.handleNeutronPortRemove(port, removeQos.getQosPolicyId(), intrf);
                     qosNeutronUtils.removeFromQosPortsCache(removeQos.getQosPolicyId(), port);
                 } else {
                     Network network = qosNeutronUtils.getNeutronNetwork(port.getNetworkId());
-                    if (network != null && network.getAugmentation(QosNetworkExtension.class) != null) {
-                        Uuid networkQosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
+                    if (network != null && network.augmentation(QosNetworkExtension.class) != null) {
+                        Uuid networkQosUuid = network.augmentation(QosNetworkExtension.class).getQosPolicyId();
                         if (networkQosUuid != null) {
                             qosNeutronUtils.handleNeutronPortRemove(port, networkQosUuid, intrf);
                         }

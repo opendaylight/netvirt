@@ -77,7 +77,7 @@ public class CloudScVpnInterfaceListener
             }
             break;
         }
-        vpnScHandler.unbindScfOnVpnInterface(vpnIfaceRemoved.getKey().getName());
+        vpnScHandler.unbindScfOnVpnInterface(vpnIfaceRemoved.key().getName());
     }
 
     @Override
@@ -99,7 +99,7 @@ public class CloudScVpnInterfaceListener
                     LOG.trace("Vpn {} is not related to ServiceChaining. No further action", vpnName);
                     return;
                 }
-                vpnScHandler.bindScfOnVpnInterface(vpnIfaceAdded.getKey().getName(),
+                vpnScHandler.bindScfOnVpnInterface(vpnIfaceAdded.key().getName(),
                         optScfInfoForVpn.get().getScfTag());
             } catch (ReadFailedException e) {
                 LOG.error("Error reading the SFC information for VPN {}", vpnName, e);

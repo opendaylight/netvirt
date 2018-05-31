@@ -44,7 +44,7 @@ public final class PortChainTranslator {
             PortChain portChain, List<ServiceFunction> sfList) {
         ServiceFunctionChainBuilder sfcBuilder = new ServiceFunctionChainBuilder();
         sfcBuilder.setName(new SfcName(portChain.getName()));
-        sfcBuilder.setKey(new ServiceFunctionChainKey(sfcBuilder.getName()));
+        sfcBuilder.withKey(new ServiceFunctionChainKey(sfcBuilder.getName()));
 
         //By default set it to false. If user specify it in chain parameters, it
         //will be overridden.
@@ -56,7 +56,7 @@ public final class PortChainTranslator {
             SfcServiceFunctionBuilder sfcSfBuilder = new SfcServiceFunctionBuilder();
             sfcSfBuilder.setName(sf.getName().getValue());
             sfcSfBuilder.setType(sf.getType());
-            sfcSfBuilder.setKey(new SfcServiceFunctionKey(sfcSfBuilder.getName()));
+            sfcSfBuilder.withKey(new SfcServiceFunctionKey(sfcSfBuilder.getName()));
 
             //NOTE: no explicit order is set.
             sfcSfList.add(sfcSfBuilder.build());

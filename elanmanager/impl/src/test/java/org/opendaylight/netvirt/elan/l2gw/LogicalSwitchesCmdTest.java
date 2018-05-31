@@ -178,7 +178,7 @@ public class LogicalSwitchesCmdTest extends AbstractConcurrentDataBrokerTest {
 
     LogicalSwitches buildData(String name, String tunnelKey) {
         LogicalSwitchesBuilder logicalSwitchesBuilder = new LogicalSwitchesBuilder();
-        logicalSwitchesBuilder.setKey(new LogicalSwitchesKey(new HwvtepNodeName(name)));
+        logicalSwitchesBuilder.withKey(new LogicalSwitchesKey(new HwvtepNodeName(name)));
         logicalSwitchesBuilder.setTunnelKey(tunnelKey);
         logicalSwitchesBuilder.setHwvtepNodeName(new HwvtepNodeName(name));
         return logicalSwitchesBuilder.build();

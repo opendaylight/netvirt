@@ -61,7 +61,7 @@ public class ElanInterfaceCache extends InstanceIdDataObjectCache<ElanInterface>
     public Optional<EtreeInterface> getEtreeInterface(@Nonnull String interfaceName) {
         Optional<ElanInterface> elanInterface = get(interfaceName);
         return elanInterface.isPresent() ? Optional.fromNullable(
-                elanInterface.get().getAugmentation(EtreeInterface.class)) : Optional.absent();
+                elanInterface.get().augmentation(EtreeInterface.class)) : Optional.absent();
     }
 
     @Nonnull

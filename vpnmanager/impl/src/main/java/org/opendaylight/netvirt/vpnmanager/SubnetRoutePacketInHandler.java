@@ -374,7 +374,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
             .ietf.interfaces.rev140508.interfaces.Interface configIface =
             interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
-        IfTunnel ifTunnel = configIface.getAugmentation(IfTunnel.class);
+        IfTunnel ifTunnel = configIface.augmentation(IfTunnel.class);
         if (ifTunnel != null) {
             return true;
         }

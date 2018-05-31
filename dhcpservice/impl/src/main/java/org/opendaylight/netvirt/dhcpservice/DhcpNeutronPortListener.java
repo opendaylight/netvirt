@@ -245,7 +245,7 @@ public class DhcpNeutronPortListener
     }
 
     private boolean isVnicTypeDirectOrMacVtap(Port port) {
-        PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+        PortBindingExtension portBinding = port.augmentation(PortBindingExtension.class);
         if (portBinding == null || portBinding.getVnicType() == null) {
             // By default, VNIC_TYPE is NORMAL
             return false;

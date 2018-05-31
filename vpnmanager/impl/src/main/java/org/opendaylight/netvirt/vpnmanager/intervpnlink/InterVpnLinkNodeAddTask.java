@@ -116,7 +116,7 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
 
     private void installLPortDispatcherTable(InterVpnLinkState interVpnLinkState, List<BigInteger> firstDpnList,
                                              List<BigInteger> secondDpnList) {
-        String ivpnLinkName = interVpnLinkState.getKey().getInterVpnLinkName();
+        String ivpnLinkName = interVpnLinkState.key().getInterVpnLinkName();
         Optional<InterVpnLinkDataComposite> optVpnLink = interVpnLinkCache.getInterVpnLinkByName(ivpnLinkName);
         if (!optVpnLink.isPresent()) {
             LOG.warn("installLPortDispatcherTable: Could not find interVpnLink {}", ivpnLinkName);

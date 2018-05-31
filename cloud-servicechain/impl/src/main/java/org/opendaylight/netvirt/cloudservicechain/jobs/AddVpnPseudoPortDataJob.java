@@ -44,7 +44,7 @@ public class AddVpnPseudoPortDataJob extends VpnPseudoPortDataBaseJob {
                   super.vpnRd, vpnPseudoLportTag, scfTag, scfTableIdToGo);
 
         VpnToPseudoPortData newValue =
-            new VpnToPseudoPortDataBuilder().setKey(new VpnToPseudoPortDataKey(super.vpnRd)).setVrfId(super.vpnRd)
+            new VpnToPseudoPortDataBuilder().withKey(new VpnToPseudoPortDataKey(super.vpnRd)).setVrfId(super.vpnRd)
                                             .setScfTableId(scfTableIdToGo).setScfTag(scfTag)
                                             .setVpnLportTag(vpnPseudoLportTag).build();
         LOG.trace("Adding lportTag={} to VpnToLportTag map for VPN with rd={}", vpnPseudoLportTag, vpnRd);

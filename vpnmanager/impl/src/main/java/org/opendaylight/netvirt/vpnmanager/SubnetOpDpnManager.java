@@ -60,7 +60,7 @@ public class SubnetOpDpnManager {
                         + " already seen in datastore", subnetId.getValue(), dpnId);
                 return null;
             }
-            SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder().setKey(new SubnetToDpnKey(dpnId));
+            SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder().withKey(new SubnetToDpnKey(dpnId));
             List<VpnInterfaces> vpnIntfList = new ArrayList<>();
             subDpnBuilder.setVpnInterfaces(vpnIntfList);
             SubnetToDpn subDpn = subDpnBuilder.build();
@@ -117,7 +117,7 @@ public class SubnetOpDpnManager {
             SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder(subDpn);
             List<VpnInterfaces> vpnIntfList = subDpnBuilder.getVpnInterfaces();
             VpnInterfaces vpnIntfs =
-                new VpnInterfacesBuilder().setKey(new VpnInterfacesKey(intfName)).setInterfaceName(intfName).build();
+                new VpnInterfacesBuilder().withKey(new VpnInterfacesKey(intfName)).setInterfaceName(intfName).build();
             vpnIntfList.add(vpnIntfs);
             subDpnBuilder.setVpnInterfaces(vpnIntfList);
             subDpn = subDpnBuilder.build();
@@ -147,7 +147,7 @@ public class SubnetOpDpnManager {
             if (!optionalPortOp.isPresent()) {
                 // Create PortOpDataEntry only if not present
                 portOpBuilder =
-                    new PortOpDataEntryBuilder().setKey(new PortOpDataEntryKey(intfName)).setPortId(intfName);
+                    new PortOpDataEntryBuilder().withKey(new PortOpDataEntryKey(intfName)).setPortId(intfName);
                 List<Uuid> listSubnet = new ArrayList<>();
                 listSubnet.add(subnetId);
                 portOpBuilder.setSubnetIds(listSubnet);
@@ -194,7 +194,7 @@ public class SubnetOpDpnManager {
             SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder(optionalSubDpn.get());
             List<VpnInterfaces> vpnIntfList = subDpnBuilder.getVpnInterfaces();
             VpnInterfaces vpnIntfs =
-                new VpnInterfacesBuilder().setKey(new VpnInterfacesKey(intfName)).setInterfaceName(intfName).build();
+                new VpnInterfacesBuilder().withKey(new VpnInterfacesKey(intfName)).setInterfaceName(intfName).build();
             vpnIntfList.remove(vpnIntfs);
             if (vpnIntfList.isEmpty()) {
                 // Remove the DPN as well

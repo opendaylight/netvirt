@@ -115,7 +115,7 @@ public class NodeConnectedHandler {
             return;
         }
         LOG.info("HA ps node not present cleanup child {}" , childNode);
-        HwvtepGlobalAugmentation augmentation = childNode.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation augmentation = childNode.augmentation(HwvtepGlobalAugmentation.class);
         if (augmentation != null) {
             List<Switches> switches = augmentation.getSwitches();
             if (switches != null) {
@@ -141,10 +141,10 @@ public class NodeConnectedHandler {
                                     ReadWriteTransaction tx)
             throws ReadFailedException {
 
-        if (childGlobalNode == null || childGlobalNode.getAugmentation(HwvtepGlobalAugmentation.class) == null) {
+        if (childGlobalNode == null || childGlobalNode.augmentation(HwvtepGlobalAugmentation.class) == null) {
             return;
         }
-        List<Switches> switches = childGlobalNode.getAugmentation(HwvtepGlobalAugmentation.class).getSwitches();
+        List<Switches> switches = childGlobalNode.augmentation(HwvtepGlobalAugmentation.class).getSwitches();
         if (switches == null) {
             return;
         }
@@ -171,7 +171,7 @@ public class NodeConnectedHandler {
         if (srcNode == null) {
             return;
         }
-        HwvtepGlobalAugmentation src = srcNode.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation src = srcNode.augmentation(HwvtepGlobalAugmentation.class);
         if (src == null) {
             return;
         }
@@ -200,7 +200,7 @@ public class NodeConnectedHandler {
         if (childNode == null) {
             return;
         }
-        HwvtepGlobalAugmentation childData = childNode.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation childData = childNode.augmentation(HwvtepGlobalAugmentation.class);
         if (childData == null) {
             return;
         }
@@ -253,7 +253,7 @@ public class NodeConnectedHandler {
 
         NodeBuilder childPsBuilder = HwvtepHAUtil.getNodeBuilderForPath(childPsPath);
         PhysicalSwitchAugmentationBuilder dstBuilder = new PhysicalSwitchAugmentationBuilder();
-        PhysicalSwitchAugmentation src = haPsNode.getAugmentation(PhysicalSwitchAugmentation.class);
+        PhysicalSwitchAugmentation src = haPsNode.augmentation(PhysicalSwitchAugmentation.class);
 
         psAugmentationMerger.mergeConfigData(dstBuilder, src, childPath);
         psNodeMerger.mergeConfigData(childPsBuilder, haPsNode, childPath);
@@ -281,7 +281,7 @@ public class NodeConnectedHandler {
         NodeBuilder haPSNodeBuilder = HwvtepHAUtil.getNodeBuilderForPath(haPspath);
         PhysicalSwitchAugmentationBuilder dstBuilder = new PhysicalSwitchAugmentationBuilder();
 
-        PhysicalSwitchAugmentation src = childPsNode.getAugmentation(PhysicalSwitchAugmentation.class);
+        PhysicalSwitchAugmentation src = childPsNode.augmentation(PhysicalSwitchAugmentation.class);
 
         Node existingHAPSNode = HwvtepHAUtil.readNode(tx, OPERATIONAL, haPspath);
         PhysicalSwitchAugmentation existingHAPSAugumentation =

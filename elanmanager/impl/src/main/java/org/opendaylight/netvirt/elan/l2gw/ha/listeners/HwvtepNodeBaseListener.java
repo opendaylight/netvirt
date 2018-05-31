@@ -68,11 +68,11 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             new ImmutableMap.Builder<Class, Function<DataObject, String>>()
                     .put(LogicalSwitches.class, data -> ((LogicalSwitches) data).getHwvtepNodeName().getValue())
                     .put(RemoteMcastMacs.class, data -> {
-                        return logicalSwitchNameFromIid(((RemoteMcastMacs) data).getKey().getLogicalSwitchRef()
+                        return logicalSwitchNameFromIid(((RemoteMcastMacs) data).key().getLogicalSwitchRef()
                                 .getValue());
                     })
                     .put(RemoteUcastMacs.class, data -> {
-                        return logicalSwitchNameFromIid(((RemoteUcastMacs) data).getKey().getLogicalSwitchRef()
+                        return logicalSwitchNameFromIid(((RemoteUcastMacs) data).key().getLogicalSwitchRef()
                                 .getValue());
                     }).build();
 
@@ -114,10 +114,10 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
      */
     protected void addToHACacheIfBecameHAChild(InstanceIdentifier<Node> childPath, Node updatedChildNode,
                                                Node beforeChildNode) {
-        HwvtepGlobalAugmentation updatedAugmentaion = updatedChildNode.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation updatedAugmentaion = updatedChildNode.augmentation(HwvtepGlobalAugmentation.class);
         HwvtepGlobalAugmentation beforeAugmentaion = null;
         if (beforeChildNode != null) {
-            beforeAugmentaion = beforeChildNode.getAugmentation(HwvtepGlobalAugmentation.class);
+            beforeAugmentaion = beforeChildNode.augmentation(HwvtepGlobalAugmentation.class);
         }
         List<Managers> up = null;
         List<Managers> be = null;
