@@ -2,6 +2,144 @@
   "comments": [
     {
       "key": {
+        "uuid": "6d36c3e3_1dd416e4",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertGenerator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-05-31T08:43:16Z",
+      "side": 1,
+      "message": "{} missing",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 65
+      },
+      "revId": "aa502933fcd1bc09a759504d177d320a4c1d045a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "220a1e67_63a17085",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertGenerator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-05-31T08:43:16Z",
+      "side": 1,
+      "message": "{} missing",
+      "range": {
+        "startLine": 43,
+        "startChar": 54,
+        "endLine": 43,
+        "endChar": 55
+      },
+      "revId": "aa502933fcd1bc09a759504d177d320a4c1d045a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "091feb2c_cf05a189",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertGenerator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-05-31T08:43:16Z",
+      "side": 1,
+      "message": "This should be info level",
+      "range": {
+        "startLine": 89,
+        "startChar": 16,
+        "endLine": 89,
+        "endChar": 20
+      },
+      "revId": "aa502933fcd1bc09a759504d177d320a4c1d045a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d71f915_466419f5",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertGenerator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-05-31T08:43:16Z",
+      "side": 1,
+      "message": "{} missing",
+      "range": {
+        "startLine": 90,
+        "startChar": 0,
+        "endLine": 90,
+        "endChar": 58
+      },
+      "revId": "aa502933fcd1bc09a759504d177d320a4c1d045a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7bef36c4_9b61f61e",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-05-31T08:43:16Z",
+      "side": 1,
+      "message": "This should be info",
+      "range": {
+        "startLine": 333,
+        "startChar": 20,
+        "endLine": 333,
+        "endChar": 24
+      },
+      "revId": "aa502933fcd1bc09a759504d177d320a4c1d045a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "afd08b42_9ca68287",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-05-31T08:43:16Z",
+      "side": 1,
+      "message": "This should be info",
+      "range": {
+        "startLine": 351,
+        "startChar": 20,
+        "endLine": 351,
+        "endChar": 24
+      },
+      "revId": "aa502933fcd1bc09a759504d177d320a4c1d045a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9660ffb2_fd99f8f5",
         "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertThresholdCLI.java",
         "patchSetId": 2
@@ -89,6 +227,75 @@
         "startChar": 12,
         "endLine": 110,
         "endChar": 15
+      },
+      "revId": "aa502933fcd1bc09a759504d177d320a4c1d045a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4f66d24f_2ebe9c90",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-05-31T08:43:16Z",
+      "side": 1,
+      "message": "{} missing",
+      "range": {
+        "startLine": 480,
+        "startChar": 81,
+        "endLine": 480,
+        "endChar": 83
+      },
+      "revId": "aa502933fcd1bc09a759504d177d320a4c1d045a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eaee6aca_37980ec4",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-05-31T08:43:16Z",
+      "side": 1,
+      "message": "{} missing",
+      "range": {
+        "startLine": 568,
+        "startChar": 77,
+        "endLine": 568,
+        "endChar": 79
+      },
+      "revId": "aa502933fcd1bc09a759504d177d320a4c1d045a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8a716948_82b2c1a6",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-05-31T08:43:16Z",
+      "side": 1,
+      "message": "add interface name also",
+      "range": {
+        "startLine": 743,
+        "startChar": 51,
+        "endLine": 743,
+        "endChar": 54
       },
       "revId": "aa502933fcd1bc09a759504d177d320a4c1d045a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
