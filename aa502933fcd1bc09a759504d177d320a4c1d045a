@@ -307,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "48d571fd_56ec1eb3",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 8007
+      },
+      "writtenOn": "2018-05-31T10:00:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "afd08b42_9ca68287",
+      "range": {
+        "startLine": 351,
+        "startChar": 20,
+        "endLine": 351,
+        "endChar": 24
+      },
+      "revId": "aa502933fcd1bc09a759504d177d320a4c1d045a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9660ffb2_fd99f8f5",
         "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertThresholdCLI.java",
         "patchSetId": 2
