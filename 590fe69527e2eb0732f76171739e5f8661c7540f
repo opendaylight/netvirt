@@ -16,6 +16,24 @@
       "revId": "590fe69527e2eb0732f76171739e5f8661c7540f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9201d40_eca94991",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-31T05:56:08Z",
+      "side": 1,
+      "message": "What is value add in moving these to new methods? A new function that just calls same two functions doesn\u0027t make any difference, right?\n\nCallback registration should trigger straightaway if data was written during this time. That is way all listeners work, when you register, you straightaway get notification for existing data.",
+      "parentUuid": "8214be06_ba9a79b4",
+      "revId": "590fe69527e2eb0732f76171739e5f8661c7540f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
