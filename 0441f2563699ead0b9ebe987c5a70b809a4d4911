@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "475d486c_fe7fcb3c",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-31T07:42:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b3e3a28_20e945ac",
+      "range": {
+        "startLine": 39,
+        "startChar": 36,
+        "endLine": 39,
+        "endChar": 40
+      },
+      "revId": "0441f2563699ead0b9ebe987c5a70b809a4d4911",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "76c18ad9_424904e4",
         "filename": "docs/specs/fluorine/qos.rst",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2018-05-29T16:22:39Z",
       "side": 1,
       "message": "well this isn\u0027t technically in OVS Agent, it is in L3 neutron agent, but I think it should still be yes as the OVS agent implementation has support for this.",
+      "range": {
+        "startLine": 43,
+        "startChar": 36,
+        "endLine": 43,
+        "endChar": 40
+      },
+      "revId": "0441f2563699ead0b9ebe987c5a70b809a4d4911",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5bd1958f_98d1a0a0",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-05-31T07:42:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "76c18ad9_424904e4",
       "range": {
         "startLine": 43,
         "startChar": 36,
