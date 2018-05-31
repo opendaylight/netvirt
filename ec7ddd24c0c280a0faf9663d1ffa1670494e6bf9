@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "832fb8bd_1732617e",
+        "filename": "docs/specs/oxygen/elan-service-recovery.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-05-31T10:02:01Z",
+      "side": 1,
+      "message": "no need for odl-restconf-all feature as it is contained in netvirt-openstack",
+      "revId": "ec7ddd24c0c280a0faf9663d1ffa1670494e6bf9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f33aaac_6e01a3f0",
         "filename": "docs/specs/oxygen/elan-service-recovery.rst",
         "patchSetId": 4
