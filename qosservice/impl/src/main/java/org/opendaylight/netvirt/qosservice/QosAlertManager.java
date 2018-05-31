@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.qosservice;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map.Entry;
@@ -21,6 +24,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import org.apache.felix.service.command.CommandSession;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -266,6 +273,31 @@ public final class QosAlertManager implements Runnable {
                 LOG.trace("DPN {} empty. Removing dpn from cache", dpnId);
                 qosAlertDpnPortNumberMap.remove(dpnId);
             }
+        }
+    }
+
+    public void displayCache(CommandSession session) {
+        BigInteger dpnId;
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonParser jsonParser = new JsonParser();
+        JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+        JsonArrayBuilder jsonOuterArrayBuilder = Json.createArrayBuilder();
+        JsonArrayBuilder jsonInnerArrayBuilder;
+        if (!(qosAlertDpnPortNumberMap.isEmpty())) {
+            session.getConsole().println("Dpn Map");
+            for (ConcurrentMap.Entry<BigInteger, ConcurrentMap<String, QosAlertPortData>> dpnEntry
+                    : qosAlertDpnPortNumberMap.entrySet()) {
+                dpnId = dpnEntry.getKey();
+                jsonObjectBuilder.add("Dpn Id", dpnId);
+                jsonInnerArrayBuilder = Json.createArrayBuilder();
+                ConcurrentMap<String, QosAlertPortData> portInnerMap = qosAlertDpnPortNumberMap.get(dpnId);
+                for (ConcurrentMap.Entry<String, QosAlertPortData> portEntry : portInnerMap.entrySet()) {
+                    jsonInnerArrayBuilder.add(portInnerMap.get(portEntry.getKey()).toString(portEntry.getKey()));
+                }
+                jsonObjectBuilder.add("Ports", jsonInnerArrayBuilder);
+                jsonOuterArrayBuilder.add(jsonObjectBuilder);
+            }
+            session.getConsole().println(gson.toJson(jsonParser.parse(jsonOuterArrayBuilder.build().toString())));
         }
     }
 

@@ -59,6 +59,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                 <property name="qosAlertManager" ref="qosAlertManager"/>
             </action>
         </command>
+        <command>
+            <action class="org.opendaylight.netvirt.qosservice.QosCacheCLI">
+                <property name="qosAlertManager" ref="qosAlertManager"/>
+                <property name="qosNeutronUtils" ref="qosNeutronUtils"/>
+            </action>
+        </command>
 
     </command-bundle>
 
