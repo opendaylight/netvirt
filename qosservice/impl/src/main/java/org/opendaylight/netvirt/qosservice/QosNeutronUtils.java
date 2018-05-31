@@ -8,6 +8,9 @@
 package org.opendaylight.netvirt.qosservice;
 
 import com.google.common.base.Optional;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +26,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
+import org.apache.felix.service.command.CommandSession;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -169,6 +176,143 @@ public class QosNeutronUtils {
         if (qosNetworksMap.containsKey(qosUuid) && qosNetworksMap.get(qosUuid).containsKey(network.getUuid())) {
             qosNetworksMap.get(qosUuid).remove(network.getUuid(), network);
         }
+    }
+
+    public void displayCache(CommandSession session) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonParser jsonParser = new JsonParser();
+        session.getConsole().println("QosClusterOwner: " + qosEosHandler.isQosClusterOwner());
+        if (qosPolicyMap.isEmpty() && qosPortsMap.isEmpty() && qosNetworksMap.isEmpty()) {
+            session.getConsole().println("No cache found");
+            return;
+        }
+        if (!(qosPolicyMap.isEmpty())) {
+            displayQosPolicyMap(session, gson, jsonParser);
+        }
+        if (!(qosPortsMap.isEmpty())) {
+            displayQosPortsMap(session, gson, jsonParser);
+        }
+        if (!(qosNetworksMap.isEmpty())) {
+            displayQosNetworksMap(session, gson, jsonParser);
+        }
+    }
+
+    private void displayQosPolicyMap(CommandSession session, Gson gson, JsonParser jsonParser) {
+        session.getConsole().println("\nQOS Policy Map");
+        JsonObjectBuilder jsonObjectBuilder;
+        JsonArrayBuilder jsonArrayBuilder;
+        String uuid;
+        String policyName;
+        String dscpUuid;
+        String bandwidthUuid;
+        Long maxRate;
+        Long maxBurstRate;
+        Short dscpValue;
+        Uuid policyUuid;
+        jsonArrayBuilder = Json.createArrayBuilder();
+
+        for (ConcurrentMap.Entry<Uuid, QosPolicy> policyEntry : qosPolicyMap.entrySet()) {
+            dscpUuid = "null";
+            bandwidthUuid = "null";
+            maxRate = 0L;
+            maxBurstRate = 0L;
+            dscpValue = 0;
+            policyUuid = policyEntry.getKey();
+            uuid = policyEntry.getKey().getValue();
+            policyName = qosPolicyMap.get(policyUuid).getName();
+            jsonObjectBuilder = Json.createObjectBuilder();
+            if (!(qosPolicyMap.get(policyUuid).getBandwidthLimitRules().isEmpty())) {
+                BandwidthLimitRules bandwidthLimitRules = qosPolicyMap.get(policyUuid).getBandwidthLimitRules().get(0);
+                bandwidthUuid = bandwidthLimitRules.getUuid().getValue();
+                maxRate = bandwidthLimitRules.getMaxKbps().longValue();
+                maxBurstRate = bandwidthLimitRules.getMaxBurstKbps().longValue();
+            }
+            if (!(qosPolicyMap.get(policyUuid).getDscpmarkingRules().isEmpty())) {
+                dscpUuid = qosPolicyMap.get(policyUuid).getDscpmarkingRules().get(0).getUuid().getValue();
+                dscpValue = qosPolicyMap.get(policyUuid).getDscpmarkingRules().get(0).getDscpMark();
+            }
+            jsonObjectBuilder.add("Policy uuid", uuid).add("Policy Name", policyName)
+                    .add("Bandwidth uuid", bandwidthUuid).add("max_kbps", maxRate).add("max_burst_kbps", maxBurstRate)
+                    .add("Dscp uuid", dscpUuid).add("Dscp Value", dscpValue);
+            jsonArrayBuilder.add(jsonObjectBuilder);
+        }
+        session.getConsole().println(gson.toJson(jsonParser.parse(jsonArrayBuilder.build().toString())));
+    }
+
+    private void displayQosPortsMap(CommandSession session, Gson gson, JsonParser jsonParser) {
+        session.getConsole().println("\nQOS Ports Map");
+        JsonObjectBuilder jsonObjectBuilder;
+        JsonArrayBuilder jsonArrayBuilder;
+        JsonArrayBuilder internalArray;
+        String policyId;
+        String policyName;
+        String portUuid;
+        String portName;
+        Uuid policyUuid;
+        Uuid portId;
+        jsonArrayBuilder = Json.createArrayBuilder();
+
+        for (ConcurrentMap.Entry<Uuid, ConcurrentMap<Uuid, Port>> policyEntry : qosPortsMap.entrySet()) {
+            policyUuid = policyEntry.getKey();
+            policyId = policyUuid.getValue();
+            policyName = qosPolicyMap.get(policyUuid).getName();
+            jsonObjectBuilder = Json.createObjectBuilder().add("Policy Uuid", policyId).add("PolicyName", policyName);
+            internalArray = Json.createArrayBuilder();
+            ConcurrentMap<Uuid, Port> portInnerMap = qosPortsMap.get(policyUuid);
+            for (ConcurrentMap.Entry<Uuid, Port> portEntry : portInnerMap.entrySet()) {
+                portId = portEntry.getKey();
+                if (portId != null) {
+                    portUuid = portInnerMap.get(portId).getKey().getUuid().getValue();
+                    portName = portInnerMap.get(portId).getName();
+                    if (portName == null) {
+                        portName = "null";
+                    }
+                    String portDetails = portUuid + " : " + portName;
+                    internalArray.add(portDetails);
+                }
+            }
+            jsonObjectBuilder.add("Port Details", internalArray);
+            jsonArrayBuilder.add(jsonObjectBuilder);
+        }
+        session.getConsole().println(gson.toJson(jsonParser.parse(jsonArrayBuilder.build().toString())));
+    }
+
+    private void displayQosNetworksMap(CommandSession session, Gson gson, JsonParser jsonParser) {
+        session.getConsole().println("\nQos Networks Map");
+        JsonObjectBuilder jsonObjectBuilder;
+        JsonArrayBuilder jsonArrayBuilder;
+        JsonArrayBuilder internalArray;
+        String policyId;
+        String policyName;
+        String networkId;
+        String networkName;
+        Uuid policyUuid;
+        Uuid networkUuid;
+        jsonArrayBuilder = Json.createArrayBuilder();
+
+        for (ConcurrentMap.Entry<Uuid, ConcurrentMap<Uuid, Network>> policyEntry: qosNetworksMap.entrySet()) {
+            policyUuid = policyEntry.getKey();
+            policyId = policyUuid.getValue();
+            policyName = qosPolicyMap.get(policyUuid).getName();
+            internalArray = Json.createArrayBuilder();
+            jsonObjectBuilder = Json.createObjectBuilder().add("Policy Uuid", policyId).add("PolicyName", policyName);
+            ConcurrentMap<Uuid, Network> networkInnerMap = qosNetworksMap.get(policyUuid);
+            for (ConcurrentMap.Entry<Uuid, Network> networkEntry : networkInnerMap.entrySet()) {
+                networkUuid =  networkEntry.getKey();
+                if (networkUuid != null) {
+                    networkId = networkInnerMap.get(networkUuid).getKey().getUuid().getValue();
+                    networkName = networkInnerMap.get(networkUuid).getName();
+                    if (networkName == null) {
+                        networkName = "null";
+                    }
+                    String networkDetails = networkId + " : " + networkName;
+                    internalArray.add(networkDetails);
+                }
+            }
+            jsonObjectBuilder.add("Network Details", internalArray);
+            jsonArrayBuilder.add(jsonObjectBuilder);
+        }
+        session.getConsole().println(gson.toJson(jsonParser.parse(jsonArrayBuilder.build().toString())));
     }
 
     @Nonnull

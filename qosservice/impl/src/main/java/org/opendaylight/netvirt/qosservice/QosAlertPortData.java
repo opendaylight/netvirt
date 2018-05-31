@@ -41,6 +41,11 @@ public class QosAlertPortData {
         statsDataInit = false;
     }
 
+    public String toString(String portNumber) {
+        return "Uuid: " + this.port.getUuid().getValue() + ", port_number: " + portNumber
+                + ", rx_packets: " + rxPackets + ", rx_dropped_packets: " + rxDroppedPackets;
+    }
+
     public void updatePortStatistics(NodeConnectorStatisticsAndPortNumberMap statsData) {
         LOG.trace("Port {} rx-packets {} tx-packets {} rx-dropped {} tx-dropped {}", port.getUuid().getValue(),
                            statsData.getPackets().getReceived(), statsData.getPackets().getTransmitted(),
