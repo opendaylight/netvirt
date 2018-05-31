@@ -375,7 +375,7 @@ public final class DhcpServiceUtils {
                                           BigInteger cookie, List<Instruction> instructions) {
         StypeOpenflowBuilder augBuilder = new StypeOpenflowBuilder().setFlowCookie(cookie)
                 .setFlowPriority(flowPriority).setInstruction(instructions);
-        return new BoundServicesBuilder().setKey(new BoundServicesKey(servicePriority))
+        return new BoundServicesBuilder().withKey(new BoundServicesKey(servicePriority))
                 .setServiceName(serviceName).setServicePriority(servicePriority)
                 .setServiceType(ServiceTypeFlowBased.class)
                 .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
@@ -460,7 +460,7 @@ public final class DhcpServiceUtils {
 
     static SubnetToDhcpPort getSubnetToDhcpPort(Port port, String subnetId, String ipAddress) {
         return new SubnetToDhcpPortBuilder()
-                .setKey(new SubnetToDhcpPortKey(subnetId))
+                .withKey(new SubnetToDhcpPortKey(subnetId))
                 .setSubnetId(subnetId).setPortName(port.getUuid().getValue())
                 .setPortMacaddress(port.getMacAddress().getValue()).setPortFixedip(ipAddress).build();
     }
@@ -510,7 +510,7 @@ public final class DhcpServiceUtils {
             LOG.trace("Updating InterfaceNameVmMacAddress map with {}, {}", interfaceName,vmMacAddress);
             InterfaceNameMacAddress interfaceNameMacAddress =
                     new InterfaceNameMacAddressBuilder()
-                            .setKey(new InterfaceNameMacAddressKey(interfaceName))
+                            .withKey(new InterfaceNameMacAddressKey(interfaceName))
                             .setInterfaceName(interfaceName).setMacAddress(vmMacAddress).build();
             tx.merge(LogicalDatastoreType.OPERATIONAL, instanceIdentifier, interfaceNameMacAddress,
                     WriteTransaction.CREATE_MISSING_PARENTS);

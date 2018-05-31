@@ -30,7 +30,7 @@ class IdentifiedPortSubnetBuilder implements DataTreeIdentifierDataObjectPairBui
 
     override dataObject() {
         new PortSubnetBuilder >> [
-            key = new PortSubnetKey(newInterfaceName)
+            withKey(new PortSubnetKey(newInterfaceName))
             portId = newInterfaceName
             subnetInfo = subnetInfoList
         ]

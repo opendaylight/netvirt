@@ -143,7 +143,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
             if (optionalNetworkMap.isPresent()) {
                 nwMapBuilder = new NetworkMapBuilder(optionalNetworkMap.get());
             } else {
-                nwMapBuilder = new NetworkMapBuilder().setKey(new NetworkMapKey(networkId)).setNetworkId(networkId);
+                nwMapBuilder = new NetworkMapBuilder().withKey(new NetworkMapKey(networkId)).setNetworkId(networkId);
                 LOG.debug("Adding a new network node in NetworkMaps DS for network {}", networkId.getValue());
             }
             List<Uuid> subnetIdList = nwMapBuilder.getSubnetIdList();

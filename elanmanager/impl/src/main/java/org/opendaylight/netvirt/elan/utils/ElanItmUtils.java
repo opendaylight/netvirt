@@ -247,7 +247,7 @@ public class ElanItmUtils {
             Interface tunnelInterface =
                     ElanL2GatewayUtils.getInterfaceFromConfigDS(new InterfaceKey(tunnelInterfaceName), broker);
             if (tunnelInterface != null) {
-                dpnTepIp = tunnelInterface.getAugmentation(IfTunnel.class).getTunnelSource();
+                dpnTepIp = tunnelInterface.augmentation(IfTunnel.class).getTunnelSource();
             } else {
                 LOG.warn("Tunnel interface not found for tunnelInterfaceName {}", tunnelInterfaceName);
             }

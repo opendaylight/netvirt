@@ -265,7 +265,7 @@ public final class ElanServiceChainUtils {
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
             ElanToPseudoPortData newValue =
-                    new ElanToPseudoPortDataBuilder().setKey(key).setElanLportTag(portTag)
+                    new ElanToPseudoPortDataBuilder().withKey(key).setElanLportTag(portTag)
                                                      .setScfTag(scfTag).build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, path, newValue);
         } else {

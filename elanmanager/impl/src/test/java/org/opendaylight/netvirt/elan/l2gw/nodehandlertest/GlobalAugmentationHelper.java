@@ -114,7 +114,7 @@ public final class GlobalAugmentationHelper {
         List<Switches> switches = new ArrayList<>();
 
         SwitchesBuilder switchesBuilder = new SwitchesBuilder();
-        switchesBuilder.setKey(new SwitchesKey(new HwvtepPhysicalSwitchRef(psId)));
+        switchesBuilder.withKey(new SwitchesKey(new HwvtepPhysicalSwitchRef(psId)));
         switchesBuilder.setSwitchRef(new HwvtepPhysicalSwitchRef(psId));
         switches.add(switchesBuilder.build());
 

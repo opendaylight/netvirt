@@ -90,9 +90,9 @@ public class NeutronEvpnUtils {
 
             EvpnAugmentationBuilder evpnAugmentationBuilder = new EvpnAugmentationBuilder();
             ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder(elanInstanceOptional.get());
-            if (elanInstanceBuilder.getAugmentation(EvpnAugmentation.class) != null) {
+            if (elanInstanceBuilder.augmentation(EvpnAugmentation.class) != null) {
                 evpnAugmentationBuilder =
-                        new EvpnAugmentationBuilder(elanInstanceBuilder.getAugmentation(EvpnAugmentation.class));
+                        new EvpnAugmentationBuilder(elanInstanceBuilder.augmentation(EvpnAugmentation.class));
             }
             if (operation == Operation.ADD) {
                 evpnAugmentationBuilder.setEvpnName(vpnName);
@@ -119,7 +119,7 @@ public class NeutronEvpnUtils {
                     LOG.debug("Deleting Evpn-Network with key {}", rd);
                     tx.delete(LogicalDatastoreType.CONFIGURATION, rdToNetworkIdentifier);
                 } else {
-                    EvpnRdToNetworkBuilder evpnRdToNetworkBuilder = new EvpnRdToNetworkBuilder().setKey(
+                    EvpnRdToNetworkBuilder evpnRdToNetworkBuilder = new EvpnRdToNetworkBuilder().withKey(
                             new EvpnRdToNetworkKey(rd));
                     evpnRdToNetworkBuilder.setRd(rd);
                     evpnRdToNetworkBuilder.setNetworkId(elanInstanceName);

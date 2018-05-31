@@ -79,7 +79,7 @@ public final class PhysicalSwitchHelper {
                                                                           Map<Long, String> vlanBindingData) {
         TerminationPointKey tpKey = new TerminationPointKey(new TpId(portName));
         TerminationPointBuilder tpBuilder = new TerminationPointBuilder();
-        tpBuilder.setKey(tpKey);
+        tpBuilder.withKey(tpKey);
         tpBuilder.setTpId(tpKey.getTpId());
         switchIid.firstKeyOf(Node.class);
         InstanceIdentifier<TerminationPoint> tpPath = switchIid.child(TerminationPoint.class,
@@ -125,7 +125,7 @@ public final class PhysicalSwitchHelper {
     public static VlanBindings createVlanBinding(Long key, String logicalSwitch) {
         VlanBindingsBuilder vbBuilder = new VlanBindingsBuilder();
         VlanBindingsKey vbKey = new VlanBindingsKey(new VlanId(key.intValue()));
-        vbBuilder.setKey(vbKey);
+        vbBuilder.withKey(vbKey);
         vbBuilder.setVlanIdKey(vbKey.getVlanIdKey());
         HwvtepLogicalSwitchRef hwvtepLogicalSwitchRef =
                 new HwvtepLogicalSwitchRef(createInstanceIdentifier(logicalSwitch));

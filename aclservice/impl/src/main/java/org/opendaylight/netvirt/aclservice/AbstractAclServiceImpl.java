@@ -400,7 +400,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             List<MatchInfoBase> matches = entry.getValue();
             matches.add(lportTagMatch);
             String flowId = flowName + this.directionString + "_" + port.getDpId() + "_" + port.getLPortTag() + "_"
-                    + ace.getKey().getRuleName();
+                    + ace.key().getRuleName();
 
             int operation = addOrRemove == NwConstants.MOD_FLOW ? NwConstants.DEL_FLOW : addOrRemove;
             syncFlow(port.getDpId(), getAclFilterCumDispatcherTable(), flowId, flowPriority, "ACL", 0, 0,
@@ -432,7 +432,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             List<MatchInfoBase> matches = entry.getValue();
             matches.addAll(lportAndAclMatches);
             String flowId = flowName + this.directionString + "_" + port.getDpId() + "_" + port.getLPortTag() + "_"
-                    + ace.getKey().getRuleName();
+                    + ace.key().getRuleName();
 
             int operation = addOrRemove == NwConstants.MOD_FLOW ? NwConstants.DEL_FLOW : addOrRemove;
             syncFlow(port.getDpId(), getAclRuleBasedFilterTable(), flowId, flowPriority, "ACL", 0, 0,

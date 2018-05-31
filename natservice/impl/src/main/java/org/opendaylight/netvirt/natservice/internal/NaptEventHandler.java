@@ -349,7 +349,7 @@ public class NaptEventHandler {
             return;
         }
         List<ActionInfo> actionInfos = new ArrayList<>();
-        IfL2vlan ifL2vlan = iface.getAugmentation(IfL2vlan.class);
+        IfL2vlan ifL2vlan = iface.augmentation(IfL2vlan.class);
         if (ifL2vlan != null && ifL2vlan.getVlanId() != null) {
             vlanId = ifL2vlan.getVlanId().getValue() == null ? 0 : ifL2vlan.getVlanId().getValue();
         }
@@ -466,7 +466,7 @@ public class NaptEventHandler {
 
     private static Node buildInventoryDpnNode(BigInteger dpnId) {
         NodeId nodeId = new NodeId("openflow:" + dpnId);
-        Node nodeDpn = new NodeBuilder().setId(nodeId).setKey(new NodeKey(nodeId)).build();
+        Node nodeDpn = new NodeBuilder().setId(nodeId).withKey(new NodeKey(nodeId)).build();
         return nodeDpn;
     }
 
@@ -481,7 +481,7 @@ public class NaptEventHandler {
         Node nodeDpn = buildInventoryDpnNode(dpId);
         InstanceIdentifier<Flow> flowInstanceId =
                 InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                .child(Node.class, nodeDpn.key()).augmentation(FlowCapableNode.class)
                 .child(Table.class, new TableKey(flow.getTableId()))
                 .child(Flow.class, flowKey)
                 .build();

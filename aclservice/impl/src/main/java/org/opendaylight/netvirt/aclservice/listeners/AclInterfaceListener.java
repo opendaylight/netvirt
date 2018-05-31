@@ -101,14 +101,14 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
 
     @Override
     public void update(InstanceIdentifier<Interface> key, Interface portBefore, Interface portAfter) {
-        if (portBefore.getAugmentation(ParentRefs.class) == null
-                && portAfter.getAugmentation(ParentRefs.class) != null) {
+        if (portBefore.augmentation(ParentRefs.class) == null
+                && portAfter.augmentation(ParentRefs.class) != null) {
             LOG.trace("Ignoring event for update in ParentRefs for {} ", portAfter.getName());
             return;
         }
         LOG.trace("Received AclInterface update event, portBefore={}, portAfter={}", portBefore, portAfter);
-        InterfaceAcl aclInPortAfter = portAfter.getAugmentation(InterfaceAcl.class);
-        InterfaceAcl aclInPortBefore = portBefore.getAugmentation(InterfaceAcl.class);
+        InterfaceAcl aclInPortAfter = portAfter.augmentation(InterfaceAcl.class);
+        InterfaceAcl aclInPortBefore = portBefore.augmentation(InterfaceAcl.class);
 
         String interfaceId = portAfter.getName();
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
@@ -240,7 +240,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     @Override
     public void add(InstanceIdentifier<Interface> key, Interface port) {
         LOG.trace("Received AclInterface add event, port={}", port);
-        InterfaceAcl aclInPort = port.getAugmentation(InterfaceAcl.class);
+        InterfaceAcl aclInPort = port.augmentation(InterfaceAcl.class);
         if (aclInPort != null && aclInPort.isPortSecurityEnabled()) {
             String interfaceId = port.getName();
             AclInterface aclInterface = addOrUpdateAclInterfaceCache(interfaceId, aclInPort);

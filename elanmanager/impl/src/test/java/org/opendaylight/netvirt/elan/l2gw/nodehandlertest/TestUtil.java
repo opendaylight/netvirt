@@ -127,19 +127,19 @@ public final class TestUtil {
         Optional<Node> nodeOptional = TestUtil.readNodeOptional(LogicalDatastoreType.CONFIGURATION, nodeId, dataBroker);
         assertTrue(message, nodeOptional.isPresent());
         if (nodeOptional.isPresent()) {
-            nodeOptional.get().getAugmentation(HwvtepGlobalAugmentation.class).getManagers();
+            nodeOptional.get().augmentation(HwvtepGlobalAugmentation.class).getManagers();
         }
     }
 
     public static void verifyHAconfigNode(Node haConfig, Node d1Node) throws Exception {
-        String haid = haConfig.getAugmentation(HwvtepGlobalAugmentation.class).getManagers()
+        String haid = haConfig.augmentation(HwvtepGlobalAugmentation.class).getManagers()
                 .get(0).getManagerOtherConfigs().get(0).getOtherConfigValue();
         String d1id = d1Node.getNodeId().getValue();
         assertEquals("Other config should contain D1 as child manager", haid, d1id);
     }
 
     public static void verifyHAconfigNode(Node haConfig, Node d1Node, Node d2Node) throws Exception {
-        String haid = haConfig.getAugmentation(HwvtepGlobalAugmentation.class).getManagers()
+        String haid = haConfig.augmentation(HwvtepGlobalAugmentation.class).getManagers()
                 .get(0).getManagerOtherConfigs().get(0).getOtherConfigValue();
         String[] haids = haid.split(",");
         List<String> haidSlist = Arrays.asList(haids);

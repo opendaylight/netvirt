@@ -167,7 +167,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         String leakedOrigin = forcedOrigin != null ? forcedOrigin.getValue() : RouteOrigin.INTERVPN.getValue();
         FibHelper.buildRoutePath(endpointIp, label);
         VrfEntry newVrfEntry =
-            new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
+            new VrfEntryBuilder().withKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
                                  .setRoutePaths(Collections.singletonList(FibHelper.buildRoutePath(endpointIp, label)))
                                  .setOrigin(leakedOrigin).build();
 

@@ -108,7 +108,7 @@ public class EvpnMacVrfUtils {
 
     public InstanceIdentifier<MacVrfEntry> getMacVrfEntryIid(String rd, MacVrfEntry macVrfEntry) {
         return InstanceIdentifier.create(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
-                .child(MacVrfEntry.class, macVrfEntry.getKey());
+                .child(MacVrfEntry.class, macVrfEntry.key());
     }
 
     public void updateEvpnDmacFlows(final ElanInstance elanInstance, final boolean install) {

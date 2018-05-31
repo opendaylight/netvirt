@@ -92,7 +92,7 @@ public class NodeCopier implements INodeCopier {
             return;
         }
         HwvtepGlobalAugmentation srcGlobalAugmentation =
-                srcGlobalNodeOptional.get().getAugmentation(HwvtepGlobalAugmentation.class);
+                srcGlobalNodeOptional.get().augmentation(HwvtepGlobalAugmentation.class);
         if (srcGlobalAugmentation == null) {
             /**
              * If Source HA Global Node is not present
@@ -122,7 +122,7 @@ public class NodeCopier implements INodeCopier {
             //Also update the manager section in config which helps in cluster reboot scenarios
             haBuilder.getManagers().forEach((manager) -> {
                 InstanceIdentifier<Managers> managerIid = dstPath.augmentation(HwvtepGlobalAugmentation.class)
-                        .child(Managers.class, manager.getKey());
+                        .child(Managers.class, manager.key());
                 tx.put(CONFIGURATION, managerIid, manager, true);
             });
 
@@ -176,7 +176,7 @@ public class NodeCopier implements INodeCopier {
         PhysicalSwitchAugmentationBuilder dstPsAugmentationBuilder = new PhysicalSwitchAugmentationBuilder();
 
         PhysicalSwitchAugmentation srcPsAugmenatation =
-                srcPsNodeOptional.get().getAugmentation(PhysicalSwitchAugmentation.class);
+                srcPsNodeOptional.get().augmentation(PhysicalSwitchAugmentation.class);
 
         Node existingDstPsNode = HwvtepHAUtil.readNode(tx, logicalDatastoreType, dstPsPath);
         PhysicalSwitchAugmentation existingDstPsAugmentation =

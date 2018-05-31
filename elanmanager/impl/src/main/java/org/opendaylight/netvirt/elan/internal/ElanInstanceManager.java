@@ -128,7 +128,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                 })), ElanConstants.JOB_MAX_RETRIES));
         // Release tag
         ElanUtils.releaseId(idManager, ElanConstants.ELAN_ID_POOL_NAME, elanName);
-        if (deletedElan.getAugmentation(EtreeInstance.class) != null) {
+        if (deletedElan.augmentation(EtreeInstance.class) != null) {
             removeEtreeInstance(deletedElan);
         }
     }
@@ -140,7 +140,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
         ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                 ElanUtils.getElanInfoEntriesOperationalDataPath(
-                        deletedElan.getAugmentation(EtreeInstance.class).getEtreeLeafTagVal().getValue()));
+                        deletedElan.augmentation(EtreeInstance.class).getEtreeLeafTagVal().getValue()));
     }
 
     @Override

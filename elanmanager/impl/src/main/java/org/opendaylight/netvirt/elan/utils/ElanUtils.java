@@ -674,7 +674,7 @@ public class ElanUtils {
         if (etreeInterface == null || etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
             return elanInfo.getElanTag();
         } else { // Leaf
-            EtreeInstance etreeInstance = elanInfo.getAugmentation(EtreeInstance.class);
+            EtreeInstance etreeInstance = elanInfo.augmentation(EtreeInstance.class);
             if (etreeInstance == null) {
                 LOG.warn("EtreeInterface {} is connected to a non-Etree network: {}",
                          interfaceInfo.getInterfaceName(), elanInfo.getElanInstanceName());
@@ -1141,19 +1141,19 @@ public class ElanUtils {
             elanTag = retrieveNewElanTag(idManager, elanInstanceName);
         }
         Elan elanInfo = new ElanBuilder().setName(elanInstanceName).setElanInterfaces(elanInterfaces)
-                .setKey(new ElanKey(elanInstanceName)).build();
+                .withKey(new ElanKey(elanInstanceName)).build();
 
         // Add the ElanState in the elan-state operational data-store
         tx.put(LogicalDatastoreType.OPERATIONAL, getElanInstanceOperationalDataPath(elanInstanceName),
                 elanInfo, WriteTransaction.CREATE_MISSING_PARENTS);
 
         // Add the ElanMacTable in the elan-mac-table operational data-store
-        MacTable elanMacTable = new MacTableBuilder().setKey(new MacTableKey(elanInstanceName)).build();
+        MacTable elanMacTable = new MacTableBuilder().withKey(new MacTableKey(elanInstanceName)).build();
         tx.put(LogicalDatastoreType.OPERATIONAL, getElanMacTableOperationalDataPath(elanInstanceName),
                 elanMacTable, WriteTransaction.CREATE_MISSING_PARENTS);
 
         ElanTagNameBuilder elanTagNameBuilder = new ElanTagNameBuilder().setElanTag(elanTag)
-                .setKey(new ElanTagNameKey(elanTag)).setName(elanInstanceName);
+                .withKey(new ElanTagNameKey(elanTag)).setName(elanInstanceName);
         long etreeLeafTag = -1;
         if (isEtreeInstance(elanInstanceAdded)) {
             etreeLeafTag = retrieveNewElanTag(idManager,elanInstanceName + ElanConstants
@@ -1176,7 +1176,7 @@ public class ElanUtils {
                 .setDescription(elanInstanceAdded.getDescription())
                 .setMacTimeout(elanInstanceAdded.getMacTimeout() == null
                         ? Long.valueOf(ElanConstants.DEFAULT_MAC_TIME_OUT) : elanInstanceAdded.getMacTimeout())
-                .setKey(elanInstanceAdded.getKey()).setElanTag(elanTag);
+                .withKey(elanInstanceAdded.key()).setElanTag(elanTag);
         if (isEtreeInstance(elanInstanceAdded)) {
             EtreeInstance etreeInstance = new EtreeInstanceBuilder().setEtreeLeafTagVal(new EtreeLeafTag(etreeLeafTag))
                     .build();
@@ -1190,13 +1190,13 @@ public class ElanUtils {
 
     private static void addTheLeafTagAsElanTag(String elanInstanceName, long etreeLeafTag, WriteTransaction tx) {
         ElanTagName etreeTagAsElanTag = new ElanTagNameBuilder().setElanTag(etreeLeafTag)
-                .setKey(new ElanTagNameKey(etreeLeafTag)).setName(elanInstanceName).build();
+                .withKey(new ElanTagNameKey(etreeLeafTag)).setName(elanInstanceName).build();
         tx.put(LogicalDatastoreType.OPERATIONAL,
                 getElanInfoEntriesOperationalDataPath(etreeLeafTag), etreeTagAsElanTag);
     }
 
     private static boolean isEtreeInstance(ElanInstance elanInstanceAdded) {
-        return elanInstanceAdded.getAugmentation(EtreeInstance.class) != null;
+        return elanInstanceAdded.augmentation(EtreeInstance.class) != null;
     }
 
     public boolean isDpnPresent(BigInteger dpnId) {
@@ -1221,7 +1221,7 @@ public class ElanUtils {
             BigInteger cookie, List<Instruction> instructions) {
         StypeOpenflowBuilder augBuilder = new StypeOpenflowBuilder().setFlowCookie(cookie).setFlowPriority(flowPriority)
                 .setInstruction(instructions);
-        return new BoundServicesBuilder().setKey(new BoundServicesKey(servicePriority)).setServiceName(serviceName)
+        return new BoundServicesBuilder().withKey(new BoundServicesKey(servicePriority)).setServiceName(serviceName)
                 .setServicePriority(servicePriority).setServiceType(ServiceTypeFlowBased.class)
                 .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
@@ -1625,9 +1625,9 @@ public class ElanUtils {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
             .ietf.interfaces.rev140508.interfaces.Interface configIface =
             interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
-        IfTunnel ifTunnel = configIface.getAugmentation(IfTunnel.class);
+        IfTunnel ifTunnel = configIface.augmentation(IfTunnel.class);
         if (ifTunnel != null && ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
-            ParentRefs refs = configIface.getAugmentation(ParentRefs.class);
+            ParentRefs refs = configIface.augmentation(ParentRefs.class);
             if (refs != null && !Strings.isNullOrEmpty(refs.getParentInterface())) {
                 return true; //multiple VxLAN tunnels enabled, i.e. only logical tunnel should be treated
             }
@@ -1640,10 +1640,10 @@ public class ElanUtils {
         org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId nodeId =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId("openflow:" + dpnId);
         org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node nodeDpn =
-                new NodeBuilder().setId(nodeId).setKey(new NodeKey(nodeId)).build();
+                new NodeBuilder().setId(nodeId).withKey(new NodeKey(nodeId)).build();
         return InstanceIdentifier.builder(Nodes.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node.class,
-                        nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                        nodeDpn.key()).augmentation(FlowCapableNode.class)
                 .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flowKey).build();
     }
 

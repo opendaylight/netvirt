@@ -74,7 +74,7 @@ public class NaptManagerTest {
         ipmapId = InstanceIdentifier.builder(
             IntextIpMap.class).child(IpMapping.class, new IpMappingKey(5L))
             .child(IpMap.class, new IpMapKey("10.0.0.1")).build();
-        ipmap = new IpMapBuilder().setKey(new IpMapKey("10.0.0.1")).setInternalIp("10.0.0.1")
+        ipmap = new IpMapBuilder().withKey(new IpMapKey("10.0.0.1")).setInternalIp("10.0.0.1")
             .setExternalIp("192.17.13.1").build();
         try {
             PowerMockito.doNothing()
@@ -98,7 +98,7 @@ public class NaptManagerTest {
         // TODO : This needs to be modified to make it work
         ipmapId = InstanceIdentifier.builder(IntextIpMap.class)
             .child(IpMapping.class, new IpMappingKey(5L)).child(IpMap.class, new IpMapKey("10.0.0.1")).build();
-        ipmap = new IpMapBuilder().setKey(new IpMapKey("10.0.0.1")).setInternalIp("10.0.0.1")
+        ipmap = new IpMapBuilder().withKey(new IpMapKey("10.0.0.1")).setInternalIp("10.0.0.1")
             .setExternalIp("192.17.13.1/24").build();
         try {
             PowerMockito.doNothing()
@@ -121,7 +121,7 @@ public class NaptManagerTest {
         // TODO : This needs to be modified to make it work
         ipmapId = InstanceIdentifier.builder(IntextIpMap.class)
             .child(IpMapping.class, new IpMappingKey(6L)).child(IpMap.class, new IpMapKey("10.0.2.1/16")).build();
-        ipmap = new IpMapBuilder().setKey(new IpMapKey("10.0.0.1")).setInternalIp("10.0.0.1")
+        ipmap = new IpMapBuilder().withKey(new IpMapKey("10.0.0.1")).setInternalIp("10.0.0.1")
             .setExternalIp("192.19.15.3").build();
         try {
             PowerMockito.doNothing()
@@ -144,7 +144,7 @@ public class NaptManagerTest {
         // TODO : This needs to be modified to make it work
         ipmapId = InstanceIdentifier.builder(IntextIpMap.class)
             .child(IpMapping.class, new IpMappingKey(6L)).child(IpMap.class, new IpMapKey("10.2.0.2/24")).build();
-        ipmap = new IpMapBuilder().setKey(new IpMapKey("10.2.0.2/24")).setInternalIp("10.2.0.2/24")
+        ipmap = new IpMapBuilder().withKey(new IpMapKey("10.2.0.2/24")).setInternalIp("10.2.0.2/24")
             .setExternalIp("192.21.16.1/16").build();
         try {
             PowerMockito.doNothing()

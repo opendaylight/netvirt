@@ -136,7 +136,7 @@ public final class CoeUtils {
         }
 
         elanInstanceBuilder.setExternal(isExternal);
-        elanInstanceBuilder.setKey(new ElanInstanceKey(elanInstanceName));
+        elanInstanceBuilder.withKey(new ElanInstanceKey(elanInstanceName));
         return elanInstanceBuilder.build();
     }
 
@@ -145,7 +145,7 @@ public final class CoeUtils {
         InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
                 .class, new ElanInterfaceKey(elanInterfaceName)).build();
         ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
-                .setName(elanInterfaceName).setKey(new ElanInterfaceKey(elanInterfaceName)).build();
+                .setName(elanInterfaceName).withKey(new ElanInterfaceKey(elanInterfaceName)).build();
         wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, id, elanInterface);
         LOG.debug("Creating new ELAN Interface {}", elanInterface);
     }
@@ -157,11 +157,11 @@ public final class CoeUtils {
                 .class, new ElanInterfaceKey(elanInterfaceName)).build();
         PhysAddress physAddress = PhysAddress.getDefaultInstance(macAddress);
         List<StaticMacEntries> staticMacEntriesList = new ArrayList<>();
-        StaticMacEntries staticMacEntries = new StaticMacEntriesBuilder().setKey(new StaticMacEntriesKey(
+        StaticMacEntries staticMacEntries = new StaticMacEntriesBuilder().withKey(new StaticMacEntriesKey(
                 physAddress)).setMacAddress(physAddress).setIpPrefix(ipAddress).build();
         staticMacEntriesList.add(staticMacEntries);
         ElanInterface elanInterface = new ElanInterfaceBuilder().setName(elanInterfaceName)
-                .setKey(new ElanInterfaceKey(elanInterfaceName)).setStaticMacEntries(staticMacEntriesList).build();
+                .withKey(new ElanInterfaceKey(elanInterfaceName)).setStaticMacEntries(staticMacEntriesList).build();
         wrtConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, id, elanInterface);
         LOG.debug("Updating ELAN Interface with static mac {}", elanInterface);
     }
@@ -170,7 +170,7 @@ public final class CoeUtils {
                                                  WriteTransaction writeTransaction) {
         InstanceIdentifier<PodIdentifier> id = InstanceIdentifier.builder(PodidentifierInfo.class)
                 .child(PodIdentifier.class, new PodIdentifierKey(podName)).build();
-        PodIdentifier podIdentifier = new PodIdentifierBuilder().setKey(new PodIdentifierKey(podName))
+        PodIdentifier podIdentifier = new PodIdentifierBuilder().withKey(new PodIdentifierKey(podName))
                 .setPodName(podName).setPodUuid(pod).build();
         writeTransaction.put(LogicalDatastoreType.OPERATIONAL, id, podIdentifier);
         LOG.debug("Creating podnametouuid map {} to {}", podName, pod);
@@ -297,7 +297,7 @@ public final class CoeUtils {
         List<VpnTarget> vpnTargetList = new ArrayList<>();
         LOG.debug("Creating/Updating a new vpn-instance node: {} ", vpnName);
 
-        VpnInstanceBuilder builder = new VpnInstanceBuilder().setKey(new VpnInstanceKey(vpnName))
+        VpnInstanceBuilder builder = new VpnInstanceBuilder().withKey(new VpnInstanceKey(vpnName))
                 .setVpnInstanceName(vpnName)
                 .setType(type).setL3vni(l3vni);
         if (irt != null && !irt.isEmpty()) {
@@ -309,14 +309,14 @@ public final class CoeUtils {
                     irt.remove(common);
                     ert.remove(common);
                     VpnTarget vpnTarget =
-                            new VpnTargetBuilder().setKey(new VpnTargetKey(common)).setVrfRTValue(common)
+                            new VpnTargetBuilder().withKey(new VpnTargetKey(common)).setVrfRTValue(common)
                                     .setVrfRTType(VpnTarget.VrfRTType.Both).build();
                     vpnTargetList.add(vpnTarget);
                 }
             }
             for (String importRT : irt) {
                 VpnTarget vpnTarget =
-                        new VpnTargetBuilder().setKey(new VpnTargetKey(importRT)).setVrfRTValue(importRT)
+                        new VpnTargetBuilder().withKey(new VpnTargetKey(importRT)).setVrfRTValue(importRT)
                                 .setVrfRTType(VpnTarget.VrfRTType.ImportExtcommunity).build();
                 vpnTargetList.add(vpnTarget);
             }
@@ -325,7 +325,7 @@ public final class CoeUtils {
         if (ert != null && !ert.isEmpty()) {
             for (String exportRT : ert) {
                 VpnTarget vpnTarget =
-                        new VpnTargetBuilder().setKey(new VpnTargetKey(exportRT)).setVrfRTValue(exportRT)
+                        new VpnTargetBuilder().withKey(new VpnTargetKey(exportRT)).setVrfRTValue(exportRT)
                                 .setVrfRTType(VpnTarget.VrfRTType.ExportExtcommunity).build();
                 vpnTargetList.add(vpnTarget);
             }
@@ -374,10 +374,10 @@ public final class CoeUtils {
                                           boolean isRouterInterface, WriteTransaction wrtConfigTxn) {
         LOG.trace("createVpnInterface for Port: {}, isRouterInterface: {}", interfaceName, isRouterInterface);
         List<VpnInstanceNames> listVpn = new ArrayList<>();
-        listVpn.add(new VpnInstanceNamesBuilder().setKey(new VpnInstanceNamesKey(vpnName))
+        listVpn.add(new VpnInstanceNamesBuilder().withKey(new VpnInstanceNamesKey(vpnName))
                 .setVpnName(vpnName).setAssociatedSubnetType(VpnInstanceNames.AssociatedSubnetType
                         .V4Subnet).build());
-        VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName))
+        VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().withKey(new VpnInterfaceKey(interfaceName))
                 .setName(interfaceName)
                 .setVpnInstanceNames(listVpn)
                 .setRouterInterface(isRouterInterface);
@@ -408,7 +408,7 @@ public final class CoeUtils {
         String hostIp = new String(pod.getHostIpAddress().getValue());
         UUID subnetId = UUID.nameUUIDFromBytes(hostIp.getBytes(StandardCharsets.UTF_8));
         String gatewayIP = ipValue.replaceFirst("\\d+$", "1");
-        Adjacency vmAdj = new AdjacencyBuilder().setKey(new AdjacencyKey(ipPrefix)).setIpAddress(ipPrefix)
+        Adjacency vmAdj = new AdjacencyBuilder().withKey(new AdjacencyKey(ipPrefix)).setIpAddress(ipPrefix)
                 .setMacAddress(macAddress).setAdjacencyType(Adjacency.AdjacencyType.PrimaryAdjacency)
                 .setSubnetId(new Uuid(subnetId.toString())).setSubnetGatewayIp(gatewayIP).build();
         if (!adjList.contains(vmAdj)) {

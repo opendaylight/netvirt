@@ -138,7 +138,7 @@ public class ElanLearntVpnVipToPortListener extends
             BigInteger timeStamp = new BigInteger(String.valueOf(System.currentTimeMillis()));
             PhysAddress physAddress = new PhysAddress(macAddress);
             MacEntry macEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress)
-                    .setKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp)
+                    .withKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp)
                     .setIsStaticAddress(false).build();
             InstanceIdentifier<MacEntry> macEntryId = ElanUtils
                     .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);

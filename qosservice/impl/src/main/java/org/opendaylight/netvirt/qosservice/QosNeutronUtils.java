@@ -270,8 +270,8 @@ public class QosNeutronUtils {
 
         // check for network qosservice to apply
         Network network =  neutronVpnManager.getNeutronNetwork(port.getNetworkId());
-        if (network != null && network.getAugmentation(QosNetworkExtension.class) != null) {
-            Uuid networkQosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
+        if (network != null && network.augmentation(QosNetworkExtension.class) != null) {
+            Uuid networkQosUuid = network.augmentation(QosNetworkExtension.class).getQosPolicyId();
             if (networkQosUuid != null) {
                 handleNeutronPortQosUpdate(port, networkQosUuid, qosUuid);
             }
@@ -339,8 +339,8 @@ public class QosNeutronUtils {
             List<Uuid> portIds = getPortIdsFromSubnetId(subnetId);
             for (Uuid portId : portIds) {
                 Port port = getNeutronPort(portId);
-                if (port != null && (port.getAugmentation(QosPortExtension.class) == null
-                        || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
+                if (port != null && (port.augmentation(QosPortExtension.class) == null
+                        || port.augmentation(QosPortExtension.class).getQosPolicyId() == null)) {
                     jobCoordinator.enqueueJob("QosPort-" + portId.getValue(),
                         () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                             if (qosPolicy.getBandwidthLimitRules() != null
@@ -366,8 +366,8 @@ public class QosNeutronUtils {
             List<Uuid> portIds = getPortIdsFromSubnetId(subnetId);
             for (Uuid portId : portIds) {
                 Port port = getNeutronPort(portId);
-                if (port != null && (port.getAugmentation(QosPortExtension.class) == null
-                        || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
+                if (port != null && (port.augmentation(QosPortExtension.class) == null
+                        || port.augmentation(QosPortExtension.class).getQosPolicyId() == null)) {
                     jobCoordinator.enqueueJob("QosPort-" + portId.getValue(),
                         () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                             if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
@@ -396,8 +396,8 @@ public class QosNeutronUtils {
             List<Uuid> portIds = getPortIdsFromSubnetId(subnetId);
             for (Uuid portId : portIds) {
                 Port port = getNeutronPort(portId);
-                if (port != null && (port.getAugmentation(QosPortExtension.class) == null
-                        || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
+                if (port != null && (port.augmentation(QosPortExtension.class) == null
+                        || port.augmentation(QosPortExtension.class).getQosPolicyId() == null)) {
                     jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> Collections.singletonList(
                             txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                                 tx -> setPortBandwidthLimits(port, zeroBwLimitRule, tx))));
@@ -415,8 +415,8 @@ public class QosNeutronUtils {
             List<Uuid> portIds = getPortIdsFromSubnetId(subnetId);
             for (Uuid portId : portIds) {
                 Port port = getNeutronPort(portId);
-                if (port != null && (port.getAugmentation(QosPortExtension.class) == null
-                        || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
+                if (port != null && (port.augmentation(QosPortExtension.class) == null
+                        || port.augmentation(QosPortExtension.class).getQosPolicyId() == null)) {
                     jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
                         unsetPortDscpMark(port);
                         return Collections.emptyList();
@@ -448,7 +448,7 @@ public class QosNeutronUtils {
 
         TerminationPoint tp = SouthboundUtils.getTerminationPointByExternalId(bridgeNode.get(),
                 port.getUuid().getValue());
-        OvsdbTerminationPointAugmentation ovsdbTp = tp.getAugmentation(OvsdbTerminationPointAugmentation.class);
+        OvsdbTerminationPointAugmentation ovsdbTp = tp.augmentation(OvsdbTerminationPointAugmentation.class);
 
         OvsdbTerminationPointAugmentationBuilder tpAugmentationBuilder = new OvsdbTerminationPointAugmentationBuilder();
         tpAugmentationBuilder.setName(ovsdbTp.getName());
@@ -456,21 +456,21 @@ public class QosNeutronUtils {
         tpAugmentationBuilder.setIngressPolicingBurst(bwLimit.getMaxBurstKbps().longValue());
 
         TerminationPointBuilder tpBuilder = new TerminationPointBuilder();
-        tpBuilder.setKey(tp.getKey());
+        tpBuilder.withKey(tp.key());
         tpBuilder.addAugmentation(OvsdbTerminationPointAugmentation.class, tpAugmentationBuilder.build());
         try {
             if (writeConfigTxn != null) {
                 writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
                         .create(NetworkTopology.class)
                         .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
-                        .child(Node.class, bridgeNode.get().getKey())
-                        .child(TerminationPoint.class, new TerminationPointKey(tp.getKey())), tpBuilder.build(), true);
+                        .child(Node.class, bridgeNode.get().key())
+                        .child(TerminationPoint.class, new TerminationPointKey(tp.key())), tpBuilder.build(), true);
             } else {
                 MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
                         .create(NetworkTopology.class)
                         .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
-                        .child(Node.class, bridgeNode.get().getKey())
-                        .child(TerminationPoint.class, new TerminationPointKey(tp.getKey())), tpBuilder.build());
+                        .child(Node.class, bridgeNode.get().key())
+                        .child(TerminationPoint.class, new TerminationPointKey(tp.key())), tpBuilder.build());
             }
         } catch (Exception e) {
             LOG.error("Failure while setting BwLimitRule {} to port {}", bwLimit, port, e);
@@ -714,7 +714,7 @@ public class QosNeutronUtils {
                                                   BigInteger cookieQosTable, List<Instruction> instructions) {
         StypeOpenflowBuilder augBuilder = new StypeOpenflowBuilder().setFlowCookie(cookieQosTable)
                 .setFlowPriority(priority).setInstruction(instructions);
-        return new BoundServicesBuilder().setKey(new BoundServicesKey(qosServiceIndex)).setServiceName(serviceName)
+        return new BoundServicesBuilder().withKey(new BoundServicesKey(qosServiceIndex)).setServiceName(serviceName)
                 .setServicePriority(qosServiceIndex).setServiceType(ServiceTypeFlowBased.class)
                 .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
@@ -727,8 +727,8 @@ public class QosNeutronUtils {
     public boolean portHasQosPolicy(Port port) {
         LOG.trace("checking qos policy for port: {}", port.getUuid());
 
-        boolean isQosPolicy = port.getAugmentation(QosPortExtension.class) != null
-                && port.getAugmentation(QosPortExtension.class).getQosPolicyId() != null;
+        boolean isQosPolicy = port.augmentation(QosPortExtension.class) != null
+                && port.augmentation(QosPortExtension.class).getQosPolicyId() != null;
 
         LOG.trace("portHasQosPolicy for  port: {} return value {}", port.getUuid(), isQosPolicy);
         return isQosPolicy;
@@ -739,13 +739,13 @@ public class QosNeutronUtils {
         Uuid qosUuid = null;
         QosPolicy qosPolicy = null;
 
-        if (port.getAugmentation(QosPortExtension.class) != null) {
-            qosUuid = port.getAugmentation(QosPortExtension.class).getQosPolicyId();
+        if (port.augmentation(QosPortExtension.class) != null) {
+            qosUuid = port.augmentation(QosPortExtension.class).getQosPolicyId();
         } else {
             Network network = neutronVpnManager.getNeutronNetwork(port.getNetworkId());
 
-            if (network.getAugmentation(QosNetworkExtension.class) != null) {
-                qosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
+            if (network.augmentation(QosNetworkExtension.class) != null) {
+                qosUuid = network.augmentation(QosNetworkExtension.class).getQosPolicyId();
             }
         }
 

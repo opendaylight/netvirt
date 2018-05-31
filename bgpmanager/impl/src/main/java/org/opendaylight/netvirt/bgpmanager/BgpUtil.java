@@ -220,7 +220,7 @@ public class BgpUtil implements AutoCloseable {
         InstanceIdentifier<ExternalTeps> externalTepsId = getExternalTepsIdentifier(elanName, tepIp);
         ExternalTepsBuilder externalTepsBuilder = new ExternalTepsBuilder();
         ExternalTepsKey externalTepsKey = externalTepsId.firstKeyOf(ExternalTeps.class);
-        externalTepsBuilder.setKey(externalTepsKey);
+        externalTepsBuilder.withKey(externalTepsKey);
         externalTepsBuilder.setTepIp(externalTepsKey.getTepIp());
         update(externalTepsId, externalTepsBuilder.build());
     }

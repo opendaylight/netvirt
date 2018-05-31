@@ -81,7 +81,7 @@ public class ShowVpnInstanceOpData extends OsgiCommandSupport {
             }
             session.getConsole().println(
                     "VpnInstanceName: " + check.getVpnInstanceName() + "\nVpnId: " + check.getVpnId() + "\nVrfId: "
-                            + check.getVrfId() + "\nKey: " + check.getKey() + "\nVpnInterfaceCount: "
+                            + check.getVrfId() + "\nKey: " + check.key() + "\nVpnInterfaceCount: "
                             + intfCount + "\nVpnToDpnList: " + check.getVpnToDpnList() + "\n");
             session.getConsole().println(
                     "------------------------------------------------------------------------------");

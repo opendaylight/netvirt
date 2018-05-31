@@ -45,7 +45,7 @@ public class RemoteMcastCmd extends
 
     @Override
     public InstanceIdentifier<RemoteMcastMacs> generateId(InstanceIdentifier<Node> id, RemoteMcastMacs node) {
-        HwvtepLogicalSwitchRef lsRef = HwvtepHAUtil.convertLogicalSwitchRef(node.getKey().getLogicalSwitchRef(), id);
+        HwvtepLogicalSwitchRef lsRef = HwvtepHAUtil.convertLogicalSwitchRef(node.key().getLogicalSwitchRef(), id);
         RemoteMcastMacsKey key = new RemoteMcastMacsKey(lsRef, node.getMacEntryKey());
 
         return id.augmentation(HwvtepGlobalAugmentation.class).child(RemoteMcastMacs.class, key);
@@ -65,14 +65,14 @@ public class RemoteMcastCmd extends
 
         RemoteMcastMacsKey key = new RemoteMcastMacsKey(ucmlBuilder.getLogicalSwitchRef(),
                  ucmlBuilder.getMacEntryKey());
-        ucmlBuilder.setKey(key);
+        ucmlBuilder.withKey(key);
 
         return ucmlBuilder.build();
     }
 
     @Override
     public Identifier getKey(RemoteMcastMacs data) {
-        return data.getKey();
+        return data.key();
     }
 
     @Override

@@ -99,7 +99,7 @@ public final class InterfaceUtils {
         BigInteger cookie, List<Instruction> instructions) {
         StypeOpenflowBuilder augBuilder =
             new StypeOpenflowBuilder().setFlowCookie(cookie).setFlowPriority(flowPriority).setInstruction(instructions);
-        return new BoundServicesBuilder().setKey(new BoundServicesKey(servicePriority))
+        return new BoundServicesBuilder().withKey(new BoundServicesKey(servicePriority))
             .setServiceName(serviceName).setServicePriority(servicePriority)
             .setServiceType(ServiceTypeFlowBased.class).addAugmentation(StypeOpenflow.class,
                 augBuilder.build()).build();

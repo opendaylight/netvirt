@@ -161,7 +161,7 @@ public final class FlowClassifierTranslator {
         //with the actions.
 
         aceBuilder.setRuleName(aclBuilder.getAclName() + RULE);
-        aceBuilder.setKey(new AceKey(aceBuilder.getRuleName()));
+        aceBuilder.withKey(new AceKey(aceBuilder.getRuleName()));
 
         ArrayList<Ace> aceList = new ArrayList<>();
         aceList.add(aceBuilder.build());
@@ -169,7 +169,7 @@ public final class FlowClassifierTranslator {
         accessListEntriesBuilder.setAce(aceList);
 
         aclBuilder.setAccessListEntries(accessListEntriesBuilder.build());
-        aclBuilder.setKey(new AclKey(aclBuilder.getAclName(),aclBuilder.getAclType()));
+        aclBuilder.withKey(new AclKey(aclBuilder.getAclName(),aclBuilder.getAclType()));
 
         LOG.info("Translated ACL Flow classfier : {}", aclBuilder.toString());
 

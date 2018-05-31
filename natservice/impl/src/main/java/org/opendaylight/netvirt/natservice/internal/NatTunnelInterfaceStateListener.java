@@ -1137,9 +1137,9 @@ public class NatTunnelInterfaceStateListener
         String ifaceName = stateTunnelList.getTunnelInterfaceName();
         if (getTunnelType(stateTunnelList) == NatConstants.ITMTunnelLocType.Internal.getValue()) {
             Interface configIface = interfaceManager.getInterfaceInfoFromConfigDataStore(ifaceName);
-            IfTunnel ifTunnel = configIface != null ? configIface.getAugmentation(IfTunnel.class) : null;
+            IfTunnel ifTunnel = configIface != null ? configIface.augmentation(IfTunnel.class) : null;
             if (ifTunnel != null && ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
-                ParentRefs refs = configIface.getAugmentation(ParentRefs.class);
+                ParentRefs refs = configIface.augmentation(ParentRefs.class);
                 if (refs != null && !Strings.isNullOrEmpty(refs.getParentInterface())) {
                     return true; //multiple VxLAN tunnels enabled, i.e. only logical tunnel should be treated
                 }

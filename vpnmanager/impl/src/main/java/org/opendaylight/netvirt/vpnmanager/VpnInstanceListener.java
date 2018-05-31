@@ -271,7 +271,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 if (vpnTargetList != null) {
                     for (VpnTarget vpnTarget : vpnTargetList) {
                         VpnTargetBuilder vpnTargetBuilder =
-                            new VpnTargetBuilder().setKey(new VpnTargetKey(vpnTarget.getKey().getVrfRTValue()))
+                            new VpnTargetBuilder().withKey(new VpnTargetKey(vpnTarget.key().getVrfRTValue()))
                                 .setVrfRTType(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
                                     .instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget.VrfRTType
                                     .forValue(vpnTarget.getVrfRTType().getIntValue())).setVrfRTValue(

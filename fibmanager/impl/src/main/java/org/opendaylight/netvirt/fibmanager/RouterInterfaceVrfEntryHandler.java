@@ -51,7 +51,7 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
 
     @Override
     public void createFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
-        RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
+        RouterInterface routerInt = vrfEntry.augmentation(RouterInterface.class);
         installRouterFibEntries(vrfEntry, rd, NwConstants.ADD_FLOW, routerInt);
     }
 
@@ -62,7 +62,7 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
 
     @Override
     public void removeFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
-        RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
+        RouterInterface routerInt = vrfEntry.augmentation(RouterInterface.class);
         installRouterFibEntries(vrfEntry, rd, NwConstants.DEL_FLOW, routerInt);
     }
 

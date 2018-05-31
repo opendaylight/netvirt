@@ -171,7 +171,7 @@ public class NaptManager {
         }
         updateCounter(segmentId, externalIp, true);
         //update the actual ip-map
-        IpMap ipm = new IpMapBuilder().setKey(new IpMapKey(internalIp)).setInternalIp(internalIp)
+        IpMap ipm = new IpMapBuilder().withKey(new IpMapKey(internalIp)).setInternalIp(internalIp)
             .setExternalIp(externalIp).build();
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
             getIpMapIdentifier(segmentId, internalIp), ipm);
@@ -204,7 +204,7 @@ public class NaptManager {
 
         //update the new counter value for this externalIp
         ExternalIpCounter externalIpCounterData = new ExternalIpCounterBuilder()
-            .setKey(new ExternalIpCounterKey(externalIp)).setExternalIp(externalIp).setCounter(counter).build();
+            .withKey(new ExternalIpCounterKey(externalIp)).setExternalIp(externalIp).setCounter(counter).build();
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
             getExternalIpsIdentifier(segmentId, externalIp), externalIpCounterData);
     }
@@ -315,7 +315,7 @@ public class NaptManager {
                         // Write to ip-port-map before returning
                         IpPortExternalBuilder ipExt = new IpPortExternalBuilder();
                         IpPortExternal ipPortExt = ipExt.setIpAddress(extIp).setPortNum(extPort).build();
-                        IpPortMap ipm = new IpPortMapBuilder().setKey(new IpPortMapKey(internalIpPort))
+                        IpPortMap ipm = new IpPortMapBuilder().withKey(new IpPortMapKey(internalIpPort))
                             .setIpPortInternal(internalIpPort).setIpPortExternal(ipPortExt).build();
                         LOG.debug("getExternalAddressMapping : writing into ip-port-map with "
                             + "externalIP {} and port {}",
@@ -339,7 +339,7 @@ public class NaptManager {
 
                         IntIpProtoTypeBuilder builder = new IntIpProtoTypeBuilder();
                         IntIpProtoType intIpProtocolType =
-                            builder.setKey(new IntIpProtoTypeKey(protocolType)).setPorts(portList).build();
+                            builder.withKey(new IntIpProtoTypeKey(protocolType)).setPorts(portList).build();
                         try {
                             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                                 NatUtil.buildSnatIntIpPortIdentifier(segmentId, internalIpAddress, protocolType),
@@ -596,7 +596,7 @@ public class NaptManager {
 
         IntIpProtoTypeBuilder builder = new IntIpProtoTypeBuilder();
         IntIpProtoType intIpProtocolType =
-            builder.setKey(new IntIpProtoTypeKey(protocolType)).setPorts(portList).build();
+            builder.withKey(new IntIpProtoTypeKey(protocolType)).setPorts(portList).build();
         try {
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 NatUtil.buildSnatIntIpPortIdentifier(segmentId, address.getIpAddress(), protocolType),
@@ -764,7 +764,7 @@ public class NaptManager {
 
     protected void initialiseNewExternalIpCounter(long routerId, String externalIp) {
         ExternalIpCounter externalIpCounterData = new ExternalIpCounterBuilder()
-            .setKey(new ExternalIpCounterKey(externalIp)).setExternalIp(externalIp).setCounter((short) 0).build();
+            .withKey(new ExternalIpCounterKey(externalIp)).setExternalIp(externalIp).setCounter((short) 0).build();
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
             getExternalIpsIdentifier(routerId, externalIp), externalIpCounterData);
     }

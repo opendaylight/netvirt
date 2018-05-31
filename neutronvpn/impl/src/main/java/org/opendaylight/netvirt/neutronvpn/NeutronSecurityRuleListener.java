@@ -150,7 +150,7 @@ public class NeutronSecurityRuleListener
         actionsBuilder.setPacketHandling(new PermitBuilder().setPermit(true).build());
 
         AceBuilder aceBuilder = new AceBuilder();
-        aceBuilder.setKey(new AceKey(securityRule.getUuid().getValue()));
+        aceBuilder.withKey(new AceKey(securityRule.getUuid().getValue()));
         aceBuilder.setRuleName(securityRule.getUuid().getValue());
         aceBuilder.setMatches(matchesBuilder.build());
         aceBuilder.setActions(actionsBuilder.build());

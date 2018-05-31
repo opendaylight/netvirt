@@ -379,7 +379,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
                 .findFirst()
                 .ifPresent(routes -> {
                     LOG.trace(" deleting remote FIB entry {}", vrfEntry);
-                    deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().getKey(), vrfEntry,
+                    deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().key(), vrfEntry,
                             Optional.absent(), writeCfgTxn, subTxns);
                 });
     }

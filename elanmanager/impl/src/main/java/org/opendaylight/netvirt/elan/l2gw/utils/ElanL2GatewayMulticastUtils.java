@@ -261,7 +261,7 @@ public class ElanL2GatewayMulticastUtils {
     }
 
     public void setupLeavesEtreeBroadcastGroups(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId) {
-        EtreeInstance etreeInstance = elanInfo.getAugmentation(EtreeInstance.class);
+        EtreeInstance etreeInstance = elanInfo.augmentation(EtreeInstance.class);
         if (etreeInstance != null) {
             long etreeLeafTag = etreeInstance.getEtreeLeafTagVal().getValue();
             List<Bucket> listBucket = new ArrayList<>();
@@ -359,7 +359,7 @@ public class ElanL2GatewayMulticastUtils {
         try {
             operElanInstance = new SingleTransactionDataBroker(broker).syncReadOptional(
                 LogicalDatastoreType.OPERATIONAL,
-                InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class, elanInfo.getKey())
+                InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class, elanInfo.key())
                     .build()).orNull();
         } catch (ReadFailedException e) {
             LOG.error("Failed to read elan instance operational path {}", elanInfo, e);
@@ -454,7 +454,7 @@ public class ElanL2GatewayMulticastUtils {
                 InstanceIdentifier<TerminationPoint> iid =
                         HwvtepSouthboundUtils.createPhysicalLocatorInstanceIdentifier(nodeId, phyLocatorAug);
                 TerminationPoint terminationPoint = new TerminationPointBuilder()
-                                .setKey(HwvtepSouthboundUtils.getTerminationPointKey(phyLocatorAug))
+                                .withKey(HwvtepSouthboundUtils.getTerminationPointKey(phyLocatorAug))
                                 .addAugmentation(HwvtepPhysicalLocatorAugmentation.class, phyLocatorAug).build();
                 ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
                         iid, terminationPoint);
@@ -502,7 +502,7 @@ public class ElanL2GatewayMulticastUtils {
                 .setMacEntryKey(new MacAddress(ElanConstants.UNKNOWN_DMAC)).setLogicalSwitchRef(lsRef)
                 .setLocatorSet(locators).build();
         InstanceIdentifier<RemoteMcastMacs> iid = HwvtepSouthboundUtils.createRemoteMcastMacsInstanceIdentifier(nodeId,
-                remoteMcastMac.getKey());
+                remoteMcastMac.key());
         ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
                 iid, remoteMcastMac);
 

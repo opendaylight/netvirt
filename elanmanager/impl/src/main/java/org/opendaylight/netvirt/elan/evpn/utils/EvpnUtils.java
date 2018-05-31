@@ -179,7 +179,7 @@ public class EvpnUtils {
             LOG.debug("getL3vpnNameFromElan :elanInfo is NULL");
             return null;
         }
-        EvpnAugmentation evpnAugmentation = elanInfo.getAugmentation(EvpnAugmentation.class);
+        EvpnAugmentation evpnAugmentation = elanInfo.augmentation(EvpnAugmentation.class);
         return evpnAugmentation != null ? evpnAugmentation.getL3vpnName() : null;
     }
 
@@ -188,7 +188,7 @@ public class EvpnUtils {
             LOG.debug("getEvpnNameFromElan :elanInfo is NULL");
             return null;
         }
-        EvpnAugmentation evpnAugmentation = elanInfo.getAugmentation(EvpnAugmentation.class);
+        EvpnAugmentation evpnAugmentation = elanInfo.augmentation(EvpnAugmentation.class);
         return evpnAugmentation != null ? evpnAugmentation.getEvpnName() : null;
     }
 

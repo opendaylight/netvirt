@@ -190,11 +190,11 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
     void printRemoteUcastMacs(Node hwvtepNode, String elanName) {
         session.getConsole().println("RemoteUCast macs :");
         session.getConsole().println(HEADINGUCAST);
-        if (hwvtepNode == null || hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class) == null) {
+        if (hwvtepNode == null || hwvtepNode.augmentation(HwvtepGlobalAugmentation.class) == null) {
             return;
         }
         List<RemoteUcastMacs> remoteUcastMacs =
-                hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class).getRemoteUcastMacs();
+                hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getRemoteUcastMacs();
         if (remoteUcastMacs == null || remoteUcastMacs.isEmpty()) {
             return;
         }
@@ -214,11 +214,11 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
     void printLocalUcastMacs(Node hwvtepNode, String elanName) {
         session.getConsole().println("LocalUCast macs :");
         session.getConsole().println(HEADINGUCAST);
-        if (hwvtepNode == null || hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class) == null) {
+        if (hwvtepNode == null || hwvtepNode.augmentation(HwvtepGlobalAugmentation.class) == null) {
             return;
         }
         List<LocalUcastMacs> localUcastMacs =
-                hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class).getLocalUcastMacs();
+                hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getLocalUcastMacs();
         if (localUcastMacs == null || localUcastMacs.isEmpty()) {
             return;
         }
@@ -238,11 +238,11 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
     void printLocalMcastMacs(Node hwvtepNode, String elanName) {
         session.getConsole().println("LocalMcast macs :");
         session.getConsole().println(HEADINGMCAST);
-        if (hwvtepNode == null || hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class) == null) {
+        if (hwvtepNode == null || hwvtepNode.augmentation(HwvtepGlobalAugmentation.class) == null) {
             return;
         }
         List<LocalMcastMacs> localMcastMacs =
-                hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class).getLocalMcastMacs();
+                hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getLocalMcastMacs();
         if (localMcastMacs == null || localMcastMacs.isEmpty()) {
             return;
         }
@@ -265,11 +265,11 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
     void printRemoteMcastMacs(Node hwvtepNode, String elanName) {
         session.getConsole().println("RemoteMCast macs :");
         session.getConsole().println(HEADINGMCAST);
-        if (hwvtepNode == null || hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class) == null) {
+        if (hwvtepNode == null || hwvtepNode.augmentation(HwvtepGlobalAugmentation.class) == null) {
             return;
         }
         List<RemoteMcastMacs> remoteMcastMacs =
-                hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class).getRemoteMcastMacs();
+                hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getRemoteMcastMacs();
         if (remoteMcastMacs == null || remoteMcastMacs.isEmpty()) {
             return;
         }
@@ -301,7 +301,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
         }
         for (TerminationPoint terminationPoint : terminationPoints) {
             HwvtepPhysicalPortAugmentation aug =
-                    terminationPoint.getAugmentation(HwvtepPhysicalPortAugmentation.class);
+                    terminationPoint.augmentation(HwvtepPhysicalPortAugmentation.class);
             if (aug == null || aug.getVlanBindings() == null) {
                 continue;
             }
@@ -334,9 +334,9 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
     }
 
     Node getPSnode(Node hwvtepNode, LogicalDatastoreType datastoreType) {
-        if (hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class) != null
-                && hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class).getSwitches() != null) {
-            for (Switches switches : hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class).getSwitches()) {
+        if (hwvtepNode.augmentation(HwvtepGlobalAugmentation.class) != null
+                && hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getSwitches() != null) {
+            for (Switches switches : hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getSwitches()) {
                 NodeId psNodeId = switches.getSwitchRef().getValue().firstKeyOf(Node.class).getNodeId();
                 return HwvtepUtils.getHwVtepNode(dataBroker, datastoreType, psNodeId);
             }

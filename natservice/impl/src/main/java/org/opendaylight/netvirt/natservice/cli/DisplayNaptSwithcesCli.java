@@ -82,11 +82,11 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
     }
 
     private String getOpenvswitchOtherConfig(Node node, String key) {
-        OvsdbNodeAugmentation ovsdbNode = node.getAugmentation(OvsdbNodeAugmentation.class);
+        OvsdbNodeAugmentation ovsdbNode = node.augmentation(OvsdbNodeAugmentation.class);
         if (ovsdbNode == null) {
             Optional<Node> nodeFromReadOvsdbNode = readOvsdbNode(node);
             if (nodeFromReadOvsdbNode.isPresent()) {
-                ovsdbNode = nodeFromReadOvsdbNode.get().getAugmentation(OvsdbNodeAugmentation.class);
+                ovsdbNode = nodeFromReadOvsdbNode.get().augmentation(OvsdbNodeAugmentation.class);
             }
         }
 
@@ -118,7 +118,7 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
         if (node == null) {
             return null;
         }
-        return node.getAugmentation(OvsdbBridgeAugmentation.class);
+        return node.augmentation(OvsdbBridgeAugmentation.class);
     }
 
 }

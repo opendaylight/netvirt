@@ -288,7 +288,7 @@ public final class VpnUtil {
     static VpnInterfaceOpDataEntry getVpnInterfaceOpDataEntry(String intfName, String vpnName,
                                         AdjacenciesOp aug, BigInteger dpnId,
                                         Boolean isSheduledForRemove, long lportTag, String gwMac) {
-        return new VpnInterfaceOpDataEntryBuilder().setKey(new VpnInterfaceOpDataEntryKey(intfName, vpnName))
+        return new VpnInterfaceOpDataEntryBuilder().withKey(new VpnInterfaceOpDataEntryKey(intfName, vpnName))
             .setDpnId(dpnId).setScheduledForRemove(isSheduledForRemove).addAugmentation(AdjacenciesOp.class, aug)
                 .setLportTag(lportTag).setGatewayMacAddress(gwMac).build();
     }
@@ -318,7 +318,7 @@ public final class VpnUtil {
     }
 
     static VpnIds getPrefixToInterface(long vpnId) {
-        return new VpnIdsBuilder().setKey(new VpnIdsKey(vpnId)).setVpnId(vpnId).build();
+        return new VpnIdsBuilder().withKey(new VpnIdsKey(vpnId)).setVpnId(vpnId).build();
     }
 
     static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix, Uuid subnetId,
@@ -473,7 +473,7 @@ public final class VpnUtil {
     }
 
     static AllocatedRdsBuilder getRdsBuilder(String nexthop, String rd) {
-        return new AllocatedRdsBuilder().setKey(new AllocatedRdsKey(nexthop)).setNexthop(nexthop).setRd(rd);
+        return new AllocatedRdsBuilder().withKey(new AllocatedRdsKey(nexthop)).setNexthop(nexthop).setRd(rd);
     }
 
     static Adjacencies getVpnInterfaceAugmentation(List<Adjacency> nextHopList) {
@@ -638,7 +638,7 @@ public final class VpnUtil {
                         for (VrfEntry vrfEntry : vrfTables.getVrfEntry()) {
                             if (origin == RouteOrigin.value(vrfEntry.getOrigin())) {
                                 tx.delete(LogicalDatastoreType.CONFIGURATION,
-                                        vpnVrfTableIid.child(VrfEntry.class, vrfEntry.getKey()));
+                                        vpnVrfTableIid.child(VrfEntry.class, vrfEntry.key()));
                             }
                         }
                     }), LOG, "Error removing VRF entries by origin");
@@ -670,7 +670,7 @@ public final class VpnUtil {
                 new ManagedNewTransactionRunnerImpl(broker).callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                     for (VrfEntry vrfEntry : vrfEntries) {
                         tx.delete(LogicalDatastoreType.CONFIGURATION,
-                                vpnVrfTableIid.child(VrfEntry.class, vrfEntry.getKey()));
+                                vpnVrfTableIid.child(VrfEntry.class, vrfEntry.key()));
                     }
                 }), LOG, "Error removing VRF entries");
     }
@@ -757,7 +757,7 @@ public final class VpnUtil {
     }
 
     static RouterInterface getRouterInterface(String interfaceName, String routerName) {
-        return new RouterInterfaceBuilder().setKey(new RouterInterfaceKey(interfaceName))
+        return new RouterInterfaceBuilder().withKey(new RouterInterfaceKey(interfaceName))
             .setInterfaceName(interfaceName).setRouterName(routerName).build();
     }
 
@@ -980,7 +980,7 @@ public final class VpnUtil {
         InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
             VpnUtil.getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnInstanceName);
         VpnInterfaceOpDataEntry interfaceToUpdate =
-            new VpnInterfaceOpDataEntryBuilder().setKey(new VpnInterfaceOpDataEntryKey(interfaceName,
+            new VpnInterfaceOpDataEntryBuilder().withKey(new VpnInterfaceOpDataEntryKey(interfaceName,
             vpnInstanceName)).setName(interfaceName).setDpnId(dpnId).setVpnInstanceName(vpnInstanceName)
             .setScheduledForRemove(isScheduledToRemove).build();
         if (writeOperTxn != null) {
@@ -995,7 +995,7 @@ public final class VpnUtil {
         synchronized ((vpnName + fixedIp).intern()) {
             InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
             LearntVpnVipToPortBuilder builder =
-                    new LearntVpnVipToPortBuilder().setKey(new LearntVpnVipToPortKey(fixedIp, vpnName)).setVpnName(
+                    new LearntVpnVipToPortBuilder().withKey(new LearntVpnVipToPortKey(fixedIp, vpnName)).setVpnName(
                             vpnName).setPortFixedip(fixedIp).setPortName(portName)
                             .setMacAddress(macAddress.toLowerCase(Locale.getDefault()))
                             .setCreationTime(new SimpleDateFormat("MM/dd/yyyy h:mm:ss a").format(new Date()));
@@ -1036,7 +1036,7 @@ public final class VpnUtil {
         String eventId = MicroTimestamp.INSTANCE.get();
 
         InstanceIdentifier<LearntVpnVipToPortEvent> id = buildLearntVpnVipToPortEventIdentifier(eventId);
-        LearntVpnVipToPortEventBuilder builder = new LearntVpnVipToPortEventBuilder().setKey(
+        LearntVpnVipToPortEventBuilder builder = new LearntVpnVipToPortEventBuilder().withKey(
                 new LearntVpnVipToPortEventKey(eventId)).setVpnName(vpnName).setSrcFixedip(srcIp)
                 .setDestFixedip(destIP).setPortName(portName)
                 .setMacAddress(macAddress.toLowerCase(Locale.getDefault())).setEventAction(action);
@@ -1657,8 +1657,8 @@ public final class VpnUtil {
     }
 
     static Boolean getIsExternal(Network network) {
-        return network.getAugmentation(NetworkL3Extension.class) != null
-                && network.getAugmentation(NetworkL3Extension.class).isExternal();
+        return network.augmentation(NetworkL3Extension.class) != null
+                && network.augmentation(NetworkL3Extension.class).isExternal();
     }
 
     @SuppressWarnings("checkstyle:linelength")
@@ -1912,7 +1912,7 @@ public final class VpnUtil {
 
     public static ListenableFuture<Void> unsetScheduledToRemoveForVpnInterface(ManagedNewTransactionRunner txRunner,
             String interfaceName) {
-        VpnInterfaceBuilder builder = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName))
+        VpnInterfaceBuilder builder = new VpnInterfaceBuilder().withKey(new VpnInterfaceKey(interfaceName))
                 .setScheduledForRemove(false);
         return txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL,
                 VpnUtil.getVpnInterfaceIdentifier(interfaceName), builder.build(),
@@ -2025,7 +2025,7 @@ public final class VpnUtil {
         if (!elanInterfaceList.contains(routerInterfacePortId)) {
             elanInterfaceList.add(routerInterfacePortId);
             dpnInterface = new DpnInterfacesBuilder().setDpId(dpnId).setInterfaces(elanInterfaceList)
-                    .setKey(new DpnInterfacesKey(dpnId)).build();
+                    .withKey(new DpnInterfacesKey(dpnId)).build();
             VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     elanDpnInterfaceId, dpnInterface);
         }
@@ -2053,7 +2053,7 @@ public final class VpnUtil {
         }
         elanInterfaceList.remove(routerInterfacePortId);
         dpnInterface = new DpnInterfacesBuilder().setDpId(dpnId).setInterfaces(elanInterfaceList)
-                .setKey(new DpnInterfacesKey(dpnId)).build();
+                .withKey(new DpnInterfacesKey(dpnId)).build();
         VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
                 elanDpnInterfaceId, dpnInterface);
 

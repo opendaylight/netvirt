@@ -32,11 +32,11 @@ public class DhcpL2GwUtil {
 
     private static final Predicate<Optional<Node>> CONTAINS_GLOBAL_AUGMENTATION =
         (optionalNode) -> optionalNode.isPresent()
-                && optionalNode.get().getAugmentation(HwvtepGlobalAugmentation.class) != null;
+                && optionalNode.get().augmentation(HwvtepGlobalAugmentation.class) != null;
 
     private static final Predicate<Optional<Node>> CONTAINS_SWITCH_AUGMENTATION =
         (optionalNode) -> optionalNode.isPresent()
-                && optionalNode.get().getAugmentation(PhysicalSwitchAugmentation.class) != null;
+                && optionalNode.get().augmentation(PhysicalSwitchAugmentation.class) != null;
 
     private final DataBroker dataBroker;
     private final L2GatewayCache l2GatewayCache;
@@ -66,7 +66,7 @@ public class DhcpL2GwUtil {
         if (!CONTAINS_GLOBAL_AUGMENTATION.test(nodeOptional)) {
             return null;
         }
-        List<Switches> switchIids = nodeOptional.get().getAugmentation(HwvtepGlobalAugmentation.class).getSwitches();
+        List<Switches> switchIids = nodeOptional.get().augmentation(HwvtepGlobalAugmentation.class).getSwitches();
         if (EMPTY_LIST.test(switchIids)) {
             return null;
         }
@@ -75,11 +75,11 @@ public class DhcpL2GwUtil {
         if (!CONTAINS_SWITCH_AUGMENTATION.test(nodeOptional)) {
             return null;
         }
-        List<TunnelIps> tunnelIps = nodeOptional.get().getAugmentation(PhysicalSwitchAugmentation.class).getTunnelIps();
+        List<TunnelIps> tunnelIps = nodeOptional.get().augmentation(PhysicalSwitchAugmentation.class).getTunnelIps();
         if (EMPTY_LIST.test(tunnelIps)) {
             return null;
         }
-        return tunnelIps.get(0).getKey().getTunnelIpsKey();
+        return tunnelIps.get(0).key().getTunnelIpsKey();
     }
 
 }

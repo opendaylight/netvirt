@@ -464,7 +464,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                         intfName, vpnName);
                 if (opVpnInterface.isPresent()) {
                     VpnInterfaceOpDataEntry vpnInterface  = opVpnInterface.get();
-                    AdjacenciesOp adjacencies = vpnInterface.getAugmentation(AdjacenciesOp.class);
+                    AdjacenciesOp adjacencies = vpnInterface.augmentation(AdjacenciesOp.class);
                     List<Adjacency> adjList = adjacencies != null ? adjacencies.getAdjacency()
                             : Collections.emptyList();
                     String prefix = null;
@@ -573,9 +573,9 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         String ifaceName = stateTunnelList.getTunnelInterfaceName();
         if (getTunnelType(stateTunnelList) == VpnConstants.ITMTunnelLocType.Internal.getValue()) {
             Interface configIface = InterfaceUtils.getInterface(dataBroker, stateTunnelList.getTunnelInterfaceName());
-            IfTunnel ifTunnel = configIface != null ? configIface.getAugmentation(IfTunnel.class) : null;
+            IfTunnel ifTunnel = configIface != null ? configIface.augmentation(IfTunnel.class) : null;
             if (ifTunnel != null && ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
-                ParentRefs refs = configIface.getAugmentation(ParentRefs.class);
+                ParentRefs refs = configIface.augmentation(ParentRefs.class);
                 if (refs != null && !Strings.isNullOrEmpty(refs.getParentInterface())) {
                     return true; //multiple VxLAN tunnels enabled, i.e. only logical tunnel should be treated
                 }

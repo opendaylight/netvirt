@@ -68,7 +68,7 @@ public class NatRouterInterfaceListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interfaces> identifier, Interfaces interfaceInfo) {
-        LOG.trace("add : Add event - key: {}, value: {}", interfaceInfo.getKey(), interfaceInfo);
+        LOG.trace("add : Add event - key: {}, value: {}", interfaceInfo.key(), interfaceInfo);
         final String routerId = identifier.firstKeyOf(RouterInterfaces.class).getRouterId().getValue();
         final String interfaceName = interfaceInfo.getInterfaceId();
 
@@ -100,7 +100,7 @@ public class NatRouterInterfaceListener
 
     @Override
     protected void remove(InstanceIdentifier<Interfaces> identifier, Interfaces interfaceInfo) {
-        LOG.trace("remove : Remove event - key: {}, value: {}", interfaceInfo.getKey(), interfaceInfo);
+        LOG.trace("remove : Remove event - key: {}, value: {}", interfaceInfo.key(), interfaceInfo);
         final String routerId = identifier.firstKeyOf(RouterInterfaces.class).getRouterId().getValue();
         final String interfaceName = interfaceInfo.getInterfaceId();
 
@@ -120,11 +120,11 @@ public class NatRouterInterfaceListener
 
     @Override
     protected void update(InstanceIdentifier<Interfaces> identifier, Interfaces original, Interfaces update) {
-        LOG.trace("update key: {}, original: {}, update: {}", update.getKey(), original, update);
+        LOG.trace("update key: {}, original: {}, update: {}", update.key(), original, update);
     }
 
     static RouterInterface getRouterInterface(String interfaceName, String routerName) {
-        return new RouterInterfaceBuilder().setKey(new RouterInterfaceKey(interfaceName))
+        return new RouterInterfaceBuilder().withKey(new RouterInterfaceKey(interfaceName))
             .setInterfaceName(interfaceName).setRouterName(routerName).build();
     }
 }

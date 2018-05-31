@@ -72,10 +72,10 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
             HwvtepHAUtil.getPsName(psIid) != null;
 
     private static final Predicate<Node> IS_HA_PARENT_NODE = (node) -> {
-        HwvtepGlobalAugmentation augmentation = node.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation augmentation = node.augmentation(HwvtepGlobalAugmentation.class);
         if (augmentation != null && augmentation.getManagers() != null) {
             return augmentation.getManagers().stream().anyMatch(
-                manager -> manager.getKey().getTarget().getValue().equals(HwvtepHAUtil.MANAGER_KEY));
+                manager -> manager.key().getTarget().getValue().equals(HwvtepHAUtil.MANAGER_KEY));
         }
         return false;
     };
@@ -218,8 +218,8 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
         l2GwDevice.setConnected(true);
         l2GwDevice.setHwvtepNodeId(globalNode.getNodeId().getValue());
 
-        List<TunnelIps> tunnelIps = psNode.getAugmentation(PhysicalSwitchAugmentation.class) != null
-                ? psNode.getAugmentation(PhysicalSwitchAugmentation.class).getTunnelIps() : null;
+        List<TunnelIps> tunnelIps = psNode.augmentation(PhysicalSwitchAugmentation.class) != null
+                ? psNode.augmentation(PhysicalSwitchAugmentation.class).getTunnelIps() : null;
         if (tunnelIps != null) {
             for (TunnelIps tunnelIp : tunnelIps) {
                 IpAddress tunnelIpAddr = tunnelIp.getTunnelIpsKey();

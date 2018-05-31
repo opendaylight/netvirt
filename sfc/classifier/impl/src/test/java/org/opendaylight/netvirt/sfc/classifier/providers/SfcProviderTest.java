@@ -193,7 +193,7 @@ public class SfcProviderTest extends ConstantSchemaAbstractDataBrokerTest {
 
         if (createSffDpl) {
             List<SffDataPlaneLocator> sffDpls = new ArrayList<>();
-            sffDplBuilder.setKey(new SffDataPlaneLocatorKey(new SffDataPlaneLocatorName(SFF_DPL_NAME)));
+            sffDplBuilder.withKey(new SffDataPlaneLocatorKey(new SffDataPlaneLocatorName(SFF_DPL_NAME)));
             sffDplBuilder.setName(new SffDataPlaneLocatorName(SFF_DPL_NAME));
             sffDpls.add(sffDplBuilder.build());
             sffBuilder.setSffDataPlaneLocator(sffDpls);

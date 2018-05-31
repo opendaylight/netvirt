@@ -204,7 +204,7 @@ public class LearntVpnVipToPortEventProcessor
                     }
                     ip = VpnUtil.getIpPrefix(ip);
                     AdjacencyBuilder newAdjBuilder = new AdjacencyBuilder().setIpAddress(ip)
-                            .setKey(new AdjacencyKey(ip)).setAdjacencyType(AdjacencyType.PrimaryAdjacency)
+                            .withKey(new AdjacencyKey(ip)).setAdjacencyType(AdjacencyType.PrimaryAdjacency)
                             .setMacAddress(mipMacAddress).setSubnetId(new Uuid(subnetId)).setPhysNetworkFunc(true);
 
                     List<Adjacency> adjacencyList = adjacencies.isPresent()
@@ -254,7 +254,7 @@ public class LearntVpnVipToPortEventProcessor
                         }
                         String nextHopIp = nextHopIpAddr.split("/")[0];
                         AdjacencyBuilder newAdjBuilder =
-                                new AdjacencyBuilder().setIpAddress(ip).setKey(new AdjacencyKey(ip)).setNextHopIpList(
+                                new AdjacencyBuilder().setIpAddress(ip).withKey(new AdjacencyKey(ip)).setNextHopIpList(
                                         Collections.singletonList(nextHopIp)).setAdjacencyType(AdjacencyType.LearntIp);
                         if (mipMacAddress != null && !mipMacAddress.equalsIgnoreCase(nextHopMacAddress)) {
                             newAdjBuilder.setMacAddress(mipMacAddress);

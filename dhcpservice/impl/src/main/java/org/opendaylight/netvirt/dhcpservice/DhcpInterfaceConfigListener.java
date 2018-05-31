@@ -59,12 +59,12 @@ public class DhcpInterfaceConfigListener
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface del) {
         jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(del.getName()), () -> {
-            IfTunnel tunnelInterface = del.getAugmentation(IfTunnel.class);
-            IfL2vlan vlanInterface = del.getAugmentation(IfL2vlan.class);
+            IfTunnel tunnelInterface = del.augmentation(IfTunnel.class);
+            IfL2vlan vlanInterface = del.augmentation(IfL2vlan.class);
             String interfaceName = del.getName();
             if (tunnelInterface != null && !tunnelInterface.isInternal()) {
                 IpAddress tunnelIp = tunnelInterface.getTunnelDestination();
-                ParentRefs interfce = del.getAugmentation(ParentRefs.class);
+                ParentRefs interfce = del.augmentation(ParentRefs.class);
                 if (interfce != null) {
                     if (LOG.isTraceEnabled()) {
                         LOG.trace("Calling handleTunnelStateDown for tunnelIp {} and interface {}",
@@ -91,7 +91,7 @@ public class DhcpInterfaceConfigListener
     protected void add(InstanceIdentifier<Interface> identifier, Interface add) {
         jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(add.getName()), () -> {
             String interfaceName = add.getName();
-            IfL2vlan vlanInterface = add.getAugmentation(IfL2vlan.class);
+            IfL2vlan vlanInterface = add.augmentation(IfL2vlan.class);
             if (vlanInterface == null) {
                 return Collections.emptyList();
             }
