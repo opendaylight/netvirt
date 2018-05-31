@@ -73,7 +73,7 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
     @Override
     protected void remove(InstanceIdentifier<VpnInstance> key, VpnInstance vpnInstance) {
         LOG.trace("remove : External Subnet VPN Instance remove mapping method - key:{}. value={}",
-                vpnInstance.getKey(), vpnInstance);
+                vpnInstance.key(), vpnInstance);
         String possibleExtSubnetUuid = vpnInstance.getVpnInstanceName();
         Optional<Subnets> optionalSubnets = NatUtil.getOptionalExternalSubnets(dataBroker,
                 new Uuid(possibleExtSubnetUuid));
@@ -87,13 +87,13 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
     protected void update(InstanceIdentifier<VpnInstance> key, VpnInstance vpnInstanceOrig,
             VpnInstance vpnInstanceNew) {
         LOG.trace("update : External Subnet VPN Instance update mapping method - key:{} original:{} new:{}",
-                vpnInstanceNew.getKey(), vpnInstanceOrig, vpnInstanceNew);
+                vpnInstanceNew.key(), vpnInstanceOrig, vpnInstanceNew);
     }
 
     @Override
     protected void add(InstanceIdentifier<VpnInstance> key, VpnInstance vpnInstance) {
         LOG.trace("add : External Subnet VPN Instance OP Data Entry add mapping method - key:{}. value={}",
-                vpnInstance.getKey(), vpnInstance);
+                vpnInstance.key(), vpnInstance);
         String possibleExtSubnetUuid = vpnInstance.getVpnInstanceName();
         Optional<Subnets> optionalSubnets = NatUtil.getOptionalExternalSubnets(dataBroker,
                 new Uuid(possibleExtSubnetUuid));

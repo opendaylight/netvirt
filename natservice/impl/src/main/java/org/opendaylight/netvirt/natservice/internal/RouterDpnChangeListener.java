@@ -112,7 +112,7 @@ public class RouterDpnChangeListener
 
     @Override
     protected void add(final InstanceIdentifier<DpnVpninterfacesList> identifier, final DpnVpninterfacesList dpnInfo) {
-        LOG.trace("add : key: {}, value: {}", dpnInfo.getKey(), dpnInfo);
+        LOG.trace("add : key: {}, value: {}", dpnInfo.key(), dpnInfo);
         final String routerUuid = identifier.firstKeyOf(RouterDpnList.class).getRouterId();
         BigInteger dpnId = dpnInfo.getDpnId();
         //check router is associated to external network
@@ -138,7 +138,7 @@ public class RouterDpnChangeListener
                     natServiceManager.notify(router, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_ENBL);
                 } else {
-                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.getKey(), () -> {
+                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.key(), () -> {
                         List<ListenableFuture<Void>> futures = new ArrayList<>(2);
                         LOG.debug("add : Router {} is associated with ext nw {}", routerUuid, networkId);
                         Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerUuid);
@@ -210,7 +210,7 @@ public class RouterDpnChangeListener
 
     @Override
     protected void remove(InstanceIdentifier<DpnVpninterfacesList> identifier, DpnVpninterfacesList dpnInfo) {
-        LOG.trace("remove : key: {}, value: {}", dpnInfo.getKey(), dpnInfo);
+        LOG.trace("remove : key: {}, value: {}", dpnInfo.key(), dpnInfo);
         final String routerUuid = identifier.firstKeyOf(RouterDpnList.class).getRouterId();
         Long routerId = NatUtil.getVpnId(dataBroker, routerUuid);
         if (routerId == NatConstants.INVALID_ID) {
@@ -241,7 +241,7 @@ public class RouterDpnChangeListener
                     natServiceManager.notify(router, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_DISBL);
                 } else {
-                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.getKey(), () -> {
+                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.key(), () -> {
                         LOG.debug("remove : Router {} is associated with ext nw {}", routerUuid, networkId);
                         Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerUuid);
                         return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
@@ -289,7 +289,7 @@ public class RouterDpnChangeListener
     @Override
     protected void update(InstanceIdentifier<DpnVpninterfacesList> identifier, DpnVpninterfacesList original,
                           DpnVpninterfacesList update) {
-        LOG.trace("Update key: {}, original: {}, update: {}", update.getKey(), original, update);
+        LOG.trace("Update key: {}, original: {}, update: {}", update.key(), original, update);
     }
 
     // TODO Clean up the exception handling

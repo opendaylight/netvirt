@@ -178,7 +178,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             } else {
                 ElanInstance updateElanInstance = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName)
                         .setDescription(description).setMacTimeout(macTimeout)
-                        .setKey(new ElanInstanceKey(elanInstanceName)).build();
+                        .withKey(new ElanInstanceKey(elanInstanceName)).build();
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                         ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), updateElanInstance);
                 LOG.debug("Updating the Elan Instance {} with MAC TIME-OUT {} and Description {}",
@@ -186,8 +186,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             }
         } else {
             ElanInstance elanInstance = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName)
-                    .setMacTimeout(macTimeout).setDescription(description).setKey(new ElanInstanceKey(elanInstanceName))
-                    .build();
+                    .setMacTimeout(macTimeout).setDescription(description)
+                    .withKey(new ElanInstanceKey(elanInstanceName)).build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), elanInstance);
             LOG.debug("Creating the new Elan Instance {}", elanInstance);
@@ -207,7 +207,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 EtreeInstance etreeInstance = new EtreeInstanceBuilder().build();
                 ElanInstance updateElanInstance = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName)
                         .setDescription(description).setMacTimeout(macTimeout)
-                        .setKey(new ElanInstanceKey(elanInstanceName))
+                        .withKey(new ElanInstanceKey(elanInstanceName))
                         .addAugmentation(EtreeInstance.class, etreeInstance).build();
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                         ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), updateElanInstance);
@@ -217,7 +217,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         } else {
             EtreeInstance etreeInstance = new EtreeInstanceBuilder().build();
             ElanInstance elanInstance = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName)
-                    .setMacTimeout(macTimeout).setDescription(description).setKey(new ElanInstanceKey(elanInstanceName))
+                    .setMacTimeout(macTimeout).setDescription(description)
+                    .withKey(new ElanInstanceKey(elanInstanceName))
                     .addAugmentation(EtreeInstance.class, etreeInstance).build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), elanInstance);
@@ -271,19 +272,19 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             List<String> staticMacAddresses, String description) {
         Optional<ElanInstance> existingElanInstance = elanInstanceCache.get(etreeInstanceName);
         if (existingElanInstance.isPresent()
-                && existingElanInstance.get().getAugmentation(EtreeInstance.class) != null) {
+                && existingElanInstance.get().augmentation(EtreeInstance.class) != null) {
             EtreeInterface etreeInterface = new EtreeInterfaceBuilder().setEtreeInterfaceType(interfaceType).build();
             ElanInterface elanInterface;
             if (staticMacAddresses == null) {
                 elanInterface = new ElanInterfaceBuilder().setElanInstanceName(etreeInstanceName)
-                        .setDescription(description).setName(interfaceName).setKey(new ElanInterfaceKey(interfaceName))
+                        .setDescription(description).setName(interfaceName).withKey(new ElanInterfaceKey(interfaceName))
                         .addAugmentation(EtreeInterface.class, etreeInterface).build();
             } else {
                 List<StaticMacEntries> staticMacEntries = ElanUtils.getStaticMacEntries(staticMacAddresses);
                 elanInterface = new ElanInterfaceBuilder().setElanInstanceName(etreeInstanceName)
                         .setDescription(description).setName(interfaceName)
                         .setStaticMacEntries(staticMacEntries)
-                        .setKey(new ElanInterfaceKey(interfaceName))
+                        .withKey(new ElanInterfaceKey(interfaceName))
                         .addAugmentation(EtreeInterface.class, etreeInterface).build();
             }
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
@@ -300,7 +301,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             ElanInterfaceBuilder elanInterfaceBuilder = new ElanInterfaceBuilder()
                     .setElanInstanceName(elanInstanceName)
                     .setDescription(description).setName(interfaceName)
-                    .setKey(new ElanInterfaceKey(interfaceName));
+                    .withKey(new ElanInterfaceKey(interfaceName));
             if (staticMacAddresses != null) {
                 List<StaticMacEntries> staticMacEntries = ElanUtils.getStaticMacEntries(staticMacAddresses);
                 elanInterfaceBuilder.setStaticMacEntries(staticMacEntries);
@@ -324,7 +325,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         LOG.debug("updating the ElanInterface with new Mac Entries {}", updatedStaticMacAddresses);
         ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
                 .setName(interfaceName).setDescription(newDescription).setStaticMacEntries(updatedStaticMacEntries)
-                .setKey(new ElanInterfaceKey(interfaceName)).build();
+                .withKey(new ElanInterfaceKey(interfaceName)).build();
         MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                 ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName), elanInterface);
     }

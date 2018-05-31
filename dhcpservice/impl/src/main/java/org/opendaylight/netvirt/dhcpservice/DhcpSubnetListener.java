@@ -244,7 +244,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         if (sn.isPresent()) {
             builder = new SubnetmapBuilder(sn.get());
         } else {
-            builder = new SubnetmapBuilder().setKey(new SubnetmapKey(subnetId)).setId(subnetId);
+            builder = new SubnetmapBuilder().withKey(new SubnetmapKey(subnetId)).setId(subnetId);
         }
         return builder;
     }

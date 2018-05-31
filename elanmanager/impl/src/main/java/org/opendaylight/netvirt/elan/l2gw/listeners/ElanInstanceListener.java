@@ -69,7 +69,7 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
                         InstanceIdentifier<L2gatewayConnection> iid =
                                 InstanceIdentifier.create(Neutron.class).child(
                                         L2gatewayConnections.class).child(
-                                        L2gatewayConnection.class, connection.getKey());
+                                        L2gatewayConnection.class, connection.key());
                         tx.delete(LogicalDatastoreType.CONFIGURATION, iid);
                     }
                 });

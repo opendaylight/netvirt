@@ -218,9 +218,9 @@ public class EvpnDnatFlowProgrammer {
                         continue;
                     }
                     VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get());
-                    Adjacencies adjs = vpnIfBuilder.getAugmentation(Adjacencies.class);
+                    Adjacencies adjs = vpnIfBuilder.augmentation(Adjacencies.class);
                     VpnInterfaceOpDataEntryBuilder vpnIfOpDataEntryBuilder = new VpnInterfaceOpDataEntryBuilder();
-                    vpnIfOpDataEntryBuilder.setKey(new VpnInterfaceOpDataEntryKey(interfaceName, vpnName));
+                    vpnIfOpDataEntryBuilder.withKey(new VpnInterfaceOpDataEntryKey(interfaceName, vpnName));
 
                     List<Adjacency> adjacencyList = adjs != null ? adjs.getAdjacency() : new ArrayList<>();
                     List<Adjacency> adjacencyListToImport = new ArrayList<>();

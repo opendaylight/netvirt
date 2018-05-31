@@ -63,7 +63,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
 
     @Override
     protected void remove(InstanceIdentifier<Group> identifier, Group del) {
-        LOG.trace("received group removed {}", del.getKey().getGroupId());
+        LOG.trace("received group removed {}", del.key().getGroupId());
     }
 
 
@@ -91,7 +91,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
 
     @Override
     protected void update(InstanceIdentifier<Group> identifier, Group original, Group update) {
-        LOG.trace("received group updated {}", update.getKey().getGroupId());
+        LOG.trace("received group updated {}", update.key().getGroupId());
         final BigInteger dpnId = getDpnId(identifier.firstKeyOf(Node.class).getId().getValue());
         if (dpnId == null) {
             return;
@@ -99,13 +99,13 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
 
         List<L2GatewayDevice> allDevices = ElanL2GwCacheUtils.getAllElanDevicesFromCache();
         if (allDevices == null || allDevices.isEmpty()) {
-            LOG.trace("no elan devices present in cache {}", update.getKey().getGroupId());
+            LOG.trace("no elan devices present in cache {}", update.key().getGroupId());
             return;
         }
         int expectedElanFootprint = 0;
         final ElanInstance elanInstance = getElanInstanceFromGroupId(update);
         if (elanInstance == null) {
-            LOG.trace("no elan instance is null {}", update.getKey().getGroupId());
+            LOG.trace("no elan instance is null {}", update.key().getGroupId());
             return;
         }
 
@@ -113,7 +113,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
                 ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanInstance.getElanInstanceName());
         if (devices == null || devices.isEmpty()) {
             LOG.trace("no elan devices in elan cache {} {}", elanInstance.getElanInstanceName(),
-                    update.getKey().getGroupId());
+                    update.key().getGroupId());
             return;
         }
         boolean updateGroup = false;
@@ -129,7 +129,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
                 updateGroup = true;
             } else {
                 LOG.trace("no of buckets matched perfectly {} {}", elanInstance.getElanInstanceName(),
-                        update.getKey().getGroupId());
+                        update.key().getGroupId());
             }
         }
         if (updateGroup) {
@@ -141,20 +141,20 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
                 return;
             }
             LOG.trace("no of buckets mismatched {} {}", elanInstance.getElanInstanceName(),
-                    update.getKey().getGroupId());
+                    update.key().getGroupId());
             elanClusterUtils.runOnlyInOwnerNode(elanInstance.getElanInstanceName(), "updating broadcast group", () -> {
                 elanL2GatewayMulticastUtils.setupElanBroadcastGroups(elanInstance, dpnId);
                 return null;
             });
         } else {
             LOG.trace("no buckets in the update {} {}", elanInstance.getElanInstanceName(),
-                    update.getKey().getGroupId());
+                    update.key().getGroupId());
         }
     }
 
     @Override
     protected void add(InstanceIdentifier<Group> identifier, Group added) {
-        LOG.trace("received group add {}", added.getKey().getGroupId());
+        LOG.trace("received group add {}", added.key().getGroupId());
         update(identifier, null/*original*/, added);
     }
 

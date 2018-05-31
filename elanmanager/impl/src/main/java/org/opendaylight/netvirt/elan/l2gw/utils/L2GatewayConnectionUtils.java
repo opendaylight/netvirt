@@ -186,7 +186,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     public void addL2GatewayConnection(final L2gatewayConnection input,
                                        final String l2GwDeviceName ,
                                        L2gateway l2Gateway) {
-        LOG.info("Adding L2gateway Connection with ID: {}", input.getKey().getUuid());
+        LOG.info("Adding L2gateway Connection with ID: {}", input.key().getUuid());
 
         Uuid networkUuid = input.getNetworkId();
 
@@ -215,7 +215,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     }
 
     public void deleteL2GatewayConnection(L2gatewayConnection input) {
-        LOG.info("Deleting L2gateway Connection with ID: {}", input.getKey().getUuid());
+        LOG.info("Deleting L2gateway Connection with ID: {}", input.key().getUuid());
 
         Uuid networkUuid = input.getNetworkId();
         String elanName = networkUuid.getValue();
@@ -227,8 +227,8 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         List<L2GatewayDevice> l2Devices = ElanL2GwCacheUtils.getAllElanDevicesFromCache();
         List<Devices> l2gwDevicesToBeDeleted = new ArrayList<>();
         for (L2GatewayDevice elanL2gwDevice : l2Devices) {
-            if (elanL2gwDevice.getL2GatewayIds().contains(input.getKey().getUuid())) {
-                l2gwDevicesToBeDeleted.addAll(elanL2gwDevice.getDevicesForL2gwConnectionId(input.getKey().getUuid()));
+            if (elanL2gwDevice.getL2GatewayIds().contains(input.key().getUuid())) {
+                l2gwDevicesToBeDeleted.addAll(elanL2gwDevice.getDevicesForL2gwConnectionId(input.key().getUuid()));
             }
         }
         if (l2gwDevicesToBeDeleted.isEmpty()) {
@@ -254,7 +254,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                 ElanL2GwCacheUtils.removeL2GatewayDeviceFromCache(elanName, hwvtepNodeId);
                 isLastL2GwConnDeleted = true;
             } else {
-                Uuid l2GwConnId = input.getKey().getUuid();
+                Uuid l2GwConnId = input.key().getUuid();
                 LOG.debug("Elan L2Gw Conn cache with id {} is being referred by other L2Gw Conns; so only "
                         + "L2 Gw Conn {} reference is removed", hwvtepNodeId, l2GwConnId);
                 if (elanL2GwDevice != null) {
@@ -277,7 +277,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
             L2gateway l2Gateway, L2gatewayConnection input, String l2GwDeviceName) {
         String elanName = elanInstance.getElanInstanceName();
         Integer defaultVlan = input.getSegmentId();
-        Uuid l2GwConnId = input.getKey().getUuid();
+        Uuid l2GwConnId = input.key().getUuid();
         List<Devices> l2Devices = l2Gateway.getDevices();
 
         LOG.trace("Associating ELAN {} with L2Gw Conn Id {} having below L2Gw devices {}", elanName, l2GwConnId,
@@ -378,9 +378,9 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                             Optional<Node> nodeOptional = resultNode;
                             if (nodeOptional.isPresent()) {
                                 Node node = nodeOptional.get();
-                                if (node.getAugmentation(HwvtepGlobalAugmentation.class) != null) {
+                                if (node.augmentation(HwvtepGlobalAugmentation.class) != null) {
                                     List<LocalUcastMacs> localUcastMacs =
-                                            node.getAugmentation(HwvtepGlobalAugmentation.class).getLocalUcastMacs();
+                                            node.augmentation(HwvtepGlobalAugmentation.class).getLocalUcastMacs();
                                     if (localUcastMacs == null) {
                                         return;
                                     }
@@ -423,6 +423,6 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     }
 
     static InstanceIdentifier<LocalUcastMacs> getMacIid(InstanceIdentifier<Node> nodeIid, LocalUcastMacs mac) {
-        return nodeIid.augmentation(HwvtepGlobalAugmentation.class).child(LocalUcastMacs.class, mac.getKey());
+        return nodeIid.augmentation(HwvtepGlobalAugmentation.class).child(LocalUcastMacs.class, mac.key());
     }
 }

@@ -121,12 +121,12 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 BigInteger timeStamp = new BigInteger(String.valueOf(System.currentTimeMillis()));
                 if (!srcIpAddress.isPresent()) {
                     newMacEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress)
-                            .setKey(new MacEntryKey(physAddress))
+                            .withKey(new MacEntryKey(physAddress))
                             .setControllerLearnedForwardingEntryTimestamp(timeStamp)
                             .setIsStaticAddress(false).build();
                 } else {
                     newMacEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress)
-                            .setIpPrefix(srcIpAddress.get()).setKey(new MacEntryKey(physAddress))
+                            .setIpPrefix(srcIpAddress.get()).withKey(new MacEntryKey(physAddress))
                             .setControllerLearnedForwardingEntryTimestamp(timeStamp)
                             .setIsStaticAddress(false).build();
                 }

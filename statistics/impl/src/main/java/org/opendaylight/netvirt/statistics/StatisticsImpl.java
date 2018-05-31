@@ -543,13 +543,13 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                     tx.delete(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
                             .builder(IngressElementCountersRequestConfig.class)
                             .child(CounterRequests.class,
-                                    new CounterRequestsKey(counterRequest.getKey().getRequestId()))
+                                    new CounterRequestsKey(counterRequest.key().getRequestId()))
                             .build());
                 } else if (ElementCountersDirection.EGRESS.equals(direction)) {
                     tx.delete(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
                             .builder(EgressElementCountersRequestConfig.class)
                             .child(CounterRequests.class,
-                                    new CounterRequestsKey(counterRequest.getKey().getRequestId()))
+                                    new CounterRequestsKey(counterRequest.key().getRequestId()))
                             .build());
                 }
             }), LOG, "Error deleting counter");
@@ -597,7 +597,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
             List<CounterRequests> counterRequests) {
         transaction.delete(LogicalDatastoreType.CONFIGURATION, path);
         CounterRequests counterRequest = requestData.get();
-        if (shouldUnbindCountersService(counterRequest.getPortId(), counterRequest.getKey().getRequestId(),
+        if (shouldUnbindCountersService(counterRequest.getPortId(), counterRequest.key().getRequestId(),
                 counterRequests)) {
             unbindCountersServiceIfBound(counterRequest.getPortId(),
                     ElementCountersDirection.valueOf(counterRequest.getTrafficDirection()));
@@ -826,7 +826,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
 
     private boolean shouldUnbindCountersService(String portId, String requesId, List<CounterRequests> counterRequests) {
         for (CounterRequests counterRequest : counterRequests) {
-            if (portId.equals(counterRequest.getPortId()) && !requesId.equals(counterRequest.getKey().getRequestId())) {
+            if (portId.equals(counterRequest.getPortId()) && !requesId.equals(counterRequest.key().getRequestId())) {
                 return false;
             }
         }
@@ -865,7 +865,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         IngressElementCountersRequestConfig requestConfig = iecrcOpt.get();
         CounterRequestsBuilder crb = new CounterRequestsBuilder();
         crb.setRequestId(requestKey);
-        crb.setKey(new CounterRequestsKey(requestKey));
+        crb.withKey(new CounterRequestsKey(requestKey));
         crb.setFilters(input.getOutgoingTraffic().getFilters());
         crb.setPortId(input.getPortId());
         crb.setLportTag(getLportTag(input.getPortId()));
@@ -889,7 +889,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         EgressElementCountersRequestConfig requestConfig = eecrcOpt.get();
         CounterRequestsBuilder crb = new CounterRequestsBuilder();
         crb.setRequestId(requestKey);
-        crb.setKey(new CounterRequestsKey(requestKey));
+        crb.withKey(new CounterRequestsKey(requestKey));
         crb.setFilters(input.getIncomingTraffic().getFilters());
         crb.setPortId(input.getPortId());
         crb.setLportTag(getLportTag(input.getPortId()));
@@ -1024,7 +1024,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
 
         for (CounterRequests counterRequest : counterRequests) {
             if (portId.equals(counterRequest.getPortId()) && dirction.equals(counterRequest.getTrafficDirection())
-                    && !counterRequest.getKey().getRequestId().equals(requesId)) {
+                    && !counterRequest.key().getRequestId().equals(requesId)) {
                 if (areFiltersEqual(filters, counterRequest.getFilters())) {
                     return true;
                 }

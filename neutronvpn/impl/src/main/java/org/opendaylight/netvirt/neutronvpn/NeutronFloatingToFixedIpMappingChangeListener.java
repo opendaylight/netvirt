@@ -142,7 +142,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                 LOG.debug("Creating new routerPorts node {} in floatingIpInfo DS for floating IP {} on fixed "
                     + "neutron port {} : ", routerName, floatingIpAddress, fixedNeutronPortName);
                 routerPortsBuilder =
-                    new RouterPortsBuilder().setKey(new RouterPortsKey(routerName)).setRouterId(routerName);
+                    new RouterPortsBuilder().withKey(new RouterPortsKey(routerName)).setRouterId(routerName);
             }
             if (extNetworkId != null) {
                 routerPortsBuilder.setExternalNetworkId(extNetworkId);
@@ -160,7 +160,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                     }
                 }
                 if (fixedNeutronPortBuilder == null) {
-                    fixedNeutronPortBuilder = new PortsBuilder().setKey(new PortsKey(fixedNeutronPortName))
+                    fixedNeutronPortBuilder = new PortsBuilder().withKey(new PortsKey(fixedNeutronPortName))
                             .setPortName(fixedNeutronPortName);
                 }
                 if (fixedIpAddress != null) {
@@ -169,7 +169,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                     if (intExtPortMapList == null) {
                         intExtPortMapList = new ArrayList<>();
                     }
-                    InternalToExternalPortMap intExtPortMap = new InternalToExternalPortMapBuilder().setKey(new
+                    InternalToExternalPortMap intExtPortMap = new InternalToExternalPortMapBuilder().withKey(new
                             InternalToExternalPortMapKey(fixedIpAddress)).setInternalIp(fixedIpAddress)
                             .setExternalIp(floatingIpAddress).setExternalId(floatingIpId).setLabel(null).build();
                     intExtPortMapList.add(intExtPortMap);

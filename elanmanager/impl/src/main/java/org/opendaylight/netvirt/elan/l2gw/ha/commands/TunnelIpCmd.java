@@ -37,7 +37,7 @@ public class TunnelIpCmd extends
 
     @Override
     public InstanceIdentifier<TunnelIps> generateId(InstanceIdentifier<Node> id, TunnelIps src) {
-        return id.augmentation(PhysicalSwitchAugmentation.class).child(TunnelIps.class, src.getKey());
+        return id.augmentation(PhysicalSwitchAugmentation.class).child(TunnelIps.class, src.key());
     }
 
     @Override
@@ -47,7 +47,7 @@ public class TunnelIpCmd extends
 
     @Override
     public Identifier getKey(TunnelIps data) {
-        return data.getKey();
+        return data.key();
     }
 
     @Override

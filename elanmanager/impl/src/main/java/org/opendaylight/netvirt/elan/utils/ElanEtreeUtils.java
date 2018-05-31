@@ -31,7 +31,7 @@ public class ElanEtreeUtils {
                 LogicalDatastoreType.OPERATIONAL, elanId);
         if (existingElanInfo.isPresent()) {
             ElanTagName elanTagName = existingElanInfo.get();
-            return elanTagName.getAugmentation(EtreeLeafTagName.class);
+            return elanTagName.augmentation(EtreeLeafTagName.class);
         }
         return null;
     }

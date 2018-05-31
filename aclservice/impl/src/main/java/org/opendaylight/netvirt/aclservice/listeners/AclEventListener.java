@@ -178,7 +178,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
             return;
         }
         for (Ace ace : aceList) {
-            SecurityRuleAttr aceAttributes = ace.getAugmentation(SecurityRuleAttr.class);
+            SecurityRuleAttr aceAttributes = ace.augmentation(SecurityRuleAttr.class);
             if (AclServiceUtils.doesAceHaveRemoteGroupId(aceAttributes)) {
                 if (action == AclServiceManager.Action.ADD) {
                     aclDataUtil.addRemoteAclId(aceAttributes.getRemoteGroupId(), new Uuid(aclName),

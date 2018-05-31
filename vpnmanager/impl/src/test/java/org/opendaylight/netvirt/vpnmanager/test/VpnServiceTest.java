@@ -49,9 +49,9 @@ public class VpnServiceTest {
 
         List<VpnTarget> vpnTargetList = new ArrayList<>();
 
-        VpnTarget vpneRTarget = new VpnTargetBuilder().setKey(new VpnTargetKey("100:1")).setVrfRTValue("100:1")
+        VpnTarget vpneRTarget = new VpnTargetBuilder().withKey(new VpnTargetKey("100:1")).setVrfRTValue("100:1")
             .setVrfRTType(VpnTarget.VrfRTType.ExportExtcommunity).build();
-        VpnTarget vpniRTarget = new VpnTargetBuilder().setKey(new VpnTargetKey("100:2")).setVrfRTValue("100:2")
+        VpnTarget vpniRTarget = new VpnTargetBuilder().withKey(new VpnTargetKey("100:2")).setVrfRTValue("100:2")
             .setVrfRTType(VpnTarget.VrfRTType.ImportExtcommunity).build();
 
         vpnTargetList.add(vpneRTarget);
@@ -64,7 +64,7 @@ public class VpnServiceTest {
                             new PerRouteBuilder().setApplyLabelPerRoute(true).build()).build()).build();
 
         VpnInstanceBuilder builder =
-            new VpnInstanceBuilder().setKey(new VpnInstanceKey("Vpn1")).setIpv4Family(ipv4Family);
+            new VpnInstanceBuilder().withKey(new VpnInstanceKey("Vpn1")).setIpv4Family(ipv4Family);
         VpnInstance instance = builder.build();
         //TODO: Need to enhance the test case to handle ds read/write ops
         //vpnManager.onDataChanged(event);

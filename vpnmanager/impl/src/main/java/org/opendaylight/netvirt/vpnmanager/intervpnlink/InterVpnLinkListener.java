@@ -152,7 +152,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         InterVpnLinkState vpnLinkState = new InterVpnLinkStateBuilder().setInterVpnLinkName(ivpnLinkName).build();
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnLinkStateIid, vpnLinkState);
 
-        InterVpnLinkKey key = add.getKey();
+        InterVpnLinkKey key = add.key();
         Uuid vpn1Uuid = add.getFirstEndpoint().getVpnUuid();
         String vpn1Name = vpn1Uuid.getValue();
         Uuid vpn2Uuid = add.getSecondEndpoint().getVpnUuid();
@@ -343,7 +343,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
 
         // Release idManager with LPortTag associated to endpoints
         LOG.debug("Releasing InterVpnLink {} endpoints LportTags", del.getName());
-        InterVpnLinkKey key = del.getKey();
+        InterVpnLinkKey key = del.key();
         Uuid firstEndpointVpnUuid = del.getFirstEndpoint().getVpnUuid();
         Uuid secondEndpointVpnUuid = del.getSecondEndpoint().getVpnUuid();
         releaseVpnLinkLPortTag(key.getName() + firstEndpointVpnUuid.getValue());
@@ -383,7 +383,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                 // Removing flow from LportDispatcher table
                 String flowRef = InterVpnLinkUtil.getLportDispatcherFlowRef(interVpnLinkName, otherEndpointLportTag);
                 FlowKey flowKey = new FlowKey(new FlowId(flowRef));
-                Flow flow = new FlowBuilder().setKey(flowKey).setId(new FlowId(flowRef))
+                Flow flow = new FlowBuilder().withKey(flowKey).setId(new FlowId(flowRef))
                     .setTableId(NwConstants.LPORT_DISPATCHER_TABLE).setFlowName(flowRef)
                     .build();
                 mdsalManager.removeFlow(dpnId, flow);

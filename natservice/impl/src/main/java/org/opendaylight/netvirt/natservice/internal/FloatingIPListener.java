@@ -113,13 +113,13 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     @Override
     protected void add(final InstanceIdentifier<InternalToExternalPortMap> identifier,
                        final InternalToExternalPortMap mapping) {
-        LOG.trace("FloatingIPListener add ip mapping method - key: {} value: {}",mapping.getKey(), mapping);
+        LOG.trace("FloatingIPListener add ip mapping method - key: {} value: {}",mapping.key(), mapping);
         processFloatingIPAdd(identifier, mapping);
     }
 
     @Override
     protected void remove(InstanceIdentifier<InternalToExternalPortMap> identifier, InternalToExternalPortMap mapping) {
-        LOG.trace("FloatingIPListener remove ip mapping method - kkey: {} value: {}",mapping.getKey(), mapping);
+        LOG.trace("FloatingIPListener remove ip mapping method - kkey: {} value: {}",mapping.key(), mapping);
         processFloatingIPDel(identifier, mapping);
     }
 
@@ -127,7 +127,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     protected void update(InstanceIdentifier<InternalToExternalPortMap> identifier, InternalToExternalPortMap
             original, InternalToExternalPortMap update) {
         LOG.trace("FloatingIPListener update ip mapping method - key: {}, original: {}, update: {}",
-                update.getKey(), original, update);
+                update.key(), original, update);
     }
 
     private FlowEntity buildPreDNATFlowEntity(BigInteger dpId, InternalToExternalPortMap mapping, long routerId, long
@@ -378,14 +378,14 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
     private void processFloatingIPAdd(final InstanceIdentifier<InternalToExternalPortMap> identifier,
                                       final InternalToExternalPortMap mapping) {
-        LOG.trace("processFloatingIPAdd key: {}, value: {}", mapping.getKey(), mapping);
+        LOG.trace("processFloatingIPAdd key: {}, value: {}", mapping.key(), mapping);
 
         final String routerId = identifier.firstKeyOf(RouterPorts.class).getRouterId();
         final PortsKey pKey = identifier.firstKeyOf(Ports.class);
         String interfaceName = pKey.getPortName();
 
         InstanceIdentifier<RouterPorts> portIid = identifier.firstIdentifierOf(RouterPorts.class);
-        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + mapping.getKey(), () -> Collections.singletonList(
+        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + mapping.key(), () -> Collections.singletonList(
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                     tx -> createNATFlowEntries(interfaceName, mapping, portIid, routerId, tx))),
                 NatConstants.NAT_DJC_MAX_RETRIES);
@@ -393,14 +393,14 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
     private void processFloatingIPDel(final InstanceIdentifier<InternalToExternalPortMap> identifier,
                                       final InternalToExternalPortMap mapping) {
-        LOG.trace("processFloatingIPDel : key: {}, value: {}", mapping.getKey(), mapping);
+        LOG.trace("processFloatingIPDel : key: {}, value: {}", mapping.key(), mapping);
 
         final String routerId = identifier.firstKeyOf(RouterPorts.class).getRouterId();
         final PortsKey pKey = identifier.firstKeyOf(Ports.class);
         String interfaceName = pKey.getPortName();
 
         InstanceIdentifier<RouterPorts> portIid = identifier.firstIdentifierOf(RouterPorts.class);
-        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + mapping.getKey(), () -> Collections.singletonList(
+        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + mapping.key(), () -> Collections.singletonList(
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                     tx -> removeNATFlowEntries(interfaceName, mapping, portIid, routerId, null, tx))),
                 NatConstants.NAT_DJC_MAX_RETRIES);
@@ -687,7 +687,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         Optional<Ports> optPorts =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                         LogicalDatastoreType.OPERATIONAL, portsId);
-        InternalToExternalPortMap intExtPortMap = new InternalToExternalPortMapBuilder().setKey(new
+        InternalToExternalPortMap intExtPortMap = new InternalToExternalPortMapBuilder().withKey(new
                 InternalToExternalPortMapKey(internalIp)).setInternalIp(internalIp).setExternalIp(externalIp)
                 .setLabel(label).build();
         if (optPorts.isPresent()) {
@@ -700,7 +700,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                     interfaceName, internalIp);
             List<InternalToExternalPortMap> intExtPortMapList = new ArrayList<>();
             intExtPortMapList.add(intExtPortMap);
-            Ports ports = new PortsBuilder().setKey(new PortsKey(interfaceName)).setPortName(interfaceName)
+            Ports ports = new PortsBuilder().withKey(new PortsKey(interfaceName)).setPortName(interfaceName)
                     .setInternalToExternalPortMap(intExtPortMapList).build();
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, portsId, ports);
         }

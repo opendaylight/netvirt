@@ -211,7 +211,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             closeables.add(evpnVrfEntryHandler);
             return;
         }
-        RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
+        RouterInterface routerInt = vrfEntry.augmentation(RouterInterface.class);
         if (routerInt != null) {
             // ping responder for router interfaces
             routerInterfaceVrfEntryHandler.createFlows(identifier, vrfEntry, rd);
@@ -245,7 +245,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             closeables.add(evpnVrfEntryHandler);
             return;
         }
-        RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
+        RouterInterface routerInt = vrfEntry.augmentation(RouterInterface.class);
         if (routerInt != null) {
             // ping responder for router interfaces
             routerInterfaceVrfEntryHandler.removeFlows(identifier, vrfEntry, rd);
@@ -368,7 +368,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
         final Long vpnId = vpnInstance.getVpnId();
         final String rd = vrfTableKey.getRouteDistinguisher();
-        SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
+        SubnetRoute subnetRoute = vrfEntry.augmentation(SubnetRoute.class);
         if (subnetRoute != null) {
             final long elanTag = subnetRoute.getElantag();
             LOG.trace("SUBNETROUTE: createFibEntries: SubnetRoute augmented vrfentry found for rd {} prefix {}"
@@ -567,7 +567,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         Node nodeDpn = FibUtil.buildDpnNode(dpnId);
 
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                .child(Node.class, nodeDpn.key()).augmentation(FlowCapableNode.class)
                 .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flowKey).build();
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
@@ -973,7 +973,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         Node nodeDpn = FibUtil.buildDpnNode(terminatingServiceTableFlowEntity.getDpnId());
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
-            .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+            .child(Node.class, nodeDpn.key()).augmentation(FlowCapableNode.class)
             .child(Table.class, new TableKey(terminatingServiceTableFlowEntity.getTableId()))
             .child(Flow.class, flowKey).build();
         tx.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flowbld.build(),
@@ -994,7 +994,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         Node nodeDpn = FibUtil.buildDpnNode(flowEntity.getDpnId());
         FlowKey flowKey = new FlowKey(new FlowId(flowEntity.getFlowId()));
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
-            .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+            .child(Node.class, nodeDpn.key()).augmentation(FlowCapableNode.class)
             .child(Table.class, new TableKey(flowEntity.getTableId())).child(Flow.class, flowKey).build();
 
         tx.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
@@ -1389,7 +1389,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             vpnToDpnList = vpnInstance.getVpnToDpnList();
         }
 
-        SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
+        SubnetRoute subnetRoute = vrfEntry.augmentation(SubnetRoute.class);
         final java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
         List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
         String vpnName = fibUtil.getVpnNameFromId(vpnInstance.getVpnId());
@@ -1536,7 +1536,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         FlowKey flowKey = new FlowKey(new FlowId(flowId));
         Node nodeDpn = FibUtil.buildDpnNode(dpId);
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
-            .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+            .child(Node.class, nodeDpn.key()).augmentation(FlowCapableNode.class)
             .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flowKey).build();
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
@@ -1570,7 +1570,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 synchronized (vpnInstance.getVpnInstanceName().intern()) {
                     futures.add(retryingTxRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
                         for (final VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
-                            SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
+                            SubnetRoute subnetRoute = vrfEntry.augmentation(SubnetRoute.class);
                             if (subnetRoute != null) {
                                 long elanTag = subnetRoute.getElantag();
                                 installSubnetRouteInFib(dpnId, elanTag, rd, vpnId, vrfEntry, tx);
@@ -1578,7 +1578,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                         tx);
                                 continue;
                             }
-                            RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
+                            RouterInterface routerInt = vrfEntry.augmentation(RouterInterface.class);
                             if (routerInt != null) {
                                 LOG.trace("Router augmented vrfentry found rd:{}, uuid:{}, ip:{}, mac:{}",
                                         rd, routerInt.getUuid(), routerInt.getIpAddress(), routerInt.getMacAddress());
@@ -1723,7 +1723,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         futures.add(retryingTxRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                             for (final VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
                                 /* Handle subnet routes here */
-                                SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
+                                SubnetRoute subnetRoute = vrfEntry.augmentation(SubnetRoute.class);
                                 if (subnetRoute != null) {
                                     LOG.trace("SUBNETROUTE: cleanUpDpnForVpn: Cleaning subnetroute {} on dpn {}"
                                             + " for vpn {}", vrfEntry.getDestPrefix(), dpnId, rd);
@@ -1745,7 +1745,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                     continue;
                                 }
                                 // ping responder for router interfaces
-                                RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
+                                RouterInterface routerInt = vrfEntry.augmentation(RouterInterface.class);
                                 if (routerInt != null) {
                                     LOG.trace("Router augmented vrfentry found for rd:{}, uuid:{}, ip:{}, mac:{}",
                                             rd, routerInt.getUuid(), routerInt.getIpAddress(),
@@ -1791,9 +1791,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                 }
                                 if (RouteOrigin.BGP.getValue().equals(vrfEntry.getOrigin())) {
                                     bgpRouteVrfEntryHandler.deleteRemoteRoute(null, dpnId, vpnId,
-                                            vrfTable.get().getKey(), vrfEntry, extraRouteOptional, tx, txnObjects);
+                                            vrfTable.get().key(), vrfEntry, extraRouteOptional, tx, txnObjects);
                                 } else {
-                                    baseVrfEntryHandler.deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().getKey(),
+                                    baseVrfEntryHandler.deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().key(),
                                             vrfEntry, extraRouteOptional, tx);
                                 }
                             }
@@ -1882,7 +1882,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         optNextHop.ifPresent(nextHop -> {
             String flowRef = getInterVpnFibFlowRef(interVpnLinkName, vrfEntry.getDestPrefix(), nextHop);
             FlowKey flowKey = new FlowKey(new FlowId(flowRef));
-            Flow flow = new FlowBuilder().setKey(flowKey).setId(new FlowId(flowRef))
+            Flow flow = new FlowBuilder().withKey(flowKey).setId(new FlowId(flowRef))
                     .setTableId(NwConstants.L3_FIB_TABLE).setFlowName(flowRef).build();
 
             LOG.trace("Removing flow in FIB table for interVpnLink {} key {}", interVpnLinkName, flowRef);

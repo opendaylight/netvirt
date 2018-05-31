@@ -115,7 +115,7 @@ public final class NeutronUtils {
     }
 
     public static boolean isPortVnicTypeNormal(Port port) {
-        PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+        PortBindingExtension portBinding = port.augmentation(PortBindingExtension.class);
         if (portBinding == null || portBinding.getVnicType() == null) {
             // By default, VNIC_TYPE is NORMAL
             return true;
@@ -127,7 +127,7 @@ public final class NeutronUtils {
     public static <T extends NetworkTypeBase> String getSegmentationIdFromNeutronNetwork(Network network,
             Class<T> networkType) {
         String segmentationId = null;
-        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        NetworkProviderExtension providerExtension = network.augmentation(NetworkProviderExtension.class);
         if (providerExtension != null) {
             segmentationId = providerExtension.getSegmentationId();
             if (segmentationId == null) {
@@ -154,7 +154,7 @@ public final class NeutronUtils {
     public static <T extends NetworkTypeBase> boolean isNetworkSegmentType(Network network, Long index,
                                                                            Class<T> expectedNetworkType) {
         Class<? extends NetworkTypeBase> segmentType = null;
-        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        NetworkProviderExtension providerExtension = network.augmentation(NetworkProviderExtension.class);
         if (providerExtension != null) {
             List<Segments> providerSegments = providerExtension.getSegments();
             if (providerSegments != null && providerSegments.size() > 0) {
@@ -170,7 +170,7 @@ public final class NeutronUtils {
     }
 
     public static Long getNumberSegmentsFromNeutronNetwork(Network network) {
-        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        NetworkProviderExtension providerExtension = network.augmentation(NetworkProviderExtension.class);
         Integer numSegs = 0;
         if (providerExtension != null) {
             List<Segments> providerSegments = providerExtension.getSegments();
@@ -183,7 +183,7 @@ public final class NeutronUtils {
 
     public static String getSegmentationIdFromNeutronNetworkSegment(Network network, Long index) {
         String segmentationId = null;
-        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        NetworkProviderExtension providerExtension = network.augmentation(NetworkProviderExtension.class);
         if (providerExtension != null) {
             List<Segments> providerSegments = providerExtension.getSegments();
             if (providerSegments != null && providerSegments.size() > 0) {

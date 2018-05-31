@@ -80,7 +80,7 @@ public class HwvtepTerminationPointListener
     protected void removed(InstanceIdentifier<TerminationPoint> identifier, TerminationPoint del) {
         LOG.trace("physical locator removed {}", identifier);
         final HwvtepPhysicalPortAugmentation portAugmentation =
-                del.getAugmentation(HwvtepPhysicalPortAugmentation.class);
+                del.augmentation(HwvtepPhysicalPortAugmentation.class);
         if (portAugmentation != null) {
             elanClusterUtils.runOnlyInOwnerNode(HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
                 "Handling Physical port delete",
@@ -97,7 +97,7 @@ public class HwvtepTerminationPointListener
     @Override
     protected void added(InstanceIdentifier<TerminationPoint> identifier, final TerminationPoint add) {
         final HwvtepPhysicalPortAugmentation portAugmentation =
-                add.getAugmentation(HwvtepPhysicalPortAugmentation.class);
+                add.augmentation(HwvtepPhysicalPortAugmentation.class);
         if (portAugmentation != null) {
             final NodeId nodeId = identifier.firstIdentifierOf(Node.class).firstKeyOf(Node.class).getNodeId();
             elanClusterUtils.runOnlyInOwnerNode(HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
@@ -123,7 +123,7 @@ public class HwvtepTerminationPointListener
     private List<ListenableFuture<Void>> handlePortAdded(TerminationPoint portAdded, NodeId psNodeId) {
         Node psNode = HwvtepUtils.getHwVtepNode(broker, LogicalDatastoreType.OPERATIONAL, psNodeId);
         if (psNode != null) {
-            String psName = psNode.getAugmentation(PhysicalSwitchAugmentation.class).getHwvtepNodeName().getValue();
+            String psName = psNode.augmentation(PhysicalSwitchAugmentation.class).getHwvtepNodeName().getValue();
             L2GatewayDevice l2GwDevice = l2GatewayCache.get(psName);
             if (l2GwDevice != null) {
                 if (isL2GatewayConfigured(l2GwDevice)) {

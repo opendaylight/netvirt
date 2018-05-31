@@ -72,7 +72,7 @@ public class ElanForwardingEntriesHandler {
         MacEntry macEntry = new MacEntryBuilder().setIsStaticAddress(true)
                 .setMacAddress(staticMacEntries.getMacAddress())
                 .setIpPrefix(staticMacEntries.getIpPrefix())
-                .setInterface(interfaceName).setKey(new MacEntryKey(staticMacEntries.getMacAddress())).build();
+                .setInterface(interfaceName).withKey(new MacEntryKey(staticMacEntries.getMacAddress())).build();
 
         createElanForwardingTablesList(elanInstanceName, macEntry, tx);
         createElanInterfaceForwardingTablesList(interfaceName, macEntry, tx);
@@ -96,7 +96,7 @@ public class ElanForwardingEntriesHandler {
         if (existingInterfaceMacEntry == null) {
             MacEntry macEntry = new MacEntryBuilder().setMacAddress(mac.getMacAddress()).setIpPrefix(mac.getIpPrefix())
                     .setInterface(interfaceName)
-                    .setIsStaticAddress(true).setKey(new MacEntryKey(mac.getMacAddress())).build();
+                    .setIsStaticAddress(true).withKey(new MacEntryKey(mac.getMacAddress())).build();
             tx.put(LogicalDatastoreType.OPERATIONAL, existingMacEntryId, macEntry,
                     WriteTransaction.CREATE_MISSING_PARENTS);
         }
@@ -110,7 +110,7 @@ public class ElanForwardingEntriesHandler {
         if (existingMacEntry != null && elanUtils.getElanMacTable(elanName) != null) {
             MacEntry newMacEntry = new MacEntryBuilder().setInterface(interfaceName).setIsStaticAddress(true)
                     .setMacAddress(mac.getMacAddress()).setIpPrefix(mac.getIpPrefix())
-                    .setKey(new MacEntryKey(mac.getMacAddress())).build();
+                    .withKey(new MacEntryKey(mac.getMacAddress())).build();
             tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, newMacEntry);
         }
     }

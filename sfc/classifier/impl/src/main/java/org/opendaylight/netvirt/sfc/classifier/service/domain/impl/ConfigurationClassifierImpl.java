@@ -95,7 +95,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
         LOG.trace("Ace details: {}", ace);
 
         Optional<NetvirtsfcAclActions> sfcActions = Optional.ofNullable(ace.getActions())
-                .map(actions -> actions.getAugmentation(RedirectToSfc.class));
+                .map(actions -> actions.augmentation(RedirectToSfc.class));
         String rspName = sfcActions.map(NetvirtsfcAclActions::getRspName).map(Strings::emptyToNull).orElse(null);
         String sfpName = sfcActions.map(NetvirtsfcAclActions::getSfpName).map(Strings::emptyToNull).orElse(null);
 
@@ -114,17 +114,17 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             return Collections.emptySet();
         }
 
-        NeutronNetwork network = matches.getAugmentation(NeutronNetwork.class);
+        NeutronNetwork network = matches.augmentation(NeutronNetwork.class);
         if (sfpName != null && network != null) {
             LOG.warn("Ace {} ignored: SFP redirect action with neutron network match not supported", ruleName);
             return Collections.emptySet();
         }
 
-        String sourcePort = Optional.ofNullable(matches.getAugmentation(NeutronPorts.class))
+        String sourcePort = Optional.ofNullable(matches.augmentation(NeutronPorts.class))
                 .map(NeutronPorts::getSourcePortUuid)
                 .map(Strings::emptyToNull)
                 .orElse(null);
-        String destinationPort = Optional.ofNullable(matches.getAugmentation(NeutronPorts.class))
+        String destinationPort = Optional.ofNullable(matches.augmentation(NeutronPorts.class))
                 .map(NeutronPorts::getDestinationPortUuid)
                 .map(Strings::emptyToNull)
                 .orElse(null);

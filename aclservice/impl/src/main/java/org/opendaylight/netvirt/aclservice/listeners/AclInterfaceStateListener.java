@@ -137,7 +137,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                     + "for ACL failed", added.getName());
             return;
         }
-        InterfaceAcl aclInPort = iface.getAugmentation(InterfaceAcl.class);
+        InterfaceAcl aclInPort = iface.augmentation(InterfaceAcl.class);
         if (aclInPort == null) {
             LOG.trace("Interface {} is not an ACL Interface, ignoring ADD interfaceState event",
                     added.getName());

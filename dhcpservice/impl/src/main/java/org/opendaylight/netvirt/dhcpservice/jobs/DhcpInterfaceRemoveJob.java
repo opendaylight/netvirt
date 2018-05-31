@@ -86,7 +86,7 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
                 interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
         if (iface != null) {
-            IfTunnel tunnelInterface = iface.getAugmentation(IfTunnel.class);
+            IfTunnel tunnelInterface = iface.augmentation(IfTunnel.class);
             if (tunnelInterface != null && !tunnelInterface.isInternal()) {
                 IpAddress tunnelIp = tunnelInterface.getTunnelDestination();
                 List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(dataBroker);

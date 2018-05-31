@@ -466,7 +466,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     private String getPortHostId(final Port port) {
         if (port != null) {
-            PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+            PortBindingExtension portBinding = port.augmentation(PortBindingExtension.class);
             if (portBinding != null) {
                 return portBinding.getHostId();
             }
@@ -495,7 +495,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     }
 
     private boolean isPortVnicTypeDirect(Port port) {
-        PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+        PortBindingExtension portBinding = port.augmentation(PortBindingExtension.class);
         if (portBinding == null || portBinding.getVnicType() == null) {
             // By default, VNIC_TYPE is NORMAL
             return false;
@@ -531,7 +531,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             return false;
         }
 
-        PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+        PortBindingExtension portBinding = port.augmentation(PortBindingExtension.class);
         String profile = portBinding.getProfile();
         if (profile == null || profile.isEmpty()) {
             LOG.debug("Port {} has no binding:profile values", port.getUuid());
@@ -762,7 +762,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         } else {
             if (updatedSecurityEnabled) {
                 // handle SG add/delete delta
-                InterfaceAcl interfaceAcl = interfaceBuilder.getAugmentation(InterfaceAcl.class);
+                InterfaceAcl interfaceAcl = interfaceBuilder.augmentation(InterfaceAcl.class);
                 interfaceAclBuilder = new InterfaceAclBuilder(interfaceAcl);
                 interfaceAclBuilder.setSecurityGroups(
                         NeutronvpnUtils.getUpdatedSecurityGroups(interfaceAcl.getSecurityGroups(),
@@ -848,7 +848,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
                 .class, new ElanInterfaceKey(name)).build();
         ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
-                .setName(name).setStaticMacEntries(staticMacEntries).setKey(new ElanInterfaceKey(name)).build();
+                .setName(name).setStaticMacEntries(staticMacEntries).withKey(new ElanInterfaceKey(name)).build();
         wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, id, elanInterface);
         LOG.debug("Creating new ELan Interface {}", elanInterface);
     }
@@ -866,7 +866,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         InstanceIdentifier id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
         try {
             FloatingIpIdToPortMappingBuilder floatingipIdToPortMacMappingBuilder = new
-                FloatingIpIdToPortMappingBuilder().setKey(new FloatingIpIdToPortMappingKey(floatingIpId))
+                FloatingIpIdToPortMappingBuilder().withKey(new FloatingIpIdToPortMappingKey(floatingIpId))
                 .setFloatingIpId(floatingIpId).setFloatingIpPortId(floatingIpPortId)
                 .setFloatingIpPortSubnetId(floatingIpPortSubnetId)
                 .setFloatingIpPortMacAddress(floatingIpPortMacAddress);

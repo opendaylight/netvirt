@@ -50,13 +50,13 @@ public final class VpnOperDsUtils {
     }
 
     public static VpnInstance makeVpnInstance(String vpnName, String vpnRd, Long vpnTag) {
-        return new VpnInstanceBuilder().setKey(new VpnInstanceKey(vpnName)).setVpnInstanceName(vpnName)
+        return new VpnInstanceBuilder().withKey(new VpnInstanceKey(vpnName)).setVpnInstanceName(vpnName)
                                        .setVrfId(vpnRd).setVpnId(vpnTag).build();
     }
 
     static List<VpnTarget> makeVpnTargets(List<String> rtList, VpnTarget.VrfRTType type) {
         return rtList.stream()
-                     .map(rt -> new VpnTargetBuilder().setKey(new VpnTargetKey(rt))
+                     .map(rt -> new VpnTargetBuilder().withKey(new VpnTargetKey(rt))
                                                       .setVrfRTValue(rt).setVrfRTType(type).build())
                      .collect(Collectors.toList());
     }

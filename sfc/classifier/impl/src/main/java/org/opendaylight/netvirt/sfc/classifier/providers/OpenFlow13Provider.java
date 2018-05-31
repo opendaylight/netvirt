@@ -96,7 +96,7 @@ public class OpenFlow13Provider {
             .child(Node.class, nodeKey)
             .augmentation(FlowCapableNode.class)
             .child(Table.class, new TableKey(flow.getTableId()))
-            .child(Flow.class, flow.getKey())
+            .child(Flow.class, flow.key())
             .build();
 
         tx.put(LogicalDatastoreType.CONFIGURATION, iidFlow, flow, WriteTransaction.CREATE_MISSING_PARENTS);
@@ -108,7 +108,7 @@ public class OpenFlow13Provider {
             .child(Node.class, nodeKey)
             .augmentation(FlowCapableNode.class)
             .child(Table.class, new TableKey(flow.getTableId()))
-            .child(Flow.class, flow.getKey())
+            .child(Flow.class, flow.key())
             .build();
 
         tx.delete(LogicalDatastoreType.CONFIGURATION, iidFlow);

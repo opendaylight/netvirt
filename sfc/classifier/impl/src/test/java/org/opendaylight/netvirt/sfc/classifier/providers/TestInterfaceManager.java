@@ -54,7 +54,7 @@ public abstract class TestInterfaceManager implements IInterfaceManager {
         List<Options> opsList = new ArrayList<>();
         if (dpnId != GeniusProviderTestParams.DPN_ID_NO_OPTIONS) {
             OptionsBuilder opsBuilder = new OptionsBuilder();
-            opsBuilder.setKey(new OptionsKey(GeniusProvider.OPTION_KEY_EXTS));
+            opsBuilder.withKey(new OptionsKey(GeniusProvider.OPTION_KEY_EXTS));
             opsBuilder.setValue(GeniusProvider.OPTION_VALUE_EXTS_GPE);
             opsList.add(opsBuilder.build());
         }

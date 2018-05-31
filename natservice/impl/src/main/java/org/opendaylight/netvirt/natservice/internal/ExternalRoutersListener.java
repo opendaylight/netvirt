@@ -266,7 +266,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             //snatServiceManger.notify(routers, null, Action.ADD);
         } else {
             try {
-                coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routers.getKey(),
+                coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routers.key(),
                     () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                         LOG.info("add : Installing NAT default route on all dpns part of router {}", routerName);
                         long bgpVpnId = NatConstants.INVALID_ID;
@@ -498,7 +498,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 String bgpVpnName = bgpVpnUuid.getValue();
                 LOG.debug("Populate the router-id-name container with the mapping BGP VPN-ID {} -> BGP VPN-NAME {}",
                     bgpVpnId, bgpVpnName);
-                RouterIds rtrs = new RouterIdsBuilder().setKey(new RouterIdsKey(bgpVpnId))
+                RouterIds rtrs = new RouterIdsBuilder().withKey(new RouterIdsKey(bgpVpnId))
                     .setRouterId(bgpVpnId).setRouterName(bgpVpnName).build();
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     getRoutersIdentifier(bgpVpnId), rtrs);
@@ -1037,10 +1037,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         //Select the IPMap, whose external IP is the IP for which FIB is installed
                         if (dbExternalIp.contains(externalIp)) {
                             String dbInternalIp = dbIpMap.getInternalIp();
-                            IpMapKey dbIpMapKey = dbIpMap.getKey();
+                            IpMapKey dbIpMapKey = dbIpMap.key();
                             LOG.debug("advToBgpAndInstallFibAndTsFlows : Setting label {} for internalIp {} "
                                     + "and externalIp {}", label, dbInternalIp, externalIp);
-                            IpMap newIpm = new IpMapBuilder().setKey(dbIpMapKey).setInternalIp(dbInternalIp)
+                            IpMap newIpm = new IpMapBuilder().withKey(dbIpMapKey).setInternalIp(dbInternalIp)
                                 .setExternalIp(dbExternalIp).setLabel(label).build();
                             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
                                 naptManager.getIpMapIdentifier(routerId, dbInternalIp), newIpm);
@@ -1249,7 +1249,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 return;
             }
             final long finalBgpVpnId = bgpVpnId;
-            coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.getKey(), () -> {
+            coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.key(), () -> {
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeFlowInvTx -> {
                     futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(removeFlowInvTx -> {
@@ -1623,7 +1623,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 IpMapKey ipMapKey = new IpMapKey(internalIp);
                 LOG.debug("allocateExternalIp : Setting label {} for internalIp {} and externalIp {}",
                     label, internalIp, leastLoadedExtIpAddrStr);
-                IpMap newIpm = new IpMapBuilder().setKey(ipMapKey).setInternalIp(internalIp)
+                IpMap newIpm = new IpMapBuilder().withKey(ipMapKey).setInternalIp(internalIp)
                     .setExternalIp(leastLoadedExtIpAddrStr).setLabel(label).build();
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     naptManager.getIpMapIdentifier(routerId, internalIp), newIpm);
@@ -1694,7 +1694,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     centralizedSwitchScheduler.releaseCentralizedSwitch(router);
                 }
             } else {
-                coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + router.getKey(),
+                coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + router.key(),
                     () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                         LOG.info("remove : Removing default NAT route from FIB on all dpns part of router {} ",
                                 routerName);
@@ -1846,7 +1846,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void updateNaptSwitch(String routerName, BigInteger naptSwitchId) {
-        RouterToNaptSwitch naptSwitch = new RouterToNaptSwitchBuilder().setKey(new RouterToNaptSwitchKey(routerName))
+        RouterToNaptSwitch naptSwitch = new RouterToNaptSwitchBuilder().withKey(new RouterToNaptSwitchKey(routerName))
             .setPrimarySwitchId(naptSwitchId).build();
         try {
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
@@ -2504,7 +2504,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             if (bgpVpnId != NatConstants.INVALID_ID) {
                 LOG.debug("changeLocalVpnIdToBgpVpnId : Populate the router-id-name container with the "
                         + "mapping BGP VPN-ID {} -> BGP VPN-NAME {}", bgpVpnId, bgpVpnName);
-                RouterIds rtrs = new RouterIdsBuilder().setKey(new RouterIdsKey(bgpVpnId))
+                RouterIds rtrs = new RouterIdsBuilder().withKey(new RouterIdsKey(bgpVpnId))
                     .setRouterId(bgpVpnId).setRouterName(bgpVpnName).build();
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     getRoutersIdentifier(bgpVpnId), rtrs);

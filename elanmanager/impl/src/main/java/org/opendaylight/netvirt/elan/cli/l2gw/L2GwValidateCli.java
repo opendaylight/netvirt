@@ -133,13 +133,13 @@ public class L2GwValidateCli extends OsgiCommandSupport {
 
             if (operationalTopoOptional.isPresent()) {
                 for (Node node : operationalTopoOptional.get().getNode()) {
-                    InstanceIdentifier<Node> nodeIid = topoId.child(Node.class, node.getKey());
+                    InstanceIdentifier<Node> nodeIid = topoId.child(Node.class, node.key());
                     operationalNodes.put(nodeIid, node);
                 }
             }
             if (configTopoOptional.isPresent()) {
                 for (Node node : configTopoOptional.get().getNode()) {
-                    InstanceIdentifier<Node> nodeIid = topoId.child(Node.class, node.getKey());
+                    InstanceIdentifier<Node> nodeIid = topoId.child(Node.class, node.key());
                     configNodes.put(nodeIid, node);
                 }
             }
@@ -187,9 +187,9 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             Node node = entry.getValue();
             Map<InstanceIdentifier, DataObject> map = new HashMap<>();
             dataMap.put(nodeId, map);
-            if (node.getAugmentation(HwvtepGlobalAugmentation.class) != null) {
+            if (node.augmentation(HwvtepGlobalAugmentation.class) != null) {
                 for (MergeCommand command : globalCommands) {
-                    List<DataObject> data = command.getData(node.getAugmentation(HwvtepGlobalAugmentation.class));
+                    List<DataObject> data = command.getData(node.augmentation(HwvtepGlobalAugmentation.class));
                     if (data != null) {
                         for (DataObject dataObject : data) {
                             map.put(command.generateId(nodeId, dataObject), dataObject);
@@ -215,7 +215,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
      */
     private void verifyConfigVsOperationalDiff() {
         for (Node cfgNode : configNodes.values()) {
-            InstanceIdentifier<Node> nodeId = topoIid.child(Node.class, cfgNode.getKey());
+            InstanceIdentifier<Node> nodeId = topoIid.child(Node.class, cfgNode.key());
             compareNodes(cfgNode, operationalNodes.get(nodeId), false, LogicalDatastoreType.CONFIGURATION);
         }
     }
@@ -266,9 +266,9 @@ public class L2GwValidateCli extends OsgiCommandSupport {
     }
 
     private boolean containsLogicalSwitch(Node node) {
-        if (node == null || node.getAugmentation(HwvtepGlobalAugmentation.class) == null
+        if (node == null || node.augmentation(HwvtepGlobalAugmentation.class) == null
                 || HwvtepHAUtil.isEmptyList(
-                node.getAugmentation(HwvtepGlobalAugmentation.class).getLogicalSwitches())) {
+                node.augmentation(HwvtepGlobalAugmentation.class).getLogicalSwitches())) {
             return false;
         }
         return true;
@@ -286,11 +286,11 @@ public class L2GwValidateCli extends OsgiCommandSupport {
         NodeId nodeId1 = nodeIid1.firstKeyOf(Node.class).getNodeId();
         NodeId nodeId2 = nodeIid2.firstKeyOf(Node.class).getNodeId();
 
-        PhysicalSwitchAugmentation psAug1 = node1.getAugmentation(PhysicalSwitchAugmentation.class);
-        PhysicalSwitchAugmentation psAug2 = node2.getAugmentation(PhysicalSwitchAugmentation.class);
+        PhysicalSwitchAugmentation psAug1 = node1.augmentation(PhysicalSwitchAugmentation.class);
+        PhysicalSwitchAugmentation psAug2 = node2.augmentation(PhysicalSwitchAugmentation.class);
 
-        HwvtepGlobalAugmentation aug1 = node1.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation aug2 = node2.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation aug1 = node1.augmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation aug2 = node2.augmentation(HwvtepGlobalAugmentation.class);
 
         boolean globalNodes = psAug1 == null && psAug2 == null ? true : false;
         MergeCommand[] commands = globalNodes ? globalCommands : physicalSwitchCommands;
@@ -469,7 +469,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
         RemoteMcastMacs remoteMcastMac = new RemoteMcastMacsBuilder()
                 .setMacEntryKey(new MacAddress(ElanConstants.UNKNOWN_DMAC)).setLogicalSwitchRef(lsRef).build();
         InstanceIdentifier<RemoteMcastMacs> mcastMacIid = HwvtepSouthboundUtils
-                .createRemoteMcastMacsInstanceIdentifier(new NodeId(new Uri(nodeId)), remoteMcastMac.getKey());
+                .createRemoteMcastMacsInstanceIdentifier(new NodeId(new Uri(nodeId)), remoteMcastMac.key());
 
 
         if (!isPresent(configNodesData, nodeIid, mcastMacIid)) {
@@ -530,7 +530,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
                 expectedVlans.add(HwvtepSouthboundUtils.createVlanBinding(nodeId, defaultVlanId, logicalSwitchName));
             }
 
-            HwvtepPhysicalPortAugmentation portAugmentation = configTerminationPoint.getAugmentation(
+            HwvtepPhysicalPortAugmentation portAugmentation = configTerminationPoint.augmentation(
                     HwvtepPhysicalPortAugmentation.class);
             if (portAugmentation == null || HwvtepHAUtil.isEmptyList(portAugmentation.getVlanBindings())) {
                 pw.println("Failed to find the config vlan bindings for port " + deviceInterface.getInterfaceName()
@@ -539,7 +539,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
                 valid = false;
                 continue;
             }
-            portAugmentation = operationalTerminationPoint.getAugmentation(HwvtepPhysicalPortAugmentation.class);
+            portAugmentation = operationalTerminationPoint.augmentation(HwvtepPhysicalPortAugmentation.class);
             if (portAugmentation == null || HwvtepHAUtil.isEmptyList(portAugmentation.getVlanBindings())) {
                 pw.println("Failed to find the operational vlan bindings for port " + deviceInterface.getInterfaceName()
                         + " for node " + hwVtepDevice.getDeviceName() +  " for logical switch " + logicalSwitchName
@@ -549,7 +549,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             }
             VlanBindings expectedBindings = !expectedVlans.isEmpty() ? expectedVlans.get(0) : null;
             boolean foundBindings = false;
-            List<VlanBindings> vlanBindingses = configTerminationPoint.getAugmentation(
+            List<VlanBindings> vlanBindingses = configTerminationPoint.augmentation(
                     HwvtepPhysicalPortAugmentation.class).getVlanBindings();
             for (VlanBindings actual : vlanBindingses) {
                 if (actual.equals(expectedBindings)) {

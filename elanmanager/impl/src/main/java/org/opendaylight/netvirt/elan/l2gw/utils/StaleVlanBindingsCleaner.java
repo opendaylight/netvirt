@@ -62,8 +62,8 @@ public class StaleVlanBindingsCleaner {
         (validNetworks, logicalSwitch) -> !validNetworks.contains(logicalSwitch);
 
     private static Predicate<TerminationPoint> CONTAINS_VLANBINDINGS = (port) ->
-            port.getAugmentation(HwvtepPhysicalPortAugmentation.class) != null
-                    && port.getAugmentation(HwvtepPhysicalPortAugmentation.class).getVlanBindings() != null;
+            port.augmentation(HwvtepPhysicalPortAugmentation.class) != null
+                    && port.augmentation(HwvtepPhysicalPortAugmentation.class).getVlanBindings() != null;
 
 
     private final DataBroker broker;
@@ -157,7 +157,7 @@ public class StaleVlanBindingsCleaner {
         Map<String, List<InstanceIdentifier<VlanBindings>>> vlans = new HashMap<>();
         ports.stream()
                 .filter(CONTAINS_VLANBINDINGS)
-                .forEach((port) -> port.getAugmentation(HwvtepPhysicalPortAugmentation.class)
+                .forEach((port) -> port.augmentation(HwvtepPhysicalPortAugmentation.class)
                         .getVlanBindings()
                         .forEach((binding) -> putVlanBindingVsLogicalSwitch(configPsNode, vlans, port, binding)));
         return vlans;
@@ -176,9 +176,9 @@ public class StaleVlanBindingsCleaner {
                                                            final TerminationPoint tp,
                                                            final VlanBindings vlanBinding) {
         return HwvtepSouthboundUtils.createInstanceIdentifier(nodeId)
-                .child(TerminationPoint.class, tp.getKey())
+                .child(TerminationPoint.class, tp.key())
                 .augmentation(HwvtepPhysicalPortAugmentation.class)
-                .child(VlanBindings.class, vlanBinding.getKey());
+                .child(VlanBindings.class, vlanBinding.key());
     }
 
     private void cleanupStaleBindings(final String globalNodeId,
@@ -198,7 +198,7 @@ public class StaleVlanBindingsCleaner {
     }
 
     private List<String> getLogicalSwitchesOnDevice(final Node globalConfigNode) {
-        HwvtepGlobalAugmentation augmentation = globalConfigNode.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation augmentation = globalConfigNode.augmentation(HwvtepGlobalAugmentation.class);
         if (augmentation == null || augmentation.getLogicalSwitches() == null) {
             return Collections.emptyList();
         }
