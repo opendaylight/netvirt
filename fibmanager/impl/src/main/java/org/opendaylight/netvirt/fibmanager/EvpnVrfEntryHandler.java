@@ -76,7 +76,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
         Preconditions.checkNotNull(vpnId, "Vpn Instance with rd " + vpnInstance.getVrfId()
                 + " has null vpnId!");
         if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.CONNECTED) {
-            SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
+            SubnetRoute subnetRoute = vrfEntry.augmentation(SubnetRoute.class);
             final List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
             final long elanTag = subnetRoute.getElantag();
             LOG.trace("SubnetRoute augmented vrfentry found for rd {} prefix {} with elantag {}",

@@ -69,7 +69,7 @@ public class ElanInterfaceConfigListener
         // Sometimes elan service is not unbound on the interface when the user does nova delete followed
         // by neutron port delete since interface config is deleted a bit later. so adding logic to
         // unbind service for interface config removal.
-        if (intrf == null || intrf.getAugmentation(IfL2vlan.class) == null) {
+        if (intrf == null || intrf.augmentation(IfL2vlan.class) == null) {
             LOG.debug("The interface {} is not a L2 interface. Ignoring it", intrf);
             return;
         }

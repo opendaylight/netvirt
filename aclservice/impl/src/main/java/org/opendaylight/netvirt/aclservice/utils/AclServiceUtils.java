@@ -310,7 +310,7 @@ public final class AclServiceUtils {
             LOG.error("Port is Null");
             return null;
         }
-        InterfaceAcl aclInPort = port.getAugmentation(InterfaceAcl.class);
+        InterfaceAcl aclInPort = port.augmentation(InterfaceAcl.class);
         if (aclInPort == null) {
             LOG.error("getSecurityGroupInPortList: no security group associated with port {}",
                 port.getName());
@@ -329,7 +329,7 @@ public final class AclServiceUtils {
             LOG.error("Ace is Null");
             return null;
         }
-        SecurityRuleAttr aceAttributes = ace.getAugmentation(SecurityRuleAttr.class);
+        SecurityRuleAttr aceAttributes = ace.augmentation(SecurityRuleAttr.class);
         if (aceAttributes == null) {
             LOG.error("Ace is null");
             return null;
@@ -441,7 +441,7 @@ public final class AclServiceUtils {
             BigInteger cookie, List<Instruction> instructions) {
         StypeOpenflowBuilder augBuilder = new StypeOpenflowBuilder().setFlowCookie(cookie).setFlowPriority(flowPriority)
                 .setInstruction(instructions);
-        return new BoundServicesBuilder().setKey(new BoundServicesKey(servicePriority)).setServiceName(serviceName)
+        return new BoundServicesBuilder().withKey(new BoundServicesKey(servicePriority)).setServiceName(serviceName)
                 .setServicePriority(servicePriority).setServiceType(ServiceTypeFlowBased.class)
                 .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
@@ -480,7 +480,7 @@ public final class AclServiceUtils {
         for (Iterator<AllowedAddressPairs> iterator = newAllowedAddressPairs.iterator(); iterator.hasNext();) {
             AllowedAddressPairs updatedAllowedAddressPair = iterator.next();
             for (AllowedAddressPairs currentAllowedAddressPair : origAllowedAddressPairs) {
-                if (updatedAllowedAddressPair.getKey().equals(currentAllowedAddressPair.getKey())) {
+                if (updatedAllowedAddressPair.key().equals(currentAllowedAddressPair.key())) {
                     iterator.remove();
                     break;
                 }
@@ -494,7 +494,7 @@ public final class AclServiceUtils {
             LOG.error("Port is Null");
             return null;
         }
-        InterfaceAcl aclInPort = port.getAugmentation(InterfaceAcl.class);
+        InterfaceAcl aclInPort = port.augmentation(InterfaceAcl.class);
         if (aclInPort == null) {
             LOG.error("getSecurityGroupInPortList: no security group associated to Interface port: {}", port.getName());
             return null;
@@ -1118,7 +1118,7 @@ public final class AclServiceUtils {
         if (acl.getAccessListEntries() != null) {
             List<Ace> aceList = acl.getAccessListEntries().getAce();
             if (aceList != null && !aceList.isEmpty()) {
-                return aceList.get(0).getAugmentation(SecurityRuleAttr.class) != null;
+                return aceList.get(0).augmentation(SecurityRuleAttr.class) != null;
             }
         }
         return false;
@@ -1314,7 +1314,7 @@ public final class AclServiceUtils {
                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                     for (AllowedAddressPairs aap : allowedAddresses) {
                         PortIds portIdObj =
-                                new PortIdsBuilder().setKey(new PortIdsKey(portId)).setPortId(portId).build();
+                                new PortIdsBuilder().withKey(new PortIdsKey(portId)).setPortId(portId).build();
                         InstanceIdentifier<PortIds> path =
                                 AclServiceUtils.getPortIdsPathInAclPortsLookup(aclName, aap.getIpAddress(), portId);
                         tx.put(LogicalDatastoreType.OPERATIONAL, path, portIdObj,

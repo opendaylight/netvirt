@@ -419,7 +419,7 @@ public class NeutronvpnUtils {
             // router interface, dhcp port and floating ip.
             return false;
         }
-        PortSecurityExtension portSecurity = port.getAugmentation(PortSecurityExtension.class);
+        PortSecurityExtension portSecurity = port.augmentation(PortSecurityExtension.class);
         if (portSecurity != null) {
             return portSecurity.isPortSecurityEnabled();
         }
@@ -520,7 +520,7 @@ public class NeutronvpnUtils {
                 .AllowedAddressPairs allowedAddressPair1 = iterator.next();
             for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes
                      .AllowedAddressPairs allowedAddressPair2 : list2) {
-                if (allowedAddressPair1.getKey().equals(allowedAddressPair2.getKey())) {
+                if (allowedAddressPair1.key().equals(allowedAddressPair2.key())) {
                     iterator.remove();
                     break;
                 }
@@ -708,7 +708,7 @@ public class NeutronvpnUtils {
             String portId = port.getUuid().getValue();
             InstanceIdentifier<PortSubnet> portSubnetIdentifier = buildPortSubnetIdentifier(portId);
 
-            PortSubnetBuilder portSubnetBuilder = new PortSubnetBuilder().setKey(new PortSubnetKey(portId))
+            PortSubnetBuilder portSubnetBuilder = new PortSubnetBuilder().withKey(new PortSubnetKey(portId))
                     .setPortId(portId).setSubnetInfo(portSubnetInfo);
             try {
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
@@ -735,7 +735,7 @@ public class NeutronvpnUtils {
                         NeutronSecurityRuleConstants.IP_VERSION_MAP.get(subnet.getIpVersion());
                 Class<? extends Dhcpv6Base> raMode = subnet.getIpv6RaMode() == null ? null
                         : NeutronSecurityRuleConstants.RA_MODE_MAP.get(subnet.getIpv6RaMode());
-                SubnetInfo subnetInfo = new SubnetInfoBuilder().setKey(new SubnetInfoKey(subnetId))
+                SubnetInfo subnetInfo = new SubnetInfoBuilder().withKey(new SubnetInfoKey(subnetId))
                         .setIpVersion(ipVersion).setIpPrefix(new IpPrefixOrAddress(subnet.getCidr()))
                         .setIpv6RaMode(raMode).setGatewayIp(subnet.getGatewayIp()).build();
                 subnetInfoList.add(subnetInfo);
@@ -810,7 +810,7 @@ public class NeutronvpnUtils {
             boolean isSubnetIp, WriteTransaction writeConfigTxn) {
         InstanceIdentifier<VpnPortipToPort> id = NeutronvpnUtils.buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         VpnPortipToPortBuilder builder = new VpnPortipToPortBuilder()
-            .setKey(new VpnPortipToPortKey(fixedIp, vpnName))
+            .withKey(new VpnPortipToPortKey(fixedIp, vpnName))
             .setVpnName(vpnName).setPortFixedip(fixedIp)
             .setPortName(portName).setMacAddress(macAddress).setSubnetIp(isSubnetIp);
         try {
@@ -910,7 +910,7 @@ public class NeutronvpnUtils {
 
     public static String getSegmentationIdFromNeutronNetwork(Network network) {
         String segmentationId = null;
-        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        NetworkProviderExtension providerExtension = network.augmentation(NetworkProviderExtension.class);
         if (providerExtension != null) {
             Class<? extends NetworkTypeBase> networkType = providerExtension.getNetworkType();
             segmentationId = NeutronUtils.getSegmentationIdFromNeutronNetwork(network, networkType);
@@ -920,12 +920,12 @@ public class NeutronvpnUtils {
     }
 
     public static Class<? extends SegmentTypeBase> getSegmentTypeFromNeutronNetwork(Network network) {
-        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        NetworkProviderExtension providerExtension = network.augmentation(NetworkProviderExtension.class);
         return providerExtension != null ? NETWORK_MAP.get(providerExtension.getNetworkType()) : null;
     }
 
     public static String getPhysicalNetworkName(Network network) {
-        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        NetworkProviderExtension providerExtension = network.augmentation(NetworkProviderExtension.class);
         return providerExtension != null ? providerExtension.getPhysicalNetwork() : null;
     }
 
@@ -948,8 +948,8 @@ public class NeutronvpnUtils {
     }
 
     static Boolean getIsExternal(Network network) {
-        return network.getAugmentation(NetworkL3Extension.class) != null
-                && network.getAugmentation(NetworkL3Extension.class).isExternal();
+        return network.augmentation(NetworkL3Extension.class) != null
+                && network.augmentation(NetworkL3Extension.class).isExternal();
     }
 
     public void addToQosPolicyCache(QosPolicy qosPolicy) {
@@ -1051,7 +1051,7 @@ public class NeutronvpnUtils {
     }
 
     public static Class<? extends NetworkTypeBase> getNetworkType(Network network) {
-        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        NetworkProviderExtension providerExtension = network.augmentation(NetworkProviderExtension.class);
         return providerExtension != null ? providerExtension.getNetworkType() : null;
     }
 
@@ -1060,7 +1060,7 @@ public class NeutronvpnUtils {
             LOG.error("Error in getting provider network type since network is null");
             return null;
         }
-        NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
+        NetworkProviderExtension npe = network.augmentation(NetworkProviderExtension.class);
         if (npe != null) {
             Class<? extends NetworkTypeBase> networkTypeBase = npe.getNetworkType();
             if (networkTypeBase != null) {
@@ -1081,12 +1081,12 @@ public class NeutronvpnUtils {
     }
 
     static boolean isNetworkTypeSupported(Network network) {
-        NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
+        NetworkProviderExtension npe = network.augmentation(NetworkProviderExtension.class);
         return npe != null && npe.getNetworkType() != null && SUPPORTED_NETWORK_TYPES.contains(npe.getNetworkType());
     }
 
     static boolean isNetworkOfType(Network network, Class<? extends NetworkTypeBase> type) {
-        NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
+        NetworkProviderExtension npe = network.augmentation(NetworkProviderExtension.class);
         if (npe != null && npe.getNetworkType() != null) {
             return type.isAssignableFrom(npe.getNetworkType());
         }

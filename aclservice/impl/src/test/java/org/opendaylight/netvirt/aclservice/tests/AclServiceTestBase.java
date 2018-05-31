@@ -626,7 +626,7 @@ public abstract class AclServiceTestBase {
 
     protected static SubnetInfo buildSubnetInfo(Uuid subnetId, String ipPrefix,
             Class<? extends IpVersionBase> ipVersion, String gwIp) {
-        return new SubnetInfoBuilder().setKey(new SubnetInfoKey(subnetId)).setIpVersion(ipVersion)
+        return new SubnetInfoBuilder().withKey(new SubnetInfoKey(subnetId)).setIpVersion(ipVersion)
                 .setIpPrefix(new IpPrefixOrAddress(ipPrefix.toCharArray()))
                 .setGatewayIp(new IpAddress(gwIp.toCharArray())).build();
     }

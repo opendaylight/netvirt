@@ -53,7 +53,7 @@ public class DhcpInterfaceUpdateJob implements Callable<List<ListenableFuture<Vo
             return Collections.emptyList();
         }
         if (Tunnel.class.equals(iface.getType())) {
-            IfTunnel tunnelInterface = iface.getAugmentation(IfTunnel.class);
+            IfTunnel tunnelInterface = iface.augmentation(IfTunnel.class);
             if (tunnelInterface != null && !tunnelInterface.isInternal()) {
                 IpAddress tunnelIp = tunnelInterface.getTunnelDestination();
                 List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(dataBroker);

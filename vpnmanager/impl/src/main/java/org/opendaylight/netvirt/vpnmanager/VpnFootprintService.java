@@ -197,7 +197,7 @@ public class VpnFootprintService implements IVpnFootprintService {
             Optional<VpnToDpnList> dpnInVpn = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
             IpAddressesBuilder ipAddressesBldr = new IpAddressesBuilder()
                     .setIpAddressSource(ipAddressSourceValuePair.getKey());
-            ipAddressesBldr.setKey(new IpAddressesKey(ipAddressSourceValuePair.getValue()));
+            ipAddressesBldr.withKey(new IpAddressesKey(ipAddressSourceValuePair.getValue()));
             ipAddressesBldr.setIpAddress(ipAddressSourceValuePair.getValue());
 
             ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
@@ -329,7 +329,7 @@ public class VpnFootprintService implements IVpnFootprintService {
             }
 
             IpAddresses currIpAddress = new IpAddressesBuilder()
-                    .setKey(new IpAddressesKey(ipAddressSourceValuePair.getValue()))
+                    .withKey(new IpAddressesKey(ipAddressSourceValuePair.getValue()))
                     .setIpAddressSource(ipAddressSourceValuePair.getKey()).build();
             if (ipAddresses.remove(currIpAddress)) {
                 try {

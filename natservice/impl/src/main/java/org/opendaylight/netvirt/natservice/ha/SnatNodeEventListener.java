@@ -47,7 +47,7 @@ public class SnatNodeEventListener  extends AbstractClusteredAsyncDataTreeChange
 
     @Override
     public void remove(Node dataObjectModification) {
-        NodeKey nodeKey = dataObjectModification.getKey();
+        NodeKey nodeKey = dataObjectModification.key();
         BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         LOG.info("Dpn removed {}", dpnId);
         centralizedSwitchScheduler.removeSwitch(dpnId);
@@ -61,7 +61,7 @@ public class SnatNodeEventListener  extends AbstractClusteredAsyncDataTreeChange
 
     @Override
     public void add(Node dataObjectModification) {
-        NodeKey nodeKey = dataObjectModification.getKey();
+        NodeKey nodeKey = dataObjectModification.key();
         BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         LOG.info("Dpn added {}", dpnId);
         centralizedSwitchScheduler.addSwitch(dpnId);

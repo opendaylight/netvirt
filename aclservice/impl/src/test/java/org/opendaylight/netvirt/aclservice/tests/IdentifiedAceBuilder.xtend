@@ -56,7 +56,7 @@ class IdentifiedAceBuilder implements DataTreeIdentifierDataObjectPairBuilder<Ac
 
     override dataObject() {
         new AceBuilder >> [
-            key = new AceKey(newRuleName)
+            withKey(new AceKey(newRuleName))
             ruleName = newRuleName
             matches = newMatches
             actions = new ActionsBuilder >> [

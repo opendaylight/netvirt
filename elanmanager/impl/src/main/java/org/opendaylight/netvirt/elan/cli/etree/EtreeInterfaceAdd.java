@@ -59,7 +59,7 @@ public class EtreeInterfaceAdd extends OsgiCommandSupport {
             session.getConsole().println("Etree instance " + elanName + " does not exist.");
             return null;
         } else {
-            if (elanInstance.getAugmentation(EtreeInstance.class) == null) {
+            if (elanInstance.augmentation(EtreeInstance.class) == null) {
                 session.getConsole().println("Etree instance " + elanName + " exists but isn't configured as Etree.");
                 return null;
             }

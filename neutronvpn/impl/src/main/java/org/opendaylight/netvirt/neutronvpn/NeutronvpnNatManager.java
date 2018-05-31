@@ -243,7 +243,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 return;
             }
             NetworksBuilder builder = null;
-            builder = new NetworksBuilder().setKey(new NetworksKey(extNetId)).setId(extNetId);
+            builder = new NetworksBuilder().withKey(new NetworksKey(extNetId)).setId(extNetId);
             builder.setVpnid(neutronvpnUtils.getVpnForNetwork(extNetId));
             builder.setRouterIds(new ArrayList<>());
             builder.setProviderNetworkType(provType);
@@ -451,7 +451,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             if (optionalRouters.isPresent()) {
                 builder = new RoutersBuilder(optionalRouters.get());
             } else {
-                builder = new RoutersBuilder().setKey(new RoutersKey(routerId.getValue()));
+                builder = new RoutersBuilder().withKey(new RoutersKey(routerId.getValue()));
             }
             builder.setRouterName(routerId.getValue());
             builder.setNetworkId(extNetId);
@@ -690,7 +690,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
 
     private Subnets createSubnets(Uuid subnetId, Uuid networkId, List<Uuid> routerIds) {
         SubnetsBuilder subnetsBuilder = new SubnetsBuilder();
-        subnetsBuilder.setKey(new SubnetsKey(subnetId));
+        subnetsBuilder.withKey(new SubnetsKey(subnetId));
         subnetsBuilder.setId(subnetId);
         subnetsBuilder.setVpnId(subnetId);
         subnetsBuilder.setExternalNetworkId(networkId);
@@ -758,7 +758,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
         Uuid subnetId = fixedIps.getSubnetId();
         String ip = fixedIps.getIpAddress().getIpv4Address().getValue();
         ExternalIpsBuilder externalIpsBuilder = new ExternalIpsBuilder();
-        externalIpsBuilder.setKey(new ExternalIpsKey(ip, subnetId));
+        externalIpsBuilder.withKey(new ExternalIpsKey(ip, subnetId));
         externalIpsBuilder.setIpAddress(ip);
         externalIpsBuilder.setSubnetId(subnetId);
         externalIps.add(externalIpsBuilder.build());

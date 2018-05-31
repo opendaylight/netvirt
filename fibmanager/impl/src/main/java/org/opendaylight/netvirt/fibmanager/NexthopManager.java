@@ -278,7 +278,7 @@ public class NexthopManager implements AutoCloseable {
             }
             List<ActionInfo> listActionInfo = new ArrayList<>();
             for (Action action : actions) {
-                actionKey = action.getKey().getOrder() + actionKey;
+                actionKey = action.key().getOrder() + actionKey;
                 org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action
                     actionClass = action.getAction();
                 if (actionClass instanceof OutputActionCase) {
@@ -432,7 +432,7 @@ public class NexthopManager implements AutoCloseable {
                             LOG.trace("Prefix {} is already present in l3nextHop {} ", currDestIpPrefix, nexthop);
                         } else {
                             IpAdjacenciesBuilder ipPrefixesBuilder =
-                                    new IpAdjacenciesBuilder().setKey(new IpAdjacenciesKey(currDestIpPrefix));
+                                    new IpAdjacenciesBuilder().withKey(new IpAdjacenciesKey(currDestIpPrefix));
                             LOG.trace("Updating prefix {} to vpnNextHop {} Operational DS", currDestIpPrefix, nexthop);
                             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
                                     getVpnNextHopIpPrefixIdentifier(vpnId, primaryIpAddress, currDestIpPrefix),
@@ -482,7 +482,7 @@ public class NexthopManager implements AutoCloseable {
         ipPrefixesList.add(prefix);
         // Add nexthop to vpn node
         VpnNexthop nh = new VpnNexthopBuilder()
-            .setKey(new VpnNexthopKey(primaryIpAddr))
+            .withKey(new VpnNexthopKey(primaryIpAddr))
             .setDpnId(dpnId)
             .setIpAdjacencies(ipPrefixesList)
             .setEgressPointer(egressPointer).build();

@@ -62,10 +62,10 @@ public final class ManagerListener extends AsyncClusteredDataTreeChangeListenerB
     @Override
     protected void add(InstanceIdentifier<Managers> key, Managers managers) {
         InstanceIdentifier<Node> parent = key.firstIdentifierOf(Node.class);
-        if (managers.getKey().getTarget().getValue().contains(HwvtepHAUtil.MANAGER_KEY)
+        if (managers.key().getTarget().getValue().contains(HwvtepHAUtil.MANAGER_KEY)
                 && managers.getManagerOtherConfigs() != null) {
             managers.getManagerOtherConfigs().stream()
-                .filter(otherConfig -> otherConfig.getKey().getOtherConfigKey().contains(HwvtepHAUtil.HA_CHILDREN))
+                .filter(otherConfig -> otherConfig.key().getOtherConfigKey().contains(HwvtepHAUtil.HA_CHILDREN))
                 .flatMap(otherConfig -> Arrays.stream(otherConfig.getOtherConfigValue().split(",")))
                 .map(HwvtepHAUtil::convertToInstanceIdentifier)
                 .forEach(childIid -> hwvtepNodeHACache.addChild(parent, childIid));

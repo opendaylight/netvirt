@@ -63,7 +63,7 @@ public class EvpnTestHelper  {
     }
 
     public void updateRdtoNetworks(ElanInstance actualElanInstances) throws TransactionCommitFailedException {
-        EvpnRdToNetworkBuilder evpnRdToNetworkBuilder = new EvpnRdToNetworkBuilder().setKey(new EvpnRdToNetworkKey(RD));
+        EvpnRdToNetworkBuilder evpnRdToNetworkBuilder = new EvpnRdToNetworkBuilder().withKey(new EvpnRdToNetworkKey(RD));
         evpnRdToNetworkBuilder.setRd(RD);
         evpnRdToNetworkBuilder.setNetworkId(ELAN1);
         LOG.info("updating Evpn {} with elaninstance {} and rd {}", "evpn1", actualElanInstances, RD);

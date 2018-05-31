@@ -151,7 +151,7 @@ public class PolicyAceFlowProgrammer {
     }
 
     private Optional<PolicyAceFlowWrapper> getPolicyAceFlowWrapper(Matches matches) {
-        IngressInterface ingressInterface = matches.getAugmentation(IngressInterface.class);
+        IngressInterface ingressInterface = matches.augmentation(IngressInterface.class);
         if (ingressInterface != null) {
             Optional<PolicyAceFlowWrapper> interfaceFlowOpt = getIngressInterfaceFlow(ingressInterface);
             if (interfaceFlowOpt.isPresent()) {
@@ -159,7 +159,7 @@ public class PolicyAceFlowProgrammer {
             }
         }
 
-        Service service = matches.getAugmentation(Service.class);
+        Service service = matches.augmentation(Service.class);
         if (service != null) {
             Optional<PolicyAceFlowWrapper> serviceFlowOpt = getPolicyServiceFlow(service);
             if (serviceFlowOpt.isPresent()) {

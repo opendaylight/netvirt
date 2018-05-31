@@ -121,7 +121,7 @@ public class ElanDpnInterfaceClusteredListener
         LOG.debug("dpninterfaces update fired new size {}", dpnInterfaces.getInterfaces().size());
         if (dpnInterfaces.getInterfaces().isEmpty()) {
             elanInstanceDpnsCache.remove(getElanName(identifier), dpnInterfaces);
-            LOG.debug("dpninterfaces last dpn interface on this elan {} ", dpnInterfaces.getKey());
+            LOG.debug("dpninterfaces last dpn interface on this elan {} ", dpnInterfaces.key());
             // this is the last dpn interface on this elan
             handleUpdate(identifier, dpnInterfaces);
         }

@@ -489,7 +489,7 @@ public class FibUtil {
         InstanceIdentifier.InstanceIdentifierBuilder<VrfTables> idBuilder =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
         InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
-        VrfTablesBuilder vrfTablesBuilder = new VrfTablesBuilder().setKey(new VrfTablesKey(rd))
+        VrfTablesBuilder vrfTablesBuilder = new VrfTablesBuilder().withKey(new VrfTablesKey(rd))
             .setRouteDistinguisher(rd).setVrfEntry(new ArrayList<VrfEntry>());
         if (writeConfigTxn != null) {
             writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTablesBuilder.build());
@@ -696,7 +696,7 @@ public class FibUtil {
         if (targetDeviceIds.isEmpty()) {
             tx.delete(LogicalDatastoreType.OPERATIONAL, nextHopsId);
         } else {
-            Nexthops nextHopsToGroupId = new NexthopsBuilder().setKey(new NexthopsKey(nextHopKey))
+            Nexthops nextHopsToGroupId = new NexthopsBuilder().withKey(new NexthopsKey(nextHopKey))
                 .setNexthopKey(nextHopKey)
                 .setGroupId(groupId)
                 .setTargetDeviceId(targetDeviceIds).build();
@@ -717,7 +717,7 @@ public class FibUtil {
     }
 
     private static Nexthops buildNextHops(BigInteger dpnId, String groupIdKey, String groupId) {
-        return new NexthopsBuilder().setKey(new NexthopsKey(groupIdKey))
+        return new NexthopsBuilder().withKey(new NexthopsKey(groupIdKey))
                 .setNexthopKey(groupIdKey)
                 .setGroupId(groupId)
                 .setTargetDeviceId(Collections.singletonList(dpnId.toString())).build();
@@ -725,7 +725,7 @@ public class FibUtil {
 
     private static DpnLbNexthops buildDpnLbNextHops(BigInteger dpnId, String destinationIp,
             String groupIdKey) {
-        return new DpnLbNexthopsBuilder().setKey(new DpnLbNexthopsKey(destinationIp, dpnId))
+        return new DpnLbNexthopsBuilder().withKey(new DpnLbNexthopsKey(destinationIp, dpnId))
                 .setDstDeviceId(destinationIp).setSrcDpId(dpnId)
                 .setNexthopKey(Collections.singletonList(groupIdKey)).build();
     }
@@ -820,7 +820,7 @@ public class FibUtil {
 
     static Node buildDpnNode(BigInteger dpnId) {
         return new NodeBuilder().setId(new NodeId("openflow:" + dpnId))
-                .setKey(new NodeKey(new NodeId("openflow:" + dpnId))).build();
+                .withKey(new NodeKey(new NodeId("openflow:" + dpnId))).build();
     }
 
     public static String getBroadcastAddressFromCidr(String cidr) {

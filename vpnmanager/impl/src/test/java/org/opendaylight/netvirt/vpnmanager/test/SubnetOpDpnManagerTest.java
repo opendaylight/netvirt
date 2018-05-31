@@ -92,9 +92,9 @@ public class SubnetOpDpnManagerTest {
         List<VpnInterfaces> vpnInterfaces = new ArrayList<>();
         List<Uuid> subnetIdList = new ArrayList<>();
         subnetIdList.add(subnetId);
-        subnetToDpn = new SubnetToDpnBuilder().setDpnId(dpId).setKey(new SubnetToDpnKey(dpId)).setVpnInterfaces(
+        subnetToDpn = new SubnetToDpnBuilder().setDpnId(dpId).withKey(new SubnetToDpnKey(dpId)).setVpnInterfaces(
             vpnInterfaces).build();
-        portOp = new PortOpDataEntryBuilder().setDpnId(dpId).setKey(new PortOpDataEntryKey(infName)).setSubnetIds(
+        portOp = new PortOpDataEntryBuilder().setDpnId(dpId).withKey(new PortOpDataEntryKey(infName)).setSubnetIds(
             subnetIdList).setPortId(portId).build();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();

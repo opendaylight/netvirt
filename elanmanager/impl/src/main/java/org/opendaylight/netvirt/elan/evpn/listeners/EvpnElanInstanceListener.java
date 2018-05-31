@@ -69,13 +69,13 @@ public class EvpnElanInstanceListener extends AsyncDataTreeChangeListenerBase<El
                           ElanInstance update) {
         String elanName = update.getElanInstanceName();
         if (evpnUtils.isWithdrawEvpnRT2Routes(original, update)) {
-            evpnUtils.withdrawEvpnRT2Routes(original.getAugmentation(EvpnAugmentation.class), elanName);
+            evpnUtils.withdrawEvpnRT2Routes(original.augmentation(EvpnAugmentation.class), elanName);
             evpnMacVrfUtils.updateEvpnDmacFlows(original, false);
             evpnUtils.programEvpnL2vniDemuxTable(elanName,
                 (elan, interfaceName) -> evpnUtils.bindElanServiceToExternalTunnel(elanName, interfaceName),
                     mdsalManager::installFlow);
         } else if (evpnUtils.isAdvertiseEvpnRT2Routes(original, update)) {
-            evpnUtils.advertiseEvpnRT2Routes(update.getAugmentation(EvpnAugmentation.class), elanName);
+            evpnUtils.advertiseEvpnRT2Routes(update.augmentation(EvpnAugmentation.class), elanName);
             evpnMacVrfUtils.updateEvpnDmacFlows(update, true);
             evpnUtils.programEvpnL2vniDemuxTable(elanName,
                 (elan, interfaceName) -> evpnUtils.unbindElanServiceFromExternalTunnel(elanName, interfaceName),

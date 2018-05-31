@@ -82,7 +82,7 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
                 : nextHopIp == null ? Collections.emptyList() : Collections.singletonList(nextHopIp);
 
         return new AdjacencyBuilder(nextHop).setNextHopIpList(nextHopList).setIpAddress(prefix).setVrfId(rd)
-                .setKey(new AdjacencyKey(prefix)).setAdjacencyType(nextHop.getAdjacencyType())
+                .withKey(new AdjacencyKey(prefix)).setAdjacencyType(nextHop.getAdjacencyType())
                 .setSubnetGatewayMacAddress(nextHop.getSubnetGatewayMacAddress()).build();
     }
 }

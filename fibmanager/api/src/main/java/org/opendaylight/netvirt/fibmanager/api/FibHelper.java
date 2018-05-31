@@ -41,7 +41,7 @@ public final class FibHelper {
 
     public static RoutePaths buildRoutePath(String nextHop, Long label) {
         RoutePathsBuilder builder = new RoutePathsBuilder()
-                .setKey(new RoutePathsKey(nextHop))
+                .withKey(new RoutePathsKey(nextHop))
                 .setNexthopAddress(nextHop);
         if (label != null) {
             builder.setLabel(label);
@@ -50,13 +50,13 @@ public final class FibHelper {
     }
 
     public static VrfEntryBuilder getVrfEntryBuilder(String prefix, RouteOrigin origin, String parentVpnRd) {
-        return new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
+        return new VrfEntryBuilder().withKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
                 .setOrigin(origin.getValue()).setParentVpnRd(parentVpnRd);
     }
 
     public static VrfEntryBuilder getVrfEntryBuilder(String prefix, List<RoutePaths> routePaths,
             RouteOrigin origin, String parentVpnRd) {
-        return new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
+        return new VrfEntryBuilder().withKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
                 .setRoutePaths(routePaths).setOrigin(origin.getValue()).setParentVpnRd(parentVpnRd);
     }
 

@@ -51,7 +51,7 @@ public final class TestComparators {
     private TestComparators() { }
 
     public static void verifySwitches(Node globalOpNode, Node psOpNode) {
-        for (Switches switches : globalOpNode.getAugmentation(HwvtepGlobalAugmentation.class).getSwitches()) {
+        for (Switches switches : globalOpNode.augmentation(HwvtepGlobalAugmentation.class).getSwitches()) {
             String switchValue = switches.getSwitchRef().getValue().firstKeyOf(Node.class).getNodeId().getValue();
             assertEquals("Switch Name should be equal", switchValue, psOpNode.getNodeId().getValue());
         }
@@ -59,8 +59,8 @@ public final class TestComparators {
 
     public static void compareLogicalSwitches(Node src, Node dst, InstanceIdentifier<Node> nodePath) {
         LogicalSwitchesCmd cmd = new LogicalSwitchesCmd();
-        HwvtepGlobalAugmentation d1Aug = src.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation haAug = dst.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation d1Aug = src.augmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation haAug = dst.augmentation(HwvtepGlobalAugmentation.class);
 
         List<LogicalSwitches> d1Values =
                 d1Aug.getLogicalSwitches() != null ? d1Aug.getLogicalSwitches() : new ArrayList<>();
@@ -75,9 +75,9 @@ public final class TestComparators {
 
     public static void compareLogicalSwitches(Node d1, Node d2, Node ha, InstanceIdentifier<Node> nodePath) {
         LogicalSwitchesCmd cmd = new LogicalSwitchesCmd();
-        HwvtepGlobalAugmentation d1Aug = d1.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation d2Aug = d2.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation haAug = ha.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation d1Aug = d1.augmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation d2Aug = d2.augmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation haAug = ha.augmentation(HwvtepGlobalAugmentation.class);
 
         List<LogicalSwitches> d1Values =
                 d1Aug.getLogicalSwitches() != null ? d1Aug.getLogicalSwitches() : new ArrayList<>();
@@ -97,8 +97,8 @@ public final class TestComparators {
 
     public static void compareRemoteUcastMacs(Node src, Node dst, InstanceIdentifier<Node> nodePath) {
         RemoteUcastCmd cmd = new RemoteUcastCmd();
-        HwvtepGlobalAugmentation d1Aug = src.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation haAug = dst.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation d1Aug = src.augmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation haAug = dst.augmentation(HwvtepGlobalAugmentation.class);
         List<RemoteUcastMacs> d1Values =
                 d1Aug.getRemoteUcastMacs() != null ? d1Aug.getRemoteUcastMacs() : new ArrayList<>();
         List<RemoteUcastMacs> result1 = cmd.transform(nodePath, d1Values);
@@ -115,9 +115,9 @@ public final class TestComparators {
 
     public static void compareRemoteUcastMacs(Node d1, Node d2, Node ha, InstanceIdentifier<Node> nodePath) {
         RemoteUcastCmd cmd = new RemoteUcastCmd();
-        HwvtepGlobalAugmentation d1Aug = d1.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation d2Aug = d2.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation haAug = ha.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation d1Aug = d1.augmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation d2Aug = d2.augmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation haAug = ha.augmentation(HwvtepGlobalAugmentation.class);
 
         List<RemoteUcastMacs> d1Values =
                 d1Aug.getRemoteUcastMacs() != null ? d1Aug.getRemoteUcastMacs() : new ArrayList<>();
@@ -139,8 +139,8 @@ public final class TestComparators {
 
     public static void compareRemoteMcastMacs(Node src, Node dst, InstanceIdentifier<Node> nodePath) {
         RemoteMcastCmd cmd = new RemoteMcastCmd();
-        HwvtepGlobalAugmentation d1Aug = src.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation haAug = dst.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation d1Aug = src.augmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation haAug = dst.augmentation(HwvtepGlobalAugmentation.class);
         List<RemoteMcastMacs> d1Values =
                 d1Aug.getRemoteMcastMacs() != null ? d1Aug.getRemoteMcastMacs() : new ArrayList<>();
         List<RemoteMcastMacs> result1 = cmd.transform(nodePath, d1Values);
@@ -154,9 +154,9 @@ public final class TestComparators {
 
     public static void compareRemoteMcastMacs(Node d1, Node d2, Node ha, InstanceIdentifier<Node> nodePath) {
         RemoteMcastCmd cmd = new RemoteMcastCmd();
-        HwvtepGlobalAugmentation d1Aug = d1.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation d2Aug = d2.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation haAug = ha.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation d1Aug = d1.augmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation d2Aug = d2.augmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation haAug = ha.augmentation(HwvtepGlobalAugmentation.class);
 
         List<RemoteMcastMacs> d1Values =
                 d1Aug.getRemoteMcastMacs() != null ? d1Aug.getRemoteMcastMacs() : new ArrayList<>();
@@ -179,8 +179,8 @@ public final class TestComparators {
 
     public static void compareLocalUcastMacs(Node src, Node dst, InstanceIdentifier<Node> nodePath) {
         LocalUcastCmd cmd = new LocalUcastCmd();
-        HwvtepGlobalAugmentation d1Aug = src.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation haAug = dst.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation d1Aug = src.augmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation haAug = dst.augmentation(HwvtepGlobalAugmentation.class);
         List<LocalUcastMacs> d1Values =
                 d1Aug.getLocalUcastMacs() != null ? d1Aug.getLocalUcastMacs() : new ArrayList<>();
         List<LocalUcastMacs> result1 = cmd.transform(nodePath, d1Values);
@@ -194,9 +194,9 @@ public final class TestComparators {
 
     public static void compareLocalUcastMacs(Node d1, Node d2, Node ha, InstanceIdentifier<Node> nodePath) {
         LocalUcastCmd cmd = new LocalUcastCmd();
-        HwvtepGlobalAugmentation d1Aug = d1.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation d2Aug = d2.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation haAug = ha.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation d1Aug = d1.augmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation d2Aug = d2.augmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation haAug = ha.augmentation(HwvtepGlobalAugmentation.class);
 
         List<LocalUcastMacs> d1Values =
                 d1Aug.getLocalUcastMacs() != null ? d1Aug.getLocalUcastMacs() : new ArrayList<>();
@@ -218,8 +218,8 @@ public final class TestComparators {
 
     public static void compareLocalMcastMacs(Node src, Node dst, InstanceIdentifier<Node> nodePath) {
         LocalMcastCmd cmd = new LocalMcastCmd();
-        HwvtepGlobalAugmentation d1Aug = src.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation haAug = dst.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation d1Aug = src.augmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation haAug = dst.augmentation(HwvtepGlobalAugmentation.class);
         List<LocalMcastMacs> d1Values =
                 d1Aug.getLocalUcastMacs() != null ? d1Aug.getLocalMcastMacs() : new ArrayList<>();
         List<LocalMcastMacs> result1 = cmd.transform(nodePath, d1Values);
@@ -233,9 +233,9 @@ public final class TestComparators {
 
     public static void compareLocalMcastMacs(Node d1, Node d2, Node ha, InstanceIdentifier<Node> nodePath) {
         LocalMcastCmd cmd = new LocalMcastCmd();
-        HwvtepGlobalAugmentation d1Aug = d1.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation d2Aug = d2.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation haAug = ha.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation d1Aug = d1.augmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation d2Aug = d2.augmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation haAug = ha.augmentation(HwvtepGlobalAugmentation.class);
         List<LocalMcastMacs> d1Values =
                 d1Aug.getLocalUcastMacs() != null ? d1Aug.getLocalMcastMacs() : new ArrayList<>();
         List<LocalMcastMacs> result1 = cmd.transform(nodePath, d1Values);
@@ -260,9 +260,9 @@ public final class TestComparators {
                                                InstanceIdentifier<Node> haPsnodePath,
                                                ReadWriteTransaction readWriteTransaction, String switchName,
                                                Node d1, Node d2, Node ha) throws ReadFailedException {
-        PhysicalSwitchAugmentation d1PsAug = d1ps.getAugmentation(PhysicalSwitchAugmentation.class);
-        PhysicalSwitchAugmentation d2PsAug = d2ps.getAugmentation(PhysicalSwitchAugmentation.class);
-        PhysicalSwitchAugmentation haPsAug = haps.getAugmentation(PhysicalSwitchAugmentation.class);
+        PhysicalSwitchAugmentation d1PsAug = d1ps.augmentation(PhysicalSwitchAugmentation.class);
+        PhysicalSwitchAugmentation d2PsAug = d2ps.augmentation(PhysicalSwitchAugmentation.class);
+        PhysicalSwitchAugmentation haPsAug = haps.augmentation(PhysicalSwitchAugmentation.class);
 
         HwvtepGlobalRef managerd1Ps = d1PsAug.getManagedBy();
         assertEquals("Hwvtep node name should be same", d1PsAug.getHwvtepNodeName().getValue(),
@@ -300,8 +300,8 @@ public final class TestComparators {
                                                ReadWriteTransaction readWriteTransaction,
                                                String switchName, Node d1, Node ha) throws ReadFailedException {
         //Compare Physical Augmentation data
-        PhysicalSwitchAugmentation d1PsAug = d1ps.getAugmentation(PhysicalSwitchAugmentation.class);
-        PhysicalSwitchAugmentation haPsAug = haps.getAugmentation(PhysicalSwitchAugmentation.class);
+        PhysicalSwitchAugmentation d1PsAug = d1ps.augmentation(PhysicalSwitchAugmentation.class);
+        PhysicalSwitchAugmentation haPsAug = haps.augmentation(PhysicalSwitchAugmentation.class);
 
         HwvtepGlobalRef managerd1Ps = d1PsAug.getManagedBy();
         assertEquals("Hwvtep node name should be same", d1PsAug.getHwvtepNodeName().getValue(),
@@ -332,14 +332,14 @@ public final class TestComparators {
             TerminationPoint tpNoded = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, tpPathd)
                     .checkedGet().get();
             HwvtepPhysicalPortAugmentation hwvtepPhysicalPortAugmentationD =
-                    tpNoded.getAugmentation(HwvtepPhysicalPortAugmentation.class);
+                    tpNoded.augmentation(HwvtepPhysicalPortAugmentation.class);
 
             InstanceIdentifier<TerminationPoint> tpPathha = haPsa.child(TerminationPoint.class,
                     new TerminationPointKey(new TpId(portName)));
             TerminationPoint tpNodeha = readWriteTransaction.read(LogicalDatastoreType.OPERATIONAL, tpPathha)
                     .checkedGet().get();
             HwvtepPhysicalPortAugmentation hwvtepPhysicalPortAugmentationHa =
-                    tpNodeha.getAugmentation(HwvtepPhysicalPortAugmentation.class);
+                    tpNodeha.augmentation(HwvtepPhysicalPortAugmentation.class);
             assertEquals("Termination point hwvtep-node-name should be same",
                     hwvtepPhysicalPortAugmentationD.getHwvtepNodeName(),
                     hwvtepPhysicalPortAugmentationHa.getHwvtepNodeName());

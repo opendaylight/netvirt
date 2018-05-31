@@ -103,7 +103,7 @@ public class PolicyServiceUtil {
 
     public Optional<String> getAcePolicyClassifier(Ace ace) {
         Actions actions = ace.getActions();
-        SetPolicyClassifier setPolicyClassifier = actions.getAugmentation(SetPolicyClassifier.class);
+        SetPolicyClassifier setPolicyClassifier = actions.augmentation(SetPolicyClassifier.class);
         if (setPolicyClassifier == null) {
             LOG.warn("No valid policy action found for ACE rule {}", ace.getRuleName());
             return Optional.absent();
@@ -501,7 +501,7 @@ public class PolicyServiceUtil {
     }
 
     private boolean isVlanMemberInterface(Interface iface, VlanId vlanId) {
-        IfL2vlan l2vlan = iface.getAugmentation(IfL2vlan.class);
+        IfL2vlan l2vlan = iface.augmentation(IfL2vlan.class);
         if (l2vlan == null || !L2vlanMode.TrunkMember.equals(l2vlan.getL2vlanMode())) {
             LOG.warn("Interface {} is not VLAN member", iface.getName());
             return false;

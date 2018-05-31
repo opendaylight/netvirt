@@ -157,7 +157,7 @@ public class L2gwBuilders {
         physicalSwitchAugmentationBuilder.setHwvtepNodeDescription("torNode");
         List<TunnelIps> tunnelIps = new ArrayList<>();
         IpAddress ip = new IpAddress(tepIp.toCharArray());
-        tunnelIps.add(new TunnelIpsBuilder().setKey(new TunnelIpsKey(ip)).setTunnelIpsKey(ip).build());
+        tunnelIps.add(new TunnelIpsBuilder().withKey(new TunnelIpsKey(ip)).setTunnelIpsKey(ip).build());
         physicalSwitchAugmentationBuilder.setTunnelIps(tunnelIps);
         nodeBuilder.addAugmentation(PhysicalSwitchAugmentation.class, physicalSwitchAugmentationBuilder.build());
         singleTransactionDataBroker.syncWrite(LogicalDatastoreType.OPERATIONAL, psNodePath, nodeBuilder.build());
@@ -194,7 +194,7 @@ public class L2gwBuilders {
     }
 
     public InstanceIdentifier<LocalUcastMacs> buildMacIid(InstanceIdentifier<Node> nodeIid, LocalUcastMacs mac) {
-        return nodeIid.augmentation(HwvtepGlobalAugmentation.class).child(LocalUcastMacs.class, mac.getKey());
+        return nodeIid.augmentation(HwvtepGlobalAugmentation.class).child(LocalUcastMacs.class, mac.key());
     }
 
     public void deletel2GWConnection(String connectionName) throws TransactionCommitFailedException {

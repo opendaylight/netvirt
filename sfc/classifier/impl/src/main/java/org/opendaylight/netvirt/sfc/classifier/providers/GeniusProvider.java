@@ -275,7 +275,7 @@ public class GeniusProvider {
                 List<Options> tpOptions = tp.getOptions();
                 for (Options tpOption : tpOptions) {
                     // From the VXLAN Tunnels, we want the one with the GPE option set
-                    if (tpOption.getKey().getOption().equals(OPTION_KEY_EXTS)) {
+                    if (tpOption.key().getOption().equals(OPTION_KEY_EXTS)) {
                         if (tpOption.getValue().equals(OPTION_VALUE_EXTS_GPE)) {
                             return Optional.ofNullable(tp.getOfport());
                         }
@@ -362,7 +362,7 @@ public class GeniusProvider {
 
     public Optional<String> getRemoteIpAddress(String interfaceName) {
         return Optional.ofNullable(interfaceMgr.getInterfaceInfoFromConfigDataStore(interfaceName))
-                .map(anInterface -> anInterface.getAugmentation(IfTunnel.class))
+                .map(anInterface -> anInterface.augmentation(IfTunnel.class))
                 .map(IfTunnel::getTunnelDestination)
                 .map(IpAddress::getIpv4Address)
                 .map(Ipv4Address::getValue);

@@ -383,10 +383,10 @@ public class ElanServiceTestBase {
         NodeId nodeId =
                 new NodeId("openflow:" + dpnId);
         Node nodeDpn =
-                new NodeBuilder().setId(nodeId).setKey(new NodeKey(nodeId)).build();
+                new NodeBuilder().setId(nodeId).withKey(new NodeKey(nodeId)).build();
         return InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class,
-                        nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                        nodeDpn.key()).augmentation(FlowCapableNode.class)
                 .child(Table.class, new TableKey(tableId)).child(Flow.class, flowKey).build();
     }
 
@@ -405,7 +405,7 @@ public class ElanServiceTestBase {
             ElanInterfaceBuilder elanInterfaceBuilder = new ElanInterfaceBuilder()
                     .setElanInstanceName(elanInstanceName)
                     .setName(interfaceName)
-                    .setKey(new ElanInterfaceKey(interfaceName));
+                    .withKey(new ElanInterfaceKey(interfaceName));
 
             StaticMacEntriesBuilder staticMacEntriesBuilder = new StaticMacEntriesBuilder();
             List<StaticMacEntries> staticMacEntries = new ArrayList<>();

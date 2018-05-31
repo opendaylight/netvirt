@@ -43,12 +43,12 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
 
     @Override
     public InstanceIdentifier<TerminationPoint> generateId(InstanceIdentifier<Node> id, TerminationPoint node) {
-        return id.child(TerminationPoint.class, node.getKey());
+        return id.child(TerminationPoint.class, node.key());
     }
 
     @Override
     public TerminationPoint transform(InstanceIdentifier<Node> nodePath, TerminationPoint src) {
-        HwvtepPhysicalPortAugmentation augmentation = src.getAugmentation(HwvtepPhysicalPortAugmentation.class);
+        HwvtepPhysicalPortAugmentation augmentation = src.augmentation(HwvtepPhysicalPortAugmentation.class);
         if (augmentation == null) {
             return new TerminationPointBuilder(src).build();
         }
@@ -80,7 +80,7 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
 
     @Override
     public Identifier getKey(TerminationPoint data) {
-        return data.getKey();
+        return data.key();
     }
 
     @Override
@@ -95,12 +95,12 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
 
     @Override
     public boolean areEqual(TerminationPoint updated, TerminationPoint orig) {
-        if (!updated.getKey().equals(orig.getKey())) {
+        if (!updated.key().equals(orig.key())) {
             return false;
         }
         HwvtepPhysicalPortAugmentation updatedAugmentation = updated
-                .getAugmentation(HwvtepPhysicalPortAugmentation.class);
-        HwvtepPhysicalPortAugmentation origAugmentation = orig.getAugmentation(HwvtepPhysicalPortAugmentation.class);
+                .augmentation(HwvtepPhysicalPortAugmentation.class);
+        HwvtepPhysicalPortAugmentation origAugmentation = orig.augmentation(HwvtepPhysicalPortAugmentation.class);
 
         List<VlanBindings> up = updatedAugmentation != null ? updatedAugmentation.getVlanBindings() : null;
         List<VlanBindings> or = origAugmentation != null ? origAugmentation.getVlanBindings() : null;
@@ -134,10 +134,10 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
             if (orig == null) {
                 return 1;
             }
-            if (updated.getKey().equals(orig.getKey())) {
+            if (updated.key().equals(orig.key())) {
                 return 0;
             }
-            updated.getKey();
+            updated.key();
             return 1;
         }
     }
@@ -172,14 +172,14 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
         for (TerminationPoint origItem : orig) {
             boolean found = false;
             for (TerminationPoint newItem : updated) {
-                if (newItem.getKey().equals(origItem.getKey())) {
+                if (newItem.key().equals(origItem.key())) {
                     found = true;
                 }
             }
             if (!found) {
                 boolean existsInConfig = false;
                 for (TerminationPoint existingItem : existing) {
-                    if (existingItem.getKey().equals(origItem.getKey())) {
+                    if (existingItem.key().equals(origItem.key())) {
                         existsInConfig = true;
                     }
                 }

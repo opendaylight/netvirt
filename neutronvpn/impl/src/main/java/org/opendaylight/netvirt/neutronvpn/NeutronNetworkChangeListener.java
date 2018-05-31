@@ -94,7 +94,7 @@ public class NeutronNetworkChangeListener
             LOG.error("Neutronvpn doesn't support the provider type for given network {}", networkId);
             return;
         }
-        Class<? extends NetworkTypeBase> networkType = input.getAugmentation(NetworkProviderExtension.class)
+        Class<? extends NetworkTypeBase> networkType = input.augmentation(NetworkProviderExtension.class)
                 .getNetworkType();
         if (NeutronvpnUtils.isVlanOrVxlanNetwork(networkType)
                 && NeutronUtils.getSegmentationIdFromNeutronNetwork(input, networkType) == null) {
@@ -190,7 +190,7 @@ public class NeutronNetworkChangeListener
 
     @Nonnull
     private List<ElanSegments> buildSegments(Network input) {
-        NetworkProviderExtension providerExtension = input.getAugmentation(NetworkProviderExtension.class);
+        NetworkProviderExtension providerExtension = input.augmentation(NetworkProviderExtension.class);
         if (providerExtension == null || providerExtension.getSegments() == null) {
             return Collections.emptyList();
         }
@@ -266,7 +266,7 @@ public class NeutronNetworkChangeListener
 
         elanInstanceBuilder.setElanSegments(segments);
         elanInstanceBuilder.setExternal(isExternal);
-        elanInstanceBuilder.setKey(new ElanInstanceKey(elanInstanceName));
+        elanInstanceBuilder.withKey(new ElanInstanceKey(elanInstanceName));
         return elanInstanceBuilder;
     }
 

@@ -254,7 +254,7 @@ public class VpnSubnetRouteHandlerTest {
         longId = Long.valueOf("100");
         nodeConnectorId = buildNodeConnectorId(dpId, 2L);
         ipAddress = IpAddressBuilder.getDefaultInstance(nexthopIp);
-        vpnIntfaces = new VpnInterfacesBuilder().setInterfaceName(interfaceName).setKey(
+        vpnIntfaces = new VpnInterfacesBuilder().setInterfaceName(interfaceName).withKey(
             new VpnInterfacesKey(interfaceName)).build();
         List<VpnInterfaces> vpnInterfaces = new ArrayList<>();
         final List<SubnetToDpn> subToDpn = new ArrayList<>();
@@ -265,9 +265,9 @@ public class VpnSubnetRouteHandlerTest {
         subnetIdList.add(subnetId);
         vpnInterfaces.add(vpnIntfaces);
         lowerLayerIfList.add(nodeConnectorId.getValue());
-        portOp = new PortOpDataEntryBuilder().setDpnId(dpId).setKey(new PortOpDataEntryKey(tenantId.getValue()))
+        portOp = new PortOpDataEntryBuilder().setDpnId(dpId).withKey(new PortOpDataEntryKey(tenantId.getValue()))
             .setSubnetIds(subnetIdList).setPortId(tenantId.getValue()).build();
-        subnetToDpn = new SubnetToDpnBuilder().setDpnId(dpId).setKey(new SubnetToDpnKey(dpId)).setVpnInterfaces(
+        subnetToDpn = new SubnetToDpnBuilder().setDpnId(dpId).withKey(new SubnetToDpnKey(dpId)).setVpnInterfaces(
             vpnInterfaces).build();
         allocateIdOutput = new AllocateIdOutputBuilder().setIdValue(longId).build();
         allocateIdInput = new AllocateIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
@@ -280,30 +280,30 @@ public class VpnSubnetRouteHandlerTest {
         ifaceBuilder.setLowerLayerIf(lowerLayerIfList).setType(L2vlan.class)
             .setAdminStatus(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
                 .interfaces.state.Interface.AdminStatus.Up).setOperStatus(Interface.OperStatus.Up)
-            .setIfIndex(100).setKey(new InterfaceKey(interfaceName)).setName(interfaceName)
+            .setIfIndex(100).withKey(new InterfaceKey(interfaceName)).setName(interfaceName)
             .setPhysAddress(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715
                 .PhysAddress.getDefaultInstance("AA:AA:AA:AA:AA:AA"));
         stateInterface = ifaceBuilder.build();
         subnetOp = new SubnetOpDataEntryBuilder().setElanTag(elanTag).setNhDpnId(dpId).setSubnetCidr(subnetIp)
-            .setSubnetId(subnetId).setKey(new SubnetOpDataEntryKey(subnetId)).setVpnName(interfaceName)
+            .setSubnetId(subnetId).withKey(new SubnetOpDataEntryKey(subnetId)).setVpnName(interfaceName)
             .setVrfId(primaryRd).setSubnetToDpn(subToDpn).setRouteAdvState(TaskState.Advertised).build();
         vpnInstance = new VpnInstanceBuilder().setVpnId(elanTag).setVpnInstanceName(interfaceName)
-            .setVrfId(interfaceName).setKey(new VpnInstanceKey(interfaceName)).build();
-        subnetmap = new SubnetmapBuilder().setSubnetIp(subnetIp).setId(subnetId).setNetworkId(portId).setKey(new
+            .setVrfId(interfaceName).withKey(new VpnInstanceKey(interfaceName)).build();
+        subnetmap = new SubnetmapBuilder().setSubnetIp(subnetIp).setId(subnetId).setNetworkId(portId).withKey(new
             SubnetmapKey(subnetId)).setRouterId(portId).setVpnId(subnetId)
             .setTenantId(tenantId).setPortList(portList).build();
         portOpData = new PortOpDataBuilder().setPortOpDataEntry(listPortOpDataEntry).build();
-        dpntePsInfo = new DPNTEPsInfoBuilder().setDPNID(dpId).setUp(true).setKey(new DPNTEPsInfoKey(dpId))
+        dpntePsInfo = new DPNTEPsInfoBuilder().setDPNID(dpId).setUp(true).withKey(new DPNTEPsInfoKey(dpId))
             .setTunnelEndPoints(tunnelEndPoints).build();
         tunlEndPts =
             new TunnelEndPointsBuilder().setInterfaceName(interfaceName).setVLANID(10).setIpAddress(ipAddress).build();
         tunnelEndPoints.add(tunlEndPts);
         ipv4Family = new Ipv4FamilyBuilder().setRouteDistinguisher(routeDistinguishers).build();
         vpnInstnce = new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances
-            .VpnInstanceBuilder().setKey(new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn
+            .VpnInstanceBuilder().withKey(new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn
             .rev140815.vpn.instances.VpnInstanceKey(interfaceName)).setVpnInstanceName(interfaceName)
             .setIpv4Family(ipv4Family).build();
-        networks = new NetworksBuilder().setId(portId).setKey(new NetworksKey(portId)).build();
+        networks = new NetworksBuilder().setId(portId).withKey(new NetworksKey(portId)).build();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();

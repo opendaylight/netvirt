@@ -149,7 +149,7 @@ public class VPNServiceChainHandlerTest {
     }
 
     private void stubGetRouteDistinguisher(String vpnName, String rd) throws Exception {
-        VpnInstance instance = new VpnInstanceBuilder().setKey(new VpnInstanceKey(vpnName)).setVrfId(rd)
+        VpnInstance instance = new VpnInstanceBuilder().withKey(new VpnInstanceKey(vpnName)).setVrfId(rd)
                                                        .setVpnInstanceName(vpnName).build();
 
         InstanceIdentifier<VpnInstance> id = VpnServiceChainUtils.getVpnInstanceToVpnIdIdentifier(vpnName);
@@ -183,17 +183,17 @@ public class VPNServiceChainHandlerTest {
     private void stubGetVpnInstance(String rd, String ipAddress, String ifaceName) throws Exception {
 
         IpAddresses ipAddr =
-            new IpAddressesBuilder().setIpAddress(ipAddress).setKey(new IpAddressesKey(ipAddress)).build();
+            new IpAddressesBuilder().setIpAddress(ipAddress).withKey(new IpAddressesKey(ipAddress)).build();
         List<VpnInterfaces> ifacesList =
             Collections.singletonList(new VpnInterfacesBuilder().setInterfaceName(ifaceName).build());
         VpnToDpnListBuilder vtdlb =
-            new VpnToDpnListBuilder().setKey(new VpnToDpnListKey(DPN_ID))
+            new VpnToDpnListBuilder().withKey(new VpnToDpnListKey(DPN_ID))
                                      .setDpnId(DPN_ID)
                                      .setIpAddresses(Collections.singletonList(ipAddr))
                                      .setVpnInterfaces(ifacesList);
 
         VpnInstanceOpDataEntry vpnInstanceOpDataEntry =
-            new VpnInstanceOpDataEntryBuilder().setKey(new VpnInstanceOpDataEntryKey(rd))
+            new VpnInstanceOpDataEntryBuilder().withKey(new VpnInstanceOpDataEntryKey(rd))
                                                .setVpnId(VPN_ID)
                                                .setVpnToDpnList(Collections.singletonList(vtdlb.build()))
                                                .setVrfId("1").build();
@@ -206,7 +206,7 @@ public class VPNServiceChainHandlerTest {
     private void stubGetVrfEntries(String rd, List<VrfEntry> vrfEntryList)
         throws Exception {
 
-        VrfTables tables = new VrfTablesBuilder().setKey(new VrfTablesKey(rd)).setRouteDistinguisher(rd)
+        VrfTables tables = new VrfTablesBuilder().withKey(new VrfTablesKey(rd)).setRouteDistinguisher(rd)
                                                  .setVrfEntry(vrfEntryList).build();
         CheckedFuture chkdFuture = mock(CheckedFuture.class);
         when(chkdFuture.checkedGet()).thenReturn(Optional.of(tables));
@@ -220,7 +220,7 @@ public class VPNServiceChainHandlerTest {
 
         List<VpnInterfaces> vpnIfacesList =
             vpnIfacesOnDpn.stream()
-                          .map((ifaceName) -> new VpnInterfacesBuilder().setKey(new VpnInterfacesKey(ifaceName))
+                          .map((ifaceName) -> new VpnInterfacesBuilder().withKey(new VpnInterfacesKey(ifaceName))
                                                                         .setInterfaceName(ifaceName).build())
                           .collect(Collectors.toList());
 

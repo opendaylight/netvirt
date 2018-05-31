@@ -88,7 +88,7 @@ public class ShowSubnet extends OsgiCommandSupport {
             SubnetOpDataEntry data = optionalSubs.get();
             System.out.println("Fetching subnetmap for given subnetId\n");
             System.out.println("------------------------------------------------------------------------------");
-            System.out.println("Key: " + data.getKey() + "\n" + "VrfId: " + data.getVrfId() + "\n" + "ElanTag: "
+            System.out.println("Key: " + data.key() + "\n" + "VrfId: " + data.getVrfId() + "\n" + "ElanTag: "
                 + "" + data.getElanTag() + "\n" + "NhDpnId: " + data.getNhDpnId() + "\n" + "RouteAdvState: "
                 + data.getRouteAdvState() + "\n" + "SubnetCidr: " + data.getSubnetCidr() + "\n"
                 + "SubnetToDpnList: " + data.getSubnetToDpn() + "\n" + "VpnName: " + data.getVpnName() + "\n");
@@ -105,7 +105,7 @@ public class ShowSubnet extends OsgiCommandSupport {
                     System.out.println("Fetching subnetmapdataentry for given subnetId\n");
                     System.out.println("------------------------"
                                   + "------------------------------------------------------");
-                    System.out.println("Key: " + data.getKey() + "\n" + "VrfId: " + data.getVrfId() + "\n"
+                    System.out.println("Key: " + data.key() + "\n" + "VrfId: " + data.getVrfId() + "\n"
                         + "ElanTag: " + "" + data.getElanTag() + "\n" + "NhDpnId: " + data.getNhDpnId() + "\n"
                         + "RouteAdvState: " + data.getRouteAdvState() + "\n" + "SubnetCidr: " + data.getSubnetCidr()
                         + "\n" + "SubnetToDpnList: " + data.getSubnetToDpn() + "\n" + "VpnName: "
@@ -124,7 +124,7 @@ public class ShowSubnet extends OsgiCommandSupport {
             System.out.println("------------------------------------------------------------------------------");
             String getRouterInterfacePortId = (data.getRouterInterfacePortId() != null
                        ? data.getRouterInterfacePortId().getValue() : "null");
-            System.out.println("Key: " + data.getKey() + "\n" + "VpnId: " + data.getVpnId() + "\n"
+            System.out.println("Key: " + data.key() + "\n" + "VpnId: " + data.getVpnId() + "\n"
                     + "InternetVpnId: " + data.getInternetVpnId() + "\n"
                     + "DirectPortList: " + data.getDirectPortList() + "\n" + "NetworkId: " + data.getNetworkId()
                     + "\n" + "Network-type: " + data.getNetworkType() + "\n" + "Network-segmentation-Id: "
@@ -143,7 +143,7 @@ public class ShowSubnet extends OsgiCommandSupport {
             System.out.println("------------------------------------------------------------------------------");
             String getRouterInterfacePortId = (data.getRouterInterfacePortId() != null
                        ? data.getRouterInterfacePortId().getValue() : "null");
-            System.out.println("Key: " + data.getKey() + "\n" + "VpnId: " + data.getVpnId() + "\n"
+            System.out.println("Key: " + data.key() + "\n" + "VpnId: " + data.getVpnId() + "\n"
                     + "InternetVpnId: " + data.getInternetVpnId() + "\n"
                     + "DirectPortList: " + data.getDirectPortList() + "\n" + "NetworkId: " + data.getNetworkId()
                     + "\n" + "Network-type: " + data.getNetworkType() + "\n" + "Network-segmentation-Id: "
@@ -160,7 +160,7 @@ public class ShowSubnet extends OsgiCommandSupport {
             SubnetOpDataEntry data = optionalSubs.get();
             System.out.println("Fetching subnetmap for given subnetId\n");
             System.out.println("------------------------------------------------------------------------------");
-            System.out.println("Key: " + data.getKey() + "\n" + "VrfId: " + data.getVrfId() + "\n" + "ElanTag: "
+            System.out.println("Key: " + data.key() + "\n" + "VrfId: " + data.getVrfId() + "\n" + "ElanTag: "
                 + "" + data.getElanTag() + "\n" + "NhDpnId: " + data.getNhDpnId() + "\n" + "RouteAdvState: "
                 + data.getRouteAdvState() + "\n" + "SubnetCidr: " + data.getSubnetCidr() + "\n"
                 + "SubnetToDpnList: " + data.getSubnetToDpn() + "\n" + "VpnName: " + data.getVpnName() + "\n");
@@ -191,7 +191,7 @@ public class ShowSubnet extends OsgiCommandSupport {
                     System.out.println("Fetching subnetmap for given subnetId\n");
                     System.out.println("------------------------"
                                   + "------------------------------------------------------");
-                    System.out.println("Key: " + data.getKey() + "\n" + "VrfId: " + data.getVrfId() + "\n"
+                    System.out.println("Key: " + data.key() + "\n" + "VrfId: " + data.getVrfId() + "\n"
                         + "ElanTag: " + "" + data.getElanTag() + "\n" + "NhDpnId: " + data.getNhDpnId() + "\n"
                         + "RouteAdvState: " + data.getRouteAdvState() + "\n" + "SubnetCidr: " + data.getSubnetCidr()
                         + "\n" + "SubnetToDpnList: " + data.getSubnetToDpn() + "\n" + "VpnName: "

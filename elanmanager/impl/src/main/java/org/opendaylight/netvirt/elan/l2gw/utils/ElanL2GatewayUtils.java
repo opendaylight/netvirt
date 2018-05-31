@@ -533,7 +533,7 @@ public class ElanL2GatewayUtils {
                     @Override
                     public void onSuccess(Optional<Node> configNode) {
                         if (configNode != null && configNode.isPresent()) {
-                            HwvtepGlobalAugmentation augmentation = configNode.get().getAugmentation(
+                            HwvtepGlobalAugmentation augmentation = configNode.get().augmentation(
                                     HwvtepGlobalAugmentation.class);
                             if (augmentation != null && augmentation.getLocalUcastMacs() != null) {
                                 macs.addAll(augmentation.getLocalUcastMacs().stream()
@@ -619,7 +619,7 @@ public class ElanL2GatewayUtils {
         List<MacAddress> lstMacs = Collections.emptyList();
         Node hwvtepNode = HwvtepUtils.getHwVtepNode(broker, datastoreType, hwvtepNodeId);
         if (hwvtepNode != null) {
-            List<RemoteUcastMacs> remoteUcastMacs = hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class)
+            List<RemoteUcastMacs> remoteUcastMacs = hwvtepNode.augmentation(HwvtepGlobalAugmentation.class)
                     .getRemoteUcastMacs();
             if (remoteUcastMacs != null && !remoteUcastMacs.isEmpty()) {
                 // Filtering remoteUcastMacs based on the logical switch and
@@ -1152,7 +1152,7 @@ public class ElanL2GatewayUtils {
         Optional<Node> configNode = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
                 HwvtepSouthboundUtils.createInstanceIdentifier(new NodeId(l2gwDevice.getHwvtepNodeId())));
         if (configNode.isPresent()) {
-            HwvtepGlobalAugmentation augmentation = configNode.get().getAugmentation(HwvtepGlobalAugmentation.class);
+            HwvtepGlobalAugmentation augmentation = configNode.get().augmentation(HwvtepGlobalAugmentation.class);
             if (augmentation != null && augmentation.getLocalUcastMacs() != null) {
                 macs.addAll(augmentation.getLocalUcastMacs().stream()
                         .filter(mac -> getLogicalSwitchName(mac).equals(elanName))

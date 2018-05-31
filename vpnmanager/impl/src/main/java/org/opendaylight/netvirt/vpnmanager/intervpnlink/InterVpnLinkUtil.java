@@ -219,7 +219,7 @@ public final class InterVpnLinkUtil {
             interVpnLinkCache.addInterVpnLinkStateToCaches(newVpnLinkState);
         } else {
             InterVpnLinkState newIVpnLinkState =
-                new InterVpnLinkStateBuilder().setKey(new InterVpnLinkStateKey(vpnLinkName))
+                new InterVpnLinkStateBuilder().withKey(new InterVpnLinkStateKey(vpnLinkName))
                     .setInterVpnLinkName(vpnLinkName)
                     .setFirstEndpointState(newFirstEndpointState)
                     .setSecondEndpointState(newSecondEndpointState)

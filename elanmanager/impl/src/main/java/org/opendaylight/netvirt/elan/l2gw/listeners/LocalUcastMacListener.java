@@ -191,7 +191,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
                     LocalUcastMacs mac = afterMac != null ? afterMac : (LocalUcastMacs)childMod.getDataBefore();
                     InstanceIdentifier<LocalUcastMacs> iid = parentIid
                         .augmentation(HwvtepGlobalAugmentation.class)
-                        .child(LocalUcastMacs.class, mac.getKey());
+                        .child(LocalUcastMacs.class, mac.key());
                     result.put(iid, (DataObjectModification<LocalUcastMacs>) childMod);
                 });
         }
@@ -220,12 +220,12 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
 
     InstanceIdentifier<LocalUcastMacs> getMacIid(InstanceIdentifier<Node> nodeIid, LocalUcastMacs mac) {
         return nodeIid.augmentation(HwvtepGlobalAugmentation.class)
-                .child(LocalUcastMacs.class, mac.getKey());
+                .child(LocalUcastMacs.class, mac.key());
     }
 
     private Set<LocalUcastMacs> getMacs(@Nullable Node node) {
         if (node != null) {
-            HwvtepGlobalAugmentation augmentation = node.getAugmentation(HwvtepGlobalAugmentation.class);
+            HwvtepGlobalAugmentation augmentation = node.augmentation(HwvtepGlobalAugmentation.class);
             if (augmentation != null && augmentation.getLocalUcastMacs() != null) {
                 return new HashSet<>(augmentation.getLocalUcastMacs());
             }

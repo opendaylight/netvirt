@@ -104,7 +104,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
         Futures.addCallback(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
             for (L2gatewayConnection connection : connections) {
                 InstanceIdentifier<L2gatewayConnection> iid = InstanceIdentifier.create(Neutron.class)
-                        .child(L2gatewayConnections.class).child(L2gatewayConnection.class, connection.getKey());
+                        .child(L2gatewayConnections.class).child(L2gatewayConnection.class, connection.key());
                 tx.delete(LogicalDatastoreType.CONFIGURATION, iid);
             }
         }), new FutureCallback<Void>() {
