@@ -152,21 +152,11 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                     LOG.debug("On update event, notify ACL service manager to update ACL for interface: {}",
                             interfaceId);
                     // handle add for AclPortsLookup before processing update
-                    try {
-                        Futures.allAsList(aclServiceUtils.addAclPortsLookupForInterfaceUpdate(aclInterfaceBefore,
-                                aclInterfaceAfter)).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        LOG.error("Error adding ACL ports for interface update", e);
-                    }
+                    aclServiceUtils.addAclPortsLookupForInterfaceUpdate(aclInterfaceBefore, aclInterfaceAfter);
 
                     aclServiceManager.notify(aclInterfaceAfter, aclInterfaceBefore, AclServiceManager.Action.UPDATE);
                     // handle delete for AclPortsLookup after processing update
-                    try {
-                        Futures.allAsList(aclServiceUtils.deleteAclPortsLookupForInterfaceUpdate(aclInterfaceBefore,
-                                aclInterfaceAfter)).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        LOG.error("Error deleting ACL ports for interface update", e);
-                    }
+                    aclServiceUtils.deleteAclPortsLookupForInterfaceUpdate(aclInterfaceBefore, aclInterfaceAfter);
                 }
             }
             updateCacheWithAclChange(aclInterfaceBefore, aclInterfaceAfter);
