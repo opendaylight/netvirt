@@ -173,21 +173,8 @@ public final class AclLiveStatisticsHelper {
                     if (flowStats.getPriority().equals(AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY)) {
                         portEgressBytesBuilder.setInvalidDropCount(flowStats.getByteCount().getValue());
                         portEgressPacketsBuilder.setInvalidDropCount(flowStats.getPacketCount().getValue());
-                    } else if (flowStats.getPriority().equals(AclConstants.ACL_PORT_SPECIFIC_DROP_PRIORITY)) {
-                        BigInteger portEgressBytesBuilderDropCount = BigInteger.valueOf(0);
-                        BigInteger portEgressPacketsBuilderDropCount = BigInteger.valueOf(0);
-                        if (portEgressBytesBuilder.getDropCount() != null) {
-                            portEgressBytesBuilderDropCount = portEgressBytesBuilder.getDropCount()
-                                    .add(flowStats.getByteCount().getValue());
-                            portEgressPacketsBuilderDropCount = portEgressPacketsBuilder.getDropCount()
-                                    .add(flowStats.getPacketCount().getValue());
-                        } else {
-                            portEgressBytesBuilderDropCount = flowStats.getByteCount().getValue();
-                            portEgressPacketsBuilderDropCount = flowStats.getPacketCount().getValue();
-                        }
-                        portEgressBytesBuilder.setDropCount(portEgressBytesBuilderDropCount);
-                        portEgressPacketsBuilder.setDropCount(portEgressPacketsBuilderDropCount);
-                    } else if (flowStats.getPriority().equals(AclConstants.ACE_LAST_REMOTE_ACL_PRIORITY)) {
+                    } else if (flowStats.getPriority().equals(AclConstants.ACL_PORT_SPECIFIC_DROP_PRIORITY)
+                            || flowStats.getPriority().equals(AclConstants.ACE_LAST_REMOTE_ACL_PRIORITY)) {
                         BigInteger portEgressBytesBuilderDropCount = BigInteger.valueOf(0);
                         BigInteger portEgressPacketsBuilderDropCount = BigInteger.valueOf(0);
                         if (portEgressBytesBuilder.getDropCount() != null) {
@@ -209,21 +196,8 @@ public final class AclLiveStatisticsHelper {
                     if (flowStats.getPriority().equals(AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY)) {
                         portIngressBytesBuilder.setInvalidDropCount(flowStats.getByteCount().getValue());
                         portIngressPacketsBuilder.setInvalidDropCount(flowStats.getPacketCount().getValue());
-                    } else if (flowStats.getPriority().equals(AclConstants.ACL_PORT_SPECIFIC_DROP_PRIORITY)) {
-                        BigInteger portIngressBytesBuilderDropCount = BigInteger.valueOf(0);
-                        BigInteger portIngressPacketsBuilderDropCount = BigInteger.valueOf(0);
-                        if (portIngressBytesBuilder.getDropCount() != null) {
-                            portIngressBytesBuilderDropCount = portIngressBytesBuilder.getDropCount()
-                                    .add(flowStats.getByteCount().getValue());
-                            portIngressPacketsBuilderDropCount = portIngressPacketsBuilder.getDropCount()
-                                    .add(flowStats.getPacketCount().getValue());
-                        } else {
-                            portIngressBytesBuilderDropCount = flowStats.getByteCount().getValue();
-                            portIngressPacketsBuilderDropCount = flowStats.getPacketCount().getValue();
-                        }
-                        portIngressBytesBuilder.setDropCount(portIngressBytesBuilderDropCount);
-                        portIngressPacketsBuilder.setDropCount(portIngressPacketsBuilderDropCount);
-                    } else if (flowStats.getPriority().equals(AclConstants.ACE_LAST_REMOTE_ACL_PRIORITY)) {
+                    } else if (flowStats.getPriority().equals(AclConstants.ACL_PORT_SPECIFIC_DROP_PRIORITY)
+                            || flowStats.getPriority().equals(AclConstants.ACE_LAST_REMOTE_ACL_PRIORITY)) {
                         BigInteger portIngressBytesBuilderDropCount = BigInteger.valueOf(0);
                         BigInteger portIngressPacketsBuilderDropCount = BigInteger.valueOf(0);
                         if (portIngressBytesBuilder.getDropCount() != null) {
