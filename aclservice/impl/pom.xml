@@ -190,10 +190,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.eclipse.xtend</groupId>
-                <artifactId>xtend-maven-plugin</artifactId>
-            </plugin>
         </plugins>
     </build>
 </project>
