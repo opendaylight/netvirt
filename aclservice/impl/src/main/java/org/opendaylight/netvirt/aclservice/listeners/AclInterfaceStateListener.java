@@ -130,19 +130,6 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         if (!L2vlan.class.equals(added.getType())) {
             return;
         }
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface;
-        iface = interfaceManager.getInterfaceInfoFromConfigDataStore(added.getName());
-        if (iface == null) {
-            LOG.error("No interface with name {} available in interfaceConfig, servicing interfaceState ADD"
-                    + "for ACL failed", added.getName());
-            return;
-        }
-        InterfaceAcl aclInPort = iface.getAugmentation(InterfaceAcl.class);
-        if (aclInPort == null) {
-            LOG.trace("Interface {} is not an ACL Interface, ignoring ADD interfaceState event",
-                    added.getName());
-            return;
-        }
 
         AclInterface aclInterface = aclInterfaceCache.addOrUpdate(added.getName(), (prevAclInterface, builder) -> {
             builder.dpId(AclServiceUtils.getDpIdFromIterfaceState(added)).lPortTag(added.getIfIndex())
@@ -155,15 +142,31 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                     builder.subnetInfo(subnetInfo);
                 }
                 SortedSet<Integer> ingressRemoteAclTags =
-                        aclServiceUtils.getRemoteAclTags(aclInPort.getSecurityGroups(), DirectionIngress.class);
+                        aclServiceUtils.getRemoteAclTags(prevAclInterface.getSecurityGroups(), DirectionIngress.class);
                 SortedSet<Integer> egressRemoteAclTags =
-                        aclServiceUtils.getRemoteAclTags(aclInPort.getSecurityGroups(), DirectionEgress.class);
+                        aclServiceUtils.getRemoteAclTags(prevAclInterface.getSecurityGroups(), DirectionEgress.class);
                 builder.ingressRemoteAclTags(ingressRemoteAclTags).egressRemoteAclTags(egressRemoteAclTags);
             }
         });
 
+        List<Uuid> aclList = aclInterface.getSecurityGroups();
+        if (aclList == null) {
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+                    .Interface iface = interfaceManager.getInterfaceInfoFromConfigDataStore(added.getName());
+            if (iface == null) {
+                LOG.error("No interface with name {} available in interfaceConfig, servicing interfaceState ADD"
+                        + "for ACL failed", added.getName());
+                return;
+            }
+            InterfaceAcl aclInPort = iface.getAugmentation(InterfaceAcl.class);
+            if (aclInPort == null) {
+                LOG.trace("Interface {} is not an ACL Interface, ignoring ADD interfaceState event",
+                        added.getName());
+                return;
+            }
+        }
+
         if (AclServiceUtils.isOfInterest(aclInterface)) {
-            List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclList != null) {
                 aclDataUtil.addAclInterfaceMap(aclList, aclInterface);
             }
