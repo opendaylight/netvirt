@@ -69,6 +69,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
@@ -162,15 +163,17 @@ public final class AclServiceUtils {
     private final AclDataUtil aclDataUtil;
     private final AclserviceConfig config;
     private final IdManagerService idManager;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
     public AclServiceUtils(DataBroker dataBroker, AclDataUtil aclDataUtil, AclserviceConfig config,
-            IdManagerService idManager) {
+            IdManagerService idManager, JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.aclDataUtil = aclDataUtil;
         this.config = config;
         this.idManager = idManager;
+        this.jobCoordinator = jobCoordinator;
     }
 
     /**
@@ -1263,41 +1266,35 @@ public final class AclServiceUtils {
                 .build();
     }
 
-    public List<ListenableFuture<Void>> addAclPortsLookupForInterfaceUpdate(AclInterface portBefore,
-            AclInterface portAfter) {
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
+    public void addAclPortsLookupForInterfaceUpdate(AclInterface portBefore, AclInterface portAfter) {
         LOG.debug("Processing interface additions for port {}", portAfter.getInterfaceId());
         List<AllowedAddressPairs> addedAllowedAddressPairs = getUpdatedAllowedAddressPairs(
                 portAfter.getAllowedAddressPairs(), portBefore.getAllowedAddressPairs());
         if (addedAllowedAddressPairs != null && !addedAllowedAddressPairs.isEmpty()) {
-            futures.addAll(addAclPortsLookup(portAfter, portAfter.getSecurityGroups(), addedAllowedAddressPairs));
+            addAclPortsLookup(portAfter, portAfter.getSecurityGroups(), addedAllowedAddressPairs);
         }
 
         List<Uuid> addedAcls = getUpdatedAclList(portAfter.getSecurityGroups(), portBefore.getSecurityGroups());
         if (addedAcls != null && !addedAcls.isEmpty()) {
-            futures.addAll(addAclPortsLookup(portAfter, addedAcls, portAfter.getAllowedAddressPairs()));
+            addAclPortsLookup(portAfter, addedAcls, portAfter.getAllowedAddressPairs());
         }
-        return futures;
     }
 
-    public List<ListenableFuture<Void>> deleteAclPortsLookupForInterfaceUpdate(AclInterface portBefore,
-            AclInterface portAfter) {
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
+    public void deleteAclPortsLookupForInterfaceUpdate(AclInterface portBefore, AclInterface portAfter) {
         LOG.debug("Processing interface removals for port {}", portAfter.getInterfaceId());
         List<AllowedAddressPairs> deletedAllowedAddressPairs = getUpdatedAllowedAddressPairs(
                 portBefore.getAllowedAddressPairs(), portAfter.getAllowedAddressPairs());
         if (deletedAllowedAddressPairs != null && !deletedAllowedAddressPairs.isEmpty()) {
-            futures.addAll(deleteAclPortsLookup(portAfter, portAfter.getSecurityGroups(), deletedAllowedAddressPairs));
+            deleteAclPortsLookup(portAfter, portAfter.getSecurityGroups(), deletedAllowedAddressPairs);
         }
 
         List<Uuid> deletedAcls = getUpdatedAclList(portBefore.getSecurityGroups(), portAfter.getSecurityGroups());
         if (deletedAcls != null && !deletedAcls.isEmpty()) {
-            futures.addAll(deleteAclPortsLookup(portAfter, deletedAcls, portAfter.getAllowedAddressPairs()));
+            deleteAclPortsLookup(portAfter, deletedAcls, portAfter.getAllowedAddressPairs());
         }
-        return futures;
     }
 
-    public List<ListenableFuture<Void>> addAclPortsLookup(AclInterface port, List<Uuid> aclList,
+    public void addAclPortsLookup(AclInterface port, List<Uuid> aclList,
             List<AllowedAddressPairs> allowedAddresses) {
         String portId = port.getInterfaceId();
         LOG.trace("Adding AclPortsLookup for port={}, acls={}, AAPs={}", portId, aclList, allowedAddresses);
@@ -1305,12 +1302,13 @@ public final class AclServiceUtils {
         if (aclList == null || allowedAddresses == null || allowedAddresses.isEmpty()) {
             LOG.warn("aclList or allowedAddresses is null. port={}, acls={}, AAPs={}", portId, aclList,
                     allowedAddresses);
-            return Collections.emptyList();
+            return;
         }
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
+
         for (Uuid aclId : aclList) {
             String aclName = aclId.getValue();
-            synchronized (aclName.intern()) {
+            jobCoordinator.enqueueJob(aclName.intern(), () -> {
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                     for (AllowedAddressPairs aap : allowedAddresses) {
                         PortIds portIdObj =
@@ -1321,12 +1319,12 @@ public final class AclServiceUtils {
                                 WriteTransaction.CREATE_MISSING_PARENTS);
                     }
                 }));
-            }
+                return futures;
+            });
         }
-        return futures;
     }
 
-    public List<ListenableFuture<Void>> deleteAclPortsLookup(AclInterface port, List<Uuid> aclList,
+    public void deleteAclPortsLookup(AclInterface port, List<Uuid> aclList,
             List<AllowedAddressPairs> allowedAddresses) {
         String portId = port.getInterfaceId();
         LOG.trace("Deleting AclPortsLookup for port={}, acls={}, AAPs={}", portId, aclList, allowedAddresses);
@@ -1334,12 +1332,13 @@ public final class AclServiceUtils {
         if (aclList == null || allowedAddresses == null || allowedAddresses.isEmpty()) {
             LOG.warn("aclList or allowedAddresses is null. port={}, acls={}, AAPs={}", portId, aclList,
                     allowedAddresses);
-            return Collections.emptyList();
+            return;
         }
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
+
         for (Uuid aclId : aclList) {
             String aclName = aclId.getValue();
-            synchronized (aclName.intern()) {
+            jobCoordinator.enqueueJob(aclName.intern(), () -> {
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                     for (AllowedAddressPairs aap : allowedAddresses) {
                         InstanceIdentifier<PortIds> path =
@@ -1349,9 +1348,9 @@ public final class AclServiceUtils {
 
                     cleanUpStaleEntriesInAclPortsLookup(aclName, tx);
                 }));
-            }
+                return futures;
+            });
         }
-        return futures;
     }
 
     private void cleanUpStaleEntriesInAclPortsLookup(String aclName, WriteTransaction tx) {
