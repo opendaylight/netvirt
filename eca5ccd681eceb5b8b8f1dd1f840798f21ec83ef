@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c1026824_c7595cc2",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1569,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-01T19:37:25Z",
+      "side": 1,
+      "message": "This API is duplicated from IPv6ServiceUtils.java\nIdeally we should avoid any duplication. \n\nI do not want to delay this patch, so can you please push a separate patch in GENIUS with this API and once its merged in GENIUS, we can update the ACLService and IPv6Service to use the api from GENIUS.",
+      "revId": "eca5ccd681eceb5b8b8f1dd1f840798f21ec83ef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a88b0bc9_fe37040c",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6RouterAdvt.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-01T19:37:25Z",
+      "side": 1,
+      "message": "Can you please reorg the code as follows \n\n        RouterAdvertisementPacketBuilder raPacket \u003d new RouterAdvertisementPacketBuilder();\n        updateRAResponse(raType, rsPdu, raPacket, routerPort);\n        // Serialize the response packet\n        byte[] txPayload \u003d fillRouterAdvertisementPacket(raPacket.build());\n        TransmitPacketInput input \u003d null;\n\n        /* Send solicited router advertisement to requested VM port only.\n         * Send periodic unsolicited router advertisement/cease-advt to ELAN broadcast group.\n         */\n        if (raType \u003d\u003d Ipv6RtrAdvertType.SOLICITED_ADVERTISEMENT) {\n            List\u003cAction\u003e actions \u003d ifMgr.getEgressAction(port.getValue());\n            if (actions \u003d\u003d null || actions.isEmpty()) {\n                LOG.error(\"Unable to send solicited router advertisement packet out. Since Egress \"\n                        + \"action is empty for interface {}. \", port.getValue());\n                return false;\n            }\n            input \u003d MDSALUtil.getPacketOut(actions, txPayload, dpnId);\n            LOG.debug(\"Transmitting the Router Advt packet out to port {}\", port.getValue());\n        } else {\n            /* Here we handle UNSOLICITED_ADVERTISEMENT, CEASE_ADVERTISEMENT */\n            long elanGroupId \u003d Ipv6ServiceUtils.getRemoteBCGroup(elanTag);\n            List\u003cActionInfo\u003e lstActionInfo \u003d new ArrayList\u003c\u003e();\n            lstActionInfo.add(new ActionGroup(elanGroupId));\n            input \u003d MDSALUtil.getPacketOutDefault(lstActionInfo, txPayload, dpnId);\n            LOG.debug(\"Transmitting the Router Advt packet out to ELAN Group ID {}\", elanGroupId);\n        }\n        JdkFutures.addErrorLogging(packetService.transmitPacket(input), LOG, \"transmitPacket\");\n        return true;",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 79,
+        "endChar": 95
+      },
+      "revId": "eca5ccd681eceb5b8b8f1dd1f840798f21ec83ef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
