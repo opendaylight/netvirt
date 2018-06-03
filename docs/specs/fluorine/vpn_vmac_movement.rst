@@ -1,5 +1,5 @@
 Enable discovery of Virtual IPs (or Movable IPs) holding Virtual MACs
-==========================================
+=====================================================================
 
 https://git.opendaylight.org/gerrit/#/q/topic:vpn_vmac_movement
 
@@ -82,7 +82,7 @@ Use Cases
    connectivity established for such Virtual IPs.
 
 8. All the above steps will be certified for discovered IPv6 addresses with Virtual
-   MAC too as the following spec addresses IPv6 address discovery: 
+   MAC too as the following spec addresses IPv6 address discovery:
    https://git.opendaylight.org/gerrit/70912
 
 Proposed change
@@ -219,4 +219,3 @@ none
 
 References
 ==========
-
