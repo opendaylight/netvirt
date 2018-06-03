@@ -28,6 +28,7 @@ things happen before a port is transitioned to ACTIVE:
 If the DHCP provisioning does not succeed, e.g., if the dhcp agent is down, the port will not
 transition to active. In order to determine if DHCP provisioning worked look for *either* of
 the following two lines in the neutron logs:
+
   ``Provisioning for port <uuid of port> completed by entity DHCP.``
 
   ``Provisioning complete for port <uuid of port> triggered by entity DHCP.``
