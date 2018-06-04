@@ -121,7 +121,7 @@ public final class NeutronUtils {
             return true;
         }
         String vnicType = portBinding.getVnicType().trim().toLowerCase(Locale.getDefault());
-        return vnicType.equals(VNIC_TYPE_NORMAL);
+        return VNIC_TYPE_NORMAL.equals(vnicType);
     }
 
     public static <T extends NetworkTypeBase> String getSegmentationIdFromNeutronNetwork(Network network,
