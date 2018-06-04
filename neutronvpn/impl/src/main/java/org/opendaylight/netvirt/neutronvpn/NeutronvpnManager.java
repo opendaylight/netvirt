@@ -818,7 +818,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected void createVpnInterface(Collection<Uuid> vpnIds, Port port, WriteTransaction wrtConfigTxn) {
         boolean isRouterInterface = false;
         if (port.getDeviceOwner() != null) {
-            isRouterInterface = port.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF);
+            isRouterInterface = NeutronConstants.DEVICE_OWNER_ROUTER_INF.equals(port.getDeviceOwner());
         }
         Adjacencies adjs = createPortIpAdjacencies(port, isRouterInterface, wrtConfigTxn, null, null);
         String infName = port.getUuid().getValue();
@@ -1133,43 +1133,46 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
      * Performs the creation of a Neutron L3VPN, associating the new VPN to the
      * specified Neutron Networks and Routers.
      *
-     * @param vpn Uuid of the VPN tp be created
+     * @param vpnId Uuid of the VPN tp be created
      * @param name Representative name of the new VPN
-     * @param tenant Uuid of the Tenant under which the VPN is going to be created
-     * @param rd Route-distinguisher for the VPN
-     * @param irt A list of Import Route Targets
-     * @param ert A list of Export Route Targets
-     * @param router neutron router Id to associate with created VPN
-     * @param networks UUID of the neutron network the VPN may be associated to
+     * @param tenantId Uuid of the Tenant under which the VPN is going to be created
+     * @param rdList Route-distinguisher for the VPN
+     * @param irtList A list of Import Route Targets
+     * @param ertList A list of Export Route Targets
+     * @param routerId neutron router Id to associate with created VPN
+     * @param networkList UUID of the neutron network the VPN may be associated to
      * @param type Type of the VPN Instance
      * @param l3vni L3VNI for the VPN Instance using VxLAN as the underlay
      * @throws Exception if association of L3VPN failed
      */
-    public void createVpn(Uuid vpn, String name, Uuid tenant, List<String> rd, List<String> irt, List<String> ert,
-                            Uuid router, List<Uuid> networks, VpnInstance.Type type, long l3vni)
-                                    throws Exception {
+    public void createVpn(Uuid vpnId, String name, Uuid tenantId, List<String> rdList, List<String> irtList,
+                          List<String> ertList, Uuid routerId, List<Uuid> networkList, VpnInstance.Type type,
+                          long l3vni) throws Exception {
 
         IpVersionChoice ipVersChoices = IpVersionChoice.UNDEFINED;
 
-        if (router != null) {
-            IpVersionChoice vers = neutronvpnUtils.getIpVersionChoicesFromRouterUuid(router);
+        if (routerId != null) {
+            IpVersionChoice vers = neutronvpnUtils.getIpVersionChoicesFromRouterUuid(routerId);
             ipVersChoices = ipVersChoices.addVersion(vers);
         }
-        updateVpnInstanceNode(vpn, rd, irt, ert, type, l3vni, ipVersChoices);
+        updateVpnInstanceNode(vpnId, rdList, irtList, ertList, type, l3vni, ipVersChoices);
 
         // Please note that router and networks will be filled into VPNMaps
         // by subsequent calls here to associateRouterToVpn and
         // associateNetworksToVpn
-        updateVpnMaps(vpn, name, null, tenant, null);
+        updateVpnMaps(vpnId, name, null, tenantId, null);
+        LOG.debug("Created L3VPN with ID {}, name {}, tenantID {}, RDList {}, iRTList {}, eRTList{}, routerID {}, "
+                        + "networkList {}", vpnId.getValue(), name, tenantId, rdList, irtList, ertList, routerId,
+                networkList);
 
-        if (router != null) {
-            associateRouterToVpn(vpn, router);
+        if (routerId != null) {
+            associateRouterToVpn(vpnId, routerId);
         }
-        if (networks != null) {
-            List<String> failStrings = associateNetworksToVpn(vpn, networks);
+        if (networkList != null) {
+            List<String> failStrings = associateNetworksToVpn(vpnId, networkList);
             if (!failStrings.isEmpty()) {
                 LOG.error("VPN {} association to networks failed for networks: {}. ",
-                        vpn.getValue(), failStrings.toString());
+                        vpnId.getValue(), failStrings.toString());
                 throw new Exception(failStrings.toString());
             }
         }
@@ -1278,6 +1281,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             }
             try {
+                LOG.debug("L3VPN add RPC: VpnID {}, name {}, tenantID {}, RDList {}, iRTList {}, eRTList{}, "
+                                + "routerID {}, networksList {}", vpn.getId().getValue(), vpn.getName(),
+                        vpn.getTenantId(), vpn.getRouteDistinguisher().toString(), vpn.getImportRT().toString(),
+                        vpn.getExportRT().toString(), vpn.getRouterId(), vpn.getNetworkIds());
                 createVpn(vpn.getId(), vpn.getName(), vpn.getTenantId(), vpn.getRouteDistinguisher(),
                         vpn.getImportRT(), vpn.getExportRT(), vpn.getRouterId(), vpn.getNetworkIds(),
                         vpnInstanceType, l3vni);
@@ -1430,6 +1437,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             RpcError error;
             String msg;
             try {
+                LOG.debug("L3VPN delete RPC: VpnID {}", vpn.getValue());
                 InstanceIdentifier<VpnInstance> vpnIdentifier =
                         InstanceIdentifier.builder(VpnInstances.class)
                             .child(VpnInstance.class, new VpnInstanceKey(vpn.getValue())).build();
@@ -2151,23 +2159,24 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    public void removeVpn(Uuid id) {
+    public void removeVpn(Uuid vpnId) {
         // read VPNMaps
-        VpnMap vpnMap = neutronvpnUtils.getVpnMap(id);
+        VpnMap vpnMap = neutronvpnUtils.getVpnMap(vpnId);
         Uuid router = vpnMap != null ? vpnMap.getRouterId() : null;
         // dissociate router
         if (router != null) {
-            dissociateRouterFromVpn(id, router);
+            dissociateRouterFromVpn(vpnId, router);
         }
         // dissociate networks
-        if (!id.equals(router) && vpnMap.getNetworkIds() != null) {
-            dissociateNetworksFromVpn(id, vpnMap.getNetworkIds());
+        if (!vpnId.equals(router) && vpnMap.getNetworkIds() != null) {
+            dissociateNetworksFromVpn(vpnId, vpnMap.getNetworkIds());
         }
         // remove entire vpnMaps node
-        deleteVpnMapsNode(id);
+        deleteVpnMapsNode(vpnId);
 
         // remove vpn-instance
-        deleteVpnInstance(id);
+        deleteVpnInstance(vpnId);
+        LOG.debug("Deleted L3VPN with ID {}", vpnId.getValue());
     }
 
     private boolean isVpnOfTypeL2(VpnInstance vpnInstance) {
@@ -2249,14 +2258,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
      * Parses and associates networks list with given VPN.
      *
      * @param vpnId Uuid of given VPN.
-     * @param networks List list of network Ids (Uuid), which will be associated.
+     * @param networkList List list of network Ids (Uuid), which will be associated.
      * @return list of formatted strings with detailed error messages.
      */
     @Nonnull
-    protected List<String> associateNetworksToVpn(@Nonnull Uuid vpnId, @Nonnull List<Uuid> networks) {
+    protected List<String> associateNetworksToVpn(@Nonnull Uuid vpnId, @Nonnull List<Uuid> networkList) {
         List<String> failedNwList = new ArrayList<>();
         HashSet<Uuid> passedNwList = new HashSet<>();
-        if (networks.isEmpty()) {
+        if (networkList.isEmpty()) {
             LOG.error("associateNetworksToVpn: Failed as given networks list is empty, VPN Id: {}", vpnId.getValue());
             failedNwList.add(String.format("Failed to associate networks with VPN %s as given networks list is empty",
                                            vpnId.getValue()));
@@ -2277,7 +2286,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                                + "associated with", vpnId.getValue()));
                 return failedNwList;
             }
-            for (Uuid nw : networks) {
+            for (Uuid nw : networkList) {
                 Network network = neutronvpnUtils.getNeutronNetwork(nw);
                 if (network == null) {
                     LOG.error("associateNetworksToVpn: Network {} not found in ConfigDS", nw.getValue());
@@ -2337,13 +2346,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
         } catch (ReadFailedException e) {
             LOG.error("associateNetworksToVpn: Failed to associate VPN {} with networks {}: ", vpnId.getValue(),
-                      networks, e);
+                    networkList, e);
             failedNwList.add(String.format("Failed to associate VPN %s with networks %s: %s", vpnId.getValue(),
-                                           networks, e));
+                    networkList, e));
         }
-        LOG.info("associateNetworksToVpn: update VPN {} with networks list: {}", vpnId.getValue(),
-                 passedNwList.toString());
         updateVpnMaps(vpnId, null, null, null, new ArrayList<>(passedNwList));
+        LOG.info("Network(s) {} associated to L3VPN {} successfully", passedNwList.toString(), vpnId.getValue());
         return failedNwList;
     }
 
@@ -2380,20 +2388,20 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
      * Parses and disassociates networks list from given VPN.
      *
      * @param vpnId Uuid of given VPN.
-     * @param networks List list of network Ids (Uuid), which will be disassociated.
+     * @param networkList List list of network Ids (Uuid), which will be disassociated.
      * @return list of formatted strings with detailed error messages.
      */
     @Nonnull
-    protected List<String> dissociateNetworksFromVpn(@Nonnull Uuid vpnId, @Nonnull List<Uuid> networks) {
+    protected List<String> dissociateNetworksFromVpn(@Nonnull Uuid vpnId, @Nonnull List<Uuid> networkList) {
         List<String> failedNwList = new ArrayList<>();
         HashSet<Uuid> passedNwList = new HashSet<>();
-        if (networks.isEmpty()) {
+        if (networkList.isEmpty()) {
             LOG.error("dissociateNetworksFromVpn: Failed as networks list is empty");
             failedNwList.add(String.format("Failed to disassociate networks from VPN %s as networks list is empty",
                              vpnId.getValue()));
             return failedNwList;
         }
-        for (Uuid nw : networks) {
+        for (Uuid nw : networkList) {
             Network network = neutronvpnUtils.getNeutronNetwork(nw);
             if (network == null) {
                 LOG.error("dissociateNetworksFromVpn: Network {} not found in ConfigDS");
@@ -2416,7 +2424,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                                vpnId.getValue()));
                 continue;
             }
-            if (neutronvpnUtils.getIsExternal(network)) {
+            if (NeutronvpnUtils.getIsExternal(network)) {
                 if (disassociateExtNetworkFromVpn(vpnId, network)) {
                     passedNwList.add(nw);
                     continue;
@@ -2437,7 +2445,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 Subnetmap sm = neutronvpnUtils.getSubnetmap(subnet);
                 if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToRemove(sm, vpnId)) {
                     IpVersionChoice ipVersionsToRemove = IpVersionChoice.UNDEFINED;
-                    IpVersionChoice ipVersion = neutronvpnUtils.getIpVersionFromString(sm.getSubnetIp());
+                    IpVersionChoice ipVersion = NeutronvpnUtils.getIpVersionFromString(sm.getSubnetIp());
                     neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(),
                         ipVersionsToRemove.addVersion(ipVersion), false);
                 }
@@ -2447,9 +2455,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 passedNwList.add(nw);
             }
         }
-        LOG.info("dissociateNetworksFromVpn: Withdraw networks list {} from VPN {}", networks.toString(),
-                 vpnId.getValue());
         clearFromVpnMaps(vpnId, null, new ArrayList<>(passedNwList));
+        LOG.info("Network(s) {} disassociated from L3VPN {} successfully", passedNwList.toString(),
+                vpnId.getValue());
         return failedNwList;
     }
 
@@ -2461,7 +2469,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         List<Uuid> vpnNets = getNetworksForVpn(vpnId);
         if (vpnNets != null) {
             for (Uuid netId : vpnNets) {
-                if (neutronvpnUtils.getIsExternal(getNeutronNetwork(netId))) {
+                if (NeutronvpnUtils.getIsExternal(getNeutronNetwork(netId))) {
                     LOG.error("dissociateExtNetworkFromVpn: Internet VPN {} is still associated with Provider Network "
                               + "{}", vpnId.getValue(), netId.getValue());
                     return true;
@@ -2495,12 +2503,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
         AssociateNetworksOutputBuilder opBuilder = new AssociateNetworksOutputBuilder();
         SettableFuture<RpcResult<AssociateNetworksOutput>> result = SettableFuture.create();
-        LOG.debug("associateNetworks {}", input);
         StringBuilder returnMsg = new StringBuilder();
         Uuid vpnId = input.getVpnId();
 
         try {
             if (neutronvpnUtils.getVpnMap(vpnId) != null) {
+                LOG.debug("associateNetworks RPC: VpnId {}, networkList {}", vpnId.getValue(),
+                        input.getNetworkId().toString());
                 List<Uuid> netIds = input.getNetworkId();
                 if (netIds != null && !netIds.isEmpty()) {
                     List<String> failed = associateNetworksToVpn(vpnId, netIds);
@@ -2554,6 +2563,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         returnMsg.append("router ").append(routerId.getValue()).append(" already associated to "
                             + "another VPN ").append(extVpnId.getValue());
                     } else {
+                        LOG.debug("associateRouter RPC: VpnId {}, routerId {}", vpnId.getValue(),
+                                input.getRouterId().getValue());
                         associateRouterToVpn(vpnId, routerId);
                     }
                 } else {
@@ -2636,6 +2647,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
         try {
             if (neutronvpnUtils.getVpnMap(vpnId) != null) {
+                LOG.debug("dissociateNetworks RPC: VpnId {}, networkList {}", vpnId.getValue(),
+                        input.getNetworkId().toString());
                 List<Uuid> netIds = input.getNetworkId();
                 if (netIds != null && !netIds.isEmpty()) {
                     List<String> failed = dissociateNetworksFromVpn(vpnId, netIds);
@@ -2684,6 +2697,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     if (rtr != null) {
                         Uuid routerVpnId = neutronvpnUtils.getVpnForRouter(routerId, true);
                         if (vpnId.equals(routerVpnId)) {
+                            LOG.debug("dissociateRouter RPC: VpnId {}, routerId {}", vpnId.getValue(),
+                                    input.getRouterId().getValue());
                             dissociateRouterFromVpn(vpnId, routerId);
                         } else {
                             if (routerVpnId == null) {
