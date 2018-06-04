@@ -24,12 +24,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.caches.baseimpl.internal.CacheManagersRegistryImpl;
 import org.opendaylight.infrautils.caches.guava.internal.GuavaCacheProvider;
 import org.opendaylight.infrautils.jobcoordinator.internal.JobCoordinatorImpl;
@@ -64,12 +61,6 @@ public class NeutronPortChangeListenerTest {
     @Mock
     NeutronvpnNatManager neutronvpnNatManager;
     @Mock
-    NotificationPublishService notiPublishService;
-    @Mock
-    NotificationService notiService;
-    @Mock
-    NeutronFloatingToFixedIpMappingChangeListener floatingIpMapListener;
-    @Mock
     WriteTransaction mockWriteTx;
     @Mock
     ReadOnlyTransaction mockReadTx;
@@ -82,11 +73,7 @@ public class NeutronPortChangeListenerTest {
     @Mock
     IElanService elanService;
     @Mock
-    IInterfaceManager interfaceManager;
-    @Mock
     IdManagerService idManager;
-    @Mock
-    NeutronvpnUtils neutronvpnUtils;
     @Mock
     IPV6InternetDefaultRouteProgrammer ipV6InternetDefRt;
 
