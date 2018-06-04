@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "278a8e9f_64f8e4be",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1794,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-06-04T05:01:59Z",
+      "side": 1,
+      "message": "Dhiman, I remember having a discussion with Manu about removing this adjacency delete operation from here, since they are handled in VrfEntryListener.cleanupOpDataForFib().\nCan you please have a word with him?",
+      "range": {
+        "startLine": 1794,
+        "startChar": 31,
+        "endLine": 1794,
+        "endChar": 92
+      },
+      "revId": "ba6cf8a16a95efffe982fbcc6868e9a89da97224",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
