@@ -259,6 +259,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             //snatServiceManger.notify(routers, null, Action.ADD);
         } else {
             try {
+                if (!routers.isEnableSnat()) {
+                    LOG.info("add : SNAT is disabled for external router {} ", routerName);
+                    return;
+                }
                 coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routers.getKey(), () -> {
                     WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
                     LOG.info("add : Installing NAT default route on all dpns part of router {}", routerName);
@@ -271,13 +275,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     // Allocate Primary Napt Switch for this router
                     BigInteger primarySwitchId = getPrimaryNaptSwitch(routerName);
                     if (primarySwitchId != null && !primarySwitchId.equals(BigInteger.ZERO)) {
-                        if (!routers.isEnableSnat()) {
-                            LOG.info("add : SNAT is disabled for external router {} ", routerName);
-                            /* If SNAT is disabled on ext-router though L3_FIB_TABLE(21) -> PSNAT_TABLE(26) flow
-                             * is required for DNAT. Hence writeFlowInvTx object submit is required.
-                             */
-                            return futures;
-                        }
+
                         handleEnableSnat(routers, routerId, primarySwitchId, bgpVpnId, writeFlowInvTx);
                     }
                     //final submit call for writeFlowInvTx
@@ -520,6 +518,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     + "default NAT route in FIB", routerName);
             return;
         }
+
         for (BigInteger dpnId : switches) {
             if (create) {
                 LOG.debug("addOrDelDefaultFibRouteForSNAT : installing default NAT route for router {} in dpn {} "
@@ -907,24 +906,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         installTerminatingServiceTblEntry(dpnId, routerName, routerId, writeFlowInvTx);
         //Install the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table matching on the router ID.
         installNaptPfibEntry(dpnId, routerId, writeFlowInvTx);
-        Uuid networkId = NatUtil.getNetworkIdFromRouterId(dataBroker, routerId);
-        if (networkId != null) {
-            Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
-            if (vpnUuid != null) {
-                Long vpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
-                coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + networkId, () -> {
-                    installNaptPfibEntriesForExternalSubnets(routerName, dpnId, null);
-                    //Install the NAPT PFIB TABLE which forwards outgoing packet to FIB Table matching on the VPN ID.
-                    if (vpnId != null && vpnId != NatConstants.INVALID_ID) {
-                        installNaptPfibEntry(dpnId, vpnId, null);
-                    }
-                    return Collections.emptyList();
-                });
-            } else {
-                LOG.warn("handlePrimaryNaptSwitch : External Vpn ID missing for Ext-Network : {}", networkId);
-            }
-        } else {
-            LOG.warn("handlePrimaryNaptSwitch : External Network not available for router : {}", routerName);
+        Long vpnId = NatUtil.getNetworkVpnIdFromRouterId(dataBroker, routerId);
+        installNaptPfibEntriesForExternalSubnets(routerName, dpnId, writeFlowInvTx);
+        //Install the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table matching on the VPN ID.
+        if (vpnId != null && vpnId != NatConstants.INVALID_ID) {
+            installNaptPfibEntry(dpnId, vpnId, writeFlowInvTx);
         }
     }
 
@@ -940,11 +926,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     public void installNaptPfibEntry(BigInteger dpnId, long segmentId, WriteTransaction writeFlowInvTx) {
         LOG.debug("installNaptPfibEntry : called for dpnId {} and segmentId {} ", dpnId, segmentId);
         FlowEntity naptPfibFlowEntity = buildNaptPfibFlowEntity(dpnId, segmentId);
-        if (writeFlowInvTx != null) {
-            mdsalManager.addFlowToTx(naptPfibFlowEntity, writeFlowInvTx);
-        } else {
-            mdsalManager.installFlow(naptPfibFlowEntity);
-        }
+        mdsalManager.addFlowToTx(naptPfibFlowEntity, writeFlowInvTx);
     }
 
     public FlowEntity buildNaptPfibFlowEntity(BigInteger dpId, long segmentId) {
@@ -1262,6 +1244,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                 removeFlowInvTx);
                     } else {
                         LOG.info("update : SNAT enabled for Router {}", original.getRouterName());
+                        addOrDelDefFibRouteToSNAT(routerName, routerId, finalBgpVpnId, bgpVpnUuid, true, writeFlowInvTx);
                         handleEnableSnat(original, routerId, dpnId, finalBgpVpnId, removeFlowInvTx);
                     }
                 }
