@@ -259,6 +259,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             //snatServiceManger.notify(routers, null, Action.ADD);
         } else {
             try {
+                if (!routers.isEnableSnat()) {
+                    LOG.info("add : SNAT is disabled for external router {} ", routerName);
+                    return;
+                }
                 coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routers.getKey(), () -> {
                     WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
                     LOG.info("add : Installing NAT default route on all dpns part of router {}", routerName);
@@ -271,13 +275,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     // Allocate Primary Napt Switch for this router
                     BigInteger primarySwitchId = getPrimaryNaptSwitch(routerName);
                     if (primarySwitchId != null && !primarySwitchId.equals(BigInteger.ZERO)) {
-                        if (!routers.isEnableSnat()) {
-                            LOG.info("add : SNAT is disabled for external router {} ", routerName);
-                            /* If SNAT is disabled on ext-router though L3_FIB_TABLE(21) -> PSNAT_TABLE(26) flow
-                             * is required for DNAT. Hence writeFlowInvTx object submit is required.
-                             */
-                            return futures;
-                        }
                         handleEnableSnat(routers, routerId, primarySwitchId, bgpVpnId, writeFlowInvTx);
                     }
                     //final submit call for writeFlowInvTx
@@ -1262,6 +1259,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                 removeFlowInvTx);
                     } else {
                         LOG.info("update : SNAT enabled for Router {}", original.getRouterName());
+                        addOrDelDefFibRouteToSNAT(routerName, routerId, finalBgpVpnId, bgpVpnUuid, true, writeFlowInvTx);   
                         handleEnableSnat(original, routerId, dpnId, finalBgpVpnId, removeFlowInvTx);
                     }
                 }
