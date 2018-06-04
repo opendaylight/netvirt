@@ -335,6 +335,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             update, throwable);
                 }
             }, MoreExecutors.directExecutor());
+            return;
         }
 
         //Handle all other routes only on a cluster reboot
