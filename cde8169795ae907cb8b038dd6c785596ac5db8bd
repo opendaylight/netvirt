@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4cccb07_9ce0e75e",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-06-04T11:13:15Z",
+      "side": 1,
+      "message": "where this will be used?",
+      "revId": "cde8169795ae907cb8b038dd6c785596ac5db8bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
