@@ -7,8 +7,6 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
-import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingIpIdToPortMappingIdentifier;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -136,10 +134,11 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     portName, network);
             return;
         }
+
         neutronvpnUtils.addToPortCache(input);
         String portStatus = NeutronUtils.PORT_STATUS_DOWN;
         if (!Strings.isNullOrEmpty(input.getDeviceOwner()) && !Strings.isNullOrEmpty(input.getDeviceId())) {
-            if (input.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
+            if (NeutronConstants.DEVICE_OWNER_ROUTER_INF.equals(input.getDeviceOwner())) {
                 handleRouterInterfaceAdded(input);
                 NeutronUtils.createPortStatus(input.getUuid().getValue(), NeutronUtils.PORT_STATUS_ACTIVE, dataBroker);
                 return;
@@ -166,7 +165,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     protected void remove(InstanceIdentifier<Port> identifier, Port input) {
         LOG.trace("Removing Port : key: {}, value={}", identifier, input);
         Network network = neutronvpnUtils.getNeutronNetwork(input.getNetworkId());
-        if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
+        // need to proceed with deletion in case network is null for a case where v2 sync happens and a read for
+        // network from NN returns null, but the deletion process for port needs to continue
+        if (network != null && !NeutronvpnUtils.isNetworkTypeSupported(network)) {
             String portName = input.getUuid().getValue();
             LOG.warn("neutron vpn received a port remove() for a network without a provider extension augmentation "
                             + "or with an unsupported network type for the port {} which is part of network {}",
@@ -177,7 +178,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         NeutronUtils.deletePortStatus(input.getUuid().getValue(), dataBroker);
 
         if (!Strings.isNullOrEmpty(input.getDeviceOwner()) && !Strings.isNullOrEmpty(input.getDeviceId())) {
-            if (input.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
+            if (NeutronConstants.DEVICE_OWNER_ROUTER_INF.equals(input.getDeviceOwner())) {
                 handleRouterInterfaceRemoved(input);
                 /* nothing else to do here */
                 return;
@@ -204,7 +205,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         Network network = neutronvpnUtils.getNeutronNetwork(update.getNetworkId());
         LOG.info("Update port {} from network {}", portName, update.getNetworkId().toString());
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
-            LOG.error("neutron vpn received a port update() for a network without a provider extension augmentation "
+            LOG.warn("neutron vpn received a port update() for a network without a provider extension augmentation "
                     + "or with an unsupported network type for the port {} which is part of network {}",
                     portName, network);
             return;
@@ -214,7 +215,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         if ((Strings.isNullOrEmpty(original.getDeviceOwner()) || Strings.isNullOrEmpty(original.getDeviceId())
                 || NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING.equalsIgnoreCase(original.getDeviceId()))
                 && !Strings.isNullOrEmpty(update.getDeviceOwner()) && !Strings.isNullOrEmpty(update.getDeviceId())) {
-            if (update.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
+            if (NeutronConstants.DEVICE_OWNER_ROUTER_INF.equals(update.getDeviceOwner())) {
                 handleRouterInterfaceAdded(update);
                 return;
             }
@@ -865,7 +866,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void addToFloatingIpPortInfo(Uuid floatingIpId, Uuid floatingIpPortId, Uuid floatingIpPortSubnetId, String
                                          floatingIpPortMacAddress) {
-        InstanceIdentifier id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
+        InstanceIdentifier id = NeutronvpnUtils.buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
         try {
             FloatingIpIdToPortMappingBuilder floatingipIdToPortMacMappingBuilder = new
                 FloatingIpIdToPortMappingBuilder().setKey(new FloatingIpIdToPortMappingKey(floatingIpId))
