@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f8a5362_0fa85a15",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-06-05T12:41:52Z",
+      "side": 1,
+      "message": "please remove the error log",
+      "revId": "f09a795a6404a1459f79c438d158582ce83da9fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
