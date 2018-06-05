@@ -1569,7 +1569,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         + "skipping this ELAN for tunnel handling", elanName);
                 continue;
             }
-            if (ElanUtils.isFlat(elanInfo) || ElanUtils.isVlan(elanInfo)) {
+            if (!isVxlanNetworkOrVxlanSegment(elanInfo)) {
                 LOG.debug("Ignoring internal tunnel state event for Flat/Vlan elan {}", elanName);
                 continue;
             }
