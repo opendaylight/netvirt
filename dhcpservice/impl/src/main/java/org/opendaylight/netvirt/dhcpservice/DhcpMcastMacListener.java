@@ -7,17 +7,20 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.List;
-import javax.annotation.PostConstruct;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.Nonnull;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepAbstractDataTreeChangeListener;
+import org.opendaylight.genius.tools.mdsal.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
@@ -34,7 +37,9 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class DhcpMcastMacListener
-        extends HwvtepAbstractDataTreeChangeListener<RemoteMcastMacs, DhcpMcastMacListener> {
+        extends AbstractAsyncDataTreeChangeListener<RemoteMcastMacs> {
+
+    private static final long TIMEOUT_FOR_SHUTDOWN = 30;
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpMcastMacListener.class);
 
@@ -44,12 +49,13 @@ public class DhcpMcastMacListener
     private final DhcpserviceConfig config;
 
     @Inject
-    public DhcpMcastMacListener(DhcpExternalTunnelManager dhcpManager,
-                                DhcpL2GwUtil dhcpL2GwUtil,
-                                DataBroker dataBroker,
-                                final DhcpserviceConfig config,
-                                HwvtepNodeHACache hwvtepNodeHACache) {
-        super(RemoteMcastMacs.class, DhcpMcastMacListener.class, hwvtepNodeHACache);
+    public DhcpMcastMacListener(DhcpExternalTunnelManager dhcpManager, DhcpL2GwUtil dhcpL2GwUtil, DataBroker dataBroker,
+                                final DhcpserviceConfig config, HwvtepNodeHACache hwvtepNodeHACache) {
+        super(dataBroker, LogicalDatastoreType.CONFIGURATION,
+              InstanceIdentifier.create(NetworkTopology.class).child(Topology.class,
+                                     new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class)
+                      .augmentation(HwvtepGlobalAugmentation.class).child(RemoteMcastMacs.class),
+              Executors.newSingleThreadExecutor("IdPoolListener", LOG));
         this.externalTunnelManager = dhcpManager;
         this.dataBroker = dataBroker;
         this.dhcpL2GwUtil = dhcpL2GwUtil;
@@ -57,30 +63,14 @@ public class DhcpMcastMacListener
     }
 
     @Override
-    @PostConstruct
-    public void init() {
-        if (config.isControllerDhcpEnabled()) {
-            registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-        }
+    public void update(@Nonnull InstanceIdentifier<RemoteMcastMacs> identifier, @Nonnull RemoteMcastMacs original,
+                       @Nonnull RemoteMcastMacs update) {
+        // NOOP
     }
 
     @Override
-    @PreDestroy
-    public void close() {
-        if (config.isControllerDhcpEnabled()) {
-            super.close();
-        }
-    }
-
-    @Override
-    protected void updated(InstanceIdentifier<RemoteMcastMacs> identifier,
-                           RemoteMcastMacs original, RemoteMcastMacs update) {
-    }
-
-    @Override
-    protected void added(InstanceIdentifier<RemoteMcastMacs> identifier,
-                         RemoteMcastMacs add) {
-        String elanInstanceName = getElanName(add);
+    public void add(@Nonnull InstanceIdentifier<RemoteMcastMacs> identifier, @Nonnull RemoteMcastMacs remoteMcastMacs) {
+        String elanInstanceName = getElanName(remoteMcastMacs);
         IpAddress tunnelIp = dhcpL2GwUtil.getHwvtepNodeTunnelIp(identifier.firstIdentifierOf(Node.class));
         if (tunnelIp == null) {
             LOG.error("Could not find tunnelIp for {}", identifier);
@@ -94,9 +84,9 @@ public class DhcpMcastMacListener
     }
 
     @Override
-    protected void removed(InstanceIdentifier<RemoteMcastMacs> identifier,
-                           RemoteMcastMacs del) {
-        String elanInstanceName = getElanName(del);
+    public void remove(@Nonnull InstanceIdentifier<RemoteMcastMacs> identifier,
+                       @Nonnull RemoteMcastMacs remoteMcastMacs) {
+        String elanInstanceName = getElanName(remoteMcastMacs);
         IpAddress tunnelIp = dhcpL2GwUtil.getHwvtepNodeTunnelIp(identifier.firstIdentifierOf(Node.class));
         if (tunnelIp == null) {
             LOG.error("Could not find tunnelIp for {}", identifier);
@@ -112,19 +102,15 @@ public class DhcpMcastMacListener
     }
 
     @Override
-    protected InstanceIdentifier<RemoteMcastMacs> getWildCardPath() {
-        return InstanceIdentifier.create(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID))
-                .child(Node.class).augmentation(HwvtepGlobalAugmentation.class)
-                .child(RemoteMcastMacs.class);
+    @PreDestroy
+    public void close() {
+        if (config.isControllerDhcpEnabled()) {
+            super.close();
+        }
+        MoreExecutors.shutdownAndAwaitTermination(getExecutorService(), TIMEOUT_FOR_SHUTDOWN, TimeUnit.SECONDS);
     }
 
-    @Override
-    protected DhcpMcastMacListener getDataTreeChangeListener() {
-        return DhcpMcastMacListener.this;
-    }
-
-    String getElanName(RemoteMcastMacs mac) {
+    private String getElanName(RemoteMcastMacs mac) {
         InstanceIdentifier<LogicalSwitches> logicalSwitchIid = (InstanceIdentifier<LogicalSwitches>)
                 mac.getLogicalSwitchRef().getValue();
         return logicalSwitchIid.firstKeyOf(LogicalSwitches.class).getHwvtepNodeName().getValue();
