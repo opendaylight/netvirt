@@ -1009,14 +1009,14 @@ public class ElanUtils {
         // List of Action for the provided Source and Destination DPIDs
         try {
             List<Action> actions = null;
-            if (isVlan(elanInstance) || isFlat(elanInstance)) {
+            if (isVxlanNetworkOrVxlanSegment(elanInstance)) {
                 String interfaceName = getExternalElanInterface(elanInstance.getElanInstanceName(), srcDpId);
                 if (null == interfaceName) {
                     LOG.info("buildRemoteDmacFlowEntry: Could not find interfaceName for {} {}", srcDpId,
-                        elanInstance);
+                            elanInstance);
                 }
                 actions = getEgressActionsForInterface(interfaceName, null);
-            } else if (isVxlanNetworkOrVxlanSegment(elanInstance)) {
+            } else if (isVlan(elanInstance) || isFlat(elanInstance)) {
                 actions = elanItmUtils.getInternalTunnelItmEgressAction(srcDpId, destDpId, lportTagOrVni);
             }
             mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
