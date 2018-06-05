@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "775b24f9_b3e0bb7e",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6NeighborSolicitation.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-06-05T16:13:14Z",
+      "side": 1,
+      "message": "use ListenableFutures since RPCs now return ListenableFuture.",
+      "range": {
+        "startLine": 145,
+        "startChar": 8,
+        "endLine": 145,
+        "endChar": 18
+      },
+      "revId": "61a8f0846e99349be69c5aa94de28604379173fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "05006815_b8b8fe44",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-06-05T16:13:14Z",
+      "side": 1,
+      "message": "If this occurs, it would return an incomplete NeighborAdvertisePacket which doesn\u0027t seem right. I think it should propagate the exception.",
+      "revId": "61a8f0846e99349be69c5aa94de28604379173fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9148a930_d454b0f9",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-06-05T16:13:14Z",
+      "side": 1,
+      "message": "Why trace? It seems this should be warn or error.",
+      "revId": "61a8f0846e99349be69c5aa94de28604379173fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e3ce53a3_22083b95",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/VirtualNetwork.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-06-05T16:13:14Z",
+      "side": 1,
+      "message": "Inline instantiation and make final.",
+      "revId": "61a8f0846e99349be69c5aa94de28604379173fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a76d43c1_cf59acc9",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/VirtualNetwork.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-06-05T16:13:14Z",
+      "side": 1,
+      "message": "On a side note, same here",
+      "revId": "61a8f0846e99349be69c5aa94de28604379173fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a79fc38d_84a36ee1",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/VirtualNetwork.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-06-05T16:13:14Z",
+      "side": 1,
+      "message": "You can simplify to\n\n  return subnetCidrPuntFlowConfiguredMap.getOrDefault(\n         subnetPrefix, Ipv6Constants.FLOWS_NOT_CONFIGURED);",
+      "revId": "61a8f0846e99349be69c5aa94de28604379173fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
