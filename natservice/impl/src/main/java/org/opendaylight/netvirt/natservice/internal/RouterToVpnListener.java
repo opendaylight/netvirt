@@ -15,9 +15,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
@@ -30,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 @Singleton
 public class RouterToVpnListener implements NeutronvpnListener {
@@ -130,8 +132,13 @@ public class RouterToVpnListener implements NeutronvpnListener {
 
     void handleDNATConfigurationForRouterAssociation(String routerName, String vpnName, String externalNetwork) {
         InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerName);
-        Optional<RouterPorts> optRouterPorts =
-            MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsId);
+        Optional<RouterPorts> optRouterPorts;
+        try {
+            optRouterPorts = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, routerPortsId);
+        } catch (ReadFailedException e) {
+            optRouterPorts = Optional.absent();
+        }
         if (!optRouterPorts.isPresent()) {
             LOG.debug("handleDNATConfigurationForRouterAssociation : Could not read Router Ports data "
                     + "object with id: {} to handle associate vpn {}", routerName, vpnName);
@@ -164,8 +171,13 @@ public class RouterToVpnListener implements NeutronvpnListener {
 
     void handleDNATConfigurationForRouterDisassociation(String routerName, String vpnName, String externalNetwork) {
         InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerName);
-        Optional<RouterPorts> optRouterPorts =
-            MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsId);
+        Optional<RouterPorts> optRouterPorts;
+        try {
+            optRouterPorts = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, routerPortsId);
+        } catch (ReadFailedException e) {
+            optRouterPorts = Optional.absent();
+        }
         if (!optRouterPorts.isPresent()) {
             LOG.error("handleDNATConfigurationForRouterDisassociation : Could not read Router Ports "
                     + "data object with id: {} to handle disassociate vpn {}", routerName, vpnName);

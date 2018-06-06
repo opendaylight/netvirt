@@ -19,7 +19,9 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -31,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.r
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpMap;
+
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
@@ -157,8 +160,13 @@ public class ExternalNetworksChangeListener
             //long router = NatUtil.getVpnId(dataBroker, routerId.getValue());
 
             InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerId.getValue());
-            Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                routerPortsId);
+            Optional<RouterPorts> optRouterPorts;
+            try {
+                optRouterPorts = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                LogicalDatastoreType.CONFIGURATION, routerPortsId);
+            } catch (ReadFailedException e) {
+                optRouterPorts = Optional.absent();
+            }
             if (!optRouterPorts.isPresent()) {
                 LOG.debug("associateExternalNetworkWithVPN : Could not read Router Ports data object with id: {} "
                         + "to handle associate ext nw {}", routerId, network.getId());
@@ -201,12 +209,17 @@ public class ExternalNetworksChangeListener
             BigInteger dpnId = new BigInteger("0");
             InstanceIdentifier<RouterToNaptSwitch> routerToNaptSwitch =
                 NatUtil.buildNaptSwitchRouterIdentifier(routerId.getValue());
-            Optional<RouterToNaptSwitch> rtrToNapt =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
+            Optional<RouterToNaptSwitch> rtrToNapt;
+            try {
+                rtrToNapt = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
+            } catch (ReadFailedException e) {
+                rtrToNapt = Optional.absent();
+            }
             if (rtrToNapt.isPresent()) {
                 dpnId = rtrToNapt.get().getPrimarySwitchId();
+                LOG.debug("associateExternalNetworkWithVPN : got primarySwitch as dpnId{} ", dpnId);
             }
-            LOG.debug("associateExternalNetworkWithVPN : got primarySwitch as dpnId{} ", dpnId);
             if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
                 LOG.warn("associateExternalNetworkWithVPN : primary napt Switch not found for router {} on dpn: {}",
                     routerId, dpnId);
@@ -224,7 +237,13 @@ public class ExternalNetworksChangeListener
             InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
                 .intext.ip.map.IpMapping> id = idBuilder.build();
             Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
-                .intext.ip.map.IpMapping> ipMapping = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+                .intext.ip.map.IpMapping> ipMapping;
+            try {
+                ipMapping = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                            LogicalDatastoreType.OPERATIONAL, id);
+            } catch (ReadFailedException e) {
+                ipMapping = Optional.absent();
+            }
             if (ipMapping.isPresent()) {
                 List<IpMap> ipMaps = ipMapping.get().getIpMap();
                 for (IpMap ipMap : ipMaps) {
@@ -239,7 +258,7 @@ public class ExternalNetworksChangeListener
                     }
                 }
             } else {
-                LOG.warn("associateExternalNetworkWithVPN : No ipMapping present fot the routerId {}", routerId);
+                LOG.warn("associateExternalNetworkWithVPN : No ipMapping present for the routerId {}", routerId);
             }
 
             long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
@@ -262,8 +281,13 @@ public class ExternalNetworksChangeListener
 
         for (Uuid routerId : routerIds) {
             InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerId.getValue());
-            Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                routerPortsId);
+            Optional<RouterPorts> optRouterPorts;
+            try {
+                optRouterPorts = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                LogicalDatastoreType.CONFIGURATION, routerPortsId);
+            } catch (ReadFailedException e) {
+                optRouterPorts = Optional.absent();
+            }
             if (!optRouterPorts.isPresent()) {
                 LOG.debug("disassociateExternalNetworkFromVPN : Could not read Router Ports data object with id: {} "
                         + "to handle disassociate ext nw {}", routerId, network.getId());
