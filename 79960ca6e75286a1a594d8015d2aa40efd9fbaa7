@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "36bf9cbb_a91d4887",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpMcastMacListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-06T11:22:46Z",
+      "side": 1,
+      "message": "don\u0027t why this if, but I\u0027m sure there is a good reason...",
+      "revId": "79960ca6e75286a1a594d8015d2aa40efd9fbaa7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
