@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4872e40a_9031bd5e",
+        "filename": "docs/specs/oxygen/service-recovery-elan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-06-06T11:21:40Z",
+      "side": 1,
+      "message": "move this indent to put : under the c in comments",
+      "revId": "1301ccacea3a52912bed2a60d01e67706e7f0501",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2b2b28c9_e1d95741",
+        "filename": "docs/specs/oxygen/service-recovery-elan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-06-06T11:21:40Z",
+      "side": 1,
+      "message": "openstack or odl minimums?",
+      "revId": "1301ccacea3a52912bed2a60d01e67706e7f0501",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
