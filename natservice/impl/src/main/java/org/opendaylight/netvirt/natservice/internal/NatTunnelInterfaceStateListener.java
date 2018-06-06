@@ -28,6 +28,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -83,6 +84,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 @Singleton
 public class NatTunnelInterfaceStateListener
@@ -381,15 +383,20 @@ public class NatTunnelInterfaceStateListener
             + " : {} and DEST IP: {}", fibManager.getTransportTypeStr(tunnelType), srcTepIp, destTepIp);
 
         InstanceIdentifier<DpnRoutersList> dpnRoutersListId = NatUtil.getDpnRoutersId(srcDpnId);
-        Optional<DpnRoutersList> optionalRouterDpnList =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                        LogicalDatastoreType.OPERATIONAL, dpnRoutersListId);
+        Optional<DpnRoutersList> optionalRouterDpnList;
+        try {
+            optionalRouterDpnList = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                        LogicalDatastoreType.OPERATIONAL, dpnRoutersListId);
+        } catch (ReadFailedException e) {
+            optionalRouterDpnList = Optional.absent();
+        }
         if (!optionalRouterDpnList.isPresent()) {
             LOG.info("hndlTepAddForAllRtrs : RouterDpnList model is empty for DPN {}. Hence ignoring TEP add event "
                     + "for the ITM TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and TUNNEL NAME {} ",
                 srcDpnId, tunnelType, srcTepIp, destTepIp, tunnelName);
             return false;
         }
+
 
         List<RoutersList> routersList = optionalRouterDpnList.get().getRoutersList();
         if (routersList == null) {
@@ -454,9 +461,13 @@ public class NatTunnelInterfaceStateListener
 
         List<RoutersList> routersList = null;
         InstanceIdentifier<DpnRoutersList> dpnRoutersListId = NatUtil.getDpnRoutersId(srcDpnId);
-        Optional<DpnRoutersList> optionalRouterDpnList =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                        LogicalDatastoreType.OPERATIONAL, dpnRoutersListId);
+        Optional<DpnRoutersList> optionalRouterDpnList;
+        try {
+            optionalRouterDpnList = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                        LogicalDatastoreType.OPERATIONAL, dpnRoutersListId);
+        } catch (ReadFailedException e) {
+            optionalRouterDpnList = Optional.absent();
+        }
         if (optionalRouterDpnList.isPresent()) {
             routersList = optionalRouterDpnList.get().getRoutersList();
         } else {
@@ -807,8 +818,13 @@ public class NatTunnelInterfaceStateListener
         final String routerName = router.getRouter();
 
         InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerName);
-        Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType
-            .CONFIGURATION, routerPortsId);
+        Optional<RouterPorts> optRouterPorts;
+        try {
+            optRouterPorts = SingleTransactionDataBroker
+                                .syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsId);
+        } catch (ReadFailedException e) {
+            optRouterPorts = Optional.absent();
+        }
         if (!optRouterPorts.isPresent()) {
             LOG.debug("hndlTepAddForDnatInEachRtr : DNAT -> Could not read Router Ports data object with id: {} "
                     + "from DNAT FloatinIpInfo", routerName);
@@ -1042,8 +1058,13 @@ public class NatTunnelInterfaceStateListener
                 + "associated to the router {}", routerName);
 
         InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerName);
-        Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType
-            .CONFIGURATION, routerPortsId);
+        Optional<RouterPorts> optRouterPorts;
+        try {
+            optRouterPorts = SingleTransactionDataBroker
+                    .syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsId);
+        } catch (ReadFailedException e) {
+            optRouterPorts = Optional.absent();
+        }
         if (!optRouterPorts.isPresent()) {
             LOG.debug("hndlTepDelForDnatInEachRtr : DNAT -> Could not read Router Ports data object with id: {} "
                     + "from DNAT FloatingIpInfo", routerName);
