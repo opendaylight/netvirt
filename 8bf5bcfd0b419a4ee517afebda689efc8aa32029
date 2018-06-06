@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac3f5646_33923495",
+        "filename": "docs/specs/oxygen/service-recovery-elan.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 7622
+      },
+      "writtenOn": "2018-06-06T07:48:54Z",
+      "side": 1,
+      "message": "ELAN Service Recovery",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 26
+      },
+      "revId": "8bf5bcfd0b419a4ee517afebda689efc8aa32029",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
