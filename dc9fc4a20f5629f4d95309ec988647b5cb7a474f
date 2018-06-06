@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85d31da7_b5cd16f1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-06T10:56:33Z",
+      "side": 1,
+      "message": "it\u0027s best practice to write commit messages in \"imperative\" style, so instead of \"ReadTransaction not closed in ExternalRouterListener\" (which describes the problem) use \"fix unclosed ReadTransaction in ExternalRouterListener\" (which describes specifically what the commit does)",
+      "revId": "dc9fc4a20f5629f4d95309ec988647b5cb7a474f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c1b6538_1487d29c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-06T10:56:33Z",
+      "side": 1,
+      "message": "please add \"JIRA: NETVIRT-1295\" here; just above Change-Id, so:\n\n\nfix unclosed ReadTransaction in ExternalRouterListener\n\nJIRA: NETVIRT-1295\nChange-Id: I5264c49226c8e964a6bcfe2b57b9b3765e5db1fd\nSigned-off-by: xcheara \u003cchetan.arakere@altencalsoftlabs.com\u003e",
+      "revId": "dc9fc4a20f5629f4d95309ec988647b5cb7a474f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
