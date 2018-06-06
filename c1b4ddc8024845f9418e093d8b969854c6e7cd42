@@ -22,6 +22,30 @@
       "revId": "c1b4ddc8024845f9418e093d8b969854c6e7cd42",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3dd3cd6a_7955f6dd",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 8007
+      },
+      "writtenOn": "2018-06-06T11:21:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "800914ac_a3e45c07",
+      "range": {
+        "startLine": 91,
+        "startChar": 20,
+        "endLine": 91,
+        "endChar": 25
+      },
+      "revId": "c1b4ddc8024845f9418e093d8b969854c6e7cd42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
