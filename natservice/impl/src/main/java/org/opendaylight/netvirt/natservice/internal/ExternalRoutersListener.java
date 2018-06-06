@@ -37,9 +37,10 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -147,11 +148,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.R
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 @Singleton
 public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Routers, ExternalRoutersListener> {
@@ -422,7 +423,13 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 .builder(Subnetmaps.class)
                 .child(Subnetmap.class, new SubnetmapKey(subnet))
                 .build();
-            Optional<Subnetmap> sn = read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetmapId);
+            Optional<Subnetmap> sn;
+            try {
+                sn = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                LogicalDatastoreType.CONFIGURATION, subnetmapId);
+            } catch (ReadFailedException e) {
+                sn = Optional.absent();
+            }
             if (sn.isPresent()) {
                 // subnets
                 Subnetmap subnetmapEntry = sn.get();
@@ -580,19 +587,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     + "in dpn {} for the internal vpn", routerId, dpnId);
                 defaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, routerId, confTx);
             }
-        }
-    }
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
-                                                          InstanceIdentifier<T> path) {
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-
-        try {
-            return tx.read(datastoreType, path).get();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -1417,7 +1411,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                 allocateExternalIp(dpnId, update, routerId, routerName, networkId,
                                         removedInternalIp, writeFlowInvTx);
                             }
-
                             LOG.debug("update : Remove the NAPT translation entries from "
                                     + "Inbound and Outbound NAPT tables for the removed external IPs.");
                             //Get the internalIP and internal Port which were associated to the removed external IP.
@@ -1426,8 +1419,16 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             InstanceIdentifier<IpPortMapping> ipPortMappingId = InstanceIdentifier
                                     .builder(IntextIpPortMap.class)
                                     .child(IpPortMapping.class, new IpPortMappingKey(routerId)).build();
-                            Optional<IpPortMapping> ipPortMapping =
-                                    MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, ipPortMappingId);
+                            Optional<IpPortMapping> ipPortMapping;
+                            try {
+                                ipPortMapping = SingleTransactionDataBroker
+                                            .syncReadOptional(dataBroker,
+                                                    LogicalDatastoreType.CONFIGURATION, ipPortMappingId);
+                            } catch (ReadFailedException e) {
+                                LOG.warn("Failed to read ipPortMapping for router id {}", routerId);
+                                ipPortMapping = Optional.absent();
+                            }
+
                             if (ipPortMapping.isPresent()) {
                                 List<IntextIpProtocolType> intextIpProtocolTypes = ipPortMapping.get()
                                         .getIntextIpProtocolType();
@@ -1607,8 +1608,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     private boolean isExternalIpAllocated(String externalIp) {
         InstanceIdentifier<ExternalIpsCounter> id = InstanceIdentifier.builder(ExternalIpsCounter.class).build();
-        Optional<ExternalIpsCounter> externalCountersData =
-            MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<ExternalIpsCounter> externalCountersData;
+        try {
+            externalCountersData = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, id);
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to read external counters data for ExternalIp {}", externalIp);
+            externalCountersData = Optional.absent();
+        }
         if (externalCountersData.isPresent()) {
             ExternalIpsCounter externalIpsCounters = externalCountersData.get();
             List<ExternalCounters> externalCounters = externalIpsCounters.getExternalCounters();
@@ -1835,8 +1842,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             BigInteger naptSwitchDpnId = null;
             InstanceIdentifier<RouterToNaptSwitch> routerToNaptSwitch =
                 NatUtil.buildNaptSwitchRouterIdentifier(routerName);
-            Optional<RouterToNaptSwitch> rtrToNapt =
-                read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
+            Optional<RouterToNaptSwitch> rtrToNapt;
+            try {
+                rtrToNapt = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
+            } catch (ReadFailedException e) {
+                LOG.warn("Failed to read NAPT switch for router {}", routerName);
+                rtrToNapt = Optional.absent();
+            }
             if (rtrToNapt.isPresent()) {
                 naptSwitchDpnId = rtrToNapt.get().getPrimarySwitchId();
             }
@@ -2599,8 +2612,15 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         InstanceIdentifier<Routers> routerInstanceIndentifier =
             InstanceIdentifier.builder(ExtRouters.class)
                 .child(Routers.class, new RoutersKey(routerUuid.getValue())).build();
-        Optional<Routers> routerData = read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerInstanceIndentifier);
-        return routerData.isPresent() && routerData.get().isEnableSnat();
+        try {
+            Optional<Routers> routerData = SingleTransactionDataBroker
+                    .syncReadOptional(dataBroker,
+                            LogicalDatastoreType.CONFIGURATION, routerInstanceIndentifier);
+            return routerData.isPresent() && routerData.get().isEnableSnat();
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to read data for router id {}", routerUuid);
+            return false;
+        }
     }
 
     public void installFlowsWithUpdatedVpnId(BigInteger primarySwitchId, String routerName, long bgpVpnId,

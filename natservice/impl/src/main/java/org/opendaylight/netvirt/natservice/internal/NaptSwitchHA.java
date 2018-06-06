@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
@@ -81,6 +82,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 @Singleton
 public class NaptSwitchHA {
@@ -361,9 +363,14 @@ public class NaptSwitchHA {
         List<String> routerUuidsAsString = new ArrayList<>();
         InstanceIdentifier<Networks> extNetwork = InstanceIdentifier.builder(ExternalNetworks.class)
             .child(Networks.class, new NetworksKey(extNetworkId)).build();
-        Optional<Networks> extNetworkData =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                        LogicalDatastoreType.CONFIGURATION, extNetwork);
+        Optional<Networks> extNetworkData;
+        try {
+            extNetworkData = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                LogicalDatastoreType.CONFIGURATION, extNetwork);
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to read router id fro external network {}", extNetworkId);
+            extNetworkData = Optional.absent();
+        }
         if (extNetworkData.isPresent()) {
             List<Uuid> routerUuids = extNetworkData.get().getRouterIds();
             if (routerUuids != null) {
@@ -1019,7 +1026,15 @@ public class NaptSwitchHA {
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
                 .child(VrfEntry.class, new VrfEntryKey(prefix));
         InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
-        Optional<VrfEntry> ent = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        Optional<VrfEntry> ent;
+        try {
+            ent = SingleTransactionDataBroker
+                    .syncReadOptional(dataBroker,
+                            LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to read FIB entry for rd {} and prefix {}", rd, prefix);
+            ent = Optional.absent();
+        }
         if (ent.isPresent()) {
             LOG.debug("removeFibEntry : Removing Fib entry rd {} prefix {}", rd, prefix);
             fibManager.removeFibEntry(rd, prefix, null);
