@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "800914ac_a3e45c07",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-06-06T07:04:19Z",
+      "side": 1,
+      "message": "This should be debug",
+      "range": {
+        "startLine": 91,
+        "startChar": 20,
+        "endLine": 91,
+        "endChar": 25
+      },
+      "revId": "c1b4ddc8024845f9418e093d8b969854c6e7cd42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
