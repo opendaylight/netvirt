@@ -807,8 +807,9 @@ public class NatTunnelInterfaceStateListener
         final String routerName = router.getRouter();
 
         InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerName);
-        Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType
-            .CONFIGURATION, routerPortsId);
+        Optional<RouterPorts> optRouterPorts = SingleTransactionDataBroker
+                .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, routerPortsId);
         if (!optRouterPorts.isPresent()) {
             LOG.debug("hndlTepAddForDnatInEachRtr : DNAT -> Could not read Router Ports data object with id: {} "
                     + "from DNAT FloatinIpInfo", routerName);
@@ -1036,8 +1037,9 @@ public class NatTunnelInterfaceStateListener
                 + "associated to the router {}", routerName);
 
         InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerName);
-        Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType
-            .CONFIGURATION, routerPortsId);
+        Optional<RouterPorts> optRouterPorts = SingleTransactionDataBroker
+                .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, routerPortsId);
         if (!optRouterPorts.isPresent()) {
             LOG.debug("hndlTepDelForDnatInEachRtr : DNAT -> Could not read Router Ports data object with id: {} "
                     + "from DNAT FloatingIpInfo", routerName);

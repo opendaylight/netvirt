@@ -185,7 +185,8 @@ public class NaptManager {
             .child(ExternalCounters.class, new ExternalCountersKey(segmentId))
             .child(ExternalIpCounter.class, new ExternalIpCounterKey(externalIp)).build();
         Optional<ExternalIpCounter> externalIpCounter =
-            MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+            SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, id);
         if (externalIpCounter.isPresent()) {
             counter = externalIpCounter.get().getCounter();
             if (isAdd) {
@@ -526,7 +527,8 @@ public class NaptManager {
                 .child(IpPortMap.class, new IpPortMapKey(internalIpPort));
         InstanceIdentifier<IpPortMap> id = idBuilder.build();
         Optional<IpPortMap> ipPortMapType =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, id);
         if (ipPortMapType.isPresent()) {
             LOG.debug("checkIpPortMap : {}", ipPortMapType.get());
             SessionAddress externalIpPort = new SessionAddress(ipPortMapType.get().getIpPortExternal().getIpAddress(),
@@ -548,7 +550,9 @@ public class NaptManager {
         InstanceIdentifierBuilder<IpMapping> idBuilder =
             InstanceIdentifier.builder(IntextIpMap.class).child(IpMapping.class, new IpMappingKey(segmentId));
         InstanceIdentifier<IpMapping> id = idBuilder.build();
-        Optional<IpMapping> ipMapping = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<IpMapping> ipMapping =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, id);
         if (ipMapping.isPresent()) {
             List<IpMap> ipMaps = ipMapping.get().getIpMap();
             for (IpMap ipMap : ipMaps) {
@@ -640,7 +644,9 @@ public class NaptManager {
         InstanceIdentifier<IpMap> id = idBuilder.build();
         // Get externalIp and decrement the counter
         String externalIp = null;
-        Optional<IpMap> ipMap = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<IpMap> ipMap =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, id);
         if (ipMap.isPresent()) {
             externalIp = ipMap.get().getExternalIp();
             LOG.debug("removeFromIpMapDS : externalIP is {}", externalIp);
@@ -674,7 +680,9 @@ public class NaptManager {
             .child(IpMap.class, new IpMapKey(internalIp));
         InstanceIdentifier<IpMap> id = idBuilder.build();
 
-        Optional<IpMap> ipMap = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<IpMap> ipMap =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, id);
         if (ipMap.isPresent()) {
             return ipMap.get().getExternalIp();
         }
@@ -687,7 +695,9 @@ public class NaptManager {
         InstanceIdentifier<IpMapping> id = idBuilder.build();
         // Get all externalIps and decrement their counters before deleting the ipmap
         String externalIp = null;
-        Optional<IpMapping> ipMapping = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<IpMapping> ipMapping =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, id);
         if (ipMapping.isPresent()) {
             List<IpMap> ipMaps = ipMapping.get().getIpMap();
             for (IpMap ipMap : ipMaps) {
@@ -706,8 +716,9 @@ public class NaptManager {
     void removeIpPortMappingForRouterID(long segmentId) {
         InstanceIdentifier<IpPortMapping> idBuilder = InstanceIdentifier.builder(IntextIpPortMap.class)
             .child(IpPortMapping.class, new IpPortMappingKey(segmentId)).build();
-        Optional<IpPortMapping> ipPortMapping = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                idBuilder);
+        Optional<IpPortMapping> ipPortMapping =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, idBuilder);
         if (ipPortMapping.isPresent()) {
             // remove from IntExtIpPortmap DS
             LOG.debug("removeIpPortMappingForRouterID : Removing IntExtIpPort map for router {} from datastore",
@@ -719,7 +730,9 @@ public class NaptManager {
     void removeIntIpPortMappingForRouterID(long segmentId) {
         InstanceIdentifier<IntipPortMap> intIp = InstanceIdentifier.builder(SnatintIpPortMap.class)
             .child(IntipPortMap.class, new IntipPortMapKey(segmentId)).build();
-        Optional<IntipPortMap> intIpPortMap = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, intIp);
+        Optional<IntipPortMap> intIpPortMap =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, intIp);
         if (intIpPortMap.isPresent()) {
             // remove from SnatIntIpPortmap DS
             LOG.debug("removeIntIpPortMappingForRouterID : Removing SnatIntIpPort from datastore : {}", intIp);

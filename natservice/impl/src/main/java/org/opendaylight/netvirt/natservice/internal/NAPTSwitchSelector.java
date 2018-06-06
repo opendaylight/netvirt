@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
@@ -84,7 +85,8 @@ public class NAPTSwitchSelector {
 
     private Map<BigInteger, Integer> constructNAPTSwitches() {
         Optional<NaptSwitches> optNaptSwitches =
-            MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, getNaptSwitchesIdentifier());
+            SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, getNaptSwitchesIdentifier());
         Map<BigInteger, Integer> switchWeights = new HashMap<>();
 
         if (optNaptSwitches.isPresent()) {

@@ -861,7 +861,8 @@ public final class NatUtil {
             InstanceIdentifier.builder(ExternalIpsCounter.class)
                 .child(ExternalCounters.class, new ExternalCountersKey(segmentId)).build();
         Optional<ExternalCounters> externalCountersData =
-            MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+            SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, id);
         if (externalCountersData.isPresent()) {
             ExternalCounters externalCounter = externalCountersData.get();
             List<ExternalIpCounter> externalIpCounterList = externalCounter.getExternalIpCounter();
@@ -1814,7 +1815,9 @@ public final class NatUtil {
                                                     String vpnName, String externalIp,
                                                     Boolean isMoreThanOneFipCheckOnDpn) {
         InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(rd, dpnId);
-        Optional<VpnToDpnList> dpnInVpn = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<VpnToDpnList> dpnInVpn = SingleTransactionDataBroker
+                .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, id);
         if (dpnInVpn.isPresent()) {
             LOG.debug("isFloatingIpPresentForDpn : vpn-to-dpn-list is not empty for vpnName {}, dpn id {}, "
                     + "rd {} and floatingIp {}", vpnName, dpnId, rd, externalIp);
@@ -1923,7 +1926,9 @@ public final class NatUtil {
     public static boolean checkForRoutersWithSameExtNetAndNaptSwitch(DataBroker broker, Uuid networkId,
                                                                      String routerName, BigInteger dpnId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
-        Optional<Networks> networkData = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        Optional<Networks> networkData = SingleTransactionDataBroker
+                .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id);
 
         if (networkData != null && networkData.isPresent()) {
             List<Uuid> routerUuidList = networkData.get().getRouterIds();

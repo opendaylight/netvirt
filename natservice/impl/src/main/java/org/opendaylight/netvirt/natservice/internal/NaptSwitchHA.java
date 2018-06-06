@@ -1052,7 +1052,9 @@ public class NaptSwitchHA {
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
                 .child(VrfEntry.class, new VrfEntryKey(prefix));
         InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
-        Optional<VrfEntry> ent = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        Optional<VrfEntry> ent = SingleTransactionDataBroker
+                .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, vrfEntryId);
         if (ent.isPresent()) {
             LOG.debug("removeFibEntry : Removing Fib entry rd {} prefix {}", rd, prefix);
             fibManager.removeFibEntry(rd, prefix, null);
