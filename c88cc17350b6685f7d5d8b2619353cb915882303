@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b4b6664_d8fbc9d9",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-06T08:49:11Z",
+      "side": 1,
+      "message": "could I suggest that you please use org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker.syncReadOptional(DataBroker, LogicalDatastoreType, InstanceIdentifier\u003cT\u003e) instead of the @deprecated org.opendaylight.genius.mdsalutil.MDSALUtil, here and below?",
+      "revId": "c88cc17350b6685f7d5d8b2619353cb915882303",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
