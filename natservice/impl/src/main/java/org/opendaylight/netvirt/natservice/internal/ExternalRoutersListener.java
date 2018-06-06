@@ -32,7 +32,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -139,7 +138,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.R
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -422,7 +420,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 .builder(Subnetmaps.class)
                 .child(Subnetmap.class, new SubnetmapKey(subnet))
                 .build();
-            Optional<Subnetmap> sn = read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetmapId);
+            Optional<Subnetmap> sn = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetmapId);
             if (sn.isPresent()) {
                 // subnets
                 Subnetmap subnetmapEntry = sn.get();
@@ -566,19 +564,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     defaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, routerId, writeFlowInvTx);
                 }
             }
-        }
-    }
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
-                                                          InstanceIdentifier<T> path) {
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-
-        try {
-            return tx.read(datastoreType, path).get();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -1810,7 +1795,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             InstanceIdentifier<RouterToNaptSwitch> routerToNaptSwitch =
                 NatUtil.buildNaptSwitchRouterIdentifier(routerName);
             Optional<RouterToNaptSwitch> rtrToNapt =
-                read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
+                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
             if (rtrToNapt.isPresent()) {
                 naptSwitchDpnId = rtrToNapt.get().getPrimarySwitchId();
             }
@@ -2558,7 +2543,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         InstanceIdentifier<Routers> routerInstanceIndentifier =
             InstanceIdentifier.builder(ExtRouters.class)
                 .child(Routers.class, new RoutersKey(routerUuid.getValue())).build();
-        Optional<Routers> routerData = read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerInstanceIndentifier);
+        Optional<Routers> routerData = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                routerInstanceIndentifier);
         return routerData.isPresent() && routerData.get().isEnableSnat();
     }
 
