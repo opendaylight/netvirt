@@ -67,6 +67,24 @@
       "revId": "42439ee297c652d7584f32db4d026856ed3ad1dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1dc304a5_71b490c5",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AbstractIpLearnNotificationHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-06-06T12:18:34Z",
+      "side": 1,
+      "message": "He\u0027s setting a max size but is also using expireAfterWrite which infrautils doesn\u0027t support (yet).",
+      "parentUuid": "a2d1f8fd_d638125b",
+      "revId": "42439ee297c652d7584f32db4d026856ed3ad1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
