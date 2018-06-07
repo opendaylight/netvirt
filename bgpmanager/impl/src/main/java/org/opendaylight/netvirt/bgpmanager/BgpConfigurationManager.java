@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.bgpmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.util.concurrent.GlobalEventExecutor;
@@ -47,7 +48,6 @@ import javax.inject.Singleton;
 import org.apache.thrift.TApplicationException;
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransport;
-import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -132,6 +132,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -258,9 +259,20 @@ public class BgpConfigurationManager {
         initer.countDown();
 
         GlobalEventExecutor.INSTANCE.execute(() -> {
-            final WaitingServiceTracker<IBgpManager> tracker = WaitingServiceTracker.create(
-                    IBgpManager.class, bundleContext);
-            bgpManager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+            ServiceTracker<IBgpManager, ?> tracker = null;
+            try {
+                tracker = new ServiceTracker<>(bundleContext, IBgpManager.class, null);
+                tracker.open();
+                bgpManager = (IBgpManager) tracker.waitForService(TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
+                Preconditions.checkState(bgpManager != null, "IBgpManager service not found");
+            } catch (InterruptedException e) {
+                throw new IllegalStateException("Error retrieving IBgpManager service", e);
+            } finally {
+                if (tracker != null) {
+                    tracker.close();
+                }
+            }
+
             if (InetAddresses.isInetAddress(getBgpSdncMipIp())) {
                 InetSocketAddress bgpThriftServerSocketAddr = new InetSocketAddress(getBgpSdncMipIp(),
                         Integer.parseInt(updatePort));
@@ -409,7 +421,7 @@ public class BgpConfigurationManager {
             } else {
                 LOG.debug("Not owner: hasOwner: {}, isOwner: {}", ownershipChange.getState().hasOwner(),
                         ownershipChange.getState().isOwner());
-                if ((bgpThriftService != null) && (bgpThriftService.isBgpThriftServiceStarted())) {
+                if (bgpThriftService != null && bgpThriftService.isBgpThriftServiceStarted()) {
                     //close the bgp Thrift Update-SERVER port opened on non-Entity Owner
                     bgpThriftService.stop();
                     bgpThriftService = null;
