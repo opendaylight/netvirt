@@ -10,5 +10,5 @@ Contents:
    :maxdepth: 1
 
    Design Specification Template <specs-template>
-   fluorine/index
-   oxygen/index
+   Netvirt Design Specifications - Fluorine <fluorine/index>
+   Netvirt Design Specifications - Oxygen <oxygen/index>
