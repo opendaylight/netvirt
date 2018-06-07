@@ -834,10 +834,18 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         if (!existingElanDpnInterfaces.isPresent()) {
             return true;
         }
+        if (elanInterface.equals(elanInstanceName) || elanInterface.equals(routerPortUuid)) {
+            return false;
+        }
         DpnInterfaces dpnInterfaces = existingElanDpnInterfaces.get();
-
-        if (dpnInterfaces.getInterfaces().size() ==  0 || (dpnInterfaces.getInterfaces().size() == 1
-                && dpnInterfaces.getInterfaces().contains(routerPortUuid))) {
+        int dummyInterfaeceCount =  0;
+        if (dpnInterfaces.getInterfaces().contains(routerPortUuid)) {
+            dummyInterfaeceCount++;
+        }
+        if (dpnInterfaces.getInterfaces().contains(elanInstanceName)) {
+            dummyInterfaeceCount++;
+        }
+        if (dpnInterfaces.getInterfaces().size() - dummyInterfaeceCount == 0) {
             return true;
         }
         return false;
