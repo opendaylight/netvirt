@@ -1,3 +1,7 @@
+.. contents:: Table of Contents
+      :depth: 3
+
+=====================================================================
 Enable discovery of Virtual IPs (or Movable IPs) holding Virtual MACs
 =====================================================================
 
