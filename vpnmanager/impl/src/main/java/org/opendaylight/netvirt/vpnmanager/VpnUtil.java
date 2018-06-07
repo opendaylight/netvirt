@@ -2030,22 +2030,24 @@ public final class VpnUtil {
             BigInteger dpnId, DataBroker dataBroker) {
         InstanceIdentifier<DpnInterfaces> elanDpnInterfaceId = getElanDpnInterfaceOperationalDataPath(
                 elanInstanceName,dpnId);
-        Optional<DpnInterfaces> dpnInElanInterfaces = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                elanDpnInterfaceId);
-        List<String> elanInterfaceList;
-        DpnInterfaces dpnInterface;
-        if (!dpnInElanInterfaces.isPresent()) {
-            elanInterfaceList = new ArrayList<>();
-        } else {
-            dpnInterface = dpnInElanInterfaces.get();
-            elanInterfaceList = dpnInterface.getInterfaces();
-        }
-        if (!elanInterfaceList.contains(routerInterfacePortId)) {
-            elanInterfaceList.add(routerInterfacePortId);
-            dpnInterface = new DpnInterfacesBuilder().setDpId(dpnId).setInterfaces(elanInterfaceList)
-                    .withKey(new DpnInterfacesKey(dpnId)).build();
-            VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                    elanDpnInterfaceId, dpnInterface);
+        synchronized (elanInstanceName.intern()) {
+            Optional<DpnInterfaces> dpnInElanInterfaces = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    elanDpnInterfaceId);
+            List<String> elanInterfaceList;
+            DpnInterfaces dpnInterface;
+            if (!dpnInElanInterfaces.isPresent()) {
+                elanInterfaceList = new ArrayList<>();
+            } else {
+                dpnInterface = dpnInElanInterfaces.get();
+                elanInterfaceList = dpnInterface.getInterfaces();
+            }
+            if (!elanInterfaceList.contains(routerInterfacePortId)) {
+                elanInterfaceList.add(routerInterfacePortId);
+                dpnInterface = new DpnInterfacesBuilder().setDpId(dpnId).setInterfaces(elanInterfaceList)
+                        .withKey(new DpnInterfacesKey(dpnId)).build();
+                VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                        elanDpnInterfaceId, dpnInterface);
+            }
         }
 
     }
@@ -2054,26 +2056,28 @@ public final class VpnUtil {
             String vpnName, BigInteger dpnId, DataBroker dataBroker) {
         InstanceIdentifier<DpnInterfaces> elanDpnInterfaceId = getElanDpnInterfaceOperationalDataPath(
                 elanInstanceName,dpnId);
-        Optional<DpnInterfaces> dpnInElanInterfaces = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                elanDpnInterfaceId);
-        List<String> elanInterfaceList;
-        DpnInterfaces dpnInterface;
-        if (!dpnInElanInterfaces.isPresent()) {
-            LOG.info("No interface in any dpn for {}", vpnName);
-            return;
-        } else {
-            dpnInterface = dpnInElanInterfaces.get();
-            elanInterfaceList = dpnInterface.getInterfaces();
+        synchronized (elanInstanceName.intern()) {
+            Optional<DpnInterfaces> dpnInElanInterfaces = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    elanDpnInterfaceId);
+            List<String> elanInterfaceList;
+            DpnInterfaces dpnInterface;
+            if (!dpnInElanInterfaces.isPresent()) {
+                LOG.info("No interface in any dpn for {}", vpnName);
+                return;
+            } else {
+                dpnInterface = dpnInElanInterfaces.get();
+                elanInterfaceList = dpnInterface.getInterfaces();
+            }
+            if (!elanInterfaceList.contains(routerInterfacePortId)) {
+                LOG.info("Router port not present in DPN {} for VPN {}", dpnId, vpnName);
+                return;
+            }
+            elanInterfaceList.remove(routerInterfacePortId);
+            dpnInterface = new DpnInterfacesBuilder().setDpId(dpnId).setInterfaces(elanInterfaceList)
+                    .withKey(new DpnInterfacesKey(dpnId)).build();
+            VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    elanDpnInterfaceId, dpnInterface);
         }
-        if (!elanInterfaceList.contains(routerInterfacePortId)) {
-            LOG.info("Router port not present in DPN {} for VPN {}", dpnId, vpnName);
-            return;
-        }
-        elanInterfaceList.remove(routerInterfacePortId);
-        dpnInterface = new DpnInterfacesBuilder().setDpId(dpnId).setInterfaces(elanInterfaceList)
-                .withKey(new DpnInterfacesKey(dpnId)).build();
-        VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                elanDpnInterfaceId, dpnInterface);
 
     }
 
