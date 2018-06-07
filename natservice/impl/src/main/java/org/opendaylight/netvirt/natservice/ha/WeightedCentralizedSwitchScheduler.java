@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
@@ -47,6 +48,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
 
     private final Map<BigInteger,Integer> switchWeightsMap = new ConcurrentHashMap<>();
     private final Map<String,String> subnetIdToRouterPortMap = new ConcurrentHashMap<>();
+    private final Map<String,String> subnetIdToElanInstanceMap = new ConcurrentHashMap<>();
     private final DataBroker dataBroker;
     private final OdlInterfaceRpcService interfaceManager;
     private final IVpnFootprintService vpnFootprintService;
@@ -124,6 +126,11 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                         primarySwitchId, writeOperTxn);
                 NatUtil.addToDpnRoutersMap(dataBroker, routerName, routerPortUuid.getValue(),
                         primarySwitchId, writeOperTxn);
+                if (subnetMapEntry.getNetworkType().equals(NetworkAttributes.NetworkType.VLAN)) {
+                    String elanInstanceName = subnetMapEntry.getNetworkId().getValue();
+                    subnetIdToElanInstanceMap.put(subnetUuid.getValue(), elanInstanceName);
+                    NatUtil.addPseudoPortToElanDpn(elanInstanceName, elanInstanceName, primarySwitchId, dataBroker);
+                }
             } catch (ReadFailedException e) {
                 LOG.error("addToDpnMaps failed for {}", routerName);
             }
@@ -151,6 +158,10 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, primarySwitchId, writeOperTxn);
             NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, routerName, interfaceManager,
                     writeOperTxn);
+            if (subnetIdToElanInstanceMap.containsKey(subnetUuid.getValue())) {
+                String elanInstanceName = subnetIdToElanInstanceMap.remove(subnetUuid.getValue());
+                NatUtil.removePseudoPortFromElanDpn(elanInstanceName, elanInstanceName, primarySwitchId, dataBroker);
+            }
         }
         writeOperTxn.submit();
     }
