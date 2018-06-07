@@ -47,6 +47,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
 
     private final Map<BigInteger,Integer> switchWeightsMap = new ConcurrentHashMap<>();
     private final Map<String,String> subnetIdToRouterPortMap = new ConcurrentHashMap<>();
+    private final Map<String,String> subnetIdToElanInstanceMap = new ConcurrentHashMap<>();
     private final DataBroker dataBroker;
     private final OdlInterfaceRpcService interfaceManager;
     private final IVpnFootprintService vpnFootprintService;
@@ -117,13 +118,16 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 Subnetmap subnetMapEntry = SingleTransactionDataBroker.syncRead(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, getSubnetMapIdentifier(subnetUuid));
                 Uuid routerPortUuid = subnetMapEntry.getRouterInterfacePortId();
+                String elanInstanceName = subnetMapEntry.getNetworkId().getValue();
                 subnetIdToRouterPortMap.put(subnetUuid.getValue(), routerPortUuid.getValue());
+                subnetIdToElanInstanceMap.put(subnetUuid.getValue(), elanInstanceName);
                 vpnFootprintService.updateVpnToDpnMapping(primarySwitchId, routerName, primaryRd,
                         routerPortUuid.getValue(), null, true);
                 NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerName, routerPortUuid.getValue(),
                         primarySwitchId, writeOperTxn);
                 NatUtil.addToDpnRoutersMap(dataBroker, routerName, routerPortUuid.getValue(),
                         primarySwitchId, writeOperTxn);
+                NatUtil.addRouterPortToElanDpn(elanInstanceName, elanInstanceName, primarySwitchId, dataBroker);
             } catch (ReadFailedException e) {
                 LOG.error("addToDpnMaps failed for {}", routerName);
             }
@@ -151,6 +155,8 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, primarySwitchId, writeOperTxn);
             NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, routerName, interfaceManager,
                     writeOperTxn);
+            String elanInstanceName = subnetIdToElanInstanceMap.remove(subnetUuid.getValue());
+            NatUtil.removeRouterPortFromElanDpn(elanInstanceName, elanInstanceName, primarySwitchId, dataBroker);
         }
         writeOperTxn.submit();
     }
