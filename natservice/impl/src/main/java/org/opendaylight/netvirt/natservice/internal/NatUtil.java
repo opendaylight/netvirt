@@ -97,7 +97,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.G
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -1999,5 +2005,78 @@ public final class NatUtil {
             return true;
         }
         return false;
+    }
+
+    public static void addPseudoPortToElanDpn(String elanInstanceName, String pseudoPortId,
+            BigInteger dpnId, DataBroker dataBroker) {
+        InstanceIdentifier<DpnInterfaces> elanDpnInterfaceId = getElanDpnInterfaceOperationalDataPath(
+                elanInstanceName,dpnId);
+        try {
+            synchronized (elanInstanceName.intern()) {
+                Optional<DpnInterfaces> dpnInElanInterfaces = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
+                List<String> elanInterfaceList;
+                DpnInterfaces dpnInterface;
+                if (!dpnInElanInterfaces.isPresent()) {
+                    elanInterfaceList = new ArrayList<>();
+                } else {
+                    dpnInterface = dpnInElanInterfaces.get();
+                    elanInterfaceList = dpnInterface.getInterfaces();
+                }
+                if (!elanInterfaceList.contains(pseudoPortId)) {
+                    elanInterfaceList.add(pseudoPortId);
+                    dpnInterface = new DpnInterfacesBuilder().setDpId(dpnId).setInterfaces(elanInterfaceList)
+                            .withKey(new DpnInterfacesKey(dpnId)).build();
+                    SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                            elanDpnInterfaceId, dpnInterface);
+                }
+            }
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to read elanDpnInterface with error {}", e.getMessage());
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Failed to add elanDpnInterface with error {}", e.getMessage());
+        }
+    }
+
+    public static void removePseudoPortFromElanDpn(String elanInstanceName, String pseudoPortId,
+            BigInteger dpnId, DataBroker dataBroker) {
+        InstanceIdentifier<DpnInterfaces> elanDpnInterfaceId = getElanDpnInterfaceOperationalDataPath(
+                elanInstanceName,dpnId);
+        try {
+            synchronized (elanInstanceName.intern()) {
+                Optional<DpnInterfaces> dpnInElanInterfaces = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
+                List<String> elanInterfaceList;
+                DpnInterfaces dpnInterface;
+                if (!dpnInElanInterfaces.isPresent()) {
+                    LOG.info("No interface in any dpn for {}", elanInstanceName);
+                    return;
+                } else {
+                    dpnInterface = dpnInElanInterfaces.get();
+                    elanInterfaceList = dpnInterface.getInterfaces();
+                }
+                if (!elanInterfaceList.contains(pseudoPortId)) {
+                    LOG.info("Router port not present in DPN {} for VPN {}", dpnId, elanInstanceName);
+                    return;
+                }
+                elanInterfaceList.remove(pseudoPortId);
+                dpnInterface = new DpnInterfacesBuilder().setDpId(dpnId).setInterfaces(elanInterfaceList)
+                        .withKey(new DpnInterfacesKey(dpnId)).build();
+                SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                        elanDpnInterfaceId, dpnInterface);
+            }
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to read elanDpnInterface with error {}", e.getMessage());
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Failed to remove elanDpnInterface with error {}", e.getMessage());
+        }
+
+    }
+
+    public static InstanceIdentifier<DpnInterfaces> getElanDpnInterfaceOperationalDataPath(String elanInstanceName,
+            BigInteger dpId) {
+        return InstanceIdentifier.builder(ElanDpnInterfaces.class)
+                .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName))
+                .child(DpnInterfaces.class, new DpnInterfacesKey(dpId)).build();
     }
 }
