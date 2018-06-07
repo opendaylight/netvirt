@@ -8,13 +8,14 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -24,6 +25,7 @@ import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,10 +50,20 @@ public class FibManagerImpl implements IFibManager {
         this.interVpnLinkCache = interVpnLinkCache;
 
         GlobalEventExecutor.INSTANCE.execute(() -> {
-            final WaitingServiceTracker<IVpnManager> tracker = WaitingServiceTracker.create(
-                IVpnManager.class, bundleContext);
-            vpnmanager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-            LOG.info("FibManagerImpl initialized. IVpnManager={}", vpnmanager);
+            ServiceTracker<IVpnManager, ?> tracker = null;
+            try {
+                tracker = new ServiceTracker<>(bundleContext, IVpnManager.class, null);
+                tracker.open();
+                vpnmanager = (IVpnManager) tracker.waitForService(TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
+                Preconditions.checkState(vpnmanager != null, "IVpnManager service not found");
+                LOG.info("FibManagerImpl initialized. IVpnManager={}", vpnmanager);
+            } catch (IllegalStateException | InterruptedException e) {
+                LOG.error("Error retrieving IVpnManager service", e);
+            } finally {
+                if (tracker != null) {
+                    tracker.close();
+                }
+            }
         });
     }
 
