@@ -455,21 +455,24 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private DpnInterfaces removeElanDpnInterfaceFromOperationalDataStore(String elanName, BigInteger dpId,
                                                                          String interfaceName, long elanTag,
                                                                          WriteTransaction tx) {
-        DpnInterfaces dpnInterfaces = elanUtils.getElanInterfaceInfoByElanDpn(elanName, dpId);
-        if (dpnInterfaces != null) {
-            List<String> interfaceLists = dpnInterfaces.getInterfaces();
-            if (interfaceLists != null) {
-                interfaceLists.remove(interfaceName);
-            }
+        synchronized (elanName.intern()) {
 
-            if (interfaceLists == null || interfaceLists.isEmpty()) {
-                deleteAllRemoteMacsInADpn(elanName, dpId, elanTag);
-                deleteElanDpnInterface(elanName, dpId, tx);
-            } else {
-                dpnInterfaces = updateElanDpnInterfacesList(elanName, dpId, interfaceLists, tx);
+            DpnInterfaces dpnInterfaces = elanUtils.getElanInterfaceInfoByElanDpn(elanName, dpId);
+            if (dpnInterfaces != null) {
+                List<String> interfaceLists = dpnInterfaces.getInterfaces();
+                if (interfaceLists != null) {
+                    interfaceLists.remove(interfaceName);
+                }
+
+                if (interfaceLists == null || interfaceLists.isEmpty()) {
+                    deleteAllRemoteMacsInADpn(elanName, dpId, elanTag);
+                    deleteElanDpnInterface(elanName, dpId, tx);
+                } else {
+                    dpnInterfaces = updateElanDpnInterfacesList(elanName, dpId, interfaceLists, tx);
+                }
             }
+            return dpnInterfaces;
         }
-        return dpnInterfaces;
     }
 
     private void deleteAllRemoteMacsInADpn(String elanName, BigInteger dpId, long elanTag) {
@@ -678,39 +681,41 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         BigInteger dpId = interfaceInfo.getDpId();
         DpnInterfaces dpnInterfaces = null;
         if (dpId != null && !dpId.equals(ElanConstants.INVALID_DPN)) {
-            InstanceIdentifier<DpnInterfaces> elanDpnInterfaces = ElanUtils
-                    .getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId);
-            Optional<DpnInterfaces> existingElanDpnInterfaces = ElanUtils.read(broker,
-                    LogicalDatastoreType.OPERATIONAL, elanDpnInterfaces);
-            if (ElanUtils.isVlan(elanInstance)) {
-                isFirstInterfaceInDpn =  checkIfFirstInterface(interfaceName,
-                        elanInstanceName, existingElanDpnInterfaces);
-            } else {
-                isFirstInterfaceInDpn = !existingElanDpnInterfaces.isPresent();
-            }
-            if (isFirstInterfaceInDpn) {
-                // ELAN's 1st ElanInterface added to this DPN
-                if (!existingElanDpnInterfaces.isPresent()) {
-                    dpnInterfaces = createElanInterfacesList(elanInstanceName, interfaceName, dpId, tx);
+            synchronized (elanInstanceName.intern()) {
+                InstanceIdentifier<DpnInterfaces> elanDpnInterfaces = ElanUtils
+                        .getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId);
+                Optional<DpnInterfaces> existingElanDpnInterfaces = ElanUtils.read(broker,
+                        LogicalDatastoreType.OPERATIONAL, elanDpnInterfaces);
+                if (ElanUtils.isVlan(elanInstance)) {
+                    isFirstInterfaceInDpn =  checkIfFirstInterface(interfaceName,
+                            elanInstanceName, existingElanDpnInterfaces);
+                } else {
+                    isFirstInterfaceInDpn = !existingElanDpnInterfaces.isPresent();
+                }
+                if (isFirstInterfaceInDpn) {
+                    // ELAN's 1st ElanInterface added to this DPN
+                    if (!existingElanDpnInterfaces.isPresent()) {
+                        dpnInterfaces = createElanInterfacesList(elanInstanceName, interfaceName, dpId, tx);
+                    } else {
+                        List<String> elanInterfaces = existingElanDpnInterfaces.get().getInterfaces();
+                        elanInterfaces.add(interfaceName);
+                        dpnInterfaces = updateElanDpnInterfacesList(elanInstanceName, dpId,
+                                elanInterfaces, tx);
+                    }
+                    // The 1st ElanInterface in a DPN must program the Ext Tunnel
+                    // table, but only if Elan has VNI
+                    if (isVxlanNetworkOrVxlanSegment(elanInstance)) {
+                        setExternalTunnelTable(dpId, elanInstance);
+                    }
+                    elanL2GatewayUtils.installElanL2gwDevicesLocalMacsInDpn(dpId, elanInstance, interfaceName);
                 } else {
                     List<String> elanInterfaces = existingElanDpnInterfaces.get().getInterfaces();
                     elanInterfaces.add(interfaceName);
-                    dpnInterfaces = updateElanDpnInterfacesList(elanInstanceName, dpId,
-                            elanInterfaces, tx);
+                    if (elanInterfaces.size() == 1) { // 1st dpn interface
+                        elanL2GatewayUtils.installElanL2gwDevicesLocalMacsInDpn(dpId, elanInstance, interfaceName);
+                    }
+                    dpnInterfaces = updateElanDpnInterfacesList(elanInstanceName, dpId, elanInterfaces, tx);
                 }
-                // The 1st ElanInterface in a DPN must program the Ext Tunnel
-                // table, but only if Elan has VNI
-                if (isVxlanNetworkOrVxlanSegment(elanInstance)) {
-                    setExternalTunnelTable(dpId, elanInstance);
-                }
-                elanL2GatewayUtils.installElanL2gwDevicesLocalMacsInDpn(dpId, elanInstance, interfaceName);
-            } else {
-                List<String> elanInterfaces = existingElanDpnInterfaces.get().getInterfaces();
-                elanInterfaces.add(interfaceName);
-                if (elanInterfaces.size() == 1) { // 1st dpn interface
-                    elanL2GatewayUtils.installElanL2gwDevicesLocalMacsInDpn(dpId, elanInstance, interfaceName);
-                }
-                dpnInterfaces = updateElanDpnInterfacesList(elanInstanceName, dpId, elanInterfaces, tx);
             }
         }
 
@@ -838,10 +843,18 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         if (!existingElanDpnInterfaces.isPresent()) {
             return true;
         }
+        if (elanInterface.equals(elanInstanceName) || elanInterface.equals(routerPortUuid)) {
+            return false;
+        }
         DpnInterfaces dpnInterfaces = existingElanDpnInterfaces.get();
-
-        if (dpnInterfaces.getInterfaces().size() ==  0 || (dpnInterfaces.getInterfaces().size() == 1
-                && dpnInterfaces.getInterfaces().contains(routerPortUuid))) {
+        int dummyInterfaeceCount =  0;
+        if (dpnInterfaces.getInterfaces().contains(routerPortUuid)) {
+            dummyInterfaeceCount++;
+        }
+        if (dpnInterfaces.getInterfaces().contains(elanInstanceName)) {
+            dummyInterfaeceCount++;
+        }
+        if (dpnInterfaces.getInterfaces().size() - dummyInterfaeceCount == 0) {
             return true;
         }
         return false;
