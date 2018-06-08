@@ -51,15 +51,17 @@ public class CentralizedSwitchChangeListener
     private final ManagedNewTransactionRunner txRunner;
     private final IVpnManager vpnManager;
     private final ExternalRouterDataUtil externalRouterDataUtil;
+    private final VpnUtil vpnUtil;
 
     @Inject
     public CentralizedSwitchChangeListener(final DataBroker dataBroker, final IVpnManager vpnManager,
-            ExternalRouterDataUtil externalRouterDataUtil) {
+            final ExternalRouterDataUtil externalRouterDataUtil, final VpnUtil vpnUtil) {
         super(RouterToNaptSwitch.class, CentralizedSwitchChangeListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.vpnManager = vpnManager;
         this.externalRouterDataUtil = externalRouterDataUtil;
+        this.vpnUtil = vpnUtil;
     }
 
     @Override
@@ -111,7 +113,7 @@ public class CentralizedSwitchChangeListener
     private void setupRouterGwFlows(RouterToNaptSwitch routerToNaptSwitch, WriteTransaction writeTx, int addOrRemove) {
         Routers router = null;
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            router = VpnUtil.getExternalRouter(dataBroker, routerToNaptSwitch.getRouterName());
+            router = vpnUtil.getExternalRouter(routerToNaptSwitch.getRouterName());
         }
         else {
             router = externalRouterDataUtil.getRouter(routerToNaptSwitch.getRouterName());

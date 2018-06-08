@@ -77,12 +77,13 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     private final VpnOpDataSyncer vpnOpDataNotifier;
     private final IMdsalApiManager mdsalManager;
     private final JobCoordinator jobCoordinator;
+    private final VpnUtil vpnUtil;
 
     @Inject
     public VpnInstanceListener(final DataBroker dataBroker, final IdManagerService idManager,
             final VpnInterfaceManager vpnInterfaceManager, final IFibManager fibManager,
             final VpnOpDataSyncer vpnOpDataSyncer, final IMdsalApiManager mdsalManager,
-            final JobCoordinator jobCoordinator) {
+            final JobCoordinator jobCoordinator, VpnUtil vpnUtil) {
         super(VpnInstance.class, VpnInstanceListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -92,6 +93,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         this.vpnOpDataNotifier = vpnOpDataSyncer;
         this.mdsalManager = mdsalManager;
         this.jobCoordinator = jobCoordinator;
+        this.vpnUtil = vpnUtil;
     }
 
     @PostConstruct
@@ -209,7 +211,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         VpnAfConfig config = value.getIpv4Family();
         String vpnInstanceName = value.getVpnInstanceName();
 
-        long vpnId = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME, vpnInstanceName);
+        long vpnId = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME, vpnInstanceName);
         if (vpnId == 0) {
             LOG.error("{} addVpnInstance: Unable to fetch label from Id Manager. Bailing out of adding operational"
                     + " data for Vpn Instance {}", LOGGING_PREFIX_ADD, value.getVpnInstanceName());
@@ -321,15 +323,15 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 vpnInterfaceManager.vpnInstanceIsReady(vpnName);
             }
             log.info("{} onSuccess: Vpn Instance Op Data addition for {} successful.", LOGGING_PREFIX_ADD, vpnName);
-            VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker,
+            VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnUtil.getVpnInstanceOpData(
                     VpnUtil.getPrimaryRd(vpnInstance));
 
             // bind service on each tunnel interface
             //TODO (KIRAN): Add a new listener to handle creation of new DC-GW binding and deletion of existing DC-GW.
             if (VpnUtil.isL3VpnOverVxLan(vpnInstance.getL3vni())) { //Handled for L3VPN Over VxLAN
                 for (String tunnelInterfaceName: getDcGatewayTunnelInterfaceNameList()) {
-                    VpnUtil.bindService(vpnInstance.getVpnInstanceName(), tunnelInterfaceName, dataBroker,
-                            true/*isTunnelInterface*/, jobCoordinator);
+                    vpnUtil.bindService(vpnInstance.getVpnInstanceName(), tunnelInterfaceName,
+                            true/*isTunnelInterface*/);
                 }
 
                 // install flow
@@ -359,7 +361,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         @SuppressWarnings("checkstyle:IllegalCatch")
         private boolean addBgpVrf() {
             VpnAfConfig config = vpnInstance.getIpv4Family();
-            String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
+            String primaryRd = vpnUtil.getPrimaryRd(vpnName);
             List<VpnTarget> vpnTargetList = config.getVpnTargets().getVpnTarget();
 
             if (vpnTargetList == null) {

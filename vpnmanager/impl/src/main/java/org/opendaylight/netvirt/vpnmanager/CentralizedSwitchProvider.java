@@ -11,22 +11,22 @@ package org.opendaylight.netvirt.vpnmanager;
 import java.math.BigInteger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider;
 
 @Singleton
 public class CentralizedSwitchProvider implements ICentralizedSwitchProvider {
 
-    private final DataBroker dataBroker;
+    private final VpnUtil vpnUtil;
 
     @Inject
-    public CentralizedSwitchProvider(DataBroker dataBroker) {
-        this.dataBroker = dataBroker;
+    public CentralizedSwitchProvider(VpnUtil vpnUtil) {
+        this.vpnUtil = vpnUtil;
+
     }
 
     @Override
     public BigInteger getPrimarySwitchForRouter(String routerName) {
-        return VpnUtil.getPrimarySwitchForRouter(dataBroker, routerName);
+        return vpnUtil.getPrimarySwitchForRouter(routerName);
     }
 
 }
