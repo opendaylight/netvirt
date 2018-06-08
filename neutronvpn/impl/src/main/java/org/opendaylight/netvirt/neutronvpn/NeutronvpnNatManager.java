@@ -9,7 +9,9 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -21,9 +23,17 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
@@ -63,13 +73,15 @@ public class NeutronvpnNatManager implements AutoCloseable {
     private final DataBroker dataBroker;
     private final NeutronvpnUtils neutronvpnUtils;
     private final NeutronvpnManager nvpnManager;
+    private final IElanService elanService;
 
     @Inject
     public NeutronvpnNatManager(final DataBroker dataBroker, final NeutronvpnUtils neutronvpnUtils,
-                                  final NeutronvpnManager neutronvpnManager) {
+                                  final NeutronvpnManager neutronvpnManager, final IElanService elanService) {
         this.dataBroker = dataBroker;
         this.neutronvpnUtils = neutronvpnUtils;
         this.nvpnManager = neutronvpnManager;
+        this.elanService = elanService;
     }
 
     @Override
@@ -657,7 +669,8 @@ public class NeutronvpnNatManager implements AutoCloseable {
         }
     }
 
-    public void removeExternalSubnet(Uuid subnetId) {
+    public void removeExternalSubnet(Uuid networkId, Uuid subnetId) {
+        removeAdjacencyAndLearnedEntriesforExternalSubnet(networkId, subnetId);
         InstanceIdentifier<Subnets> subnetsIdentifier = InstanceIdentifier.builder(ExternalSubnets.class)
                 .child(Subnets.class, new SubnetsKey(subnetId)).build();
         try {
@@ -762,5 +775,55 @@ public class NeutronvpnNatManager implements AutoCloseable {
         externalIpsBuilder.setIpAddress(ip);
         externalIpsBuilder.setSubnetId(subnetId);
         externalIps.add(externalIpsBuilder.build());
+    }
+
+    private void removeAdjacencyAndLearnedEntriesforExternalSubnet(Uuid extNetId, Uuid extSubnetId) {
+        Collection<String> extElanInterfaces = elanService.getExternalElanInterfaces(extNetId.getValue());
+        if (extElanInterfaces == null || extElanInterfaces.isEmpty()) {
+            LOG.error("No external ports attached to external network {}", extNetId.getValue());
+            return;
+        }
+
+        for (String infName : extElanInterfaces) {
+            InstanceIdentifier<VpnInterface> vpnIfIdentifier = InstanceIdentifier.builder(
+                VpnInterfaces.class).child(VpnInterface.class, new VpnInterfaceKey(infName)).build();
+            InstanceIdentifier<Adjacencies> adjacenciesIdentifier = vpnIfIdentifier.augmentation(Adjacencies.class);
+            try {
+                // Looking for existing prefix in MDSAL database
+                Optional<Adjacencies> optionalAdjacencies = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, adjacenciesIdentifier);
+                if (optionalAdjacencies.isPresent()) {
+                    List<Adjacency> adjacencies = optionalAdjacencies.get().getAdjacency();
+                    Iterator<Adjacency> adjacencyIter = adjacencies.iterator();
+                    while (adjacencyIter.hasNext()) {
+                        Adjacency adjacency = adjacencyIter.next();
+                        if (!adjacency.getSubnetId().equals(extSubnetId)) {
+                            continue;
+                        }
+                        InstanceIdentifier<Adjacency> adjacencyIdentifier =
+                            adjacenciesIdentifier.child(Adjacency.class, new AdjacencyKey(adjacency.getIpAddress()));
+                        SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            adjacencyIdentifier);
+                        LOG.trace("removeAdjacencyAndLearnedEntriesforExternalSubnet Adjaency Entry for fixedIP {} "
+                                  + "for port {} on subnet {} ", adjacency.getIpAddress(), infName, extSubnetId);
+                        String extNetVpnName = extNetId.getValue();
+                        String learnedSrcIp = adjacency.getIpAddress().split("/")[0];
+                        InstanceIdentifier<LearntVpnVipToPort> id =
+                            NeutronvpnUtils.buildLearntVpnVipToPortIdentifier(extNetVpnName, learnedSrcIp);
+                        Optional<LearntVpnVipToPort> optionalLearntVpnVipToPort = SingleTransactionDataBroker
+                            .syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+                        if (optionalLearntVpnVipToPort.isPresent()) {
+                            neutronvpnUtils.removeLearntVpnVipToPort(extNetVpnName, learnedSrcIp);
+                            LOG.trace("removeAdjacencyAndLearnedEntriesforExternalSubnet Learnt Entry for fixedIP {} "
+                                      + "for port {} on VPN {} ",
+                                adjacency.getIpAddress(), infName, extNetVpnName);
+                        }
+                    }
+                }
+            } catch (TransactionCommitFailedException | ReadFailedException e) {
+                LOG.error("exception in removeAdjacencyforExternalSubnet for interface {}",
+                    infName, e);
+            }
+        }
     }
 }
