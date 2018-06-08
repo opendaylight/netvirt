@@ -16,6 +16,24 @@
       "revId": "2157cee7f7e9dcd101597ee225bfb45d34fa4f7c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50c3406d_3ea4eb5b",
+        "filename": "docs/specs/oxygen/index.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2018-06-08T16:30:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08456e38_db4cc362",
+      "revId": "2157cee7f7e9dcd101597ee225bfb45d34fa4f7c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
