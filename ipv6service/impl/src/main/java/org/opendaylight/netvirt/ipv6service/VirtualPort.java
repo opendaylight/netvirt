@@ -16,11 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.opendaylight.genius.ipv6util.api.Ipv6Util;
 import org.opendaylight.netvirt.ipv6service.api.IVirtualPort;
-import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6PeriodicTimer;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6PeriodicTrQueue;
-import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -117,8 +117,8 @@ public class VirtualPort implements IVirtualPort  {
         List<Ipv6Address> ipv6AddrList = snetInfo.values().stream().flatMap(
             subnetInfo -> Stream.of(subnetInfo.getIpAddr().getIpv6Address())).collect(Collectors.toList());
 
-        if (deviceOwner.equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
-            Ipv6Address llAddr = Ipv6ServiceUtils.getIpv6LinkLocalAddressFromMac(new MacAddress(macAddress));
+        if (deviceOwner.equalsIgnoreCase(Ipv6ServiceConstants.NETWORK_ROUTER_INTERFACE)) {
+            Ipv6Address llAddr = Ipv6Util.getIpv6LinkLocalAddressFromMac(new MacAddress(macAddress));
             ipv6AddrList.add(llAddr);
         }
         return ipv6AddrList;

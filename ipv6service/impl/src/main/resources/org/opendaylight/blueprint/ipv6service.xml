@@ -22,8 +22,6 @@
   <odl:rpc-service id="packetProcessingService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService" />
 
-  <odl:rpc-implementation ref="ipv6NdUtilServiceImpl" />
-
   <odl:notification-listener ref="ipv6PktHandler" />
 
   <service ref="ifMgr" interface="org.opendaylight.netvirt.ipv6service.api.ElementCache" />

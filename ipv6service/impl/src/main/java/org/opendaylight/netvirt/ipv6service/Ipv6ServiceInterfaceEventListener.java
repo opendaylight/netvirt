@@ -20,7 +20,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -106,7 +106,7 @@ public class Ipv6ServiceInterfaceEventListener
             return;
         }
         ifMgr.handleInterfaceStateEvent(portId, ipv6ServiceUtils.getDpIdFromIterfaceState(del), routerPort,
-                Ipv6Constants.DEL_FLOW);
+                Ipv6ServiceConstants.DEL_FLOW);
     }
 
     @Override
@@ -147,7 +147,7 @@ public class Ipv6ServiceInterfaceEventListener
             NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
             BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
 
-            if (!dpId.equals(Ipv6Constants.INVALID_DPID)) {
+            if (!dpId.equals(Ipv6ServiceConstants.INVALID_DPID)) {
                 Uuid portId = new Uuid(iface.getName());
                 VirtualPort port = ifMgr.obtainV6Interface(portId);
                 if (port == null) {
@@ -168,7 +168,7 @@ public class Ipv6ServiceInterfaceEventListener
                     LOG.info("Port {} is not associated to a Router, skipping.", portId);
                     return;
                 }
-                ifMgr.handleInterfaceStateEvent(portId, dpId, routerPort, Ipv6Constants.ADD_FLOW);
+                ifMgr.handleInterfaceStateEvent(portId, dpId, routerPort, Ipv6ServiceConstants.ADD_FLOW);
 
                 if (!port.getServiceBindingStatus()) {
                     jobCoordinator.enqueueJob("IPv6-" + String.valueOf(portId), () -> {
