@@ -19,15 +19,24 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.ConstantSchemaAbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.VpnOperDsUtils;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.L3VpnTestCatalog.L3VpnComposite;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -53,10 +62,32 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
 
     InterVpnLinkCacheImpl interVpnLinkCache;
 
+    VpnUtil vpnUtil;
+
+    @Mock
+    IdManagerService idManager;
+    @Mock
+    IBgpManager bgpManager;
+    @Mock
+    LockManagerService lockManager;
+    @Mock
+    INeutronVpnManager neutronVpnService;
+    @Mock
+    IMdsalApiManager mdsalManager;
+    @Mock
+    JobCoordinator jobCoordinator;
+    @Mock
+    IInterfaceManager interfaceManager;
+    @Mock
+    OdlInterfaceRpcService ifmRpcService;
+
     @Before
     public void setUp() throws Exception {
 
         dataBroker = getDataBroker();
+
+        vpnUtil = new VpnUtil(dataBroker, idManager, bgpManager, lockManager, neutronVpnService, mdsalManager,
+                jobCoordinator, interfaceManager, ifmRpcService);
 
         // Creating both empty containers: InterVpnLinks and InterVpnLinkStates
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
@@ -79,11 +110,12 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
         }
 
         // SUT
-        sut = new InterVpnLinkLocator(dataBroker, interVpnLinkCache);
+        sut = new InterVpnLinkLocator(dataBroker, interVpnLinkCache, vpnUtil);
     }
 
 
     @Test
+    //TODO: Modify tests to bind instances using Guice Rules
     public void testFindInterVpnLinksSameGroup() throws TransactionCommitFailedException {
 
         // I_VPN_LINK_56 is similar to I_VPN_LINK_12 (both link VPNs with same iRTs)

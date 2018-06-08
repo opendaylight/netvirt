@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.ArpRequestReceived;
@@ -30,8 +31,8 @@ public class ArpNotificationHandler extends AbstractIpLearnNotificationHandler i
 
     @Inject
     public ArpNotificationHandler(DataBroker dataBroker, IdManagerService idManager,
-                                  IInterfaceManager interfaceManager, VpnConfig vpnConfig) {
-        super(dataBroker, idManager, interfaceManager, vpnConfig);
+                                  IInterfaceManager interfaceManager, VpnConfig vpnConfig, VpnUtil vpnUtil) {
+        super(dataBroker, idManager, interfaceManager, vpnConfig, vpnUtil);
     }
 
     @Override

@@ -70,12 +70,13 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     private final IInterfaceManager interfaceManager;
     private final VpnManagerCounters vpnManagerCounters;
     private final Ipv6NdutilService ipv6NdutilService;
+    private final VpnUtil vpnUtil;
 
     @Inject
     public SubnetRoutePacketInHandler(final DataBroker dataBroker, final PacketProcessingService packetService,
             final OdlInterfaceRpcService odlInterfaceRpcService,
             final ICentralizedSwitchProvider centralizedSwitchProvider, final IInterfaceManager interfaceManager,
-            VpnManagerCounters vpnManagerCounters, final Ipv6NdutilService ipv6NdutilService) {
+            VpnManagerCounters vpnManagerCounters, final Ipv6NdutilService ipv6NdutilService, VpnUtil vpnUtil) {
         this.dataBroker = dataBroker;
         this.packetService = packetService;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
@@ -83,6 +84,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         this.interfaceManager = interfaceManager;
         this.vpnManagerCounters = vpnManagerCounters;
         this.ipv6NdutilService = ipv6NdutilService;
+        this.vpnUtil = vpnUtil;
     }
 
     @Override
@@ -176,7 +178,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         }
 
         String vpnIdVpnInstanceName = vpnIdsOptional.get().getVpnInstanceName();
-        if (VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnIdVpnInstanceName, dstIpStr) != null) {
+        if (vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnIdVpnInstanceName, dstIpStr) != null) {
             vpnManagerCounters.subnetRoutePacketIgnored();
             LOG.info("{} onPacketReceived: IP Packet received with Target IP {} source IP {} vpnId {} "
                     + "is a valid Neutron port,ignoring subnet route processing", LOGGING_PREFIX, dstIpStr,
@@ -184,7 +186,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             return;
         }
 
-        if (VpnUtil.getLearntVpnVipToPort(dataBroker, vpnIdVpnInstanceName, dstIpStr) != null) {
+        if (vpnUtil.getLearntVpnVipToPort(vpnIdVpnInstanceName, dstIpStr) != null) {
             vpnManagerCounters.subnetRoutePacketIgnored();
             LOG.info("{} onPacketReceived: IP Packet received with Target IP {} source Ip {} vpnId {}"
                     + " is an already discovered IPAddress, ignoring subnet route processing",
@@ -215,8 +217,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         LOG.info("{} handleBgpVpnSubnetRoute: Processing IP Packet received with Source IP {} and Target IP {}"
                 + " and elan Tag {}", LOGGING_PREFIX, srcIpStr, dstIpStr, elanTag);
         SubnetOpDataEntry targetSubnetForPacketOut =
-                getTargetSubnetForPacketOut(dataBroker, elanTag, dstIpStr);
-
+                getTargetSubnetForPacketOut(elanTag, dstIpStr);
         if (targetSubnetForPacketOut != null) {
             // Handle subnet routes ip requests
             transmitArpOrNsPacket(targetSubnetForPacketOut.getNhDpnId(), srcIpStr, srcMac, dstIp, dstIpStr, elanTag);
@@ -230,11 +231,11 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     private void handleInternalVpnSubnetRoutePacket(BigInteger metadata, byte[] dstIp, String srcIpStr, String dstIpStr,
             String vpnIdVpnInstanceName, long elanTag)
             throws InterruptedException, ExecutionException, UnknownHostException {
-        String vmVpnInterfaceName = VpnUtil.getVpnInterfaceName(odlInterfaceRpcService, metadata);
+        String vmVpnInterfaceName = vpnUtil.getVpnInterfaceName(metadata);
         if (isTunnel(vmVpnInterfaceName)) {
             handlePacketFromTunnelToExternalNetwork(vpnIdVpnInstanceName, srcIpStr, dstIp, dstIpStr, elanTag);
         }
-        VpnInterface vmVpnInterface = VpnUtil.getVpnInterface(dataBroker, vmVpnInterfaceName);
+        VpnInterface vmVpnInterface = vpnUtil.getVpnInterface(vmVpnInterfaceName);
         if (vmVpnInterface == null) {
             LOG.error("Vpn interface {} doesn't exist.", vmVpnInterfaceName);
             vpnManagerCounters.subnetRoutePacketFailed();
@@ -242,13 +243,12 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         }
         if (VpnHelper.doesVpnInterfaceBelongToVpnInstance(vpnIdVpnInstanceName,
                vmVpnInterface.getVpnInstanceNames())
-               && !VpnUtil.isBgpVpnInternet(dataBroker, vpnIdVpnInstanceName)) {
+               && !vpnUtil.isBgpVpnInternet(vpnIdVpnInstanceName)) {
             LOG.trace("Unknown IP is in internal network");
             handlePacketToInternalNetwork(dstIp, dstIpStr, elanTag);
         } else {
             LOG.trace("Unknown IP is in external network");
-            String vpnName =
-                    VpnUtil.getInternetVpnFromVpnInstanceList(dataBroker, vmVpnInterface.getVpnInstanceNames());
+            String vpnName = vpnUtil.getInternetVpnFromVpnInstanceList(vmVpnInterface.getVpnInstanceNames());
             if (vpnName != null) {
                 handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName), vpnName, dstIp, dstIpStr, elanTag);
             } else {
@@ -287,7 +287,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             throws UnknownHostException {
         try {
             SubnetOpDataEntry targetSubnetForPacketOut =
-                    getTargetSubnetForPacketOut(dataBroker, elanTag, dstIpStr);
+                    getTargetSubnetForPacketOut(elanTag, dstIpStr);
 
             if (targetSubnetForPacketOut == null) {
                 LOG.debug("Couldn't find matching subnet for elan tag {} and destination ip {}", elanTag, dstIpStr);
@@ -327,8 +327,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     }
 
     private void handlePacketFromTunnelToExternalNetwork(String vpnIdVpnInstanceName, String srcIpStr, byte[] dstIp,
-            String dstIpStr, long elanTag) throws UnknownHostException {
-        String routerId = VpnUtil.getAssociatedExternalRouter(dataBroker, srcIpStr);
+        String dstIpStr, long elanTag) throws UnknownHostException {
+        String routerId = vpnUtil.getAssociatedExternalRouter(srcIpStr);
         if (null == routerId) {
             LOG.debug("This ip is not associated with any external router: {}", srcIpStr);
         }
@@ -337,7 +337,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
 
     private void handlePacketToExternalNetwork(Uuid vpnInstanceNameUuid, String routerId, byte[] dstIp, String dstIpStr,
             long elanTag) throws UnknownHostException {
-        Routers externalRouter = VpnUtil.getExternalRouter(dataBroker, routerId);
+        Routers externalRouter = vpnUtil.getExternalRouter(routerId);
         if (externalRouter == null) {
             vpnManagerCounters.subnetRoutePacketFailed();
             LOG.debug("{} handlePacketToExternalNetwork: Can't find external router with id {}", LOGGING_PREFIX,
@@ -375,15 +375,15 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     }
 
     // return only the first VPN subnetopdataentry
-    private static SubnetOpDataEntry getTargetSubnetForPacketOut(DataBroker broker, long elanTag, String ipAddress) {
-        ElanTagName elanInfo = VpnUtil.getElanInfoByElanTag(broker, elanTag);
+    private SubnetOpDataEntry getTargetSubnetForPacketOut(long elanTag, String ipAddress) {
+        ElanTagName elanInfo = vpnUtil.getElanInfoByElanTag(elanTag);
         if (elanInfo == null) {
             LOG.error("{} getTargetDpnForPacketOut: Unable to retrieve ElanInfo for elanTag {}", LOGGING_PREFIX,
                     elanTag);
             return null;
         }
         try {
-            Optional<NetworkMap> optionalNetworkMap = SingleTransactionDataBroker.syncReadOptional(broker,
+            Optional<NetworkMap> optionalNetworkMap = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, VpnUtil.buildNetworkMapIdentifier(new Uuid(
                             elanInfo.getName())));
             if (!optionalNetworkMap.isPresent()) {
@@ -396,7 +396,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     subnetList, elanInfo.getName());
             for (Uuid subnetId : subnetList) {
                 String vpnName = null;
-                Subnetmap sn = VpnUtil.getSubnetmapFromItsUuid(broker, subnetId);
+                Subnetmap sn = vpnUtil.getSubnetmapFromItsUuid(subnetId);
                 if (sn != null && sn.getVpnId() != null) {
                     vpnName = sn.getVpnId().getValue();
                 }
@@ -404,8 +404,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     continue;
                 }
                 Optional<SubnetOpDataEntry> optionalSubs;
-                optionalSubs = SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.OPERATIONAL,
-                        VpnUtil.buildSubnetOpDataEntryInstanceIdentifier(subnetId));
+                optionalSubs = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, VpnUtil.buildSubnetOpDataEntryInstanceIdentifier(subnetId));
                 if (!optionalSubs.isPresent()) {
                     continue;
                 }

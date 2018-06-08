@@ -97,6 +97,7 @@ public class VpnManagerImpl implements IVpnManager {
     private final DataTreeEventCallbackRegistrar eventCallbacks;
     private final UpgradeState upgradeState;
     private final ItmRpcService itmRpcService;
+    private final VpnUtil vpnUtil;
 
     @Inject
     public VpnManagerImpl(final DataBroker dataBroker,
@@ -112,7 +113,8 @@ public class VpnManagerImpl implements IVpnManager {
                           final InterVpnLinkCache interVpnLinkCache,
                           final DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar,
                           final UpgradeState upgradeState,
-                          final ItmRpcService itmRpcService) {
+                          final ItmRpcService itmRpcService,
+                          final VpnUtil vpnUtil) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = idManagerService;
@@ -128,6 +130,7 @@ public class VpnManagerImpl implements IVpnManager {
         this.eventCallbacks = dataTreeEventCallbackRegistrar;
         this.upgradeState = upgradeState;
         this.itmRpcService = itmRpcService;
+        this.vpnUtil = vpnUtil;
     }
 
     @PostConstruct
@@ -179,7 +182,7 @@ public class VpnManagerImpl implements IVpnManager {
         int label,RouteOrigin origin) {
         LOG.info("Adding extra route with destination {}, nextHop {}, label{} and origin {}",
             destination, nextHop, label, origin);
-        VpnInstanceOpDataEntry vpnOpEntry = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
+        VpnInstanceOpDataEntry vpnOpEntry = vpnUtil.getVpnInstanceOpData(rd);
         Boolean isVxlan = VpnUtil.isL3VpnOverVxLan(vpnOpEntry.getL3vni());
         VrfEntry.EncapType encapType = VpnUtil.getEncapType(isVxlan);
         addExtraRoute(vpnName, destination, nextHop, rd, routerID, vpnOpEntry.getL3vni(),
@@ -200,9 +203,7 @@ public class VpnManagerImpl implements IVpnManager {
         }
 
         //add extra route to vpn mapping; advertise with nexthop as tunnel ip
-        VpnUtil.syncUpdate(
-                dataBroker,
-                LogicalDatastoreType.OPERATIONAL,
+        vpnUtil.syncUpdate(LogicalDatastoreType.OPERATIONAL,
                 VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, rd != null ? rd : routerID,
                         destination),
                 VpnUtil.getVpnToExtraroute(destination, Collections.singletonList(nextHop)));
@@ -220,7 +221,7 @@ public class VpnManagerImpl implements IVpnManager {
             nextHop = nextHopIp;
         }
 
-        String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
+        String primaryRd = vpnUtil.getPrimaryRd(vpnName);
 
         // TODO: This is a limitation to be stated in docs. When configuring static route to go to
         // another VPN, there can only be one nexthop or, at least, the nexthop to the interVpnLink should be in
@@ -234,8 +235,8 @@ public class VpnManagerImpl implements IVpnManager {
             // This is like leaking one of the Vpn2 routes towards Vpn1
             String srcVpnUuid = interVpnLink.getVpnNameByIpAddress(nextHop);
             String dstVpnUuid = interVpnLink.getOtherVpnNameByIpAddress(nextHop);
-            String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnUuid);
-            long newLabel = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+            String dstVpnRd = vpnUtil.getVpnRd(dstVpnUuid);
+            long newLabel = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
                     VpnUtil.getNextHopLabelKey(dstVpnRd, destination));
             if (newLabel == 0) {
                 LOG.error("addExtraRoute: Unable to fetch label from Id Manager. Bailing out of adding intervpnlink"
@@ -289,7 +290,7 @@ public class VpnManagerImpl implements IVpnManager {
             tunnelIp = nextHopIp;
         }
         if (rd != null) {
-            String primaryRd = VpnUtil.getVpnRd(dataBroker, vpnName);
+            String primaryRd = vpnUtil.getVpnRd(vpnName);
             removePrefixFromBGP(primaryRd, rd, vpnName, destination, nextHop, tunnelIp, dpnId, writeConfigTxn);
             LOG.info("delExtraRoute: Removed extra route {} from interface {} for rd {}", destination, intfName, rd);
         } else {
@@ -318,17 +319,17 @@ public class VpnManagerImpl implements IVpnManager {
                         // If nhList is more than 1, just update vpntoextraroute and prefixtointerface DS
                         // For other cases, remove the corresponding tep ip from fibentry and withdraw prefix
                         nhList.remove(nextHop);
-                        VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                        vpnUtil.syncWrite(LogicalDatastoreType.OPERATIONAL,
                                 VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, rd, prefix),
                                 VpnUtil.getVpnToExtraroute(prefix, nhList));
                         MDSALUtil.syncDelete(dataBroker,
                                 LogicalDatastoreType.CONFIGURATION, VpnExtraRouteHelper.getUsedRdsIdentifier(
-                                VpnUtil.getVpnId(dataBroker, vpnName), prefix, nextHop));
+                                vpnUtil.getVpnId(vpnName), prefix, nextHop));
                         LOG.debug("removePrefixFromBGP: Removed vpn-to-extraroute with rd {} prefix {} nexthop {}",
                                 rd, prefix, nextHop);
                         fibManager.refreshVrfEntry(primaryRd, prefix);
-                        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-                        Optional<Prefixes> prefixToInterface = VpnUtil.getPrefixToInterface(dataBroker, vpnId, nextHop);
+                        long vpnId = vpnUtil.getVpnId(vpnName);
+                        Optional<Prefixes> prefixToInterface = vpnUtil.getPrefixToInterface(vpnId, nextHop);
                         if (prefixToInterface.isPresent()) {
                             writeConfigTxn.delete(LogicalDatastoreType.OPERATIONAL,
                                     VpnUtil.getAdjacencyIdentifier(prefixToInterface.get().getVpnInterfaceName(),
@@ -374,12 +375,12 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public List<BigInteger> getDpnsOnVpn(String vpnInstanceName) {
-        return VpnUtil.getDpnsOnVpn(dataBroker, vpnInstanceName);
+        return vpnUtil.getDpnsOnVpn(vpnInstanceName);
     }
 
     @Override
     public boolean existsVpn(String vpnName) {
-        return VpnUtil.getVpnInstance(dataBroker, vpnName) != null;
+        return vpnUtil.getVpnInstance(vpnName) != null;
     }
 
     @Override
@@ -408,11 +409,11 @@ public class VpnManagerImpl implements IVpnManager {
             return;
         }
 
-        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-        long subnetVpnId = VpnUtil.getVpnId(dataBroker, subnetVpnName);
+        long vpnId = vpnUtil.getVpnId(vpnName);
+        long subnetVpnId = vpnUtil.getVpnId(subnetVpnName);
         if (dpnId.equals(BigInteger.ZERO)) {
             /* Apply the MAC on all DPNs in a VPN */
-            for (BigInteger dpId : VpnUtil.getDpnsOnVpn(dataBroker, vpnName)) {
+            for (BigInteger dpId : vpnUtil.getDpnsOnVpn(vpnName)) {
                 consumer.process(vpnId, dpId, subnetVpnId);
             }
         } else {
@@ -421,12 +422,12 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     private void addGwMac(String srcMacAddress, WriteTransaction tx, long vpnId, BigInteger dpId, long subnetVpnId) {
-        FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dataBroker, dpId, srcMacAddress, vpnId, subnetVpnId);
+        FlowEntity flowEntity = vpnUtil.buildL3vpnGatewayFlow(dpId, srcMacAddress, vpnId, subnetVpnId);
         mdsalManager.addFlowToTx(flowEntity, tx);
     }
 
     private void removeGwMac(String srcMacAddress, WriteTransaction tx, long vpnId, BigInteger dpId, long subnetVpnId) {
-        FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dataBroker, dpId, srcMacAddress, vpnId, subnetVpnId);
+        FlowEntity flowEntity = vpnUtil.buildL3vpnGatewayFlow(dpId, srcMacAddress, vpnId, subnetVpnId);
         mdsalManager.removeFlowToTx(flowEntity, tx);
     }
 
@@ -463,7 +464,7 @@ public class VpnManagerImpl implements IVpnManager {
             return;
         }
 
-        Uuid vpnId = VpnUtil.getExternalNetworkVpnId(dataBroker, extNetworkId);
+        Uuid vpnId = vpnUtil.getExternalNetworkVpnId(extNetworkId);
         if (vpnId == null) {
             LOG.warn("Network {} is not associated with VPN", extNetworkId.getValue());
             return;
@@ -672,7 +673,7 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public List<MatchInfoBase> getEgressMatchesForVpn(String vpnName) {
-        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+        long vpnId = vpnUtil.getVpnId(vpnName);
         if (vpnId == VpnConstants.INVALID_ID) {
             LOG.warn("No VPN id found for {}", vpnName);
             return Collections.emptyList();
@@ -717,16 +718,16 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public VpnInstance getVpnInstance(DataBroker broker, String vpnInstanceName) {
-        return VpnUtil.getVpnInstance(broker, vpnInstanceName);
+        return vpnUtil.getVpnInstance(vpnInstanceName);
     }
 
     @Override
     public String getVpnRd(DataBroker broker, String vpnName) {
-        return VpnUtil.getVpnRd(broker, vpnName);
+        return vpnUtil.getVpnRd(vpnName);
     }
 
     @Override
     public VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
-        return VpnUtil.getNeutronPortFromVpnPortFixedIp(broker, vpnName, fixedIp);
+        return vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, fixedIp);
     }
 }
