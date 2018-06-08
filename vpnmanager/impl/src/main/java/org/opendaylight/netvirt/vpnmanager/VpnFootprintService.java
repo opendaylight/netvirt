@@ -73,23 +73,25 @@ public class VpnFootprintService implements IVpnFootprintService {
     private final VpnOpDataSyncer vpnOpDataSyncer;
     private final NotificationPublishService notificationPublishService;
     private final IInterfaceManager interfaceManager;
+    private final VpnUtil vpnUtil;
 
     @Inject
     public VpnFootprintService(final DataBroker dataBroker, final IFibManager fibManager,
             final NotificationPublishService notificationPublishService, final VpnOpDataSyncer vpnOpDataSyncer,
-            final IInterfaceManager interfaceManager) {
+            final IInterfaceManager interfaceManager, VpnUtil vpnUtil) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.fibManager = fibManager;
         this.vpnOpDataSyncer = vpnOpDataSyncer;
         this.notificationPublishService = notificationPublishService;
         this.interfaceManager = interfaceManager;
+        this.vpnUtil = vpnUtil;
     }
 
     @Override
     public void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String primaryRd, String interfaceName,
             ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, boolean add) {
-        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+        long vpnId = vpnUtil.getVpnId(vpnName);
         if (!dpId.equals(BigInteger.ZERO)) {
             if (add) {
                 // Considering the possibility of VpnInstanceOpData not being ready yet cause
@@ -100,7 +102,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                             + " footprint for vpn {} on dpn {} interface {}", vpnName, dpId, interfaceName);
                     vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId, vpnName,
                             VpnConstants.PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS);
-                    vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+                    vpnId = vpnUtil.getVpnId(vpnName);
                 }
                 if (interfaceName != null) {
                     createOrUpdateVpnToDpnListForInterfaceName(vpnId, primaryRd, dpId, interfaceName, vpnName);
@@ -180,8 +182,8 @@ public class VpnFootprintService implements IVpnFootprintService {
          * Informing the FIB only after writeTxn is submitted successfully.
          */
         if (newDpnOnVpn.get()) {
-            if (VpnUtil.isVlan(dataBroker ,intfName)) {
-                if (!VpnUtil.shouldPopulateFibForVlan(dataBroker, vpnName, null, dpnId, interfaceManager)) {
+            if (vpnUtil.isVlan(intfName)) {
+                if (!vpnUtil.shouldPopulateFibForVlan(vpnName, null, dpnId)) {
                     return;
                 }
             }

@@ -54,12 +54,16 @@ public abstract class L3vpnPopulator implements VpnPopulator {
     protected final IFibManager fibManager;
     protected final DataBroker broker;
     protected final ManagedNewTransactionRunner txRunner;
+    protected final VpnUtil vpnUtil;
 
-    protected L3vpnPopulator(DataBroker dataBroker, IBgpManager bgpManager, IFibManager fibManager) {
+    protected L3vpnPopulator(DataBroker dataBroker, IBgpManager bgpManager, IFibManager fibManager,
+                             VpnUtil vpnUtil) {
         this.bgpManager = bgpManager;
         this.fibManager = fibManager;
         this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
+        this.vpnUtil = vpnUtil;
+
     }
 
     @Override
@@ -95,20 +99,20 @@ public abstract class L3vpnPopulator implements VpnPopulator {
             InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
 
             VrfTables vrfTableNew = new VrfTablesBuilder().setRouteDistinguisher(rd).setVrfEntry(vrfEntryList).build();
-            VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew);
+            vpnUtil.syncUpdate(LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew);
             LOG.info("SUBNETROUTE: addSubnetRouteFibEntryToDS: Added vrfEntry for {} nexthop {} label {} rd {}"
                     + " vpnName {}", prefix, nextHop, label, rd, vpnName);
         } else { // Found in MDSAL database
-            VpnUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+            vpnUtil.syncWrite(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
             LOG.info("SUBNETROUTE: addSubnetRouteFibEntryToDS: Updated vrfEntry for {} nexthop {} label {} rd {}"
                     + " vpnName {}", prefix, nextHop, label, rd, vpnName);
         }
 
         //Will be handled appropriately with the iRT patch for EVPN
         if (input.getEncapType().equals(VrfEntryBase.EncapType.Mplsgre)) {
-            long vpnId = VpnUtil.getVpnId(broker, vpnName);
+            long vpnId = vpnUtil.getVpnId(vpnName);
             addToLabelMapper(label, dpnId, prefix, Collections.singletonList(nextHop), vpnId, null, elantag, true, rd);
-            List<VpnInstanceOpDataEntry> vpnsToImportRoute = VpnUtil.getVpnsImportingMyRoute(broker, vpnName);
+            List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnUtil.getVpnsImportingMyRoute(vpnName);
             if (vpnsToImportRoute.size() > 0) {
                 VrfEntry importingVrfEntry = FibHelper.getVrfEntryBuilder(prefix, label, nextHop,
                         RouteOrigin.SELF_IMPORTED, rd).addAugmentation(SubnetRoute.class, route).build();
@@ -120,8 +124,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                                     new VrfTablesKey(importingRd)).build();
                     VrfTables importingVrfTable = new VrfTablesBuilder().setRouteDistinguisher(importingRd)
                             .setVrfEntry(importingVrfEntryList).build();
-                    VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, importingVrfTableId,
-                            importingVrfTable);
+                    vpnUtil.syncUpdate(LogicalDatastoreType.CONFIGURATION, importingVrfTableId, importingVrfTable);
                     LOG.info("SUBNETROUTE: addSubnetRouteFibEntryToDS: Exported route rd {} prefix {} nexthop {}"
                             + " label {} to vpn {} importingRd {}", rd, prefix, nextHop, label,
                             vpnInstance.getVpnInstanceName(), importingRd);
@@ -163,7 +166,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                                 label, prefix, rd, vpnId);
                     }
                     lriBuilder.setParentVpnRd(rd);
-                    VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(broker, rd);
+                    VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnUtil.getVpnInstanceOpData(rd);
                     if (vpnInstanceOpDataEntry != null) {
                         List<String> vpnInstanceNames = Collections
                                 .singletonList(vpnInstanceOpDataEntry.getVpnInstanceName());

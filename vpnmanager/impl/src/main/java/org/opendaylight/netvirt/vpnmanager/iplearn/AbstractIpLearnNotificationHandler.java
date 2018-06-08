@@ -44,13 +44,15 @@ public class AbstractIpLearnNotificationHandler {
     protected final IdManagerService idManager;
     protected final IInterfaceManager interfaceManager;
     protected final VpnConfig config;
+    protected final VpnUtil vpnUtil;
 
     public AbstractIpLearnNotificationHandler(DataBroker dataBroker, IdManagerService idManager,
-            IInterfaceManager interfaceManager, VpnConfig vpnConfig) {
+            IInterfaceManager interfaceManager, VpnConfig vpnConfig, VpnUtil vpnUtil) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
         this.config = vpnConfig;
+        this.vpnUtil = vpnUtil;
 
         long duration = config.getArpLearnTimeout() * 10;
         long cacheSize = config.getArpCacheSize().longValue();
@@ -61,7 +63,7 @@ public class AbstractIpLearnNotificationHandler {
 
     protected void validateAndProcessIpLearning(String srcInterface, IpAddress srcIP, MacAddress srcMac,
             IpAddress targetIP, BigInteger metadata) {
-        List<Adjacency> adjacencies = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, srcInterface);
+        List<Adjacency> adjacencies = vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(srcInterface);
         if (adjacencies != null) {
             for (Adjacency adj : adjacencies) {
                 IpPrefix ipPrefix = new IpPrefix(adj.getIpAddress().toCharArray());
@@ -79,7 +81,7 @@ public class AbstractIpLearnNotificationHandler {
     protected void processIpLearning(String srcInterface, IpAddress srcIP, MacAddress srcMac, BigInteger metadata,
             IpAddress dstIP) {
         if (metadata != null && !Objects.equals(metadata, BigInteger.ZERO)) {
-            Optional<List<String>> vpnList = VpnUtil.getVpnHandlingAssociatedWithInterface(dataBroker, srcInterface);
+            Optional<List<String>> vpnList = vpnUtil.getVpnHandlingIpv4AssociatedWithInterface(srcInterface);
             if (vpnList.isPresent()) {
                 String srcIpToQuery = String.valueOf(srcIP.getValue());
                 String destIpToQuery = String.valueOf(dstIP.getValue());
@@ -87,15 +89,14 @@ public class AbstractIpLearnNotificationHandler {
                     LOG.info("Received ARP/NA for sender MAC {} and sender IP {} via interface {}",
                               srcMac.getValue(), srcIpToQuery, srcInterface);
                     VpnPortipToPort vpnPortipToPort =
-                            VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, srcIpToQuery);
+                            vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, srcIpToQuery);
                     if (vpnPortipToPort != null) {
                         /* This is a well known neutron port and so should be ignored
                          * from being discovered
                          */
                         continue;
                     }
-                    LearntVpnVipToPort learntVpnVipToPort = VpnUtil.getLearntVpnVipToPort(dataBroker,
-                              vpnName, srcIpToQuery);
+                    LearntVpnVipToPort learntVpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, srcIpToQuery);
                     if (learntVpnVipToPort != null) {
                         String oldPortName = learntVpnVipToPort.getPortName();
                         String oldMac = learntVpnVipToPort.getMacAddress();
@@ -104,7 +105,7 @@ public class AbstractIpLearnNotificationHandler {
                             LOG.info("ARP/NA Source IP/MAC data modified for IP {} with MAC {} and Port {}",
                                     srcIpToQuery, srcMac, srcInterface);
                             synchronized ((vpnName + srcIpToQuery).intern()) {
-                                VpnUtil.createLearntVpnVipToPortEvent(dataBroker, vpnName, srcIpToQuery, destIpToQuery,
+                                vpnUtil.createLearntVpnVipToPortEvent(vpnName, srcIpToQuery, destIpToQuery,
                                         oldPortName, oldMac, LearntVpnVipToPortEventAction.Delete, null);
                                 putVpnIpToMigrateIpCache(vpnName, srcIpToQuery, srcMac);
                             }
@@ -127,7 +128,7 @@ public class AbstractIpLearnNotificationHandler {
         String srcIpToQuery = String.valueOf(srcIP.getValue());
         String destIpToQuery = String.valueOf(dstIP.getValue());
         synchronized ((vpnName + srcIpToQuery).intern()) {
-            VpnUtil.createLearntVpnVipToPortEvent(dataBroker, vpnName, srcIpToQuery, destIpToQuery, srcInterface,
+            vpnUtil.createLearntVpnVipToPortEvent(vpnName, srcIpToQuery, destIpToQuery, srcInterface,
                     srcMac.getValue(), LearntVpnVipToPortEventAction.Add, null);
         }
     }
