@@ -40,8 +40,8 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
 
     @Inject
     public L3vpnOverMplsGrePopulator(DataBroker dataBroker, IBgpManager bgpManager, IFibManager fibManager,
-            IdManagerService idManager) {
-        super(dataBroker, bgpManager, fibManager);
+            IdManagerService idManager, VpnUtil vpnUtil) {
+        super(dataBroker, bgpManager, fibManager, vpnUtil);
         this.idManager = idManager;
     }
 
@@ -71,8 +71,8 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         String nextHopIp = input.getNextHopIp();
         VrfEntry.EncapType encapType = input.getEncapType();
         LOG.info("populateFib : Found Interface Adjacency with prefix {} rd {}", nextHop.getIpAddress(), primaryRd);
-        List<VpnInstanceOpDataEntry> vpnsToImportRoute = VpnUtil.getVpnsImportingMyRoute(broker, vpnName);
-        long vpnId = VpnUtil.getVpnId(broker, vpnName);
+        List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnUtil.getVpnsImportingMyRoute(vpnName);
+        long vpnId = vpnUtil.getVpnId(vpnName);
         String nextHopIpAddress = nextHop.getIpAddress(); // it is a valid case for nextHopIpAddress to be null
         // Not advertising the prefix to BGP for InternalVpn (where rd is vpnName),
         // transparentInternetVpn (where rd is Network name)
@@ -118,8 +118,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         String rd = input.getRd();
         String primaryRd = input.getPrimaryRd();
         String vpnName = input.getVpnName();
-        long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                VpnUtil.getNextHopLabelKey(primaryRd, prefix));
+        long label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME, VpnUtil.getNextHopLabelKey(primaryRd, prefix));
         if (label == VpnConstants.INVALID_LABEL) {
             String error = "Unable to fetch label from Id Manager. Bailing out of creation of operational "
                     + "vpn interface adjacency " + prefix + "for vpn " + vpnName;

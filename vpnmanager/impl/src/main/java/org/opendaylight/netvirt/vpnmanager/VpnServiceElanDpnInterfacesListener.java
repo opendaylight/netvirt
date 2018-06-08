@@ -52,15 +52,17 @@ public class VpnServiceElanDpnInterfacesListener
     private final IFibManager fibManager;
     private final JobCoordinator jobCoordinator;
     private final ManagedNewTransactionRunner txRunner;
+    private final VpnUtil vpnUtil;
 
     @Inject
     public VpnServiceElanDpnInterfacesListener(final DataBroker dataBroker, final IInterfaceManager interfaceManager,
-            final IFibManager fibManager,final JobCoordinator jobCoordinator) {
+            final IFibManager fibManager,final JobCoordinator jobCoordinator, VpnUtil vpnUtil) {
         this.dataBroker = dataBroker;
         this.interfaceManager = interfaceManager;
         this.fibManager = fibManager;
         this.jobCoordinator = jobCoordinator;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
+        this.vpnUtil = vpnUtil;
     }
 
     @PostConstruct
@@ -85,12 +87,12 @@ public class VpnServiceElanDpnInterfacesListener
         LOG.info("received Dpninterfaces update event for dpn {}", update.getDpId());
         BigInteger dpnId = update.getDpId();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
-        ElanInstance elanInstance = VpnUtil.getElanInstanceByName(dataBroker, elanInstanceName);
-        String vpnName = VpnUtil.getVpnNameFromElanIntanceName(dataBroker,elanInstanceName);
+        ElanInstance elanInstance = vpnUtil.getElanInstanceByName(elanInstanceName);
+        String vpnName = vpnUtil.getVpnNameFromElanIntanceName(elanInstanceName);
         if (vpnName == null) {
             return;
         }
-        String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
+        String primaryRd = vpnUtil.getPrimaryRd(vpnName);
         if (elanInstance != null && !elanInstance.isExternal() && VpnUtil.isVlan(elanInstance)) {
             jobCoordinator.enqueueJob(elanInstance.getElanInstanceName(), () -> {
                 ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeConfigTxn -> {
@@ -106,11 +108,10 @@ public class VpnServiceElanDpnInterfacesListener
                                     && dpnInVpn.get().getVpnInterfaces().size() != 1)) {
                                 return;
                             }
-                            if (!VpnUtil.shouldPopulateFibForVlan(dataBroker, vpnName, elanInstanceName,
-                                    dpnId, interfaceManager)) {
+                            if (!vpnUtil.shouldPopulateFibForVlan(vpnName, elanInstanceName, dpnId)) {
                                 return;
                             }
-                            long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+                            long vpnId = vpnUtil.getVpnId(vpnName);
                             fibManager.populateFibOnNewDpn(dpnId, vpnId, primaryRd, null);
                             break;
                         }
@@ -118,9 +119,9 @@ public class VpnServiceElanDpnInterfacesListener
                     List<String> deletedInterfaces = getUpdatedInterfaceList(original.getInterfaces(),
                             update.getInterfaces());
                     if (!deletedInterfaces.isEmpty()) {
-                        String routerPortUuid = VpnUtil.getRouterPordIdFromElanInstance(dataBroker, elanInstanceName);
+                        String routerPortUuid = vpnUtil.getRouterPordIdFromElanInstance(elanInstanceName);
                         if (update.getInterfaces().size() == 2 && update.getInterfaces().contains(routerPortUuid)) {
-                            VpnUtil.removeRouterPortFromElanForVlanInDpn(vpnName, dpnId, dataBroker);
+                            vpnUtil.removeRouterPortFromElanForVlanInDpn(vpnName, dpnId);
                         }
                     }
                 });
@@ -135,15 +136,15 @@ public class VpnServiceElanDpnInterfacesListener
     protected void add(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces dpnInterfaces) {
         BigInteger dpnId = dpnInterfaces.getDpId();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
-        ElanInstance elanInstance = VpnUtil.getElanInstanceByName(dataBroker, elanInstanceName);
+        ElanInstance elanInstance = vpnUtil.getElanInstanceByName(elanInstanceName);
         if (!VpnUtil.isVlan(elanInstance)) {
             return;
         }
-        String vpnName = VpnUtil.getVpnNameFromElanIntanceName(dataBroker,elanInstanceName);
+        String vpnName = vpnUtil.getVpnNameFromElanIntanceName(elanInstanceName);
         if (vpnName == null) {
             return;
         }
-        VpnUtil.addRouterPortToElanForVlanInDpn(vpnName, dpnId, dataBroker);
+        vpnUtil.addRouterPortToElanForVlanInDpn(vpnName, dpnId);
     }
 
     @Override

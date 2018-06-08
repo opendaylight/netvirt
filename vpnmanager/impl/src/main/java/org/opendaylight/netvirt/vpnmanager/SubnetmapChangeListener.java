@@ -37,12 +37,15 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
     private static final Logger LOG = LoggerFactory.getLogger(SubnetmapChangeListener.class);
     private final DataBroker dataBroker;
     private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
+    private final VpnUtil vpnUtil;
 
     @Inject
-    public SubnetmapChangeListener(final DataBroker dataBroker, final VpnSubnetRouteHandler vpnSubnetRouteHandler) {
+    public SubnetmapChangeListener(final DataBroker dataBroker, final VpnSubnetRouteHandler vpnSubnetRouteHandler,
+                                   VpnUtil vpnUtil) {
         super(Subnetmap.class, SubnetmapChangeListener.class);
         this.dataBroker = dataBroker;
         this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
+        this.vpnUtil = vpnUtil;
     }
 
     @PostConstruct
@@ -71,14 +74,14 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
     protected void add(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
         LOG.debug("SubnetmapChangeListener add subnetmap method - key: {}, value: {}", identifier, subnetmap);
         Uuid subnetId = subnetmap.getId();
-        Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmap.getNetworkId());
+        Network network = vpnUtil.getNeutronNetwork(subnetmap.getNetworkId());
         if (network == null) {
             LOG.error("SubnetMapChangeListener:add: network was not found for subnetId {}", subnetId.getValue());
             return;
         }
         if (subnetmap.getVpnId() != null) {
             if (subnetmap.getNetworkType().equals(NetworkType.VLAN)) {
-                VpnUtil.addRouterPortToElanDpnListForVlaninAllDpn(subnetmap.getVpnId().getValue(), dataBroker);
+                vpnUtil.addRouterPortToElanDpnListForVlaninAllDpn(subnetmap.getVpnId().getValue());
             }
         }
         if (VpnUtil.getIsExternal(network)) {
@@ -114,7 +117,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         LOG.debug("SubnetMapChangeListener update method - key {}, original {}, update {}", identifier,
                   subnetmapOriginal, subnetmapUpdate);
         Uuid subnetId = subnetmapUpdate.getId();
-        Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmapUpdate.getNetworkId());
+        Network network = vpnUtil.getNeutronNetwork(subnetmapUpdate.getNetworkId());
         if (network == null) {
             LOG.error("SubnetMapChangeListener:update: network was not found for subnetId {}", subnetId.getValue());
             return;
@@ -203,13 +206,13 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             Subnetmap subnetmapOriginal, Long elanTag, String  elanInstanceName) {
         if (vpnIdNew != null && vpnIdOld == null) {
             if (elanInstanceName != null && subnetmapUpdate.getNetworkType().equals(NetworkType.VLAN)) {
-                VpnUtil.addRouterPortToElanDpnListForVlaninAllDpn(vpnIdNew.getValue(), dataBroker);
+                vpnUtil.addRouterPortToElanDpnListForVlaninAllDpn(vpnIdNew.getValue());
             }
         }
         if (vpnIdOld != null && vpnIdNew == null) {
             if (subnetmapOriginal.getNetworkType().equals(NetworkType.VLAN)) {
-                VpnUtil.removeRouterPortFromElanDpnListForVlanInAllDpn(elanInstanceName, subnetmapOriginal
-                        .getRouterInterfacePortId().getValue(), vpnIdOld.getValue(), dataBroker);
+                vpnUtil.removeRouterPortFromElanDpnListForVlanInAllDpn(elanInstanceName, subnetmapOriginal
+                        .getRouterInterfacePortId().getValue(), vpnIdOld.getValue());
             }
         }
     }

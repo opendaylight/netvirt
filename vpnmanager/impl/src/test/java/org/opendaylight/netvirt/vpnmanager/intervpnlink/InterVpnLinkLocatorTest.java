@@ -17,6 +17,7 @@ import static org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkTestC
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
+import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -53,6 +54,8 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
 
     InterVpnLinkCacheImpl interVpnLinkCache;
 
+    private @Inject VpnUtil vpnUtil;
+
     @Before
     public void setUp() throws Exception {
 
@@ -79,7 +82,7 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
         }
 
         // SUT
-        sut = new InterVpnLinkLocator(dataBroker, interVpnLinkCache);
+        sut = new InterVpnLinkLocator(dataBroker, interVpnLinkCache, vpnUtil);
     }
 
 
