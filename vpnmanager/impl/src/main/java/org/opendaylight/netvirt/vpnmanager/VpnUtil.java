@@ -35,6 +35,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -231,10 +233,13 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public final class VpnUtil {
     private static final Logger LOG = LoggerFactory.getLogger(VpnUtil.class);
     private static final int DEFAULT_PREFIX_LENGTH = 32;
     private static final String PREFIX_SEPARATOR = "/";
+
+    private final DataBroker dataBroker;
 
     /**
      * Class to generate timestamps with microsecond precision.
@@ -260,179 +265,132 @@ public final class VpnUtil {
         }
     }
 
-    private VpnUtil() {
+    public VpnUtil(DataBroker dataBroker) {
+        this.dataBroker = dataBroker;
     }
 
-    static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
+    InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
         return InstanceIdentifier.builder(VpnInterfaces.class)
-            .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).build();
+                .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).build();
     }
 
-    static InstanceIdentifier<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntryIdentifier(
-                                                             String vpnInterfaceName, String vpnName) {
-        return InstanceIdentifier.builder(VpnInterfaceOpData.class)
-            .child(VpnInterfaceOpDataEntry.class,
+    InstanceIdentifier<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntryIdentifier(String vpnInterfaceName,
+                                                                                     String vpnName) {
+        return InstanceIdentifier.builder(VpnInterfaceOpData.class).child(VpnInterfaceOpDataEntry.class,
             new VpnInterfaceOpDataEntryKey(vpnInterfaceName, vpnName)).build();
     }
 
-    static InstanceIdentifier<VpnInstance> getVpnInstanceIdentifier(String vpnName) {
+    InstanceIdentifier<VpnInstance> getVpnInstanceIdentifier(String vpnName) {
         return InstanceIdentifier.builder(VpnInstances.class)
-            .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
     }
 
-    static VpnInterface getVpnInterface(DataBroker broker, String vpnInterfaceName) {
+    VpnInterface getVpnInterface(String vpnInterfaceName) {
         InstanceIdentifier<VpnInterface> id = getVpnInterfaceIdentifier(vpnInterfaceName);
-        Optional<VpnInterface> vpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        Optional<VpnInterface> vpnInterface = read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         return vpnInterface.isPresent() ? vpnInterface.get() : null;
     }
 
-    static VpnInterfaceOpDataEntry getVpnInterfaceOpDataEntry(String intfName, String vpnName,
-                                        AdjacenciesOp aug, BigInteger dpnId,
-                                        Boolean isSheduledForRemove, long lportTag, String gwMac) {
+    VpnInterfaceOpDataEntry getVpnInterfaceOpDataEntry(String intfName, String vpnName, AdjacenciesOp aug,
+                                                       BigInteger dpnId, Boolean isSheduledForRemove, long lportTag,
+                                                       String gwMac) {
         return new VpnInterfaceOpDataEntryBuilder().withKey(new VpnInterfaceOpDataEntryKey(intfName, vpnName))
             .setDpnId(dpnId).setScheduledForRemove(isSheduledForRemove).addAugmentation(AdjacenciesOp.class, aug)
                 .setLportTag(lportTag).setGatewayMacAddress(gwMac).build();
     }
 
-    static Optional<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntry(DataBroker broker,
-                                                    String vpnInterfaceName, String vpnName) {
+    Optional<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntry(String vpnInterfaceName, String vpnName) {
         InstanceIdentifier<VpnInterfaceOpDataEntry> id = getVpnInterfaceOpDataEntryIdentifier(vpnInterfaceName,
                                                                                               vpnName);
-        Optional<VpnInterfaceOpDataEntry> vpnInterfaceOpDataEntry = read(broker,
-                                                      LogicalDatastoreType.OPERATIONAL, id);
+        Optional<VpnInterfaceOpDataEntry> vpnInterfaceOpDataEntry = read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                id);
         return vpnInterfaceOpDataEntry;
     }
 
-    static VpnInstanceNames getVpnInterfaceVpnInstanceNames(String vpnName, AssociatedSubnetType subnetType) {
-        return new VpnInstanceNamesBuilder().setVpnName(vpnName).setAssociatedSubnetType(subnetType).build();
+    InstanceIdentifier<Prefixes> getPrefixToInterfaceIdentifier(long vpnId, String ipPrefix) {
+        return InstanceIdentifier.builder(PrefixToInterface.class).child(VpnIds.class, new VpnIdsKey(vpnId))
+                .child(Prefixes.class, new PrefixesKey(ipPrefix)).build();
     }
 
-    static InstanceIdentifier<Prefixes> getPrefixToInterfaceIdentifier(long vpnId, String ipPrefix) {
-        return InstanceIdentifier.builder(PrefixToInterface.class)
-            .child(VpnIds.class, new VpnIdsKey(vpnId)).child(Prefixes.class,
-                new PrefixesKey(ipPrefix)).build();
+    InstanceIdentifier<VpnIds> getPrefixToInterfaceIdentifier(long vpnId) {
+        return InstanceIdentifier.builder(PrefixToInterface.class).child(VpnIds.class, new VpnIdsKey(vpnId)).build();
     }
 
-    public static InstanceIdentifier<VpnIds> getPrefixToInterfaceIdentifier(long vpnId) {
-        return InstanceIdentifier.builder(PrefixToInterface.class)
-            .child(VpnIds.class, new VpnIdsKey(vpnId)).build();
-    }
-
-    static VpnIds getPrefixToInterface(long vpnId) {
-        return new VpnIdsBuilder().withKey(new VpnIdsKey(vpnId)).setVpnId(vpnId).build();
-    }
-
-    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix, Uuid subnetId,
+    Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix, Uuid subnetId,
             Prefixes.PrefixCue prefixCue) {
-        return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(
-            vpnInterfaceName).setIpAddress(ipPrefix).setSubnetId(subnetId).setPrefixCue(prefixCue).build();
+        return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(vpnInterfaceName).setIpAddress(ipPrefix)
+                .setSubnetId(subnetId).setPrefixCue(prefixCue).build();
     }
 
-    static Optional<Prefixes> getPrefixToInterface(DataBroker broker, long vpnId, String ipPrefix) {
-        return read(broker, LogicalDatastoreType.OPERATIONAL,
+    Optional<Prefixes> getPrefixToInterface(long vpnId, String ipPrefix) {
+        return read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                 getPrefixToInterfaceIdentifier(vpnId, getIpPrefix(ipPrefix)));
     }
 
     /**
      * Get VRF table given a Route Distinguisher.
      *
-     * @param broker dataBroker service reference
      * @param rd Route-Distinguisher
      * @return VrfTables that holds the list of VrfEntries of the specified rd
      */
-    public static VrfTables getVrfTable(DataBroker broker, String rd) {
-        InstanceIdentifier<VrfTables> id =
-            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
-        Optional<VrfTables> vrfTable = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+    VrfTables getVrfTable(String rd) {
+        InstanceIdentifier<VrfTables> id = InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class,
+                new VrfTablesKey(rd)).build();
+        Optional<VrfTables> vrfTable = read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         return vrfTable.isPresent() ? vrfTable.get() : null;
-    }
-
-    /**
-     * Retrieves the VrfEntries that belong to a given VPN filtered out by
-     * Origin, searching by its Route-Distinguisher.
-     *
-     * @param broker dataBroker service reference
-     * @param rd Route-distinguisher of the VPN
-     * @param originsToConsider Only entries whose origin is included in this list will be considered
-     * @return the list of VrfEntries
-     */
-    public static List<VrfEntry> getVrfEntriesByOrigin(DataBroker broker, String rd,
-        List<RouteOrigin> originsToConsider) {
-        List<VrfEntry> result = new ArrayList<>();
-        List<VrfEntry> allVpnVrfEntries = getAllVrfEntries(broker, rd);
-        for (VrfEntry vrfEntry : allVpnVrfEntries) {
-            if (originsToConsider.contains(RouteOrigin.value(vrfEntry.getOrigin()))) {
-                result.add(vrfEntry);
-            }
-        }
-        return result;
-    }
-
-    static List<Prefixes> getAllPrefixesToInterface(DataBroker broker, long vpnId) {
-        Optional<VpnIds> vpnIds = read(broker, LogicalDatastoreType.OPERATIONAL, getPrefixToInterfaceIdentifier(vpnId));
-        if (vpnIds.isPresent()) {
-            return vpnIds.get().getPrefixes();
-        }
-        return new ArrayList<>();
     }
 
     /**
      * Retrieves all the VrfEntries that belong to a given VPN searching by its
      * Route-Distinguisher.
      *
-     * @param broker dataBroker service reference
      * @param rd Route-distinguisher of the VPN
      * @return the list of VrfEntries
      */
-    public static List<VrfEntry> getAllVrfEntries(DataBroker broker, String rd) {
-        VrfTables vrfTables = VpnUtil.getVrfTable(broker, rd);
+    List<VrfEntry> getAllVrfEntries(String rd) {
+        VrfTables vrfTables = getVrfTable(rd);
         return vrfTables != null ? vrfTables.getVrfEntry() : new ArrayList<>();
     }
 
     //FIXME: Implement caches for DS reads
-    public static VpnInstance getVpnInstance(DataBroker broker, String vpnInstanceName) {
+    VpnInstance getVpnInstance(String vpnInstanceName) {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class,
             new VpnInstanceKey(vpnInstanceName)).build();
-        Optional<VpnInstance> vpnInstance = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        Optional<VpnInstance> vpnInstance = read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         return vpnInstance.isPresent() ? vpnInstance.get() : null;
     }
 
-    public static List<VpnInstanceOpDataEntry> getAllVpnInstanceOpData(DataBroker broker) {
+    List<VpnInstanceOpDataEntry> getAllVpnInstanceOpData() {
         InstanceIdentifier<VpnInstanceOpData> id = InstanceIdentifier.builder(VpnInstanceOpData.class).build();
         Optional<VpnInstanceOpData> vpnInstanceOpDataOptional =
-            VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
-        if (vpnInstanceOpDataOptional.isPresent()) {
-            return vpnInstanceOpDataOptional.get().getVpnInstanceOpDataEntry();
-        } else {
-            return new ArrayList<>();
-        }
+            VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        return vpnInstanceOpDataOptional.isPresent() ?  vpnInstanceOpDataOptional.get().getVpnInstanceOpDataEntry()
+                : Collections.emptyList();
     }
 
-    public static List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
-        .instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> getDpnVpnInterfaces(DataBroker broker,
-        VpnInstance vpnInstance, BigInteger dpnId) {
+    List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
+            .vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> getDpnVpnInterfaces(VpnInstance vpnInstance,
+                                                                                           BigInteger dpnId) {
         String primaryRd = getPrimaryRd(vpnInstance);
         InstanceIdentifier<VpnToDpnList> dpnToVpnId = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
-        Optional<VpnToDpnList> dpnInVpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnToVpnId);
+        Optional<VpnToDpnList> dpnInVpn = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, dpnToVpnId);
         return dpnInVpn.isPresent() ? dpnInVpn.get().getVpnInterfaces() : Collections.emptyList();
     }
 
-    public static List<String> getListOfRdsFromVpnInstance(VpnInstance vpnInstance) {
+    List<String> getListOfRdsFromVpnInstance(VpnInstance vpnInstance) {
         VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
         LOG.trace("vpnConfig {}", vpnConfig);
-        return vpnConfig.getRouteDistinguisher() != null ? new ArrayList<>(
-                vpnConfig.getRouteDistinguisher()) : new ArrayList<>();
+        return vpnConfig.getRouteDistinguisher() != null ? vpnConfig.getRouteDistinguisher() : Collections.emptyList();
     }
 
-    static VrfEntry getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
-
-        VrfTables vrfTable = getVrfTable(broker, rd);
+    VrfEntry getVrfEntry(String rd, String ipPrefix) {
+        VrfTables vrfTable = getVrfTable(rd);
         // TODO: why check VrfTables if we later go for the specific VrfEntry?
         if (vrfTable != null) {
             InstanceIdentifier<VrfEntry> vrfEntryId =
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(
                     VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
-            Optional<VrfEntry> vrfEntry = read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+            Optional<VrfEntry> vrfEntry = read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
             if (vrfEntry.isPresent()) {
                 return vrfEntry.get();
             }
@@ -440,11 +398,10 @@ public final class VpnUtil {
         return null;
     }
 
-    static List<Adjacency> getAdjacenciesForVpnInterfaceFromConfig(DataBroker broker, String intfName) {
+    List<Adjacency> getAdjacenciesForVpnInterfaceFromConfig(String intfName) {
         final InstanceIdentifier<VpnInterface> identifier = getVpnInterfaceIdentifier(intfName);
         InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
-        Optional<Adjacencies> adjacencies = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path);
-
+        Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
         if (adjacencies.isPresent()) {
             List<Adjacency> nextHops = adjacencies.get().getAdjacency();
             return nextHops;
