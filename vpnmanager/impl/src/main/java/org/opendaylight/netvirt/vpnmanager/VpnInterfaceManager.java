@@ -126,6 +126,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private final IVpnManager vpnManager;
     private final ArpResponderHandler arpResponderHandler;
     private final JobCoordinator jobCoordinator;
+    private final VpnUtil vpnUtil;
 
     private final ConcurrentHashMap<String, Runnable> vpnIntfMap = new ConcurrentHashMap<>();
 
@@ -146,7 +147,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                final IVpnManager vpnManager,
                                final ArpResponderHandler arpResponderHandler,
                                final JobCoordinator jobCoordinator,
-                               final CacheProvider cacheProvider) {
+                               final CacheProvider cacheProvider,
+                               final VpnUtil vpnUtil) {
         super(VpnInterface.class, VpnInterfaceManager.class);
 
         this.dataBroker = dataBroker;
@@ -161,6 +163,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         this.vpnManager = vpnManager;
         this.arpResponderHandler = arpResponderHandler;
         this.jobCoordinator = jobCoordinator;
+        this.vpnUtil = vpnUtil;
 
         vpnInstanceOpDataEntryCache = new InstanceIdDataObjectCache<>(VpnInstanceOpDataEntry.class, dataBroker,
                 LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(
@@ -254,10 +257,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     final InstanceIdentifier<VpnInterface> identifier, String vpnName) {
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
         final String interfaceName = key.getName();
-        String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
-        if (!VpnUtil.isVpnPendingDelete(dataBroker, primaryRd)) {
+        String primaryRd = vpnUtil.getPrimaryRd(vpnName);
+        if (!vpnUtil.isVpnPendingDelete(primaryRd)) {
             Interface interfaceState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker, interfaceName);
-            boolean isBgpVpnInternetVpn = VpnUtil.isBgpVpnInternet(dataBroker, vpnName);
+            boolean isBgpVpnInternetVpn = vpnUtil.isBgpVpnInternet(vpnName);
             if (interfaceState != null) {
                 try {
                     final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(interfaceState);
@@ -285,8 +288,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                             oldAdjs.remove(adj);
                                                         } else {
                                                             if (!isBgpVpnInternetVpn
-                                                                    || VpnUtil.isAdjacencyEligibleToVpnInternet(
-                                                                    dataBroker, adj)) {
+                                                                    || vpnUtil.isAdjacencyEligibleToVpnInternet(adj)) {
                                                                 addNewAdjToVpnInterface(vpnInterfaceOpIdentifier,
                                                                         primaryRd, adj, dpnId, operTx, confTx);
                                                             }
@@ -295,8 +297,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                 }
                                                 for (Adjacency adj : oldAdjs) {
                                                     if (!isBgpVpnInternetVpn
-                                                            || VpnUtil.isAdjacencyEligibleToVpnInternet(
-                                                            dataBroker, adj)) {
+                                                            || vpnUtil.isAdjacencyEligibleToVpnInternet(adj)) {
                                                         delAdjFromVpnInterface(vpnInterfaceOpIdentifier, adj, dpnId,
                                                                 operTx, confTx);
                                                     }
@@ -351,14 +352,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             Interface interfaceState,
             final String vpnName) {
         final String interfaceName = vpnInterface.getName();
-        Optional<VpnInterfaceOpDataEntry> optOpVpnInterface = VpnUtil.getVpnInterfaceOpDataEntry(dataBroker,
-                                                         interfaceName, vpnName);
+        Optional<VpnInterfaceOpDataEntry> optOpVpnInterface = vpnUtil.getVpnInterfaceOpDataEntry(interfaceName,
+                vpnName);
         VpnInterfaceOpDataEntry opVpnInterface = optOpVpnInterface.isPresent() ? optOpVpnInterface.get() : null;
-        boolean isBgpVpnInternetVpn = VpnUtil.isBgpVpnInternet(dataBroker, vpnName);
+        boolean isBgpVpnInternetVpn = vpnUtil.isBgpVpnInternet(vpnName);
         if (!isInterfaceUp) {
             LOG.info("processVpnInterfaceUp: Binding vpn service to interface {} onto dpn {} for vpn {}",
                      interfaceName, dpId, vpnName);
-            long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+            long vpnId = vpnUtil.getVpnId(vpnName);
             if (vpnId == VpnConstants.INVALID_ID) {
                 LOG.warn("processVpnInterfaceUp: VpnInstance to VPNId mapping not available for VpnName {}"
                         + " processing vpninterface {} on dpn {}, bailing out now.", vpnName, interfaceName,
@@ -375,7 +376,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     // If so, we have to process ADD, as this might be a DPN Restart with Remove and Add triggered
                     // back to back
                     // However, if the primary VRF Entry for this VPNInterface exists, please continue bailing out !
-                    List<Adjacency> adjs = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, interfaceName);
+                    List<Adjacency> adjs = vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(interfaceName);
                     if (adjs == null) {
                         LOG.error("processVpnInterfaceUp: VPN Interface {} on dpn {} for vpn {} failed as adjacencies"
                                 + " for this vpn interface could not be obtained", interfaceName, dpId,
@@ -395,7 +396,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         return;
                     }
                     // Get the rd of the vpn instance
-                    VrfEntry vrf = VpnUtil.getVrfEntry(dataBroker, primaryRd, primaryInterfaceIp);
+                    VrfEntry vrf = vpnUtil.getVrfEntry(primaryRd, primaryInterfaceIp);
                     if (vrf != null) {
                         LOG.error("processVpnInterfaceUp: VPN Interface {} on dpn {} for vpn {} already provisioned ,"
                                 + " bailing out from here.", interfaceName, dpId, vpnName);
@@ -415,8 +416,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 processVpnInterfaceAdjacencies(dpId, lportTag, vpnName, primaryRd, interfaceName,
                         vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
                 if (!isBgpVpnInternetVpn) {
-                    VpnUtil.bindService(vpnName, interfaceName, dataBroker, false /*isTunnelInterface*/,
-                            jobCoordinator);
+                    vpnUtil.bindService(vpnName, interfaceName, false /*isTunnelInterface*/);
                 }
                 LOG.info("processVpnInterfaceUp: Plumbed vpn interface {} onto dpn {} for vpn {}", interfaceName,
                         dpId, vpnName);
@@ -453,7 +453,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 LOG.warn("processVpnInterfaceUp: VPN Interface {} removal on dpn {} for vpn {}"
                         + " by FIB did not complete on time," + " bailing addition ...", interfaceName,
                         dpId, vpnName);
-                VpnUtil.unsetScheduledToRemoveForVpnInterface(txRunner, interfaceName);
+                vpnUtil.unsetScheduledToRemoveForVpnInterface(interfaceName);
                 return;
             }
             // VPNInterface got removed, proceed with Add
@@ -465,7 +465,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             processVpnInterfaceAdjacencies(dpId, lportTag, vpnName, primaryRd, interfaceName,
                     vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
             if (!isBgpVpnInternetVpn) {
-                VpnUtil.bindService(vpnName, interfaceName, dataBroker, false/*isTunnelInterface*/, jobCoordinator);
+                vpnUtil.bindService(vpnName, interfaceName, false/*isTunnelInterface*/);
             }
             LOG.info("processVpnInterfaceUp: Plumbed vpn interface {} onto dpn {} for vpn {} after waiting for"
                     + " FIB to clean up", interfaceName, dpId, vpnName);
@@ -496,8 +496,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         continue;
                     }
                     // if BGPVPN Internet, filter only IPv6 Adjacencies
-                    if (isBgpVpnInternetVpn && !VpnUtil.isAdjacencyEligibleToVpnInternet(
-                            dataBroker, adjacency)) {
+                    if (isBgpVpnInternetVpn && !vpnUtil.isAdjacencyEligibleToVpnInternet(adjacency)) {
                         continue;
                     }
                     addNewAdjToVpnInterface(vpnInterfaceOpIdentifier, primaryRd, adjacency,
@@ -522,7 +521,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             return;
         }
 
-        List<Uuid> routerIds = VpnUtil.getExternalNetworkRouterIds(dataBroker, extNetworkId);
+        List<Uuid> routerIds = vpnUtil.getExternalNetworkRouterIds(extNetworkId);
         if (routerIds == null || routerIds.isEmpty()) {
             LOG.info("processExternalVpnInterface: No router is associated with {}."
                     + " Bailing out of processing external vpn interface {} on dpn {} for vpn {}",
@@ -534,9 +533,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 + " for vpn {}", routerIds, interfaceName, dpId, vpnName);
         for (Uuid routerId : routerIds) {
             String routerName = routerId.getValue();
-            BigInteger primarySwitch = VpnUtil.getPrimarySwitchForRouter(dataBroker, routerName);
+            BigInteger primarySwitch = vpnUtil.getPrimarySwitchForRouter(routerName);
             if (Objects.equals(primarySwitch, dpId)) {
-                Routers router = VpnUtil.getExternalRouter(dataBroker, routerName);
+                Routers router = vpnUtil.getExternalRouter(routerName);
                 if (router != null) {
                     if (addOrRemove == NwConstants.ADD_FLOW) {
                         vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName,
@@ -593,7 +592,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 if (!nextHops.isEmpty()) {
                     LOG.debug("advertiseAdjacenciesForVpnToBgp:  NextHops are {} for interface {} on dpn {} for vpn {}"
                             + " rd {}", nextHops, interfaceName, dpnId, vpnName, rd);
-                    VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
+                    VpnInstanceOpDataEntry vpnInstanceOpData = vpnUtil.getVpnInstanceOpData(rd);
                     long l3vni = vpnInstanceOpData.getL3vni();
                     VrfEntry.EncapType encapType = VpnUtil.isL3VpnOverVxLan(l3vni)
                             ? VrfEntry.EncapType.Vxlan : VrfEntry.EncapType.Mplsgre;
@@ -604,7 +603,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         String gatewayMac = null;
                         long label = 0;
                         if (VpnUtil.isL3VpnOverVxLan(l3vni)) {
-                            final VpnPortipToPort gwPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker,
+                            final VpnPortipToPort gwPort = vpnUtil.getNeutronPortFromVpnPortFixedIp(
                                     vpnInstanceOpData.getVpnInstanceName(), nextHop.getIpAddress());
                             gatewayMac = arpResponderHandler.getGatewayMacAddressForInterface(gwPort, interfaceName)
                                     .get();
@@ -640,7 +639,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         String vpnName, String interfaceName, WriteTransaction writeConfigTxn) {
         //Read NextHops
         InstanceIdentifier<AdjacenciesOp> path = identifier.augmentation(AdjacenciesOp.class);
-        String rd = VpnUtil.getVpnRd(dataBroker, interfaceName);
+        String rd = vpnUtil.getVpnRd(interfaceName);
         if (rd == null) {
             LOG.error("withdrawAdjacenciesForVpnFromBgp: Unable to recover rd for interface {} in vpn {}",
                 interfaceName, vpnName);
@@ -735,7 +734,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
         Optional<String> gwMac = Optional.absent();
         String vpnInterfaceSubnetGwMacAddress = null;
-        VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, primaryRd);
+        VpnInstanceOpDataEntry vpnInstanceOpData = vpnUtil.getVpnInstanceOpData(primaryRd);
         Long l3vni = vpnInstanceOpData.getL3vni();
         boolean isL3VpnOverVxLan = VpnUtil.isL3VpnOverVxLan(l3vni);
         VrfEntry.EncapType encapType = isL3VpnOverVxLan ? VrfEntry.EncapType.Vxlan : VrfEntry.EncapType.Mplsgre;
@@ -762,14 +761,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 writeOperTxn.merge(
                     LogicalDatastoreType.OPERATIONAL,
                     VpnUtil.getPrefixToInterfaceIdentifier(
-                        VpnUtil.getVpnId(dataBroker, vpnName), prefix),
+                        vpnUtil.getVpnId(vpnName), prefix),
                     VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix, nextHop.getSubnetId(),
                             prefixCue), true);
                 final Uuid subnetId = nextHop.getSubnetId();
 
                 String gatewayIp = nextHop.getSubnetGatewayIp();
                 if (gatewayIp == null) {
-                    Optional<String> gatewayIpOptional = VpnUtil.getVpnSubnetGatewayIp(dataBroker, subnetId);
+                    Optional<String> gatewayIpOptional = vpnUtil.getVpnSubnetGatewayIp(subnetId);
                     if (gatewayIpOptional.isPresent()) {
                         gatewayIp = gatewayIpOptional.get();
                     }
@@ -792,8 +791,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         // VrfEntryProcessor to use this later to populate the L3_GW_MAC_TABLE.
                         gwMac = InterfaceUtils.getMacAddressFromInterfaceState(interfaceState);
                         if (gwMac.isPresent()) {
-                            VpnUtil.setupGwMacIfExternalVpn(dataBroker, mdsalManager, dpnId, interfaceName,
-                                    vpnId, writeInvTxn, NwConstants.ADD_FLOW, gwMac.get());
+                            vpnUtil.setupGwMacIfExternalVpn(dpnId, interfaceName, vpnId, writeInvTxn,
+                                    NwConstants.ADD_FLOW, gwMac.get());
                             arpResponderHandler.addArpResponderFlow(dpnId, lportTag, interfaceName,
                                     gatewayIp, gwMac.get());
                         } else {
@@ -816,9 +815,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
                 String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
                 synchronized (vpnPrefixKey.intern()) {
-                    java.util.Optional<String> rdToAllocate = VpnUtil
-                            .allocateRdForExtraRouteAndUpdateUsedRdsMap(dataBroker, vpnId, null,
-                            prefix, vpnName, nextHop.getNextHopIpList().get(0), dpnId);
+                    java.util.Optional<String> rdToAllocate = vpnUtil
+                            .allocateRdForExtraRouteAndUpdateUsedRdsMap(vpnId, null, prefix, vpnName,
+                                    nextHop.getNextHopIpList().get(0), dpnId);
                     if (rdToAllocate.isPresent()) {
                         rd = rdToAllocate.get();
                         LOG.info("processVpnInterfaceAdjacencies: The rd {} is allocated for the extraroute {}",
@@ -908,8 +907,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         List<Adjacency> value = new ArrayList<>();
         boolean isNextHopAddReqd = false;
         String vpnName = vpnInterface.getVpnInstanceName();
-        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-        String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
+        long vpnId = vpnUtil.getVpnId(vpnName);
+        String primaryRd = vpnUtil.getPrimaryRd(vpnName);
         LOG.info("updateVpnInterfaceOnTepAdd: AdjacencyList for interface {} on dpn {} vpn {} is {}",
                 vpnInterface.getName(), vpnInterface.getDpnId(),
                 vpnInterface.getVpnInstanceName(), adjList);
@@ -954,8 +953,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
                 //Get the list of VPN's importing this route(prefix) .
                 // Then update the VRF entry with nhList
-                List<VpnInstanceOpDataEntry> vpnsToImportRoute =
-                           VpnUtil.getVpnsImportingMyRoute(dataBroker, vpnName);
+                List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnUtil.getVpnsImportingMyRoute(vpnName);
                 for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                     String vpnRd = vpn.getVrfId();
                     if (vpnRd != null) {
@@ -1013,8 +1011,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         String srcTepIp = String.valueOf(stateTunnelList.getSrcInfo().getTepIp().getValue());
         BigInteger srcDpnId = new BigInteger(stateTunnelList.getSrcInfo().getTepDeviceId());
         String vpnName = vpnInterface.getVpnInstanceName();
-        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-        String primaryRd = VpnUtil.getVpnRd(dataBroker, vpnName);
+        long vpnId = vpnUtil.getVpnId(vpnName);
+        String primaryRd = vpnUtil.getVpnRd(vpnName);
         if (adjList != null) {
             List<Adjacency> value = new ArrayList<>();
             LOG.info("updateVpnInterfaceOnTepDelete: AdjacencyList for interface {} on dpn {} vpn {} is {}",
@@ -1059,8 +1057,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
                     //Get the list of VPN's importing this route(prefix) .
                     // Then update the VRF entry with nhList
-                    List<VpnInstanceOpDataEntry> vpnsToImportRoute =
-                          VpnUtil.getVpnsImportingMyRoute(dataBroker, vpnName);
+                    List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnUtil.getVpnsImportingMyRoute(vpnName);
                     for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                         String vpnRd = vpn.getVrfId();
                         if (vpnRd != null) {
@@ -1106,8 +1103,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private List<VpnInstanceOpDataEntry> getVpnsExportingMyRoute(final String vpnName) {
         List<VpnInstanceOpDataEntry> vpnsToExportRoute = new ArrayList<>();
 
-        String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnName);
-        final VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
+        String vpnRd = vpnUtil.getVpnRd(vpnName);
+        final VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnUtil.getVpnInstanceOpData(vpnRd);
         if (vpnInstanceOpDataEntry == null) {
             LOG.debug("getVpnsExportingMyRoute: Could not retrieve vpn instance op data for {}"
                     + " to check for vpns exporting the routes", vpnName);
@@ -1131,7 +1128,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         };
 
         vpnsToExportRoute =
-                VpnUtil.getAllVpnInstanceOpData(dataBroker).stream().filter(excludeVpn).filter(matchRTs).collect(
+                vpnUtil.getAllVpnInstanceOpData().stream().filter(excludeVpn).filter(matchRTs).collect(
                         Collectors.toList());
         return vpnsToExportRoute;
     }
@@ -1141,7 +1138,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     void handleVpnsExportingRoutes(String vpnName, String vpnRd) {
         List<VpnInstanceOpDataEntry> vpnsToExportRoute = getVpnsExportingMyRoute(vpnName);
         for (VpnInstanceOpDataEntry vpn : vpnsToExportRoute) {
-            List<VrfEntry> vrfEntries = VpnUtil.getAllVrfEntries(dataBroker, vpn.getVrfId());
+            List<VrfEntry> vrfEntries = vpnUtil.getAllVrfEntries(vpn.getVrfId());
             if (vrfEntries != null) {
                 ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx -> {
                     for (VrfEntry vrfEntry : vrfEntries) {
@@ -1307,10 +1304,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         InstanceIdentifier<VpnInterfaceOpDataEntry> identifier = VpnUtil.getVpnInterfaceOpDataEntryIdentifier(
                                                     interfaceName, vpnName);
         if (!isInterfaceStateDown) {
-            final long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-            VpnUtil.scheduleVpnInterfaceForRemoval(dataBroker, interfaceName, dpId, vpnName, Boolean.TRUE,
-                    null);
-            final boolean isBgpVpnInternetVpn = VpnUtil.isBgpVpnInternet(dataBroker, vpnName);
+            final long vpnId = vpnUtil.getVpnId(vpnName);
+            vpnUtil.scheduleVpnInterfaceForRemoval(interfaceName, dpId, vpnName, Boolean.TRUE, null);
+            final boolean isBgpVpnInternetVpn = vpnUtil.isBgpVpnInternet(vpnName);
             removeAdjacenciesFromVpn(dpId, lportTag, interfaceName, vpnName,
                     vpnId, gwMac, writeConfigTxn, writeOperTxn, writeInvTxn);
             if (interfaceManager.isExternalInterface(interfaceName)) {
@@ -1318,7 +1314,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         NwConstants.DEL_FLOW);
             }
             if (!isBgpVpnInternetVpn) {
-                VpnUtil.unbindService(dataBroker, interfaceName, isInterfaceStateDown, jobCoordinator);
+                vpnUtil.unbindService(interfaceName, isInterfaceStateDown);
             }
             LOG.info("processVpnInterfaceDown: Unbound vpn service from interface {} on dpn {} for vpn {}"
                     + " successful", interfaceName, dpId, vpnName);
@@ -1340,7 +1336,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             InstanceIdentifier<AdjacenciesOp> path = identifier.augmentation(AdjacenciesOp.class);
             Optional<AdjacenciesOp> adjacencies = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, path);
-            String primaryRd = VpnUtil.getVpnRd(dataBroker, vpnName);
+            String primaryRd = vpnUtil.getVpnRd(vpnName);
             LOG.info("removeAdjacenciesFromVpn: For interface {} on dpn {} RD recovered for vpn {} as rd {}",
                     interfaceName, dpnId, vpnName, primaryRd);
             if (adjacencies.isPresent() && !adjacencies.get().getAdjacency().isEmpty()) {
@@ -1384,14 +1380,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         }
                     }
                     String ip = nextHop.getIpAddress().split("/")[0];
-                    LearntVpnVipToPort vpnVipToPort = VpnUtil.getLearntVpnVipToPort(dataBroker, vpnName, ip);
+                    LearntVpnVipToPort vpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, ip);
                     if (vpnVipToPort != null) {
-                        VpnUtil.removeLearntVpnVipToPort(dataBroker, vpnName, ip, null);
+                        vpnUtil.removeLearntVpnVipToPort(vpnName, ip, null);
                         LOG.info("removeAdjacenciesFromVpn: VpnInterfaceManager removed LearntVpnVipToPort entry"
                                  + " for Interface {} ip {} on dpn {} for vpn {}",
                                 vpnVipToPort.getPortName(), ip, dpnId, vpnName);
                     }
-                    VpnPortipToPort vpnPortipToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, ip);
+                    VpnPortipToPort vpnPortipToPort = vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, ip);
                     if (vpnPortipToPort != null) {
                         VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ip, null);
                         LOG.info("removeAdjacenciesFromVpn: VpnInterfaceManager removed vpnPortipToPort entry for "
@@ -1427,7 +1423,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                            BigInteger dpnId, String rd, String interfaceName,
                                            WriteTransaction writeConfigTxn) {
         List<VpnInstanceOpDataEntry> vpnsToImportRoute =
-                VpnUtil.getVpnsImportingMyRoute(dataBroker, vpnName);
+                vpnUtil.getVpnsImportingMyRoute(vpnName);
         nhList.forEach((nh) -> {
             //IRT: remove routes from other vpns importing it
             vpnManager.removePrefixFromBGP(primaryRd, rd, vpnName, nextHop.getIpAddress(),
@@ -1454,8 +1450,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             // A valid mac-address was not available for this subnet-gateway-ip
             // So a connected-mac-address was used for this subnet and we need
             // to remove the flows for the same here from the L3_GW_MAC_TABLE.
-            VpnUtil.setupGwMacIfExternalVpn(dataBroker, mdsalManager, dpnId, interfaceName,
-                    vpnId, writeInvTxn, NwConstants.DEL_FLOW, gwMac);
+            vpnUtil.setupGwMacIfExternalVpn(dpnId, interfaceName, vpnId, writeInvTxn, NwConstants.DEL_FLOW, gwMac);
         }
         arpResponderHandler.removeArpResponderFlow(dpnId, lportTag, interfaceName, nextHop.getSubnetGatewayIp(),
                 subnetId);
@@ -1479,7 +1474,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     private Optional<String> getMacAddressForSubnetIp(String vpnName, String ifName, String ipAddress) {
-        VpnPortipToPort gwPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, ipAddress);
+        VpnPortipToPort gwPort = vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, ipAddress);
         //Check if a router gateway interface is available for the subnet gw is so then use Router interface
         // else use connected interface
         if (gwPort != null && gwPort.isSubnetIp()) {
@@ -1519,8 +1514,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             String newVpnName = vpnInterfaceVpnInstance.getVpnName();
             List<Adjacency> copyNewAdjs = new ArrayList<>(newAdjs);
             List<Adjacency> copyOldAdjs = new ArrayList<>(oldAdjs);
-            String primaryRd = VpnUtil.getPrimaryRd(dataBroker, newVpnName);
-            if (!VpnUtil.isVpnPendingDelete(dataBroker, primaryRd)) {
+            String primaryRd = vpnUtil.getPrimaryRd(newVpnName);
+            if (!vpnUtil.isVpnPendingDelete(primaryRd)) {
                 jobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName, () -> {
                     // TODO Deal with sequencing — the config tx must only submitted if the oper tx goes in
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -1532,15 +1527,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     update.getName(), newVpnName);
                             //handle both addition and removal of adjacencies
                             //currently, new adjacency may be an extra route
-                            boolean isBgpVpnInternetVpn = VpnUtil.isBgpVpnInternet(dataBroker, newVpnName);
+                            boolean isBgpVpnInternetVpn = vpnUtil.isBgpVpnInternet(newVpnName);
                             if (!oldAdjs.equals(newAdjs)) {
                                 for (Adjacency adj : copyNewAdjs) {
                                     if (copyOldAdjs.contains(adj)) {
                                         copyOldAdjs.remove(adj);
                                     } else {
                                         // add new adjacency - right now only extra route will hit this path
-                                        if (!isBgpVpnInternetVpn || VpnUtil.isAdjacencyEligibleToVpnInternet(dataBroker,
-                                                adj)) {
+                                        if (!isBgpVpnInternetVpn || vpnUtil.isAdjacencyEligibleToVpnInternet(adj)) {
                                             addNewAdjToVpnInterface(vpnInterfaceOpIdentifier, primaryRd, adj,
                                                     dpnId, operTx, confTx);
                                         }
@@ -1552,8 +1546,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     }
                                 }
                                 for (Adjacency adj : copyOldAdjs) {
-                                    if (!isBgpVpnInternetVpn || VpnUtil.isAdjacencyEligibleToVpnInternet(dataBroker,
-                                            adj)) {
+                                    if (!isBgpVpnInternetVpn || vpnUtil.isAdjacencyEligibleToVpnInternet(adj)) {
                                         if (adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency
                                                 && !adj.isPhysNetworkFunc()) {
                                             delAdjFromVpnInterface(vpnInterfaceOpIdentifier, adj, dpnId,
@@ -1562,15 +1555,15 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                     LogicalDatastoreType.OPERATIONAL, vpnInterfaceOpIdentifier).get();
                                             if (optVpnInterface.isPresent()) {
                                                 VpnInterfaceOpDataEntry vpnInterfaceOpDataEntry = optVpnInterface.get();
-                                                long vpnId = VpnUtil.getVpnId(dataBroker, newVpnName);
-                                                VpnUtil.removePrefixToInterfaceAdj(dataBroker, adj, vpnId,
+                                                long vpnId = vpnUtil.getVpnId(newVpnName);
+                                                vpnUtil.removePrefixToInterfaceAdj(adj, vpnId,
                                                         vpnInterfaceOpDataEntry, operTx);
                                             } else {
                                                 LOG.info("Vpninterface {} not present in Operational",
                                                         vpnInterfaceName);
                                             }
                                             //remove FIB entry
-                                            String vpnRd = VpnUtil.getVpnRd(dataBroker, newVpnName);
+                                            String vpnRd = vpnUtil.getVpnRd(newVpnName);
                                             LOG.debug("update: remove prefix {} from the FIB and BGP entry "
                                                     + "for the Vpn-Rd {} ", adj.getIpAddress(), vpnRd);
                                             //remove BGP entry
@@ -1633,9 +1626,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 //Ignore
             }
             for (String newVpnName: newVpnList) {
-                String primaryRd = VpnUtil.getPrimaryRd(dataBroker, newVpnName);
+                String primaryRd = vpnUtil.getPrimaryRd(newVpnName);
                 isSwap = Boolean.TRUE;
-                if (!VpnUtil.isVpnPendingDelete(dataBroker, primaryRd)) {
+                if (!vpnUtil.isVpnPendingDelete(primaryRd)) {
                     LOG.info("handleVpnSwapForVpnInterface: VPN Interface update event - intfName {} onto vpnName {}"
                             + "running config-driven swap addition", interfaceName, newVpnName);
                     final Adjacencies origAdjs = original.augmentation(Adjacencies.class);
@@ -1695,7 +1688,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         if (writeConfigTxn != null) {
             writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew, true);
         } else {
-            VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew);
+            vpnUtil.syncUpdate(LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew);
         }
         LOG.info("SUBNETROUTE: importSubnetRouteForNewVpn: Created vrfEntry for rd {} prefix {} nexthop {} label {}"
                 + " and elantag {}", rd, prefix, nextHop, label, route.getElantag());
@@ -1713,7 +1706,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 VpnInterfaceOpDataEntry currVpnIntf = optVpnInterface.get();
                 String prefix = VpnUtil.getIpPrefix(adj.getIpAddress());
                 String vpnName = currVpnIntf.getVpnInstanceName();
-                VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, primaryRd);
+                VpnInstanceOpDataEntry vpnInstanceOpData = vpnUtil.getVpnInstanceOpData(primaryRd);
                 InstanceIdentifier<AdjacenciesOp> adjPath = identifier.augmentation(AdjacenciesOp.class);
                 Optional<AdjacenciesOp> optAdjacencies = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                         LogicalDatastoreType.OPERATIONAL, adjPath);
@@ -1728,7 +1721,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     // This code will be hit in case of first PNF adjacency
                     adjacencies = new ArrayList<>();
                 }
-                long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+                long vpnId = vpnUtil.getVpnId(vpnName);
                 L3vpnInput input = new L3vpnInput().setNextHop(adj).setVpnName(vpnName)
                         .setInterfaceName(currVpnIntf.getName()).setPrimaryRd(primaryRd).setRd(primaryRd);
                 Adjacency operationalAdjacency = null;
@@ -1751,8 +1744,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     String nh = adj.getNextHopIpList().get(0);
                     String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
                     synchronized (vpnPrefixKey.intern()) {
-                        java.util.Optional<String> rdToAllocate = VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
-                                dataBroker, vpnId, null, prefix, vpnName, nh, dpnId);
+                        java.util.Optional<String> rdToAllocate = vpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
+                                vpnId, null, prefix, vpnName, nh, dpnId);
                         if (rdToAllocate.isPresent()) {
                             input.setRd(rdToAllocate.get());
                             operationalAdjacency = populator.createOperationalAdjacency(input);
@@ -1773,15 +1766,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         if (encapType.equals(VrfEntryBase.EncapType.Mplsgre)) {
                             final Adjacency opAdjacency = new AdjacencyBuilder(operationalAdjacency).build();
                             List<VpnInstanceOpDataEntry> vpnsToImportRoute =
-                                    VpnUtil.getVpnsImportingMyRoute(dataBroker, vpnName);
+                                    vpnUtil.getVpnsImportingMyRoute(vpnName);
                             vpnsToImportRoute.forEach(vpn -> {
                                 if (vpn.getVrfId() != null) {
-                                    VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
-                                            dataBroker, vpn.getVpnId(), vpnId, prefix,
-                                            VpnUtil.getVpnName(dataBroker, vpn.getVpnId()), nh, dpnId)
+                                    vpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(vpn.getVpnId(), vpnId, prefix,
+                                            vpnUtil.getVpnName(vpn.getVpnId()), nh, dpnId)
                                             .ifPresent(
                                                 rds -> vpnManager.addExtraRoute(
-                                                        VpnUtil.getVpnName(dataBroker, vpn.getVpnId()),
+                                                        vpnUtil.getVpnName(vpn.getVpnId()),
                                                         adj.getIpAddress(), nh, rds,
                                                         currVpnIntf.getVpnInstanceName(), l3vni,
                                                         RouteOrigin.SELF_IMPORTED, currVpnIntf.getName(),
@@ -1798,10 +1790,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
                     writeOperTxn.merge(
                             LogicalDatastoreType.OPERATIONAL,
-                            VpnUtil.getPrefixToInterfaceIdentifier(VpnUtil.getVpnId(dataBroker,
-                                    adj.getSubnetId().getValue()), prefix),
-                            VpnUtil.getPrefixToInterface(BigInteger.ZERO, currVpnIntf.getName(), prefix,
-                                    adj.getSubnetId(), Prefixes.PrefixCue.PhysNetFunc), true);
+                            VpnUtil.getPrefixToInterfaceIdentifier(vpnUtil.getVpnId(adj.getSubnetId().getValue()),
+                                    prefix), VpnUtil.getPrefixToInterface(BigInteger.ZERO, currVpnIntf.getName(),
+                                    prefix, adj.getSubnetId(), Prefixes.PrefixCue.PhysNetFunc), true);
 
                     fibManager.addOrUpdateFibEntry(adj.getSubnetId().getValue(), adj.getMacAddress(),
                             adj.getIpAddress(), Collections.emptyList(), null /* EncapType */, 0 /* label */,
@@ -1828,7 +1819,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     private String getParentVpnRdForExternalSubnet(Adjacency adj) {
-        Subnets subnets = VpnUtil.getExternalSubnet(dataBroker, adj.getSubnetId());
+        Subnets subnets = vpnUtil.getExternalSubnet(adj.getSubnetId());
         return subnets != null ? subnets.getExternalNetworkId().getValue() : null;
     }
 
@@ -1895,7 +1886,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private void deleteExtraRouteFromCurrentAndImportingVpns(String vpnName, String destination, String nextHop,
         String rd, String intfName, WriteTransaction writeConfigTxn) {
         vpnManager.delExtraRoute(vpnName, destination, nextHop, rd, vpnName, intfName, writeConfigTxn);
-        List<VpnInstanceOpDataEntry> vpnsToImportRoute = VpnUtil.getVpnsImportingMyRoute(dataBroker, vpnName);
+        List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnUtil.getVpnsImportingMyRoute(vpnName);
         for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
             String vpnRd = vpn.getVrfId();
             if (vpnRd != null) {
@@ -1920,7 +1911,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         if (vpnInterface == null) {
             return;
         }
-        List<Adjacency> adjs = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, interfaceName);
+        List<Adjacency> adjs = vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(interfaceName);
         if (adjs == null) {
             LOG.error("createFibEntryForRouterInterface: VPN Interface {} of router addition failed as adjacencies for"
                     + " this vpn interface could not be obtained. vpn {}", interfaceName, vpnName);
@@ -1932,8 +1923,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 String macAddress = adj.getMacAddress();
                 String prefix = VpnUtil.getIpPrefix(primaryInterfaceIp);
 
-                long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                    VpnUtil.getNextHopLabelKey(primaryRd, prefix));
+                long label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
+                        VpnUtil.getNextHopLabelKey(primaryRd, prefix));
 
                 RouterInterface routerInt = new RouterInterfaceBuilder().setUuid(vpnName)
                         .setIpAddress(primaryInterfaceIp).setMacAddress(macAddress).build();
@@ -1953,7 +1944,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     protected void deleteFibEntryForRouterInterface(VpnInterface vpnInterface,
                                                     WriteTransaction writeConfigTxn, String vpnName) {
         Adjacencies adjs = vpnInterface.augmentation(Adjacencies.class);
-        String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
+        String rd = vpnUtil.getVpnRd(vpnName);
         if (adjs != null) {
             List<Adjacency> adjsList = adjs.getAdjacency();
             for (Adjacency adj : adjsList) {
@@ -2002,11 +1993,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     public boolean isVpnInstanceReady(String vpnInstanceName) {
-        String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnInstanceName);
+        String vpnRd = vpnUtil.getVpnRd(vpnInstanceName);
         if (vpnRd == null) {
             return false;
         }
-        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnUtil.getVpnInstanceOpData(vpnRd);
 
         return vpnInstanceOpDataEntry != null;
     }
@@ -2108,8 +2099,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     public void updateVpnInterfacesForUnProcessAdjancencies(String vpnName) {
-        String primaryRd = VpnUtil.getVpnRd(dataBroker, vpnName);
-        VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, primaryRd);
+        String primaryRd = vpnUtil.getVpnRd(vpnName);
+        VpnInstanceOpDataEntry vpnInstanceOpData = vpnUtil.getVpnInstanceOpData(primaryRd);
         if (vpnInstanceOpData == null) {
             return;
         }
@@ -2127,7 +2118,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 if (!vpnInterfaceOptional.isPresent()) {
                     return;
                 }
-                List<Adjacency> configVpnAdjacencies = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker,
+                List<Adjacency> configVpnAdjacencies = vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(
                         vpnInterface.getInterfaceName());
                 if (configVpnAdjacencies == null) {
                     LOG.debug("There is no adjacency available for vpnInterface:{}", vpnInterface);
@@ -2150,7 +2141,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 () -> {
                                     // TODO Deal with sequencing — the config tx must only submitted
                                     // if the oper tx goes in
-                                    if (VpnUtil.isAdjacencyEligibleToVpn(dataBroker, adjacency, vpnName)) {
+                                    if (vpnUtil.isAdjacencyEligibleToVpn(adjacency, vpnName)) {
                                         List<ListenableFuture<Void>> futures = new ArrayList<>();
                                         futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx ->
                                                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
@@ -2198,7 +2189,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         interfaceName, txnDestination, throwable);
             } else {
                 LOG.error("VpnInterfaceManager: VrfEntries for {} removal failed", interfaceName, throwable);
-                VpnUtil.unsetScheduledToRemoveForVpnInterface(txRunner, interfaceName);
+                vpnUtil.unsetScheduledToRemoveForVpnInterface(interfaceName);
             }
         }
     }
