@@ -9,13 +9,10 @@
 package org.opendaylight.netvirt.ipv6service.utils;
 
 import com.google.common.base.Optional;
-import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
@@ -24,6 +21,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.ipv6util.api.Icmpv6Type;
+import org.opendaylight.genius.ipv6util.api.Ipv6Constants;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -49,7 +48,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
@@ -62,8 +60,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.EthernetHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.Ipv6Header;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -72,7 +68,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class Ipv6ServiceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ServiceUtils.class);
-    public static final Ipv6Address ALL_NODES_MCAST_ADDR = newIpv6Address("FF02::1");
+    public static final Ipv6Address ALL_NODES_MCAST_ADDR = newIpv6Address(Ipv6Constants.ALL_NODES_MCAST_ADDRESS);
     public static final Ipv6Address UNSPECIFIED_ADDR = newIpv6Address("0:0:0:0:0:0:0:0");
 
     private static Ipv6Address newIpv6Address(String ip) {
@@ -164,222 +160,11 @@ public class Ipv6ServiceUtils {
         return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, ifStateId, broker).orNull();
     }
 
-    public static String bytesToHexString(byte[] bytes) {
-        if (bytes == null) {
-            return "null";
-        }
-        StringBuilder buf = new StringBuilder();
-        for (int i = 0; i < bytes.length; i++) {
-            if (i > 0) {
-                buf.append(":");
-            }
-            short u8byte = (short) (bytes[i] & 0xff);
-            String tmp = Integer.toHexString(u8byte);
-            if (tmp.length() == 1) {
-                buf.append("0");
-            }
-            buf.append(tmp);
-        }
-        return buf.toString();
-    }
-
-    public static byte[] bytesFromHexString(String values) {
-        String target = "";
-        if (values != null) {
-            target = values;
-        }
-        String[] octets = target.split(":");
-
-        byte[] ret = new byte[octets.length];
-        for (int i = 0; i < octets.length; i++) {
-            ret[i] = Integer.valueOf(octets[i], 16).byteValue();
-        }
-        return ret;
-    }
-
-    public static int calcIcmpv6Checksum(byte[] packet, Ipv6Header ip6Hdr) {
-        long checksum = getSummation(ip6Hdr.getSourceIpv6());
-        checksum += getSummation(ip6Hdr.getDestinationIpv6());
-        checksum = normalizeChecksum(checksum);
-
-        checksum += ip6Hdr.getIpv6Length();
-        checksum += ip6Hdr.getNextHeader();
-
-        int icmp6Offset = Ipv6Constants.ICMPV6_OFFSET;
-        long value = (packet[icmp6Offset] & 0xff) << 8 | packet[icmp6Offset + 1] & 0xff;
-        checksum += value;
-        checksum = normalizeChecksum(checksum);
-        icmp6Offset += 2;
-
-        //move to icmp6 payload skipping the checksum field
-        icmp6Offset += 2;
-        int length = packet.length - icmp6Offset;
-        while (length > 1) {
-            value = (packet[icmp6Offset] & 0xff) << 8 | packet[icmp6Offset + 1] & 0xff;
-            checksum += value;
-            checksum = normalizeChecksum(checksum);
-            icmp6Offset += 2;
-            length -= 2;
-        }
-
-        if (length > 0) {
-            checksum += packet[icmp6Offset];
-            checksum = normalizeChecksum(checksum);
-        }
-
-        int finalChecksum = (int)(~checksum & 0xffff);
-        return finalChecksum;
-    }
-
-    public static boolean validateChecksum(byte[] packet, Ipv6Header ip6Hdr, int recvChecksum) {
-        return calcIcmpv6Checksum(packet, ip6Hdr) == recvChecksum;
-    }
-
-    private static long getSummation(Ipv6Address addr) {
-        byte[] baddr = null;
-        try {
-            baddr = InetAddress.getByName(addr.getValue()).getAddress();
-        } catch (UnknownHostException e) {
-            LOG.error("getSummation: Failed to deserialize address {}", addr.getValue(), e);
-            return 0;
-        }
-
-        long sum = 0;
-        int len = 0;
-        long value = 0;
-        while (len < baddr.length) {
-            value = (baddr[len] & 0xff) << 8 | baddr[len + 1] & 0xff;
-            sum += value;
-            sum = normalizeChecksum(sum);
-            len += 2;
-        }
-        return sum;
-    }
-
-    private static  long normalizeChecksum(long value) {
-        if ((value & 0xffff0000) != 0) {
-            value = value & 0xffff;
-            value += 1;
-        }
-        return value;
-    }
-
-    public static byte[] convertEthernetHeaderToByte(EthernetHeader ethPdu) {
-        byte[] data = new byte[16];
-        Arrays.fill(data, (byte)0);
-
-        ByteBuffer buf = ByteBuffer.wrap(data);
-        buf.put(bytesFromHexString(ethPdu.getDestinationMac().getValue()));
-        buf.put(bytesFromHexString(ethPdu.getSourceMac().getValue()));
-        buf.putShort((short)ethPdu.getEthertype().intValue());
-        return data;
-    }
-
-    public static byte[] convertIpv6HeaderToByte(Ipv6Header ip6Pdu) {
-        byte[] data = new byte[128];
-        Arrays.fill(data, (byte)0);
-
-        ByteBuffer buf = ByteBuffer.wrap(data);
-        long flowLabel = (long)(ip6Pdu.getVersion() & 0x0f) << 28
-                | ip6Pdu.getFlowLabel() & 0x0fffffff;
-        buf.putInt((int)flowLabel);
-        buf.putShort((short)ip6Pdu.getIpv6Length().intValue());
-        buf.put((byte)ip6Pdu.getNextHeader().shortValue());
-        buf.put((byte)ip6Pdu.getHopLimit().shortValue());
-        try {
-            byte[] baddr = InetAddress.getByName(ip6Pdu.getSourceIpv6().getValue()).getAddress();
-            buf.put(baddr);
-            baddr = InetAddress.getByName(ip6Pdu.getDestinationIpv6().getValue()).getAddress();
-            buf.put(baddr);
-        } catch (UnknownHostException e) {
-            LOG.error("convertIpv6HeaderToByte: Failed to serialize src, dest address", e);
-        }
-        return data;
-    }
-
-    public static Ipv6Address getIpv6LinkLocalAddressFromMac(MacAddress mac) {
-        byte[] octets = bytesFromHexString(mac.getValue());
-
-        /* As per the RFC2373, steps involved to generate a LLA include
-           1. Convert the 48 bit MAC address to 64 bit value by inserting 0xFFFE
-              between OUI and NIC Specific part.
-           2. Invert the Universal/Local flag in the OUI portion of the address.
-           3. Use the prefix "FE80::/10" along with the above 64 bit Interface
-              identifier to generate the IPv6 LLA. */
-
-        StringBuilder interfaceID = new StringBuilder();
-        short u8byte = (short) (octets[0] & 0xff);
-        u8byte ^= 1 << 1;
-        interfaceID.append(Integer.toHexString(0xFF & u8byte));
-        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[1]), 2, "0"));
-        interfaceID.append(":");
-        interfaceID.append(Integer.toHexString(0xFF & octets[2]));
-        interfaceID.append("ff:fe");
-        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[3]), 2, "0"));
-        interfaceID.append(":");
-        interfaceID.append(Integer.toHexString(0xFF & octets[4]));
-        interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[5]), 2, "0"));
-
-        // Return the address in its fully expanded format.
-        Ipv6Address ipv6LLA = new Ipv6Address(InetAddresses.forString(
-                "fe80:0:0:0:" + interfaceID.toString()).getHostAddress());
-        return ipv6LLA;
-    }
-
-    public static Ipv6Address getIpv6SolicitedNodeMcastAddress(Ipv6Address ipv6Address) {
-
-        /* According to RFC 4291, a Solicited Node Multicast Address is derived by adding the 24
-           lower order bits with the Solicited Node multicast prefix (i.e., FF02::1:FF00:0/104).
-           Example: For IPv6Address of FE80::2AA:FF:FE28:9C5A, the corresponding solicited node
-           multicast address would be FF02::1:FF28:9C5A
-         */
-
-        byte[] octets;
-        try {
-            octets = InetAddress.getByName(ipv6Address.getValue()).getAddress();
-        } catch (UnknownHostException e) {
-            LOG.error("getIpv6SolicitedNodeMcastAddress: Failed to serialize ipv6Address ", e);
-            return null;
-        }
-
-        // Return the address in its fully expanded format.
-        Ipv6Address solictedV6Address = new Ipv6Address(InetAddresses.forString("ff02::1:ff"
-                 + StringUtils.leftPad(Integer.toHexString(0xFF & octets[13]), 2, "0") + ":"
-                 + StringUtils.leftPad(Integer.toHexString(0xFF & octets[14]), 2, "0")
-                 + StringUtils.leftPad(Integer.toHexString(0xFF & octets[15]), 2, "0")).getHostAddress());
-
-        return solictedV6Address;
-    }
-
-    public static MacAddress getIpv6MulticastMacAddress(Ipv6Address ipv6Address) {
-
-        /* According to RFC 2464, a Multicast MAC address is derived by concatenating 32 lower
-           order bits of IPv6 Multicast Address with the multicast prefix (i.e., 33:33).
-           Example: For Multicast IPv6Address of FF02::1:FF28:9C5A, the corresponding L2 multicast
-           address would be 33:33:28:9C:5A
-         */
-        byte[] octets;
-        try {
-            octets = InetAddress.getByName(ipv6Address.getValue()).getAddress();
-        } catch (UnknownHostException e) {
-            LOG.error("getIpv6MulticastMacAddress: Failed to serialize ipv6Address ", e);
-            return null;
-        }
-
-        String macAddress = "33:33:"
-                + StringUtils.leftPad(Integer.toHexString(0xFF & octets[12]), 2, "0") + ":"
-                + StringUtils.leftPad(Integer.toHexString(0xFF & octets[13]), 2, "0") + ":"
-                + StringUtils.leftPad(Integer.toHexString(0xFF & octets[14]), 2, "0") + ":"
-                + StringUtils.leftPad(Integer.toHexString(0xFF & octets[15]), 2, "0");
-
-        return new MacAddress(macAddress);
-    }
-
     private static List<MatchInfo> getIcmpv6RSMatch(Long elanTag) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
         matches.add(MatchIpProtocol.ICMPV6);
-        matches.add(new MatchIcmpv6(Ipv6Constants.ICMP_V6_RS_CODE, (short) 0));
+        matches.add(new MatchIcmpv6(Icmpv6Type.ROUTER_SOLICITATION.getValue(), (short) 0));
         matches.add(new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
         return matches;
     }
@@ -388,7 +173,7 @@ public class Ipv6ServiceUtils {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
         matches.add(MatchIpProtocol.ICMPV6);
-        matches.add(new MatchIcmpv6(Ipv6Constants.ICMP_V6_NS_CODE, (short) 0));
+        matches.add(new MatchIcmpv6(Icmpv6Type.NEIGHBOR_SOLICITATION.getValue(), (short) 0));
         matches.add(new MatchIpv6NdTarget(new Ipv6Address(ndTarget)));
         matches.add(new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
         return matches;
@@ -398,15 +183,15 @@ public class Ipv6ServiceUtils {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
         matches.add(MatchIpProtocol.ICMPV6);
-        matches.add(new MatchIcmpv6(Ipv6Constants.ICMP_V6_NA_CODE, (short) 0));
+        matches.add(new MatchIcmpv6(Icmpv6Type.NEIGHBOR_ADVERTISEMENT.getValue(), (short) 0));
         matches.add(new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
         return matches;
     }
 
     private static String getIPv6FlowRef(BigInteger dpId, Long elanTag, String flowType) {
-        return new StringBuffer().append(Ipv6Constants.FLOWID_PREFIX)
-                .append(dpId).append(Ipv6Constants.FLOWID_SEPARATOR)
-                .append(elanTag).append(Ipv6Constants.FLOWID_SEPARATOR)
+        return new StringBuffer().append(Ipv6ServiceConstants.FLOWID_PREFIX)
+                .append(dpId).append(Ipv6ServiceConstants.FLOWID_SEPARATOR)
+                .append(elanTag).append(Ipv6ServiceConstants.FLOWID_SEPARATOR)
                 .append(flowType).toString();
     }
 
@@ -418,9 +203,9 @@ public class Ipv6ServiceUtils {
         actionsInfos.add(new ActionPuntToController());
         instructions.add(new InstructionApplyActions(actionsInfos));
         FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
-                getIPv6FlowRef(dpId, elanTag, ipv6Address),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6NS",
+                getIPv6FlowRef(dpId, elanTag, ipv6Address),Ipv6ServiceConstants.DEFAULT_FLOW_PRIORITY, "IPv6NS",
                 0, 0, NwConstants.COOKIE_IPV6_TABLE, neighborSolicitationMatch, instructions);
-        if (addOrRemove == Ipv6Constants.DEL_FLOW) {
+        if (addOrRemove == Ipv6ServiceConstants.DEL_FLOW) {
             LOG.trace("Removing IPv6 Neighbor Solicitation Flow DpId {}, elanTag {}", dpId, elanTag);
             mdsalUtil.removeFlow(rsFlowEntity);
         } else {
@@ -430,7 +215,7 @@ public class Ipv6ServiceUtils {
     }
 
     public void installIcmpv6RsPuntFlow(short tableId, BigInteger dpId, Long elanTag, int addOrRemove) {
-        if (dpId == null || dpId.equals(Ipv6Constants.INVALID_DPID)) {
+        if (dpId == null || dpId.equals(Ipv6ServiceConstants.INVALID_DPID)) {
             return;
         }
         List<MatchInfo> routerSolicitationMatch = getIcmpv6RSMatch(elanTag);
@@ -440,9 +225,9 @@ public class Ipv6ServiceUtils {
         actionsInfos.add(new ActionPuntToController());
         instructions.add(new InstructionApplyActions(actionsInfos));
         FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
-                getIPv6FlowRef(dpId, elanTag, "IPv6RS"),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6RS", 0, 0,
+                getIPv6FlowRef(dpId, elanTag, "IPv6RS"),Ipv6ServiceConstants.DEFAULT_FLOW_PRIORITY, "IPv6RS", 0, 0,
                 NwConstants.COOKIE_IPV6_TABLE, routerSolicitationMatch, instructions);
-        if (addOrRemove == Ipv6Constants.DEL_FLOW) {
+        if (addOrRemove == Ipv6ServiceConstants.DEL_FLOW) {
             LOG.trace("Removing IPv6 Router Solicitation Flow DpId {}, elanTag {}", dpId, elanTag);
             mdsalUtil.removeFlow(rsFlowEntity);
         } else {
@@ -462,11 +247,11 @@ public class Ipv6ServiceUtils {
         for (Ipv6Address ipv6Address : vmPort.getIpv6Addresses()) {
             matches.add(new MatchIpv6Source(ipv6Address.getValue() + NwConstants.IPV6PREFIX));
             String flowId = getIPv6FlowRef(dpId, elanTag,
-                    vmPort.getIntfUUID().getValue() + Ipv6Constants.FLOWID_SEPARATOR + ipv6Address.getValue());
+                    vmPort.getIntfUUID().getValue() + Ipv6ServiceConstants.FLOWID_SEPARATOR + ipv6Address.getValue());
             FlowEntity rsFlowEntity =
-                    MDSALUtil.buildFlowEntity(dpId, tableId, flowId, Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6NA", 0,
-                            0, NwConstants.COOKIE_IPV6_TABLE, matches, instructions);
-            if (addOrRemove == Ipv6Constants.DEL_FLOW) {
+                    MDSALUtil.buildFlowEntity(dpId, tableId, flowId, Ipv6ServiceConstants.DEFAULT_FLOW_PRIORITY,
+                            "IPv6NA", 0, 0, NwConstants.COOKIE_IPV6_TABLE, matches, instructions);
+            if (addOrRemove == Ipv6ServiceConstants.DEL_FLOW) {
                 LOG.trace("Removing IPv6 Neighbor Advertisement Flow DpId {}, elanTag {}, ipv6Address {}", dpId,
                         elanTag, ipv6Address.getValue());
                 mdsalUtil.removeFlow(rsFlowEntity);
@@ -491,9 +276,9 @@ public class Ipv6ServiceUtils {
 
         String flowId = getIPv6FlowRef(dpId, elanTag, "IPv6NA." + ipv6Prefix.getValue());
         FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
-                flowId, Ipv6Constants.PUNT_NA_FLOW_PRIORITY,
+                flowId, Ipv6ServiceConstants.PUNT_NA_FLOW_PRIORITY,
                 "IPv6NA", 0, 0, NwConstants.COOKIE_IPV6_TABLE, naMatch, instructions);
-        if (addOrRemove == Ipv6Constants.DEL_FLOW) {
+        if (addOrRemove == Ipv6ServiceConstants.DEL_FLOW) {
             LOG.trace("Removing IPv6 Neighbor Advertisement Flow DpId {}, elanTag {}", dpId, elanTag);
             mdsalUtil.removeFlow(rsFlowEntity);
         } else {
@@ -529,7 +314,7 @@ public class Ipv6ServiceUtils {
         BoundServices
                 serviceInfo =
                 getBoundServices(String.format("%s.%s", "ipv6", interfaceName),
-                        serviceIndex, Ipv6Constants.DEFAULT_FLOW_PRIORITY,
+                        serviceIndex, Ipv6ServiceConstants.DEFAULT_FLOW_PRIORITY,
                         NwConstants.COOKIE_IPV6_TABLE, instructions);
         MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                 buildServiceId(interfaceName, serviceIndex), serviceInfo);
@@ -553,12 +338,12 @@ public class Ipv6ServiceUtils {
     }
 
     public static long getRemoteBCGroup(long elanTag) {
-        return Ipv6Constants.ELAN_GID_MIN + elanTag % Ipv6Constants.ELAN_GID_MIN * 2;
+        return Ipv6ServiceConstants.ELAN_GID_MIN + elanTag % Ipv6ServiceConstants.ELAN_GID_MIN * 2;
     }
 
     public static boolean isVmPort(String deviceOwner) {
         // FIXME: Currently for VM ports, Neutron is sending deviceOwner as empty instead of "compute:nova".
-        // return Ipv6Constants.VM_INTERFACE.equalsIgnoreCase(deviceOwner);
-        return Ipv6Constants.VM_INTERFACE.equalsIgnoreCase(deviceOwner) || StringUtils.isEmpty(deviceOwner);
+        // return Ipv6ServiceConstants.VM_INTERFACE.equalsIgnoreCase(deviceOwner);
+        return Ipv6ServiceConstants.VM_INTERFACE.equalsIgnoreCase(deviceOwner) || StringUtils.isEmpty(deviceOwner);
     }
 }
