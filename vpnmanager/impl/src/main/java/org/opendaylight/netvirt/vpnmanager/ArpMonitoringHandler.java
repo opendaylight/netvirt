@@ -45,10 +45,12 @@ public class ArpMonitoringHandler
     private final OdlInterfaceRpcService interfaceRpc;
     private final IMdsalApiManager mdsalManager;
     private final AlivenessMonitorService alivenessManager;
+    private final AlivenessMonitorUtils alivenessMonitorUtils;
     private final INeutronVpnManager neutronVpnService;
     private final IInterfaceManager interfaceManager;
     private final EntityOwnershipUtils entityOwnershipUtils;
     private final JobCoordinator jobCoordinator;
+    private final VpnUtil vpnUtil;
 
     private Long arpMonitorProfileId = 0L;
     private EntityOwnershipCandidateRegistration candidateRegistration;
@@ -57,7 +59,8 @@ public class ArpMonitoringHandler
     public ArpMonitoringHandler(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceRpc,
             IMdsalApiManager mdsalManager, AlivenessMonitorService alivenessManager,
             INeutronVpnManager neutronVpnService, IInterfaceManager interfaceManager,
-            EntityOwnershipService entityOwnershipService, JobCoordinator jobCoordinator) {
+            EntityOwnershipService entityOwnershipService, JobCoordinator jobCoordinator,
+                                AlivenessMonitorUtils alivenessMonitorUtils, VpnUtil vpnUtil) {
         super(LearntVpnVipToPort.class, ArpMonitoringHandler.class);
         this.dataBroker = dataBroker;
         this.interfaceRpc = interfaceRpc;
@@ -67,13 +70,14 @@ public class ArpMonitoringHandler
         this.interfaceManager = interfaceManager;
         this.entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
         this.jobCoordinator = jobCoordinator;
+        this.alivenessMonitorUtils = alivenessMonitorUtils;
+        this.vpnUtil = vpnUtil;
     }
 
     @PostConstruct
     public void start() {
-        Optional<Long> profileIdOptional = AlivenessMonitorUtils.allocateProfile(alivenessManager,
-            ArpConstants.FAILURE_THRESHOLD, ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, ArpConstants.MONITORING_WINDOW,
-            EtherTypes.Arp);
+        Optional<Long> profileIdOptional = alivenessMonitorUtils.allocateProfile(ArpConstants.FAILURE_THRESHOLD,
+                ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, ArpConstants.MONITORING_WINDOW, EtherTypes.Arp);
         if (profileIdOptional.isPresent()) {
             arpMonitorProfileId = profileIdOptional.get();
         } else {
@@ -144,8 +148,7 @@ public class ArpMonitoringHandler
                 MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, value.getPortName(),
                         value.getCreationTime());
                 jobCoordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
-                        new ArpMonitorStartTask(macEntry, arpMonitorProfileId, dataBroker, alivenessManager,
-                                neutronVpnService, interfaceManager));
+                        new ArpMonitorStartTask(macEntry, arpMonitorProfileId, alivenessMonitorUtils));
             } catch (UnknownHostException e) {
                 LOG.error("Error in deserializing packet {} with exception", value, e);
             }
@@ -167,7 +170,7 @@ public class ArpMonitoringHandler
                 MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, interfaceName,
                         value.getCreationTime());
                 jobCoordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
-                        new ArpMonitorStopTask(macEntry, dataBroker, alivenessManager, Boolean.FALSE));
+                        new ArpMonitorStopTask(macEntry, Boolean.FALSE, vpnUtil, alivenessMonitorUtils));
             } catch (UnknownHostException e) {
                 LOG.error("Error in deserializing packet {} with exception", value, e);
             }

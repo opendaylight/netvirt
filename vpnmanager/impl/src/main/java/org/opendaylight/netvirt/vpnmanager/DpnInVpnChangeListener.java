@@ -65,7 +65,6 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                 InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
                 Optional<VpnInstanceOpDataEntry> vpnOpValue =
                         SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-
                 if (vpnOpValue.isPresent()) {
                     VpnInstanceOpDataEntry vpnInstOpData = vpnOpValue.get();
                     List<VpnToDpnList> vpnToDpnList = vpnInstOpData.getVpnToDpnList();
