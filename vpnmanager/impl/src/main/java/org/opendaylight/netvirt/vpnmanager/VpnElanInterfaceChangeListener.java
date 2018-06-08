@@ -43,13 +43,16 @@ public class VpnElanInterfaceChangeListener
     private final DataBroker broker;
     private final ManagedNewTransactionRunner txRunner;
     private final IElanService elanService;
+    private final VpnUtil vpnUtil;
 
     @Inject
-    public VpnElanInterfaceChangeListener(final DataBroker broker, final IElanService elanService) {
+    public VpnElanInterfaceChangeListener(final DataBroker broker, final IElanService elanService,
+                                          final VpnUtil vpnUtil) {
         super(ElanInterface.class, VpnElanInterfaceChangeListener.class);
         this.broker = broker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.elanService = elanService;
+        this.vpnUtil = vpnUtil;
     }
 
     @PostConstruct
@@ -71,7 +74,7 @@ public class VpnElanInterfaceChangeListener
             return;
         }
 
-        if (!VpnUtil.isVpnInterfaceConfigured(broker, interfaceName)) {
+        if (!vpnUtil.isVpnInterfaceConfigured(interfaceName)) {
             LOG.debug("remove: VpnInterface was never configured for {}. Ignoring interface removal", interfaceName);
             return;
         }
@@ -106,7 +109,7 @@ public class VpnElanInterfaceChangeListener
             return;
         }
 
-        Uuid vpnId = VpnUtil.getExternalNetworkVpnId(broker, networkId);
+        Uuid vpnId = vpnUtil.getExternalNetworkVpnId(networkId);
         if (vpnId == null) {
             LOG.debug("add: Network {} is not external or vpn-id missing. Ignoring interface {} on elan {}",
                     networkId.getValue(), elanInterface.getName(), elanInterface.getElanInstanceName());
@@ -121,7 +124,7 @@ public class VpnElanInterfaceChangeListener
             .setScheduledForRemove(Boolean.FALSE)
             .build();
         InstanceIdentifier<VpnInterface> vpnInterfaceIdentifier = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
-        VpnUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vpnInterfaceIdentifier, vpnInterface);
+        vpnUtil.syncWrite(LogicalDatastoreType.CONFIGURATION, vpnInterfaceIdentifier, vpnInterface);
         LOG.info("add: Added VPN interface {} with VPN-id {} elanInstance {}", interfaceName, vpnId.getValue(),
                 elanInterface.getElanInstanceName());
     }
