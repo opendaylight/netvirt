@@ -97,9 +97,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ipv6service-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.opendaylight.genius</groupId>
+            <artifactId>ipv6util-api</artifactId>
+            <version>${genius.version}</version>
         </dependency>
 
         <!-- Testing dependencies -->

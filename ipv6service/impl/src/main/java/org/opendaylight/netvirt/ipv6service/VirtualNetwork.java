@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.opendaylight.netvirt.ipv6service.api.IVirtualNetwork;
-import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -41,7 +41,7 @@ public class VirtualNetwork implements IVirtualNetwork {
         }
 
         DpnInterfaceInfo dpnInterface = dpnIfaceList.computeIfAbsent(dpnId, key -> new DpnInterfaceInfo(dpnId));
-        if (addOrRemove == Ipv6Constants.ADD_ENTRY) {
+        if (addOrRemove == Ipv6ServiceConstants.ADD_ENTRY) {
             dpnInterface.updateofPortList(ofPort);
         } else {
             dpnInterface.removeOfPortFromList(ofPort);
@@ -83,7 +83,7 @@ public class VirtualNetwork implements IVirtualNetwork {
         if (null != dpnInterface) {
             return dpnInterface.getRsFlowConfiguredStatus();
         }
-        return Ipv6Constants.FLOWS_NOT_CONFIGURED;
+        return Ipv6ServiceConstants.FLOWS_NOT_CONFIGURED;
     }
 
     public void clearDpnInterfaceList() {
@@ -114,7 +114,7 @@ public class VirtualNetwork implements IVirtualNetwork {
 
         DpnInterfaceInfo(BigInteger dpnId) {
             dpId = dpnId;
-            rsPuntFlowConfigured = Ipv6Constants.FLOWS_NOT_CONFIGURED;
+            rsPuntFlowConfigured = Ipv6ServiceConstants.FLOWS_NOT_CONFIGURED;
         }
 
         public void setDpId(BigInteger dpId) {
@@ -134,7 +134,7 @@ public class VirtualNetwork implements IVirtualNetwork {
         }
 
         public void updateSubnetCidrFlowStatus(Uuid subnetUUID, int addOrRemove) {
-            if (addOrRemove == Ipv6Constants.ADD_FLOW) {
+            if (addOrRemove == Ipv6ServiceConstants.ADD_FLOW) {
                 this.subnetCidrPuntFlowList.add(subnetUUID);
             } else {
                 this.subnetCidrPuntFlowList.remove(subnetUUID);
@@ -152,7 +152,7 @@ public class VirtualNetwork implements IVirtualNetwork {
         public void updateNDTargetAddress(Ipv6Address ipv6Address, int addOrRemove) {
             Ipv6Address ipv6 =
                     Ipv6Address.getDefaultInstance(Ipv6ServiceUtils.getFormattedIpv6Address(ipv6Address.getValue()));
-            if (addOrRemove == Ipv6Constants.ADD_ENTRY) {
+            if (addOrRemove == Ipv6ServiceConstants.ADD_ENTRY) {
                 this.ndTargetFlowsPunted.add(ipv6);
             } else {
                 this.ndTargetFlowsPunted.remove(ipv6);

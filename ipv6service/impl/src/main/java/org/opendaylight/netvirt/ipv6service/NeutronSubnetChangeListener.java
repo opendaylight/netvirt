@@ -14,7 +14,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.Dhcpv6Base;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.Dhcpv6Off;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.Dhcpv6Slaac;
@@ -39,16 +39,16 @@ public class NeutronSubnetChangeListener extends AsyncClusteredDataTreeChangeLis
 
     private static final ImmutableBiMap<Class<? extends IpVersionBase>,String> IPV_MAP
             = new ImmutableBiMap.Builder<Class<? extends IpVersionBase>,String>()
-            .put(IpVersionV4.class, Ipv6Constants.IP_VERSION_V4)
-            .put(IpVersionV6.class, Ipv6Constants.IP_VERSION_V6)
+            .put(IpVersionV4.class, Ipv6ServiceConstants.IP_VERSION_V4)
+            .put(IpVersionV6.class, Ipv6ServiceConstants.IP_VERSION_V6)
             .build();
 
     private static final ImmutableBiMap<Class<? extends Dhcpv6Base>,String> DHCPV6_MAP
             = new ImmutableBiMap.Builder<Class<? extends Dhcpv6Base>,String>()
-            .put(Dhcpv6Off.class,Ipv6Constants.DHCPV6_OFF)
-            .put(Dhcpv6Stateful.class,Ipv6Constants.IPV6_DHCPV6_STATEFUL)
-            .put(Dhcpv6Slaac.class,Ipv6Constants.IPV6_SLAAC)
-            .put(Dhcpv6Stateless.class,Ipv6Constants.IPV6_DHCPV6_STATELESS)
+            .put(Dhcpv6Off.class,Ipv6ServiceConstants.DHCPV6_OFF)
+            .put(Dhcpv6Stateful.class,Ipv6ServiceConstants.IPV6_DHCPV6_STATEFUL)
+            .put(Dhcpv6Slaac.class,Ipv6ServiceConstants.IPV6_SLAAC)
+            .put(Dhcpv6Stateless.class,Ipv6ServiceConstants.IPV6_DHCPV6_STATELESS)
             .build();
 
     @Inject
@@ -70,7 +70,7 @@ public class NeutronSubnetChangeListener extends AsyncClusteredDataTreeChangeLis
 
     @Override
     protected void add(InstanceIdentifier<Subnet> identifier, Subnet input) {
-        if (IPV_MAP.get(input.getIpVersion()).equals(Ipv6Constants.IP_VERSION_V6)) {
+        if (IPV_MAP.get(input.getIpVersion()).equals(Ipv6ServiceConstants.IP_VERSION_V6)) {
             LOG.info("Add Subnet notification handler is invoked {} ", input);
             String ipv6AddrMode = "";
             if (input.getIpv6AddressMode() != null) {

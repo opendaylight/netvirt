@@ -17,7 +17,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
@@ -53,7 +53,7 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
 
     @Override
     protected void add(InstanceIdentifier<Port> identifier, Port port) {
-        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_GATEWAY)) {
+        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6ServiceConstants.NETWORK_ROUTER_GATEWAY)) {
             // Todo: revisit when IPv6 north-south support is implemented.
             LOG.info("IPv6Service (TODO): Skipping router_gateway port {} for add event", port);
             return;
@@ -71,7 +71,7 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
 
     @Override
     protected void remove(InstanceIdentifier<Port> identifier, Port port) {
-        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_GATEWAY)) {
+        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6ServiceConstants.NETWORK_ROUTER_GATEWAY)) {
             // Todo: revisit when IPv6 north-south support is implemented.
             LOG.info("IPv6Service (TODO): Skipping router_gateway port {} for remove event", port);
             return;
@@ -83,7 +83,7 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
 
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
-        if (update.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_GATEWAY)) {
+        if (update.getDeviceOwner().equalsIgnoreCase(Ipv6ServiceConstants.NETWORK_ROUTER_GATEWAY)) {
             // Todo: revisit when IPv6 north-south support is implemented.
             LOG.info("IPv6Service (TODO): Skipping router_gateway port {} for update event", update);
             return;
@@ -110,7 +110,7 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
                 addInterfaceInfo(update, fixedip);
             }
 
-            if (update.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
+            if (update.getDeviceOwner().equalsIgnoreCase(Ipv6ServiceConstants.NETWORK_ROUTER_INTERFACE)) {
                 ifMgr.updateRouterIntf(update.getUuid(), new Uuid(update.getDeviceId()), update.getFixedIps(),
                         deletedIps);
             } else {
@@ -120,7 +120,7 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
     }
 
     protected void addInterfaceInfo(Port port, FixedIps fixedip) {
-        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
+        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6ServiceConstants.NETWORK_ROUTER_INTERFACE)) {
             LOG.info("IPv6: addInterfaceInfo is invoked for a router interface {}, fixedIp: {}", port, fixedip);
             // Add router interface
             ifMgr.addRouterIntf(port.getUuid(),

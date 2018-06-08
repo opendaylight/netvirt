@@ -21,16 +21,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
+import org.opendaylight.genius.ipv6util.api.Ipv6Util;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
-import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
-import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.NaReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.NaReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
@@ -39,8 +41,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.Metadata;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.MetadataBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.NaReceived;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.NaReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceivedBuilder;
@@ -233,7 +233,7 @@ public class Ipv6PktHandlerTest {
         when(ifMgrInstance.getRouterV6InterfaceForNetwork(any())).thenReturn(routerIntf);
         List<Ipv6Address> ipv6AddrList = new ArrayList<>();
         when(routerIntf.getMacAddress()).thenReturn("08:00:27:FE:8F:95");
-        Ipv6Address llAddr = Ipv6ServiceUtils.getIpv6LinkLocalAddressFromMac(new MacAddress("08:00:27:FE:8F:95"));
+        Ipv6Address llAddr = Ipv6Util.getIpv6LinkLocalAddressFromMac(new MacAddress("08:00:27:FE:8F:95"));
         ipv6AddrList.add(llAddr);
         when(routerIntf.getIpv6Addresses()).thenReturn(ipv6AddrList);
 
@@ -309,7 +309,7 @@ public class Ipv6PktHandlerTest {
 
         VirtualSubnet v6Subnet = VirtualSubnet.builder().gatewayIp(gwIpAddress)
                 .subnetCidr(new IpPrefix("2001:db8::/64".toCharArray()))
-                .ipv6AddressMode(Ipv6Constants.IPV6_SLAAC).ipv6RAMode(Ipv6Constants.IPV6_SLAAC).build();
+                .ipv6AddressMode(Ipv6ServiceConstants.IPV6_SLAAC).ipv6RAMode(Ipv6ServiceConstants.IPV6_SLAAC).build();
 
         VirtualRouter virtualRouter = VirtualRouter.builder().build();
         v6Subnet.setRouter(virtualRouter);
@@ -400,20 +400,20 @@ public class Ipv6PktHandlerTest {
 
         VirtualSubnet v6Subnet1 = VirtualSubnet.builder().gatewayIp(gwIpAddress)
                 .subnetCidr(new IpPrefix("2001:db8:1111::/64".toCharArray()))
-                .ipv6AddressMode(Ipv6Constants.IPV6_SLAAC).ipv6RAMode(Ipv6Constants.IPV6_SLAAC).build();
+                .ipv6AddressMode(Ipv6ServiceConstants.IPV6_SLAAC).ipv6RAMode(Ipv6ServiceConstants.IPV6_SLAAC).build();
         VirtualRouter virtualRouter = VirtualRouter.builder().build();
         v6Subnet1.setRouter(virtualRouter);
 
         VirtualSubnet v6Subnet2 = VirtualSubnet.builder().gatewayIp(gwIpAddress)
                 .subnetCidr(new IpPrefix("2001:db8:2222::/64".toCharArray()))
-                .ipv6AddressMode(Ipv6Constants.IPV6_DHCPV6_STATELESS).ipv6RAMode(Ipv6Constants.IPV6_DHCPV6_STATELESS)
-                .build();
+                .ipv6AddressMode(Ipv6ServiceConstants.IPV6_DHCPV6_STATELESS)
+                .ipv6RAMode(Ipv6ServiceConstants.IPV6_DHCPV6_STATELESS).build();
         v6Subnet2.setRouter(virtualRouter);
 
         VirtualSubnet v6Subnet3 = VirtualSubnet.builder().gatewayIp(gwIpAddress)
                 .subnetCidr(new IpPrefix("2001:db8:3333::/64".toCharArray()))
-                .ipv6AddressMode(Ipv6Constants.IPV6_DHCPV6_STATEFUL).ipv6RAMode(Ipv6Constants.IPV6_DHCPV6_STATEFUL)
-                .build();
+                .ipv6AddressMode(Ipv6ServiceConstants.IPV6_DHCPV6_STATEFUL)
+                .ipv6RAMode(Ipv6ServiceConstants.IPV6_DHCPV6_STATEFUL).build();
         v6Subnet3.setRouter(virtualRouter);
 
         List<VirtualSubnet> subnetList = new ArrayList<>();
