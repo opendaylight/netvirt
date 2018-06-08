@@ -13,7 +13,6 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.LivenessState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
@@ -27,16 +26,18 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class ArpMonitorEventListener implements AlivenessMonitorListener {
     private static final Logger LOG = LoggerFactory.getLogger(ArpMonitorEventListener.class);
-    private final AlivenessMonitorService alivenessManager;
     private final DataBroker dataBroker;
     private final JobCoordinator jobCoordinator;
+    private final AlivenessMonitorUtils alivenessMonitorUtils;
+    private final VpnUtil vpnUtil;
 
     @Inject
-    public ArpMonitorEventListener(DataBroker dataBroker, AlivenessMonitorService alivenessManager,
-            JobCoordinator jobCoordinator) {
-        this.alivenessManager = alivenessManager;
+    public ArpMonitorEventListener(DataBroker dataBroker, JobCoordinator jobCoordinator,
+                                   AlivenessMonitorUtils alivenessMonitorUtils, VpnUtil vpnUtil) {
         this.dataBroker = dataBroker;
         this.jobCoordinator = jobCoordinator;
+        this.alivenessMonitorUtils = alivenessMonitorUtils;
+        this.vpnUtil = vpnUtil;
     }
 
     @Override
@@ -51,11 +52,11 @@ public class ArpMonitorEventListener implements AlivenessMonitorListener {
         if (livenessState.equals(LivenessState.Down)) {
             String vpnName = macEntry.getVpnName();
             String learntIp = macEntry.getIpAddress().getHostAddress();
-            LearntVpnVipToPort vpnVipToPort = VpnUtil.getLearntVpnVipToPort(dataBroker, vpnName, learntIp);
+            LearntVpnVipToPort vpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, learntIp);
             if (vpnVipToPort != null && macEntry.getCreatedTime().equals(vpnVipToPort.getCreationTime())) {
                 jobCoordinator.enqueueJob(ArpMonitoringHandler.buildJobKey(macEntry.getIpAddress().getHostAddress(),
-                        macEntry.getVpnName()), new ArpMonitorStopTask(macEntry, dataBroker,
-                        alivenessManager, Boolean.TRUE));
+                        macEntry.getVpnName()), new ArpMonitorStopTask(macEntry, Boolean.TRUE, vpnUtil,
+                        alivenessMonitorUtils));
             }
 
         }

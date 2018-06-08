@@ -18,6 +18,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.vpnmanager.VpnFootprintService;
+import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkCleanedCheckerTask;
@@ -50,16 +51,21 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
     private final VpnFootprintService vpnFootprintService;
     private final JobCoordinator jobCoordinator;
     private final InterVpnLinkCache interVpnLinkCache;
+    private final VpnUtil vpnUtil;
+    private final InterVpnLinkUtil interVpnLinkUtil;
 
     @Inject
     public InterVpnLinkNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalMgr,
                                     final VpnFootprintService vpnFootprintService,
-                                    final JobCoordinator jobCoordinator, final InterVpnLinkCache interVpnLinkCache) {
+                                    final JobCoordinator jobCoordinator, final InterVpnLinkCache interVpnLinkCache,
+                                    VpnUtil vpnUtil, InterVpnLinkUtil interVpnLinkUtil) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalMgr;
         this.vpnFootprintService = vpnFootprintService;
         this.jobCoordinator = jobCoordinator;
         this.interVpnLinkCache = interVpnLinkCache;
+        this.vpnUtil = vpnUtil;
+        this.interVpnLinkUtil = interVpnLinkUtil;
     }
 
     @PostConstruct
@@ -90,7 +96,8 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
         }
         BigInteger dpId = new BigInteger(node[1]);
         jobCoordinator.enqueueJob("IVpnLink" + dpId.toString(),
-            new InterVpnLinkNodeAddTask(dataBroker, mdsalManager, vpnFootprintService, dpId, interVpnLinkCache));
+            new InterVpnLinkNodeAddTask(dataBroker, mdsalManager, vpnFootprintService, dpId, interVpnLinkCache,
+                    vpnUtil, interVpnLinkUtil));
     }
 
     @Override
@@ -117,7 +124,8 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
         String specificJobKey = "InterVpnLink.update." + ivlName;
         InterVpnLink interVpnLink = ivl.getInterVpnLinkConfig();
         jobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkRemoverTask(dataBroker, interVpnLinkIid));
-        jobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkCleanedCheckerTask(dataBroker, interVpnLink));
+        jobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkCleanedCheckerTask(dataBroker, interVpnLink,
+                interVpnLinkUtil, vpnUtil));
         jobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkCreatorTask(dataBroker, interVpnLink));
     }
 

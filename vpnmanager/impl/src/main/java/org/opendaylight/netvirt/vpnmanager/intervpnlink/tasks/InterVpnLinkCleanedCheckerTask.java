@@ -36,10 +36,15 @@ public class InterVpnLinkCleanedCheckerTask implements Callable<List<ListenableF
 
     private final DataBroker dataBroker;
     private final InterVpnLink interVpnLinkToCheck;
+    private final InterVpnLinkUtil interVpnLinkUtil;
+    private final VpnUtil vpnUtil;
 
-    public InterVpnLinkCleanedCheckerTask(DataBroker dataBroker, InterVpnLink interVpnLink) {
+    public InterVpnLinkCleanedCheckerTask(DataBroker dataBroker, InterVpnLink interVpnLink,
+                                          InterVpnLinkUtil interVpnLinkUtil, VpnUtil vpnUtil) {
         this.dataBroker = dataBroker;
         this.interVpnLinkToCheck = interVpnLink;
+        this.interVpnLinkUtil = interVpnLinkUtil;
+        this.vpnUtil = vpnUtil;
     }
 
     @Override
@@ -49,14 +54,14 @@ public class InterVpnLinkCleanedCheckerTask implements Callable<List<ListenableF
 
         // Check that the State has also been deleted
         Optional<InterVpnLinkState> optIVpnLinkState =
-            InterVpnLinkUtil.getInterVpnLinkState(dataBroker, interVpnLinkToCheck.getName());
+            interVpnLinkUtil.getInterVpnLinkState(interVpnLinkToCheck.getName());
         long t0 = System.currentTimeMillis();
         long elapsedTime = t0;
         while (optIVpnLinkState.isPresent() && elapsedTime - t0 < MAX_WAIT_FOR_REMOVAL) {
             LOG.debug("InterVpnLink {} State has not yet been removed after {}ms.",
                 interVpnLinkToCheck.getName(), elapsedTime - t0);
             Thread.sleep(50);
-            optIVpnLinkState = InterVpnLinkUtil.getInterVpnLinkState(dataBroker, interVpnLinkToCheck.getName());
+            optIVpnLinkState = interVpnLinkUtil.getInterVpnLinkState(interVpnLinkToCheck.getName());
             elapsedTime = System.currentTimeMillis();
         }
 
@@ -66,13 +71,12 @@ public class InterVpnLinkCleanedCheckerTask implements Callable<List<ListenableF
         }
 
         LOG.debug("InterVpnLink {} State has been removed. Now checking leaked routes", interVpnLinkToCheck.getName());
-        String vpn1Rd = VpnUtil.getVpnRd(dataBroker, interVpnLinkToCheck.getFirstEndpoint().getVpnUuid().getValue());
+        String vpn1Rd = vpnUtil.getVpnRd(interVpnLinkToCheck.getFirstEndpoint().getVpnUuid().getValue());
         List<VrfEntry> leakedVrfEntries =
-            VpnUtil.getVrfEntriesByOrigin(dataBroker, vpn1Rd, Collections.singletonList(RouteOrigin.INTERVPN));
+            vpnUtil.getVrfEntriesByOrigin(vpn1Rd, Collections.singletonList(RouteOrigin.INTERVPN));
 
         while (!leakedVrfEntries.isEmpty() && t0 - elapsedTime < MAX_WAIT_FOR_REMOVAL) {
-            leakedVrfEntries = VpnUtil.getVrfEntriesByOrigin(dataBroker, vpn1Rd,
-                Collections.singletonList(RouteOrigin.INTERVPN));
+            leakedVrfEntries = vpnUtil.getVrfEntriesByOrigin(vpn1Rd, Collections.singletonList(RouteOrigin.INTERVPN));
             elapsedTime = System.currentTimeMillis();
         }
         if (!leakedVrfEntries.isEmpty()) {

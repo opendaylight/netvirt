@@ -67,16 +67,21 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
     private final IBgpManager bgpManager;
     private final IFibManager fibManager;
     private final InterVpnLinkCache interVpnLinkCache;
+    private final VpnUtil vpnUtil;
+    private final InterVpnLinkUtil interVpnLinkUtil;
 
     @Inject
     public IVpnLinkServiceImpl(final DataBroker dataBroker, final IdManagerService idMgr, final IBgpManager bgpMgr,
-                               final IFibManager fibMgr, final InterVpnLinkCache interVpnLinkCache) {
+                               final IFibManager fibMgr, final InterVpnLinkCache interVpnLinkCache,
+                               VpnUtil vpnUtil, InterVpnLinkUtil interVpnLinkUtil) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = idMgr;
         this.bgpManager = bgpMgr;
         this.fibManager = fibMgr;
         this.interVpnLinkCache = interVpnLinkCache;
+        this.vpnUtil = vpnUtil;
+        this.interVpnLinkUtil = interVpnLinkUtil;
     }
 
     @PostConstruct
@@ -118,12 +123,12 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             return;
         }
 
-        String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnName);
+        String dstVpnRd = vpnUtil.getVpnRd(dstVpnName);
         if (addOrRemove == NwConstants.ADD_FLOW) {
             LOG.debug("Leaking route (prefix={}, nexthop={}) from Vpn={} to Vpn={} (RD={})",
                       prefix, nextHopList, vpnName, dstVpnName, dstVpnRd);
             String key = dstVpnRd + VpnConstants.SEPARATOR + prefix;
-            long leakedLabel = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME, key);
+            long leakedLabel = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME, key);
             String leakedNexthop = interVpnLink.getEndpointIpAddr(vpnName);
             fibManager.addOrUpdateFibEntry(dstVpnRd, null /*macAddress*/, prefix,
                                            Collections.singletonList(leakedNexthop), VrfEntry.EncapType.Mplsgre,
@@ -171,7 +176,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                                  .setRoutePaths(Collections.singletonList(FibHelper.buildRoutePath(endpointIp, label)))
                                  .setOrigin(leakedOrigin).build();
 
-        String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnUuid);
+        String dstVpnRd = vpnUtil.getVpnRd(dstVpnUuid);
         InstanceIdentifier<VrfEntry> newVrfEntryIid =
             InstanceIdentifier.builder(FibEntries.class)
                               .child(VrfTables.class, new VrfTablesKey(dstVpnRd))
@@ -296,16 +301,16 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
      */
     private void leakExtraRoutesToVpnEndpoint(InterVpnLinkDataComposite vpnLink, String vpn1Uuid, String vpn2Uuid) {
 
-        String vpn1Rd = VpnUtil.getVpnRd(dataBroker, vpn1Uuid);
+        String vpn1Rd = vpnUtil.getVpnRd(vpn1Uuid);
         String vpn2Endpoint = vpnLink.getOtherEndpointIpAddr(vpn2Uuid);
-        List<VrfEntry> allVpnVrfEntries = VpnUtil.getAllVrfEntries(dataBroker, vpn1Rd);
+        List<VrfEntry> allVpnVrfEntries = vpnUtil.getAllVrfEntries(vpn1Rd);
         for (VrfEntry vrfEntry : allVpnVrfEntries) {
             vrfEntry.getRoutePaths().stream()
                     .filter(routePath -> routePath.getNexthopAddress().equals(vpn2Endpoint))
                     .forEach(routePath -> {
                         // Vpn1 has a route pointing to Vpn2's endpoint. Forcing the leaking of the route will update
                         // the BGP accordingly
-                        long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+                        long label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
                                                          VpnUtil.getNextHopLabelKey(vpn1Rd, vrfEntry.getDestPrefix()));
                         if (label == VpnConstants.INVALID_LABEL) {
                             LOG.error("Unable to fetch label from Id Manager. Bailing out of leaking extra routes for "
@@ -322,11 +327,11 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
 
     private void leakRoutes(InterVpnLinkDataComposite vpnLink, String srcVpnUuid, String dstVpnUuid,
                             List<RouteOrigin> originsToConsider) {
-        String srcVpnRd = VpnUtil.getVpnRd(dataBroker, srcVpnUuid);
-        String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnUuid);
-        List<VrfEntry> srcVpnRemoteVrfEntries = VpnUtil.getVrfEntriesByOrigin(dataBroker, srcVpnRd, originsToConsider);
+        String srcVpnRd = vpnUtil.getVpnRd(srcVpnUuid);
+        String dstVpnRd = vpnUtil.getVpnRd(dstVpnUuid);
+        List<VrfEntry> srcVpnRemoteVrfEntries = vpnUtil.getVrfEntriesByOrigin(srcVpnRd, originsToConsider);
         for (VrfEntry vrfEntry : srcVpnRemoteVrfEntries) {
-            long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+            long label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
                                              VpnUtil.getNextHopLabelKey(dstVpnRd, vrfEntry.getDestPrefix()));
             if (label == VpnConstants.INVALID_LABEL) {
                 LOG.error("Unable to fetch label from Id Manager. Bailing out of leaking routes for InterVpnLink {} "
@@ -419,18 +424,16 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         }
 
         // Lets work: 1) write Fibentry, 2) advertise to BGP and 3) check if it must be leaked
-        String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnId);
+        String vpnRd = vpnUtil.getVpnRd(vpnId);
         if (vpnRd == null) {
             LOG.warn("Could not find Route-Distinguisher for VpnName {}", vpnId);
             return;
         }
 
-        int label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                                        VpnUtil.getNextHopLabelKey(vpnId, destination));
+        int label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME, VpnUtil.getNextHopLabelKey(vpnId, destination));
 
         try {
-            InterVpnLinkUtil.handleStaticRoute(ivpnLink, vpnId, destination, routeNextHop, label,
-                                               dataBroker, fibManager, bgpManager);
+            interVpnLinkUtil.handleStaticRoute(ivpnLink, vpnId, destination, routeNextHop, label);
         } catch (Exception e) {
             LOG.error("Exception while advertising prefix for intervpn link, {}", e);
         }

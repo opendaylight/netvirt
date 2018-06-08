@@ -57,17 +57,21 @@ public class VpnRpcServiceImpl implements VpnRpcService {
     private final IBgpManager bgpManager;
     private final IVpnManager vpnManager;
     private final InterVpnLinkCache interVpnLinkCache;
+    private final VpnUtil vpnUtil;
+    private final InterVpnLinkUtil interVpnLinkUtil;
 
     @Inject
     public VpnRpcServiceImpl(final DataBroker dataBroker, final IdManagerService idManager,
             final IFibManager fibManager, IBgpManager bgpManager, final IVpnManager vpnManager,
-            final InterVpnLinkCache interVpnLinkCache) {
+            final InterVpnLinkCache interVpnLinkCache, VpnUtil vpnUtil, InterVpnLinkUtil interVpnLinkUtil) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.fibManager = fibManager;
         this.bgpManager = bgpManager;
         this.vpnManager = vpnManager;
         this.interVpnLinkCache = interVpnLinkCache;
+        this.vpnUtil = vpnUtil;
+        this.interVpnLinkUtil = interVpnLinkUtil;
     }
 
     /**
@@ -78,8 +82,8 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String vpnName = input.getVpnName();
         String ipPrefix = input.getIpPrefix();
         SettableFuture<RpcResult<GenerateVpnLabelOutput>> futureResult = SettableFuture.create();
-        String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
-        long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+        String rd = vpnUtil.getVpnRd(vpnName);
+        long label = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
             VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
         if (label == 0) {
             futureResult.set(RpcResultBuilder.<GenerateVpnLabelOutput>failed().withError(ErrorType.APPLICATION,
@@ -99,8 +103,8 @@ public class VpnRpcServiceImpl implements VpnRpcService {
     public ListenableFuture<RpcResult<RemoveVpnLabelOutput>> removeVpnLabel(RemoveVpnLabelInput input) {
         String vpnName = input.getVpnName();
         String ipPrefix = input.getIpPrefix();
-        String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
-        VpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+        String rd = vpnUtil.getVpnRd(vpnName);
+        vpnUtil.releaseId(VpnConstants.VPN_IDPOOL_NAME,
             VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
         return RpcResultBuilder.success(new RemoveVpnLabelOutputBuilder().build()).buildFuture();
     }
@@ -145,7 +149,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         }
 
         if (label == null || label == 0) {
-            label = (long) VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+            label = (long) vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME,
                 VpnUtil.getNextHopLabelKey(vpnInstanceName, destination));
             if (label == 0) {
                 String message = "Unable to retrieve a new Label for the new Route";
@@ -155,8 +159,8 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             }
         }
 
-        String vpnRd = VpnUtil.getVpnRd(dataBroker, input.getVpnInstanceName());
-        VpnInstanceOpDataEntry vpnOpEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
+        String vpnRd = vpnUtil.getVpnRd(input.getVpnInstanceName());
+        VpnInstanceOpDataEntry vpnOpEntry = vpnUtil.getVpnInstanceOpData(vpnRd);
         Boolean isVxlan = VpnUtil.isL3VpnOverVxLan(vpnOpEntry.getL3vni());
         VrfEntry.EncapType encapType = VpnUtil.getEncapType(isVxlan);
         if (vpnRd == null) {
@@ -169,9 +173,8 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         Optional<InterVpnLinkDataComposite> optIVpnLink = interVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
         if (optIVpnLink.isPresent()) {
             try {
-                InterVpnLinkUtil.handleStaticRoute(optIVpnLink.get(), vpnInstanceName, destination, nexthop,
-                                                   label.intValue(),
-                                                   dataBroker, fibManager, bgpManager);
+                interVpnLinkUtil.handleStaticRoute(optIVpnLink.get(), vpnInstanceName, destination, nexthop,
+                                                   label.intValue());
             } catch (Exception e) {
                 result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(ErrorType.APPLICATION,
                         formatAndLog(LOG::warn,
@@ -226,7 +229,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             return result;
         }
 
-        String vpnRd = VpnUtil.getVpnRd(dataBroker, input.getVpnInstanceName());
+        String vpnRd = vpnUtil.getVpnRd(input.getVpnInstanceName());
         if (vpnRd == null) {
             String message = "Could not find Route-Distinguisher for VpnName " + vpnInstanceName;
             result.set(RpcResultBuilder.<RemoveStaticRouteOutput>failed()

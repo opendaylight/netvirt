@@ -56,12 +56,13 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
     private final IMdsalApiManager mdsalManager;
     private final VpnFootprintService vpnFootprintService;
     private final JobCoordinator jobCoordinator;
+    private final VpnUtil vpnUtil;
 
     @Inject
     public VpnOpStatusListener(final DataBroker dataBroker, final IBgpManager bgpManager,
                                final IdManagerService idManager, final IFibManager fibManager,
                                final IMdsalApiManager mdsalManager, final VpnFootprintService vpnFootprintService,
-                               final JobCoordinator jobCoordinator) {
+                               final JobCoordinator jobCoordinator, VpnUtil vpnUtil) {
         super(VpnInstanceOpDataEntry.class, VpnOpStatusListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -71,6 +72,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
         this.mdsalManager = mdsalManager;
         this.vpnFootprintService = vpnFootprintService;
         this.jobCoordinator = jobCoordinator;
+        this.vpnUtil = vpnUtil;
     }
 
     @PostConstruct
@@ -105,7 +107,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
             final String vpnName = update.getVpnInstanceName();
             final List<String> rds = update.getRd();
             String primaryRd = update.getVrfId();
-            final long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+            final long vpnId = vpnUtil.getVpnId(vpnName);
             jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
                 // Two transactions are used, one for operational, one for config; we only submit the config
                 // transaction if the operational transaction succeeds
@@ -135,7 +137,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                         VpnUtil.removeVpnExtraRouteForVpn(vpnName, operTx);
                     }
                     if (VpnUtil.isL3VpnOverVxLan(update.getL3vni())) {
-                        VpnUtil.removeExternalTunnelDemuxFlows(vpnName, dataBroker, mdsalManager);
+                        vpnUtil.removeExternalTunnelDemuxFlows(vpnName);
                     }
                     // Clean up PrefixToInterface Operational DS
                     Optional<VpnIds> optPrefixToIntf = Optional.absent();
@@ -283,7 +285,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
          */
         @Override
         public void onSuccess(Void ignored) {
-            VpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME, vpnName);
+            vpnUtil.releaseId(VpnConstants.VPN_IDPOOL_NAME, vpnName);
             log.info("onSuccess: VpnId for VpnName {} is released to IdManager successfully.", vpnName);
         }
 
