@@ -44,8 +44,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.Ipv6NdUtilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.Ipv6NdutilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
@@ -68,19 +68,19 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     private final OdlInterfaceRpcService odlInterfaceRpcService;
     private final ICentralizedSwitchProvider centralizedSwitchProvider;
     private final IInterfaceManager interfaceManager;
-    private final Ipv6NdutilService ipv6NdutilService;
+    private final Ipv6NdUtilService ipv6NdUtilService;
 
     @Inject
     public SubnetRoutePacketInHandler(final DataBroker dataBroker, final PacketProcessingService packetService,
             final OdlInterfaceRpcService odlInterfaceRpcService,
             final ICentralizedSwitchProvider centralizedSwitchProvider, final IInterfaceManager interfaceManager,
-            final Ipv6NdutilService ipv6NdutilService) {
+            final Ipv6NdUtilService ipv6NdUtilService) {
         this.dataBroker = dataBroker;
         this.packetService = packetService;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.centralizedSwitchProvider = centralizedSwitchProvider;
         this.interfaceManager = interfaceManager;
-        this.ipv6NdutilService = ipv6NdutilService;
+        this.ipv6NdUtilService = ipv6NdUtilService;
     }
 
     @Override
@@ -154,7 +154,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     }
 
     private void handleIpPackets(byte[] srcIp, byte[] dstIp, String srcIpStr, String dstIpStr, String srcMac,
-            BigInteger metadata) throws UnknownHostException, InterruptedException, ExecutionException {
+            BigInteger metadata)
+            throws UnknownHostException, InterruptedException, ExecutionException, ReadFailedException {
         long vpnId = MetaDataUtil.getVpnIdFromMetadata(metadata);
 
         LOG.info("{} onPacketReceived: Processing IP Packet received with Source IP {} and Target IP {}"
@@ -275,7 +276,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     dstIpAddress, dpnId, elanTag);
             VpnManagerCounters.subnet_route_packet_ns_sent.inc();
 
-            VpnUtil.sendNeighborSolicationToOfGroup(this.ipv6NdutilService, new Ipv6Address(sourceIpAddress),
+            VpnUtil.sendNeighborSolicationToOfGroup(this.ipv6NdUtilService, new Ipv6Address(sourceIpAddress),
                     new MacAddress(sourceMac), new Ipv6Address(dstIpAddress), groupid, dpnId);
         }
     }
