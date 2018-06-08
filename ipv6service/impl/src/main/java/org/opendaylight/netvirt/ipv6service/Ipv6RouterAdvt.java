@@ -13,13 +13,17 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+import org.opendaylight.genius.ipv6util.api.Icmpv6Type;
+import org.opendaylight.genius.ipv6util.api.Ipv6Constants;
+import org.opendaylight.genius.ipv6util.api.Ipv6Constants.Ipv6RouterAdvertisementType;
+import org.opendaylight.genius.ipv6util.api.Ipv6Util;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
+import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
-import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
-import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants.Ipv6RtrAdvertType;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -27,11 +31,11 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.RouterAdvertisementPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.RouterAdvertisementPacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.RouterSolicitationPacket;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.router.advertisement.packet.PrefixList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.router.advertisement.packet.PrefixListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.RouterAdvertisementPacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.RouterAdvertisementPacketBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.RouterSolicitationPacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.router.advertisement.packet.PrefixList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.router.advertisement.packet.PrefixListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.slf4j.Logger;
@@ -48,7 +52,7 @@ public class Ipv6RouterAdvt {
         this.ifMgr = ifMgr;
     }
 
-    public boolean transmitRtrAdvertisement(Ipv6RtrAdvertType raType, VirtualPort routerPort,
+    public boolean transmitRtrAdvertisement(Ipv6RouterAdvertisementType raType, VirtualPort routerPort,
                                             long elanTag, RouterSolicitationPacket rsPdu,
                                             BigInteger dpnId, Uuid port) {
         RouterAdvertisementPacketBuilder raPacket = new RouterAdvertisementPacketBuilder();
@@ -59,7 +63,7 @@ public class Ipv6RouterAdvt {
         /* Send solicited router advertisement to requested VM port only.
          * Send periodic unsolicited router advertisement to ELAN broadcast group.
          */
-        if (raType == Ipv6RtrAdvertType.SOLICITED_ADVERTISEMENT) {
+        if (raType == Ipv6RouterAdvertisementType.SOLICITED_ADVERTISEMENT) {
             List<Action> actions = ifMgr.getEgressAction(port.getValue());
             if (actions == null || actions.isEmpty()) {
                 LOG.error("Unable to send solicited router advertisement packet out. Since Egress "
@@ -80,7 +84,7 @@ public class Ipv6RouterAdvt {
         return true;
     }
 
-    private void updateRAResponse(Ipv6RtrAdvertType raType, RouterSolicitationPacket pdu,
+    private void updateRAResponse(Ipv6RouterAdvertisementType raType, RouterSolicitationPacket pdu,
                                   RouterAdvertisementPacketBuilder raPacket,
                                   VirtualPort routerPort) {
         short icmpv6RaFlags = 0;
@@ -97,18 +101,18 @@ public class Ipv6RouterAdvt {
             }
 
             if (!subnet.getIpv6RAMode().isEmpty()) {
-                if (Ipv6Constants.IPV6_AUTO_ADDRESS_SUBNETS.contains(subnet.getIpv6RAMode())) {
+                if (Ipv6ServiceConstants.IPV6_AUTO_ADDRESS_SUBNETS.contains(subnet.getIpv6RAMode())) {
                     autoConfigPrefixList.add(String.valueOf(subnet.getSubnetCidr().getValue()));
                 }
 
-                if (subnet.getIpv6RAMode().equalsIgnoreCase(Ipv6Constants.IPV6_DHCPV6_STATEFUL)) {
+                if (subnet.getIpv6RAMode().equalsIgnoreCase(Ipv6ServiceConstants.IPV6_DHCPV6_STATEFUL)) {
                     statefulConfigPrefixList.add(String.valueOf(subnet.getSubnetCidr().getValue()));
                 }
             }
 
-            if (subnet.getIpv6RAMode().equalsIgnoreCase(Ipv6Constants.IPV6_DHCPV6_STATELESS)) {
+            if (subnet.getIpv6RAMode().equalsIgnoreCase(Ipv6ServiceConstants.IPV6_DHCPV6_STATELESS)) {
                 icmpv6RaFlags = (short) (icmpv6RaFlags | 1 << 6); // Other Configuration.
-            } else if (subnet.getIpv6RAMode().equalsIgnoreCase(Ipv6Constants.IPV6_DHCPV6_STATEFUL)) {
+            } else if (subnet.getIpv6RAMode().equalsIgnoreCase(Ipv6ServiceConstants.IPV6_DHCPV6_STATEFUL)) {
                 icmpv6RaFlags = (short) (icmpv6RaFlags | 1 << 7); // Managed Address Conf.
             }
         }
@@ -117,35 +121,35 @@ public class Ipv6RouterAdvt {
 
         MacAddress sourceMac = MacAddress.getDefaultInstance(gatewayMac);
         raPacket.setSourceMac(sourceMac);
-        if (raType == Ipv6RtrAdvertType.SOLICITED_ADVERTISEMENT) {
+        if (raType == Ipv6RouterAdvertisementType.SOLICITED_ADVERTISEMENT) {
             raPacket.setDestinationMac(pdu.getSourceMac());
             raPacket.setDestinationIpv6(pdu.getSourceIpv6());
             raPacket.setFlowLabel(pdu.getFlowLabel());
         } else {
-            raPacket.setDestinationMac(new MacAddress(Ipv6Constants.DEF_MCAST_MAC));
+            raPacket.setDestinationMac(new MacAddress(Ipv6Constants.ALL_NODES_MCAST_MAC));
             raPacket.setDestinationIpv6(Ipv6ServiceUtils.ALL_NODES_MCAST_ADDR);
-            raPacket.setFlowLabel(Ipv6Constants.DEF_FLOWLABEL);
+            raPacket.setFlowLabel(Ipv6ServiceConstants.DEF_FLOWLABEL);
         }
 
-        raPacket.setEthertype(Ipv6Constants.IP_V6_ETHTYPE);
+        raPacket.setEthertype(NwConstants.ETHTYPE_IPV6);
 
         raPacket.setVersion(Ipv6Constants.IPV6_VERSION);
         int prefixListLength = autoConfigPrefixList.size() + statefulConfigPrefixList.size();
         raPacket.setIpv6Length(Ipv6Constants.ICMPV6_RA_LENGTH_WO_OPTIONS
                 + Ipv6Constants.ICMPV6_OPTION_SOURCE_LLA_LENGTH
                 + prefixListLength * Ipv6Constants.ICMPV6_OPTION_PREFIX_LENGTH);
-        raPacket.setNextHeader(Ipv6Constants.ICMP6_NHEADER);
+        raPacket.setNextHeader(IPProtocols.IPV6ICMP.shortValue());
         raPacket.setHopLimit(Ipv6Constants.ICMP_V6_MAX_HOP_LIMIT);
-        raPacket.setSourceIpv6(Ipv6ServiceUtils.getIpv6LinkLocalAddressFromMac(sourceMac));
+        raPacket.setSourceIpv6(Ipv6Util.getIpv6LinkLocalAddressFromMac(sourceMac));
 
-        raPacket.setIcmp6Type(Ipv6Constants.ICMP_V6_RA_CODE);
+        raPacket.setIcmp6Type(Icmpv6Type.ROUTER_ADVETISEMENT.getValue());
         raPacket.setIcmp6Code((short)0);
         raPacket.setIcmp6Chksum(0);
 
         raPacket.setCurHopLimit((short) Ipv6Constants.IPV6_DEFAULT_HOP_LIMIT);
         raPacket.setFlags(icmpv6RaFlags);
 
-        if (raType == Ipv6RtrAdvertType.CEASE_ADVERTISEMENT) {
+        if (raType == Ipv6RouterAdvertisementType.CEASE_ADVERTISEMENT) {
             raPacket.setRouterLifetime(0);
         } else {
             raPacket.setRouterLifetime(Ipv6Constants.IPV6_ROUTER_LIFETIME);
@@ -192,10 +196,10 @@ public class Ipv6RouterAdvt {
     private byte[] fillRouterAdvertisementPacket(RouterAdvertisementPacket pdu) {
         ByteBuffer buf = ByteBuffer.allocate(Ipv6Constants.ICMPV6_OFFSET + pdu.getIpv6Length());
 
-        buf.put(Ipv6ServiceUtils.convertEthernetHeaderToByte(pdu), 0, 14);
-        buf.put(Ipv6ServiceUtils.convertIpv6HeaderToByte(pdu), 0, 40);
+        buf.put(Ipv6Util.convertEthernetHeaderToByte(pdu), 0, 14);
+        buf.put(Ipv6Util.convertIpv6HeaderToByte(pdu), 0, 40);
         buf.put(icmp6RAPayloadtoByte(pdu), 0, pdu.getIpv6Length());
-        int checksum = Ipv6ServiceUtils.calcIcmpv6Checksum(buf.array(), pdu);
+        int checksum = Ipv6Util.calculateIcmpv6Checksum(buf.array(), pdu);
         buf.putShort(Ipv6Constants.ICMPV6_OFFSET + 2, (short)checksum);
         return buf.array();
     }
@@ -215,7 +219,7 @@ public class Ipv6RouterAdvt {
         buf.putInt((int)pdu.getRetransTime().longValue());
         buf.put((byte)pdu.getOptionSourceAddr().shortValue());
         buf.put((byte)pdu.getSourceAddrLength().shortValue());
-        buf.put(Ipv6ServiceUtils.bytesFromHexString(pdu.getSourceLlAddress().getValue()));
+        buf.put(Ipv6Util.bytesFromHexString(pdu.getSourceLlAddress().getValue()));
 
         for (PrefixList prefix : pdu.getPrefixList()) {
             buf.put((byte)prefix.getOptionType().shortValue());
