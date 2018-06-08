@@ -54,7 +54,7 @@ public class NeutronExternalSubnetHandler implements AutoCloseable {
             LOG.info("Removed subnet {} part of external network {} will remove NAT external subnet",
                     subnetId.getValue(), networkId.getValue());
             nvpnManager.removeVpnInstanceForSubnet(subnetId);
-            nvpnNatManager.removeExternalSubnet(subnetId);
+            nvpnNatManager.removeExternalSubnet(networkId, subnetId);
         }
     }
 }
