@@ -20,6 +20,7 @@ Contents:
    DHCP Server with Dynamic Allocation Pool <dhcp-dynamic-allocation-pool>
    Discovery of directly connected PNFs in Flat/VLAN provider networks <discovery_of_directly_connected_pnfs>
    ECMP Support for BGP based L3VPN <ecmp-bgp-l3vpn>
+   ELAN Service Recovery Test Plan <service-recovery-elan>
    Element Counters <element-counters>
    Hairpinning of floating IPs in flat/VLAN provider networks <hairpinning-flat-vlan>
    IPv6 Data Center to internet connectivity using L3VPN <ipv6-l3vpn-internet>
