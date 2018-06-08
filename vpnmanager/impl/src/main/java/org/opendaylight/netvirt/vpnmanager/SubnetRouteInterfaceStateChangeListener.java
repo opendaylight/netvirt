@@ -47,17 +47,20 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     private final SubnetOpDpnManager subOpDpnManager;
     private final INeutronVpnManager neutronVpnManager;
     private final JobCoordinator jobCoordinator;
+    private final VpnUtil vpnUtil;
 
     @Inject
     public SubnetRouteInterfaceStateChangeListener(final DataBroker dataBroker,
             final VpnSubnetRouteHandler vpnSubnetRouteHandler, final SubnetOpDpnManager subnetOpDpnManager,
-            final INeutronVpnManager neutronVpnService, final JobCoordinator jobCoordinator) {
+            final INeutronVpnManager neutronVpnService, final JobCoordinator jobCoordinator,
+            final VpnUtil vpnUtil) {
         super(Interface.class, SubnetRouteInterfaceStateChangeListener.class);
         this.dataBroker = dataBroker;
         this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
         this.subOpDpnManager = subnetOpDpnManager;
         this.neutronVpnManager = neutronVpnService;
         this.jobCoordinator = jobCoordinator;
+        this.vpnUtil = vpnUtil;
     }
 
     @PostConstruct
@@ -107,8 +110,8 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 }
                                 InstanceIdentifier<VpnInterface> id = VpnUtil
                                         .getVpnInterfaceIdentifier(interfaceName);
-                                Optional<VpnInterface> cfgVpnInterface = VpnUtil.read(dataBroker,
-                                     LogicalDatastoreType.CONFIGURATION, id);
+                                Optional<VpnInterface> cfgVpnInterface = vpnUtil.read(
+                                        LogicalDatastoreType.CONFIGURATION, id);
                                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                                 if (!cfgVpnInterface.isPresent()) {
                                     return futures;

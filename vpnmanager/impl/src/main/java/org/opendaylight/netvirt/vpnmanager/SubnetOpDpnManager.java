@@ -41,10 +41,12 @@ public class SubnetOpDpnManager {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetOpDpnManager.class);
 
     private final DataBroker broker;
+    private final VpnUtil vpnUtil;
 
     @Inject
-    public SubnetOpDpnManager(final DataBroker db) {
+    public SubnetOpDpnManager(final DataBroker db, final VpnUtil vpnUtil) {
         broker = db;
+        this.vpnUtil = vpnUtil;
     }
 
     private SubnetToDpn addDpnToSubnet(Uuid subnetId, BigInteger dpnId) {
@@ -54,7 +56,7 @@ public class SubnetOpDpnManager {
                     new SubnetOpDataEntryKey(subnetId)).build();
             InstanceIdentifier<SubnetToDpn> dpnOpId =
                 subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpnId));
-            Optional<SubnetToDpn> optionalSubDpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
+            Optional<SubnetToDpn> optionalSubDpn = vpnUtil.read(LogicalDatastoreType.OPERATIONAL, dpnOpId);
             if (optionalSubDpn.isPresent()) {
                 LOG.error("addDpnToSubnet: Cannot create, SubnetToDpn for subnet {} as DPN {}"
                         + " already seen in datastore", subnetId.getValue(), dpnId);
@@ -82,7 +84,7 @@ public class SubnetOpDpnManager {
                     new SubnetOpDataEntryKey(subnetId)).build();
             InstanceIdentifier<SubnetToDpn> dpnOpId =
                 subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpnId));
-            Optional<SubnetToDpn> optionalSubDpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
+            Optional<SubnetToDpn> optionalSubDpn = vpnUtil.read(LogicalDatastoreType.OPERATIONAL, dpnOpId);
             if (!optionalSubDpn.isPresent()) {
                 LOG.warn("removeDpnFromSubnet: Cannot delete, SubnetToDpn for subnet {} DPN {} not available"
                         + " in datastore", subnetId.getValue(), dpnId);
@@ -107,7 +109,7 @@ public class SubnetOpDpnManager {
             //Please use a synchronize block here as we donot need a cluster-wide lock
             InstanceIdentifier<SubnetToDpn> dpnOpId =
                 subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpnId));
-            Optional<SubnetToDpn> optionalSubDpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
+            Optional<SubnetToDpn> optionalSubDpn = vpnUtil.read(LogicalDatastoreType.OPERATIONAL, dpnOpId);
             if (!optionalSubDpn.isPresent()) {
                 // Create a new DPN Entry
                 subDpn = addDpnToSubnet(subnetId, dpnId);
@@ -143,7 +145,7 @@ public class SubnetOpDpnManager {
                 InstanceIdentifier.builder(PortOpData.class).child(PortOpDataEntry.class,
                     new PortOpDataEntryKey(intfName)).build();
             Optional<PortOpDataEntry> optionalPortOp =
-                VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
+                vpnUtil.read(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
             if (!optionalPortOp.isPresent()) {
                 // Create PortOpDataEntry only if not present
                 portOpBuilder =
@@ -184,7 +186,7 @@ public class SubnetOpDpnManager {
                     new SubnetOpDataEntryKey(subnetId)).build();
             InstanceIdentifier<SubnetToDpn> dpnOpId =
                 subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpnId));
-            Optional<SubnetToDpn> optionalSubDpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
+            Optional<SubnetToDpn> optionalSubDpn = vpnUtil.read(LogicalDatastoreType.OPERATIONAL, dpnOpId);
             if (!optionalSubDpn.isPresent()) {
                 LOG.debug("removeInterfaceFromDpn: Cannot delete, SubnetToDpn for intf {} subnet {} DPN {}"
                         + " not available in datastore", intfName, subnetId.getValue(), dpnId);
@@ -222,7 +224,7 @@ public class SubnetOpDpnManager {
                 new PortOpDataEntryKey(intfName)).build();
         PortOpDataEntry portOpEntry = null;
         Optional<PortOpDataEntry> optionalPortOp =
-            VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
+            vpnUtil.read(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         if (!optionalPortOp.isPresent()) {
             LOG.info("removePortOpDataEntry: Cannot delete, portOp for port {} is not available in datastore",
                     intfName);
@@ -264,7 +266,7 @@ public class SubnetOpDpnManager {
             InstanceIdentifier.builder(PortOpData.class).child(PortOpDataEntry.class,
                 new PortOpDataEntryKey(intfName)).build();
         Optional<PortOpDataEntry> optionalPortOp =
-            VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
+            vpnUtil.read(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         if (!optionalPortOp.isPresent()) {
             return null;
         }

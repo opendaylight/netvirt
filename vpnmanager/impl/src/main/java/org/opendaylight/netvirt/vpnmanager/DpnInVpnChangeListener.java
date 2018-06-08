@@ -36,11 +36,13 @@ import org.slf4j.LoggerFactory;
 public class DpnInVpnChangeListener implements OdlL3vpnListener {
     private static final Logger LOG = LoggerFactory.getLogger(DpnInVpnChangeListener.class);
     private final DataBroker dataBroker;
+    private final VpnUtil vpnUtil;
     private final ManagedNewTransactionRunner txRunner;
 
     @Inject
-    public DpnInVpnChangeListener(DataBroker dataBroker) {
+    public DpnInVpnChangeListener(DataBroker dataBroker, VpnUtil vpnUtil) {
         this.dataBroker = dataBroker;
+        this.vpnUtil = vpnUtil;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
@@ -62,7 +64,7 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
         synchronized (vpnName.intern()) {
             InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
             Optional<VpnInstanceOpDataEntry> vpnOpValue =
-                VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+                vpnUtil.read(LogicalDatastoreType.OPERATIONAL, id);
 
             if (vpnOpValue.isPresent()) {
                 VpnInstanceOpDataEntry vpnInstOpData = vpnOpValue.get();

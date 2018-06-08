@@ -18,15 +18,18 @@ import org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider;
 public class CentralizedSwitchProvider implements ICentralizedSwitchProvider {
 
     private final DataBroker dataBroker;
+    private final VpnUtil vpnUtil;
 
     @Inject
-    public CentralizedSwitchProvider(DataBroker dataBroker) {
+    public CentralizedSwitchProvider(DataBroker dataBroker, VpnUtil vpnUtil) {
         this.dataBroker = dataBroker;
+        this.vpnUtil = vpnUtil;
+
     }
 
     @Override
     public BigInteger getPrimarySwitchForRouter(String routerName) {
-        return VpnUtil.getPrimarySwitchForRouter(dataBroker, routerName);
+        return vpnUtil.getPrimarySwitchForRouter(routerName);
     }
 
 }

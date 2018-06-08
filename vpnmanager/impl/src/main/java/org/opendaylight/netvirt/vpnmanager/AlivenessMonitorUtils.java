@@ -46,14 +46,23 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Singleton;
+
+@Singleton
 public final class AlivenessMonitorUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AlivenessMonitorUtils.class);
     private static Map<Long, MacEntry> alivenessCache = new ConcurrentHashMap<>();
 
-    private AlivenessMonitorUtils() { }
+    private final DataBroker dataBroker;
+    private final VpnUtil vpnUtil;
 
-    public static void startArpMonitoring(MacEntry macEntry, Long arpMonitorProfileId,
+    public AlivenessMonitorUtils(DataBroker dataBroker, VpnUtil vpnUtil) {
+        this.dataBroker = dataBroker;
+        this.vpnUtil = vpnUtil;
+    }
+
+    void startArpMonitoring(MacEntry macEntry, Long arpMonitorProfileId,
             AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
             INeutronVpnManager neutronVpnService,
             IInterfaceManager interfaceManager) {
