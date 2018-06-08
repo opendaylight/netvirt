@@ -34,8 +34,9 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
     private static final Logger LOG = LoggerFactory.getLogger(L3vpnOverVxlanPopulator.class);
 
     @Inject
-    public L3vpnOverVxlanPopulator(DataBroker dataBroker, IBgpManager bgpManager, IFibManager fibManager) {
-        super(dataBroker, bgpManager, fibManager);
+    public L3vpnOverVxlanPopulator(DataBroker dataBroker, IBgpManager bgpManager, IFibManager fibManager,
+                                   VpnUtil vpnUtil) {
+        super(dataBroker, bgpManager, fibManager, vpnUtil);
     }
 
     @PostConstruct

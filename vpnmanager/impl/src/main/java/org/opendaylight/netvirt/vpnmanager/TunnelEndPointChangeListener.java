@@ -42,15 +42,17 @@ public class TunnelEndPointChangeListener
     private final ManagedNewTransactionRunner txRunner;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final JobCoordinator jobCoordinator;
+    private final VpnUtil vpnUtil;
 
     @Inject
     public TunnelEndPointChangeListener(final DataBroker broker, final VpnInterfaceManager vpnInterfaceManager,
-            final JobCoordinator jobCoordinator) {
+            final JobCoordinator jobCoordinator, VpnUtil vpnUtil) {
         super(TunnelEndPoints.class, TunnelEndPointChangeListener.class);
         this.broker = broker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.jobCoordinator = jobCoordinator;
+        this.vpnUtil = vpnUtil;
     }
 
     @PostConstruct
@@ -90,11 +92,11 @@ public class TunnelEndPointChangeListener
 
         for (VpnInstance vpnInstance : vpnInstances) {
             final String vpnName = vpnInstance.getVpnInstanceName();
-            final long vpnId = VpnUtil.getVpnId(broker, vpnName);
+            final long vpnId = vpnUtil.getVpnId(vpnName);
             LOG.info("add: Handling TEP {} add for VPN instance {}", tep.getInterfaceName(), vpnName);
-            final String primaryRd = VpnUtil.getPrimaryRd(broker, vpnName);
-            if (!VpnUtil.isVpnPendingDelete(broker, primaryRd)) {
-                List<VpnInterfaces> vpnInterfaces = VpnUtil.getDpnVpnInterfaces(broker, vpnInstance, dpnId);
+            final String primaryRd = vpnUtil.getPrimaryRd(vpnName);
+            if (!vpnUtil.isVpnPendingDelete(primaryRd)) {
+                List<VpnInterfaces> vpnInterfaces = vpnUtil.getDpnVpnInterfaces(vpnInstance, dpnId);
                 if (vpnInterfaces != null) {
                     for (VpnInterfaces vpnInterface : vpnInterfaces) {
                         String vpnInterfaceName = vpnInterface.getInterfaceName();
