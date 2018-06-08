@@ -49,16 +49,20 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
     private final IMdsalApiManager mdsalManager;
     private final VpnFootprintService vpnFootprintService;
     private final InterVpnLinkCache interVpnLinkCache;
+    private final VpnUtil vpnUtil;
+    private final InterVpnLinkUtil interVpnLinkUtil;
 
     public InterVpnLinkNodeAddTask(final DataBroker broker, final IMdsalApiManager mdsalMgr,
             final VpnFootprintService vpnFootprintService, final BigInteger dpnId,
-            final InterVpnLinkCache interVpnLinkCache) {
+            final InterVpnLinkCache interVpnLinkCache, VpnUtil vpnUtil, InterVpnLinkUtil interVpnLinkUtil) {
         this.broker = broker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.mdsalManager = mdsalMgr;
         this.vpnFootprintService = vpnFootprintService;
         this.dpnId = dpnId;
         this.interVpnLinkCache = interVpnLinkCache;
+        this.interVpnLinkUtil = interVpnLinkUtil;
+        this.vpnUtil = vpnUtil;
     }
 
     @Override
@@ -141,23 +145,21 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
         String firstEndpointVpnUuid = vpnLink.getFirstEndpointVpnUuid().get();
         String secondEndpointVpnUuid = vpnLink.getSecondEndpointVpnUuid().get();
         // Note that in the DPN of the firstEndpoint we install the lportTag of the secondEndpoint and viceversa
-        String vpn1PrimaryRd = VpnUtil.getPrimaryRd(broker, firstEndpointVpnUuid);
-        String vpn2PrimaryRd = VpnUtil.getPrimaryRd(broker, secondEndpointVpnUuid);
-        if (!VpnUtil.isVpnPendingDelete(broker, vpn1PrimaryRd)
-                && !VpnUtil.isVpnPendingDelete(broker, vpn2PrimaryRd)) {
-            InterVpnLinkUtil.installLPortDispatcherTableFlow(broker, mdsalManager, ivpnLinkName, firstDpnList,
-                    secondEndpointVpnUuid, opt2ndEndpointLportTag.get());
-            InterVpnLinkUtil.installLPortDispatcherTableFlow(broker, mdsalManager, ivpnLinkName, secondDpnList,
-                    firstEndpointVpnUuid, opt1stEndpointLportTag.get());
+        String vpn1PrimaryRd = vpnUtil.getPrimaryRd(firstEndpointVpnUuid);
+        String vpn2PrimaryRd = vpnUtil.getPrimaryRd(secondEndpointVpnUuid);
+        if (!vpnUtil.isVpnPendingDelete(vpn1PrimaryRd)
+                && !vpnUtil.isVpnPendingDelete(vpn2PrimaryRd)) {
+            interVpnLinkUtil.installLPortDispatcherTableFlow(ivpnLinkName, firstDpnList, secondEndpointVpnUuid,
+                    opt2ndEndpointLportTag.get());
+            interVpnLinkUtil.installLPortDispatcherTableFlow(ivpnLinkName, secondDpnList, firstEndpointVpnUuid,
+                    opt1stEndpointLportTag.get());
             // Update the VPN -> DPNs Map.
             // Note: when a set of DPNs is calculated for Vpn1, these DPNs are added to the VpnToDpn map of Vpn2. Why?
             // because we do the handover from Vpn1 to Vpn2 in those DPNs, so in those DPNs we must know how to reach
             // to Vpn2 targets. If new Vpn2 targets are added later, the Fib will be maintained in these DPNs even if
             // Vpn2 is not physically present there.
-            InterVpnLinkUtil.updateVpnFootprint(vpnFootprintService, secondEndpointVpnUuid, vpn1PrimaryRd,
-                    firstDpnList);
-            InterVpnLinkUtil.updateVpnFootprint(vpnFootprintService, firstEndpointVpnUuid, vpn2PrimaryRd,
-                    secondDpnList);
+            interVpnLinkUtil.updateVpnFootprint(secondEndpointVpnUuid, vpn1PrimaryRd, firstDpnList);
+            interVpnLinkUtil.updateVpnFootprint(firstEndpointVpnUuid, vpn2PrimaryRd, secondDpnList);
         }
     }
 }

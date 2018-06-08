@@ -48,6 +48,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     private final VpnFootprintService vpnFootprintService;
     private final JobCoordinator jobCoordinator;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final VpnUtil vpnUtil;
 
     /*public VpnInterfaceOpListener(final DataBroker dataBroker) {
         super(VpnInterface.class);
@@ -56,13 +57,15 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
 
     @Inject
     public VpnInterfaceOpListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager,
-        final VpnFootprintService vpnFootprintService, final JobCoordinator jobCoordinator) {
+        final VpnFootprintService vpnFootprintService, final JobCoordinator jobCoordinator,
+                                  final VpnUtil vpnUtil) {
         super(VpnInterfaceOpDataEntry.class, VpnInterfaceOpListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnFootprintService = vpnFootprintService;
         this.jobCoordinator = jobCoordinator;
+        this.vpnUtil = vpnUtil;
     }
 
     @PostConstruct
@@ -120,7 +123,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
             if (vpnInstance.isPresent()) {
                 String rd = vpnInstance.get().getVrfId();
 
-                VpnInstanceOpDataEntry vpnInstOp = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
+                VpnInstanceOpDataEntry vpnInstOp = vpnUtil.getVpnInstanceOpData(rd);
 
                 AdjacenciesOp adjs = del.augmentation(AdjacenciesOp.class);
                 List<Adjacency> adjList = adjs != null ? adjs.getAdjacency() : null;

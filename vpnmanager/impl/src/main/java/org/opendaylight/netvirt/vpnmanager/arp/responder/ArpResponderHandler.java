@@ -54,6 +54,11 @@ public class ArpResponderHandler {
     private final ItmRpcService itmRpcService;
 
     /**
+     * Vpn Utility.
+     */
+    private final VpnUtil vpnUtil;
+
+    /**
      * Constructor.
      *
      * @param dataBroker
@@ -62,15 +67,19 @@ public class ArpResponderHandler {
      *            {@link #elanService}
      * @param interfaceManager
      *            {@link #interfaceManager}
-     *
+     * @param itmRpcService
+     *            {@link #itmRpcService}
+     * @param vpnUtil
+     *            {@link #vpnUtil}
      */
     @Inject
     public ArpResponderHandler(DataBroker dataBroker, IElanService elanService, IInterfaceManager interfaceManager,
-                               ItmRpcService itmRpcService) {
+                               ItmRpcService itmRpcService, VpnUtil vpnUtil) {
         this.dataBroker = dataBroker;
         this.elanService = elanService;
         this.interfaceManager = interfaceManager;
         this.itmRpcService = itmRpcService;
+        this.vpnUtil = vpnUtil;
     }
 
     /**
@@ -117,7 +126,7 @@ public class ArpResponderHandler {
     public void removeArpResponderFlow(BigInteger dpId, int lportTag, String ifName, String gatewayIp,
             Uuid subnetUuid) {
         if (gatewayIp == null) {
-            Optional<String> gwIpOptional = VpnUtil.getVpnSubnetGatewayIp(dataBroker, subnetUuid);
+            Optional<String> gwIpOptional = vpnUtil.getVpnSubnetGatewayIp(subnetUuid);
             if (gwIpOptional.isPresent()) {
                 gatewayIp = gwIpOptional.get();
             }
