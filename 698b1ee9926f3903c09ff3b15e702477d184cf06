@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dac07f86_d5ae350f",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertGenerator.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-06-08T16:57:04Z",
+      "side": 1,
+      "message": "just combine these if it WARN level",
+      "revId": "698b1ee9926f3903c09ff3b15e702477d184cf06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dbf408d0_4d0e6cac",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-06-08T16:57:04Z",
+      "side": 1,
+      "message": "remove this ass the next log will imply the same",
+      "revId": "698b1ee9926f3903c09ff3b15e702477d184cf06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d5f34b4e_8c0725b4",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-06-08T16:57:04Z",
+      "side": 1,
+      "message": "same comment, not sure what the value is to make two logs",
+      "revId": "698b1ee9926f3903c09ff3b15e702477d184cf06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
