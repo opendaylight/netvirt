@@ -110,6 +110,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.Ipv6NdUtilService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.SendNeighborSolicitationToOfGroupInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.SendNeighborSolicitationToOfGroupInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.SendNeighborSolicitationToOfGroupOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TimeUnits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInput;
@@ -140,10 +144,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.Ipv6NdutilService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.SendNeighborSolicitationToOfGroupInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.SendNeighborSolicitationToOfGroupInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.SendNeighborSolicitationToOfGroupOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.L3nexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
@@ -2286,13 +2286,13 @@ public final class VpnUtil {
         }
     }
 
-    public static void sendNeighborSolicationToOfGroup(Ipv6NdutilService ipv6NdutilService, Ipv6Address srcIpv6Address,
+    public static void sendNeighborSolicationToOfGroup(Ipv6NdUtilService ipv6NdUtilService, Ipv6Address srcIpv6Address,
             MacAddress srcMac, Ipv6Address dstIpv6Address, Long ofGroupId, BigInteger dpId) {
         SendNeighborSolicitationToOfGroupInput input = new SendNeighborSolicitationToOfGroupInputBuilder()
                 .setSourceIpv6(srcIpv6Address).setSourceLlAddress(srcMac).setTargetIpAddress(dstIpv6Address)
                 .setOfGroupId(ofGroupId).setDpId(dpId).build();
         try {
-            Future<RpcResult<SendNeighborSolicitationToOfGroupOutput>> result = ipv6NdutilService
+            Future<RpcResult<SendNeighborSolicitationToOfGroupOutput>> result = ipv6NdUtilService
                     .sendNeighborSolicitationToOfGroup(input);
             RpcResult<SendNeighborSolicitationToOfGroupOutput> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
