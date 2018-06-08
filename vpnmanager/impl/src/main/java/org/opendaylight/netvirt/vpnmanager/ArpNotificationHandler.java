@@ -47,14 +47,17 @@ public class ArpNotificationHandler implements OdlArputilListener {
     private final IdManagerService idManager;
     private final IInterfaceManager interfaceManager;
     private final VpnConfig config;
+    private final VpnUtil vpnUtil;
 
     @Inject
     public ArpNotificationHandler(DataBroker dataBroker, IdManagerService idManager,
-                                  IInterfaceManager interfaceManager, VpnConfig vpnConfig) {
+                                  IInterfaceManager interfaceManager, VpnConfig vpnConfig,
+                                  VpnUtil vpnUtil) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
         this.config = vpnConfig;
+        this.vpnUtil = vpnUtil;
 
         long duration = config.getArpLearnTimeout() * 10;
         long cacheSize = config.getArpCacheSize().longValue();
@@ -97,7 +100,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
         PhysAddress srcMac = notification.getSrcMac();
         LOG.info("ArpNotification Response Received from interface {} and IP {} having MAC {}, learning MAC",
                 srcInterface, srcIP.getIpv4Address().getValue(), srcMac.getValue());
-        List<Adjacency> adjacencies = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, srcInterface);
+        List<Adjacency> adjacencies = vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(srcInterface);
         if (adjacencies != null) {
             for (Adjacency adj : adjacencies) {
                 String ipAddress = adj.getIpAddress();
@@ -120,8 +123,8 @@ public class ArpNotificationHandler implements OdlArputilListener {
     private void processArpLearning(String srcInterface, IpAddress srcIP, PhysAddress srcMac, BigInteger metadata,
             IpAddress dstIP) {
         if (metadata != null && !Objects.equals(metadata, BigInteger.ZERO)) {
-            Optional<List<String>> vpnList = VpnUtil
-                  .getVpnHandlingIpv4AssociatedWithInterface(dataBroker, srcInterface);
+            Optional<List<String>> vpnList = vpnUtil
+                  .getVpnHandlingIpv4AssociatedWithInterface(srcInterface);
             if (vpnList.isPresent()) {
                 for (String vpnName : vpnList.get()) {
                     LOG.info("Received ARP for sender MAC {} and sender IP {} via interface {}",
@@ -130,15 +133,14 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     String destIpToQuery = dstIP.getIpv4Address().getValue();
                     LOG.info("ARP being processed for Source IP {}", srcIpToQuery);
                     VpnPortipToPort vpnPortipToPort =
-                            VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, srcIpToQuery);
+                            vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, srcIpToQuery);
                     if (vpnPortipToPort != null) {
                         /* This is a well known neutron port and so should be ignored
                          * from being discovered
                          */
                         continue;
                     }
-                    LearntVpnVipToPort learntVpnVipToPort = VpnUtil.getLearntVpnVipToPort(dataBroker,
-                              vpnName, srcIpToQuery);
+                    LearntVpnVipToPort learntVpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, srcIpToQuery);
                     if (learntVpnVipToPort != null) {
                         String oldPortName = learntVpnVipToPort.getPortName();
                         String oldMac = learntVpnVipToPort.getMacAddress();
@@ -147,7 +149,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                             LOG.info("ARP Source IP/MAC data modified for IP {} with MAC {} and Port {}",
                                     srcIpToQuery, srcMac, srcInterface);
                             synchronized ((vpnName + srcIpToQuery).intern()) {
-                                VpnUtil.createLearntVpnVipToPortEvent(dataBroker, vpnName, srcIpToQuery, destIpToQuery,
+                                vpnUtil.createLearntVpnVipToPortEvent(vpnName, srcIpToQuery, destIpToQuery,
                                         oldPortName, oldMac, LearntVpnVipToPortEventAction.Delete, null);
                                 putVpnIpToMigrateArpCache(vpnName, srcIpToQuery, srcMac);
                             }
@@ -170,7 +172,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
         String srcIpToQuery = srcIP.getIpv4Address().getValue();
         String destIpToQuery = dstIP.getIpv4Address().getValue();
         synchronized ((vpnName + srcIpToQuery).intern()) {
-            VpnUtil.createLearntVpnVipToPortEvent(dataBroker, vpnName, srcIpToQuery, destIpToQuery, srcInterface,
+            vpnUtil.createLearntVpnVipToPortEvent(vpnName, srcIpToQuery, destIpToQuery, srcInterface,
                     srcMac.getValue(), LearntVpnVipToPortEventAction.Add, null);
         }
     }

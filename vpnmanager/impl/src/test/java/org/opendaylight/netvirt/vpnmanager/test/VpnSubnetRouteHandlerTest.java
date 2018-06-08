@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
+import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -38,6 +39,7 @@ import org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager;
 import org.opendaylight.netvirt.vpnmanager.VpnNodeListener;
 import org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer;
 import org.opendaylight.netvirt.vpnmanager.VpnSubnetRouteHandler;
+import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4Family;
@@ -183,6 +185,8 @@ public class VpnSubnetRouteHandlerTest {
     @Mock
     IFibManager fibManager;
 
+    private @Inject VpnUtil vpnUtil;
+
     VpnSubnetRouteHandler vpnSubnetRouteHandler;
 
     Optional<Interface> optionalIfState;
@@ -198,12 +202,14 @@ public class VpnSubnetRouteHandlerTest {
         vpnInstanceOptional;
     Optional<Networks> optionalNetworks;
 
+
+
     @Before
     public void setUp() throws Exception {
         setupMocks();
 
         vpnSubnetRouteHandler = new VpnSubnetRouteHandler(dataBroker, subnetOpDpnManager, bgpManager,
-            idManager, lockManagerService, vpnOpDataSyncer, vpnNodeListener, fibManager);
+            idManager, lockManagerService, vpnOpDataSyncer, vpnNodeListener, fibManager, vpnUtil);
         final Future<RpcResult<AllocateIdOutput>> idOutputOptional =
             RpcResultBuilder.success(allocateIdOutput).buildFuture();
 

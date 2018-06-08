@@ -42,11 +42,14 @@ public class InterVpnLinkLocator {
 
     private final DataBroker dataBroker;
     private final InterVpnLinkCache interVpnLinkCache;
+    private final VpnUtil vpnUtil;
 
     @Inject
-    public InterVpnLinkLocator(final DataBroker dataBroker, final InterVpnLinkCache interVpnLinkCache) {
+    public InterVpnLinkLocator(final DataBroker dataBroker, final InterVpnLinkCache interVpnLinkCache,
+                               final VpnUtil vpnUtil) {
         this.dataBroker = dataBroker;
         this.interVpnLinkCache = interVpnLinkCache;
+        this.vpnUtil = vpnUtil;
     }
 
     /**
@@ -162,8 +165,8 @@ public class InterVpnLinkLocator {
     }
 
     private List<String> getIRTsByVpnName(String vpnName) {
-        String vpn1Rd = VpnUtil.getVpnRd(dataBroker, vpnName);
-        final VpnInstanceOpDataEntry vpnInstance = VpnUtil.getVpnInstanceOpData(dataBroker, vpn1Rd);
+        String vpn1Rd = vpnUtil.getVpnRd(vpnName);
+        final VpnInstanceOpDataEntry vpnInstance = vpnUtil.getVpnInstanceOpData(vpn1Rd);
         return getRts(vpnInstance, VpnTarget.VrfRTType.ImportExtcommunity);
     }
 
