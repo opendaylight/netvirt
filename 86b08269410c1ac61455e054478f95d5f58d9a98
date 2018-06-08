@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93116671_7d3466f5",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-08T08:55:09Z",
+      "side": 1,
+      "message": "Please leave methods which are inherently static (because they are purely functional, i.e. they process their input data and return a result without side-effects), static. This helps keep the number of service dependencies reasonable.",
+      "revId": "86b08269410c1ac61455e054478f95d5f58d9a98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc14d969_e4e5f6c2",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-08T08:55:09Z",
+      "side": 1,
+      "message": "Same here.",
+      "revId": "86b08269410c1ac61455e054478f95d5f58d9a98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a4cf56c_8f99a90e",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-08T08:55:09Z",
+      "side": 1,
+      "message": "And here.",
+      "revId": "86b08269410c1ac61455e054478f95d5f58d9a98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "06c0f224_cb29db7e",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-08T08:55:09Z",
+      "side": 1,
+      "message": "And here.",
+      "revId": "86b08269410c1ac61455e054478f95d5f58d9a98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2ade1623_0fc88c13",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-08T08:55:09Z",
+      "side": 1,
+      "message": "And here.",
+      "revId": "86b08269410c1ac61455e054478f95d5f58d9a98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "921042a2_a435ecef",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-08T08:55:09Z",
+      "side": 1,
+      "message": "And here.",
+      "revId": "86b08269410c1ac61455e054478f95d5f58d9a98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67454ee3_bf768f2f",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-08T08:55:09Z",
+      "side": 1,
+      "message": "And here.",
+      "revId": "86b08269410c1ac61455e054478f95d5f58d9a98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
