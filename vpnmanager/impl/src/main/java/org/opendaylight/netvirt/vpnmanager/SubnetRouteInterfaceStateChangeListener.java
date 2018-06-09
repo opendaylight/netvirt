@@ -18,7 +18,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
@@ -130,18 +133,20 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
-        try {
-            if (L2vlan.class.equals(intrf.getType())) {
-                LOG.trace("SubnetRouteInterfaceListener remove: Received interface {} down event", intrf);
-                List<Uuid> subnetIdList = getSubnetId(intrf);
-                if (subnetIdList.isEmpty()) {
-                    LOG.trace("SubnetRouteInterfaceListener remove: Port {} doesn't exist in configDS",
-                            intrf.getName());
-                    return;
-                }
-                for (Uuid subnetId : subnetIdList) {
-                    jobCoordinator.enqueueJob("SUBNETROUTE-" + subnetId,
-                        () -> {
+        if (L2vlan.class.equals(intrf.getType())) {
+            LOG.trace("SubnetRouteInterfaceListener remove: Received interface {} down event", intrf);
+            List<Uuid> subnetIdList = getSubnetId(intrf);
+            if (subnetIdList.isEmpty()) {
+                LOG.trace("SubnetRouteInterfaceListener remove: Port {} doesn't exist in configDS",
+                        intrf.getName());
+                return;
+            }
+            LOG.trace("{} remove: Processing interface {} down event in ", LOGGING_PREFIX, intrf.getName());
+            for (Uuid subnetId : subnetIdList) {
+                jobCoordinator.enqueueJob("SUBNETROUTE-" + subnetId,
+                    () -> {
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
+                        try {
                             String interfaceName = intrf.getName();
                             BigInteger dpnId = BigInteger.ZERO;
                             LOG.info("{} remove: Received port DOWN event for interface {} in subnet {} ",
@@ -155,20 +160,19 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                             }
                             InstanceIdentifier<VpnInterface> id = VpnUtil
                                     .getVpnInterfaceIdentifier(interfaceName);
-                            Optional<VpnInterface> cfgVpnInterface = VpnUtil.read(dataBroker,
-                                     LogicalDatastoreType.CONFIGURATION, id);
-                            List<ListenableFuture<Void>> futures = new ArrayList<>();
+                            Optional<VpnInterface> cfgVpnInterface = SingleTransactionDataBroker.syncReadOptional(
+                                    dataBroker, LogicalDatastoreType.CONFIGURATION, id);
                             if (!cfgVpnInterface.isPresent()) {
                                 return futures;
                             }
                             boolean interfaceDownEligible = false;
                             for (VpnInstanceNames vpnInterfaceVpnInstance
-                                 : cfgVpnInterface.get().getVpnInstanceNames()) {
+                                    : cfgVpnInterface.get().getVpnInstanceNames()) {
                                 String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                 InstanceIdentifier<VpnInterfaceOpDataEntry> idOper = VpnUtil
-                                       .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
-                                Optional<VpnInterfaceOpDataEntry> optVpnInterface = VpnUtil.read(dataBroker,
-                                       LogicalDatastoreType.OPERATIONAL, idOper);
+                                        .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
+                                Optional<VpnInterfaceOpDataEntry> optVpnInterface = SingleTransactionDataBroker
+                                        .syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, idOper);
                                 if (optVpnInterface.isPresent()) {
                                     BigInteger dpnIdLocal = dpnId;
                                     if (dpnIdLocal.equals(BigInteger.ZERO)) {
@@ -183,14 +187,14 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                             if (interfaceDownEligible) {
                                 vpnSubnetRouteHandler.onInterfaceDown(dpnId, intrf.getName(), subnetId);
                             }
-                            return futures;
-                        });
-                }
+                            LOG.info("{} remove: Processed interface {} down event in ", LOGGING_PREFIX,
+                                    intrf.getName());
+                        } catch (ReadFailedException e) {
+                            LOG.error("{} remove: Failed to read data store for {}", LOGGING_PREFIX, intrf.getName());
+                        }
+                        return futures;
+                    });
             }
-            LOG.info("{} remove: Processed interface {} down event in ", LOGGING_PREFIX, intrf.getName());
-        } catch (Exception e) {
-            LOG.error("{} remove: Exception observed in handling deletion of VPN Interface {}.", LOGGING_PREFIX,
-                intrf.getName(), e);
         }
     }
 
