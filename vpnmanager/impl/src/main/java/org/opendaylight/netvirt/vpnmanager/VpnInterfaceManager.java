@@ -34,7 +34,9 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -1485,7 +1487,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     // TODO Deal with sequencing — the config tx must only submitted if the oper tx goes in
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx -> {
-                        futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
+                        futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(operTx -> {
                             InstanceIdentifier<VpnInterfaceOpDataEntry> vpnInterfaceOpIdentifier =
                                     VpnUtil.getVpnInterfaceOpDataEntryIdentifier(vpnInterfaceName, newVpnName);
                             LOG.info("VPN Interface update event - intfName {} onto vpnName {} running config-driven",
@@ -1518,8 +1520,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                 && !adj.isPhysNetworkFunc()) {
                                             delAdjFromVpnInterface(vpnInterfaceOpIdentifier, adj, dpnId,
                                                     operTx, confTx);
-                                            Optional<VpnInterfaceOpDataEntry> optVpnInterface = VpnUtil.read(dataBroker,
-                                                    LogicalDatastoreType.OPERATIONAL, vpnInterfaceOpIdentifier);
+                                            Optional<VpnInterfaceOpDataEntry> optVpnInterface = operTx.read(
+                                                    LogicalDatastoreType.OPERATIONAL, vpnInterfaceOpIdentifier).get();
                                             VpnInterfaceOpDataEntry vpnInterfaceOpDataEntry = optVpnInterface.get();
                                             long vpnId = VpnUtil.getVpnId(dataBroker, newVpnName);
                                             VpnUtil.removePrefixToInterfaceAdj(dataBroker, adj, vpnId,
@@ -1546,6 +1548,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             }
                         }));
                     }));
+                    for (ListenableFuture<Void> future : futures) {
+                        ListenableFutures.addErrorLogging(future, LOG, "update: failed for interface {} on vpn {}",
+                                update.getName(), update.getVpnInstanceNames());
+                    }
                     return futures;
                 });
             } else {
@@ -1769,56 +1775,61 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     protected void delAdjFromVpnInterface(InstanceIdentifier<VpnInterfaceOpDataEntry> identifier, Adjacency adj,
             BigInteger dpnId, WriteTransaction writeOperTxn, WriteTransaction writeConfigTxn) {
-        Optional<VpnInterfaceOpDataEntry> optVpnInterface = VpnUtil.read(dataBroker,
-                                          LogicalDatastoreType.OPERATIONAL, identifier);
+        String interfaceName = identifier.firstKeyOf(VpnInterfaceOpDataEntry.class).getName();
+        String vpnName = identifier.firstKeyOf(VpnInterfaceOpDataEntry.class).getVpnInstanceName();
+        try {
+            Optional<VpnInterfaceOpDataEntry> optVpnInterface = SingleTransactionDataBroker.syncReadOptional(
+                    dataBroker, LogicalDatastoreType.OPERATIONAL, identifier);
+            if (optVpnInterface.isPresent()) {
+                VpnInterfaceOpDataEntry currVpnIntf = optVpnInterface.get();
+                InstanceIdentifier<AdjacenciesOp> path = identifier.augmentation(AdjacenciesOp.class);
+                Optional<AdjacenciesOp> optAdjacencies = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, path);
+                if (optAdjacencies.isPresent()) {
+                    List<Adjacency> adjacencies = optAdjacencies.get().getAdjacency();
 
-        if (optVpnInterface.isPresent()) {
-            VpnInterfaceOpDataEntry currVpnIntf = optVpnInterface.get();
-
-            InstanceIdentifier<AdjacenciesOp> path = identifier.augmentation(AdjacenciesOp.class);
-            Optional<AdjacenciesOp> optAdjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, path);
-            if (optAdjacencies.isPresent()) {
-                List<Adjacency> adjacencies = optAdjacencies.get().getAdjacency();
-
-                if (!adjacencies.isEmpty()) {
-                    LOG.trace("delAdjFromVpnInterface: Adjacencies are {}", adjacencies);
-                    Iterator<Adjacency> adjIt = adjacencies.iterator();
-                    while (adjIt.hasNext()) {
-                        Adjacency adjElem = adjIt.next();
-                        if (adjElem.getIpAddress().equals(adj.getIpAddress())) {
-                            String rd = adjElem.getVrfId();
-                            adjIt.remove();
-
-                            AdjacenciesOp aug = VpnUtil.getVpnInterfaceOpDataEntryAugmentation(adjacencies);
-                            VpnInterfaceOpDataEntry newVpnIntf = VpnUtil
-                                    .getVpnInterfaceOpDataEntry(currVpnIntf.getName(),
-                                    currVpnIntf.getVpnInstanceName(), aug, dpnId, currVpnIntf.isScheduledForRemove(),
-                                            currVpnIntf.getLportTag(), currVpnIntf.getGatewayMacAddress());
-
-                            writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf, true);
-                            if (adj.getNextHopIpList() != null) {
-                                for (String nh : adj.getNextHopIpList()) {
-                                    deleteExtraRouteFromCurrentAndImportingVpns(
-                                        currVpnIntf.getVpnInstanceName(), adj.getIpAddress(), nh, rd,
-                                        currVpnIntf.getName(), writeConfigTxn);
+                    if (!adjacencies.isEmpty()) {
+                        LOG.trace("delAdjFromVpnInterface: Adjacencies are {}", adjacencies);
+                        Iterator<Adjacency> adjIt = adjacencies.iterator();
+                        while (adjIt.hasNext()) {
+                            Adjacency adjElem = adjIt.next();
+                            if (adjElem.getIpAddress().equals(adj.getIpAddress())) {
+                                String rd = adjElem.getVrfId();
+                                adjIt.remove();
+                                AdjacenciesOp aug = VpnUtil.getVpnInterfaceOpDataEntryAugmentation(adjacencies);
+                                VpnInterfaceOpDataEntry newVpnIntf = VpnUtil
+                                        .getVpnInterfaceOpDataEntry(currVpnIntf.getName(),
+                                                currVpnIntf.getVpnInstanceName(), aug, dpnId,
+                                                currVpnIntf.isScheduledForRemove(), currVpnIntf.getLportTag(),
+                                                currVpnIntf.getGatewayMacAddress());
+                                writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf, true);
+                                if (adj.getNextHopIpList() != null) {
+                                    for (String nh : adj.getNextHopIpList()) {
+                                        deleteExtraRouteFromCurrentAndImportingVpns(
+                                                currVpnIntf.getVpnInstanceName(), adj.getIpAddress(), nh, rd,
+                                                currVpnIntf.getName(), writeConfigTxn);
+                                    }
+                                } else if (adj.isPhysNetworkFunc()) {
+                                    LOG.info("delAdjFromVpnInterface: deleting PNF adjacency prefix {} subnet {}",
+                                            adj.getIpAddress(), adj.getSubnetId());
+                                    fibManager.removeFibEntry(adj.getSubnetId().getValue(), adj.getIpAddress(),
+                                            writeConfigTxn);
                                 }
-                            } else if (adj.isPhysNetworkFunc()) {
-                                LOG.info("delAdjFromVpnInterface: deleting PNF adjacency prefix {} subnet {}",
-                                        adj.getIpAddress(), adj.getSubnetId());
-                                fibManager.removeFibEntry(adj.getSubnetId().getValue(), adj.getIpAddress(),
-                                        writeConfigTxn);
+                                break;
                             }
-                            break;
-                        }
 
+                        }
                     }
+                    LOG.info("delAdjFromVpnInterface: Removed adj {} on dpn {} rd {}", adj.getIpAddress(),
+                            dpnId, adj.getVrfId());
+                } else {
+                    LOG.error("delAdjFromVpnInterface: Cannnot DEL adjacency, since operational interface is "
+                            + "unavailable dpnId {} adjIP {} rd {}", dpnId, adj.getIpAddress(), adj.getVrfId());
                 }
-                LOG.info("delAdjFromVpnInterface: Removed adj {} on dpn {} rd {}", adj.getIpAddress(),
-                        dpnId, adj.getVrfId());
-            } else {
-                LOG.error("delAdjFromVpnInterface: Cannnot DEL adjacency, since operational interface is "
-                        + "unavailable dpnId {} adjIP {} rd {}", dpnId, adj.getIpAddress(), adj.getVrfId());
             }
+        } catch (ReadFailedException e) {
+            LOG.error("delAdjFromVpnInterface: Failed to read data store for ip {} interface {} dpn {} vpn {}",
+                    adj.getIpAddress(), interfaceName, dpnId, vpnName);
         }
     }
 

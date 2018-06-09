@@ -18,6 +18,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
@@ -110,8 +112,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     LOG.info("{} onPacketReceived: Processing IPv4 Packet received with Source IP {} and Target IP {}"
                             + " and vpnId {}", LOGGING_PREFIX, srcIpStr, dstIpStr, vpnId);
 
-                    Optional<VpnIds> vpnIdsOptional = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                            VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId));
+                    Optional<VpnIds> vpnIdsOptional = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                            LogicalDatastoreType.CONFIGURATION, VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId));
 
                     if (!vpnIdsOptional.isPresent()) {
                         // Donot trigger subnetroute logic for packets from
@@ -161,6 +163,9 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                 // Failed to handle packet
                 VpnManagerCounters.subnet_route_packet_failed.inc();
                 LOG.error("{} onPacketReceived: Failed to handle subnetroute packet.", LOGGING_PREFIX, ex);
+            } catch (ReadFailedException e) {
+                VpnManagerCounters.subnet_route_packet_failed.inc();
+                LOG.error("{} onPacketReceived: Failed to read data-store.", LOGGING_PREFIX, e);
             }
             return;
         }
@@ -237,39 +242,45 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
 
     private void handlePacketToInternalNetwork(byte[] dstIp, String dstIpStr, int destinationAddress, long elanTag)
             throws UnknownHostException {
+        try {
+            SubnetOpDataEntry targetSubnetForPacketOut =
+                    getTargetSubnetForPacketOut(dataBroker, elanTag, destinationAddress);
 
-        SubnetOpDataEntry targetSubnetForPacketOut =
-                getTargetSubnetForPacketOut(dataBroker, elanTag, destinationAddress);
+            if (targetSubnetForPacketOut == null) {
+                LOG.debug("Couldn't find matching subnet for elan tag {} and destination ip {}", elanTag, dstIpStr);
+                VpnManagerCounters.subnet_route_packet_failed.inc();
+                return;
+            }
 
-        if (targetSubnetForPacketOut == null) {
-            LOG.debug("Couldn't find matching subnet for elan tag {} and destination ip {}", elanTag, dstIpStr);
-            VpnManagerCounters.subnet_route_packet_failed.inc();
-            return;
+            Optional<Subnetmap> subnetMap = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION,
+                    VpnUtil.buildSubnetmapIdentifier(targetSubnetForPacketOut.getSubnetId()));
+            if (!subnetMap.isPresent()) {
+                LOG.debug("Couldn't find subnet map for subnet {}", targetSubnetForPacketOut.getSubnetId());
+                VpnManagerCounters.subnet_route_packet_failed.inc();
+                return;
+            }
+
+            String sourceIp = subnetMap.get().getRouterInterfaceFixedIp();
+            if (sourceIp == null) {
+                LOG.debug("Subnet map {} doesn't have a router interface ip defined", subnetMap.get().getId());
+                VpnManagerCounters.subnet_route_packet_failed.inc();
+                return;
+            }
+
+            String sourceMac = subnetMap.get().getRouterIntfMacAddress();
+            if (sourceMac == null) {
+                LOG.debug("Subnet map {} doesn't have a router interface mac address defined",
+                        subnetMap.get().getId());
+                VpnManagerCounters.subnet_route_packet_failed.inc();
+                return;
+            }
+
+            transmitArpPacket(targetSubnetForPacketOut.getNhDpnId(), sourceIp, sourceMac, dstIp, elanTag);
+        } catch (ReadFailedException e) {
+            LOG.error("handlePacketToInternalNetwork: Failed to read data store for destIp {} elanTag {}", dstIpStr,
+                    elanTag);
         }
-
-        Optional<Subnetmap> subnetMap = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                VpnUtil.buildSubnetmapIdentifier(targetSubnetForPacketOut.getSubnetId()));
-        if (!subnetMap.isPresent()) {
-            LOG.debug("Couldn't find subnet map for subnet {}", targetSubnetForPacketOut.getSubnetId());
-            VpnManagerCounters.subnet_route_packet_failed.inc();
-            return;
-        }
-
-        String sourceIp = subnetMap.get().getRouterInterfaceFixedIp();
-        if (sourceIp == null) {
-            LOG.debug("Subnet map {} doesn't have a router interface ip defined", subnetMap.get().getId());
-            VpnManagerCounters.subnet_route_packet_failed.inc();
-            return;
-        }
-
-        String sourceMac = subnetMap.get().getRouterIntfMacAddress();
-        if (sourceMac == null) {
-            LOG.debug("Subnet map {} doesn't have a router interface mac address defined", subnetMap.get().getId());
-            VpnManagerCounters.subnet_route_packet_failed.inc();
-            return;
-        }
-
-        transmitArpPacket(targetSubnetForPacketOut.getNhDpnId(), sourceIp, sourceMac, dstIp, elanTag);
     }
 
     private void handlePacketFromTunnelToExternalNetwork(String vpnIdVpnInstanceName,
