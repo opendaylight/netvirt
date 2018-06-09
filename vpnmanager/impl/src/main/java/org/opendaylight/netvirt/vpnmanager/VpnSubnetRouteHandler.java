@@ -17,10 +17,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -357,19 +361,24 @@ public class VpnSubnetRouteHandler {
                 LOGGING_PREFIX + " onSubnetUpdatedInVpn: SubnetPrefix cannot be null or empty!");
         Preconditions.checkNotNull(vpnName, LOGGING_PREFIX + " onSubnetUpdatedInVpn: VpnName cannot be null or empty!");
         Preconditions.checkNotNull(elanTag, LOGGING_PREFIX + " onSubnetUpdatedInVpn: ElanTag cannot be null or empty!");
-
-        InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
-            InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
-                new SubnetOpDataEntryKey(subnetId)).build();
-        Optional<SubnetOpDataEntry> optionalSubs =
-            VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
-        if (optionalSubs.isPresent()) {
-            onSubnetDeletedFromVpn(subnetmap, true);
-        } else {
-            onSubnetAddedToVpn(subnetmap, true, elanTag);
+        try {
+            InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
+                    InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
+                            new SubnetOpDataEntryKey(subnetId)).build();
+            Optional<SubnetOpDataEntry> optionalSubs =
+                    SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                            subOpIdentifier);
+            if (optionalSubs.isPresent()) {
+                onSubnetDeletedFromVpn(subnetmap, true);
+            } else {
+                onSubnetAddedToVpn(subnetmap, true, elanTag);
+            }
+            LOG.info("{} onSubnetUpdatedInVpn: subnet {} with Ip {} updated successfully for vpn {}", LOGGING_PREFIX,
+                    subnetId.getValue(), subnetIp, vpnName);
+        } catch (ReadFailedException e) {
+            LOG.error("onSubnetUpdatedInVpn: Failed to read data store for subnet{} ip {} elanTag {} vpn {}",subnetId,
+                    subnetIp, elanTag, vpnName);
         }
-        LOG.info("{} onSubnetUpdatedInVpn: subnet {} with Ip {} updated successfully for vpn {}", LOGGING_PREFIX,
-                subnetId.getValue(), subnetIp, vpnName);
     }
 
     // TODO Clean up the exception handling
@@ -617,54 +626,54 @@ public class VpnSubnetRouteHandler {
         }
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
-            try {
-                boolean last = subOpDpnManager.removeInterfaceFromDpn(subnetId, dpnId, interfaceName);
-                InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
+            boolean last = subOpDpnManager.removeInterfaceFromDpn(subnetId, dpnId, interfaceName);
+            InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                     InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
-                        new SubnetOpDataEntryKey(subnetId)).build();
-                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker,
+                            new SubnetOpDataEntryKey(subnetId)).build();
+            Optional<SubnetOpDataEntry> optionalSubs = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL,
                     subOpIdentifier);
-                if (!optionalSubs.isPresent()) {
-                    LOG.info("{} onInterfaceDown: SubnetOpDataEntry for subnet {} is not available."
-                            + " Ignoring port {} down event.", LOGGING_PREFIX, subnetId.getValue(), interfaceName);
-                    return;
-                }
-                SubnetOpDataEntry subnetOpDataEntry = optionalSubs.get();
-                SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(subnetOpDataEntry);
-                LOG.info("{} onInterfaceDown: Updating the SubnetOpDataEntry node for subnet {} subnetIp {}"
-                        + " vpnName {} rd {} TaskState {} lastTaskState {} on port {} down", LOGGING_PREFIX,
-                        subnetId.getValue(), subOpBuilder.getSubnetCidr(), subOpBuilder.getVpnName(),
-                        subOpBuilder.getVrfId(), subOpBuilder.getRouteAdvState(), subOpBuilder.getLastAdvState(),
-                        interfaceName);
-                BigInteger nhDpnId = subOpBuilder.getNhDpnId();
-                if (nhDpnId != null && nhDpnId.equals(dpnId)) {
-                    // select another NhDpnId
-                    if (last) {
-                        LOG.debug("{} onInterfaceDown: Last active port {} on the subnet {} subnetIp {} vpn {}"
-                                + " rd {}", LOGGING_PREFIX, interfaceName, subnetId.getValue(),
-                                subOpBuilder.getSubnetCidr(), subOpBuilder.getVpnName(), subOpBuilder.getVrfId());
-                        // last port on this DPN, so we need to elect the new NHDpnId
-                        electNewDpnForSubnetRoute(subOpBuilder, dpnId, subnetId, null /*networkId*/,
-                                !VpnUtil.isExternalSubnetVpn(subnetOpDataEntry.getVpnName(), subnetId.getValue()));
-                        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier,
-                                subOpBuilder.build());
-                        LOG.info("{} onInterfaceDown: Updated subnetopdataentry for subnet {} subnetIp {} vpnName {}"
-                                + " rd {} to OP Datastore on port {} down ", LOGGING_PREFIX, subnetId.getValue(),
-                                subOpBuilder.getSubnetCidr(), subOpBuilder.getVpnName(), subOpBuilder.getVrfId(),
-                                interfaceName);
-                    }
-                }
-            } catch (Exception ex) {
-                LOG.error(
-                        "{} onInterfaceDown: SubnetOpDataEntry update on interface {} down event for subnet {} failed",
-                        LOGGING_PREFIX, interfaceName, subnetId.getValue(), ex);
-            } finally {
-                VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
+            if (!optionalSubs.isPresent()) {
+                LOG.info("{} onInterfaceDown: SubnetOpDataEntry for subnet {} is not available."
+                        + " Ignoring port {} down event.", LOGGING_PREFIX, subnetId.getValue(), interfaceName);
+                return;
             }
-        } catch (RuntimeException e) {
+            SubnetOpDataEntry subnetOpDataEntry = optionalSubs.get();
+            SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(subnetOpDataEntry);
+            LOG.info("{} onInterfaceDown: Updating the SubnetOpDataEntry node for subnet {} subnetIp {}"
+                            + " vpnName {} rd {} TaskState {} lastTaskState {} on port {} down", LOGGING_PREFIX,
+                    subnetId.getValue(), subOpBuilder.getSubnetCidr(), subOpBuilder.getVpnName(),
+                    subOpBuilder.getVrfId(), subOpBuilder.getRouteAdvState(), subOpBuilder.getLastAdvState(),
+                    interfaceName);
+            BigInteger nhDpnId = subOpBuilder.getNhDpnId();
+            if (nhDpnId != null && nhDpnId.equals(dpnId)) {
+                // select another NhDpnId
+                if (last) {
+                    LOG.debug("{} onInterfaceDown: Last active port {} on the subnet {} subnetIp {} vpn {}"
+                                    + " rd {}", LOGGING_PREFIX, interfaceName, subnetId.getValue(),
+                            subOpBuilder.getSubnetCidr(), subOpBuilder.getVpnName(), subOpBuilder.getVrfId());
+                    // last port on this DPN, so we need to elect the new NHDpnId
+                    electNewDpnForSubnetRoute(subOpBuilder, dpnId, subnetId, null /*networkId*/,
+                            !VpnUtil.isExternalSubnetVpn(subnetOpDataEntry.getVpnName(), subnetId.getValue()));
+                    SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                            subOpIdentifier, subOpBuilder.build(), VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
+                    LOG.info("{} onInterfaceDown: Updated subnetopdataentry for subnet {} subnetIp {} vpnName {}"
+                                    + " rd {} to OP Datastore on port {} down ", LOGGING_PREFIX, subnetId.getValue(),
+                            subOpBuilder.getSubnetCidr(), subOpBuilder.getVpnName(), subOpBuilder.getVrfId(),
+                            interfaceName);
+                }
+            }
+        } catch (RuntimeException e) { //TODO: Remove RuntimeException
             LOG.error("{} onInterfaceDown: Unable to handle interface down event for port {} in subnet {}",
                     LOGGING_PREFIX, interfaceName, subnetId.getValue(), e);
+        } catch (ReadFailedException e) {
+            LOG.error("{} onInterfaceDown: Failed to read data store for interface {} dpn {} subnet {}",
+                    LOGGING_PREFIX, interfaceName, dpnId, subnetId.getValue(), e);
+        } catch (TransactionCommitFailedException ex) {
+            LOG.error("{} onInterfaceDown: SubnetOpDataEntry update on interface {} down event for subnet {} failed",
+                    LOGGING_PREFIX, interfaceName, subnetId.getValue(), ex);
+        } finally {
+            VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
         }
     }
 
@@ -675,52 +684,54 @@ public class VpnSubnetRouteHandler {
                 dpnId.toString());
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
-            try {
-                InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
+            InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                     InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
-                        new SubnetOpDataEntryKey(subnetId)).build();
-                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker,
-                    LogicalDatastoreType.OPERATIONAL,
-                    subOpIdentifier);
-                if (!optionalSubs.isPresent()) {
-                    LOG.error("{} updateSubnetRouteOnTunnelUpEvent: SubnetOpDataEntry for subnet {} is not available",
-                            LOGGING_PREFIX, subnetId.getValue());
-                    return;
-                }
-                LOG.info("{} updateSubnetRouteOnTunnelUpEvent: Subnet {} subnetIp {} vpnName {} rd {} TaskState {}"
-                        + " lastTaskState {} Dpn {}", LOGGING_PREFIX, subnetId.getValue(),
-                        optionalSubs.get().getSubnetCidr(), optionalSubs.get().getVpnName(),
-                        optionalSubs.get().getVrfId(), optionalSubs.get().getRouteAdvState(),
-                        optionalSubs.get().getLastAdvState(), dpnId.toString());
-                SubnetOpDataEntry subOpEntry = optionalSubs.get();
-                SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(subOpEntry);
-                boolean isExternalSubnetVpn = VpnUtil.isExternalSubnetVpn(subOpEntry.getVpnName(), subnetId.getValue());
-                if (subOpBuilder.getRouteAdvState() != TaskState.Advertised) {
-                    if (subOpBuilder.getNhDpnId() == null) {
-                        // No nexthop selected yet, elect one now
-                        electNewDpnForSubnetRoute(subOpBuilder, null /* oldDpnId */, subnetId,
-                                null /*networkId*/, !isExternalSubnetVpn);
-                    } else if (!isExternalSubnetVpn) {
-                        // Already nexthop has been selected, only publishing to bgp required, so publish to bgp
-                        getNexthopTepAndPublishRoute(subOpBuilder, subnetId);
-                    }
-                }
-                subOpEntry = subOpBuilder.build();
-                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
-                LOG.info("{} updateSubnetRouteOnTunnelUpEvent: Updated subnetopdataentry to OP Datastore tunnel up"
-                        + " on dpn {} for subnet {} subnetIp {} vpnName {} rd {} TaskState {} lastTaskState {}",
-                        LOGGING_PREFIX, dpnId.toString(), subnetId.getValue(), subOpEntry.getSubnetCidr(),
-                        subOpEntry.getVpnName(), subOpEntry.getVrfId(), subOpEntry.getRouteAdvState(),
-                        subOpEntry.getLastAdvState());
-            } catch (RuntimeException ex) {
-                LOG.error("{} updateSubnetRouteOnTunnelUpEvent: updating subnetRoute for subnet {} on dpn {}",
-                        LOGGING_PREFIX, subnetId.getValue(), dpnId.toString(), ex);
-            } finally {
-                VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
+                            new SubnetOpDataEntryKey(subnetId)).build();
+            Optional<SubnetOpDataEntry> optionalSubs = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
+            if (!optionalSubs.isPresent()) {
+                LOG.error("{} updateSubnetRouteOnTunnelUpEvent: SubnetOpDataEntry for subnet {} is not available",
+                        LOGGING_PREFIX, subnetId.getValue());
+                return;
             }
-        } catch (RuntimeException e) {
+            LOG.info("{} updateSubnetRouteOnTunnelUpEvent: Subnet {} subnetIp {} vpnName {} rd {} TaskState {}"
+                            + " lastTaskState {} Dpn {}", LOGGING_PREFIX, subnetId.getValue(),
+                    optionalSubs.get().getSubnetCidr(), optionalSubs.get().getVpnName(),
+                    optionalSubs.get().getVrfId(), optionalSubs.get().getRouteAdvState(),
+                    optionalSubs.get().getLastAdvState(), dpnId.toString());
+            SubnetOpDataEntry subOpEntry = optionalSubs.get();
+            SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(subOpEntry);
+            boolean isExternalSubnetVpn = VpnUtil.isExternalSubnetVpn(subOpEntry.getVpnName(), subnetId.getValue());
+            if (subOpBuilder.getRouteAdvState() != TaskState.Advertised) {
+                if (subOpBuilder.getNhDpnId() == null) {
+                    // No nexthop selected yet, elect one now
+                    electNewDpnForSubnetRoute(subOpBuilder, null /* oldDpnId */, subnetId,
+                            null /*networkId*/, !isExternalSubnetVpn);
+                } else if (!isExternalSubnetVpn) {
+                    // Already nexthop has been selected, only publishing to bgp required, so publish to bgp
+                    getNexthopTepAndPublishRoute(subOpBuilder, subnetId);
+                }
+            }
+            subOpEntry = subOpBuilder.build();
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier,
+                    subOpEntry, VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
+            LOG.info("{} updateSubnetRouteOnTunnelUpEvent: Updated subnetopdataentry to OP Datastore tunnel up"
+                            + " on dpn {} for subnet {} subnetIp {} vpnName {} rd {} TaskState {} lastTaskState {}",
+                    LOGGING_PREFIX, dpnId.toString(), subnetId.getValue(), subOpEntry.getSubnetCidr(),
+                    subOpEntry.getVpnName(), subOpEntry.getVrfId(), subOpEntry.getRouteAdvState(),
+                    subOpEntry.getLastAdvState());
+        } catch (RuntimeException e) { //TODO: lockSubnet() throws this exception. Rectify lockSubnet()
             LOG.error("{} updateSubnetRouteOnTunnelUpEvent: Unable to handle tunnel up event for subnetId {} dpnId {}",
                     LOGGING_PREFIX, subnetId.getValue(), dpnId.toString(), e);
+        } catch (TransactionCommitFailedException ex) {
+            LOG.error("{} updateSubnetRouteOnTunnelUpEvent: Failed to update subnetRoute for subnet {} on dpn {}",
+                    LOGGING_PREFIX, subnetId.getValue(), dpnId.toString(), ex);
+        } catch (ReadFailedException e) {
+            LOG.error("{} updateSubnetRouteOnTunnelUpEvent: Failed to read data store for subnet {} on dpn {}",
+                    LOGGING_PREFIX, subnetId.getValue(), dpnId.toString(), e);
+        }
+        finally {
+            VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
         }
     }
 

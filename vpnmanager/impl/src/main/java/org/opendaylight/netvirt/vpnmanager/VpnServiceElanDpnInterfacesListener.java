@@ -19,13 +19,17 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
@@ -89,15 +93,15 @@ public class VpnServiceElanDpnInterfacesListener
         String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
         if (elanInstance != null && !elanInstance.isExternal() && VpnUtil.isVlan(elanInstance)) {
             jobCoordinator.enqueueJob(elanInstance.getElanInstanceName(), () -> {
-                return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeConfigTxn -> {
+                ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeConfigTxn -> {
                     List<String> addedInterfaces = getUpdatedInterfaceList(update.getInterfaces(),
                             original.getInterfaces());
                     for (String addedInterface: addedInterfaces) {
                         if (interfaceManager.isExternalInterface(addedInterface)) {
-
-                            InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
-                            Optional<VpnToDpnList> dpnInVpn = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                                    id);
+                            InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(primaryRd,
+                                    dpnId);
+                            Optional<VpnToDpnList> dpnInVpn = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                    LogicalDatastoreType.OPERATIONAL, id);
                             if (!dpnInVpn.isPresent() || (dpnInVpn.get().getVpnInterfaces() != null
                                     && dpnInVpn.get().getVpnInterfaces().size() != 1)) {
                                 return;
@@ -119,10 +123,12 @@ public class VpnServiceElanDpnInterfacesListener
                             VpnUtil.removeRouterPortFromElanForVlanInDpn(vpnName, dpnId, dataBroker);
                         }
                     }
-                }));
+                });
+                ListenableFutures.addErrorLogging(future, LOG, "Failed to process DpnInterfaces update event for"
+                        + "dpn {} elan {} vpn {}", dpnId, elanInstanceName, vpnName);
+                return Collections.singletonList(future);
             });
         }
-
     }
 
     @Override
