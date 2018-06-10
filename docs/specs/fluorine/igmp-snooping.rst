@@ -1,19 +1,9 @@
-..
- Key points to consider:
-  * Use RST format. For help with syntax refer http://sphinx-doc.org/rest.html
-  * Use http://rst.ninjs.org/ a web based WYSIWYG RST editor.
-  * For diagrams, you can use http://asciiflow.com to make ascii diagrams.
-  * MUST READ http://docs.opendaylight.org/en/latest/documentation.html and follow guidelines.
-  * Use same topic branch name for all patches related to this feature.
-  * All sections should be retained, but can be marked None or N.A.
-  * Set depth in ToC as per your doc requirements. Should be at least 2.
-
 .. contents:: Table of Contents
    :depth: 3
 
-========================
-IGMPv3 Snooping Overview
-========================
+===============
+IGMPv3 Snooping
+===============
 
 [gerrit filter: https://git.opendaylight.org/gerrit/#/q/topic:igmp-snooping]
 
