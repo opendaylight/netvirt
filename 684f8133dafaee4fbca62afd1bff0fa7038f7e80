@@ -22,6 +22,30 @@
       "revId": "684f8133dafaee4fbca62afd1bff0fa7038f7e80",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "90d9f13a_7dfdf13b",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-06-10T13:30:43Z",
+      "side": 1,
+      "message": "Yeah, there have been some discussions on this, but I don\u0027t think we have come to a conclusion yet. \nI will talk to Faseela tomorrow.",
+      "parentUuid": "4c06a4a0_944dfed0",
+      "range": {
+        "startLine": 64,
+        "startChar": 26,
+        "endLine": 64,
+        "endChar": 42
+      },
+      "revId": "684f8133dafaee4fbca62afd1bff0fa7038f7e80",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
