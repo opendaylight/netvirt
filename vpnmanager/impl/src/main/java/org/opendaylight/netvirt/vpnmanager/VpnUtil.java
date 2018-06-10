@@ -36,9 +36,9 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -236,6 +236,7 @@ public final class VpnUtil {
     private static final int DEFAULT_PREFIX_LENGTH = 32;
     static final int SINGLE_TRANSACTION_BROKER_NO_RETRY = 1;
     private static final String PREFIX_SEPARATOR = "/";
+    static final String TRANSACTION_FAILURE_FORMAT = "Data-store read/write failed in {}";
 
     /**
      * Class to generate timestamps with microsecond precision.
@@ -855,11 +856,11 @@ public final class VpnUtil {
         };
 
     @Deprecated
-    public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
+    private static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
                                                           InstanceIdentifier<T> path) {
-        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
-            return tx.read(datastoreType, path).get();
-        } catch (InterruptedException | ExecutionException e) {
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(broker, datastoreType, path);
+        } catch (ReadFailedException e) {
             throw new RuntimeException(e);
         }
     }
