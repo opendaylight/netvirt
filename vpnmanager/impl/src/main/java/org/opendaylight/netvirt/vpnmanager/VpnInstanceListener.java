@@ -406,54 +406,50 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
     private List<String> getDcGatewayTunnelInterfaceNameList() {
         List<String> tunnelInterfaceNameList = new ArrayList<>();
-
-        InstanceIdentifier<DcGatewayIpList> dcGatewayIpListInstanceIdentifier = InstanceIdentifier
-                .create(DcGatewayIpList.class);
-        Optional<DcGatewayIpList> dcGatewayIpListOptional = VpnUtil.read(dataBroker,
-                LogicalDatastoreType.CONFIGURATION, dcGatewayIpListInstanceIdentifier);
-        if (!dcGatewayIpListOptional.isPresent()) {
-            LOG.info("No DC gateways configured.");
-            return tunnelInterfaceNameList;
-        }
-        List<DcGatewayIp> dcGatewayIps = dcGatewayIpListOptional.get().getDcGatewayIp();
-
-        InstanceIdentifier<ExternalTunnelList> externalTunnelListId = InstanceIdentifier
-                .create(ExternalTunnelList.class);
-
-        Optional<ExternalTunnelList> externalTunnelListOptional = VpnUtil.read(dataBroker,
-                LogicalDatastoreType.OPERATIONAL, externalTunnelListId);
-        if (externalTunnelListOptional.isPresent()) {
-            List<ExternalTunnel> externalTunnels = externalTunnelListOptional.get().getExternalTunnel();
-
-            List<String> externalTunnelIpList = new ArrayList<>();
-            for (ExternalTunnel externalTunnel: externalTunnels) {
-                externalTunnelIpList.add(externalTunnel.getDestinationDevice());
+        try {
+            InstanceIdentifier<DcGatewayIpList> dcGatewayIpListInstanceIdentifier = InstanceIdentifier
+                    .create(DcGatewayIpList.class);
+            Optional<DcGatewayIpList> dcGatewayIpListOptional = SingleTransactionDataBroker.syncReadOptional(
+                    dataBroker, LogicalDatastoreType.CONFIGURATION, dcGatewayIpListInstanceIdentifier);
+            if (!dcGatewayIpListOptional.isPresent()) {
+                LOG.info("No DC gateways configured.");
+                return tunnelInterfaceNameList;
             }
-
-            List<String> dcGatewayIpList = new ArrayList<>();
-            for (DcGatewayIp dcGatewayIp: dcGatewayIps) {
-                dcGatewayIpList.add(dcGatewayIp.getIpAddress().getIpv4Address().toString());
-            }
-
-            // Find all externalTunnelIps present in dcGateWayIpList
-            List<String> externalTunnelIpsInDcGatewayIpList = new ArrayList<>();
-            for (String externalTunnelIp: externalTunnelIpList) {
-                for (String dcGateWayIp: dcGatewayIpList) {
-                    if (externalTunnelIp.contentEquals(dcGateWayIp)) {
-                        externalTunnelIpsInDcGatewayIpList.add(externalTunnelIp);
-                    }
-                }
-            }
-
-
-            for (String externalTunnelIpsInDcGatewayIp: externalTunnelIpsInDcGatewayIpList) {
+            List<DcGatewayIp> dcGatewayIps = dcGatewayIpListOptional.get().getDcGatewayIp();
+            InstanceIdentifier<ExternalTunnelList> externalTunnelListId = InstanceIdentifier
+                    .create(ExternalTunnelList.class);
+            Optional<ExternalTunnelList> externalTunnelListOptional = SingleTransactionDataBroker.syncReadOptional(
+                    dataBroker, LogicalDatastoreType.OPERATIONAL, externalTunnelListId);
+            if (externalTunnelListOptional.isPresent()) {
+                List<ExternalTunnel> externalTunnels = externalTunnelListOptional.get().getExternalTunnel();
+                List<String> externalTunnelIpList = new ArrayList<>();
                 for (ExternalTunnel externalTunnel: externalTunnels) {
-                    if (externalTunnel.getDestinationDevice().contentEquals(externalTunnelIpsInDcGatewayIp)) {
-                        tunnelInterfaceNameList.add(externalTunnel.getTunnelInterfaceName());
+                    externalTunnelIpList.add(externalTunnel.getDestinationDevice());
+                }
+                List<String> dcGatewayIpList = new ArrayList<>();
+                for (DcGatewayIp dcGatewayIp: dcGatewayIps) {
+                    dcGatewayIpList.add(dcGatewayIp.getIpAddress().getIpv4Address().toString());
+                }
+                // Find all externalTunnelIps present in dcGateWayIpList
+                List<String> externalTunnelIpsInDcGatewayIpList = new ArrayList<>();
+                for (String externalTunnelIp: externalTunnelIpList) {
+                    for (String dcGateWayIp: dcGatewayIpList) {
+                        if (externalTunnelIp.contentEquals(dcGateWayIp)) {
+                            externalTunnelIpsInDcGatewayIpList.add(externalTunnelIp);
+                        }
                     }
                 }
-            }
+                for (String externalTunnelIpsInDcGatewayIp: externalTunnelIpsInDcGatewayIpList) {
+                    for (ExternalTunnel externalTunnel: externalTunnels) {
+                        if (externalTunnel.getDestinationDevice().contentEquals(externalTunnelIpsInDcGatewayIp)) {
+                            tunnelInterfaceNameList.add(externalTunnel.getTunnelInterfaceName());
+                        }
+                    }
+                }
 
+            }
+        } catch (ReadFailedException e) {
+            LOG.error("getDcGatewayTunnelInterfaceNameList: Failed to read data store");
         }
         return tunnelInterfaceNameList;
     }
