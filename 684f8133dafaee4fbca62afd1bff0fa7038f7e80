@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c06a4a0_944dfed0",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-06-10T13:24:40Z",
+      "side": 1,
+      "message": "I saw a comment from Faseela earlier about using intern and it being deprecated, but the comment wasn\u0027t addressed. Do we know what that outcome is?",
+      "range": {
+        "startLine": 64,
+        "startChar": 26,
+        "endLine": 64,
+        "endChar": 42
+      },
+      "revId": "684f8133dafaee4fbca62afd1bff0fa7038f7e80",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
