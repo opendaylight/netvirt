@@ -20,7 +20,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -122,29 +124,40 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                     }
                     InstanceIdentifier<Vpn> vpnToExtraroute =
                             VpnExtraRouteHelper.getVpnToExtrarouteVpnIdentifier(vpnName);
-                    Optional<Vpn> optVpnToExtraroute = VpnUtil.read(dataBroker,
-                            LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
+                    Optional<Vpn> optVpnToExtraroute = Optional.absent();
+                    try {
+                        optVpnToExtraroute = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
+                    } catch (ReadFailedException e) {
+                        LOG.error("update: Failed to read VpnToExtraRoute for vpn {}", vpnName);
+                    }
                     if (optVpnToExtraroute.isPresent()) {
                         VpnUtil.removeVpnExtraRouteForVpn(vpnName, operTx);
                     }
-
                     if (VpnUtil.isL3VpnOverVxLan(update.getL3vni())) {
                         VpnUtil.removeExternalTunnelDemuxFlows(vpnName, dataBroker, mdsalManager);
                     }
-
                     // Clean up PrefixToInterface Operational DS
-                    Optional<VpnIds> optPrefixToIntf = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                            VpnUtil.getPrefixToInterfaceIdentifier(vpnId));
+                    Optional<VpnIds> optPrefixToIntf = Optional.absent();
+                    try {
+                        optPrefixToIntf = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                LogicalDatastoreType.OPERATIONAL, VpnUtil.getPrefixToInterfaceIdentifier(vpnId));
+                    } catch (ReadFailedException e) {
+                        LOG.error("update: Failed to read PrefixToInterface for vpn {}", vpnName);
+                    }
                     if (optPrefixToIntf.isPresent()) {
                         VpnUtil.removePrefixToInterfaceForVpnId(vpnId, operTx);
                     }
-
                     // Clean up L3NextHop Operational DS
                     InstanceIdentifier<VpnNexthops> vpnNextHops = InstanceIdentifier.builder(L3nexthop.class).child(
                             VpnNexthops.class, new VpnNexthopsKey(vpnId)).build();
-                    Optional<VpnNexthops> optL3nexthopForVpnId = VpnUtil.read(dataBroker,
-                            LogicalDatastoreType.OPERATIONAL,
-                            vpnNextHops);
+                    Optional<VpnNexthops> optL3nexthopForVpnId = Optional.absent();
+                    try {
+                        optL3nexthopForVpnId = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                LogicalDatastoreType.OPERATIONAL, vpnNextHops);
+                    } catch (ReadFailedException e) {
+                        LOG.error("update: Failed to read VpnNextHops for vpn {}", vpnName);
+                    }
                     if (optL3nexthopForVpnId.isPresent()) {
                         VpnUtil.removeL3nexthopForVpnId(vpnId, operTx);
                     }
