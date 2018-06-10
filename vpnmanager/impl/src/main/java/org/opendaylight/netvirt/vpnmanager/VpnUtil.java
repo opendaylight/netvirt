@@ -230,6 +230,7 @@ import org.slf4j.LoggerFactory;
 public final class VpnUtil {
     private static final Logger LOG = LoggerFactory.getLogger(VpnUtil.class);
     private static final int DEFAULT_PREFIX_LENGTH = 32;
+    static final int SINGLE_TRANSACTION_BROKER_NO_RETRY = 1;
     private static final String PREFIX_SEPARATOR = "/";
 
     /**
