@@ -17,7 +17,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -217,15 +219,13 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         return this;
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     protected long getElanTag(String elanInstanceName) {
         InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
         long elanTag = 0L;
         try {
-            Optional<ElanInstance> elanInstance = VpnUtil.read(dataBroker, LogicalDatastoreType
-                    .CONFIGURATION, elanIdentifierId);
+            Optional<ElanInstance> elanInstance = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, elanIdentifierId);
             if (elanInstance.isPresent()) {
                 if (elanInstance.get().getElanTag() != null) {
                     elanTag = elanInstance.get().getElanTag();
@@ -236,7 +236,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             } else {
                 LOG.error("Notification failed because of failure in reading ELANInstance {}", elanInstanceName);
             }
-        } catch (Exception e) {
+        } catch (ReadFailedException e) {
             LOG.error("Notification failed because of failure in fetching elanTag for ElanInstance {}",
                 elanInstanceName, e);
         }
