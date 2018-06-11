@@ -87,6 +87,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     @Override
     public void bindService(AclInterface aclInterface) {
         String interfaceName = aclInterface.getInterfaceId();
+        LOG.debug("Binding ACL service for interface {}", interfaceName);
         jobCoordinator.enqueueJob(interfaceName, () -> {
             int instructionKey = 0;
             List<Instruction> instructions = new ArrayList<>();
@@ -146,6 +147,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     }
 
     private void programCommitterDropFlow(BigInteger dpId, int lportTag, int addOrRemove) {
+        LOG.debug("{} programCommitterDropFlow for dpId {}, lportTag={}, addOrRemove={}", this.directionString,
+                dpId, lportTag, addOrRemove);
         List<MatchInfoBase> matches = new ArrayList<>();
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
 
@@ -165,6 +168,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     @Override
     protected void programGotoClassifierTableRules(BigInteger dpId, List<AllowedAddressPairs> aaps, int lportTag,
             int addOrRemove) {
+        LOG.debug("{} programGotoClassifierTableRules for dpId {}, AAPs={}, lportTag={}, addOrRemove={}",
+                this.directionString, dpId, aaps, lportTag, addOrRemove);
         for (AllowedAddressPairs aap : aaps) {
             IpPrefixOrAddress attachIp = aap.getIpAddress();
             MacAddress mac = aap.getMacAddress();
@@ -243,6 +248,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     private void ingressAclIcmpv6AllowedTraffic(AclInterface port, int addOrRemove) {
         BigInteger dpId = port.getDpId();
         int lportTag = port.getLPortTag();
+        LOG.debug("{} ingressAclIcmpv6AllowedTraffic for port {}, dpId={}, lportTag={}, addOrRemove={}",
+                this.directionString, port.getInterfaceId(), dpId, lportTag, addOrRemove);
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
 
         // Allow ICMPv6 Multicast Listener Query packets.

@@ -79,6 +79,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     @Override
     public void bindService(AclInterface aclInterface) {
         String interfaceName = aclInterface.getInterfaceId();
+        LOG.debug("Binding ACL service for interface {}", interfaceName);
         jobCoordinator.enqueueJob(interfaceName, () -> {
             int instructionKey = 0;
             List<Instruction> instructions = new ArrayList<>();
@@ -135,6 +136,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     }
 
     private void programCommitterDropFlow(BigInteger dpId, int lportTag, int addOrRemove) {
+        LOG.debug("{} programCommitterDropFlow for dpId {}, lportTag={}, addOrRemove={}", this.directionString,
+                dpId, lportTag, addOrRemove);
         List<MatchInfoBase> matches = new ArrayList<>();
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
 
@@ -152,6 +155,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     @Override
     protected void programRemoteAclTableFlow(BigInteger dpId, Integer aclTag, AllowedAddressPairs aap,
             int addOrRemove) {
+        LOG.debug("{} programRemoteAclTableFlow for dpId {}, AAPs={}, aclTag={}, addOrRemove={}", this.directionString,
+                dpId, aap, aclTag, addOrRemove);
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         flowMatches.addAll(AclServiceUtils.buildIpAndDstServiceMatch(aclTag, aap));
 
@@ -165,6 +170,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     @Override
     protected void programGotoClassifierTableRules(BigInteger dpId, List<AllowedAddressPairs> aaps, int lportTag,
             int addOrRemove) {
+        LOG.debug("{} programGotoClassifierTableRules for dpId {}, AAPs={}, lportTag={}, addOrRemove={}",
+                this.directionString, dpId, aaps, lportTag, addOrRemove);
         List<AllowedAddressPairs> filteredAAPs = AclServiceUtils.excludeMulticastAAPs(aaps);
         for (AllowedAddressPairs aap : filteredAAPs) {
             IpPrefixOrAddress attachIp = aap.getIpAddress();
@@ -197,6 +204,9 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
 
         for (Integer icmpv6Type: AclConstants.allowedIcmpv6NdList()) {
             List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(icmpv6Type, 0, lportTag, serviceMode);
+            LOG.debug(addOrRemove == NwConstants.DEL_FLOW ? "Deleting " : "Adding "
+                    + "egressICMPv6 traffic Rule on DPID {}, " + "lportTag {}", dpId, lportTag);
+
             String flowName = "Egress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + icmpv6Type + "_Permit_";
             syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0, 0,
                     AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
@@ -226,6 +236,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             matches.addAll(AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_CLIENT_PORT_IPV4,
                 AclConstants.DHCP_SERVER_PORT_IPV4, lportTag, serviceMode));
             matches.add(new MatchEthernetSource(aap.getMacAddress()));
+            LOG.debug(addOrRemove == NwConstants.DEL_FLOW ? "Deleting " : "Adding " + "egressDHCP server traffic"
+                    + " Rule on DPID {}, " + "lportTag {}", dpId, lportTag);
 
             String flowName =
                     "Egress_DHCP_Client_v4" + dpId + "_" + lportTag + "_" + aap.getMacAddress().getValue() + "_Permit_";
@@ -258,6 +270,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             matches.addAll(AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_CLIENT_PORT_IPV6,
                 AclConstants.DHCP_SERVER_PORT_IPV6, lportTag, serviceMode));
             matches.add(new MatchEthernetSource(aap.getMacAddress()));
+            LOG.debug(addOrRemove == NwConstants.DEL_FLOW ? "Deleting " : "Adding " + "egressDHCPv6 server traffic"
+                    + " Rule on DPID {}, " + "lportTag {}", dpId, lportTag);
 
             String flowName = "Egress_DHCP_Client_v6" + "_" + dpId + "_" + lportTag + "_"
                     + aap.getMacAddress().getValue() + "_Permit_";
@@ -339,6 +353,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
 
             List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
+            LOG.debug(addOrRemove == NwConstants.DEL_FLOW ? "Deleting " : "Adding " + "L2Broadcast Rule on DPID {}, "
+                    + "lportTag {}", dpId, lportTag);
 
             String flowName = "Egress_L2Broadcast_" + dpId + "_" + lportTag + "_" + mac.getValue();
             syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_L2BROADCAST_TRAFFIC_MATCH_PRIORITY,

@@ -45,6 +45,7 @@ public class AclInterfaceRecoveryHandler implements ServiceRecoveryInterface {
         Optional<Interface> interfaceOp = AclServiceUtils.getInterface(dataBroker, entityId);
         if (interfaceOp.isPresent()) {
             Interface aclInterface = interfaceOp.get();
+            LOG.debug("Starting Recovery of acl Interface {} ", aclInterface.getName());
             InstanceIdentifier<Interface> interfaceIdentifier = AclServiceUtils.getInterfaceIdentifier(entityId);
             aclInterfaceListener.remove(interfaceIdentifier, aclInterface);
             aclInterfaceListener.add(interfaceIdentifier, aclInterface);
