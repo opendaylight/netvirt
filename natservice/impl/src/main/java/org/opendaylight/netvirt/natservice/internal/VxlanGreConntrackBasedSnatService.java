@@ -83,7 +83,8 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, routers.getNetworkId());
         LOG.debug("VxlanGreConntrackBasedSnatService: handleSnatAllSwitch ProviderTypes {}", extNwProviderType);
         if (extNwProviderType == ProviderTypes.FLAT || extNwProviderType == ProviderTypes.VLAN) {
-            return false;
+            LOG.debug("handleSnatAllSwitch : Skip FLAT/VLAN provider networks.");
+            return true;
         }
         return super.handleSnatAllSwitch(routers, primarySwitchId, addOrRemove);
     }
@@ -93,7 +94,8 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, routers.getNetworkId());
         LOG.debug("VxlanGreConntrackBasedSnatService: handleSnat ProviderTypes {}", extNwProviderType);
         if (extNwProviderType == ProviderTypes.FLAT || extNwProviderType == ProviderTypes.VLAN) {
-            return false;
+            LOG.debug("handleSnat : Skip FLAT/VLAN provider networks.");
+            return true;
         }
         return super.handleSnat(routers, primarySwitchId, dpnId, addOrRemove);
     }
