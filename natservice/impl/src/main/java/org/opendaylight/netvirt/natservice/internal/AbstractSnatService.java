@@ -239,8 +239,15 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         long groupId = createGroupId(getGroupIdKey(routerName));
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll,
                 listBucketInfo);
-        LOG.debug("installSnatMissEntry : installing the SNAT to NAPT GroupEntity:{}", groupEntity);
-        mdsalManager.installGroup(groupEntity);
+
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            LOG.debug("installing the PSNAT to NAPTSwitch GroupEntity:{} with GroupId: {}", groupEntity, groupId);
+            mdsalManager.installGroup(groupEntity);
+        } else {
+            LOG.debug("removing the PSNAT to NAPTSwitch GroupEntity:{} with GroupId: {}", groupEntity, groupId);
+            mdsalManager.syncRemoveGroup(groupEntity);
+        }
+
         // Install miss entry pointing to group
         LOG.debug("installSnatMissEntry : buildSnatFlowEntity is called for dpId {}, routerName {} and groupId {}",
                 dpnId, routerName, groupId);
