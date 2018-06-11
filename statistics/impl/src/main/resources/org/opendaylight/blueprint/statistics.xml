@@ -19,6 +19,9 @@
     interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
   <reference id="iMdsalApiManager"
     interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
+  <reference id="metricProvider"
+             interface="org.opendaylight.infrautils.metrics.MetricProvider" />
+
   <odl:rpc-service id="opendaylightDirectStatisticsService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService" />
   <odl:rpc-service id="idManagerService"

@@ -48,14 +48,17 @@ public class SNATDefaultRouteProgrammer {
     private final DataBroker dataBroker;
     private final IdManagerService idManager;
     private final ExternalNetworkGroupInstaller extNetGroupInstaller;
+    private final NatServiceCounters natServiceCounters;
 
     @Inject
     public SNATDefaultRouteProgrammer(final IMdsalApiManager mdsalManager, final DataBroker dataBroker,
-            final IdManagerService idManager, final ExternalNetworkGroupInstaller extNetGroupInstaller) {
+            final IdManagerService idManager, final ExternalNetworkGroupInstaller extNetGroupInstaller,
+            NatServiceCounters natServiceCounters) {
         this.mdsalManager = mdsalManager;
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.extNetGroupInstaller = extNetGroupInstaller;
+        this.natServiceCounters = natServiceCounters;
     }
 
     private FlowEntity buildDefNATFlowEntity(BigInteger dpId, long vpnId) {
@@ -131,7 +134,7 @@ public class SNATDefaultRouteProgrammer {
                     + "Cannot proceed with installation of Default NAT flow");
             return;
         }
-        NatServiceCounters.install_default_nat_flow.inc();
+        natServiceCounters.installDefaultNatFlow();
         mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
     }
 
@@ -142,7 +145,7 @@ public class SNATDefaultRouteProgrammer {
                     + "Cannot proceed with installation of Default NAT flow");
             return;
         }
-        NatServiceCounters.install_default_nat_flow.inc();
+        natServiceCounters.installDefaultNatFlow();
         mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
     }
 
@@ -153,7 +156,7 @@ public class SNATDefaultRouteProgrammer {
                     + "Cannot proceed with installation of Default NAT flow");
             return;
         }
-        NatServiceCounters.install_default_nat_flow.inc();
+        natServiceCounters.installDefaultNatFlow();
         mdsalManager.installFlow(flowEntity);
     }
 
@@ -164,7 +167,7 @@ public class SNATDefaultRouteProgrammer {
                     + "Cannot proceed with installation of Default NAT flow");
             return;
         }
-        NatServiceCounters.remove_default_nat_flow.inc();
+        natServiceCounters.removeDefaultNatFlow();
         mdsalManager.removeFlowToTx(flowEntity, writeFlowInvTx);
     }
 
@@ -175,7 +178,7 @@ public class SNATDefaultRouteProgrammer {
                     + "Cannot proceed with installation of Default NAT flow");
             return;
         }
-        NatServiceCounters.remove_default_nat_flow.inc();
+        natServiceCounters.removeDefaultNatFlow();
         mdsalManager.removeFlowToTx(flowEntity, writeFlowInvTx);
     }
 

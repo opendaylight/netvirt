@@ -40,7 +40,6 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.infrautils.counters.api.OccurenceCounter;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.statistics.api.ICountersInterfaceChangeHandler;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
@@ -115,15 +114,17 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
     private final IInterfaceManager interfaceManager;
     private final IMdsalApiManager mdsalApiManager;
     private final IdManagerService idManagerService;
+    private final StatisticsCounters statisticsCounters;
 
     public StatisticsImpl(DataBroker db, CounterRetriever counterRetriever, IInterfaceManager interfaceManager,
-            IMdsalApiManager mdsalApiManager, IdManagerService idManagerService) {
+            IMdsalApiManager mdsalApiManager, IdManagerService idManagerService, StatisticsCounters statisticsCounters) {
         this.db = db;
         this.txRunner = new ManagedNewTransactionRunnerImpl(db);
         this.counterRetriever = counterRetriever;
         this.interfaceManager = interfaceManager;
         this.mdsalApiManager = mdsalApiManager;
         this.idManagerService = idManagerService;
+        this.statisticsCounters = statisticsCounters;
         initializeCountrsConfigDataSrore();
     }
 
@@ -137,7 +138,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         List<CounterResult> counterResults = new ArrayList<>();
         try {
             if (!getNodeResult(counterResults, dpId)) {
-                StatisticsPluginImplCounters.failed_getting_node_counters.inc();
+                statisticsCounters.failedGettingNodeCounters();
                 return RpcResultBuilder.<GetNodeCountersOutput>failed()
                         .withError(ErrorType.APPLICATION, "failed to get node counters for node: " + dpId)
                         .buildFuture();
@@ -163,7 +164,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         List<CounterResult> aggregatedCounterResults = new ArrayList<>();
         try {
             if (!getNodeAggregatedResult(aggregatedCounterResults, dpId)) {
-                StatisticsPluginImplCounters.failed_getting_aggregated_node_counters.inc();
+                statisticsCounters.failedGettingAggregatedNodeCounters();
                 return RpcResultBuilder.<GetNodeAggregatedCountersOutput>failed()
                         .withError(ErrorType.APPLICATION, "failed to get node aggregated counters for node " + dpId)
                         .buildFuture();
@@ -204,7 +205,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
 
         try {
             if (!getNodeConnectorResult(counterResults, dpId, portNumber)) {
-                StatisticsPluginImplCounters.failed_getting_node_connector_counters.inc();
+                statisticsCounters.failedGettingNodeConnectorCounters();
                 return RpcResultBuilder.<GetNodeConnectorCountersOutput>failed()
                         .withError(ErrorType.APPLICATION, "failed to get port counters").buildFuture();
             }
@@ -226,7 +227,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         Integer intRequestKey = allocateId(randomNumber.toString());
         if (intRequestKey == null) {
             LOG.warn("failed generating unique request identifier");
-            StatisticsPluginImplCounters.failed_generating_unique_request_id.inc();
+            statisticsCounters.failedGeneratingUniqueRequestId();
             return RpcResultBuilder.<AcquireElementCountersRequestHandlerOutput>failed()
                     .withError(ErrorType.APPLICATION, "failed generating unique request identifier").buildFuture();
         }
@@ -241,14 +242,15 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                                     CountersServiceUtils.EECRC_IDENTIFIER).checkedGet();
                     if (!eecrcOpt.isPresent()) {
                         LOG.warn("failed creating incoming traffic counter request data container in DB");
-                        StatisticsPluginImplCounters.failed_creating_egress_counter_data_config.inc();
+                        statisticsCounters.failedCreatingEgressCounterDataConfig();
                         result.setFuture(RpcResultBuilder.<AcquireElementCountersRequestHandlerOutput>failed()
                                 .withError(ErrorType.APPLICATION,
                                         "failed creating egress counter request data container in DB")
                                 .buildFuture());
                         return;
                     }
-                    if (!isIdenticalCounterRequestExist(input.getPortId(), ElementCountersDirection.EGRESS.toString(),
+                    if (!isIdenticalCounterRequestExist(input.getPortId(),
+                            ElementCountersDirection.EGRESS.toString(),
                             input.getIncomingTraffic().getFilters(), eecrcOpt.get().getCounterRequests())) {
                         installCounterSpecificRules(input.getPortId(), getLportTag(input.getPortId()),
                                 getDpn(input.getPortId()), ElementCountersDirection.EGRESS,
@@ -268,14 +270,15 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                                     CountersServiceUtils.IECRC_IDENTIFIER).checkedGet();
                     if (!iecrcOpt.isPresent()) {
                         LOG.warn("failed creating outgoing traffc counter request data container in DB");
-                        StatisticsPluginImplCounters.failed_creating_ingress_counter_data_config.inc();
+                        statisticsCounters.failedCreatingIngressCounterDataConfig();
                         result.setFuture(RpcResultBuilder.<AcquireElementCountersRequestHandlerOutput>failed()
                                 .withError(ErrorType.APPLICATION,
                                         "failed creating ingress counter request data container in DB")
                                 .buildFuture());
                         return;
                     }
-                    if (!isIdenticalCounterRequestExist(input.getPortId(), ElementCountersDirection.INGRESS.toString(),
+                    if (!isIdenticalCounterRequestExist(input.getPortId(),
+                            ElementCountersDirection.INGRESS.toString(),
                             input.getOutgoingTraffic().getFilters(), iecrcOpt.get().getCounterRequests())) {
                         installCounterSpecificRules(input.getPortId(), getLportTag(input.getPortId()),
                                 getDpn(input.getPortId()), ElementCountersDirection.INGRESS,
@@ -313,7 +316,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                     tx.read(LogicalDatastoreType.CONFIGURATION, CountersServiceUtils.EECRC_IDENTIFIER).checkedGet();
             if (!iecrcOpt.isPresent() || !eecrcOpt.isPresent()) {
                 LOG.warn("Couldn't read element counters config data from DB");
-                StatisticsPluginImplCounters.failed_reading_counter_data_from_config.inc();
+                statisticsCounters.failedReadingCounterDataFromConfig();
                 result.setFuture(RpcResultBuilder.<ReleaseElementCountersRequestHandlerOutput>failed()
                         .withError(ErrorType.APPLICATION, "Couldn't read element counters config data from DB")
                         .buildFuture());
@@ -325,7 +328,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                     tx.read(LogicalDatastoreType.CONFIGURATION, egressPath).checkedGet();
             if (!ingressRequestOpt.isPresent() && !egressRequestOpt.isPresent()) {
                 LOG.warn("Handler does not exists");
-                StatisticsPluginImplCounters.unknown_request_handler.inc();
+                statisticsCounters.unknownRequestHandler();
                 result.setFuture(RpcResultBuilder.<ReleaseElementCountersRequestHandlerOutput>failed()
                         .withError(ErrorType.APPLICATION, "Handler does not exists").buildFuture());
                 return;
@@ -375,7 +378,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                 CounterResultDataStructure ingressCounterResultDS = createElementCountersResult(ingressCounterRequest);
                 if (ingressCounterResultDS == null) {
                     LOG.warn("Unable to get counter results");
-                    StatisticsPluginImplCounters.failed_getting_counter_results.inc();
+                    statisticsCounters.failedGettingCounterResults();
                     return RpcResultBuilder.<GetElementCountersByHandlerOutput>failed()
                             .withError(ErrorType.APPLICATION, "Unable to get counter results").buildFuture();
                 }
@@ -386,7 +389,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                 CounterResultDataStructure egressCounterResultDS = createElementCountersResult(egressCounterRequest);
                 if (egressCounterResultDS == null) {
                     LOG.warn("Unable to get counter results");
-                    StatisticsPluginImplCounters.failed_getting_counter_results.inc();
+                    statisticsCounters.failedGettingCounterResults();
                     return RpcResultBuilder.<GetElementCountersByHandlerOutput>failed()
                             .withError(ErrorType.APPLICATION, "Unable to get counter results").buildFuture();
                 }
@@ -417,14 +420,14 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
             Optional<EgressElementCountersRequestConfig> eecrcOpt = eecrc.get();
             if (!iecrcOpt.isPresent() || !eecrcOpt.isPresent()) {
                 LOG.warn("Couldn't read element counters config data from DB");
-                StatisticsPluginImplCounters.failed_reading_counter_data_from_config.inc();
+                statisticsCounters.failedReadingCounterDataFromConfig();
                 return;
             }
             removeAllElementCounterRequestsOnPort(interfaceId, iecrcOpt.get().getCounterRequests());
             removeAllElementCounterRequestsOnPort(interfaceId, eecrcOpt.get().getCounterRequests());
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("failed to get counter request data from DB");
-            StatisticsPluginImplCounters.failed_getting_counter_results_port_removal.inc();
+            statisticsCounters.failedGettingCounterResultsPortRemoval();
             return;
         }
     }
@@ -442,7 +445,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
             Optional<EgressElementCountersRequestConfig> eecrcOpt = eecrc.get();
             if (!iecrcOpt.isPresent() || !eecrcOpt.isPresent()) {
                 LOG.warn("Couldn't read element counters config data from DB");
-                StatisticsPluginImplCounters.failed_reading_counter_data_from_config.inc();
+                statisticsCounters.failedReadingCounterDataFromConfig();
                 return RpcResultBuilder.<CleanAllElementCounterRequestsOutput>failed()
                         .withError(ErrorType.APPLICATION, "Couldn't read element counters config data from DB")
                         .buildFuture();
@@ -801,12 +804,12 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                 CountersServiceUtils.INGRESS_COUNTERS_SERVICE_INDEX, interfaceId)) {
             IngressCountersServiceImpl icsi = new IngressCountersServiceImpl(db, interfaceManager, mdsalApiManager);
             icsi.bindService(interfaceId);
-            StatisticsPluginImplCounters.ingress_counters_service_bind.inc();
+            statisticsCounters.ingressCountersServiceBind();
         } else if (ElementCountersDirection.EGRESS.equals(direction) && !interfaceManager
                 .isServiceBoundOnInterfaceForEgress(CountersServiceUtils.EGRESS_COUNTERS_SERVICE_INDEX, interfaceId)) {
             EgressCountersServiceImpl ecsi = new EgressCountersServiceImpl(db, interfaceManager, mdsalApiManager);
             ecsi.bindService(interfaceId);
-            StatisticsPluginImplCounters.egress_counters_service_bind.inc();
+            statisticsCounters.egressCountersServiceBind();
         }
     }
 
@@ -815,12 +818,12 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                 CountersServiceUtils.INGRESS_COUNTERS_SERVICE_INDEX, interfaceId)) {
             IngressCountersServiceImpl icsi = new IngressCountersServiceImpl(db, interfaceManager, mdsalApiManager);
             icsi.unBindService(interfaceId);
-            StatisticsPluginImplCounters.ingress_counters_service_unbind.inc();
+            statisticsCounters.ingressCountersServiceUnbind();
         } else if (ElementCountersDirection.EGRESS.equals(direction) && interfaceManager
                 .isServiceBoundOnInterfaceForEgress(CountersServiceUtils.EGRESS_COUNTERS_SERVICE_INDEX, interfaceId)) {
             EgressCountersServiceImpl ecsi = new EgressCountersServiceImpl(db, interfaceManager, mdsalApiManager);
             ecsi.unBindService(interfaceId);
-            StatisticsPluginImplCounters.egress_counters_service_unbind.inc();
+            statisticsCounters.egressCountersServiceUnbind();
         }
     }
 
@@ -1050,33 +1053,5 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         logElementCounterRequests(ecrList);
 
         return ecrList;
-    }
-
-    enum StatisticsPluginImplCounters {
-        failed_getting_node_counters, //
-        failed_getting_node_connector_counters, //
-        failed_getting_aggregated_node_counters, //
-        failed_generating_unique_request_id, //
-        unknown_request_handler, //
-        failed_creating_ingress_counter_data_config, //
-        failed_creating_egress_counter_data_config, //
-        failed_reading_counter_data_from_config, //
-        failed_getting_counter_results, //
-        failed_creating_counters_config, //
-        failed_getting_counter_results_port_removal, //
-        ingress_counters_service_bind, //
-        egress_counters_service_bind, //
-        ingress_counters_service_unbind, //
-        egress_counters_service_unbind, //
-        ;
-        private final OccurenceCounter counter;
-
-        StatisticsPluginImplCounters() {
-            counter = new OccurenceCounter(getClass().getEnclosingClass().getSimpleName(), name(), "");
-        }
-
-        public void inc() {
-            counter.inc();
-        }
     }
 }

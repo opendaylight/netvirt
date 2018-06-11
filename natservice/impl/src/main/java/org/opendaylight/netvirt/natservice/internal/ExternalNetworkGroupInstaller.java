@@ -49,14 +49,16 @@ public class ExternalNetworkGroupInstaller {
     private final OdlInterfaceRpcService odlInterfaceRpcService;
     private final JobCoordinator coordinator;
     private final ItmRpcService itmRpcService;
-    private final  IInterfaceManager interfaceManager;
+    private final IInterfaceManager interfaceManager;
+    private final NatServiceCounters natServiceCounters;
 
     @Inject
     public ExternalNetworkGroupInstaller(final DataBroker broker, final IMdsalApiManager mdsalManager,
                                          final IElanService elanService, final IdManagerService idManager,
                                          final OdlInterfaceRpcService odlInterfaceRpcService,
                                          final JobCoordinator coordinator, final ItmRpcService itmRpcService,
-                                         final IInterfaceManager interfaceManager) {
+                                         final IInterfaceManager interfaceManager,
+                                         NatServiceCounters natServiceCounters) {
 
         this.broker = broker;
         this.mdsalManager = mdsalManager;
@@ -66,6 +68,7 @@ public class ExternalNetworkGroupInstaller {
         this.coordinator = coordinator;
         this.itmRpcService = itmRpcService;
         this.interfaceManager = interfaceManager;
+        this.natServiceCounters = natServiceCounters;
     }
 
     public void installExtNetGroupEntries(Subnetmap subnetMap) {
@@ -206,7 +209,7 @@ public class ExternalNetworkGroupInstaller {
             GroupEntity groupEntity = buildEmptyExtNetGroupEntity(subnetName, groupId, extInterface);
             if (groupEntity != null) {
                 LOG.info("removeExtNetGroupEntries : Remove ext-net Group: id {}, subnet id {}", groupId, subnetName);
-                NatServiceCounters.remove_external_network_group.inc();
+                natServiceCounters.removeExternalNetworkGroup();
                 mdsalManager.syncRemoveGroup(groupEntity);
             }
         }

@@ -25,13 +25,16 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
     private static final Logger LOG = LoggerFactory.getLogger(SubnetmapListener.class);
     private final DataBroker dataBroker;
     private final ExternalNetworkGroupInstaller externalNetworkGroupInstaller;
+    private final NatServiceCounters natServiceCounters;
 
     @Inject
     public SubnetmapListener(final DataBroker dataBroker,
-                             final ExternalNetworkGroupInstaller externalNetworkGroupInstaller) {
+                             final ExternalNetworkGroupInstaller externalNetworkGroupInstaller,
+                             NatServiceCounters natServiceCounters) {
         super(Subnetmap.class, SubnetmapListener.class);
         this.dataBroker = dataBroker;
         this.externalNetworkGroupInstaller = externalNetworkGroupInstaller;
+        this.natServiceCounters = natServiceCounters;
     }
 
     @Override
@@ -48,7 +51,7 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
     @Override
     protected void remove(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
         LOG.trace("remove key: {} value: {}", subnetmap.key(), subnetmap);
-        NatServiceCounters.subnetmap_remove.inc();
+        natServiceCounters.subnetmapRemove();
         externalNetworkGroupInstaller.removeExtNetGroupEntries(subnetmap);
     }
 
@@ -56,14 +59,14 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
     protected void update(InstanceIdentifier<Subnetmap> identifier,
                           Subnetmap subnetmapBefore, Subnetmap subnetmapAfter) {
         LOG.trace("update key: {}, original: {}, update: {}", subnetmapAfter.key(), subnetmapBefore, subnetmapAfter);
-        NatServiceCounters.subnetmap_update.inc();
+        natServiceCounters.subnetmapUpdate();
         externalNetworkGroupInstaller.installExtNetGroupEntries(subnetmapAfter);
     }
 
     @Override
     protected void add(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
         LOG.trace("add key: {} value: {}", subnetmap.key(), subnetmap);
-        NatServiceCounters.subnetmap_add.inc();
+        natServiceCounters.subnetmapAdd();
         externalNetworkGroupInstaller.installExtNetGroupEntries(subnetmap);
     }
 

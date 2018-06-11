@@ -60,11 +60,12 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     private final EvpnUtils evpnUtils;
     private final JobCoordinator jobCoordinator;
     private final ElanInstanceCache elanInstanceCache;
+    private final ElanManagerCounters elanManagerCounters;
 
     @Inject
     public ElanPacketInHandler(DataBroker dataBroker, final IInterfaceManager interfaceManager, ElanUtils elanUtils,
             EvpnUtils evpnUtils, ElanL2GatewayUtils elanL2GatewayUtils, JobCoordinator jobCoordinator,
-            ElanInstanceCache elanInstanceCache) {
+            ElanInstanceCache elanInstanceCache, ElanManagerCounters elanManagerCounters) {
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
@@ -72,6 +73,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
         this.evpnUtils = evpnUtils;
         this.jobCoordinator = jobCoordinator;
         this.elanInstanceCache = elanInstanceCache;
+        this.elanManagerCounters = elanManagerCounters;
     }
 
     @Override
@@ -79,7 +81,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
         Class<? extends PacketInReason> pktInReason = notification.getPacketInReason();
         short tableId = notification.getTableId().getValue();
         if (pktInReason == NoMatch.class && tableId == NwConstants.ELAN_SMAC_TABLE) {
-            ElanManagerCounters.unknown_smac_pktin_rcv.inc();
+            elanManagerCounters.unknownSmacPktinRcv();
             try {
                 byte[] data = notification.getPayload();
                 Ethernet res = new Ethernet();
@@ -163,7 +165,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
             () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                 if (oldMacEntry != null && oldMacEntry.getInterface().equals(interfaceName)) {
                     // This should never occur because of ovs temporary mac learning
-                    ElanManagerCounters.unknown_smac_pktin_forwarding_entries_removed.inc();
+                    elanManagerCounters.unknownSmacPktinForwardingEntriesRemoved();
                 } else if (oldMacEntry != null && !isVlanOrFlatProviderIface) {
                     long macTimeStamp = oldMacEntry.getControllerLearnedForwardingEntryTimestamp().longValue();
                     if (System.currentTimeMillis() > macTimeStamp + 1000) {
@@ -175,10 +177,10 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                         // New FEs flood their packets on all interfaces. This can lead
                         // to many contradicting packet_ins. Ignore all packets received
                         // within 1s after the first packet_in
-                        ElanManagerCounters.unknown_smac_pktin_mac_migration_ignored_due_to_protection.inc();
+                        elanManagerCounters.unknownSmacPktinMacMigrationIgnoredDueToProtection();
                     }
                 } else if (oldMacEntry != null) {
-                    ElanManagerCounters.unknown_smac_pktin_removed_for_relearned.inc();
+                    elanManagerCounters.unknownSmacPktinRemovedForRelearned();
                 }
                 // This check is required only to update elan-forwarding-tables when mac is learned
                 // in ports (example: VM interfaces) other than on vlan provider port.
@@ -200,7 +202,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
             BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
             elanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
                     Collections.singletonList(physAddress));
-            ElanManagerCounters.unknown_smac_pktin_learned.inc();
+            elanManagerCounters.unknownSmacPktinLearned();
             return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                 elanUtils.setupMacFlows(elanInstance, interfaceInfo, elanInstance.getMacTimeout(),
                         macAddress, !isVlanOrFlatProviderIface, tx);
@@ -217,7 +219,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
         if (macEntry != null && !macEntry.getInterface().equals(interfaceName)
                 && !isVlanOrFlatProviderIface) {
             tryAndRemoveInvalidMacEntry(elanInstance.getElanInstanceName(), macEntry);
-            ElanManagerCounters.unknown_smac_pktin_flows_removed_for_relearned.inc();
+            elanManagerCounters.unknownSmacPktinFlowsRemovedForRelearned();
         }
     }
 
