@@ -1658,7 +1658,7 @@ public class BgpConfigurationManager {
     }
 
     public static boolean isValidConfigBgpHostPort(String bgpHost, int bgpPort) {
-        if (!bgpHost.equals(DEF_CHOST) && bgpPort != Integer.parseInt(DEF_CPORT)) {
+        if (!bgpHost.equals(DEF_CHOST)) {
             return true;
         } else {
             return false;
