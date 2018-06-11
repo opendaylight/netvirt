@@ -31,25 +31,28 @@ public class StatisticsProvider {
     private final IMdsalApiManager mdsalApiManager;
     private final IdManagerService idManagerService;
     private final CounterRetriever counterRetriever;
+    private final StatisticsCounters statisticsCounters;
     private CountersServiceInterfaceListener csil;
 
     @Inject
     public StatisticsProvider(final DataBroker dataBroker, final RpcProviderRegistry rpcProviderRegistry,
             CounterRetriever counterRetriever, IInterfaceManager interfaceManager, IMdsalApiManager mdsalApiManager,
-            IdManagerService idManagerService) {
+            IdManagerService idManagerService, StatisticsCounters statisticsCounters) {
         this.dataBroker = dataBroker;
         this.interfaceManager = interfaceManager;
         this.rpcProviderRegistry = rpcProviderRegistry;
         this.mdsalApiManager = mdsalApiManager;
         this.counterRetriever = counterRetriever;
         this.idManagerService = idManagerService;
+        this.statisticsCounters = statisticsCounters;
     }
 
     @PostConstruct
     public void init() {
         LOG.info("{} start", getClass().getSimpleName());
         StatisticsImpl statisticsImpl =
-                new StatisticsImpl(dataBroker, counterRetriever, interfaceManager, mdsalApiManager, idManagerService);
+                new StatisticsImpl(dataBroker, counterRetriever, interfaceManager, mdsalApiManager, idManagerService,
+                        statisticsCounters);
         rpcProviderRegistry.addRpcImplementation(StatisticsService.class, statisticsImpl);
         csil = new CountersServiceInterfaceListener(dataBroker, statisticsImpl);
     }
