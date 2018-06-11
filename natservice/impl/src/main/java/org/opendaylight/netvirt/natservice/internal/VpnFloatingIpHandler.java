@@ -103,6 +103,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     private final EvpnDnatFlowProgrammer evpnDnatFlowProgrammer;
     private final INeutronVpnManager nvpnManager;
     private final IdManagerService idManager;
+    private final NatServiceCounters natServiceCounters;
 
     @Inject
     public VpnFloatingIpHandler(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -115,7 +116,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                                 final IElanService elanService,
                                 final EvpnDnatFlowProgrammer evpnDnatFlowProgrammer,
                                 final INeutronVpnManager nvpnManager,
-                                final IdManagerService idManager) {
+                                final IdManagerService idManager,
+                                NatServiceCounters natServiceCounters) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
@@ -129,6 +131,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         this.evpnDnatFlowProgrammer = evpnDnatFlowProgrammer;
         this.nvpnManager = nvpnManager;
         this.idManager = idManager;
+        this.natServiceCounters = natServiceCounters;
     }
 
     @Override
@@ -485,7 +488,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                                      String floatingIpPortMacAddress) {
         if (floatingIpAddress.getIpv4Address() == null) {
             LOG.error("sendGarpOnInterface : Failed to send GARP for IP. recieved IPv6.");
-            NatServiceCounters.garp_failed_ipv6.inc();
+            natServiceCounters.garpFailedIpv6();
             return;
         }
 
@@ -493,7 +496,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         if (interfaceName == null) {
             LOG.warn("sendGarpOnInterface : Failed to send GARP for IP. Failed to retrieve interface name "
                     + "from network {} and dpn id {}.", networkId.getValue(), dpnId);
-            NatServiceCounters.garp_failed_missing_interface.inc();
+            natServiceCounters.garpFailedMissingInterface();
             return;
         }
 
@@ -509,11 +512,11 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                 .setInterfaceAddress(interfaceAddresses).build();
 
             JdkFutures.addErrorLogging(arpUtilService.sendArpRequest(sendArpRequestInput), LOG, "sendArpRequest");
-            NatServiceCounters.garp_sent.inc();
+            natServiceCounters.garpSent();
         } catch (Exception e) {
             LOG.error("sendGarpOnInterface : Failed to send GARP request for floating ip {} from interface {}",
                 floatingIpAddress.getIpv4Address().getValue(), interfaceName, e);
-            NatServiceCounters.garp_failed_send.inc();
+            natServiceCounters.garpFailedSend();
         }
     }
 

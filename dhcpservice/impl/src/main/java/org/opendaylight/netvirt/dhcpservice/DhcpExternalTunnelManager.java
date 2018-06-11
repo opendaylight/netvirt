@@ -110,6 +110,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
     private final JobCoordinator jobCoordinator;
     private final L2GatewayCache l2GatewayCache;
     private IElanService elanService;
+    private final DhcpServiceCounters dhcpServiceCounters;
 
     private final ConcurrentMap<BigInteger, Set<Pair<IpAddress, String>>> designatedDpnsToTunnelIpElanNameCache =
             new ConcurrentHashMap<>();
@@ -143,7 +144,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
             final IMdsalApiManager mdsalUtil, final ItmRpcService itmRpcService,
             final EntityOwnershipService entityOwnershipService, final IInterfaceManager interfaceManager,
             final JobCoordinator jobCoordinator, final L2GatewayCache l2GatewayCache,
-            @Named("elanService") IElanService ielanService) {
+            @Named("elanService") IElanService ielanService, DhcpServiceCounters dhcpServiceCounters) {
         this.broker = broker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.mdsalUtil = mdsalUtil;
@@ -153,6 +154,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         this.jobCoordinator = jobCoordinator;
         this.l2GatewayCache = l2GatewayCache;
         this.elanService = ielanService;
+        this.dhcpServiceCounters = dhcpServiceCounters;
     }
 
     @PostConstruct
@@ -510,7 +512,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
 
     private void installDhcpEntries(BigInteger dpnId, String vmMacAddress, WriteTransaction tx) {
         DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL,
-                vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil, tx);
+                vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil, dhcpServiceCounters, tx);
     }
 
     public void addOrRemoveDhcpArpFlowforElan(String elanInstanceName, boolean addFlow, String dhcpIpAddress,
@@ -631,12 +633,12 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
 
     public void unInstallDhcpEntries(BigInteger dpnId, String vmMacAddress, WriteTransaction tx) {
         DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL,
-                vmMacAddress, NwConstants.DEL_FLOW, mdsalUtil, tx);
+                vmMacAddress, NwConstants.DEL_FLOW, mdsalUtil, dhcpServiceCounters, tx);
     }
 
     private void installDhcpDropAction(BigInteger dpn, String vmMacAddress, WriteTransaction tx) {
         DhcpServiceUtils.setupDhcpDropAction(dpn, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL,
-                vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil, tx);
+                vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil, dhcpServiceCounters, tx);
     }
 
     public List<ListenableFuture<Void>> handleTunnelStateDown(IpAddress tunnelIp, BigInteger interfaceDpn) {

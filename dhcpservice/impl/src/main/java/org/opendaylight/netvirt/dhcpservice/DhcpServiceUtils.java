@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.FutureCallback;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -111,23 +110,13 @@ import org.slf4j.LoggerFactory;
 public final class DhcpServiceUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpServiceUtils.class);
-    private static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
-        @Override
-        public void onSuccess(Void result) {
-            LOG.debug("Success in Datastore write operation");
-        }
-
-        @Override
-        public void onFailure(Throwable error) {
-            LOG.error("Error in Datastore write operation", error);
-        }
-    };
 
     private DhcpServiceUtils() { }
 
     public static void setupDhcpFlowEntry(@Nullable BigInteger dpId, short tableId, @Nullable String vmMacAddress,
                                           int addOrRemove,
-                                          IMdsalApiManager mdsalUtil, WriteTransaction tx) {
+                                          IMdsalApiManager mdsalUtil, DhcpServiceCounters dhcpServiceCounters,
+                                          WriteTransaction tx) {
         if (dpId == null || dpId.equals(DhcpMConstants.INVALID_DPID) || vmMacAddress == null) {
             return;
         }
@@ -144,14 +133,14 @@ public final class DhcpServiceUtils {
                     DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
                     DhcpMConstants.COOKIE_DHCP_BASE, matches, null);
             LOG.trace("Removing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
-            DhcpServiceCounters.remove_dhcp_flow.inc();
+            dhcpServiceCounters.removeDhcpFlow();
             mdsalUtil.removeFlowToTx(flowEntity, tx);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress), DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY,
                     "DHCP", 0, 0, DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
             LOG.trace("Installing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
-            DhcpServiceCounters.install_dhcp_flow.inc();
+            dhcpServiceCounters.installDhcpFlow();
             mdsalUtil.addFlowToTx(flowEntity, tx);
         }
     }
@@ -172,7 +161,8 @@ public final class DhcpServiceUtils {
     }
 
     public static void setupDhcpDropAction(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove,
-                                           IMdsalApiManager mdsalUtil, WriteTransaction tx) {
+                                           IMdsalApiManager mdsalUtil, DhcpServiceCounters dhcpServiceCounters,
+                                           WriteTransaction tx) {
         if (dpId == null || dpId.equals(DhcpMConstants.INVALID_DPID) || vmMacAddress == null) {
             return;
         }
@@ -189,14 +179,14 @@ public final class DhcpServiceUtils {
                     DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
                     DhcpMConstants.COOKIE_DHCP_BASE, matches, null);
             LOG.trace("Removing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
-            DhcpServiceCounters.remove_dhcp_drop_flow.inc();
+            dhcpServiceCounters.removeDhcpDropFlow();
             mdsalUtil.removeFlowToTx(flowEntity, tx);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress), DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY,
                     "DHCP", 0, 0, DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
             LOG.trace("Installing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
-            DhcpServiceCounters.install_dhcp_drop_flow.inc();
+            dhcpServiceCounters.installDhcpDropFlow();
             mdsalUtil.addFlowToTx(flowEntity, tx);
         }
     }
