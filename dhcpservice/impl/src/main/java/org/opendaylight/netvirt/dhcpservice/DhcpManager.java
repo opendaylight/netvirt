@@ -35,7 +35,6 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
@@ -56,7 +55,6 @@ public class DhcpManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpManager.class);
     private final IMdsalApiManager mdsalUtil;
-    private final INeutronVpnManager neutronVpnService;
     private final DhcpserviceConfig config;
     private final DataBroker broker;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
@@ -65,6 +63,7 @@ public class DhcpManager {
     private final JobCoordinator jobCoordinator;
     private DhcpPortCache dhcpPortCache;
     private final ItmRpcService itmRpcService;
+    private final DhcpServiceCounters dhcpServiceCounters;
 
     private volatile int dhcpOptLeaseTime = 0;
     private volatile String dhcpOptDefDomainName;
@@ -73,13 +72,12 @@ public class DhcpManager {
 
     @Inject
     public DhcpManager(final IMdsalApiManager mdsalApiManager,
-            final INeutronVpnManager neutronVpnManager,
             final DhcpserviceConfig config, final DataBroker dataBroker,
             final DhcpExternalTunnelManager dhcpExternalTunnelManager, final IInterfaceManager interfaceManager,
             @Named("elanService") IElanService ielanService, final DhcpPortCache dhcpPortCache,
-            final JobCoordinator jobCoordinator, final ItmRpcService itmRpcService) {
+            final JobCoordinator jobCoordinator, final ItmRpcService itmRpcService,
+            DhcpServiceCounters dhcpServiceCounters) {
         this.mdsalUtil = mdsalApiManager;
-        this.neutronVpnService = neutronVpnManager;
         this.config = config;
         this.broker = dataBroker;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
@@ -88,6 +86,7 @@ public class DhcpManager {
         this.dhcpPortCache = dhcpPortCache;
         this.jobCoordinator = jobCoordinator;
         this.itmRpcService = itmRpcService;
+        this.dhcpServiceCounters = dhcpServiceCounters;
         configureLeaseDuration(DhcpMConstants.DEFAULT_LEASE_TIME);
     }
 
@@ -187,12 +186,12 @@ public class DhcpManager {
 
     public void installDhcpEntries(@Nullable BigInteger dpnId, @Nullable String vmMacAddress, WriteTransaction tx) {
         DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.ADD_FLOW,
-                mdsalUtil, tx);
+                mdsalUtil, dhcpServiceCounters, tx);
     }
 
     public void unInstallDhcpEntries(@Nullable BigInteger dpId, @Nullable String vmMacAddress, WriteTransaction tx) {
         DhcpServiceUtils.setupDhcpFlowEntry(dpId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.DEL_FLOW,
-                mdsalUtil, tx);
+                mdsalUtil, dhcpServiceCounters, tx);
     }
 
     public void setupDefaultDhcpFlows(BigInteger dpId) {
@@ -211,7 +210,7 @@ public class DhcpManager {
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DHCP_TABLE, "DHCPTableMissFlow",
                 0, "DHCP Table Miss Flow", 0, 0,
                 DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
-        DhcpServiceCounters.install_dhcp_table_miss_flow.inc();
+        dhcpServiceCounters.installDhcpTableMissFlow();
         mdsalUtil.installFlow(flowEntity);
         setupTableMissForHandlingExternalTunnel(dpId);
     }
@@ -226,7 +225,7 @@ public class DhcpManager {
                 "DhcpAllocationPoolFlow", DhcpMConstants.DEFAULT_DHCP_ALLOCATION_POOL_FLOW_PRIORITY,
                 "Dhcp Allocation Pool Flow", 0, 0, DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
         LOG.trace("Installing DHCP Allocation Pool Flow DpId {}", dpId);
-        DhcpServiceCounters.install_dhcp_flow.inc();
+        dhcpServiceCounters.installDhcpFlow();
         mdsalUtil.installFlow(flowEntity);
     }
 
@@ -239,7 +238,7 @@ public class DhcpManager {
                 "DHCPTableMissFlowForExternalTunnel",
                 0, "DHCP Table Miss Flow For External Tunnel", 0, 0,
                 DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
-        DhcpServiceCounters.install_dhcp_table_miss_flow_for_external_table.inc();
+        dhcpServiceCounters.installDhcpTableMissFlowForExternalTable();
         mdsalUtil.installFlow(flowEntity);
     }
 }

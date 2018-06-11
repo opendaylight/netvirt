@@ -10,8 +10,6 @@
     interface="org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService" />
   <reference id="iMdsalApiManager"
     interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
-  <reference id="iNeutronVpnManager"
-    interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
   <reference id="iInterfaceManager"
     interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
   <reference id="elanService"

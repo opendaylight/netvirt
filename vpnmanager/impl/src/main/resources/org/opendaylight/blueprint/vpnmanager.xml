@@ -31,6 +31,8 @@
              interface="org.opendaylight.genius.mdsalutil.UpgradeState"/>
   <reference id="cacheProvider"
              interface="org.opendaylight.infrautils.caches.CacheProvider"/>
+  <reference id="metricProvider"
+             interface="org.opendaylight.infrautils.metrics.MetricProvider" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
