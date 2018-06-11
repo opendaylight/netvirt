@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "431a9ae0_80490281",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-06-11T18:12:15Z",
+      "side": 1,
+      "message": "In clustered-ODL, duplicate entries were observed in one case out of multiple re-tries. During that re-production we dont have trace enabled, so from the code perspective the only way we can control is by changing it to SET.",
+      "parentUuid": "7526bc63_1f37b7a9",
+      "range": {
+        "startLine": 78,
+        "startChar": 38,
+        "endLine": 78,
+        "endChar": 41
+      },
+      "revId": "d08d1b431aa16831ae37961cee17801668a47c4a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "34afec4e_9be88fb0",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "c2dae544_de980085",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-06-11T18:12:15Z",
+      "side": 1,
+      "message": "programIcmpv6RSPuntFlows, pre-condition to program flows is to have vnet present in cache. There are scenarios, where network listener may fire later than interfaces. So incase, networks is not available at the time of processing, add to map \"unprocessedNetRSFlowIntfs\" and process when the network was created.",
+      "parentUuid": "34afec4e_9be88fb0",
+      "range": {
+        "startLine": 538,
+        "startChar": 19,
+        "endLine": 538,
+        "endChar": 43
+      },
+      "revId": "d08d1b431aa16831ae37961cee17801668a47c4a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f2b0ae5a_83e40215",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
         "patchSetId": 4
@@ -59,6 +107,24 @@
       "writtenOn": "2018-05-19T14:14:00Z",
       "side": 1,
       "message": "AFAIU today all the listeners (i.e., neutron network/subnet/router/port/interface etc) are cluster listeners so we should have the same cache on all of the Controllers irrespective of whether its a shard leader or not. \n\nPlease explain why this is necessary and what is happening?",
+      "revId": "d08d1b431aa16831ae37961cee17801668a47c4a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66a63949_b872cbcb",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 722,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-06-11T18:12:15Z",
+      "side": 1,
+      "message": "At times, it can be observed the processing of listeners call-backs can be on their own order (processor schedule dependent). In such cases, the caches were different.\nIn one of cases, when router-interface call-back fired the networks was not available in non-shard-leader, so code didn\u0027t program RS flows. When that particular node became ipv6-EoS-owner, ODL didn\u0027t respond to RS messages.",
+      "parentUuid": "f2b0ae5a_83e40215",
       "revId": "d08d1b431aa16831ae37961cee17801668a47c4a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
