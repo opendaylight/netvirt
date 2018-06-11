@@ -238,18 +238,17 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                         LOG.info("VpnOpStatusListener.update: updating BGPVPN for vpn {} with RD {}"
                                 + " Type is {}, IPv4 is {}, IPv6 is {}", vpnName, primaryRd, update.getType(),
                                 update.isIpv4Configured(), update.isIpv6Configured());
+                        List<String> importRTList = rd.equals(primaryRd) ? irtList : Collections.emptyList();
                         if (update.getType() == VpnInstanceOpDataEntry.Type.L2) {
-                            bgpManager.addVrf(rd, irtList, ertList, AddressFamily.L2VPN);
-                        } else {
-                            bgpManager.deleteVrf(rd, false, AddressFamily.L2VPN);
+                            bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.L2VPN);
                         }
                         if (!original.isIpv4Configured() && update.isIpv4Configured()) {
-                            bgpManager.addVrf(rd, irtList, ertList, AddressFamily.IPV4);
+                            bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.IPV4);
                         } else if (original.isIpv4Configured() && !update.isIpv4Configured()) {
                             bgpManager.deleteVrf(rd, false, AddressFamily.IPV4);
                         }
                         if (!original.isIpv6Configured() && update.isIpv6Configured()) {
-                            bgpManager.addVrf(rd, irtList, ertList, AddressFamily.IPV6);
+                            bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.IPV6);
                         } else if (original.isIpv6Configured() && !update.isIpv6Configured()) {
                             bgpManager.deleteVrf(rd, false, AddressFamily.IPV6);
                         }
