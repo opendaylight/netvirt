@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "512209bc_917cda64",
+        "filename": "bgpmanager/impl/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-06-11T21:48:14Z",
+      "side": 1,
+      "message": "tabs whitespace",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 2
+      },
+      "revId": "6e80361ad6282b1abbedd385f9ee094146bb980e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "969bf77a_85f7bf2f",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-06-11T21:48:14Z",
+      "side": 1,
+      "message": "is this debugging or really an error?",
+      "range": {
+        "startLine": 270,
+        "startChar": 16,
+        "endLine": 270,
+        "endChar": 21
+      },
+      "revId": "6e80361ad6282b1abbedd385f9ee094146bb980e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
