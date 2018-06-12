@@ -13,9 +13,14 @@ module bfd {
     revision "2019-02-19" {
     }
 
-    container bfd-monitoring {
+    container bfd-config {
         config        "true";
 
+        leaf bfd-enabled {
+            description  "is BFD enabled";
+            type         boolean;
+            default      false;
+        }
         leaf detect-mult {
             type        uint32;
             default     3;
@@ -24,8 +29,8 @@ module bfd {
         }
         leaf min-rx {
             type        uint32 {
-                            range "50..50000";
-            }
+    	        range "50..50000";
+        	}
             default     500;
             description "The shortest interval, in milli-seconds, at
                          which this BFD session offers to receive
@@ -33,22 +38,18 @@ module bfd {
         }
         leaf min-tx {
             type        uint32 {
-                            range "1000 .. 60000";
-            }
+      	    	range "1000 .. 60000";
+      	    }
             default     6000;
             description "The shortest interval, in milli-seconds,
                          at which this BFD session is willing to
                          transmit BFD control messages. Defaults
                          to 6000";
         }
-    }
-
-    container bfd-config {
         leaf multihop {
             type        boolean;
             default     true;
             description "Value of True indicates suppport for BFD multihop";
-            config      "true";
         }
     }
 }

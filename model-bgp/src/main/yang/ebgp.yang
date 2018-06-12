@@ -404,23 +404,19 @@ module ebgp {
        }
   } //vrfMaxpaths
 
-  container bfd {
-      leaf bfd-enabled {
-          description  "is BFD enabled";
-          type         boolean;
-          default      false;
+  container dcgw-tep-list {
+      list dcgw-tep {
+          key          "dc-gw-ip";
+          description  "mapping: DC-Gwy ip <> TEP ip";
+
+          leaf dc-gw-ip {
+              type string;
+          }
+          leaf-list tep-ips {
+              type string;
+          }
       }
   }
 
-  list tep-dcgw {
-      key          "dc-gw-ip";
-      description  "mapping: DC-Gwy ip <> TEP ip";
-      leaf dc-gw-ip {
-           type string;
-      }
-      leaf-list tep-ip {
-          type string;
-      }
-  }
  } // bgp
 }
