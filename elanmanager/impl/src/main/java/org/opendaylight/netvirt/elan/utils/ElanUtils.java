@@ -1129,13 +1129,16 @@ public class ElanUtils {
      *            the elan instance added
      * @param elanInterfaces
      *            the elan interfaces
-     * @param tx
-     *            transaction
+     * @param configTx
+     *            configurational transaction
+     * @param operTx
+     *            operational transaction
      *
      * @return the updated ELAN instance.
      */
     public static ElanInstance updateOperationalDataStore(IdManagerService idManager,
-            ElanInstance elanInstanceAdded, List<String> elanInterfaces, WriteTransaction tx) {
+            ElanInstance elanInstanceAdded, List<String> elanInterfaces, WriteTransaction configTx,
+            WriteTransaction operTx) {
         String elanInstanceName = elanInstanceAdded.getElanInstanceName();
         Long elanTag = elanInstanceAdded.getElanTag();
         if (elanTag == null || elanTag == 0L) {
@@ -1145,12 +1148,12 @@ public class ElanUtils {
                 .withKey(new ElanKey(elanInstanceName)).build();
 
         // Add the ElanState in the elan-state operational data-store
-        tx.put(LogicalDatastoreType.OPERATIONAL, getElanInstanceOperationalDataPath(elanInstanceName),
+        operTx.put(LogicalDatastoreType.OPERATIONAL, getElanInstanceOperationalDataPath(elanInstanceName),
                 elanInfo, WriteTransaction.CREATE_MISSING_PARENTS);
 
         // Add the ElanMacTable in the elan-mac-table operational data-store
         MacTable elanMacTable = new MacTableBuilder().withKey(new MacTableKey(elanInstanceName)).build();
-        tx.put(LogicalDatastoreType.OPERATIONAL, getElanMacTableOperationalDataPath(elanInstanceName),
+        operTx.put(LogicalDatastoreType.OPERATIONAL, getElanMacTableOperationalDataPath(elanInstanceName),
                 elanMacTable, WriteTransaction.CREATE_MISSING_PARENTS);
 
         ElanTagNameBuilder elanTagNameBuilder = new ElanTagNameBuilder().setElanTag(elanTag)
@@ -1162,13 +1165,13 @@ public class ElanUtils {
             EtreeLeafTagName etreeLeafTagName = new EtreeLeafTagNameBuilder()
                     .setEtreeLeafTag(new EtreeLeafTag(etreeLeafTag)).build();
             elanTagNameBuilder.addAugmentation(EtreeLeafTagName.class, etreeLeafTagName);
-            addTheLeafTagAsElanTag(elanInstanceName, etreeLeafTag, tx);
+            addTheLeafTagAsElanTag(elanInstanceName, etreeLeafTag, operTx);
         }
         ElanTagName elanTagName = elanTagNameBuilder.build();
 
         // Add the ElanTag to ElanName in the elan-tag-name Operational
         // data-store
-        tx.put(LogicalDatastoreType.OPERATIONAL,
+        operTx.put(LogicalDatastoreType.OPERATIONAL,
                 getElanInfoEntriesOperationalDataPath(elanTag), elanTagName);
 
         // Updates the ElanInstance Config DS by setting the just acquired
@@ -1184,15 +1187,16 @@ public class ElanUtils {
             elanInstanceBuilder.addAugmentation(EtreeInstance.class, etreeInstance);
         }
         ElanInstance elanInstanceWithTag = elanInstanceBuilder.build();
-        tx.merge(LogicalDatastoreType.CONFIGURATION, ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName),
-                elanInstanceWithTag, WriteTransaction.CREATE_MISSING_PARENTS);
+        configTx.merge(LogicalDatastoreType.CONFIGURATION, ElanHelper
+                .getElanInstanceConfigurationDataPath(elanInstanceName), elanInstanceWithTag,
+                WriteTransaction.CREATE_MISSING_PARENTS);
         return elanInstanceWithTag;
     }
 
-    private static void addTheLeafTagAsElanTag(String elanInstanceName, long etreeLeafTag, WriteTransaction tx) {
+    private static void addTheLeafTagAsElanTag(String elanInstanceName, long etreeLeafTag, WriteTransaction operTx) {
         ElanTagName etreeTagAsElanTag = new ElanTagNameBuilder().setElanTag(etreeLeafTag)
                 .withKey(new ElanTagNameKey(etreeLeafTag)).setName(elanInstanceName).build();
-        tx.put(LogicalDatastoreType.OPERATIONAL,
+        operTx.put(LogicalDatastoreType.OPERATIONAL,
                 getElanInfoEntriesOperationalDataPath(etreeLeafTag), etreeTagAsElanTag);
     }
 
