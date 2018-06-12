@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65a1db12_86941572",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-06-12T11:54:12Z",
+      "side": 1,
+      "message": "could you file a bug and add it here so we can read the issue?",
+      "revId": "0367ef49082b20bbcc884c4ac1bd9548159ab260",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "934bc8c2_3c8447cf",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/flowclassifier/NeutronFlowClassifierListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-06-12T11:54:12Z",
+      "side": 1,
+      "message": "add space here. surprised the checkstyle didn\u0027t fail here.",
+      "revId": "0367ef49082b20bbcc884c4ac1bd9548159ab260",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
