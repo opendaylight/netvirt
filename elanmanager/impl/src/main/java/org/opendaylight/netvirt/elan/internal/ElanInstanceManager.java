@@ -150,9 +150,11 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         if (existingElanTag == null || !existingElanTag.equals(update.getElanTag())) {
             if (update.getElanTag() == null) {
                 // update the elan-Instance with new properties
-                ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                    tx -> ElanUtils.updateOperationalDataStore(idManager, update, new ArrayList<>(), tx)),
-                    LOG, "Error updating ELAN tag in ELAN instance");
+                ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(configTx -> {
+                    ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
+                        ElanUtils.updateOperationalDataStore(idManager, update, new ArrayList<>(), configTx, operTx);
+                    }), LOG, "Error updating ELAN tag in ELAN instance");
+                }), LOG, "Error updating ELAN tag in ELAN instance");
             } else {
                 jobCoordinator.enqueueJob(elanName, () -> {
                     try {
@@ -168,14 +170,18 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     @Override
     protected void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance elanInstanceAdded) {
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
-            String elanInstanceName  = elanInstanceAdded.getElanInstanceName();
-            Elan elanInfo = ElanUtils.getElanByName(tx, elanInstanceName);
-            if (elanInfo == null) {
-                ElanUtils.updateOperationalDataStore(idManager, elanInstanceAdded, new ArrayList<>(), tx);
-            }
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(configTx -> {
+            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(operTx -> {
+                String elanInstanceName = elanInstanceAdded.getElanInstanceName();
+                Elan elanInfo = ElanUtils.getElanByName(operTx, elanInstanceName);
+                if (elanInfo == null) {
+                    ElanUtils.updateOperationalDataStore(idManager, elanInstanceAdded, new ArrayList<>(),
+                            configTx, operTx);
+                }
+            }), LOG, "Error adding an ELAN instance");
         }), LOG, "Error adding an ELAN instance");
     }
+
 
     private static InstanceIdentifier<ElanDpnInterfacesList> getElanDpnOperationDataPath(String elanInstanceName) {
         return InstanceIdentifier.builder(ElanDpnInterfaces.class)
