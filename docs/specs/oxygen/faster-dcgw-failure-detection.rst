@@ -189,13 +189,19 @@ None
 Yang changes
 ------------
 A new yang file ebgp-bfd.yang, published to accomodate bfd parameters,
-which has two containers: bfd-monitoring, bfd-config as below.
+which has bfd-config container as below.
 
 .. code-block:: none
    :caption: ebgp-bfd.yang
 
-    container bfd-monitoring {
+    container bfd-config {
         config        "true";
+
+        leaf bfd-enabled {
+            description  "is BFD enabled";
+            type         boolean;
+            default      false;
+        }
 
         leaf detect-mult {
             type        uint32;
@@ -222,9 +228,7 @@ which has two containers: bfd-monitoring, bfd-config as below.
                          transmit BFD control messages. Defaults
                          to 6000";
         }
-    }
 
-    container bfd-config {
         leaf multihop {
             type        boolean;
             default     true;
@@ -235,26 +239,22 @@ which has two containers: bfd-monitoring, bfd-config as below.
 
 Changes will be needed in ``ebgp.yang``.
 
-- A new parameter will be adde to the existing ebgp.yang,
-  to enable/disable bfd in bgp configuration
-- dc-gwy TEP ip will be modified as list
+- dc-gw TEP ip will be modified as a container
 
 .. code-block:: none
    :caption: ebgp.yang
 
-     leaf bfd-enabled {
-       type boolean;
-       mandatory "false";
-     }
+     container dcgw-tep-list {
+          list dcgw-tep {
+               key          "dc-gw-ip";
+               description  "mapping: DC-Gwy ip <> TEP ip";
 
-     list tep-dcgw {
-         key          "dc-gw-ip";
-         description  "mapping: DC-Gwy ip <> TEP ip";
-         leaf dc-gw-ip {
-              type string;
-         }
-         leaf-list tep-ip {
-             type string;
+               leaf dc-gw-ip {
+                   type string;
+               }
+               leaf-list tep-ips {
+                   type string;
+               }
          }
      }
 
