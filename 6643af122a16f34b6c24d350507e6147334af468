@@ -46,6 +46,30 @@
       "revId": "6643af122a16f34b6c24d350507e6147334af468",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87236e43_853c1424",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2050,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-12T13:00:40Z",
+      "side": 1,
+      "message": "Yeah @Aswin, we can use DJC. At the same time, AFAIU the important this is to ensure that updation of DpnInterfaces should be synchronized with some \"key\" both in this file as well as in ELANService (or any other place where its updated).",
+      "parentUuid": "8e2e597f_098a6528",
+      "range": {
+        "startLine": 2046,
+        "startChar": 12,
+        "endLine": 2050,
+        "endChar": 54
+      },
+      "revId": "6643af122a16f34b6c24d350507e6147334af468",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
