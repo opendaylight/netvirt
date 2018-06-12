@@ -47,7 +47,7 @@ public class ElanForwardingEntriesHandler {
     }
 
     public void updateElanInterfaceForwardingTablesList(String elanInstanceName, String interfaceName,
-            String existingInterfaceName, MacEntry mac, WriteTransaction tx) {
+            String existingInterfaceName, MacEntry mac, WriteTransaction operTx) {
         if (existingInterfaceName.equals(interfaceName)) {
             LOG.error("Static MAC address {} has already been added for the same ElanInstance "
                             + "{} on the same Logical Interface Port {}."
@@ -60,35 +60,35 @@ public class ElanForwardingEntriesHandler {
                             + "for ElanInstance {} on Logical Interface Port {}",
                     mac.getMacAddress().toString(), elanInstanceName, interfaceName, elanInstanceName, interfaceName);
             //Update the  ElanInterface Forwarding Container & ElanForwarding Container
-            deleteElanInterfaceForwardingTablesList(existingInterfaceName, mac, tx);
-            createElanInterfaceForwardingTablesList(interfaceName, mac, tx);
-            updateElanForwardingTablesList(elanInstanceName, interfaceName, mac, tx);
+            deleteElanInterfaceForwardingTablesList(existingInterfaceName, mac, operTx);
+            createElanInterfaceForwardingTablesList(interfaceName, mac, operTx);
+            updateElanForwardingTablesList(elanInstanceName, interfaceName, mac, operTx);
         }
 
     }
 
     public void addElanInterfaceForwardingTableList(String elanInstanceName, String interfaceName,
-                                                    StaticMacEntries staticMacEntries, WriteTransaction tx) {
+                                                    StaticMacEntries staticMacEntries, WriteTransaction operTx) {
         MacEntry macEntry = new MacEntryBuilder().setIsStaticAddress(true)
                 .setMacAddress(staticMacEntries.getMacAddress())
                 .setIpPrefix(staticMacEntries.getIpPrefix())
                 .setInterface(interfaceName).withKey(new MacEntryKey(staticMacEntries.getMacAddress())).build();
 
-        createElanForwardingTablesList(elanInstanceName, macEntry, tx);
-        createElanInterfaceForwardingTablesList(interfaceName, macEntry, tx);
+        createElanForwardingTablesList(elanInstanceName, macEntry, operTx);
+        createElanInterfaceForwardingTablesList(interfaceName, macEntry, operTx);
     }
 
-    public void deleteElanInterfaceForwardingTablesList(String interfaceName, MacEntry mac, WriteTransaction tx) {
+    public void deleteElanInterfaceForwardingTablesList(String interfaceName, MacEntry mac, WriteTransaction operTx) {
         InstanceIdentifier<MacEntry> existingMacEntryId = ElanUtils
                 .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, mac.getMacAddress());
         MacEntry existingInterfaceMacEntry = elanUtils
                 .getInterfaceMacEntriesOperationalDataPathFromId(existingMacEntryId);
         if (existingInterfaceMacEntry != null) {
-            tx.delete(LogicalDatastoreType.OPERATIONAL, existingMacEntryId);
+            operTx.delete(LogicalDatastoreType.OPERATIONAL, existingMacEntryId);
         }
     }
 
-    public void createElanInterfaceForwardingTablesList(String interfaceName, MacEntry mac, WriteTransaction tx) {
+    public void createElanInterfaceForwardingTablesList(String interfaceName, MacEntry mac, WriteTransaction operTx) {
         InstanceIdentifier<MacEntry> existingMacEntryId = ElanUtils
                 .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, mac.getMacAddress());
         MacEntry existingInterfaceMacEntry = elanUtils
@@ -97,13 +97,13 @@ public class ElanForwardingEntriesHandler {
             MacEntry macEntry = new MacEntryBuilder().setMacAddress(mac.getMacAddress()).setIpPrefix(mac.getIpPrefix())
                     .setInterface(interfaceName)
                     .setIsStaticAddress(true).withKey(new MacEntryKey(mac.getMacAddress())).build();
-            tx.put(LogicalDatastoreType.OPERATIONAL, existingMacEntryId, macEntry,
+            operTx.put(LogicalDatastoreType.OPERATIONAL, existingMacEntryId, macEntry,
                     WriteTransaction.CREATE_MISSING_PARENTS);
         }
     }
 
     public void updateElanForwardingTablesList(String elanName, String interfaceName, MacEntry mac,
-            WriteTransaction tx) {
+            WriteTransaction operTx) {
         InstanceIdentifier<MacEntry> macEntryId = ElanUtils.getMacEntryOperationalDataPath(elanName,
                 mac.getMacAddress());
         MacEntry existingMacEntry = elanUtils.getMacEntryFromElanMacId(macEntryId);
@@ -111,16 +111,16 @@ public class ElanForwardingEntriesHandler {
             MacEntry newMacEntry = new MacEntryBuilder().setInterface(interfaceName).setIsStaticAddress(true)
                     .setMacAddress(mac.getMacAddress()).setIpPrefix(mac.getIpPrefix())
                     .withKey(new MacEntryKey(mac.getMacAddress())).build();
-            tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, newMacEntry);
+            operTx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, newMacEntry);
         }
     }
 
-    private void createElanForwardingTablesList(String elanName, MacEntry macEntry, WriteTransaction tx) {
+    private void createElanForwardingTablesList(String elanName, MacEntry macEntry, WriteTransaction operTx) {
         InstanceIdentifier<MacEntry> macEntryId = ElanUtils.getMacEntryOperationalDataPath(elanName,
                 macEntry.getMacAddress());
         Optional<MacEntry> existingMacEntry = ElanUtils.read(broker, LogicalDatastoreType.OPERATIONAL, macEntryId);
         if (!existingMacEntry.isPresent() && elanUtils.getElanMacTable(elanName) != null) {
-            tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, macEntry, WriteTransaction.CREATE_MISSING_PARENTS);
+            operTx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, macEntry, WriteTransaction.CREATE_MISSING_PARENTS);
         }
     }
 
@@ -147,6 +147,4 @@ public class ElanForwardingEntriesHandler {
                 .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
         tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryId);
     }
-
-
 }
