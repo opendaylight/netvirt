@@ -33,6 +33,75 @@
       "revId": "0367ef49082b20bbcc884c4ac1bd9548159ab260",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6b8f53c9_d3b584fe",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/flowclassifier/NeutronFlowClassifierListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-12T19:34:27Z",
+      "side": 1,
+      "message": "please fix in other places as well",
+      "parentUuid": "934bc8c2_3c8447cf",
+      "revId": "0367ef49082b20bbcc884c4ac1bd9548159ab260",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3069ac11_e6d31be0",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/NeutronPortChainListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-12T19:34:27Z",
+      "side": 1,
+      "message": "please add @param for orig. Please fix other places as well",
+      "revId": "0367ef49082b20bbcc884c4ac1bd9548159ab260",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7a9b6ef_1515ce99",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/NeutronPortChainListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-12T19:34:27Z",
+      "side": 1,
+      "message": "Question:\n- I see you delete the all FlowClassifiers belongs to the origPortChain here. When do they get re-created for the updatePortChain?",
+      "revId": "0367ef49082b20bbcc884c4ac1bd9548159ab260",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7be149dd_7051a0ed",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/NeutronPortChainListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-12T19:34:27Z",
+      "side": 1,
+      "message": "- combine two LOG statements into one.\n- the failure results from building Acl, not when removing the flow classifier",
+      "revId": "0367ef49082b20bbcc884c4ac1bd9548159ab260",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
