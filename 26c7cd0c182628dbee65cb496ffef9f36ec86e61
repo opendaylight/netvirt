@@ -46,6 +46,30 @@
       "revId": "26c7cd0c182628dbee65cb496ffef9f36ec86e61",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e3ae29b6_c9042be1",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VxlanGreConntrackBasedSnatService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-12T12:21:33Z",
+      "side": 1,
+      "message": "Yes @Sam, this is to prevent an incorrect error log.",
+      "parentUuid": "4f3ecd9e_dfa5fc05",
+      "range": {
+        "startLine": 87,
+        "startChar": 19,
+        "endLine": 87,
+        "endChar": 23
+      },
+      "revId": "26c7cd0c182628dbee65cb496ffef9f36ec86e61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
