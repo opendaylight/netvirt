@@ -1007,7 +1007,7 @@ public final class VpnUtil {
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
             }
             LOG.debug("createLearntVpnVipToPort: ARP learned for fixedIp: {}, vpn {}, interface {}, mac {},"
-                    + " added to VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress);
+                    + " added to LearntVpnVipToPort DS", fixedIp, vpnName, portName, macAddress);
         }
     }
 
@@ -1026,8 +1026,22 @@ public final class VpnUtil {
             } else {
                 MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
             }
-            LOG.debug("removeLearntVpnVipToPort: Delete learned ARP for fixedIp: {}, vpn {} removed from"
-                    + " VpnPortipToPort DS", fixedIp, vpnName);
+            LOG.debug("removeLearntVpnVipToPort: Deleted LearntVpnVipToPort entry for fixedIp: {}, vpn {}",
+                fixedIp, vpnName);
+        }
+    }
+
+    protected static void removeVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp,
+                                                     WriteTransaction writeConfigTxn) {
+        synchronized ((vpnName + fixedIp).intern()) {
+            InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
+            if (writeConfigTxn != null) {
+                writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, id);
+            } else {
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
+            }
+            LOG.debug("removeVpnPortFixedIpToPort: Deleted VpnPortipToPort entry for fixedIp: {}, vpn {}",
+                fixedIp, vpnName);
         }
     }
 
