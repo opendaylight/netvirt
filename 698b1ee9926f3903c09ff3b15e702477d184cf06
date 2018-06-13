@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "93ce6ed9_7e9756e9",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertGenerator.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 8007
+      },
+      "writtenOn": "2018-06-13T10:37:30Z",
+      "side": 1,
+      "message": "Complete exception stacktrace is useful only for developer therefore dumping exception stacktrace only with debug log level.",
+      "parentUuid": "dac07f86_d5ae350f",
+      "revId": "698b1ee9926f3903c09ff3b15e702477d184cf06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dbf408d0_4d0e6cac",
         "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
         "patchSetId": 7
@@ -47,6 +65,24 @@
       "writtenOn": "2018-06-08T16:57:04Z",
       "side": 1,
       "message": "same comment, not sure what the value is to make two logs",
+      "revId": "698b1ee9926f3903c09ff3b15e702477d184cf06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d11ca934_9cf6e8d8",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 8007
+      },
+      "writtenOn": "2018-06-13T10:37:30Z",
+      "side": 1,
+      "message": "same as before, exception stacktrace dumped only in debug level for the developer.",
+      "parentUuid": "d5f34b4e_8c0725b4",
       "revId": "698b1ee9926f3903c09ff3b15e702477d184cf06",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
