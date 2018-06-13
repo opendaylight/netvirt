@@ -1391,6 +1391,13 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                         + " ip {} on dpn {} for vpn {} from VpnPortData Entry",
                                 vpnVipToPort.getPortName(), ip, dpnId, vpnName);
                     }
+                    VpnPortipToPort vpnPortipToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, ip);
+                    if (vpnPortipToPort != null) {
+                        VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ip, null);
+                        LOG.info("removeAdjacenciesFromVpn: VpnInterfaceManager removed vpnPortipToPort for "
+                                 + "Interface {} ip {} on dpn {} for vpn {}",
+                            vpnPortipToPort.getPortName(), ip, dpnId, vpnName);
+                    }
                 }
             } else {
                 // this vpn interface has no more adjacency left, so clean up the vpn interface from Operational DS

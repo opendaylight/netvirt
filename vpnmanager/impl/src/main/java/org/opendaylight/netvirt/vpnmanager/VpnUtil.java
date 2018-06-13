@@ -1031,6 +1031,18 @@ public final class VpnUtil {
         }
     }
 
+    protected static void removeVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp,
+                                                     WriteTransaction writeConfigTxn) {
+        InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
+        if (writeConfigTxn != null) {
+            writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, id);
+        } else {
+            MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
+        }
+        LOG.debug("Neutron port with fixedIp: {}, vpn {} removed from VpnPortipToPort DS", fixedIp,
+            vpnName);
+    }
+
     protected static void createLearntVpnVipToPortEvent(DataBroker broker, String vpnName, String srcIp, String destIP,
                                                         String portName, String macAddress,
                                                         LearntVpnVipToPortEventAction action,
