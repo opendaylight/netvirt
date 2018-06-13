@@ -22,6 +22,30 @@
       "revId": "5df899a37ef6e57efdfed962cf18408f406c2385",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21db9cc9_675fa3f3",
+        "filename": "docs/specs/fluorine/qos.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-06-13T03:19:27Z",
+      "side": 1,
+      "message": "Done. Any still left TBD, I need inputs in form of review comments.",
+      "parentUuid": "85b982c7_3864e412",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 139,
+        "endChar": 3
+      },
+      "revId": "5df899a37ef6e57efdfed962cf18408f406c2385",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
