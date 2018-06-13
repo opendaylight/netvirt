@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "4c4b24a9_1d6e5b47",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 8007
+      },
+      "writtenOn": "2018-06-13T10:46:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dbf408d0_4d0e6cac",
+      "revId": "698b1ee9926f3903c09ff3b15e702477d184cf06",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5f34b4e_8c0725b4",
         "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
         "patchSetId": 7
