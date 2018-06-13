@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baabbab4_0fd3dd5a",
+        "filename": "elanmanager/impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTestModule.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-13T14:14:54Z",
+      "side": 1,
+      "message": "more FYI: Unless you @Inject TestItmProvider (instead of IITMProvider) somewhere, you shouldn\u0027t need this 2nd bind()",
+      "revId": "749ae9f0782d70a1b9dd7067adf13dc81421f309",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
