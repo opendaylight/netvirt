@@ -1,0 +1,27 @@
+[all]
+ignore = .**,
+    **/xtend-gen/**,
+    **/target/**,
+    **/thrift/**,
+
+[all.GitCommit]
+bears = GitCommitBear
+ignore_length_regex = Signed-off-by,
+    Also-by,
+    Co-authored-by,
+    http://,
+    https://
+
+[all.reStructuredText]
+bears = RSTcheckBear
+files = **.rst
+ignore = .**
+enabled = False
+
+[all.Spacing]
+bears = SpaceConsistencyBear
+files = **/*.java
+use_spaces = True
+allow_trailing_whitespace = False
+enforce_newline_at_EOF = True
+default_actions = SpaceConsistencyBear: ApplyPatchAction
