@@ -17,7 +17,7 @@
 
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>odl-netvirt-ui</artifactId>
-    <version>0.6.2-SNAPSHOT</version>
+    <version>0.6.3-SNAPSHOT</version>
     <name>OpenDaylight :: NetVirt :: DLUX Integration Plugin</name>
     <packaging>feature</packaging>
     <modelVersion>4.0.0</modelVersion>
@@ -26,7 +26,7 @@
         <dependency>
             <groupId>org.opendaylight.dlux</groupId>
             <artifactId>odl-dlux-core</artifactId>
-            <version>0.7.2-SNAPSHOT</version>
+            <version>0.7.3-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>

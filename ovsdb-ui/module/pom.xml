@@ -17,7 +17,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>ovsdb-ui-module</artifactId>
-    <version>0.6.2-SNAPSHOT</version>
+    <version>0.6.3-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>ODL :: netvirt :: ${project.artifactId}</name>
     <description>The OVSDB Plugin integration project is a project for OpenDaylight that will implement the Open vSwitch Database RFC 7047 management protocol allowing the Southbound configuration of vSwitches and a network virtualization implementation.</description>

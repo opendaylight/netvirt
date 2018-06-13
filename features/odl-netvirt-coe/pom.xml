@@ -17,7 +17,7 @@
 
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>odl-netvirt-coe</artifactId>
-    <version>0.6.2-SNAPSHOT</version>
+    <version>0.6.3-SNAPSHOT</version>
     <name>OpenDaylight :: NetVirt :: Coe</name>
     <packaging>feature</packaging>
     <modelVersion>4.0.0</modelVersion>
@@ -26,7 +26,7 @@
         <dependency>
             <groupId>org.opendaylight.coe</groupId>
             <artifactId>odl-coe-api</artifactId>
-            <version>0.3.2-SNAPSHOT</version>
+            <version>0.3.3-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>org.opendaylight.netconf</groupId>
             <artifactId>odl-restconf</artifactId>
-            <version>1.7.2-SNAPSHOT</version>
+            <version>1.7.3-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>

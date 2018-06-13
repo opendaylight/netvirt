@@ -16,7 +16,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </parent>
 
     <groupId>org.opendaylight.netvirt</groupId>
-    <version>0.6.2-SNAPSHOT</version>
+    <version>0.6.3-SNAPSHOT</version>
     <artifactId>coe</artifactId>
     <name>ODL :: netvirt :: ${project.artifactId}</name>
     <packaging>pom</packaging>

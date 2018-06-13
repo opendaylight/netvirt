@@ -17,7 +17,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
 
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>karaf</artifactId>
-    <version>0.6.2-SNAPSHOT</version>
+    <version>0.6.3-SNAPSHOT</version>
     <name>ODL :: netvirt :: ${project.artifactId}</name>
     <modelVersion>4.0.0</modelVersion>
 
@@ -57,7 +57,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
              -->
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>features-mdsal-trace</artifactId>
-            <version>1.7.2-SNAPSHOT</version>
+            <version>1.7.3-SNAPSHOT</version>
             <classifier>features</classifier>
             <type>xml</type>
             <scope>runtime</scope>
@@ -67,7 +67,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
             <!-- This ensures we have odl-jolokia in the distribution -->
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>features-extras</artifactId>
-            <version>1.10.2-SNAPSHOT</version>
+            <version>1.10.3-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
             <scope>runtime</scope>
@@ -77,7 +77,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
             <!-- This ensures aaa-cli is available for the copy below -->
             <groupId>org.opendaylight.aaa</groupId>
             <artifactId>aaa-cli-jar</artifactId>
-            <version>0.7.2-SNAPSHOT</version>
+            <version>0.7.3-SNAPSHOT</version>
             <!-- Use scope test (and not more!) just so we have the dependency for the maven-dependency-plugin below -->
             <scope>test</scope>
         </dependency>
@@ -100,7 +100,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
                                 <artifactItem>
                                     <groupId>org.opendaylight.aaa</groupId>
                                     <artifactId>aaa-cli-jar</artifactId>
-                                    <version>0.7.2-SNAPSHOT</version>
+                                    <version>0.7.3-SNAPSHOT</version>
                                 </artifactItem>
                             </artifactItems>
                             <outputDirectory>${project.build.directory}/assembly/bin</outputDirectory>
