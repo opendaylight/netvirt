@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87b84464_ea2355ce",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 5444
+      },
+      "writtenOn": "2018-06-13T01:59:56Z",
+      "side": 1,
+      "message": "maybe log as info instead?",
+      "revId": "f84e98cb5e4a671cd94cd58eb55f6e29903367f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "edc79742_2dfe3aad",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 5444
+      },
+      "writtenOn": "2018-06-13T01:59:56Z",
+      "side": 1,
+      "message": "spelling: Adjaency\n\nAlso, suggest putting () at the end of the method name for readability. e.g. \"removeAdjacencyAndLearnedEntriesforExternalSubnet()\".\nComment also applies to the other LOG calls in this patch.",
+      "revId": "f84e98cb5e4a671cd94cd58eb55f6e29903367f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "259f74cc_091a85dd",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5444
+      },
+      "writtenOn": "2018-06-13T01:59:56Z",
+      "side": 1,
+      "message": "method name is not the same",
+      "revId": "f84e98cb5e4a671cd94cd58eb55f6e29903367f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
