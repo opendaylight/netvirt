@@ -88,6 +88,24 @@
     },
     {
       "key": {
+        "uuid": "425bf39c_e5cee15d",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/NeutronPortChainListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-06-13T14:08:46Z",
+      "side": 1,
+      "message": "That\u0027s right, I think the idea here is to remove the ACLs for the flow classifiers that were removed (in origPortChain but not in updatePortChain), and add the ACLs for the flow classifiers that were added (in updatePortChain but not in origPortChain).",
+      "parentUuid": "a7a9b6ef_1515ce99",
+      "revId": "0367ef49082b20bbcc884c4ac1bd9548159ab260",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7be149dd_7051a0ed",
         "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/NeutronPortChainListener.java",
         "patchSetId": 5
