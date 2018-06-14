@@ -1195,7 +1195,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         List<Instruction> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionPopMpls());
+        //NAT is required for IPv4 only. Hence always etherType will be IPv4
+        actionsInfos.add(new ActionPopMpls(NwConstants.ETHTYPE_IPV4));
         Instruction writeInstruction = new InstructionApplyActions(actionsInfos).buildInstruction(0);
         instructions.add(writeInstruction);
         instructions.add(new InstructionGotoTable(tableId).buildInstruction(1));
