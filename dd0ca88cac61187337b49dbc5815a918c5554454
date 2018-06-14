@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb3efa67_8f7d89ca",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-14T14:46:16Z",
+      "side": 1,
+      "message": "This should ideally be in GENIUS NwConstants.java file.\n\nCan you please ensure that its moved to that file (either in this patch or via separate patch) so that all the COOKIES and TABLEIDs are in one single file.",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 77
+      },
+      "revId": "dd0ca88cac61187337b49dbc5815a918c5554454",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "42d6fe23_bfaeff19",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-14T14:46:16Z",
+      "side": 1,
+      "message": "To be consistent, please use the new API getSubnetRouteTableMissFlowRef() with the argument NwConstants.ETHTYPE_IPV4",
+      "range": {
+        "startLine": 193,
+        "startChar": 25,
+        "endLine": 193,
+        "endChar": 44
+      },
+      "revId": "dd0ca88cac61187337b49dbc5815a918c5554454",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3ee35c7a_267a8528",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-14T14:46:16Z",
+      "side": 1,
+      "message": "Please add a debug message even for the delete case.",
+      "range": {
+        "startLine": 239,
+        "startChar": 15,
+        "endLine": 239,
+        "endChar": 16
+      },
+      "revId": "dd0ca88cac61187337b49dbc5815a918c5554454",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "53954a78_21913c21",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-14T14:46:16Z",
+      "side": 1,
+      "message": "Since etherType is an argument, lets remove IPv6 from the name and rename this api as getSubnetRouteTableMissFlowRef() and update the calling contexts - makeIpv6SubnetRouteTableMissFlow and makeSubnetRouteTableMissFlow",
+      "range": {
+        "startLine": 293,
+        "startChar": 19,
+        "endLine": 293,
+        "endChar": 52
+      },
+      "revId": "dd0ca88cac61187337b49dbc5815a918c5554454",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
