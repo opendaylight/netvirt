@@ -77,6 +77,7 @@ import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
+import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
@@ -241,7 +242,7 @@ public final class VpnUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnUtil.class);
 
-    static final int SINGLE_TRANSACTION_BROKER_NO_RETRY = 1;
+    public static final int SINGLE_TRANSACTION_BROKER_NO_RETRY = 1;
 
     private final DataBroker dataBroker;
     private final IdManagerService idManager;
@@ -857,7 +858,7 @@ public final class VpnUtil {
         }
     }
 
-    void createLearntVpnVipToPort(String vpnName, String fixedIp, String
+    public void createLearntVpnVipToPort(String vpnName, String fixedIp, String
             portName, String macAddress, TypedWriteTransaction<Datastore.Operational> writeOperTxn) {
         synchronized ((vpnName + fixedIp).intern()) {
             InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
@@ -935,7 +936,8 @@ public final class VpnUtil {
         return id;
     }
 
-    void removeLearntVpnVipToPortEvent(String eventId, TypedWriteTransaction<Datastore.Operational> writeOperTxn) {
+    public void removeLearntVpnVipToPortEvent(String eventId,
+            TypedWriteTransaction<Datastore.Operational> writeOperTxn) {
         InstanceIdentifier<LearntVpnVipToPortEvent> id = buildLearntVpnVipToPortEventIdentifier(eventId);
         if (writeOperTxn != null) {
             writeOperTxn.delete(id);
@@ -946,7 +948,7 @@ public final class VpnUtil {
 
     }
 
-    void removeMipAdjAndLearntIp(String vpnName, String vpnInterface, String prefix) {
+    public void removeMipAdjAndLearntIp(String vpnName, String vpnInterface, String prefix) {
         synchronized ((vpnName + prefix).intern()) {
             InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, prefix);
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
@@ -1058,7 +1060,7 @@ public final class VpnUtil {
         return extNetwork != null ? extNetwork.getVpnid() : null;
     }
 
-    List<Uuid> getExternalNetworkRouterIds(Uuid networkId) {
+    public List<Uuid> getExternalNetworkRouterIds(Uuid networkId) {
         Networks extNetwork = getExternalNetwork(networkId);
         return extNetwork != null ? extNetwork.getRouterIds() : Collections.emptyList();
     }
@@ -1143,7 +1145,7 @@ public final class VpnUtil {
         }
     }
 
-    Optional<IpAddress> getIpv4GatewayAddressFromInterface(String srcInterface) {
+    public Optional<IpAddress> getIpv4GatewayAddressFromInterface(String srcInterface) {
         Optional<IpAddress> gatewayIp = Optional.absent();
         if (neutronVpnService != null) {
             //TODO(Gobinath): Need to fix this as assuming port will belong to only one Subnet would be incorrect"
@@ -1165,7 +1167,7 @@ public final class VpnUtil {
         return gatewayIp;
     }
 
-    Optional<String> getGWMacAddressFromInterface(MacEntry macEntry, IpAddress gatewayIp) {
+    public Optional<String> getGWMacAddressFromInterface(MacEntry macEntry, IpAddress gatewayIp) {
         Optional<String> gatewayMac = Optional.absent();
         long vpnId = getVpnId(macEntry.getVpnName());
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn
@@ -1453,7 +1455,7 @@ public final class VpnUtil {
         return optionalSubnets.isPresent() ? optionalSubnets.get() : null;
     }
 
-    Uuid getSubnetFromExternalRouterByIp(Uuid routerId, String ip) {
+    public Uuid getSubnetFromExternalRouterByIp(Uuid routerId, String ip) {
         Routers externalRouter = getExternalRouter(routerId.getValue());
         if (externalRouter != null && externalRouter.getExternalIps() != null) {
             for (ExternalIps externalIp : externalRouter.getExternalIps()) {
