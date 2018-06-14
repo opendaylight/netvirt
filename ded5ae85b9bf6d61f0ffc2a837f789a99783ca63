@@ -22,6 +22,30 @@
       "revId": "ded5ae85b9bf6d61f0ffc2a837f789a99783ca63",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b798f2d_dbc0da20",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1631,
+      "author": {
+        "id": 6233
+      },
+      "writtenOn": "2018-06-14T05:48:03Z",
+      "side": 1,
+      "message": "yes, suneelu, it\u0027s a nullable.",
+      "parentUuid": "6214f9e8_1880a55b",
+      "range": {
+        "startLine": 1631,
+        "startChar": 28,
+        "endLine": 1631,
+        "endChar": 39
+      },
+      "revId": "ded5ae85b9bf6d61f0ffc2a837f789a99783ca63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
