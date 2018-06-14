@@ -15,6 +15,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.opendaylight.genius.mdsalutil.NWUtil.getEtherTypeFromIpPrefix;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
@@ -368,6 +369,7 @@ public class VPNServiceChainHandlerTest {
         RoutePaths routePath = vrfEntry.getRoutePaths().get(0);
         FlowEntity expectedLFibFlowEntity =
             VpnServiceChainUtils.buildLFibVpnPseudoPortFlow(DPN_ID, routePath.getLabel(),
+                    getEtherTypeFromIpPrefix(vrfEntry.getDestPrefix()),
                     routePath.getNexthopAddress(), LPORT_TAG);
         assert new FlowEntityMatcher(expectedLFibFlowEntity).matches(installedFlowsCaptured.get(0));
 
@@ -410,6 +412,7 @@ public class VPNServiceChainHandlerTest {
         RoutePaths routePath = vrfEntry.getRoutePaths().get(0);
         FlowEntity expectedLFibFlowEntity =
             VpnServiceChainUtils.buildLFibVpnPseudoPortFlow(DPN_ID, routePath.getLabel(),
+                    getEtherTypeFromIpPrefix(vrfEntry.getDestPrefix()),
                     routePath.getNexthopAddress(), LPORT_TAG);
         assert new FlowEntityMatcher(expectedLFibFlowEntity).matches(installedFlowsCaptured.get(0));
 
