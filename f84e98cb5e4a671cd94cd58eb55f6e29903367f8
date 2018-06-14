@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4272b97b_d7d9af19",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 785,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-14T02:14:05Z",
+      "side": 1,
+      "message": "External Network should have external ports attached. The log for missing external ports attached to ext network should be \u0027error\u0027 severity",
+      "parentUuid": "87b84464_ea2355ce",
+      "revId": "f84e98cb5e4a671cd94cd58eb55f6e29903367f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "edc79742_2dfe3aad",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "4eb2f6b0_053530b9",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-14T02:14:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "edc79742_2dfe3aad",
+      "revId": "f84e98cb5e4a671cd94cd58eb55f6e29903367f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "259f74cc_091a85dd",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2018-06-13T01:59:56Z",
       "side": 1,
       "message": "method name is not the same",
+      "revId": "f84e98cb5e4a671cd94cd58eb55f6e29903367f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "62cd8801_effaac74",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-14T02:14:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "259f74cc_091a85dd",
       "revId": "f84e98cb5e4a671cd94cd58eb55f6e29903367f8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
