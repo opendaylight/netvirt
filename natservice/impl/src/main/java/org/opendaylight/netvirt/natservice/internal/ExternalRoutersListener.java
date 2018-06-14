@@ -1218,14 +1218,16 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         return fibTableCustomInstructions;
     }
 
-    private void makeLFibTableEntry(BigInteger dpId, long serviceId, short tableId, WriteTransaction writeFlowInvTx) {
+    private void makeLFibTableEntry(BigInteger dpId, long serviceId, short tableId,
+                                    WriteTransaction writeFlowInvTx) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.MPLS_UNICAST);
         matches.add(new MatchMplsLabel(serviceId));
 
         List<Instruction> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionPopMpls());
+        //NAT is required for IPv4 only. Hence always etherType will be IPv4
+        actionsInfos.add(new ActionPopMpls(NwConstants.ETHTYPE_IPV4));
         Instruction writeInstruction = new InstructionApplyActions(actionsInfos).buildInstruction(0);
         instructions.add(writeInstruction);
         instructions.add(new InstructionGotoTable(tableId).buildInstruction(1));
