@@ -33,7 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev16113
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AbstractIpLearnNotificationHandler {
+public abstract class AbstractIpLearnNotificationHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIpLearnNotificationHandler.class);
 

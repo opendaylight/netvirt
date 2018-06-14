@@ -5,19 +5,19 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.vpnmanager;
+package org.opendaylight.netvirt.vpnmanager.iplearn;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.concurrent.Callable;
+import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
 
-public class ArpMonitorStartTask implements Callable<List<ListenableFuture<Void>>> {
+public class IpMonitorStartTask implements Callable<List<ListenableFuture<Void>>> {
     private final MacEntry macEntry;
     private final Long arpMonitorProfileId;
     private final AlivenessMonitorUtils alivenessMonitorUtils;
 
-
-    public ArpMonitorStartTask(MacEntry macEntry, Long profileId, AlivenessMonitorUtils alivenessMonitorUtils) {
+    public IpMonitorStartTask(MacEntry macEntry, Long profileId, AlivenessMonitorUtils alivenessMonitorUtils) {
         this.macEntry = macEntry;
         this.arpMonitorProfileId = profileId;
         this.alivenessMonitorUtils = alivenessMonitorUtils;
@@ -25,7 +25,7 @@ public class ArpMonitorStartTask implements Callable<List<ListenableFuture<Void>
 
     @Override
     public List<ListenableFuture<Void>> call() {
-        alivenessMonitorUtils.startArpMonitoring(macEntry, arpMonitorProfileId);
+        alivenessMonitorUtils.startIpMonitoring(macEntry, arpMonitorProfileId);
         return null;
     }
 }
