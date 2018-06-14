@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.cloudservicechain.utils;
 
+import static org.opendaylight.genius.mdsalutil.NWUtil.getEtherTypeFromIpPrefix;
+
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -313,13 +315,14 @@ public final class VpnServiceChainUtils {
      * @param lportTag Pseudo Logical Port tag
      * @return the FlowEntity
      */
-    public static FlowEntity buildLFibVpnPseudoPortFlow(BigInteger dpId, Long label, String nextHop, int lportTag) {
+    public static FlowEntity buildLFibVpnPseudoPortFlow(BigInteger dpId, Long label, int etherType, String nextHop,
+                                                        int lportTag) {
 
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.MPLS_UNICAST);
         matches.add(new MatchMplsLabel(label));
 
-        List<ActionInfo> actionsInfos = Collections.singletonList(new ActionPopMpls());
+        List<ActionInfo> actionsInfos = Collections.singletonList(new ActionPopMpls(etherType));
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionWriteMetadata(
                        MetaDataUtil.getMetaDataForLPortDispatcher(lportTag,
@@ -352,7 +355,8 @@ public final class VpnServiceChainUtils {
                     .forEach(routePath -> {
                         Long label = routePath.getLabel();
                         String nextHop = routePath.getNexthopAddress();
-                        FlowEntity flowEntity = buildLFibVpnPseudoPortFlow(dpId, label, nextHop, lportTag);
+                        FlowEntity flowEntity = buildLFibVpnPseudoPortFlow(dpId, label,
+                                getEtherTypeFromIpPrefix(vrfEntry.getDestPrefix()), nextHop, lportTag);
                         if (addOrRemove == NwConstants.ADD_FLOW) {
                             mdsalMgr.installFlow(flowEntity);
                         } else {
