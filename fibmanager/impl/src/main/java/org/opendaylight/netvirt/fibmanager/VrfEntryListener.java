@@ -44,6 +44,7 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
@@ -507,15 +508,20 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         instructions.add(new InstructionGotoTable(NwConstants.L3_SUBNET_ROUTE_TABLE));
         baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions,
                 NwConstants.ADD_FLOW, tx, null);
-
+        int etherType;
+        try {
+            etherType = NWUtil.getEtherTypeFromIpPrefix(vrfEntry.getDestPrefix());
+        } catch (IllegalArgumentException ex) {
+            LOG.error("Unable to get etherType for IP Prefix {}", vrfEntry.getDestPrefix());
+            return;
+        }
         if (vrfEntry.getRoutePaths() != null) {
             for (RoutePaths routePath : vrfEntry.getRoutePaths()) {
                 if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
                     List<ActionInfo> actionsInfos = new ArrayList<>();
                     // reinitialize instructions list for LFIB Table
                     final List<InstructionInfo> LFIBinstructions = new ArrayList<>();
-
-                    actionsInfos.add(new ActionPopMpls());
+                    actionsInfos.add(new ActionPopMpls(etherType));
                     LFIBinstructions.add(new InstructionApplyActions(actionsInfos));
                     LFIBinstructions.add(new InstructionWriteMetadata(subnetRouteMeta,
                             MetaDataUtil.METADATA_MASK_SUBNET_ROUTE));
@@ -598,7 +604,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return;
         }
 
-        List<BigInteger> targetDpns = interVpnLink.getEndpointDpnsByVpnName(vpnName);
         Optional<Long> optLportTag = interVpnLink.getEndpointLportTagByVpnName(vpnName);
         if (!optLportTag.isPresent()) {
             LOG.warn("Could not retrieve lportTag for VPN {} endpoint in InterVpnLink {}", vpnName, interVpnLinkName);
@@ -612,7 +617,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                       vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths());
             return;
         }
-        List<ActionInfo> actionsInfos = Collections.singletonList(new ActionPopMpls());
+        int etherType;
+        try {
+            etherType = NWUtil.getEtherTypeFromIpPrefix(vrfEntry.getDestPrefix());
+        } catch (IllegalArgumentException ex) {
+            LOG.error("Unable to get etherType for IP Prefix {}", vrfEntry.getDestPrefix());
+            return;
+        }
+        List<ActionInfo> actionsInfos = Collections.singletonList(new ActionPopMpls(etherType));
         List<InstructionInfo> instructions = Arrays.asList(
             new InstructionApplyActions(actionsInfos),
             new InstructionWriteMetadata(MetaDataUtil.getMetaDataForLPortDispatcher(lportTag.intValue(),
@@ -621,6 +633,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                          MetaDataUtil.getMetaDataMaskForLPortDispatcher()),
             new InstructionGotoTable(NwConstants.L3_INTERFACE_TABLE));
         List<String> interVpnNextHopList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
+        List<BigInteger> targetDpns = interVpnLink.getEndpointDpnsByVpnName(vpnName);
 
         for (BigInteger dpId : targetDpns) {
             LOG.debug("Installing flow: VrfEntry=[prefix={} label={} nexthop={}] dpn {} for InterVpnLink {} in LFIB",
@@ -844,12 +857,19 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         prefix, rd, interfaceName, dpnId.toString());
                 return BigInteger.ZERO;
             }
+            int etherType;
+            try {
+                etherType = NWUtil.getEtherTypeFromIpPrefix(vrfEntry.getDestPrefix());
+            } catch (IllegalArgumentException ex) {
+                LOG.error("Unable to get etherType for IP Prefix {}", vrfEntry.getDestPrefix());
+                return BigInteger.ZERO;
+            }
             final List<InstructionInfo> instructions = Collections.singletonList(
                     new InstructionApplyActions(
                             Collections.singletonList(new ActionGroup(groupId))));
             final List<InstructionInfo> lfibinstructions = Collections.singletonList(
                     new InstructionApplyActions(
-                            Arrays.asList(new ActionPopMpls(), new ActionGroup(groupId))));
+                            Arrays.asList(new ActionPopMpls(etherType), new ActionGroup(groupId))));
             java.util.Optional<Long> optLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
             List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
             jobCoordinator.enqueueJob(jobKey, () -> {
