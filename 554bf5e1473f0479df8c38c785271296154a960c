@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f74b21f8_67e667d6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-14T11:12:32Z",
+      "side": 1,
+      "message": "nit: instance",
+      "range": {
+        "startLine": 10,
+        "startChar": 14,
+        "endLine": 10,
+        "endChar": 21
+      },
+      "revId": "554bf5e1473f0479df8c38c785271296154a960c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3e64cb6b_5864c3a0",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 846,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-14T11:12:32Z",
+      "side": 1,
+      "message": "nit: dummyInterfaceCount",
+      "range": {
+        "startLine": 846,
+        "startChar": 12,
+        "endLine": 846,
+        "endChar": 32
+      },
+      "revId": "554bf5e1473f0479df8c38c785271296154a960c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f2ea7e74_55a50737",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1997,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-14T11:12:32Z",
+      "side": 1,
+      "message": "This is a bit confusing. The routerInterfacePortId in the caller context seems to be the elanInstanceName. So the API name should be appropriately modified (i.e., something like addPseudoPortToElanDpn?) not to create confusion. What do you say?",
+      "range": {
+        "startLine": 1997,
+        "startChar": 78,
+        "endLine": 1997,
+        "endChar": 99
+      },
+      "revId": "554bf5e1473f0479df8c38c785271296154a960c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43bf850f_02acd8a9",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2164,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-14T11:12:32Z",
+      "side": 1,
+      "message": "This api seems to be duplicated even in Natutil.java (the extra arg of vpnName is actually not used). Can we move this to some common file or re-use the existing one?",
+      "range": {
+        "startLine": 2164,
+        "startChar": 23,
+        "endLine": 2164,
+        "endChar": 45
+      },
+      "revId": "554bf5e1473f0479df8c38c785271296154a960c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51622fa5_3e9d6a80",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2190,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-14T11:12:32Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 2190,
+        "startChar": 23,
+        "endLine": 2190,
+        "endChar": 50
+      },
+      "revId": "554bf5e1473f0479df8c38c785271296154a960c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
