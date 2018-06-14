@@ -30,7 +30,9 @@ public interface VpnConstants {
     long PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS = 180000;
     int ELAN_GID_MIN = 200000;
     int INVALID_LABEL = 0;
-    String ARP_MONITORING_ENTITY = "arpmonitoring";
+
+    String IP_MONITORING_ENTITY = "ipmonitoring";
+    String IP_MONITOR_JOB_PREFIX_KEY = "ip-monitor";
 
     // An IdPool for Pseudo LPort tags, that is, lportTags that are no related to an interface.
     // These lportTags must be higher than 170000 to avoid collision with interface LportTags and
