@@ -5,45 +5,39 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.vpnmanager;
+package org.opendaylight.netvirt.vpnmanager.iplearn;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.eos.binding.api.Entity;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistration;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.mdsal.eos.common.api.CandidateAlreadyRegisteredException;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.netvirt.vpnmanager.VpnConstants;
+import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventData;
@@ -63,10 +57,6 @@ public class LearntVpnVipToPortEventProcessor
     private static final Logger LOG = LoggerFactory.getLogger(LearntVpnVipToPortEventProcessor.class);
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
-    private final OdlInterfaceRpcService interfaceRpc;
-    private final IMdsalApiManager mdsalManager;
-    private final AlivenessMonitorService alivenessManager;
-    private final INeutronVpnManager neutronVpnService;
     private final IInterfaceManager interfaceManager;
     private final IdManagerService idManager;
     public static final String MIP_PROCESSING_JOB  = "MIP-JOB";
@@ -75,18 +65,12 @@ public class LearntVpnVipToPortEventProcessor
     private EntityOwnershipCandidateRegistration candidateRegistration;
 
     @Inject
-    public LearntVpnVipToPortEventProcessor(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceRpc,
-                                            IMdsalApiManager mdsalManager, AlivenessMonitorService alivenessManager,
-                                            INeutronVpnManager neutronVpnService, IInterfaceManager interfaceManager,
-                                            EntityOwnershipService entityOwnershipService,
-                                            IdManagerService idManagerService, final JobCoordinator jobCoordinator) {
+    public LearntVpnVipToPortEventProcessor(final DataBroker dataBroker, IInterfaceManager interfaceManager,
+            EntityOwnershipService entityOwnershipService, IdManagerService idManagerService,
+            final JobCoordinator jobCoordinator) {
         super(LearntVpnVipToPortEvent.class, LearntVpnVipToPortEventProcessor.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
-        this.interfaceRpc = interfaceRpc;
-        this.mdsalManager = mdsalManager;
-        this.alivenessManager = alivenessManager;
-        this.neutronVpnService = neutronVpnService;
         this.interfaceManager = interfaceManager;
         this.idManager = idManagerService;
         this.jobCoordinator = jobCoordinator;
@@ -98,10 +82,10 @@ public class LearntVpnVipToPortEventProcessor
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
         try {
             candidateRegistration = entityOwnershipUtils.getEntityOwnershipService()
-                    .registerCandidate(new Entity(VpnConstants.ARP_MONITORING_ENTITY,
-                            VpnConstants.ARP_MONITORING_ENTITY));
+                    .registerCandidate(new Entity(VpnConstants.IP_MONITORING_ENTITY,
+                            VpnConstants.IP_MONITORING_ENTITY));
         } catch (CandidateAlreadyRegisteredException e) {
-            LOG.error("Failed to register the entity {}", VpnConstants.ARP_MONITORING_ENTITY);
+            LOG.error("Failed to register the entity {}", VpnConstants.IP_MONITORING_ENTITY);
         }
     }
 
@@ -134,16 +118,17 @@ public class LearntVpnVipToPortEventProcessor
     @Override
     protected void add(InstanceIdentifier<LearntVpnVipToPortEvent> identifier, LearntVpnVipToPortEvent value) {
         // AFTER PROCESSING THE EVENT, REMOVE THE EVENT FROM THE QUEUE
-        entityOwnershipUtils.runOnlyInOwnerNode(VpnConstants.ARP_MONITORING_ENTITY,
-                VpnConstants.ARP_MONITORING_ENTITY, jobCoordinator, "LearntVpnVipToPortEvent-Handler", () -> {
+        entityOwnershipUtils.runOnlyInOwnerNode(VpnConstants.IP_MONITORING_ENTITY, VpnConstants.IP_MONITORING_ENTITY,
+            jobCoordinator, "LearntVpnVipToPortEvent-Handler", () -> {
                 try {
                     String vpnName = value.getVpnName();
                     String ipAddress = value.getSrcFixedip();
                     if (value.getEventAction() == LearntVpnVipToPortEventAction.Add) {
-                        jobCoordinator.enqueueJob(buildJobKey(ipAddress, vpnName), new AddMipAdjacencyWorker(value));
+                        jobCoordinator.enqueueJob(IpMonitoringHandler.buildIpMonitorJobKey(ipAddress, vpnName),
+                                new AddMipAdjacencyWorker(value));
                     }
                     if (value.getEventAction() == LearntVpnVipToPortEventAction.Delete) {
-                        jobCoordinator.enqueueJob(buildJobKey(ipAddress, vpnName),
+                        jobCoordinator.enqueueJob(IpMonitoringHandler.buildIpMonitorJobKey(ipAddress, vpnName),
                                 new DeleteMipAdjacencyWorker(value));
                     }
                 } finally {
@@ -157,10 +142,6 @@ public class LearntVpnVipToPortEventProcessor
     protected void remove(InstanceIdentifier<LearntVpnVipToPortEvent> key, LearntVpnVipToPortEvent value) {
         // Removals are triggered by add handling.
         // NOTE: DONOT ADD ANY CODE HERE AND MAKE A CIRCUS
-    }
-
-    static String buildJobKey(String ip, String vpnName) {
-        return new StringBuilder(ArpConstants.ARPJOB).append('-').append(vpnName).append('-').append(ip).toString();
     }
 
     private class AddMipAdjacencyWorker implements Callable<List<ListenableFuture<Void>>> {
