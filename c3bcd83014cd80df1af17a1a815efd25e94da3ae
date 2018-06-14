@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2515602d_ad296419",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-14T13:52:49Z",
+      "side": 1,
+      "message": "Please print the networkId in the log message.",
+      "range": {
+        "startLine": 443,
+        "startChar": 27,
+        "endLine": 443,
+        "endChar": 63
+      },
+      "revId": "c3bcd83014cd80df1af17a1a815efd25e94da3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22ea7580_ca2314da",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-14T13:52:49Z",
+      "side": 1,
+      "message": "nit: port",
+      "range": {
+        "startLine": 448,
+        "startChar": 40,
+        "endLine": 448,
+        "endChar": 45
+      },
+      "revId": "c3bcd83014cd80df1af17a1a815efd25e94da3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66927232_e0fa2b36",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-14T13:52:49Z",
+      "side": 1,
+      "message": "Since we are deleting the networkId from vnetworks Cache here and subsequently trying to query it in the API removeAllIcmpv6NSPuntFlowForNetwork Line 778, there is a NPE. \n\nPlease fix it and also validate the patch for some common use-cases to avoid regressions.",
+      "range": {
+        "startLine": 743,
+        "startChar": 49,
+        "endLine": 743,
+        "endChar": 76
+      },
+      "revId": "c3bcd83014cd80df1af17a1a815efd25e94da3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c3f3f37c_90a00055",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-14T13:52:49Z",
+      "side": 1,
+      "message": "I see an exception here..\n\nkaraf@root()\u003e log:exception-display \njava.lang.NullPointerException: null\n        at org.opendaylight.netvirt.ipv6service.IfMgr.removeAllIcmpv6NSPuntFlowForNetwork(IfMgr.java:778) [365:org.opendaylight.netvirt.ipv6service-impl:0.7.0.SNAPSHOT]\n        at org.opendaylight.netvirt.ipv6service.IfMgr.removeNetwork(IfMgr.java:748) [365:org.opendaylight.netvirt.ipv6service-impl:0.7.0.SNAPSHOT]\n        at org.opendaylight.netvirt.ipv6service.NeutronNetworkChangeListener.remove(NeutronNetworkChangeListener.java:58) [365:org.opendaylight.netvirt.ipv6service-impl:0.7.0.SNAPSHOT]\n        at org.opendaylight.netvirt.ipv6service.NeutronNetworkChangeListener.remove(NeutronNetworkChangeListener.java:23) [365:org.opendaylight.netvirt.ipv6service-impl:0.7.0.SNAPSHOT]\n        at org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase$DataTreeChangeHandler.run(AsyncClusteredDataTreeChangeListenerBase.java:146) [271:org.opendaylight.genius.mdsalutil-api:0.5.0.SNAPSHOT]\n        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [?:?]\n        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [?:?]\n        at java.lang.Thread.run(Thread.java:745) [?:?]",
+      "revId": "c3bcd83014cd80df1af17a1a815efd25e94da3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
