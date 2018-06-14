@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "899559ae_9a126eaf",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-14T12:40:37Z",
+      "side": 1,
+      "message": "I could be missing something, but what is this good for?  You don\u0027t seem to be using this new futures List... you create it in line 153 and add to it in lines 154 and 159.  But you never pass it through or return it or read from it. So... what\u0027s the point here that I am missing?",
+      "revId": "00dea5916c68ff7133926e3c2f12b1b90446245c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "302c8a69_9d2610da",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-14T12:40:37Z",
+      "side": 1,
+      "message": "so where is the addErrorLogging() for this outer future now?",
+      "revId": "00dea5916c68ff7133926e3c2f12b1b90446245c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
