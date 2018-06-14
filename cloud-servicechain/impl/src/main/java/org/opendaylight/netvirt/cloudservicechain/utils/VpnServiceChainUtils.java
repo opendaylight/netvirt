@@ -23,6 +23,7 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionPopMpls;
 import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
@@ -313,13 +314,14 @@ public final class VpnServiceChainUtils {
      * @param lportTag Pseudo Logical Port tag
      * @return the FlowEntity
      */
-    public static FlowEntity buildLFibVpnPseudoPortFlow(BigInteger dpId, Long label, String nextHop, int lportTag) {
+    public static FlowEntity buildLFibVpnPseudoPortFlow(BigInteger dpId, Long label, int etherType, String nextHop,
+                                                        int lportTag) {
 
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.MPLS_UNICAST);
         matches.add(new MatchMplsLabel(label));
 
-        List<ActionInfo> actionsInfos = Collections.singletonList(new ActionPopMpls());
+        List<ActionInfo> actionsInfos = Collections.singletonList(new ActionPopMpls(etherType));
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionWriteMetadata(
                        MetaDataUtil.getMetaDataForLPortDispatcher(lportTag,
@@ -352,16 +354,23 @@ public final class VpnServiceChainUtils {
                     .forEach(routePath -> {
                         Long label = routePath.getLabel();
                         String nextHop = routePath.getNexthopAddress();
-                        FlowEntity flowEntity = buildLFibVpnPseudoPortFlow(dpId, label, nextHop, lportTag);
-                        if (addOrRemove == NwConstants.ADD_FLOW) {
-                            mdsalMgr.installFlow(flowEntity);
-                        } else {
-                            mdsalMgr.removeFlow(flowEntity);
+                        int etherType;
+                        try {
+                            etherType = NWUtil.getEtherTypeFromIpPrefix(vrfEntry.getDestPrefix());
+                            FlowEntity flowEntity = buildLFibVpnPseudoPortFlow(dpId, label, etherType, nextHop,
+                                    lportTag);
+                            if (addOrRemove == NwConstants.ADD_FLOW) {
+                                mdsalMgr.installFlow(flowEntity);
+                            } else {
+                                mdsalMgr.removeFlow(flowEntity);
+                            }
+                            LOG.debug(
+                                    "LFIBEntry for label={}, destination={}, nexthop={} {} successfully in dpn={}",
+                                    label, vrfEntry.getDestPrefix(), nextHop,
+                                    addOrRemove == NwConstants.DEL_FLOW ? "removed" : "installed", dpId);
+                        } catch (IllegalArgumentException ex) {
+                            LOG.warn("Unable to get etherType for IP Prefix {}", vrfEntry.getDestPrefix());
                         }
-                        LOG.debug(
-                                "LFIBEntry for label={}, destination={}, nexthop={} {} successfully in dpn={}",
-                                label, vrfEntry.getDestPrefix(), nextHop,
-                                addOrRemove == NwConstants.DEL_FLOW ? "removed" : "installed", dpId);
                     }));
         }
     }
