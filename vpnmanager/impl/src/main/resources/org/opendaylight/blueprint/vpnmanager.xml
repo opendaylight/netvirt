@@ -56,7 +56,7 @@
   <service ref="vpnFootprintService"
            interface="org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService" />
 
-  <odl:notification-listener ref="arpMonitorEventListener" />
+  <odl:notification-listener ref="ipMonitorEventListener" />
 
   <service ref="subnetRoutePacketInHandler" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener" />
