@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.vpnmanager;
+package org.opendaylight.netvirt.vpnmanager.iplearn;
 
 import com.google.common.base.Optional;
 import java.util.Map;
@@ -21,8 +21,9 @@ import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.netvirt.vpnmanager.VpnUtil;
+import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.EtherTypes;
@@ -45,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.profile.create.input.Profile;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.profile.create.input.ProfileBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.start.input.ConfigBuilder;
-
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,10 +72,10 @@ public final class AlivenessMonitorUtils {
         this.interfaceManager = interfaceManager;
     }
 
-    void startArpMonitoring(MacEntry macEntry, Long arpMonitorProfileId) {
+    void startIpMonitoring(MacEntry macEntry, Long ipMonitorProfileId) {
         if (interfaceManager.isExternalInterface(macEntry.getInterfaceName())) {
-            LOG.debug("ARP monitoring is currently not supported through external interfaces,"
-                    + "skipping ARP monitoring from interface {} for IP {} (last known MAC {})",
+            LOG.debug("IP monitoring is currently not supported through external interfaces,"
+                    + "skipping IP monitoring from interface {} for IP {} (last known MAC {})",
                 macEntry.getInterfaceName(), macEntry.getIpAddress().getHostAddress(), macEntry.getMacAddress());
             return;
         }
@@ -91,32 +91,32 @@ public final class AlivenessMonitorUtils {
             LOG.error("Error while retrieving GatewayMac for interface{}", macEntry.getInterfaceName());
             return;
         }
-        final PhysAddress gatewayMac = new PhysAddress(gatewayMacOptional.get());
-        if (arpMonitorProfileId == null || arpMonitorProfileId.equals(0L)) {
-            Optional<Long> profileIdOptional = allocateProfile(ArpConstants.FAILURE_THRESHOLD,
-                    ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, ArpConstants.MONITORING_WINDOW, EtherTypes.Arp);
+
+        final IpAddress targetIp = new IpAddress(macEntry.getIpAddress().getHostAddress().toCharArray());
+        if (ipMonitorProfileId == null || ipMonitorProfileId.equals(0L)) {
+            Optional<Long> profileIdOptional = allocateIpMonitorProfile(targetIp);
             if (!profileIdOptional.isPresent()) {
-                LOG.error("Error while allocating Profile Id for alivenessMonitorService");
+                LOG.error("startIpMonitoring: Error while allocating Profile Id for IP={}", targetIp);
                 return;
             }
-            arpMonitorProfileId = profileIdOptional.get();
+            ipMonitorProfileId = profileIdOptional.get();
         }
 
-        IpAddress targetIp = new IpAddress(new Ipv4Address(macEntry.getIpAddress().getHostAddress()));
-        MonitorStartInput arpMonitorInput = new MonitorStartInputBuilder().setConfig(new ConfigBuilder()
+        final PhysAddress gatewayMac = new PhysAddress(gatewayMacOptional.get());
+        MonitorStartInput ipMonitorInput = new MonitorStartInputBuilder().setConfig(new ConfigBuilder()
             .setSource(new SourceBuilder().setEndpointType(getSourceEndPointType(macEntry.getInterfaceName(),
                 gatewayIp, gatewayMac)).build())
             .setDestination(new DestinationBuilder().setEndpointType(getEndPointIpAddress(targetIp)).build())
             .setMode(MonitoringMode.OneOne)
-            .setProfileId(arpMonitorProfileId).build()).build();
+            .setProfileId(ipMonitorProfileId).build()).build();
         try {
-            Future<RpcResult<MonitorStartOutput>> result = alivenessManager.monitorStart(arpMonitorInput);
+            Future<RpcResult<MonitorStartOutput>> result = alivenessManager.monitorStart(ipMonitorInput);
             RpcResult<MonitorStartOutput> rpcResult = result.get();
             long monitorId;
             if (rpcResult.isSuccessful()) {
                 monitorId = rpcResult.getResult().getMonitorId();
                 createOrUpdateInterfaceMonitorIdMap(monitorId, macEntry);
-                LOG.trace("Started ARP monitoring with id {}", monitorId);
+                LOG.trace("Started IP monitoring with id {}", monitorId);
             } else {
                 LOG.warn("RPC Call to start monitoring returned with Errors {}", rpcResult.getErrors());
             }
@@ -125,7 +125,7 @@ public final class AlivenessMonitorUtils {
         }
     }
 
-    void stopArpMonitoring(Long monitorId) {
+    void stopIpMonitoring(Long monitorId) {
         MonitorStopInput input = new MonitorStopInputBuilder().setMonitorId(monitorId).build();
 
         JdkFutures.addErrorLogging(alivenessManager.monitorStop(input), LOG, "Stop monitoring");
@@ -146,8 +146,20 @@ public final class AlivenessMonitorUtils {
             .build();
     }
 
+    private Optional<Long> allocateIpMonitorProfile(IpAddress targetIp) {
+        Optional<Long> profileIdOptional = Optional.absent();
+        if (targetIp.getIpv4Address() != null) {
+            profileIdOptional = allocateProfile(ArpConstants.FAILURE_THRESHOLD,
+                    ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, ArpConstants.MONITORING_WINDOW, EtherTypes.Arp);
+        } else if (targetIp.getIpv6Address() != null) {
+            // TODO: handle IPv6 case
+            LOG.warn("allocateIpMonitorProfile: IPv6 address monitoring is not yet supported. targetIp={}", targetIp);
+        }
+        return profileIdOptional;
+    }
+
     public Optional<Long> allocateProfile(long failureThreshold, long monitoringInterval, long monitoringWindow,
-                                          EtherTypes etherTypes) {
+            EtherTypes etherTypes) {
         MonitorProfileCreateInput input = new MonitorProfileCreateInputBuilder()
             .setProfile(new ProfileBuilder().setFailureThreshold(failureThreshold)
                 .setMonitorInterval(monitoringInterval).setMonitorWindow(monitoringWindow)
