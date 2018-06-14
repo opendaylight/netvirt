@@ -44,6 +44,7 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
@@ -514,8 +515,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     List<ActionInfo> actionsInfos = new ArrayList<>();
                     // reinitialize instructions list for LFIB Table
                     final List<InstructionInfo> LFIBinstructions = new ArrayList<>();
-
-                    actionsInfos.add(new ActionPopMpls());
+                    actionsInfos.add(new ActionPopMpls(NWUtil.getEtherTypeFromIpPrefix(vrfEntry.getDestPrefix())));
                     LFIBinstructions.add(new InstructionApplyActions(actionsInfos));
                     LFIBinstructions.add(new InstructionWriteMetadata(subnetRouteMeta,
                             MetaDataUtil.METADATA_MASK_SUBNET_ROUTE));
@@ -612,7 +612,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                       vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths());
             return;
         }
-        List<ActionInfo> actionsInfos = Collections.singletonList(new ActionPopMpls());
+        List<ActionInfo> actionsInfos = Collections.singletonList(new ActionPopMpls(
+                NWUtil.getEtherTypeFromIpPrefix(vrfEntry.getDestPrefix())));
         List<InstructionInfo> instructions = Arrays.asList(
             new InstructionApplyActions(actionsInfos),
             new InstructionWriteMetadata(MetaDataUtil.getMetaDataForLPortDispatcher(lportTag.intValue(),
@@ -849,7 +850,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             Collections.singletonList(new ActionGroup(groupId))));
             final List<InstructionInfo> lfibinstructions = Collections.singletonList(
                     new InstructionApplyActions(
-                            Arrays.asList(new ActionPopMpls(), new ActionGroup(groupId))));
+                            Arrays.asList(new ActionPopMpls(NWUtil.getEtherTypeFromIpPrefix(vrfEntry.getDestPrefix())),
+                                    new ActionGroup(groupId))));
             java.util.Optional<Long> optLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
             List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
             jobCoordinator.enqueueJob(jobKey, () -> {
