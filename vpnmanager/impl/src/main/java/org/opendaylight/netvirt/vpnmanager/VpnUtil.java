@@ -72,6 +72,7 @@ import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
+import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
@@ -240,7 +241,7 @@ public final class VpnUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnUtil.class);
 
-    static final int SINGLE_TRANSACTION_BROKER_NO_RETRY = 1;
+    public static final int SINGLE_TRANSACTION_BROKER_NO_RETRY = 1;
 
     /**
      * Class to generate timestamps with microsecond precision.
@@ -1060,8 +1061,7 @@ public final class VpnUtil {
         return id;
     }
 
-    protected static void removeLearntVpnVipToPortEvent(DataBroker broker, String eventId,
-                                                        WriteTransaction writeOperTxn) {
+    public static void removeLearntVpnVipToPortEvent(DataBroker broker, String eventId, WriteTransaction writeOperTxn) {
         InstanceIdentifier<LearntVpnVipToPortEvent> id = buildLearntVpnVipToPortEventIdentifier(eventId);
         if (writeOperTxn != null) {
             writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, id);
@@ -1327,7 +1327,7 @@ public final class VpnUtil {
         }
     }
 
-    static Optional<IpAddress> getIpv4GatewayAddressFromInterface(String srcInterface,
+    public static Optional<IpAddress> getIpv4GatewayAddressFromInterface(String srcInterface,
             INeutronVpnManager neutronVpnService) {
         Optional<IpAddress> gatewayIp = Optional.absent();
         if (neutronVpnService != null) {
@@ -1350,7 +1350,7 @@ public final class VpnUtil {
         return gatewayIp;
     }
 
-    static Optional<String> getGWMacAddressFromInterface(MacEntry macEntry, IpAddress gatewayIp,
+    public static Optional<String> getGWMacAddressFromInterface(MacEntry macEntry, IpAddress gatewayIp,
             DataBroker dataBroker) {
         Optional<String> gatewayMac = Optional.absent();
         long vpnId = getVpnId(dataBroker, macEntry.getVpnName());
