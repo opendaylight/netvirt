@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6214f9e8_1880a55b",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1631,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-06-14T05:15:04Z",
+      "side": 1,
+      "message": "This still gives null ?",
+      "range": {
+        "startLine": 1631,
+        "startChar": 28,
+        "endLine": 1631,
+        "endChar": 39
+      },
+      "revId": "ded5ae85b9bf6d61f0ffc2a837f789a99783ca63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
