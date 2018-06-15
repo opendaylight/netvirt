@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a8bcc488_6d4a43c5",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-06-15T06:30:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb3efa67_8f7d89ca",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 77
+      },
+      "revId": "dd0ca88cac61187337b49dbc5815a918c5554454",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "42d6fe23_bfaeff19",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2018-06-14T14:46:16Z",
       "side": 1,
       "message": "To be consistent, please use the new API getSubnetRouteTableMissFlowRef() with the argument NwConstants.ETHTYPE_IPV4",
+      "range": {
+        "startLine": 193,
+        "startChar": 25,
+        "endLine": 193,
+        "endChar": 44
+      },
+      "revId": "dd0ca88cac61187337b49dbc5815a918c5554454",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7f2dfea_7157f025",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-06-15T06:30:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42d6fe23_bfaeff19",
       "range": {
         "startLine": 193,
         "startChar": 25,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "d46bf15c_af9298ca",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-06-15T06:30:22Z",
+      "side": 1,
+      "message": "Done.\n\n@Sridhar, I have observed that, when the DPN is disconnected from the ODL controller at that time, there is no call for removing all the default VPN flows from MDSAL-DS. Is any valid reason is behind it for not removing default VPN flows?",
+      "parentUuid": "3ee35c7a_267a8528",
+      "range": {
+        "startLine": 239,
+        "startChar": 15,
+        "endLine": 239,
+        "endChar": 16
+      },
+      "revId": "dd0ca88cac61187337b49dbc5815a918c5554454",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "53954a78_21913c21",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
         "patchSetId": 7
@@ -82,6 +154,30 @@
       "writtenOn": "2018-06-14T14:46:16Z",
       "side": 1,
       "message": "Since etherType is an argument, lets remove IPv6 from the name and rename this api as getSubnetRouteTableMissFlowRef() and update the calling contexts - makeIpv6SubnetRouteTableMissFlow and makeSubnetRouteTableMissFlow",
+      "range": {
+        "startLine": 293,
+        "startChar": 19,
+        "endLine": 293,
+        "endChar": 52
+      },
+      "revId": "dd0ca88cac61187337b49dbc5815a918c5554454",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7e5fb3a_6a0d20a9",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-06-15T06:30:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53954a78_21913c21",
       "range": {
         "startLine": 293,
         "startChar": 19,
