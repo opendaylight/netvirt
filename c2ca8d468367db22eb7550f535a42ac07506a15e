@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2365691c_e7c576a4",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-06-15T12:42:12Z",
+      "side": 1,
+      "message": "@vorburger: Would appreciate your comments on usage of this API.",
+      "revId": "c2ca8d468367db22eb7550f535a42ac07506a15e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
