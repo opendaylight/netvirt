@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "9deba2d6_f23fd039",
+        "filename": "ipv6service/api/src/main/yang/ipv6-ndutil.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-15T09:51:48Z",
+      "side": 1,
+      "message": "Update the unit tests to validate this use-case",
+      "revId": "61a8f0846e99349be69c5aa94de28604379173fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "775b24f9_b3e0bb7e",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6NeighborSolicitation.java",
         "patchSetId": 7
