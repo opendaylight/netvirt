@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ef22b9f_c3555808",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-15T09:51:48Z",
+      "side": 1,
+      "message": "This along with L347 does not look correct. Incase of ICMPv6NSPuntflows we are explicitly adding/removing flows depending on whether a new IPv6 subnet is added/removed from the routerPort. But in the new API \"programIcmpv6NaPuntFlow\", we are not taking this into account, please fix it.",
+      "range": {
+        "startLine": 341,
+        "startChar": 12,
+        "endLine": 341,
+        "endChar": 66
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a8732bc5_9d210667",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-15T09:51:48Z",
+      "side": 1,
+      "message": "Just for my understanding: We are firing the notification here, may i know who/whichService will be getting this notification and how it will be handled?",
+      "range": {
+        "startLine": 486,
+        "startChar": 8,
+        "endLine": 489,
+        "endChar": 9
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bfee8b35_5e40249a",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-15T09:51:48Z",
+      "side": 1,
+      "message": "If the subnet is disassociated from the router first and then there is a remove event for the vmPort, then how are we handling the situation? I feel there will be a chance of stale flows.",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 107,
+        "endChar": 9
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1547b27a_0228b428",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6ServiceUtils.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-15T09:51:48Z",
+      "side": 1,
+      "message": "This is redundant as ethertype is matched in getIcmpv6NAMatch(). Please remove it.",
+      "range": {
+        "startLine": 457,
+        "startChar": 8,
+        "endLine": 457,
+        "endChar": 68
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "24e669e9_9398fa75",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6ServiceUtils.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-15T09:51:48Z",
+      "side": 1,
+      "message": "Please include the ipv6Address in the log message as we are running this in a loop, and it would help to know which ipv6Address is being added/removed.",
+      "range": {
+        "startLine": 471,
+        "startChar": 27,
+        "endLine": 471,
+        "endChar": 88
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "38f6c070_a980973c",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6ServiceUtils.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-15T09:51:48Z",
+      "side": 1,
+      "message": "nit: Interface",
+      "range": {
+        "startLine": 543,
+        "startChar": 33,
+        "endLine": 543,
+        "endChar": 41
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d18ea5dd_03a938f2",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6ServiceUtils.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-15T09:51:48Z",
+      "side": 1,
+      "message": "Since we now have a new API to getDpIdFromInterfaceState, can you please update the API \"updateInterfaceDpidOfPortInfo\" in IfMgr.java to use this new API.",
+      "range": {
+        "startLine": 543,
+        "startChar": 4,
+        "endLine": 543,
+        "endChar": 22
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f958bca9_42449d6f",
+        "filename": "ipv6service/impl/src/test/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandlerTest.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-15T09:51:48Z",
+      "side": 1,
+      "message": "Please add some unit tests (positive/negative) to validate the processNeighborAdvertisementPacket code.",
+      "range": {
+        "startLine": 64,
+        "startChar": 8,
+        "endLine": 64,
+        "endChar": 57
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
