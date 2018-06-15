@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "f10b4b0d_7dea3199",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-15T17:41:59Z",
+      "side": 1,
+      "message": "I\u0027m not aware of any reason Karthik.",
+      "parentUuid": "d46bf15c_af9298ca",
+      "range": {
+        "startLine": 239,
+        "startChar": 15,
+        "endLine": 239,
+        "endChar": 16
+      },
+      "revId": "dd0ca88cac61187337b49dbc5815a918c5554454",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "53954a78_21913c21",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
         "patchSetId": 7
