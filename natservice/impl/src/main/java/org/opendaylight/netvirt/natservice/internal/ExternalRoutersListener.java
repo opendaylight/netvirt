@@ -1129,12 +1129,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId,
                             NwConstants.INBOUND_NAPT_TABLE,writeFlowInvTx);
                 }
-                String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
-                Optional<Subnets> externalSubnet = NatUtil.getOptionalExternalSubnets(dataBroker,
-                        externalSubnetId);
                 String externalVpn = vpnName;
-                if (externalSubnet.isPresent()) {
-                    externalVpn =  externalSubnetId.getValue();
+                String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
+                if (extNwProvType == ProviderTypes.VLAN || extNwProvType == ProviderTypes.FLAT) {
+                    Optional<Subnets> externalSubnet = NatUtil.getOptionalExternalSubnets(dataBroker,
+                            externalSubnetId);
+                    if (externalSubnet.isPresent()) {
+                        externalVpn =  externalSubnetId.getValue();
+                    }
                 }
                 CreateFibEntryInput input = new CreateFibEntryInputBuilder()
                     .setVpnName(externalVpn)
@@ -2249,12 +2251,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 removeFlowInvTx);
     }
 
-    protected void delFibTsAndReverseTraffic(final BigInteger dpnId, long routerId, String extIp,
-                                             final String vpnName, Uuid extNetworkId, long tempLabel,
+    protected void delFibTsAndReverseTraffic(final BigInteger dpnId, String routerName, long routerId, String extIp,
+                                             String vpnName, Uuid extNetworkId, long tempLabel,
                                              String gwMacAddress, boolean switchOver,
                                              WriteTransaction removeFlowInvTx) {
         LOG.debug("delFibTsAndReverseTraffic : Removing fib entry for externalIp {} in routerId {}", extIp, routerId);
-        String routerName = NatUtil.getRouterName(dataBroker,routerId);
+        //String routerName = NatUtil.getRouterName(dataBroker,routerId);
         if (routerName == null) {
             LOG.error("delFibTsAndReverseTraffic : Could not retrieve Router Name from Router ID {} ", routerId);
             return;
@@ -2277,10 +2279,23 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     extIp, routerId);
             return;
         }
-
         final long label = tempLabel;
         final String externalIp = NatUtil.validateAndAddNetworkMask(extIp);
-        RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
+        if (extNwProvType == ProviderTypes.FLAT || extNwProvType == ProviderTypes.VLAN) {
+            LOG.debug("delFibTsAndReverseTraffic : Using extSubnetId as vpnName for FLAT/VLAN use-cases");
+            Routers extRouter = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
+            Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(externalIp,
+                    extRouter);
+
+            Optional<Subnets> externalSubnet = NatUtil.getOptionalExternalSubnets(dataBroker,
+                    externalSubnetId);
+
+            if (externalSubnet.isPresent()) {
+                vpnName =  externalSubnetId.getValue();
+            }
+        }
+        final String externalVpn = vpnName;
+        RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(externalVpn)
                 .setSourceDpid(dpnId).setIpAddress(externalIp).setServiceId(label)
                 .setIpAddressSource(RemoveFibEntryInput.IpAddressSource.ExternalFixedIP).build();
         ListenableFuture<RpcResult<RemoveFibEntryOutput>> future = fibService.removeFibEntry(input);
@@ -2298,7 +2313,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         if (result.isSuccessful()) {
                             NatUtil.removePreDnatToSnatTableEntry(mdsalManager, dpnId, removeFlowInvTx);
                             RemoveVpnLabelInput labelInput = new RemoveVpnLabelInputBuilder()
-                                    .setVpnName(vpnName).setIpPrefix(externalIp).build();
+                                    .setVpnName(externalVpn).setIpPrefix(externalIp).build();
                             return vpnService.removeVpnLabel(labelInput);
                         } else {
                             String errMsg =
@@ -2321,10 +2336,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 public void onSuccess(@Nonnull RpcResult<RemoveVpnLabelOutput> result) {
                     if (result.isSuccessful()) {
                         LOG.debug("delFibTsAndReverseTraffic : Successfully removed the label for the prefix {} "
-                            + "from VPN {}", externalIp, vpnName);
+                            + "from VPN {}", externalIp, externalVpn);
                     } else {
                         LOG.error("delFibTsAndReverseTraffic : Error in removing the label for prefix {} "
-                            + " from VPN {}, {}", externalIp, vpnName, result.getErrors());
+                            + " from VPN {}, {}", externalIp, externalVpn, result.getErrors());
                     }
                 }
             }, MoreExecutors.directExecutor());
