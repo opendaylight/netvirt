@@ -13,10 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfcName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfpName;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.CreateRenderedPathInput;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.CreateRenderedPathInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.DeleteRenderedPathInput;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.DeleteRenderedPathInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.ServiceFunctionChain;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.ServiceFunctionChainBuilder;
@@ -38,7 +34,8 @@ public final class PortChainTranslator {
     private static final String SYMMETRIC_PARAM = "symmetric";
     private static final String SFP_NAME_PREFIX = "Path-";
 
-    private PortChainTranslator() { }
+    private PortChainTranslator() {
+    }
 
     public static ServiceFunctionChain buildServiceFunctionChain(
             PortChain portChain, List<ServiceFunction> sfList) {
@@ -86,19 +83,6 @@ public final class PortChainTranslator {
         //Set related SFC name
         sfpBuilder.setServiceChainName(sfc.getName());
         return sfpBuilder.build();
-    }
-
-    public static CreateRenderedPathInput buildCreateRenderedServicePathInput(ServiceFunctionPath sfp) {
-        CreateRenderedPathInputBuilder rpInputBuilder = new CreateRenderedPathInputBuilder();
-        rpInputBuilder.setSymmetric(sfp.isSymmetric());
-        rpInputBuilder.setParentServiceFunctionPath(sfp.getName().getValue());
-        return rpInputBuilder.build();
-    }
-
-    public static DeleteRenderedPathInput buildDeleteRenderedServicePathInput(ServiceFunctionPathKey sfpKey) {
-        DeleteRenderedPathInputBuilder rpInputBuilder = new DeleteRenderedPathInputBuilder();
-        rpInputBuilder.setName(sfpKey.getName().getValue());
-        return rpInputBuilder.build();
     }
 
     public static ServiceFunctionChainKey getSFCKey(PortChain portChain) {
