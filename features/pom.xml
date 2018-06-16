@@ -34,7 +34,7 @@
         <profile>
             <id>sfc</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <modules>
                 <module>odl-netvirt-sfc</module>
