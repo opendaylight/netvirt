@@ -303,7 +303,7 @@ public class NaptSwitchHA {
             for (Entry<String, Long> entry : externalIpmap.entrySet()) {
                 String externalIp = entry.getKey();
                 Long label = entry.getValue();
-                externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName,
+                externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerName, routerId, externalIp, vpnName,
                         extNetworkId, label, gwMacAddress, true, removeFlowInvTx);
                 LOG.debug("removeSnatFlowsInOldNaptSwitch : Successfully removed fib entries in old naptswitch {} "
                         + "for router {} and externalIps {} label {}", naptSwitch, routerId, externalIp, label);
@@ -1027,8 +1027,8 @@ public class NaptSwitchHA {
             if (extNwProvType == ProviderTypes.VXLAN) {
                 for (String externalIp : removedExternalIps) {
                     externalRouterListener.clearBgpRoutes(externalIp, vpnName);
-                    externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName,
-                            networkId, NatConstants.DEFAULT_LABEL_VALUE, gwMacAddress, true, removeFlowInvTx);
+                    externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerName, routerId, externalIp,
+                            vpnName, networkId, NatConstants.DEFAULT_LABEL_VALUE, gwMacAddress, true, removeFlowInvTx);
                     LOG.debug("bestEffortDeletion : Successfully removed fib entry for externalIp {} for routerId {} "
                                     + "on NAPT switch {} ", externalIp, routerId, naptSwitch);
                 }
@@ -1049,8 +1049,8 @@ public class NaptSwitchHA {
                         continue;
                     }
                     externalRouterListener.clearBgpRoutes(externalIp, vpnName);
-                    externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName,
-                            networkId, label, gwMacAddress, true, removeFlowInvTx);
+                    externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerName, routerId, externalIp,
+                            vpnName, networkId, label, gwMacAddress, true, removeFlowInvTx);
                     LOG.debug("bestEffortDeletion : Successfully removed fib entries in switch {} for router {} "
                             + "and externalIps {}", naptSwitch, routerId, externalIp);
                 }
