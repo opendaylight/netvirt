@@ -121,6 +121,11 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
     private void invokeSubnetDeletedFromVpn(String externalSubnetId) {
         Uuid externalSubnetUuid = new Uuid(externalSubnetId);
         Subnetmap subnetMap = NatUtil.getSubnetMap(dataBroker, externalSubnetUuid);
+        if (subnetMap == null) {
+            LOG.error("invokeSubnetDeletedFromVpn : Cannot invoke invokeSubnetDeletedFromVpn for subnet-id {} in "
+                    + "vpn-id {} due to this subnet missing in Subnetmap model", externalSubnetUuid, externalSubnetId);
+            return;
+        }
         vpnManager.onSubnetDeletedFromVpn(subnetMap, false);
     }
 
