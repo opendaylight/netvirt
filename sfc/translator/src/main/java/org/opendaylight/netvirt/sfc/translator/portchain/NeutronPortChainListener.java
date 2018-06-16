@@ -15,12 +15,10 @@ import java.util.Map;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.sfc.translator.DelegatingDataTreeListener;
 import org.opendaylight.netvirt.sfc.translator.NeutronMdsalHelper;
 import org.opendaylight.netvirt.sfc.translator.SfcMdsalHelper;
 import org.opendaylight.netvirt.sfc.translator.flowclassifier.FlowClassifierTranslator;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.DeleteRenderedPathInput;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.RenderedServicePathService;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.ServiceFunctionChain;
@@ -55,26 +53,6 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
         this.sfcMdsalHelper = new SfcMdsalHelper(db);
         this.neutronMdsalHelper = new NeutronMdsalHelper(db);
         this.rspService = rspService;
-    }
-
-    /**
-     * Method removes PortChain which is identified by InstanceIdentifier.
-     *
-     * @param deletedPortChain        - PortChain for removing
-     */
-    @Override
-    public void remove(PortChain deletedPortChain) {
-        if (this.rspService != null) {
-            DeleteRenderedPathInput deleteRenderedPathInput =
-                    PortChainTranslator.buildDeleteRenderedServicePathInput(PortChainTranslator
-                    .getSFPKey(deletedPortChain));
-            if (deleteRenderedPathInput != null) {
-                JdkFutures.addErrorLogging(rspService.deleteRenderedPath(deleteRenderedPathInput),
-                        LOG, "deleteRenderedPath");
-            }
-        }
-        sfcMdsalHelper.deleteServiceFunctionPath(PortChainTranslator.getSFPKey(deletedPortChain));
-        sfcMdsalHelper.deleteServiceFunctionChain(PortChainTranslator.getSFCKey(deletedPortChain));
     }
 
     /**
@@ -143,8 +121,8 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
             }
 
             //Build the SFF Builder from port pair group
-            ServiceFunctionForwarder serviceFunctionForwarder;
-            serviceFunctionForwarder = PortPairGroupTranslator.buildServiceFunctionForwarder(ppg, portPairList);
+            ServiceFunctionForwarder serviceFunctionForwarder = PortPairGroupTranslator
+                    .buildServiceFunctionForwarder(ppg, portPairList);
             // Send SFF create request
             LOG.info("Update Service Function Forwarder with {} for Port Pair Group {}", serviceFunctionForwarder, ppg);
             sfcMdsalHelper.updateServiceFunctionForwarder(serviceFunctionForwarder);
