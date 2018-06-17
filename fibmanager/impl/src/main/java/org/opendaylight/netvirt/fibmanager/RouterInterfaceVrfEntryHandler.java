@@ -15,8 +15,10 @@ import java.util.Collection;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.UpgradeState;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -38,8 +40,9 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
 
     @Inject
     public RouterInterfaceVrfEntryHandler(final DataBroker dataBroker, final NexthopManager nexthopManager,
-            final IMdsalApiManager mdsalManager, final IPv6Handler ipv6Handler, final FibUtil fibUtil) {
-        super(dataBroker, nexthopManager, mdsalManager, fibUtil);
+            final IMdsalApiManager mdsalManager, final IPv6Handler ipv6Handler, final FibUtil fibUtil,
+            final UpgradeState upgradeState, final DataTreeEventCallbackRegistrar eventCallbacks) {
+        super(dataBroker, nexthopManager, mdsalManager, fibUtil, upgradeState, eventCallbacks);
         this.mdsalManager = mdsalManager;
         this.ipv6Handler = ipv6Handler;
     }
