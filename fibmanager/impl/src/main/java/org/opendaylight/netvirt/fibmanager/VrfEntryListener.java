@@ -35,6 +35,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.RetryingManagedNewTransactionRunner;
@@ -45,6 +46,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.UpgradeState;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionPopMpls;
@@ -134,6 +136,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private final FibUtil fibUtil;
     private final InterVpnLinkCache interVpnLinkCache;
     private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
+    private final UpgradeState upgradeState;
+    private final DataTreeEventCallbackRegistrar eventCallbacks;
 
     @Inject
     public VrfEntryListener(final DataBroker dataBroker, final IMdsalApiManager mdsalApiManager,
@@ -144,7 +148,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             final RouterInterfaceVrfEntryHandler routerInterfaceVrfEntryHandler,
                             final JobCoordinator jobCoordinator,
                             final FibUtil fibUtil,
-                            final InterVpnLinkCache interVpnLinkCache) {
+                            final InterVpnLinkCache interVpnLinkCache,
+                            final UpgradeState upgradeState,
+                            final DataTreeEventCallbackRegistrar eventCallbacks) {
         super(VrfEntry.class, VrfEntryListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -158,6 +164,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         this.jobCoordinator = jobCoordinator;
         this.fibUtil = fibUtil;
         this.interVpnLinkCache = interVpnLinkCache;
+        this.upgradeState = upgradeState;
+        this.eventCallbacks = eventCallbacks;
     }
 
     @Override
@@ -210,7 +218,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (VrfEntry.EncapType.Vxlan.equals(vrfEntry.getEncapType())) {
             LOG.info("EVPN flows need to be programmed.");
             EvpnVrfEntryHandler evpnVrfEntryHandler = new EvpnVrfEntryHandler(dataBroker, this, bgpRouteVrfEntryHandler,
-                    nextHopManager, jobCoordinator, elanManager, fibUtil);
+                    nextHopManager, jobCoordinator, elanManager, fibUtil, upgradeState, eventCallbacks);
             evpnVrfEntryHandler.createFlows(identifier, vrfEntry, rd);
             closeables.add(evpnVrfEntryHandler);
             return;
@@ -244,7 +252,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (VrfEntry.EncapType.Vxlan.equals(vrfEntry.getEncapType())) {
             LOG.info("EVPN flows to be deleted");
             EvpnVrfEntryHandler evpnVrfEntryHandler = new EvpnVrfEntryHandler(dataBroker, this, bgpRouteVrfEntryHandler,
-                    nextHopManager, jobCoordinator, elanManager, fibUtil);
+                    nextHopManager, jobCoordinator, elanManager, fibUtil, upgradeState, eventCallbacks);
             evpnVrfEntryHandler.removeFlows(identifier, vrfEntry, rd);
             closeables.add(evpnVrfEntryHandler);
             return;
