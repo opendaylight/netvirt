@@ -15,11 +15,13 @@ import java.util.Collections;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.UpgradeState;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetDestination;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
@@ -55,8 +57,9 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
 
     EvpnVrfEntryHandler(DataBroker broker, VrfEntryListener vrfEntryListener,
             BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler, NexthopManager nexthopManager,
-            JobCoordinator jobCoordinator, IElanService elanManager, FibUtil fibUtil) {
-        super(broker, nexthopManager, null, fibUtil);
+            JobCoordinator jobCoordinator, IElanService elanManager, FibUtil fibUtil,
+            final UpgradeState upgradeState, final DataTreeEventCallbackRegistrar eventCallbacks) {
+        super(broker, nexthopManager, null, fibUtil, upgradeState, eventCallbacks);
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.vrfEntryListener = vrfEntryListener;
         this.bgpRouteVrfEntryHandler = bgpRouteVrfEntryHandler;
