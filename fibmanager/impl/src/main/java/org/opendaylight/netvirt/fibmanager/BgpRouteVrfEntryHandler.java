@@ -25,11 +25,13 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.UpgradeState;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
 import org.opendaylight.genius.mdsalutil.actions.ActionPushMpls;
@@ -79,8 +81,10 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
     @Inject
     public BgpRouteVrfEntryHandler(final DataBroker dataBroker,
                                    final NexthopManager nexthopManager,
-                                   final FibUtil fibUtil) {
-        super(dataBroker, nexthopManager, null, fibUtil);
+                                   final FibUtil fibUtil,
+                                   final UpgradeState upgradeState,
+                                   final DataTreeEventCallbackRegistrar eventCallbacks) {
+        super(dataBroker, nexthopManager, null, fibUtil, upgradeState, eventCallbacks);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.nexthopManager = nexthopManager;

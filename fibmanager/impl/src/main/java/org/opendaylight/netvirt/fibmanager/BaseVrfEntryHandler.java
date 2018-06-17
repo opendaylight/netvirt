@@ -15,6 +15,8 @@ import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +26,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -33,6 +36,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.UpgradeState;
 import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationEth;
 import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationIp;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
@@ -59,6 +63,7 @@ import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -101,17 +106,23 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     private final NexthopManager nextHopManager;
     private final IMdsalApiManager mdsalManager;
     private final FibUtil fibUtil;
+    private final UpgradeState upgradeState;
+    private final DataTreeEventCallbackRegistrar eventCallbacks;
 
     @Inject
     public BaseVrfEntryHandler(final DataBroker dataBroker,
                                final NexthopManager nexthopManager,
                                final IMdsalApiManager mdsalManager,
-                               final FibUtil fibUtil) {
+                               final FibUtil fibUtil,
+                               final UpgradeState upgradeState,
+                               final DataTreeEventCallbackRegistrar eventCallbacks) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.nextHopManager = nexthopManager;
         this.mdsalManager = mdsalManager;
         this.fibUtil = fibUtil;
+        this.upgradeState = upgradeState;
+        this.eventCallbacks = eventCallbacks;
     }
 
     @Override
@@ -393,10 +404,48 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         addRewriteDstMacAction(vpnId, vrfEntry, prefixInfo, actionInfos);
     }
 
+    private InstanceIdentifier<Interface> getFirstAbsentInterfaceStateIid(List<AdjacencyResult> adjacencyResults) {
+        InstanceIdentifier<Interface> res = null;
+        for (AdjacencyResult adjacencyResult : adjacencyResults) {
+            String interfaceName = adjacencyResult.getInterfaceName();
+            if (null == fibUtil.getInterfaceStateFromOperDS(interfaceName)) {
+                res = fibUtil.buildStateInterfaceId(interfaceName);
+                break;
+            }
+        }
+
+        return res;
+    }
+
     public void programRemoteFib(final BigInteger remoteDpnId, final long vpnId,
                                   final VrfEntry vrfEntry, WriteTransaction tx, String rd,
                                   List<AdjacencyResult> adjacencyResults,
                                   List<SubTransaction> subTxns) {
+        if (upgradeState.isUpgradeInProgress()) {
+            InstanceIdentifier<Interface> absentInterfaceStateIid = getFirstAbsentInterfaceStateIid(adjacencyResults);
+            if (absentInterfaceStateIid != null) {
+                LOG.info("programRemoteFib: interface state for {} not yet present, waiting...",
+                         absentInterfaceStateIid);
+                eventCallbacks.onAddOrUpdate(LogicalDatastoreType.OPERATIONAL,
+                    absentInterfaceStateIid,
+                    (before, after) -> {
+                        LOG.info("programRemoteFib: waited for and got interface state {}", absentInterfaceStateIid);
+                        txRunner.callWithNewWriteOnlyTransactionAndSubmit((wtx) -> {
+                            programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults, null);
+                        });
+                        return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
+                    },
+                    Duration.of(15, ChronoUnit.MINUTES),
+                    (iid) -> {
+                        LOG.error("programRemoteFib: timed out waiting for {}", absentInterfaceStateIid);
+                        txRunner.callWithNewWriteOnlyTransactionAndSubmit((wtx) -> {
+                            programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults, null);
+                        });
+                    });
+                return;
+            }
+        }
+
         List<InstructionInfo> instructions = new ArrayList<>();
         for (AdjacencyResult adjacencyResult : adjacencyResults) {
             List<ActionInfo> actionInfos = new ArrayList<>();
