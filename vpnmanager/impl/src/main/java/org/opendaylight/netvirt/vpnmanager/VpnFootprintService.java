@@ -102,18 +102,24 @@ public class VpnFootprintService implements IVpnFootprintService {
                             VpnConstants.PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS);
                     vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
                 }
-                if (interfaceName != null) {
-                    createOrUpdateVpnToDpnListForInterfaceName(vpnId, primaryRd, dpId, interfaceName, vpnName);
-                    publishInterfaceAddedToVpnNotification(interfaceName, dpId, vpnName, vpnId);
-                } else {
-                    createOrUpdateVpnToDpnListForIPAddress(vpnId, primaryRd, dpId, ipAddressSourceValuePair, vpnName);
+                synchronized (vpnName.intern()) {
+                    if (interfaceName != null) {
+                        createOrUpdateVpnToDpnListForInterfaceName(vpnId, primaryRd, dpId, interfaceName, vpnName);
+                        publishInterfaceAddedToVpnNotification(interfaceName, dpId, vpnName, vpnId);
+                    } else {
+                        createOrUpdateVpnToDpnListForIPAddress(vpnId, primaryRd, dpId, ipAddressSourceValuePair,
+                                vpnName);
+                    }
                 }
             } else {
-                if (interfaceName != null) {
-                    removeOrUpdateVpnToDpnListForInterfaceName(vpnId, primaryRd, dpId, interfaceName, vpnName);
-                    publishInterfaceRemovedFromVpnNotification(interfaceName, dpId, vpnName, vpnId);
-                } else {
-                    removeOrUpdateVpnToDpnListForIpAddress(vpnId, primaryRd, dpId, ipAddressSourceValuePair, vpnName);
+                synchronized (vpnName.intern()) {
+                    if (interfaceName != null) {
+                        removeOrUpdateVpnToDpnListForInterfaceName(vpnId, primaryRd, dpId, interfaceName, vpnName);
+                        publishInterfaceRemovedFromVpnNotification(interfaceName, dpId, vpnName, vpnId);
+                    } else {
+                        removeOrUpdateVpnToDpnListForIpAddress(vpnId, primaryRd, dpId, ipAddressSourceValuePair,
+                                vpnName);
+                    }
                 }
             }
         }
