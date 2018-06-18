@@ -13,6 +13,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
@@ -43,6 +44,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     private final IInterfaceManager interfaceManager;
     private final IVpnFootprintService vpnFootprintService;
     protected final IFibManager fibManager;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
     public SnatServiceImplFactory(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -56,7 +58,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
                                   final IElanService elanManager,
                                   final IInterfaceManager interfaceManager,
                                   final IVpnFootprintService vpnFootprintService,
-                                  final IFibManager fibManager) {
+                                  final IFibManager fibManager,
+                                  final JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
@@ -74,6 +77,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         this.interfaceManager = interfaceManager;
         this.vpnFootprintService = vpnFootprintService;
         this.fibManager = fibManager;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -93,6 +97,11 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
                     idManager, naptSwitchSelector, interfaceManager, vpnFootprintService, fibManager);
         }
         return null;
+    }
+
+    public Ipv6ForwardingService createFlatVlanIpv6ServiceImpl() {
+        return new Ipv6ForwardingService(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService,
+                idManager, naptSwitchSelector, interfaceManager, jobCoordinator);
     }
 
     public AbstractSnatService createVxlanGreSnatServiceImpl() {

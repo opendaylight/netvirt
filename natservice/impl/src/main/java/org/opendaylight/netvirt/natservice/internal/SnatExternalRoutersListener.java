@@ -137,6 +137,12 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
                     centralizedSwitchScheduler.scheduleCentralizedSwitch(update);
                 }
             }
+
+            if (!Objects.equals(original.getSubnetIds(), update.getSubnetIds())
+                    || !Objects.equals(originalExternalIps, updateExternalIps)) {
+                natServiceManager.notify(update, original, null, null,
+                        SnatServiceManager.Action.SNAT_ROUTER_UPDATE);
+            }
         }
     }
 

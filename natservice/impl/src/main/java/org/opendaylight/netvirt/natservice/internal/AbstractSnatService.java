@@ -46,12 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -144,6 +139,10 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         return true;
     }
 
+    public boolean handleRouterUpdate(Routers origRouter, Routers updatedRouter) {
+        return true;
+    }
+
     protected void installSnatCommonEntriesForNaptSwitch(Routers routers, BigInteger dpnId,  int addOrRemove) {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
@@ -223,7 +222,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             int addOrRemove) {
         LOG.debug("installSnatMissEntry : Installing SNAT miss entry in switch {}", dpnId);
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
-        String ifNamePrimary = getTunnelInterfaceName(dpnId, primarySwitchId);
+        String ifNamePrimary = NatUtil.getTunnelInterfaceName(dpnId, primarySwitchId, itmManager);
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         if (ifNamePrimary != null) {
             LOG.debug("installSnatMissEntry : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
@@ -268,7 +267,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
     protected void installInboundTerminatingServiceTblEntry(BigInteger dpnId, Long routerId,
             long extSubnetId, int addOrRemove) {
-        //Install the tunnel table entry in NAPT switch for inbound traffic to SNAP IP from a non a NAPT switch.
+        //Install the tunnel table entry in NAPT switch for inbound traffic to SNAT IP from a non a NAPT switch.
         LOG.info("installInboundTerminatingServiceTblEntry : creating entry for Terminating Service Table "
                 + "for switch {}, routerId {}", dpnId, routerId);
         List<MatchInfo> matches = new ArrayList<>();
@@ -347,40 +346,6 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
     protected String getGroupIdKey(String routerName) {
         return "snatmiss." + routerName;
-    }
-
-    protected String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {
-        Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
-        RpcResult<GetTunnelInterfaceNameOutput> rpcResult;
-        try {
-            Future<RpcResult<GetTunnelInterfaceNameOutput>> result = itmManager
-                    .getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder().setSourceDpid(srcDpId)
-                            .setDestinationDpid(dstDpId).setTunnelType(tunType).build());
-            rpcResult = result.get();
-            if (!rpcResult.isSuccessful()) {
-                tunType = TunnelTypeGre.class ;
-                result = itmManager.getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder()
-                        .setSourceDpid(srcDpId)
-                        .setDestinationDpid(dstDpId)
-                        .setTunnelType(tunType)
-                        .build());
-                rpcResult = result.get();
-                if (!rpcResult.isSuccessful()) {
-                    LOG.warn("getTunnelInterfaceName : RPC Call to getTunnelInterfaceId returned with Errors {}",
-                            rpcResult.getErrors());
-                } else {
-                    return rpcResult.getResult().getInterfaceName();
-                }
-                LOG.warn("getTunnelInterfaceName : RPC Call to getTunnelInterfaceId returned with Errors {}",
-                        rpcResult.getErrors());
-            } else {
-                return rpcResult.getResult().getInterfaceName();
-            }
-        } catch (InterruptedException | ExecutionException | NullPointerException e) {
-            LOG.error("getTunnelInterfaceName : Exception when getting tunnel interface Id for tunnel "
-                    + "between {} and {}", srcDpId, dstDpId);
-        }
-        return null;
     }
 
     static int mostSignificantBit(int value) {

@@ -79,8 +79,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, routers.getNetworkId());
         LOG.debug("VxlanGreConntrackBasedSnatService: handleSnatAllSwitch ProviderTypes {}", extNwProviderType);
         if (extNwProviderType == ProviderTypes.FLAT || extNwProviderType == ProviderTypes.VLAN) {
-            LOG.debug("handleSnatAllSwitch : Skip FLAT/VLAN provider networks.");
-            return true;
+            return false;
         }
         return super.handleSnatAllSwitch(routers, primarySwitchId, addOrRemove);
     }
@@ -90,8 +89,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, routers.getNetworkId());
         LOG.debug("VxlanGreConntrackBasedSnatService: handleSnat ProviderTypes {}", extNwProviderType);
         if (extNwProviderType == ProviderTypes.FLAT || extNwProviderType == ProviderTypes.VLAN) {
-            LOG.debug("handleSnat : Skip FLAT/VLAN provider networks.");
-            return true;
+            return false;
         }
         return super.handleSnat(routers, primarySwitchId, dpnId, addOrRemove);
     }
@@ -305,7 +303,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
             int addOrRemove) {
         LOG.debug("installSnatMissEntry : Installing SNAT miss entry in switch {}", dpnId);
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
-        String ifNamePrimary = getTunnelInterfaceName(dpnId, primarySwitchId);
+        String ifNamePrimary = NatUtil.getTunnelInterfaceName(dpnId, primarySwitchId, itmManager);
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         if (ifNamePrimary != null) {
             LOG.debug("installSnatMissEntry : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);

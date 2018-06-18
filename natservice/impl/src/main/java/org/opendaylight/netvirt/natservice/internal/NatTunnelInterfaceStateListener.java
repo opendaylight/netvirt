@@ -517,7 +517,7 @@ public class NatTunnelInterfaceStateListener
             return;
         }
         if (natMode == NatMode.Conntrack) {
-            natServiceManager.notify(routerData.get(), naptId, srcDpnId,
+            natServiceManager.notify(routerData.get(), null, naptId, srcDpnId,
                     SnatServiceManager.Action.SNAT_ROUTER_ENBL);
         } else {
             Uuid bgpVpnUuId = NatUtil.getVpnForRouter(dataBroker, routerName);
@@ -954,7 +954,8 @@ public class NatTunnelInterfaceStateListener
             return;
         }
         if (natMode == NatMode.Conntrack) {
-            natServiceManager.notify(routerData.get(), naptId, dpnId, SnatServiceManager.Action.SNAT_ROUTER_DISBL);
+            natServiceManager.notify(routerData.get(), null, naptId, dpnId,
+                    SnatServiceManager.Action.SNAT_ROUTER_DISBL);
         } else {
 
 
