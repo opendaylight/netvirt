@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.natservice.ha;
 
+import com.google.common.base.Optional;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -19,6 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -87,11 +90,13 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     @Override
     public boolean updateCentralizedSwitch(Routers oldRouter, Routers newRouter) {
         String routerName = newRouter.getRouterName();
-        List<Uuid> addedSubnetIds = getUpdatedSubnetIds(newRouter.getSubnetIds(), oldRouter.getSubnetIds());
-        List<Uuid> deletedSubnetIds = getUpdatedSubnetIds(oldRouter.getSubnetIds(), newRouter.getSubnetIds());
-        BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, newRouter.getRouterName());
-        addToDpnMaps(routerName, addedSubnetIds, primarySwitchId);
-        deleteFromDpnMaps(routerName, deletedSubnetIds, primarySwitchId);
+        if (getNaptSwitch(routerName) != null) {
+            List<Uuid> addedSubnetIds = getUpdatedSubnetIds(newRouter.getSubnetIds(), oldRouter.getSubnetIds());
+            List<Uuid> deletedSubnetIds = getUpdatedSubnetIds(oldRouter.getSubnetIds(), newRouter.getSubnetIds());
+            BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, newRouter.getRouterName());
+            addToDpnMaps(routerName, addedSubnetIds, primarySwitchId);
+            deleteFromDpnMaps(routerName, deletedSubnetIds, primarySwitchId);
+        }
         return true;
     }
 
@@ -251,5 +256,18 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             }
         }
         return newSubnetIds;
+    }
+
+    private BigInteger getNaptSwitch(String routerName) {
+        try {
+            Optional<RouterToNaptSwitch> routerToNaptSwitch = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, getNaptSwitchesIdentifier(routerName));
+            if (routerToNaptSwitch.isPresent()) {
+                return routerToNaptSwitch.get().getPrimarySwitchId();
+            }
+        } catch (ReadFailedException e) {
+            LOG.info("Failed to read NAPT switch due to {}", e.getMessage());
+        }
+        return null;
     }
 }
