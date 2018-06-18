@@ -1,0 +1,242 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "72609914_744869ea",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-18T16:28:48Z",
+      "side": 1,
+      "message": "could even remove this field?",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "92ea25bd_46d1f43a",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-18T16:28:48Z",
+      "side": 1,
+      "message": "you actually don\u0027t even have to \"hold on\" to the MetricProvider instance here?",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3869107d_173bd26c",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-18T16:28:48Z",
+      "side": 1,
+      "message": "drop the _meter suffix here?",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b146bab1_b1dc0e7b",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-18T16:28:48Z",
+      "side": 1,
+      "message": "and here?",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ea3bbb34_909685c1",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanManagerCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-18T16:28:48Z",
+      "side": 1,
+      "message": "as in dhcpmanager, you could probably even remove this field?",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "324e4a74_5e967d97",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanManagerCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-18T16:28:48Z",
+      "side": 1,
+      "message": "remove _meter suffix",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "339ab68a_67e6f7f8",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanManagerCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-18T16:28:48Z",
+      "side": 1,
+      "message": "remove _meter suffix",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "91891d6a_7fcfef61",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanManagerCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-18T16:28:48Z",
+      "side": 1,
+      "message": "remove _meter suffix",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d1f2508_0e9b1d05",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanManagerCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-18T16:28:48Z",
+      "side": 1,
+      "message": "remove _meter suffix",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "abcb7e21_dede5c2f",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanManagerCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-18T16:28:48Z",
+      "side": 1,
+      "message": "remove _meter suffix",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "28fdd8ca_0dc780e1",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatServiceCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-18T16:28:48Z",
+      "side": 1,
+      "message": "as in the other classes, we can remove this field?",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8f22f677_f8193b90",
+        "filename": "statistics/impl/src/main/java/org/opendaylight/netvirt/statistics/CounterRetriever.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-18T16:28:48Z",
+      "side": 1,
+      "message": "I don\u0027t really understand this change here, and how it related to changing metrics framework... or is this just code moved exactly as-is from the next class which you are deleting here?",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "887b13dd_6ec37f8b",
+        "filename": "statistics/impl/src/main/java/org/opendaylight/netvirt/statistics/StatisticsCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-18T16:28:48Z",
+      "side": 1,
+      "message": "as before, we don\u0027t need to keep the MetricProvider in a field",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c50716e_fe60ee73",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/utilities/VpnManagerCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-18T16:28:48Z",
+      "side": 1,
+      "message": "as before",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

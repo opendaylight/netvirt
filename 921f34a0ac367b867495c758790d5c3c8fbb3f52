@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e01c8749_56b9cdef",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-18T16:28:48Z",
+      "side": 0,
+      "message": "I don\u0027t really get what the removal of this apparently un-used INeutronVpnManager has to do with removing the counters, but I\u0027m sure it\u0027s a good idea as well... ;-)",
+      "revId": "921f34a0ac367b867495c758790d5c3c8fbb3f52",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
