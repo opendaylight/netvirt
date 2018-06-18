@@ -117,13 +117,10 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         }
         ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
             for (Uuid subnetUuid : addedSubnetIds) {
-                String primaryRd = NatUtil.getPrimaryRd(routerName, tx);
                 Subnetmap subnetMapEntry = tx.read(LogicalDatastoreType.CONFIGURATION,
                         getSubnetMapIdentifier(subnetUuid)).checkedGet().orNull();
                 Uuid routerPortUuid = subnetMapEntry.getRouterInterfacePortId();
                 subnetIdToRouterPortMap.put(subnetUuid.getValue(), routerPortUuid.getValue());
-                vpnFootprintService.updateVpnToDpnMapping(primarySwitchId, routerName, primaryRd,
-                        routerPortUuid.getValue(), null, true);
                 NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerName, routerPortUuid.getValue(),
                         primarySwitchId, tx);
                 NatUtil.addToDpnRoutersMap(dataBroker, routerName, routerPortUuid.getValue(),
@@ -135,6 +132,10 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 }
             }
         }), LOG, "Error adding subnets to DPN maps for {}", routerName);
+        for (Uuid subnetUuid : addedSubnetIds) {
+            vpnFootprintService.updateVpnToDpnMapping(primarySwitchId, routerName,  routerName,
+                    subnetIdToRouterPortMap.get(subnetUuid.getValue()), null, true);
+        }
     }
 
 
@@ -144,16 +145,17 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             LOG.debug("deleteFromDpnMaps no subnets associated with {}", routerName);
             return;
         }
+        for (Uuid subnetUuid : deletedSubnetIds) {
+            vpnFootprintService.updateVpnToDpnMapping(primarySwitchId, routerName, routerName,
+                    subnetIdToRouterPortMap.get(subnetUuid.getValue()), null, false);
+        }
         ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
-            String primaryRd = NatUtil.getPrimaryRd(routerName, tx);
             for (Uuid subnetUuid : deletedSubnetIds) {
                 String routerPort = subnetIdToRouterPortMap.remove(subnetUuid.getValue());
                 if (routerPort == null) {
                     LOG.error("The router port was not found for {}", subnetUuid.getValue());
                     continue;
                 }
-                vpnFootprintService.updateVpnToDpnMapping(primarySwitchId, routerName, primaryRd,
-                        routerPort, null, false);
                 NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, primarySwitchId, tx);
                 NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, routerName, interfaceManager, tx);
                 if (subnetIdToElanInstanceMap.containsKey(subnetUuid.getValue())) {
