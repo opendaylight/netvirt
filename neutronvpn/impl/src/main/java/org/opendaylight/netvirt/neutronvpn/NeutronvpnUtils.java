@@ -374,6 +374,20 @@ public class NeutronvpnUtils {
         return router;
     }
 
+    protected Router getNeutronRouter(Uuid routerId, int retries, long timeout) {
+        Router router = routerMap.get(routerId);
+        if (router != null) {
+            return router;
+        }
+        InstanceIdentifier<Router> inst = InstanceIdentifier.create(Neutron.class).child(Routers.class).child(Router
+            .class, new RouterKey(routerId));
+        Optional<Router> rtr = read(LogicalDatastoreType.CONFIGURATION, inst, 6, 500);
+        if (rtr.isPresent()) {
+            router = rtr.get();
+        }
+        return router;
+    }
+
     protected Network getNeutronNetwork(Uuid networkId) {
         Network network = null;
         network = networkMap.get(networkId);
@@ -1048,6 +1062,23 @@ public class NeutronvpnUtils {
         } catch (ReadFailedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path,
+                                                    int retries, long timeout) {
+        for (int attempts = 0; attempts < retries; attempts++) {
+            Optional<T> result = read(datastoreType, path);
+            if (result.isPresent()) {
+                return result;
+            }
+            try {
+                Thread.sleep(timeout);
+            } catch (InterruptedException e) {
+                LOG.warn("Read interrupted after {} attempts", attempts + 1);
+            }
+        }
+        return Optional.absent();
     }
 
     public static Class<? extends NetworkTypeBase> getNetworkType(Network network) {

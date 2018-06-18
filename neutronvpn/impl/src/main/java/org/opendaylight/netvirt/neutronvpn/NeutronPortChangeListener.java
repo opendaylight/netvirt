@@ -434,7 +434,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         }
         elanService.addKnownL3DmacAddress(routerGwPort.getMacAddress().getValue(), networkId.getValue());
 
-        Router router = neutronvpnUtils.getNeutronRouter(routerId);
+        Router router = neutronvpnUtils.getNeutronRouter(routerId, 6, 500);
         if (router == null) {
             LOG.warn("No router found for router GW port {} for router {}", routerGwPort.getUuid().getValue(),
                     routerId.getValue());
