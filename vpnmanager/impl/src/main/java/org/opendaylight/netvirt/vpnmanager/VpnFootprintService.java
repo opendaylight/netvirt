@@ -125,10 +125,10 @@ public class VpnFootprintService implements IVpnFootprintService {
         try {
             synchronized (vpnName.intern()) {
                 InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
-                Optional<VpnToDpnList> dpnInVpn = SingleTransactionDataBroker.syncReadOptional(dataBroker,
-                        LogicalDatastoreType.OPERATIONAL, id);
+
                 VpnInterfaces vpnInterface = new VpnInterfacesBuilder().setInterfaceName(intfName).build();
-                ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+                    Optional<VpnToDpnList> dpnInVpn = tx.read(LogicalDatastoreType.OPERATIONAL, id).checkedGet();
                     if (dpnInVpn.isPresent()) {
                         VpnToDpnList vpnToDpnList = dpnInVpn.get();
                         List<VpnInterfaces> vpnInterfaces = vpnToDpnList.getVpnInterfaces();
@@ -169,10 +169,6 @@ public class VpnFootprintService implements IVpnFootprintService {
             LOG.error("createOrUpdateVpnToDpnList: Error adding to dpnToVpnList for vpn {} vpnId {} interface {}"
                     + " dpn {}", vpnName, vpnId, intfName, dpnId, e);
             throw new RuntimeException(e.getMessage(), e);
-        } catch (ReadFailedException e) {
-            LOG.error("createOrUpdateVpnToDpnList: Failed to read data store for interface {} vpn {} rd {} dpn {}",
-                    intfName, vpnName, primaryRd, dpnId);
-            throw new RuntimeException(e.getMessage(), e); //TODO: Avoid throwing this exception
         }
         LOG.info("createOrUpdateVpnToDpnList: Created/Updated vpn footprint for vpn {} vpnId {} interfacName{}"
                 + " on dpn {}", vpnName, vpnId, intfName, dpnId);
