@@ -17,6 +17,7 @@ import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -139,9 +140,8 @@ public final class AlivenessMonitorUtils {
             profileIdOptional = allocateProfile(alivenessMonitorService, ArpConstants.FAILURE_THRESHOLD,
                     ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, ArpConstants.MONITORING_WINDOW, EtherTypes.Arp);
         } else if (targetIp.getIpv6Address() != null) {
-            // TODO: handle IPv6 case
-            LOG.warn("IPv6 address monitoring is not yet supported - allocateIpMonitorProfile(). targetIp={}",
-                    targetIp);
+            profileIdOptional = allocateProfile(alivenessMonitorService, VpnConstants.FAILURE_THRESHOLD,
+                    VpnConstants.ND_FLOW_VALID_TIMEOUT_MILLIS, VpnConstants.MONITORING_WINDOW, EtherTypes.Nd);
         }
         if (!profileIdOptional.isPresent()) {
             return null;

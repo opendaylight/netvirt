@@ -30,5 +30,21 @@ module vpn-config {
             type uint32;
             default 10;
         }
+        leaf flow-valid-timer {
+                	 description "flow valid timer";
+                	 type uint16 {
+                	 range "30..3600";
+                	 }
+                	 default "120";
+                	 units seconds;
+        }
+        leaf nd-message-sent-timer {
+                     description "neighbor discovery msg sent timer";
+                     type uint16 {
+                     range "30..3600";
+                     }
+                     default "30";
+                     units seconds;
+        }
     }
 }

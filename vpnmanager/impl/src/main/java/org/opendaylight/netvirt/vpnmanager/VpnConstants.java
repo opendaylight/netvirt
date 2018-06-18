@@ -33,6 +33,12 @@ public interface VpnConstants {
 
     String IP_MONITORING_ENTITY = "ipmonitoring";
     String IP_MONITOR_JOB_PREFIX_KEY = "ip-monitor";
+    //NITHI
+    long ND_FLOW_VALID_TIMEOUT_MILLIS = Long.getLong("flow.valid.timeout", 120000L).longValue();
+    long FAILURE_THRESHOLD = 2L;
+    long MONITORING_WINDOW = 4L;
+     //NITHI
+
 
     // An IdPool for Pseudo LPort tags, that is, lportTags that are no related to an interface.
     // These lportTags must be higher than 170000 to avoid collision with interface LportTags and

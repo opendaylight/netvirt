@@ -29,6 +29,7 @@ import org.opendaylight.mdsal.eos.common.api.CandidateAlreadyRegisteredException
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.EtherTypes;
@@ -50,6 +51,7 @@ public class IpMonitoringHandler
     private final JobCoordinator jobCoordinator;
 
     private Long arpMonitorProfileId = 0L;
+    private Long ndMonitorProfileId = 0L;
     private EntityOwnershipCandidateRegistration candidateRegistration;
 
     @Inject
@@ -67,16 +69,21 @@ public class IpMonitoringHandler
 
     @PostConstruct
     public void start() {
-        Optional<Long> profileIdOptional = AlivenessMonitorUtils.allocateProfile(alivenessManager,
+        Optional<Long> arpProfileIdOptional = AlivenessMonitorUtils.allocateProfile(alivenessManager,
             ArpConstants.FAILURE_THRESHOLD, ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, ArpConstants.MONITORING_WINDOW,
             EtherTypes.Arp);
-        if (profileIdOptional.isPresent()) {
-            arpMonitorProfileId = profileIdOptional.get();
-        } else {
-            LOG.error("Error while allocating Profile Id {}", profileIdOptional);
+        if (arpProfileIdOptional.isPresent()) {
+            arpMonitorProfileId = arpProfileIdOptional.get();
         }
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
 
+        Optional<Long> ndProfileIdOptional = AlivenessMonitorUtils.allocateProfile(alivenessManager,
+                VpnConstants.FAILURE_THRESHOLD, VpnConstants.ND_FLOW_VALID_TIMEOUT_MILLIS,
+                VpnConstants.MONITORING_WINDOW, EtherTypes.Nd);
+        if(ndProfileIdOptional.isPresent()) {
+            ndMonitorProfileId = ndProfileIdOptional.get();
+        }
+
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
         try {
             candidateRegistration = entityOwnershipUtils.getEntityOwnershipService().registerCandidate(
                     new Entity(VpnConstants.IP_MONITORING_ENTITY, VpnConstants.IP_MONITORING_ENTITY));
@@ -178,14 +185,14 @@ public class IpMonitoringHandler
                 jobCoordinator, jobDesc, job);
     }
 
-    private Long getMonitorProfileId(String ipAddress) {
-        if (NWUtil.isIpv4Address(ipAddress)) {
+    private Long getMonitorProfileId(String strIpAddress) {
+        IpAddress ipAddress = new IpAddress(strIpAddress.toCharArray());
+        if (ipAddress.getIpv4Address() != null) {
             return this.arpMonitorProfileId;
-        } else {
-            // TODO: Handle for IPv6 case
-            LOG.warn("IPv6 address monitoring is not yet supported - getMonitorProfileId(). ipAddress={}", ipAddress);
-            return null;
+        } else if(ipAddress.getIpv6Address() != null){
+            return this.ndMonitorProfileId;
         }
+        return null;
     }
 
     static String buildIpMonitorJobKey(String ip, String vpnName) {
