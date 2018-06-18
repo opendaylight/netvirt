@@ -7,12 +7,19 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
+import java.util.Objects;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.natservice.api.CentralizedSwitchScheduler;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
 import org.opendaylight.serviceutils.upgrade.UpgradeState;
@@ -31,6 +38,7 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
     private static final Logger LOG = LoggerFactory.getLogger(SnatExternalRoutersListener.class);
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IdManagerService idManager;
     private final CentralizedSwitchScheduler  centralizedSwitchScheduler;
     private final NatMode natMode;
@@ -46,6 +54,7 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
                                        final UpgradeState upgradeState) {
         super(Routers.class, SnatExternalRoutersListener.class);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = idManager;
         this.centralizedSwitchScheduler = centralizedSwitchScheduler;
         this.upgradeState = upgradeState;
@@ -103,14 +112,17 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
             LOG.error("update : external router event - Invalid routerId for routerName {}", routerName);
             return;
         }
-
-        // Check if its update on SNAT flag
-        boolean originalSNATEnabled = original.isEnableSnat();
-        boolean updatedSNATEnabled = update.isEnableSnat();
         LOG.info("update :called for router {} with originalSNATStatus {} and updatedSNATStatus {}",
-                routerName, originalSNATEnabled, updatedSNATEnabled);
+                routerName, original.isEnableSnat(), update.isEnableSnat());
         if (!upgradeState.isUpgradeInProgress()) {
-            centralizedSwitchScheduler.scheduleCentralizedSwitch(update);
+            centralizedSwitchScheduler.updateCentralizedSwitch(original, update);
+        }
+        if (!Objects.equals(original.getSubnetIds(), update.getSubnetIds())
+                || !Objects.equals(original.getExternalIps(), update.getExternalIps())) {
+            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                confTx -> natServiceManager.notify(confTx, update, original, null, null,
+                            SnatServiceManager.Action.SNAT_ROUTER_UPDATE)), LOG,
+                    "error handling external router update");
         }
     }
 
