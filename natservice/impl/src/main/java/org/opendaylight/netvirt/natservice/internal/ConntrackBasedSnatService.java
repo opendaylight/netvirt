@@ -194,8 +194,9 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         instructions.add(new InstructionApplyActions(actionsInfos));
 
         String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
-        addFlow(confTx, dpnId, NwConstants.PSNAT_TABLE, flowRef, NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.PSNAT_TABLE, flowRef,
+                NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches,
+                instructions);
     }
 
     protected void removeSnatMissEntryForPrimrySwch(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
@@ -203,7 +204,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         LOG.info("installSnatSpecificEntriesForNaptSwitch : called for the primary NAPT switch dpnId {}", dpnId);
 
         String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
-        removeFlow(confTx, dpnId, NwConstants.PSNAT_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.PSNAT_TABLE, flowRef);
     }
 
     protected void addOutboundTblTrackEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId,
@@ -220,8 +221,9 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         instructionInfo.add(new InstructionApplyActions(listActionInfo));
 
         String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId) + "trkest";
-        addFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef, NatConstants.SNAT_TRK_FLOW_PRIORITY, flowRef,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo);
+        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef,
+                NatConstants.SNAT_TRK_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches,
+                instructionInfo);
     }
 
     protected void removeOutboundTblTrackEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
@@ -229,7 +231,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         LOG.info("createOutboundTblTrackEntry : called for switch {}, routerId {}", dpnId, routerId);
 
         String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId) + "trkest";
-        removeFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef);
     }
 
     protected void addOutboundTblEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId, long routerId,
@@ -254,15 +256,15 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
         String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
-        addFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef,  NatConstants.SNAT_NEW_FLOW_PRIORITY,
-            flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef,
+                NatConstants.SNAT_NEW_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
     protected void removeOutboundTblEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
             long routerId) throws ExecutionException, InterruptedException {
         LOG.info("createOutboundTblEntry : dpId {} and routerId {}", dpnId, routerId);
         String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
-        removeFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef);
     }
 
     protected void addNaptPfibFlow(TypedReadWriteTransaction<Configuration> confTx, Routers routers, BigInteger dpnId,
@@ -288,8 +290,8 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         instructions.add(new InstructionApplyActions(listActionInfo));
         String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId);
         flowRef = flowRef + "OUTBOUND";
-        addFlow(confTx, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef, NatConstants.SNAT_TRK_FLOW_PRIORITY,
-            flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef,
+                NatConstants.SNAT_TRK_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
     protected void removeNaptPfibFlow(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
@@ -297,7 +299,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         Long extNetId = NatUtil.getVpnId(confTx, routers.getNetworkId().getValue());
         LOG.info("installNaptPfibFlow : dpId {}, extNetId {}", dpnId, extNetId);
         String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId) + "OUTBOUND";
-        removeFlow(confTx, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef);
     }
 
     protected void addInboundEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId, long routerId,
@@ -327,8 +329,8 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         instructions.add(new InstructionApplyActions(actionsInfos));
         String flowRef = getFlowRef(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId);
         flowRef = flowRef + "OUTBOUND";
-        addFlow(confTx, dpnId, NwConstants.INBOUND_NAPT_TABLE, flowRef, NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef,
-            NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.INBOUND_NAPT_TABLE, flowRef,
+                NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
     protected void removeInboundEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
@@ -336,7 +338,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         LOG.info("installInboundEntry : dpId {} and routerId {}", dpnId, routerId);
 
         String flowRef = getFlowRef(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId) + "OUTBOUND";
-        removeFlow(confTx, dpnId, NwConstants.INBOUND_NAPT_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.INBOUND_NAPT_TABLE, flowRef);
     }
 
     protected void addNaptPfibEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId, long routerId) {
@@ -353,14 +355,15 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         instructionInfo.add(new InstructionApplyActions(listActionInfo));
 
         String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId) + "INBOUND";
-        addFlow(confTx, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef, NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
-            NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo);
+        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef,
+                NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches,
+                instructionInfo);
     }
 
     protected void removeNaptPfibEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
             long routerId) throws ExecutionException, InterruptedException {
         LOG.info("installNaptPfibEntry : called for dpnId {} and routerId {} ", dpnId, routerId);
         String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId) + "INBOUND";
-        removeFlow(confTx, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef);
     }
 }

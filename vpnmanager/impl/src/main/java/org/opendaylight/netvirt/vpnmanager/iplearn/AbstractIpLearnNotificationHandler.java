@@ -98,6 +98,14 @@ public abstract class AbstractIpLearnNotificationHandler {
                             srcMac.getValue(), srcIpToQuery, srcInterface);
                     VpnPortipToPort vpnPortipToPort =
                             vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, srcIpToQuery);
+                    // Check if this IP belongs to  external network
+                    if (vpnPortipToPort == null) {
+                        String extSubnetId = vpnUtil.getAssociatedExternalSubnet(srcIpToQuery);
+                        if (extSubnetId != null) {
+                            vpnPortipToPort =
+                                    vpnUtil.getNeutronPortFromVpnPortFixedIp(extSubnetId, srcIpToQuery);
+                        }
+                    }
                     if (vpnPortipToPort != null) {
                         /* This is a well known neutron port and so should be ignored
                          * from being discovered...unless it is an Octavia VIP
