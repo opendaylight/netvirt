@@ -141,6 +141,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <version>${infrautils.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+        	<groupId>org.opendaylight.genius</groupId>
+        	<artifactId>ipv6util-api</artifactId>
+        	<version>${genius.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
