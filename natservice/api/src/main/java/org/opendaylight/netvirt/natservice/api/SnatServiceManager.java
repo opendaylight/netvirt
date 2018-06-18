@@ -22,6 +22,7 @@ public interface SnatServiceManager {
         SNAT_ALL_SWITCH_DISBL,
         SNAT_ROUTER_ENBL,
         SNAT_ROUTER_DISBL,
+        SNAT_ROUTER_UPDATE,
         CNT_ROUTER_ALL_SWITCH_ENBL,
         CNT_ROUTER_ALL_SWITCH_DISBL,
         CNT_ROUTER_ENBL,

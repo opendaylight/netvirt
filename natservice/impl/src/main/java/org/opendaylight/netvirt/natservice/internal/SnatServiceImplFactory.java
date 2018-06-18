@@ -49,6 +49,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     private final NatDataUtil natDataUtil;
     private final DataTreeEventCallbackRegistrar eventCallbacks;
     private final NatOverVxlanUtil natOverVxlanUtil;
+    private final Ipv6SubnetFlowProgrammer ipv6SubnetFlowProgrammer;
 
     @Inject
     public SnatServiceImplFactory(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -65,7 +66,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
                                   final IFibManager fibManager,
                                   final NatDataUtil natDataUtil,
                                   final DataTreeEventCallbackRegistrar eventCallbacks,
-                                  final NatOverVxlanUtil natOverVxlanUtil) {
+                                  final NatOverVxlanUtil natOverVxlanUtil,
+                                  final Ipv6SubnetFlowProgrammer ipv6SubnetFlowProgrammer) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
@@ -86,6 +88,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         this.natDataUtil = natDataUtil;
         this.eventCallbacks = eventCallbacks;
         this.natOverVxlanUtil = natOverVxlanUtil;
+        this.ipv6SubnetFlowProgrammer = ipv6SubnetFlowProgrammer;
     }
 
     @Override
@@ -106,6 +109,11 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
                     eventCallbacks);
         }
         return null;
+    }
+
+    public Ipv6ForwardingService createFlatVlanIpv6ServiceImpl() {
+        return new Ipv6ForwardingService(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService,
+                idManager, naptSwitchSelector, interfaceManager, ipv6SubnetFlowProgrammer);
     }
 
     @Nullable

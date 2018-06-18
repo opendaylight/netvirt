@@ -39,6 +39,8 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService" />
   <odl:rpc-service id="odlArputilService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService" />
+  <odl:rpc-service id="ipv6NdUtilService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.Ipv6NdUtilService"/>
 
   <odl:clustered-app-config id="neutronvpnConfig"
                             binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig"
