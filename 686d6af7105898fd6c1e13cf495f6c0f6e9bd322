@@ -213,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "646d4923_ffe47fcf",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 8007
+      },
+      "writtenOn": "2018-06-18T05:50:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53b8de43_319853c8",
+      "range": {
+        "startLine": 554,
+        "startChar": 61,
+        "endLine": 554,
+        "endChar": 65
+      },
+      "revId": "686d6af7105898fd6c1e13cf495f6c0f6e9bd322",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4dd65194_1208ce7b",
         "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosTerminationPointListener.java",
         "patchSetId": 10
