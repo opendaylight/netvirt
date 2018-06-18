@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "47e58ad5_a34c1bba",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-06-18T14:40:53Z",
+      "side": 1,
+      "message": "Both add/remove flows are handled in programIcmpv6NaPuntFlow(). The variable \"action\" itself is passed to ipv6ServiceUtils.installIcmpv6NaPuntFlow() which takes care of add/remove of flows. \nI have tested it for both add and remove cases which is working fine.\n\nPlease let me know if you are pointing out some other issue here.",
+      "parentUuid": "3ef22b9f_c3555808",
+      "range": {
+        "startLine": 341,
+        "startChar": 12,
+        "endLine": 341,
+        "endChar": 66
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a8732bc5_9d210667",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
         "patchSetId": 12
@@ -36,6 +60,30 @@
       "writtenOn": "2018-06-15T09:51:48Z",
       "side": 1,
       "message": "Just for my understanding: We are firing the notification here, may i know who/whichService will be getting this notification and how it will be handled?",
+      "range": {
+        "startLine": 486,
+        "startChar": 8,
+        "endLine": 489,
+        "endChar": 9
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f3131af_3b8fa2d4",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-06-18T14:40:53Z",
+      "side": 1,
+      "message": "VpnManager receives these NA notifications.\nVpnManager validates these packets and learns the source IP if it is comming from hidden IP, programs FIB and advertises routes.",
+      "parentUuid": "a8732bc5_9d210667",
       "range": {
         "startLine": 486,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "be62f2e5_cadc7325",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-06-18T14:40:53Z",
+      "side": 1,
+      "message": "Thanks for pointing it out. Fixed it now.",
+      "parentUuid": "bfee8b35_5e40249a",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 107,
+        "endChar": 9
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1547b27a_0228b428",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6ServiceUtils.java",
         "patchSetId": 12
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "f6cff822_2d8b89ff",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6ServiceUtils.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-06-18T14:40:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1547b27a_0228b428",
+      "range": {
+        "startLine": 457,
+        "startChar": 8,
+        "endLine": 457,
+        "endChar": 68
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "24e669e9_9398fa75",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6ServiceUtils.java",
         "patchSetId": 12
@@ -105,6 +201,30 @@
       "writtenOn": "2018-06-15T09:51:48Z",
       "side": 1,
       "message": "Please include the ipv6Address in the log message as we are running this in a loop, and it would help to know which ipv6Address is being added/removed.",
+      "range": {
+        "startLine": 471,
+        "startChar": 27,
+        "endLine": 471,
+        "endChar": 88
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e9b10847_14e81876",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6ServiceUtils.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-06-18T14:40:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24e669e9_9398fa75",
       "range": {
         "startLine": 471,
         "startChar": 27,
@@ -163,6 +283,54 @@
     },
     {
       "key": {
+        "uuid": "fcd68375_9c529a35",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6ServiceUtils.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-06-18T14:40:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38f6c070_a980973c",
+      "range": {
+        "startLine": 543,
+        "startChar": 33,
+        "endLine": 543,
+        "endChar": 41
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a27b640_41077ff4",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6ServiceUtils.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-06-18T14:40:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d18ea5dd_03a938f2",
+      "range": {
+        "startLine": 543,
+        "startChar": 4,
+        "endLine": 543,
+        "endChar": 22
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f958bca9_42449d6f",
         "filename": "ipv6service/impl/src/test/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandlerTest.java",
         "patchSetId": 12
@@ -174,6 +342,30 @@
       "writtenOn": "2018-06-15T09:51:48Z",
       "side": 1,
       "message": "Please add some unit tests (positive/negative) to validate the processNeighborAdvertisementPacket code.",
+      "range": {
+        "startLine": 64,
+        "startChar": 8,
+        "endLine": 64,
+        "endChar": 57
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc8a8db3_cc2bc240",
+        "filename": "ipv6service/impl/src/test/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandlerTest.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-06-18T14:40:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f958bca9_42449d6f",
       "range": {
         "startLine": 64,
         "startChar": 8,
