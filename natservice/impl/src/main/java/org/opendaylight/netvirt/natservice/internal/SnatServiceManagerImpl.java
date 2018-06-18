@@ -32,6 +32,9 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
         if (flatVlaSnatServiceImpl != null) {
             addNatServiceListener(flatVlaSnatServiceImpl);
         }
+
+        addNatServiceListener(factory.createFlatVlanIpv6ServiceImpl());
+
         AbstractSnatService vxlanGreSnatServiceImpl = factory.createVxlanGreSnatServiceImpl();
         if (vxlanGreSnatServiceImpl != null) {
             addNatServiceListener(vxlanGreSnatServiceImpl);
@@ -49,7 +52,7 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
     }
 
     @Override
-    public void notify(Routers router, BigInteger primarySwitchId, BigInteger dpnId, Action action) {
+    public void notify(Routers router, Routers oldRouter, BigInteger primarySwitchId, BigInteger dpnId, Action action) {
         for (SnatServiceListener snatServiceListener : snatServiceListeners) {
             boolean result = false;
             switch (action) {
@@ -68,7 +71,9 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
                 case SNAT_ROUTER_DISBL:
                     result = snatServiceListener.handleSnat(router, primarySwitchId, dpnId, NwConstants.DEL_FLOW);
                     break;
-
+                case SNAT_ROUTER_UPDATE:
+                    result = snatServiceListener.handleRouterUpdate(oldRouter, router);
+                    break;
                 default:
                     break;
             }

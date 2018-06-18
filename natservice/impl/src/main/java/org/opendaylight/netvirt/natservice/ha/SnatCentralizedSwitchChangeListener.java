@@ -65,7 +65,8 @@ public class SnatCentralizedSwitchChangeListener
         BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
         Routers router = natDataUtil.getRouter(routerToNaptSwitch.getRouterName());
         if (router != null) {
-            snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+            snatServiceManger.notify(router, null, primarySwitchId, null,
+                    SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
             natDataUtil.removeFromRouterMap(router);
         }
     }
@@ -77,7 +78,7 @@ public class SnatCentralizedSwitchChangeListener
         BigInteger origPrimarySwitchId = origRouterToNaptSwitch.getPrimarySwitchId();
         Routers origRouter = NatUtil.getRoutersFromConfigDS(dataBroker, origRouterToNaptSwitch.getRouterName());
         if (origRouter != null) {
-            snatServiceManger.notify(origRouter, origPrimarySwitchId, null,
+            snatServiceManger.notify(origRouter, null, origPrimarySwitchId, null,
                     SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
             natDataUtil.removeFromRouterMap(origRouter);
         }
@@ -85,7 +86,7 @@ public class SnatCentralizedSwitchChangeListener
         Routers updatedRouter = NatUtil.getRoutersFromConfigDS(dataBroker, updatedRouterToNaptSwitch.getRouterName());
         if (updatedRouter != null) {
             natDataUtil.updateRouterMap(updatedRouter);
-            snatServiceManger.notify(updatedRouter, updatedPrimarySwitchId, null,
+            snatServiceManger.notify(updatedRouter, null, updatedPrimarySwitchId, null,
                     SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
         }
     }
@@ -97,7 +98,8 @@ public class SnatCentralizedSwitchChangeListener
         Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerToNaptSwitch.getRouterName());
         if (router != null) {
             natDataUtil.addtoRouterMap(router);
-            snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+            snatServiceManger.notify(router, null, primarySwitchId, null,
+                    SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
         }
     }
 

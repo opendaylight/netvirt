@@ -305,7 +305,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
             int addOrRemove) {
         LOG.debug("installSnatMissEntry : Installing SNAT miss entry in switch {}", dpnId);
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
-        String ifNamePrimary = getTunnelInterfaceName(dpnId, primarySwitchId);
+        String ifNamePrimary = NatUtil.getTunnelInterfaceName(dpnId, primarySwitchId, itmManager);
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         if (ifNamePrimary != null) {
             LOG.debug("installSnatMissEntry : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
