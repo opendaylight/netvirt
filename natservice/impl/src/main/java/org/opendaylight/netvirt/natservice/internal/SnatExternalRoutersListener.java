@@ -31,6 +31,7 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
     private static final Logger LOG = LoggerFactory.getLogger(SnatExternalRoutersListener.class);
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IdManagerService idManager;
     private final CentralizedSwitchScheduler  centralizedSwitchScheduler;
     private final NatMode natMode;
@@ -46,6 +47,7 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
                                        final UpgradeState upgradeState) {
         super(Routers.class, SnatExternalRoutersListener.class);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = idManager;
         this.centralizedSwitchScheduler = centralizedSwitchScheduler;
         this.upgradeState = upgradeState;
@@ -110,7 +112,14 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
         LOG.info("update :called for router {} with originalSNATStatus {} and updatedSNATStatus {}",
                 routerName, originalSNATEnabled, updatedSNATEnabled);
         if (!upgradeState.isUpgradeInProgress()) {
-            centralizedSwitchScheduler.scheduleCentralizedSwitch(update);
+            centralizedSwitchScheduler.updateCentralizedSwitch(update);
+        }
+        if (!Objects.equals(original.getSubnetIds(), update.getSubnetIds())
+                || !Objects.equals(original.getExternalIps(), update.getExternalIps())) {
+            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                confTx -> natServiceManager.notify(confTx, update, original, null, null,
+                            SnatServiceManager.Action.SNAT_ROUTER_UPDATE)), LOG,
+                    "error handling external router update");
         }
     }
 

@@ -54,16 +54,19 @@ public class NeutronSubnetGwMacResolver {
     private final NeutronvpnUtils neutronvpnUtils;
     private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(
             new ThreadFactoryBuilder().setNameFormat("Gw-Mac-Res").build());
+    private final Ipv6NdUtilService ipv6NdUtilService;
 
     @Inject
     public NeutronSubnetGwMacResolver(final DataBroker broker,
             final OdlArputilService arputilService, final IElanService elanService,
-            final ICentralizedSwitchProvider cswitchProvider, final NeutronvpnUtils neutronvpnUtils) {
+            final ICentralizedSwitchProvider cswitchProvider, final NeutronvpnUtils neutronvpnUtils,
+            final Ipv6NdUtilService ipv6NdUtilService) {
         this.broker = broker;
         this.arpUtilService = arputilService;
         this.elanService = elanService;
         this.cswitchProvider = cswitchProvider;
         this.neutronvpnUtils = neutronvpnUtils;
+        this.ipv6NdUtilService = ipv6NdUtilService;
     }
 
     // TODO Clean up the exception handling
@@ -134,7 +137,14 @@ public class NeutronSubnetGwMacResolver {
             Uuid subnetId = fixIp.getSubnetId();
             IpAddress srcIpAddress = fixIp.getIpAddress();
             IpAddress dstIpAddress = getExternalGwIpAddress(subnetId);
-            sendArpRequest(srcIpAddress, dstIpAddress, macAddress, extInterface);
+            String srcIpAddressString = srcIpAddress.stringValue();
+            String dstIpAddressString = dstIpAddress.stringValue();
+            if (NWUtil.isIpv4Address(srcIpAddressString)) {
+                sendArpRequest(srcIpAddress, dstIpAddress, macAddress, extInterface);
+            } else {
+                sendNeighborSolication(new Ipv6Address(srcIpAddressString),macAddress,
+                        new Ipv6Address(dstIpAddressString), extInterface);
+            }
         }
 
     }
@@ -161,6 +171,31 @@ public class NeutronSubnetGwMacResolver {
         } catch (Exception e) {
             LOG.error("Failed to send ARP request to external GW {} from interface {}",
                     dstIpAddress.getIpv4Address().getValue(), interfaceName, e);
+        }
+    }
+
+    private void sendNeighborSolication(Ipv6Address srcIpv6Address,
+            MacAddress srcMac, Ipv6Address dstIpv6Address, String interfaceName) {
+        List<org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6
+            .nd.util.rev170210.interfaces.InterfaceAddress> interfaceAddresses = new ArrayList<>();
+        interfaceAddresses.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6
+                .nd.util.rev170210.interfaces.InterfaceAddressBuilder()
+            .setInterface(interfaceName)
+            .setSrcIpAddress(srcIpv6Address)
+            .setSrcMacAddress(new PhysAddress(srcMac.getValue())).build());
+        SendNeighborSolicitationInput input = new SendNeighborSolicitationInputBuilder()
+                .setInterfaceAddress(interfaceAddresses).setTargetIpAddress(dstIpv6Address)
+                .build();
+        try {
+            Future<RpcResult<SendNeighborSolicitationOutput>> result = ipv6NdUtilService
+                    .sendNeighborSolicitation(input);
+            RpcResult<SendNeighborSolicitationOutput> rpcResult = result.get();
+            if (!rpcResult.isSuccessful()) {
+                LOG.error("sendNeighborSolicitationToOfGroup: RPC Call failed for input={} and Errors={}", input,
+                        rpcResult.getErrors());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Failed to send NS packet to ELAN group, input={}", input, e);
         }
     }
 

@@ -47,6 +47,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     private final IFibManager fibManager;
     private final NatDataUtil natDataUtil;
     private final DataTreeEventCallbackRegistrar eventCallbacks;
+    private final Ipv6SubnetFlowProgrammer ipv6SubnetFlowProgrammer;
 
     @Inject
     public SnatServiceImplFactory(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -62,7 +63,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
                                   final IVpnFootprintService vpnFootprintService,
                                   final IFibManager fibManager,
                                   final NatDataUtil natDataUtil,
-                                  final DataTreeEventCallbackRegistrar eventCallbacks) {
+                                  final DataTreeEventCallbackRegistrar eventCallbacks,
+                                  final Ipv6SubnetFlowProgrammer ipv6SubnetFlowProgrammer) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
@@ -82,6 +84,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         this.fibManager = fibManager;
         this.natDataUtil = natDataUtil;
         this.eventCallbacks = eventCallbacks;
+        this.ipv6SubnetFlowProgrammer = ipv6SubnetFlowProgrammer;
     }
 
     @Override
@@ -95,7 +98,6 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     }
 
     public AbstractSnatService createFlatVlanSnatServiceImpl() {
-
         if (natMode == NatMode.Conntrack) {
             return new FlatVlanConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService,
                     idManager, naptSwitchSelector, interfaceManager, vpnFootprintService, fibManager,  natDataUtil,
@@ -104,8 +106,12 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         return null;
     }
 
-    public AbstractSnatService createVxlanGreSnatServiceImpl() {
+    public Ipv6ForwardingService createFlatVlanIpv6ServiceImpl() {
+        return new Ipv6ForwardingService(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService,
+                idManager, naptSwitchSelector, interfaceManager, ipv6SubnetFlowProgrammer);
+    }
 
+    public AbstractSnatService createVxlanGreSnatServiceImpl() {
         if (natMode == NatMode.Conntrack) {
             NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
                     NatConstants.ODL_VNI_POOL_NAME);
