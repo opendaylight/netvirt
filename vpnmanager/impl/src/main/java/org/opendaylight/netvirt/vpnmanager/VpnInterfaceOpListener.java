@@ -17,6 +17,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -91,7 +92,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                 VpnInterfaceOpDataEntryKey.class);
         final String interfaceName = key.getName();
         jobCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
-            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
                 postProcessVpnInterfaceRemoval(identifier, del, tx);
                 LOG.info("remove: Removed vpn operational data for interface {} on dpn {} vpn {}", del.getName(),
                         del.getDpnId(), del.getVpnInstanceName());
@@ -99,9 +100,9 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     }
 
     private void postProcessVpnInterfaceRemoval(InstanceIdentifier<VpnInterfaceOpDataEntry> identifier,
-            VpnInterfaceOpDataEntry del, WriteTransaction writeOperTxn) {
-        if (writeOperTxn == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+            VpnInterfaceOpDataEntry del, ReadWriteTransaction readWriteTxn) {
+        if (readWriteTxn == null) {
+            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx ->
                             postProcessVpnInterfaceRemoval(identifier, del, tx)), LOG,
                     "Error post-processing VPN interface removal");
             return;
@@ -114,8 +115,8 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
             LOG.info("postProcessVpnInterfaceRemoval: interface name {} vpnName {} dpn {}", interfaceName, vpnName,
                     del.getDpnId());
             //decrement the vpn interface count in Vpn Instance Op Data
-            Optional<VpnInstance> vpnInstance = SingleTransactionDataBroker.syncReadOptional(dataBroker,
-                    LogicalDatastoreType.CONFIGURATION, VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName));
+            Optional<VpnInstance> vpnInstance = readWriteTxn.read(LogicalDatastoreType.CONFIGURATION,
+                    VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName)).checkedGet();
 
             if (vpnInstance.isPresent()) {
                 String rd = vpnInstance.get().getVrfId();
@@ -177,7 +178,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                  */
                     for (Prefixes pref : prefixToInterface) {
                         if (VpnUtil.isMatchedPrefixToInterface(pref, del)) {
-                            writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                            readWriteTxn.delete(LogicalDatastoreType.OPERATIONAL,
                                     VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(), pref.getIpAddress()));
                         }
                     }
