@@ -1,3 +1,17 @@
+# Copyright 2018 Red Hat, Inc. and others. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from odltools.mdsal.models.model import Model
 
 
@@ -19,7 +33,7 @@ def tunnels_state(store, args):
 class DpnEndpoints(Model):
     CONTAINER = "dpn-endpoints"
     CLIST = "DPN-TEPs-info"
-    CLIST_KEY = ""
+    CLIST_KEY = "DPN-ID"
     DPN_ID = "DPN-ID"
     TUNNEL_END_POINTS = "tunnel-end-points"
     IP_ADDRESS = "ip-address"
@@ -42,6 +56,10 @@ class DpnEndpoints(Model):
     def get_ip_address(self, dpn_id):
         tunnel_endpoints = self.get_tunnel_endpoints(dpn_id)
         return tunnel_endpoints[0][self.IP_ADDRESS]
+
+    def get_ip_address_from_dpn_info(self, dpn_info):
+        teps = dpn_info.get(self.TUNNEL_END_POINTS)[0]
+        return teps.get(self.IP_ADDRESS)
 
 
 class DpnTepsState(Model):

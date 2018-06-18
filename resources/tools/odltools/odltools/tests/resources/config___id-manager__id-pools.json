@@ -1,0 +1,1184 @@
+{
+    "id-pools": {
+        "id-pool": [
+            {
+                "available-ids-holder": {
+                    "cursor": 6553,
+                    "end": 65535,
+                    "start": 1
+                },
+                "block-size": 6553,
+                "child-pools": [
+                    {
+                        "child-pool-name": "interfaces.169781806",
+                        "last-access-time": 1526454606
+                    }
+                ],
+                "id-entries": [
+                    {
+                        "id-key": "4fc0744a-c040-4e93-897f-2ff4b0a3e740",
+                        "id-value": [
+                            42
+                        ]
+                    },
+                    {
+                        "id-key": "tun94f5e0c09c3",
+                        "id-value": [
+                            4
+                        ]
+                    },
+                    {
+                        "id-key": "268413402883765:br-physnet1-pa:trunk",
+                        "id-value": [
+                            13
+                        ]
+                    },
+                    {
+                        "id-key": "tun416ad20e601",
+                        "id-value": [
+                            2
+                        ]
+                    },
+                    {
+                        "id-key": "tun81babcc8f1b",
+                        "id-value": [
+                            1
+                        ]
+                    },
+                    {
+                        "id-key": "176265381603038:br-physnet1-pa:trunk",
+                        "id-value": [
+                            16
+                        ]
+                    },
+                    {
+                        "id-key": "tuncaa70ffbc9d",
+                        "id-value": [
+                            6
+                        ]
+                    },
+                    {
+                        "id-key": "5b270839-40d9-43cc-a7fe-36b2971b4ec9",
+                        "id-value": [
+                            43
+                        ]
+                    },
+                    {
+                        "id-key": "tunb6bc746d43d",
+                        "id-value": [
+                            5
+                        ]
+                    },
+                    {
+                        "id-key": "125086c7-eb76-40fd-958b-630b0f06da6e",
+                        "id-value": [
+                            41
+                        ]
+                    },
+                    {
+                        "id-key": "cf5a4f3d-b499-44ef-8958-2ea6943cd7a2",
+                        "id-value": [
+                            36
+                        ]
+                    },
+                    {
+                        "id-key": "250883105808127:br-physnet1-pa:trunk",
+                        "id-value": [
+                            8
+                        ]
+                    },
+                    {
+                        "id-key": "dd6274b2-ad99-4696-a580-e57ec1161eeb",
+                        "id-value": [
+                            38
+                        ]
+                    },
+                    {
+                        "id-key": "44d49bec-02c3-4bca-bbb7-f90552dd0d34",
+                        "id-value": [
+                            39
+                        ]
+                    },
+                    {
+                        "id-key": "tun94dd387fa4b",
+                        "id-value": [
+                            3
+                        ]
+                    },
+                    {
+                        "id-key": "3817424a-0e61-411b-a78c-23a3dff119cb",
+                        "id-value": [
+                            40
+                        ]
+                    },
+                    {
+                        "id-key": "985ff6be-fc27-4cb8-936e-ee9505458af1",
+                        "id-value": [
+                            37
+                        ]
+                    }
+                ],
+                "pool-name": "interfaces",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 0
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 152499,
+                    "end": 175000,
+                    "start": 150000
+                },
+                "block-size": 2500,
+                "child-pools": [
+                    {
+                        "child-pool-name": "nextHopPointerPool.169781806",
+                        "last-access-time": 1526454628
+                    }
+                ],
+                "id-entries": [
+                    {
+                        "id-key": "nexthop.10002041.0.0.7/32",
+                        "id-value": [
+                            150016
+                        ]
+                    },
+                    {
+                        "id-key": "nexthop.10002041.0.0.13/32",
+                        "id-value": [
+                            150017
+                        ]
+                    },
+                    {
+                        "id-key": "nexthop.10002142.0.0.2/32",
+                        "id-value": [
+                            150018
+                        ]
+                    },
+                    {
+                        "id-key": "nexthop.10002041.0.0.10/32",
+                        "id-value": [
+                            150013
+                        ]
+                    },
+                    {
+                        "id-key": "nexthop.10002041.0.0.3/32",
+                        "id-value": [
+                            150014
+                        ]
+                    },
+                    {
+                        "id-key": "nexthop.10002142.0.0.6/32",
+                        "id-value": [
+                            150019
+                        ]
+                    },
+                    {
+                        "id-key": "nexthop.10001710.10.10.2/32",
+                        "id-value": [
+                            150012
+                        ]
+                    },
+                    {
+                        "id-key": "nexthop.10002041.0.0.2/32",
+                        "id-value": [
+                            150015
+                        ]
+                    }
+                ],
+                "pool-name": "nextHopPointerPool",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 0
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 7,
+                    "end": 999,
+                    "start": 1
+                },
+                "block-size": 999,
+                "parent-pool-name": "ACL-TAG-POOL",
+                "pool-name": "ACL-TAG-POOL.169781806",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 30
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 150019,
+                    "end": 152499,
+                    "start": 150000
+                },
+                "block-size": 2500,
+                "parent-pool-name": "nextHopPointerPool",
+                "pool-name": "nextHopPointerPool.169781806",
+                "released-ids-holder": {
+                    "available-id-count": 12,
+                    "delayed-id-entries": [
+                        {
+                            "id": 150002,
+                            "ready-time-sec": 1526454370
+                        },
+                        {
+                            "id": 150001,
+                            "ready-time-sec": 1526454371
+                        },
+                        {
+                            "id": 150003,
+                            "ready-time-sec": 1526454373
+                        },
+                        {
+                            "id": 150007,
+                            "ready-time-sec": 1526454385
+                        },
+                        {
+                            "id": 150004,
+                            "ready-time-sec": 1526454387
+                        },
+                        {
+                            "id": 150005,
+                            "ready-time-sec": 1526454388
+                        },
+                        {
+                            "id": 150009,
+                            "ready-time-sec": 1526454397
+                        },
+                        {
+                            "id": 150011,
+                            "ready-time-sec": 1526454399
+                        },
+                        {
+                            "id": 150008,
+                            "ready-time-sec": 1526454400
+                        },
+                        {
+                            "id": 150000,
+                            "ready-time-sec": 1526454408
+                        },
+                        {
+                            "id": 150006,
+                            "ready-time-sec": 1526454411
+                        },
+                        {
+                            "id": 150010,
+                            "ready-time-sec": 1526454414
+                        }
+                    ],
+                    "delayed-time-sec": 30
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 227499,
+                    "end": 250000,
+                    "start": 225000
+                },
+                "block-size": 2500,
+                "child-pools": [
+                    {
+                        "child-pool-name": "snatGroupIdPool.169781806",
+                        "last-access-time": 1526454643
+                    }
+                ],
+                "id-entries": [
+                    {
+                        "id-key": "snatmiss.704c6fe4-699b-4ce2-8233-d7f2b325108d",
+                        "id-value": [
+                            225001
+                        ]
+                    },
+                    {
+                        "id-key": "snatmiss.ac54d841-2356-4cc2-9657-dd7eafe05575",
+                        "id-value": [
+                            225002
+                        ]
+                    },
+                    {
+                        "id-key": "snatmiss.10c783e7-581d-4540-90d5-cd7601af0292",
+                        "id-value": [
+                            225003
+                        ]
+                    },
+                    {
+                        "id-key": "snatmiss.973c7069-7965-4099-8dca-a3377d7f2fe9",
+                        "id-value": [
+                            225000
+                        ]
+                    },
+                    {
+                        "id-key": "snatmiss.4875dd2c-8d9e-472a-b4a7-d7b0e87475bc",
+                        "id-value": [
+                            225004
+                        ]
+                    }
+                ],
+                "pool-name": "snatGroupIdPool",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 0
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": -1,
+                    "end": 24,
+                    "start": 0
+                },
+                "block-size": 25,
+                "parent-pool-name": "tables",
+                "pool-name": "tables.169781806",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 30
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 179999,
+                    "end": 270000,
+                    "start": 170001
+                },
+                "block-size": 9999,
+                "child-pools": [
+                    {
+                        "child-pool-name": "lporttag.169781806",
+                        "last-access-time": 1526451431
+                    }
+                ],
+                "pool-name": "lporttag",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 0
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": -1,
+                    "end": 24,
+                    "start": 0
+                },
+                "block-size": 25,
+                "parent-pool-name": "meters",
+                "pool-name": "meters.169781806",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 30
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 5009,
+                    "end": 5499,
+                    "start": 5000
+                },
+                "block-size": 500,
+                "parent-pool-name": "elan.ids.pool",
+                "pool-name": "elan.ids.pool.169781806",
+                "released-ids-holder": {
+                    "available-id-count": 5,
+                    "delayed-id-entries": [
+                        {
+                            "id": 5002,
+                            "ready-time-sec": 1526453760
+                        },
+                        {
+                            "id": 5003,
+                            "ready-time-sec": 1526453763
+                        },
+                        {
+                            "id": 5004,
+                            "ready-time-sec": 1526454449
+                        },
+                        {
+                            "id": 5005,
+                            "ready-time-sec": 1526454451
+                        },
+                        {
+                            "id": 5006,
+                            "ready-time-sec": 1526454453
+                        }
+                    ],
+                    "delayed-time-sec": 30
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 100034,
+                    "end": 102999,
+                    "start": 100000
+                },
+                "block-size": 3000,
+                "parent-pool-name": "vpnservices",
+                "pool-name": "vpnservices.169781806",
+                "released-ids-holder": {
+                    "available-id-count": 13,
+                    "delayed-id-entries": [
+                        {
+                            "id": 100002,
+                            "ready-time-sec": 1526454370
+                        },
+                        {
+                            "id": 100003,
+                            "ready-time-sec": 1526454371
+                        },
+                        {
+                            "id": 100005,
+                            "ready-time-sec": 1526454373
+                        },
+                        {
+                            "id": 100010,
+                            "ready-time-sec": 1526454385
+                        },
+                        {
+                            "id": 100007,
+                            "ready-time-sec": 1526454387
+                        },
+                        {
+                            "id": 100008,
+                            "ready-time-sec": 1526454388
+                        },
+                        {
+                            "id": 100013,
+                            "ready-time-sec": 1526454397
+                        },
+                        {
+                            "id": 100015,
+                            "ready-time-sec": 1526454399
+                        },
+                        {
+                            "id": 100012,
+                            "ready-time-sec": 1526454400
+                        },
+                        {
+                            "id": 100004,
+                            "ready-time-sec": 1526454408
+                        },
+                        {
+                            "id": 100009,
+                            "ready-time-sec": 1526454411
+                        },
+                        {
+                            "id": 100014,
+                            "ready-time-sec": 1526454414
+                        },
+                        {
+                            "id": 100000,
+                            "ready-time-sec": 1526454421
+                        }
+                    ],
+                    "delayed-time-sec": 30
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 1,
+                    "end": 6553,
+                    "start": 1
+                },
+                "block-size": 6553,
+                "parent-pool-name": "aliveness-monitor",
+                "pool-name": "aliveness-monitor.169781806",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 30
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 24,
+                    "end": 254,
+                    "start": 0
+                },
+                "block-size": 25,
+                "child-pools": [
+                    {
+                        "child-pool-name": "groups.169781806",
+                        "last-access-time": 1526451429
+                    }
+                ],
+                "pool-name": "groups",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 0
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 49151,
+                    "end": 50789,
+                    "start": 49152
+                },
+                "block-size": 1638,
+                "parent-pool-name": "10.10.10.10",
+                "pool-name": "10.10.10.10.169781806",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 30
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 6553,
+                    "end": 65535,
+                    "start": 1
+                },
+                "block-size": 6553,
+                "child-pools": [
+                    {
+                        "child-pool-name": "aliveness-monitor.169781806",
+                        "last-access-time": 1526451431
+                    }
+                ],
+                "id-entries": [
+                    {
+                        "id-key": "2.120000.4.Arp.",
+                        "id-value": [
+                            1
+                        ]
+                    }
+                ],
+                "pool-name": "aliveness-monitor",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 0
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": -1,
+                    "end": 24,
+                    "start": 0
+                },
+                "block-size": 25,
+                "parent-pool-name": "groups",
+                "pool-name": "groups.169781806",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 30
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 43,
+                    "end": 6553,
+                    "start": 1
+                },
+                "block-size": 6553,
+                "parent-pool-name": "interfaces",
+                "pool-name": "interfaces.169781806",
+                "released-ids-holder": {
+                    "available-id-count": 26,
+                    "delayed-id-entries": [
+                        {
+                            "id": 14,
+                            "ready-time-sec": 1526453695
+                        },
+                        {
+                            "id": 12,
+                            "ready-time-sec": 1526453723
+                        },
+                        {
+                            "id": 11,
+                            "ready-time-sec": 1526453725
+                        },
+                        {
+                            "id": 17,
+                            "ready-time-sec": 1526453726
+                        },
+                        {
+                            "id": 15,
+                            "ready-time-sec": 1526453727
+                        },
+                        {
+                            "id": 18,
+                            "ready-time-sec": 1526453736
+                        },
+                        {
+                            "id": 19,
+                            "ready-time-sec": 1526453738
+                        },
+                        {
+                            "id": 20,
+                            "ready-time-sec": 1526453740
+                        },
+                        {
+                            "id": 9,
+                            "ready-time-sec": 1526453745
+                        },
+                        {
+                            "id": 7,
+                            "ready-time-sec": 1526453746
+                        },
+                        {
+                            "id": 10,
+                            "ready-time-sec": 1526453754
+                        },
+                        {
+                            "id": 26,
+                            "ready-time-sec": 1526454371
+                        },
+                        {
+                            "id": 25,
+                            "ready-time-sec": 1526454371
+                        },
+                        {
+                            "id": 27,
+                            "ready-time-sec": 1526454373
+                        },
+                        {
+                            "id": 29,
+                            "ready-time-sec": 1526454373
+                        },
+                        {
+                            "id": 28,
+                            "ready-time-sec": 1526454374
+                        },
+                        {
+                            "id": 30,
+                            "ready-time-sec": 1526454387
+                        },
+                        {
+                            "id": 31,
+                            "ready-time-sec": 1526454388
+                        },
+                        {
+                            "id": 32,
+                            "ready-time-sec": 1526454390
+                        },
+                        {
+                            "id": 33,
+                            "ready-time-sec": 1526454398
+                        },
+                        {
+                            "id": 34,
+                            "ready-time-sec": 1526454400
+                        },
+                        {
+                            "id": 35,
+                            "ready-time-sec": 1526454402
+                        },
+                        {
+                            "id": 22,
+                            "ready-time-sec": 1526454429
+                        },
+                        {
+                            "id": 21,
+                            "ready-time-sec": 1526454430
+                        },
+                        {
+                            "id": 23,
+                            "ready-time-sec": 1526454437
+                        },
+                        {
+                            "id": 24,
+                            "ready-time-sec": 1526454443
+                        }
+                    ],
+                    "delayed-time-sec": 30
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 24,
+                    "end": 254,
+                    "start": 0
+                },
+                "block-size": 25,
+                "child-pools": [
+                    {
+                        "child-pool-name": "tables.169781806",
+                        "last-access-time": 1526451429
+                    }
+                ],
+                "pool-name": "tables",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 0
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 70001,
+                    "end": 72998,
+                    "start": 70000
+                },
+                "block-size": 2999,
+                "parent-pool-name": "opendaylight-vni-ranges",
+                "pool-name": "opendaylight-vni-ranges.169781806",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 30
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 24,
+                    "end": 254,
+                    "start": 0
+                },
+                "block-size": 25,
+                "child-pools": [
+                    {
+                        "child-pool-name": "meters.169781806",
+                        "last-access-time": 1526451429
+                    }
+                ],
+                "pool-name": "meters",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 0
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 0,
+                    "end": 9999,
+                    "start": 1
+                },
+                "block-size": 9999,
+                "parent-pool-name": "Itmservices",
+                "pool-name": "Itmservices.169781806",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 30
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 9999,
+                    "end": 100000,
+                    "start": 1
+                },
+                "block-size": 9999,
+                "child-pools": [
+                    {
+                        "child-pool-name": "Itmservices.169781806",
+                        "last-access-time": 1526451430
+                    }
+                ],
+                "pool-name": "Itmservices",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 0
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 5499,
+                    "end": 10000,
+                    "start": 5000
+                },
+                "block-size": 500,
+                "child-pools": [
+                    {
+                        "child-pool-name": "elan.ids.pool.169781806",
+                        "last-access-time": 1526454601
+                    }
+                ],
+                "id-entries": [
+                    {
+                        "id-key": "4e645a4f-8100-4805-b5ef-cdffb174d7e7",
+                        "id-value": [
+                            5008
+                        ]
+                    },
+                    {
+                        "id-key": "9be71dcc-ace5-4729-be24-e7ba25b4586d",
+                        "id-value": [
+                            5009
+                        ]
+                    },
+                    {
+                        "id-key": "bd8db3a8-2b30-4083-a8b3-b3fd46401142",
+                        "id-value": [
+                            5001
+                        ]
+                    },
+                    {
+                        "id-key": "arp.responder.group.id",
+                        "id-value": [
+                            5000
+                        ]
+                    },
+                    {
+                        "id-key": "00cfdcd4-a215-463e-8621-e12734edee7b",
+                        "id-value": [
+                            5007
+                        ]
+                    }
+                ],
+                "pool-name": "elan.ids.pool",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 0
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 50789,
+                    "end": 65535,
+                    "start": 49152
+                },
+                "block-size": 1638,
+                "child-pools": [
+                    {
+                        "child-pool-name": "10.10.10.10.169781806",
+                        "last-access-time": 1526454640
+                    }
+                ],
+                "pool-name": "10.10.10.10",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 0
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 49151,
+                    "end": 50789,
+                    "start": 49152
+                },
+                "block-size": 1638,
+                "parent-pool-name": "10.10.10.7",
+                "pool-name": "10.10.10.7.169781806",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 30
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 6553,
+                    "end": 65535,
+                    "start": 1
+                },
+                "block-size": 6553,
+                "child-pools": [
+                    {
+                        "child-pool-name": "RouteDistinguisherPool.169781806",
+                        "last-access-time": 1526451432
+                    }
+                ],
+                "pool-name": "RouteDistinguisherPool",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 0
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 50789,
+                    "end": 65535,
+                    "start": 49152
+                },
+                "block-size": 1638,
+                "child-pools": [
+                    {
+                        "child-pool-name": "10.10.10.7.169781806",
+                        "last-access-time": 1526454643
+                    }
+                ],
+                "pool-name": "10.10.10.7",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 0
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 225004,
+                    "end": 227499,
+                    "start": 225000
+                },
+                "block-size": 2500,
+                "parent-pool-name": "snatGroupIdPool",
+                "pool-name": "snatGroupIdPool.169781806",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 30
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 102999,
+                    "end": 130000,
+                    "start": 100000
+                },
+                "block-size": 3000,
+                "child-pools": [
+                    {
+                        "child-pool-name": "vpnservices.169781806",
+                        "last-access-time": 1526454671
+                    }
+                ],
+                "id-entries": [
+                    {
+                        "id-key": "ac54d841-2356-4cc2-9657-dd7eafe05575",
+                        "id-value": [
+                            100017
+                        ]
+                    },
+                    {
+                        "id-key": "9be71dcc-ace5-4729-be24-e7ba25b4586d",
+                        "id-value": [
+                            100016
+                        ]
+                    },
+                    {
+                        "id-key": "10c783e7-581d-4540-90d5-cd7601af0292.41.0.0.1/32",
+                        "id-value": [
+                            100022
+                        ]
+                    },
+                    {
+                        "id-key": "4875dd2c-8d9e-472a-b4a7-d7b0e87475bc.42.0.0.1/32",
+                        "id-value": [
+                            100028
+                        ]
+                    },
+                    {
+                        "id-key": "6afe90ac-e6f5-4d28-bffa-4283d67ef0c5.33.0.0.1/32",
+                        "id-value": [
+                            100011
+                        ]
+                    },
+                    {
+                        "id-key": "10c783e7-581d-4540-90d5-cd7601af0292.41.0.0.10/32",
+                        "id-value": [
+                            100024
+                        ]
+                    },
+                    {
+                        "id-key": "9be71dcc-ace5-4729-be24-e7ba25b4586d.10.10.10.10/32",
+                        "id-value": [
+                            100031
+                        ]
+                    },
+                    {
+                        "id-key": "ac54d841-2356-4cc2-9657-dd7eafe05575.10.10.10.8",
+                        "id-value": [
+                            100033
+                        ]
+                    },
+                    {
+                        "id-key": "10c783e7-581d-4540-90d5-cd7601af0292",
+                        "id-value": [
+                            100020
+                        ]
+                    },
+                    {
+                        "id-key": "10c783e7-581d-4540-90d5-cd7601af0292.41.0.0.3/32",
+                        "id-value": [
+                            100023
+                        ]
+                    },
+                    {
+                        "id-key": "10c783e7-581d-4540-90d5-cd7601af0292.41.0.0.2/32",
+                        "id-value": [
+                            100025
+                        ]
+                    },
+                    {
+                        "id-key": "6afe90ac-e6f5-4d28-bffa-4283d67ef0c5.32.0.0.1/32",
+                        "id-value": [
+                            100006
+                        ]
+                    },
+                    {
+                        "id-key": "ac54d841-2356-4cc2-9657-dd7eafe05575.10.10.10.3",
+                        "id-value": [
+                            100034
+                        ]
+                    },
+                    {
+                        "id-key": "ac54d841-2356-4cc2-9657-dd7eafe05575.10.10.10.0/24",
+                        "id-value": [
+                            100018
+                        ]
+                    },
+                    {
+                        "id-key": "ac54d841-2356-4cc2-9657-dd7eafe05575.10.10.10.2/32",
+                        "id-value": [
+                            100019
+                        ]
+                    },
+                    {
+                        "id-key": "10c783e7-581d-4540-90d5-cd7601af0292.41.0.0.7/32",
+                        "id-value": [
+                            100026
+                        ]
+                    },
+                    {
+                        "id-key": "9be71dcc-ace5-4729-be24-e7ba25b4586d.10.10.10.7/32",
+                        "id-value": [
+                            100032
+                        ]
+                    },
+                    {
+                        "id-key": "4875dd2c-8d9e-472a-b4a7-d7b0e87475bc.42.0.0.6/32",
+                        "id-value": [
+                            100030
+                        ]
+                    },
+                    {
+                        "id-key": "10c783e7-581d-4540-90d5-cd7601af0292.41.0.0.13/32",
+                        "id-value": [
+                            100027
+                        ]
+                    },
+                    {
+                        "id-key": "4875dd2c-8d9e-472a-b4a7-d7b0e87475bc",
+                        "id-value": [
+                            100021
+                        ]
+                    },
+                    {
+                        "id-key": "6afe90ac-e6f5-4d28-bffa-4283d67ef0c5.31.0.0.1/32",
+                        "id-value": [
+                            100001
+                        ]
+                    },
+                    {
+                        "id-key": "4875dd2c-8d9e-472a-b4a7-d7b0e87475bc.42.0.0.2/32",
+                        "id-value": [
+                            100029
+                        ]
+                    }
+                ],
+                "pool-name": "vpnservices",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 0
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 170000,
+                    "end": 179999,
+                    "start": 170001
+                },
+                "block-size": 9999,
+                "parent-pool-name": "lporttag",
+                "pool-name": "lporttag.169781806",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 30
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 0,
+                    "end": 6553,
+                    "start": 1
+                },
+                "block-size": 6553,
+                "parent-pool-name": "RouteDistinguisherPool",
+                "pool-name": "RouteDistinguisherPool.169781806",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 30
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 72998,
+                    "end": 99999,
+                    "start": 70000
+                },
+                "block-size": 2999,
+                "child-pools": [
+                    {
+                        "child-pool-name": "opendaylight-vni-ranges.169781806",
+                        "last-access-time": 1526454643
+                    }
+                ],
+                "id-entries": [
+                    {
+                        "id-key": "10c783e7-581d-4540-90d5-cd7601af0292",
+                        "id-value": [
+                            70000
+                        ]
+                    },
+                    {
+                        "id-key": "4875dd2c-8d9e-472a-b4a7-d7b0e87475bc",
+                        "id-value": [
+                            70001
+                        ]
+                    }
+                ],
+                "pool-name": "opendaylight-vni-ranges",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 0
+                }
+            },
+            {
+                "available-ids-holder": {
+                    "cursor": 999,
+                    "end": 10000,
+                    "start": 1
+                },
+                "block-size": 999,
+                "child-pools": [
+                    {
+                        "child-pool-name": "ACL-TAG-POOL.169781806",
+                        "last-access-time": 1526454640
+                    }
+                ],
+                "id-entries": [
+                    {
+                        "id-key": "9337b3ad-169b-4189-b1f6-0a2d3f92c4f1",
+                        "id-value": [
+                            3
+                        ]
+                    },
+                    {
+                        "id-key": "6ea236de-44b7-4963-80a7-fa555ee73762",
+                        "id-value": [
+                            6
+                        ]
+                    },
+                    {
+                        "id-key": "38c74725-6c76-4262-b3d9-434415ccc0a7",
+                        "id-value": [
+                            7
+                        ]
+                    },
+                    {
+                        "id-key": "e6f13a2a-b2ac-4037-9031-63eb2d1e1117",
+                        "id-value": [
+                            1
+                        ]
+                    },
+                    {
+                        "id-key": "1076c1cf-6959-4ccf-9e7c-56010c4ad369",
+                        "id-value": [
+                            2
+                        ]
+                    },
+                    {
+                        "id-key": "7b20b633-9711-488a-97a0-28b77456e485",
+                        "id-value": [
+                            4
+                        ]
+                    },
+                    {
+                        "id-key": "f7867f98-fca3-4475-94de-d751262d0562",
+                        "id-value": [
+                            5
+                        ]
+                    }
+                ],
+                "pool-name": "ACL-TAG-POOL",
+                "released-ids-holder": {
+                    "available-id-count": 0,
+                    "delayed-time-sec": 0
+                }
+            }
+        ]
+    }
+}

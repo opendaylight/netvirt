@@ -1,0 +1,1444 @@
+{
+    "topology": [
+        {
+            "node": [
+                {
+                    "node-id": "ovsdb://uuid/a5e68243-e551-4398-88e4-0ab7a638193d/bridge/br-int",
+                    "ovsdb:bridge-external-ids": [
+                        {
+                            "bridge-external-id-key": "opendaylight-iid",
+                            "bridge-external-id-value": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/a5e68243-e551-4398-88e4-0ab7a638193d/bridge/br-int']"
+                        }
+                    ],
+                    "ovsdb:bridge-name": "br-int",
+                    "ovsdb:bridge-other-configs": [
+                        {
+                            "bridge-other-config-key": "disable-in-band",
+                            "bridge-other-config-value": "true"
+                        },
+                        {
+                            "bridge-other-config-key": "hwaddr",
+                            "bridge-other-config-value": "f4:1e:dd:88:26:b5"
+                        }
+                    ],
+                    "ovsdb:bridge-uuid": "434f929a-89e7-4d76-9d3f-971514ad1a56",
+                    "ovsdb:controller-entry": [
+                        {
+                            "controller-uuid": "5625d82a-57cd-4fd8-a30e-23ce25803bf4",
+                            "is-connected": true,
+                            "target": "tcp:10.30.170.46:6653"
+                        }
+                    ],
+                    "ovsdb:datapath-id": "00:00:f4:1e:dd:88:26:b5",
+                    "ovsdb:datapath-type": "ovsdb:datapath-type-system",
+                    "ovsdb:fail-mode": "ovsdb:ovsdb-fail-mode-secure",
+                    "ovsdb:managed-by": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/a5e68243-e551-4398-88e4-0ab7a638193d']",
+                    "ovsdb:protocol-entry": [
+                        {
+                            "protocol": "ovsdb:ovsdb-bridge-protocol-openflow-13"
+                        }
+                    ],
+                    "ovsdb:stp_enable": false,
+                    "termination-point": [
+                        {
+                            "ovsdb:ifindex": 18,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-external-ids": [
+                                {
+                                    "external-id-key": "iface-status",
+                                    "external-id-value": "active"
+                                },
+                                {
+                                    "external-id-key": "attached-mac",
+                                    "external-id-value": "fa:16:3e:74:5f:9d"
+                                },
+                                {
+                                    "external-id-key": "iface-id",
+                                    "external-id-value": "dd6274b2-ad99-4696-a580-e57ec1161eeb"
+                                },
+                                {
+                                    "external-id-key": "vm-id",
+                                    "external-id-value": "6328bf84-091e-49b3-ac0d-c1ba7aa2b6a0"
+                                }
+                            ],
+                            "ovsdb:interface-uuid": "6b955f44-3615-4c76-90a0-ba29f830b6d5",
+                            "ovsdb:name": "tapdd6274b2-ad",
+                            "ovsdb:ofport": 12,
+                            "ovsdb:port-uuid": "2e1d5397-da26-4305-8c7f-cd0b3a6ee827",
+                            "tp-id": "tapdd6274b2-ad"
+                        },
+                        {
+                            "ovsdb:ifindex": 20,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-external-ids": [
+                                {
+                                    "external-id-key": "iface-status",
+                                    "external-id-value": "active"
+                                },
+                                {
+                                    "external-id-key": "attached-mac",
+                                    "external-id-value": "fa:16:3e:f9:27:8c"
+                                },
+                                {
+                                    "external-id-key": "iface-id",
+                                    "external-id-value": "125086c7-eb76-40fd-958b-630b0f06da6e"
+                                },
+                                {
+                                    "external-id-key": "vm-id",
+                                    "external-id-value": "c3bc9bc3-d4cd-4c50-83d1-f498a91d2072"
+                                }
+                            ],
+                            "ovsdb:interface-uuid": "430015c1-63c9-4d99-b243-31f7ac42a853",
+                            "ovsdb:name": "tap125086c7-eb",
+                            "ovsdb:ofport": 14,
+                            "ovsdb:port-uuid": "bcd35210-04e1-4284-8771-3db1714f1c89",
+                            "tp-id": "tap125086c7-eb"
+                        },
+                        {
+                            "ovsdb:ifindex": 19,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-external-ids": [
+                                {
+                                    "external-id-key": "iface-status",
+                                    "external-id-value": "active"
+                                },
+                                {
+                                    "external-id-key": "attached-mac",
+                                    "external-id-value": "fa:16:3e:3f:9f:c5"
+                                },
+                                {
+                                    "external-id-key": "iface-id",
+                                    "external-id-value": "3817424a-0e61-411b-a78c-23a3dff119cb"
+                                },
+                                {
+                                    "external-id-key": "vm-id",
+                                    "external-id-value": "254e9c39-017b-4cdf-8c70-f43043640078"
+                                }
+                            ],
+                            "ovsdb:interface-uuid": "d1395af0-f848-49d1-97ba-a03cada9088f",
+                            "ovsdb:name": "tap3817424a-0e",
+                            "ovsdb:ofport": 13,
+                            "ovsdb:port-uuid": "2c4b9140-aab8-452c-95dd-218016eeb33f",
+                            "tp-id": "tap3817424a-0e"
+                        },
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-type": "ovsdb:interface-type-patch",
+                            "ovsdb:interface-uuid": "aa4506a3-b95d-40f3-ad0e-e90cf8927af6",
+                            "ovsdb:name": "br-physnet1-pa",
+                            "ovsdb:ofport": 1,
+                            "ovsdb:options": [
+                                {
+                                    "option": "peer",
+                                    "value": "br-physnet1-int-patch"
+                                }
+                            ],
+                            "ovsdb:port-external-ids": [
+                                {
+                                    "external-id-key": "opendaylight-iid",
+                                    "external-id-value": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/a5e68243-e551-4398-88e4-0ab7a638193d/bridge/br-int']/network-topology:termination-point[network-topology:tp-id='br-physnet1-pa']"
+                                }
+                            ],
+                            "ovsdb:port-uuid": "5c4cedba-9187-46dd-8d07-912534a3ecc4",
+                            "tp-id": "br-physnet1-pa"
+                        },
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-bfd": [
+                                {
+                                    "bfd-key": "forwarding_if_rx",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "enable",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "min_tx",
+                                    "bfd-value": "10000"
+                                }
+                            ],
+                            "ovsdb:interface-bfd-status": [
+                                {
+                                    "bfd-status-key": "flap_count",
+                                    "bfd-status-value": "1"
+                                },
+                                {
+                                    "bfd-status-key": "remote_diagnostic",
+                                    "bfd-status-value": "No Diagnostic"
+                                },
+                                {
+                                    "bfd-status-key": "forwarding",
+                                    "bfd-status-value": "true"
+                                },
+                                {
+                                    "bfd-status-key": "remote_state",
+                                    "bfd-status-value": "up"
+                                },
+                                {
+                                    "bfd-status-key": "diagnostic",
+                                    "bfd-status-value": "No Diagnostic"
+                                },
+                                {
+                                    "bfd-status-key": "state",
+                                    "bfd-status-value": "up"
+                                }
+                            ],
+                            "ovsdb:interface-type": "ovsdb:interface-type-vxlan",
+                            "ovsdb:interface-uuid": "84399af9-e532-43d8-9285-f984f68031be",
+                            "ovsdb:name": "tun81babcc8f1b",
+                            "ovsdb:ofport": 2,
+                            "ovsdb:options": [
+                                {
+                                    "option": "key",
+                                    "value": "flow"
+                                },
+                                {
+                                    "option": "local_ip",
+                                    "value": "10.30.170.44"
+                                },
+                                {
+                                    "option": "remote_ip",
+                                    "value": "10.30.170.47"
+                                }
+                            ],
+                            "ovsdb:port-external-ids": [
+                                {
+                                    "external-id-key": "opendaylight-iid",
+                                    "external-id-value": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/a5e68243-e551-4398-88e4-0ab7a638193d/bridge/br-int']/network-topology:termination-point[network-topology:tp-id='tun81babcc8f1b']"
+                                }
+                            ],
+                            "ovsdb:port-uuid": "d7c821dc-cbf7-4e2e-9c6f-2950357b8fef",
+                            "tp-id": "tun81babcc8f1b"
+                        },
+                        {
+                            "ovsdb:ifindex": 7,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-type": "ovsdb:interface-type-internal",
+                            "ovsdb:interface-uuid": "1c14f76f-dd0f-49b3-9cff-cf58f7052731",
+                            "ovsdb:name": "br-int",
+                            "ovsdb:ofport": 65534,
+                            "ovsdb:port-uuid": "ac5f353c-f23d-42dd-92cd-ce73509658f9",
+                            "tp-id": "br-int"
+                        },
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-bfd": [
+                                {
+                                    "bfd-key": "forwarding_if_rx",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "enable",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "min_tx",
+                                    "bfd-value": "10000"
+                                }
+                            ],
+                            "ovsdb:interface-bfd-status": [
+                                {
+                                    "bfd-status-key": "flap_count",
+                                    "bfd-status-value": "1"
+                                },
+                                {
+                                    "bfd-status-key": "remote_diagnostic",
+                                    "bfd-status-value": "No Diagnostic"
+                                },
+                                {
+                                    "bfd-status-key": "forwarding",
+                                    "bfd-status-value": "true"
+                                },
+                                {
+                                    "bfd-status-key": "remote_state",
+                                    "bfd-status-value": "up"
+                                },
+                                {
+                                    "bfd-status-key": "diagnostic",
+                                    "bfd-status-value": "No Diagnostic"
+                                },
+                                {
+                                    "bfd-status-key": "state",
+                                    "bfd-status-value": "up"
+                                }
+                            ],
+                            "ovsdb:interface-type": "ovsdb:interface-type-vxlan",
+                            "ovsdb:interface-uuid": "50e07e93-a287-44e1-b634-1628073b8d29",
+                            "ovsdb:name": "tunb6bc746d43d",
+                            "ovsdb:ofport": 3,
+                            "ovsdb:options": [
+                                {
+                                    "option": "key",
+                                    "value": "flow"
+                                },
+                                {
+                                    "option": "local_ip",
+                                    "value": "10.30.170.44"
+                                },
+                                {
+                                    "option": "remote_ip",
+                                    "value": "10.30.170.48"
+                                }
+                            ],
+                            "ovsdb:port-external-ids": [
+                                {
+                                    "external-id-key": "opendaylight-iid",
+                                    "external-id-value": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/a5e68243-e551-4398-88e4-0ab7a638193d/bridge/br-int']/network-topology:termination-point[network-topology:tp-id='tunb6bc746d43d']"
+                                }
+                            ],
+                            "ovsdb:port-uuid": "e2f98523-3d2a-4ecf-b18b-282f36d23701",
+                            "tp-id": "tunb6bc746d43d"
+                        }
+                    ]
+                },
+                {
+                    "node-id": "ovsdb://uuid/5104172f-0971-4499-bb02-41157e417dce",
+                    "ovsdb:connection-info": {
+                        "local-ip": "10.30.170.46",
+                        "local-port": 6640,
+                        "remote-ip": "10.30.170.48",
+                        "remote-port": 44498
+                    },
+                    "ovsdb:datapath-type-entry": [
+                        {
+                            "datapath-type": "ovsdb:datapath-type-netdev"
+                        },
+                        {
+                            "datapath-type": "ovsdb:datapath-type-system"
+                        }
+                    ],
+                    "ovsdb:db-version": "7.14.0",
+                    "ovsdb:interface-type-entry": [
+                        {
+                            "interface-type": "ovsdb:interface-type-lisp"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-geneve"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-gre"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-system"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-vxlan"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-internal"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-stt"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-tap"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-patch"
+                        }
+                    ],
+                    "ovsdb:managed-node-entry": [
+                        {
+                            "bridge-ref": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/5104172f-0971-4499-bb02-41157e417dce/bridge/br-physnet1']"
+                        },
+                        {
+                            "bridge-ref": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/5104172f-0971-4499-bb02-41157e417dce/bridge/br-int']"
+                        }
+                    ],
+                    "ovsdb:manager-entry": [
+                        {
+                            "connected": true,
+                            "number_of_connections": 1,
+                            "target": "tcp:10.30.170.46:6640"
+                        }
+                    ],
+                    "ovsdb:openvswitch-external-ids": [
+                        {
+                            "external-id-key": "hostname",
+                            "external-id-value": "localhost"
+                        },
+                        {
+                            "external-id-key": "odl_os_hostconfig_hostid",
+                            "external-id-value": "releng-45483-309-2-devstack-pike-1.vexxhost.net"
+                        },
+                        {
+                            "external-id-key": "system-id",
+                            "external-id-value": "93d09b6a-441e-425f-be28-f1a22734d475"
+                        },
+                        {
+                            "external-id-key": "odl_os_hostconfig_config_odl_l2",
+                            "external-id-value": "{\"allowed_network_types\": [\"local\", \"flat\", \"vlan\", \"vxlan\", \"gre\"], \"bridge_mappings\": {\"physnet1\": \"br-physnet1\"}, \"datapath_type\": \"system\", \"supported_vnic_types\": [{\"vif_type\": \"ovs\", \"vnic_type\": \"normal\", \"vif_details\": {\"support_vhost_user\": false, \"has_datapath_type_netdev\": false, \"uuid\": \"5104172f-0971-4499-bb02-41157e417dce\", \"host_addresses\": [\"releng-45483-309-2-devstack-pike-1.vexxhost.net\"]}}]}"
+                        }
+                    ],
+                    "ovsdb:openvswitch-other-configs": [
+                        {
+                            "other-config-key": "provider_mappings",
+                            "other-config-value": "physnet1:br-physnet1"
+                        },
+                        {
+                            "other-config-key": "local_ip",
+                            "other-config-value": "10.30.170.48"
+                        }
+                    ],
+                    "ovsdb:ovs-version": "2.7.3"
+                },
+                {
+                    "node-id": "ovsdb://uuid/a5e68243-e551-4398-88e4-0ab7a638193d",
+                    "ovsdb:connection-info": {
+                        "local-ip": "10.30.170.46",
+                        "local-port": 6640,
+                        "remote-ip": "10.30.170.44",
+                        "remote-port": 56526
+                    },
+                    "ovsdb:datapath-type-entry": [
+                        {
+                            "datapath-type": "ovsdb:datapath-type-netdev"
+                        },
+                        {
+                            "datapath-type": "ovsdb:datapath-type-system"
+                        }
+                    ],
+                    "ovsdb:db-version": "7.14.0",
+                    "ovsdb:interface-type-entry": [
+                        {
+                            "interface-type": "ovsdb:interface-type-lisp"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-geneve"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-gre"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-system"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-vxlan"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-internal"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-stt"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-tap"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-patch"
+                        }
+                    ],
+                    "ovsdb:managed-node-entry": [
+                        {
+                            "bridge-ref": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/a5e68243-e551-4398-88e4-0ab7a638193d/bridge/br-physnet1']"
+                        },
+                        {
+                            "bridge-ref": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/a5e68243-e551-4398-88e4-0ab7a638193d/bridge/br-int']"
+                        }
+                    ],
+                    "ovsdb:manager-entry": [
+                        {
+                            "connected": true,
+                            "number_of_connections": 1,
+                            "target": "tcp:10.30.170.46:6640"
+                        }
+                    ],
+                    "ovsdb:openvswitch-external-ids": [
+                        {
+                            "external-id-key": "hostname",
+                            "external-id-value": "localhost"
+                        },
+                        {
+                            "external-id-key": "odl_os_hostconfig_hostid",
+                            "external-id-value": "releng-45483-309-2-devstack-pike-0.vexxhost.net"
+                        },
+                        {
+                            "external-id-key": "system-id",
+                            "external-id-value": "2cfa53b0-35b2-47aa-8eac-4138ad0954d7"
+                        },
+                        {
+                            "external-id-key": "odl_os_hostconfig_config_odl_l2",
+                            "external-id-value": "{\"allowed_network_types\": [\"local\", \"flat\", \"vlan\", \"vxlan\", \"gre\"], \"bridge_mappings\": {\"physnet1\": \"br-physnet1\"}, \"datapath_type\": \"system\", \"supported_vnic_types\": [{\"vif_type\": \"ovs\", \"vnic_type\": \"normal\", \"vif_details\": {\"support_vhost_user\": false, \"has_datapath_type_netdev\": false, \"uuid\": \"a5e68243-e551-4398-88e4-0ab7a638193d\", \"host_addresses\": [\"releng-45483-309-2-devstack-pike-0.vexxhost.net\"]}}]}"
+                        }
+                    ],
+                    "ovsdb:openvswitch-other-configs": [
+                        {
+                            "other-config-key": "provider_mappings",
+                            "other-config-value": "physnet1:br-physnet1"
+                        },
+                        {
+                            "other-config-key": "local_ip",
+                            "other-config-value": "10.30.170.44"
+                        }
+                    ],
+                    "ovsdb:ovs-version": "2.7.3"
+                },
+                {
+                    "node-id": "ovsdb://uuid/10dc400f-15dd-41a0-84d8-96e205ab166b/bridge/br-physnet1",
+                    "ovsdb:bridge-name": "br-physnet1",
+                    "ovsdb:bridge-other-configs": [
+                        {
+                            "bridge-other-config-key": "disable-in-band",
+                            "bridge-other-config-value": "true"
+                        },
+                        {
+                            "bridge-other-config-key": "hwaddr",
+                            "bridge-other-config-value": "f6:00:00:ff:01:01"
+                        }
+                    ],
+                    "ovsdb:bridge-uuid": "aca6cf9c-7069-4e3f-85b7-4d6830d38418",
+                    "ovsdb:datapath-id": "00:00:f6:00:00:ff:01:01",
+                    "ovsdb:datapath-type": "ovsdb:datapath-type-system",
+                    "ovsdb:managed-by": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/10dc400f-15dd-41a0-84d8-96e205ab166b']",
+                    "ovsdb:stp_enable": false,
+                    "termination-point": [
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-type": "ovsdb:interface-type-vxlan",
+                            "ovsdb:interface-uuid": "5cbba21e-a23f-4094-95ef-f41563b7c557",
+                            "ovsdb:name": "compute2_vxlan",
+                            "ovsdb:ofport": 4,
+                            "ovsdb:options": [
+                                {
+                                    "option": "key",
+                                    "value": "flow"
+                                },
+                                {
+                                    "option": "local_ip",
+                                    "value": "10.30.170.47"
+                                },
+                                {
+                                    "option": "remote_ip",
+                                    "value": "10.30.170.48"
+                                },
+                                {
+                                    "option": "dst_port",
+                                    "value": "9876"
+                                }
+                            ],
+                            "ovsdb:port-uuid": "9f2e3452-d53b-483e-a4ac-787761c6b51d",
+                            "tp-id": "compute2_vxlan"
+                        },
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-type": "ovsdb:interface-type-patch",
+                            "ovsdb:interface-uuid": "d59a492a-086f-4980-9b2b-e7ecf01e3a51",
+                            "ovsdb:name": "br-physnet1-int-patch",
+                            "ovsdb:ofport": 1,
+                            "ovsdb:options": [
+                                {
+                                    "option": "peer",
+                                    "value": "br-physnet1-pa"
+                                }
+                            ],
+                            "ovsdb:port-external-ids": [
+                                {
+                                    "external-id-key": "opendaylight-iid",
+                                    "external-id-value": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/10dc400f-15dd-41a0-84d8-96e205ab166b/bridge/br-physnet1']/network-topology:termination-point[network-topology:tp-id='br-physnet1-int-patch']"
+                                }
+                            ],
+                            "ovsdb:port-uuid": "5ff41271-42df-48ac-897c-7e02d99eeb5f",
+                            "tp-id": "br-physnet1-int-patch"
+                        },
+                        {
+                            "ovsdb:ifindex": 8,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-uuid": "a75d9362-2b24-4297-8752-6a8a33855401",
+                            "ovsdb:name": "pnf_veth0",
+                            "ovsdb:ofport": 2,
+                            "ovsdb:port-uuid": "9098f274-2e3c-432a-8c8f-0e35bb302f3b",
+                            "tp-id": "pnf_veth0"
+                        },
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-type": "ovsdb:interface-type-vxlan",
+                            "ovsdb:interface-uuid": "a73eacd8-9354-49bc-862d-a9f661c0451f",
+                            "ovsdb:name": "compute1_vxlan",
+                            "ovsdb:ofport": 3,
+                            "ovsdb:options": [
+                                {
+                                    "option": "key",
+                                    "value": "flow"
+                                },
+                                {
+                                    "option": "local_ip",
+                                    "value": "10.30.170.47"
+                                },
+                                {
+                                    "option": "remote_ip",
+                                    "value": "10.30.170.44"
+                                },
+                                {
+                                    "option": "dst_port",
+                                    "value": "9876"
+                                }
+                            ],
+                            "ovsdb:port-uuid": "aa7673a6-8ea6-455a-a12a-8adb00b4df31",
+                            "tp-id": "compute1_vxlan"
+                        },
+                        {
+                            "ovsdb:ifindex": 4,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-type": "ovsdb:interface-type-internal",
+                            "ovsdb:interface-uuid": "b4dd9e67-815f-4a90-88d8-c135ed6df042",
+                            "ovsdb:name": "br-physnet1",
+                            "ovsdb:ofport": 65534,
+                            "ovsdb:port-uuid": "3d4d1f09-43c1-4650-8fda-0b202bc4554c",
+                            "tp-id": "br-physnet1"
+                        }
+                    ]
+                },
+                {
+                    "node-id": "ovsdb://uuid/a5e68243-e551-4398-88e4-0ab7a638193d/bridge/br-physnet1",
+                    "ovsdb:bridge-name": "br-physnet1",
+                    "ovsdb:bridge-other-configs": [
+                        {
+                            "bridge-other-config-key": "disable-in-band",
+                            "bridge-other-config-value": "true"
+                        },
+                        {
+                            "bridge-other-config-key": "hwaddr",
+                            "bridge-other-config-value": "f6:00:00:ff:01:02"
+                        }
+                    ],
+                    "ovsdb:bridge-uuid": "32740d77-cc67-486e-a94f-a185aa71eafa",
+                    "ovsdb:datapath-id": "00:00:f6:00:00:ff:01:02",
+                    "ovsdb:datapath-type": "ovsdb:datapath-type-system",
+                    "ovsdb:managed-by": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/a5e68243-e551-4398-88e4-0ab7a638193d']",
+                    "ovsdb:stp_enable": false,
+                    "termination-point": [
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-type": "ovsdb:interface-type-patch",
+                            "ovsdb:interface-uuid": "b3d65b2a-1366-4a14-9dc3-32f4b498e915",
+                            "ovsdb:name": "br-physnet1-int-patch",
+                            "ovsdb:ofport": 1,
+                            "ovsdb:options": [
+                                {
+                                    "option": "peer",
+                                    "value": "br-physnet1-pa"
+                                }
+                            ],
+                            "ovsdb:port-external-ids": [
+                                {
+                                    "external-id-key": "opendaylight-iid",
+                                    "external-id-value": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/a5e68243-e551-4398-88e4-0ab7a638193d/bridge/br-physnet1']/network-topology:termination-point[network-topology:tp-id='br-physnet1-int-patch']"
+                                }
+                            ],
+                            "ovsdb:port-uuid": "1ab6e37d-d3a5-4277-bb95-82cac649ff01",
+                            "tp-id": "br-physnet1-int-patch"
+                        },
+                        {
+                            "ovsdb:ifindex": 6,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-type": "ovsdb:interface-type-internal",
+                            "ovsdb:interface-uuid": "db9c5ac4-85a2-4a8b-bad8-240874483e50",
+                            "ovsdb:name": "br-physnet1",
+                            "ovsdb:ofport": 65534,
+                            "ovsdb:port-uuid": "4ccb393b-7a36-4c48-8c2e-444f5ca678e8",
+                            "tp-id": "br-physnet1"
+                        },
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-type": "ovsdb:interface-type-vxlan",
+                            "ovsdb:interface-uuid": "38edbf74-8de8-4a66-9288-4011c16cb8f5",
+                            "ovsdb:name": "control_vxlan",
+                            "ovsdb:ofport": 2,
+                            "ovsdb:options": [
+                                {
+                                    "option": "key",
+                                    "value": "flow"
+                                },
+                                {
+                                    "option": "local_ip",
+                                    "value": "10.30.170.44"
+                                },
+                                {
+                                    "option": "remote_ip",
+                                    "value": "10.30.170.47"
+                                },
+                                {
+                                    "option": "dst_port",
+                                    "value": "9876"
+                                }
+                            ],
+                            "ovsdb:port-uuid": "38ec3d64-8a24-49c4-9411-014b6bc9db6a",
+                            "tp-id": "control_vxlan"
+                        }
+                    ]
+                },
+                {
+                    "node-id": "ovsdb://uuid/10dc400f-15dd-41a0-84d8-96e205ab166b/bridge/br-int",
+                    "ovsdb:bridge-external-ids": [
+                        {
+                            "bridge-external-id-key": "opendaylight-iid",
+                            "bridge-external-id-value": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/10dc400f-15dd-41a0-84d8-96e205ab166b/bridge/br-int']"
+                        }
+                    ],
+                    "ovsdb:bridge-name": "br-int",
+                    "ovsdb:bridge-other-configs": [
+                        {
+                            "bridge-other-config-key": "disable-in-band",
+                            "bridge-other-config-value": "true"
+                        },
+                        {
+                            "bridge-other-config-key": "hwaddr",
+                            "bridge-other-config-value": "e4:2d:46:66:de:ff"
+                        }
+                    ],
+                    "ovsdb:bridge-uuid": "301f805c-7007-4796-bb65-d6506712b7a3",
+                    "ovsdb:controller-entry": [
+                        {
+                            "controller-uuid": "7862ce89-8df5-43fd-be02-78ba4d0a84b7",
+                            "is-connected": true,
+                            "target": "tcp:10.30.170.46:6653"
+                        }
+                    ],
+                    "ovsdb:datapath-id": "00:00:e4:2d:46:66:de:ff",
+                    "ovsdb:datapath-type": "ovsdb:datapath-type-system",
+                    "ovsdb:fail-mode": "ovsdb:ovsdb-fail-mode-secure",
+                    "ovsdb:managed-by": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/10dc400f-15dd-41a0-84d8-96e205ab166b']",
+                    "ovsdb:protocol-entry": [
+                        {
+                            "protocol": "ovsdb:ovsdb-bridge-protocol-openflow-13"
+                        }
+                    ],
+                    "ovsdb:stp_enable": false,
+                    "termination-point": [
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-bfd": [
+                                {
+                                    "bfd-key": "forwarding_if_rx",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "enable",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "min_tx",
+                                    "bfd-value": "10000"
+                                }
+                            ],
+                            "ovsdb:interface-bfd-status": [
+                                {
+                                    "bfd-status-key": "flap_count",
+                                    "bfd-status-value": "1"
+                                },
+                                {
+                                    "bfd-status-key": "remote_diagnostic",
+                                    "bfd-status-value": "No Diagnostic"
+                                },
+                                {
+                                    "bfd-status-key": "forwarding",
+                                    "bfd-status-value": "true"
+                                },
+                                {
+                                    "bfd-status-key": "remote_state",
+                                    "bfd-status-value": "up"
+                                },
+                                {
+                                    "bfd-status-key": "diagnostic",
+                                    "bfd-status-value": "No Diagnostic"
+                                },
+                                {
+                                    "bfd-status-key": "state",
+                                    "bfd-status-value": "up"
+                                }
+                            ],
+                            "ovsdb:interface-type": "ovsdb:interface-type-vxlan",
+                            "ovsdb:interface-uuid": "dca9d7ef-69e3-47e9-8c0a-28dc9c9e6d34",
+                            "ovsdb:name": "tun94f5e0c09c3",
+                            "ovsdb:ofport": 3,
+                            "ovsdb:options": [
+                                {
+                                    "option": "key",
+                                    "value": "flow"
+                                },
+                                {
+                                    "option": "local_ip",
+                                    "value": "10.30.170.47"
+                                },
+                                {
+                                    "option": "remote_ip",
+                                    "value": "10.30.170.48"
+                                }
+                            ],
+                            "ovsdb:port-external-ids": [
+                                {
+                                    "external-id-key": "opendaylight-iid",
+                                    "external-id-value": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/10dc400f-15dd-41a0-84d8-96e205ab166b/bridge/br-int']/network-topology:termination-point[network-topology:tp-id='tun94f5e0c09c3']"
+                                }
+                            ],
+                            "ovsdb:port-uuid": "84282ed3-e4b7-4f87-a88a-ad944e740c7a",
+                            "tp-id": "tun94f5e0c09c3"
+                        },
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-external-ids": [
+                                {
+                                    "external-id-key": "iface-status",
+                                    "external-id-value": "active"
+                                },
+                                {
+                                    "external-id-key": "attached-mac",
+                                    "external-id-value": "fa:16:3e:f2:15:49"
+                                },
+                                {
+                                    "external-id-key": "iface-id",
+                                    "external-id-value": "5b270839-40d9-43cc-a7fe-36b2971b4ec9"
+                                }
+                            ],
+                            "ovsdb:interface-type": "ovsdb:interface-type-internal",
+                            "ovsdb:interface-uuid": "ca67c4b4-3106-4630-b306-23d3ff9dd5bb",
+                            "ovsdb:name": "tap5b270839-40",
+                            "ovsdb:ofport": 11,
+                            "ovsdb:port-uuid": "90771c7e-e78f-4489-9b7d-4840c3f271e4",
+                            "ovsdb:vlan-tag": 4095,
+                            "tp-id": "tap5b270839-40"
+                        },
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-external-ids": [
+                                {
+                                    "external-id-key": "iface-status",
+                                    "external-id-value": "active"
+                                },
+                                {
+                                    "external-id-key": "attached-mac",
+                                    "external-id-value": "fa:16:3e:9c:46:27"
+                                },
+                                {
+                                    "external-id-key": "iface-id",
+                                    "external-id-value": "985ff6be-fc27-4cb8-936e-ee9505458af1"
+                                }
+                            ],
+                            "ovsdb:interface-type": "ovsdb:interface-type-internal",
+                            "ovsdb:interface-uuid": "848ad88b-80ba-4def-8d4b-b5671ecf1b36",
+                            "ovsdb:name": "tap985ff6be-fc",
+                            "ovsdb:ofport": 10,
+                            "ovsdb:port-uuid": "7511d4c9-4298-4ab8-b036-e6ee040a4ba3",
+                            "ovsdb:vlan-tag": 4095,
+                            "tp-id": "tap985ff6be-fc"
+                        },
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-bfd": [
+                                {
+                                    "bfd-key": "forwarding_if_rx",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "enable",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "min_tx",
+                                    "bfd-value": "10000"
+                                }
+                            ],
+                            "ovsdb:interface-bfd-status": [
+                                {
+                                    "bfd-status-key": "flap_count",
+                                    "bfd-status-value": "1"
+                                },
+                                {
+                                    "bfd-status-key": "remote_diagnostic",
+                                    "bfd-status-value": "No Diagnostic"
+                                },
+                                {
+                                    "bfd-status-key": "forwarding",
+                                    "bfd-status-value": "true"
+                                },
+                                {
+                                    "bfd-status-key": "remote_state",
+                                    "bfd-status-value": "up"
+                                },
+                                {
+                                    "bfd-status-key": "diagnostic",
+                                    "bfd-status-value": "No Diagnostic"
+                                },
+                                {
+                                    "bfd-status-key": "state",
+                                    "bfd-status-value": "up"
+                                }
+                            ],
+                            "ovsdb:interface-type": "ovsdb:interface-type-vxlan",
+                            "ovsdb:interface-uuid": "7f1afc9f-a230-42fa-b333-be15933af9ce",
+                            "ovsdb:name": "tun416ad20e601",
+                            "ovsdb:ofport": 2,
+                            "ovsdb:options": [
+                                {
+                                    "option": "key",
+                                    "value": "flow"
+                                },
+                                {
+                                    "option": "local_ip",
+                                    "value": "10.30.170.47"
+                                },
+                                {
+                                    "option": "remote_ip",
+                                    "value": "10.30.170.44"
+                                }
+                            ],
+                            "ovsdb:port-external-ids": [
+                                {
+                                    "external-id-key": "opendaylight-iid",
+                                    "external-id-value": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/10dc400f-15dd-41a0-84d8-96e205ab166b/bridge/br-int']/network-topology:termination-point[network-topology:tp-id='tun416ad20e601']"
+                                }
+                            ],
+                            "ovsdb:port-uuid": "affbcb13-4e91-4b48-8caf-0c4ce3823395",
+                            "tp-id": "tun416ad20e601"
+                        },
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-type": "ovsdb:interface-type-patch",
+                            "ovsdb:interface-uuid": "4edf5662-308d-4556-b0c4-1d8d07f00e64",
+                            "ovsdb:name": "br-physnet1-pa",
+                            "ovsdb:ofport": 1,
+                            "ovsdb:options": [
+                                {
+                                    "option": "peer",
+                                    "value": "br-physnet1-int-patch"
+                                }
+                            ],
+                            "ovsdb:port-external-ids": [
+                                {
+                                    "external-id-key": "opendaylight-iid",
+                                    "external-id-value": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/10dc400f-15dd-41a0-84d8-96e205ab166b/bridge/br-int']/network-topology:termination-point[network-topology:tp-id='br-physnet1-pa']"
+                                }
+                            ],
+                            "ovsdb:port-uuid": "c34f2943-4bea-4f06-a766-b5646d113cc0",
+                            "tp-id": "br-physnet1-pa"
+                        },
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-external-ids": [
+                                {
+                                    "external-id-key": "iface-status",
+                                    "external-id-value": "active"
+                                },
+                                {
+                                    "external-id-key": "attached-mac",
+                                    "external-id-value": "fa:16:3e:9d:ca:7f"
+                                },
+                                {
+                                    "external-id-key": "iface-id",
+                                    "external-id-value": "cf5a4f3d-b499-44ef-8958-2ea6943cd7a2"
+                                }
+                            ],
+                            "ovsdb:interface-type": "ovsdb:interface-type-internal",
+                            "ovsdb:interface-uuid": "e7d9a6ba-f310-49bf-96a5-9ebf01fee5f7",
+                            "ovsdb:name": "tapcf5a4f3d-b4",
+                            "ovsdb:ofport": 9,
+                            "ovsdb:port-uuid": "50d4738d-3498-4297-9ebc-3c95652a3332",
+                            "ovsdb:vlan-tag": 4095,
+                            "tp-id": "tapcf5a4f3d-b4"
+                        },
+                        {
+                            "ovsdb:ifindex": 5,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-type": "ovsdb:interface-type-internal",
+                            "ovsdb:interface-uuid": "6dae86a8-6702-4454-bea8-58280e572246",
+                            "ovsdb:name": "br-int",
+                            "ovsdb:ofport": 65534,
+                            "ovsdb:port-uuid": "0adb3df0-5bc6-4608-b542-eceb1814ecc1",
+                            "tp-id": "br-int"
+                        }
+                    ]
+                },
+                {
+                    "node-id": "ovsdb://uuid/10dc400f-15dd-41a0-84d8-96e205ab166b",
+                    "ovsdb:connection-info": {
+                        "local-ip": "10.30.170.46",
+                        "local-port": 6640,
+                        "remote-ip": "10.30.170.47",
+                        "remote-port": 36024
+                    },
+                    "ovsdb:datapath-type-entry": [
+                        {
+                            "datapath-type": "ovsdb:datapath-type-netdev"
+                        },
+                        {
+                            "datapath-type": "ovsdb:datapath-type-system"
+                        }
+                    ],
+                    "ovsdb:db-version": "7.14.0",
+                    "ovsdb:interface-type-entry": [
+                        {
+                            "interface-type": "ovsdb:interface-type-lisp"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-geneve"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-gre"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-system"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-vxlan"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-internal"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-stt"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-tap"
+                        },
+                        {
+                            "interface-type": "ovsdb:interface-type-patch"
+                        }
+                    ],
+                    "ovsdb:managed-node-entry": [
+                        {
+                            "bridge-ref": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/10dc400f-15dd-41a0-84d8-96e205ab166b/bridge/br-physnet1']"
+                        },
+                        {
+                            "bridge-ref": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/10dc400f-15dd-41a0-84d8-96e205ab166b/bridge/br-int']"
+                        }
+                    ],
+                    "ovsdb:manager-entry": [
+                        {
+                            "connected": true,
+                            "number_of_connections": 1,
+                            "target": "tcp:10.30.170.46:6640"
+                        },
+                        {
+                            "connected": true,
+                            "number_of_connections": 1,
+                            "target": "ptcp:6641:127.0.0.1"
+                        }
+                    ],
+                    "ovsdb:openvswitch-external-ids": [
+                        {
+                            "external-id-key": "hostname",
+                            "external-id-value": "localhost"
+                        },
+                        {
+                            "external-id-key": "odl_os_hostconfig_hostid",
+                            "external-id-value": "releng-45483-309-1-devstack-pike-0.vexxhost.net"
+                        },
+                        {
+                            "external-id-key": "system-id",
+                            "external-id-value": "accf0ad3-8a94-4c0f-b03b-c261938f052a"
+                        },
+                        {
+                            "external-id-key": "odl_os_hostconfig_config_odl_l2",
+                            "external-id-value": "{\"allowed_network_types\": [\"local\", \"flat\", \"vlan\", \"vxlan\", \"gre\"], \"bridge_mappings\": {\"physnet1\": \"br-physnet1\"}, \"datapath_type\": \"system\", \"supported_vnic_types\": [{\"vif_type\": \"ovs\", \"vnic_type\": \"normal\", \"vif_details\": {\"support_vhost_user\": false, \"has_datapath_type_netdev\": false, \"uuid\": \"10dc400f-15dd-41a0-84d8-96e205ab166b\", \"host_addresses\": [\"releng-45483-309-1-devstack-pike-0.vexxhost.net\"]}}]}"
+                        }
+                    ],
+                    "ovsdb:openvswitch-other-configs": [
+                        {
+                            "other-config-key": "provider_mappings",
+                            "other-config-value": "physnet1:br-physnet1"
+                        },
+                        {
+                            "other-config-key": "local_ip",
+                            "other-config-value": "10.30.170.47"
+                        }
+                    ],
+                    "ovsdb:ovs-version": "2.7.3"
+                },
+                {
+                    "node-id": "ovsdb://uuid/5104172f-0971-4499-bb02-41157e417dce/bridge/br-physnet1",
+                    "ovsdb:bridge-name": "br-physnet1",
+                    "ovsdb:bridge-other-configs": [
+                        {
+                            "bridge-other-config-key": "disable-in-band",
+                            "bridge-other-config-value": "true"
+                        },
+                        {
+                            "bridge-other-config-key": "hwaddr",
+                            "bridge-other-config-value": "f6:00:00:ff:01:03"
+                        }
+                    ],
+                    "ovsdb:bridge-uuid": "83fbe11b-9075-47c5-9f10-8fe775599723",
+                    "ovsdb:datapath-id": "00:00:f6:00:00:ff:01:03",
+                    "ovsdb:datapath-type": "ovsdb:datapath-type-system",
+                    "ovsdb:managed-by": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/5104172f-0971-4499-bb02-41157e417dce']",
+                    "ovsdb:stp_enable": false,
+                    "termination-point": [
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-type": "ovsdb:interface-type-patch",
+                            "ovsdb:interface-uuid": "66ce9473-ec2d-4356-9a66-78420252b781",
+                            "ovsdb:name": "br-physnet1-int-patch",
+                            "ovsdb:ofport": 1,
+                            "ovsdb:options": [
+                                {
+                                    "option": "peer",
+                                    "value": "br-physnet1-pa"
+                                }
+                            ],
+                            "ovsdb:port-external-ids": [
+                                {
+                                    "external-id-key": "opendaylight-iid",
+                                    "external-id-value": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/5104172f-0971-4499-bb02-41157e417dce/bridge/br-physnet1']/network-topology:termination-point[network-topology:tp-id='br-physnet1-int-patch']"
+                                }
+                            ],
+                            "ovsdb:port-uuid": "211d537c-6dd4-4564-b1cf-91bc901415a2",
+                            "tp-id": "br-physnet1-int-patch"
+                        },
+                        {
+                            "ovsdb:ifindex": 6,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-type": "ovsdb:interface-type-internal",
+                            "ovsdb:interface-uuid": "8b0be85a-d871-4a17-88ee-38e9ccfa5031",
+                            "ovsdb:name": "br-physnet1",
+                            "ovsdb:ofport": 65534,
+                            "ovsdb:port-uuid": "bc827768-dfa1-4962-acff-484a99430c07",
+                            "tp-id": "br-physnet1"
+                        },
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-type": "ovsdb:interface-type-vxlan",
+                            "ovsdb:interface-uuid": "c83e1d56-02a6-48dc-9281-dcadaeaf66d9",
+                            "ovsdb:name": "control_vxlan",
+                            "ovsdb:ofport": 2,
+                            "ovsdb:options": [
+                                {
+                                    "option": "key",
+                                    "value": "flow"
+                                },
+                                {
+                                    "option": "local_ip",
+                                    "value": "10.30.170.48"
+                                },
+                                {
+                                    "option": "remote_ip",
+                                    "value": "10.30.170.47"
+                                },
+                                {
+                                    "option": "dst_port",
+                                    "value": "9876"
+                                }
+                            ],
+                            "ovsdb:port-uuid": "15bcb877-d00d-489a-9826-a4ff34080402",
+                            "tp-id": "control_vxlan"
+                        }
+                    ]
+                },
+                {
+                    "node-id": "ovsdb://uuid/5104172f-0971-4499-bb02-41157e417dce/bridge/br-int",
+                    "ovsdb:bridge-external-ids": [
+                        {
+                            "bridge-external-id-key": "opendaylight-iid",
+                            "bridge-external-id-value": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/5104172f-0971-4499-bb02-41157e417dce/bridge/br-int']"
+                        }
+                    ],
+                    "ovsdb:bridge-name": "br-int",
+                    "ovsdb:bridge-other-configs": [
+                        {
+                            "bridge-other-config-key": "disable-in-band",
+                            "bridge-other-config-value": "true"
+                        },
+                        {
+                            "bridge-other-config-key": "hwaddr",
+                            "bridge-other-config-value": "a0:4f:fb:74:e6:de"
+                        }
+                    ],
+                    "ovsdb:bridge-uuid": "d741d1e4-1ee7-4c57-90e4-26f37cf06d09",
+                    "ovsdb:controller-entry": [
+                        {
+                            "controller-uuid": "9f05a34f-559d-415d-baa4-95ec8d7757d5",
+                            "is-connected": true,
+                            "target": "tcp:10.30.170.46:6653"
+                        }
+                    ],
+                    "ovsdb:datapath-id": "00:00:a0:4f:fb:74:e6:de",
+                    "ovsdb:datapath-type": "ovsdb:datapath-type-system",
+                    "ovsdb:fail-mode": "ovsdb:ovsdb-fail-mode-secure",
+                    "ovsdb:managed-by": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/5104172f-0971-4499-bb02-41157e417dce']",
+                    "ovsdb:protocol-entry": [
+                        {
+                            "protocol": "ovsdb:ovsdb-bridge-protocol-openflow-13"
+                        }
+                    ],
+                    "ovsdb:stp_enable": false,
+                    "termination-point": [
+                        {
+                            "ovsdb:ifindex": 17,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-external-ids": [
+                                {
+                                    "external-id-key": "iface-status",
+                                    "external-id-value": "active"
+                                },
+                                {
+                                    "external-id-key": "attached-mac",
+                                    "external-id-value": "fa:16:3e:f6:e2:80"
+                                },
+                                {
+                                    "external-id-key": "iface-id",
+                                    "external-id-value": "44d49bec-02c3-4bca-bbb7-f90552dd0d34"
+                                },
+                                {
+                                    "external-id-key": "vm-id",
+                                    "external-id-value": "acfa89b1-130d-46f6-9bb2-573b72e34ef9"
+                                }
+                            ],
+                            "ovsdb:interface-uuid": "3be20679-bf56-425f-8b46-cc35944456aa",
+                            "ovsdb:name": "tap44d49bec-02",
+                            "ovsdb:ofport": 11,
+                            "ovsdb:port-uuid": "99ca2991-e3e1-4a42-a465-b4322fcdc04f",
+                            "tp-id": "tap44d49bec-02"
+                        },
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-bfd": [
+                                {
+                                    "bfd-key": "forwarding_if_rx",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "enable",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "min_tx",
+                                    "bfd-value": "10000"
+                                }
+                            ],
+                            "ovsdb:interface-bfd-status": [
+                                {
+                                    "bfd-status-key": "flap_count",
+                                    "bfd-status-value": "3"
+                                },
+                                {
+                                    "bfd-status-key": "remote_diagnostic",
+                                    "bfd-status-value": "No Diagnostic"
+                                },
+                                {
+                                    "bfd-status-key": "forwarding",
+                                    "bfd-status-value": "true"
+                                },
+                                {
+                                    "bfd-status-key": "remote_state",
+                                    "bfd-status-value": "up"
+                                },
+                                {
+                                    "bfd-status-key": "diagnostic",
+                                    "bfd-status-value": "No Diagnostic"
+                                },
+                                {
+                                    "bfd-status-key": "state",
+                                    "bfd-status-value": "up"
+                                }
+                            ],
+                            "ovsdb:interface-type": "ovsdb:interface-type-vxlan",
+                            "ovsdb:interface-uuid": "a176de30-ee22-4fae-9cb5-2c7691bffbd1",
+                            "ovsdb:name": "tun94dd387fa4b",
+                            "ovsdb:ofport": 2,
+                            "ovsdb:options": [
+                                {
+                                    "option": "key",
+                                    "value": "flow"
+                                },
+                                {
+                                    "option": "local_ip",
+                                    "value": "10.30.170.48"
+                                },
+                                {
+                                    "option": "remote_ip",
+                                    "value": "10.30.170.47"
+                                }
+                            ],
+                            "ovsdb:port-external-ids": [
+                                {
+                                    "external-id-key": "opendaylight-iid",
+                                    "external-id-value": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/5104172f-0971-4499-bb02-41157e417dce/bridge/br-int']/network-topology:termination-point[network-topology:tp-id='tun94dd387fa4b']"
+                                }
+                            ],
+                            "ovsdb:port-uuid": "1c673b05-8c87-4e57-a8d3-d1c76211a48c",
+                            "tp-id": "tun94dd387fa4b"
+                        },
+                        {
+                            "ovsdb:ifindex": 18,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-external-ids": [
+                                {
+                                    "external-id-key": "iface-status",
+                                    "external-id-value": "active"
+                                },
+                                {
+                                    "external-id-key": "attached-mac",
+                                    "external-id-value": "fa:16:3e:91:6d:01"
+                                },
+                                {
+                                    "external-id-key": "iface-id",
+                                    "external-id-value": "4fc0744a-c040-4e93-897f-2ff4b0a3e740"
+                                },
+                                {
+                                    "external-id-key": "vm-id",
+                                    "external-id-value": "0e037e9b-7b40-4c49-8481-3bdb4d23add1"
+                                }
+                            ],
+                            "ovsdb:interface-uuid": "b6284543-988d-450f-bcbb-7f2ac7eb4914",
+                            "ovsdb:name": "tap4fc0744a-c0",
+                            "ovsdb:ofport": 12,
+                            "ovsdb:port-uuid": "f4c1567d-ed4f-4e7c-a916-cd813be57e63",
+                            "tp-id": "tap4fc0744a-c0"
+                        },
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-type": "ovsdb:interface-type-patch",
+                            "ovsdb:interface-uuid": "2f92b7dd-1346-4f75-b2f0-5b1dcac3d2c6",
+                            "ovsdb:name": "br-physnet1-pa",
+                            "ovsdb:ofport": 1,
+                            "ovsdb:options": [
+                                {
+                                    "option": "peer",
+                                    "value": "br-physnet1-int-patch"
+                                }
+                            ],
+                            "ovsdb:port-external-ids": [
+                                {
+                                    "external-id-key": "opendaylight-iid",
+                                    "external-id-value": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/5104172f-0971-4499-bb02-41157e417dce/bridge/br-int']/network-topology:termination-point[network-topology:tp-id='br-physnet1-pa']"
+                                }
+                            ],
+                            "ovsdb:port-uuid": "ad106663-ff44-4256-8cc1-0ce08a10d6b8",
+                            "tp-id": "br-physnet1-pa"
+                        },
+                        {
+                            "ovsdb:ifindex": 0,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-bfd": [
+                                {
+                                    "bfd-key": "forwarding_if_rx",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "enable",
+                                    "bfd-value": "true"
+                                },
+                                {
+                                    "bfd-key": "min_tx",
+                                    "bfd-value": "10000"
+                                }
+                            ],
+                            "ovsdb:interface-bfd-status": [
+                                {
+                                    "bfd-status-key": "flap_count",
+                                    "bfd-status-value": "3"
+                                },
+                                {
+                                    "bfd-status-key": "remote_diagnostic",
+                                    "bfd-status-value": "No Diagnostic"
+                                },
+                                {
+                                    "bfd-status-key": "forwarding",
+                                    "bfd-status-value": "true"
+                                },
+                                {
+                                    "bfd-status-key": "remote_state",
+                                    "bfd-status-value": "up"
+                                },
+                                {
+                                    "bfd-status-key": "diagnostic",
+                                    "bfd-status-value": "No Diagnostic"
+                                },
+                                {
+                                    "bfd-status-key": "state",
+                                    "bfd-status-value": "up"
+                                }
+                            ],
+                            "ovsdb:interface-type": "ovsdb:interface-type-vxlan",
+                            "ovsdb:interface-uuid": "3aab4262-9015-4e05-b419-5d9832ffc230",
+                            "ovsdb:name": "tuncaa70ffbc9d",
+                            "ovsdb:ofport": 3,
+                            "ovsdb:options": [
+                                {
+                                    "option": "key",
+                                    "value": "flow"
+                                },
+                                {
+                                    "option": "local_ip",
+                                    "value": "10.30.170.48"
+                                },
+                                {
+                                    "option": "remote_ip",
+                                    "value": "10.30.170.44"
+                                }
+                            ],
+                            "ovsdb:port-external-ids": [
+                                {
+                                    "external-id-key": "opendaylight-iid",
+                                    "external-id-value": "/network-topology:network-topology/network-topology:topology[network-topology:topology-id='ovsdb:1']/network-topology:node[network-topology:node-id='ovsdb://uuid/5104172f-0971-4499-bb02-41157e417dce/bridge/br-int']/network-topology:termination-point[network-topology:tp-id='tuncaa70ffbc9d']"
+                                }
+                            ],
+                            "ovsdb:port-uuid": "feb548dd-871c-41f1-bbe1-59598736c712",
+                            "tp-id": "tuncaa70ffbc9d"
+                        },
+                        {
+                            "ovsdb:ifindex": 7,
+                            "ovsdb:ingress-policing-burst": 0,
+                            "ovsdb:ingress-policing-rate": 0,
+                            "ovsdb:interface-type": "ovsdb:interface-type-internal",
+                            "ovsdb:interface-uuid": "59f35ab9-4722-4e38-8cbd-b9dce6decd89",
+                            "ovsdb:name": "br-int",
+                            "ovsdb:ofport": 65534,
+                            "ovsdb:port-uuid": "668dd85e-90c1-42eb-b785-13eaa3800fc5",
+                            "tp-id": "br-int"
+                        }
+                    ]
+                }
+            ],
+            "topology-id": "ovsdb:1"
+        }
+    ]
+}

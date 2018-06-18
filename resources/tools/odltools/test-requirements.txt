@@ -1,0 +1,4 @@
+-r requirements.txt
+discover
+flake8
+tox
