@@ -303,6 +303,13 @@ public class LearntVpnVipToPortEventProcessor
                 }
             }
 
+            // Check if this IP belongs to  external network
+            String extSubnetId = vpnUtil.getAssociatedExternalSubnet(ip);
+            if (extSubnetId != null) {
+                LOG.info("The IP belongs to extenal subnet {} ", extSubnetId);
+                return extSubnetId;
+            }
+
             return null;
         }
     }
