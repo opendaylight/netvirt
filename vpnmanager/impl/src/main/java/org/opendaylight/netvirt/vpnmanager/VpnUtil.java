@@ -1150,6 +1150,31 @@ public final class VpnUtil {
         return routerName;
     }
 
+    @Nullable
+    public String getAssociatedExternalSubnet(String extIp) {
+        InstanceIdentifier<ExtRouters> extRouterInstanceIndentifier =
+                InstanceIdentifier.builder(ExtRouters.class).build();
+        Optional<ExtRouters> extRouterData = read(LogicalDatastoreType.CONFIGURATION, extRouterInstanceIndentifier);
+        if (!extRouterData.isPresent()) {
+            return null;
+        }
+        for (Routers routerData : extRouterData.get().getRouters()) {
+            List<ExternalIps> externalIps = routerData.getExternalIps();
+            for (ExternalIps externalIp : externalIps) {
+                Subnet neutronSubnet = neutronVpnService.getNeutronSubnet(externalIp.getSubnetId());
+                if (neutronSubnet == null) {
+                    LOG.warn("Failed to retrieve subnet {} referenced by router {}",
+                            externalIp.getSubnetId(), routerData);
+                    continue;
+                }
+                if (NWUtil.isIpAddressInRange(IpAddressBuilder.getDefaultInstance(extIp), neutronSubnet.getCidr())) {
+                    return neutronSubnet.getUuid().getValue();
+                }
+            }
+        }
+        return null;
+    }
+
     static InstanceIdentifier<Routers> buildRouterIdentifier(String routerId) {
         return InstanceIdentifier.builder(ExtRouters.class).child(Routers.class, new RoutersKey(routerId)).build();
     }
