@@ -49,6 +49,23 @@
     },
     {
       "key": {
+        "uuid": "afc8284c_3c24431c",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2018-06-18T06:10:44Z",
+      "side": 1,
+      "message": "if debug level is enabled, both the msgs will be logged.\ncan something like this be done\nif (debug enabled) {\n    log.debug(...)\n} else {\n}",
+      "revId": "686d6af7105898fd6c1e13cf495f6c0f6e9bd322",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87ea20ef_6a9036a7",
         "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 10
