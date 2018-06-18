@@ -135,7 +135,7 @@ public class RouterDpnChangeListener
                         LOG.debug("Skipping the notification recived for NAPT switch {}", routerUuid);
                         return;
                     }
-                    natServiceManager.notify(router, naptSwitch, dpnId,
+                    natServiceManager.notify(router, null, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_ENBL);
                 } else {
                     coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.key(), () -> {
@@ -238,7 +238,7 @@ public class RouterDpnChangeListener
                         LOG.debug("Skipping the notification recived for NAPT switch {}", routerUuid);
                         return;
                     }
-                    natServiceManager.notify(router, naptSwitch, dpnId,
+                    natServiceManager.notify(router, null, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_DISBL);
                 } else {
                     coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.key(), () -> {

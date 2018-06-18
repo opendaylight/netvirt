@@ -17,13 +17,14 @@ public interface SnatServiceManager {
         SNAT_ALL_SWITCH_ENBL,
         SNAT_ALL_SWITCH_DISBL,
         SNAT_ROUTER_ENBL,
-        SNAT_ROUTER_DISBL
+        SNAT_ROUTER_DISBL,
+        SNAT_ROUTER_UPDATE
     }
 
     void addNatServiceListener(SnatServiceListener aclServiceListner);
 
     void removeNatServiceListener(SnatServiceListener aclServiceListner);
 
-    void notify(Routers router, BigInteger primarySwitchId, BigInteger dpnId, Action action);
+    void notify(Routers router, Routers oldRouter, BigInteger primarySwitchId, BigInteger dpnId, Action action);
 
 }

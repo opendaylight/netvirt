@@ -433,8 +433,8 @@ public class NaptSwitchHA {
         naptSwitch = naptSwitchSelector.selectNewNAPTSwitch(routerName);
         if (natMode == NatMode.Conntrack) {
             Routers extRouters = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
-            natServiceManager.notify(extRouters, dpnId, dpnId, SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
-            natServiceManager.notify(extRouters, naptSwitch, naptSwitch,
+            natServiceManager.notify(extRouters, null, dpnId, dpnId, SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+            natServiceManager.notify(extRouters, null, naptSwitch, naptSwitch,
                     SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
         } else {
             if (naptSwitch.equals(BigInteger.ZERO)) {

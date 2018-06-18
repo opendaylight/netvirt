@@ -42,6 +42,7 @@ import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
@@ -86,6 +87,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
@@ -98,6 +102,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
@@ -2099,5 +2105,86 @@ public final class NatUtil {
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("createGroupIdPool : Failed to create PortPool for NAPT Service", e);
         }
+    }
+
+
+    public static void syncFlow(IMdsalApiManager mdsalManager, BigInteger dpId, short tableId,
+                                String flowId, int priority, String flowName, BigInteger cookie,
+                                List<? extends MatchInfoBase> matches, List<InstructionInfo> instructions,
+                                int addOrRemove) {
+        if (addOrRemove == NwConstants.DEL_FLOW) {
+            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName,
+                    NatConstants.DEFAULT_IDLE_TIMEOUT, NatConstants.DEFAULT_IDLE_TIMEOUT, cookie, matches, null);
+            LOG.trace("syncFlow : Removing flow on DpnId {}, flowId {}", dpId, flowId);
+            mdsalManager.removeFlow(flowEntity);
+        } else {
+            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName,
+                    NatConstants.DEFAULT_IDLE_TIMEOUT, NatConstants.DEFAULT_IDLE_TIMEOUT, cookie, matches,
+                    instructions);
+            LOG.trace("syncFlow : Installing flow on DpnId {}, flowId {}", dpId, flowId);
+            mdsalManager.installFlow(flowEntity);
+        }
+    }
+
+    public static void syncFlow(IMdsalApiManager mdsalManager, BigInteger dpId, short tableId,
+                                String flowId, int priority, String flowName, BigInteger cookie,
+                                List<? extends MatchInfoBase> matches, List<InstructionInfo> instructions,
+                                WriteTransaction writeFlowTx, int addOrRemove) {
+        if (addOrRemove == NwConstants.DEL_FLOW) {
+            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName,
+                    NatConstants.DEFAULT_IDLE_TIMEOUT, NatConstants.DEFAULT_IDLE_TIMEOUT, cookie, matches, null);
+            LOG.trace("syncFlow : Removing flow on DpnId {}, flowId {}", dpId, flowId);
+            mdsalManager.removeFlowToTx(flowEntity, writeFlowTx);
+        } else {
+            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName,
+                    NatConstants.DEFAULT_IDLE_TIMEOUT, NatConstants.DEFAULT_IDLE_TIMEOUT, cookie, matches,
+                    instructions);
+            LOG.trace("syncFlow : Installing flow on DpnId {}, flowId {}", dpId, flowId);
+            mdsalManager.addFlowToTx(flowEntity, writeFlowTx);
+        }
+    }
+
+    public static String getIpv6FlowRef(BigInteger dpnId, short tableId, long routerID) {
+        return new StringBuilder().append(NatConstants.IPV6_FLOWID_PREFIX).append(dpnId).append(NatConstants
+                .FLOWID_SEPARATOR).append(tableId).append(NatConstants.FLOWID_SEPARATOR).append(routerID).toString();
+    }
+
+    public static String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId,
+                                                ItmRpcService itmManager) {
+        Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
+        RpcResult<GetTunnelInterfaceNameOutput> rpcResult;
+        try {
+            Future<RpcResult<GetTunnelInterfaceNameOutput>> result = itmManager
+                    .getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder().setSourceDpid(srcDpId)
+                            .setDestinationDpid(dstDpId).setTunnelType(tunType).build());
+            rpcResult = result.get();
+            if (!rpcResult.isSuccessful()) {
+                tunType = TunnelTypeGre.class ;
+                result = itmManager.getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder()
+                        .setSourceDpid(srcDpId)
+                        .setDestinationDpid(dstDpId)
+                        .setTunnelType(tunType)
+                        .build());
+                rpcResult = result.get();
+                if (!rpcResult.isSuccessful()) {
+                    LOG.warn("getTunnelInterfaceName : RPC Call to getTunnelInterfaceId returned with Errors {}",
+                            rpcResult.getErrors());
+                } else {
+                    return rpcResult.getResult().getInterfaceName();
+                }
+                LOG.warn("getTunnelInterfaceName : RPC Call to getTunnelInterfaceId returned with Errors {}",
+                        rpcResult.getErrors());
+            } else {
+                return rpcResult.getResult().getInterfaceName();
+            }
+        } catch (InterruptedException | ExecutionException | NullPointerException e) {
+            LOG.error("getTunnelInterfaceName : Exception when getting tunnel interface Id for tunnel "
+                    + "between {} and {}", srcDpId, dstDpId);
+        }
+        return null;
+    }
+
+    public static String getIpv6JobKey(String routerName) {
+        return "Ipv6." + routerName;
     }
 }
