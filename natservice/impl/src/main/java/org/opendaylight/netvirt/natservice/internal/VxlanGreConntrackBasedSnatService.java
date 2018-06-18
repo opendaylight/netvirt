@@ -273,8 +273,8 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         instructionInfo.add(new InstructionApplyActions(listActionInfo));
 
         String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId) + "trkest";
-        addFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef, NatConstants.SNAT_TRK_FLOW_PRIORITY, flowRef,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo);
+        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef,
+                NatConstants.SNAT_TRK_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo);
 
     }
 
@@ -284,7 +284,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
             + "routerId {}", dpnId, routerId);
 
         String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId) + "trkest";
-        removeFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef);
 
     }
 
@@ -320,8 +320,8 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
         String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
-        addFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef,  NatConstants.SNAT_NEW_FLOW_PRIORITY,
-                flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef,
+                NatConstants.SNAT_NEW_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
     protected void removeOutboundTblEntryForVxlanGre(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
@@ -335,7 +335,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         }
         //The logic now handle only one external IP per router, others if present will be ignored.
         String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
-        removeFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef);
     }
 
     protected void addNaptPfibFlowForVxlanGre(TypedWriteTransaction<Configuration> confTx, Routers routers,
@@ -352,8 +352,8 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         listActionInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         instructions.add(new InstructionApplyActions(listActionInfo));
         String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, extNetVpnId);
-        addFlow(confTx, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef, NatConstants.SNAT_TRK_FLOW_PRIORITY,
-                flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef,
+                NatConstants.SNAT_TRK_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
     protected void removeNaptPfibFlowForVxlanGre(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
@@ -361,7 +361,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         LOG.info("installNaptPfibFlowForVxlanGre: Install Napt preFibFlow on dpId {} with matching extNetVpnId {} "
             + "for router {}", dpnId, extNetVpnId, routers.getRouterName());
         String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, extNetVpnId);
-        removeFlow(confTx, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef);
     }
 
     protected void addInboundEntryForVxlanGre(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId,
@@ -392,8 +392,8 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
         String flowRef = getFlowRef(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId);
-        addFlow(confTx, dpnId, NwConstants.INBOUND_NAPT_TABLE, flowRef, NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.INBOUND_NAPT_TABLE, flowRef,
+                NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
     protected void removeInboundEntryForVxlanGre(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
@@ -407,7 +407,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         }
 
         String flowRef = getFlowRef(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId);
-        removeFlow(confTx, dpnId, NwConstants.INBOUND_NAPT_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.INBOUND_NAPT_TABLE, flowRef);
     }
 
     protected void addTerminatingServiceTblEntryForVxlanGre(TypedWriteTransaction<Configuration> confTx,
@@ -436,8 +436,8 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
         String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
-        addFlow(confTx, dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef, NatConstants.DEFAULT_TS_FLOW_PRIORITY,
-            flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef,
+                NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
 
     }
 
@@ -447,7 +447,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
             + "Terminating Service Table for switch {}, routerId {}", dpnId, routerId);
 
         String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
-        removeFlow(confTx, dpnId,  NwConstants.INTERNAL_TUNNEL_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId,  NwConstants.INTERNAL_TUNNEL_TABLE, flowRef);
 
     }
 
@@ -456,7 +456,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         String routerName, BigInteger primarySwitchId) {
         LOG.debug("installSnatMissEntry : Installing SNAT miss entry in switch {}", dpnId);
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
-        String ifNamePrimary = getTunnelInterfaceName(dpnId, primarySwitchId);
+        String ifNamePrimary = NatUtil.getTunnelInterfaceName(dpnId, primarySwitchId, itmManager);
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         if (ifNamePrimary != null) {
             LOG.debug("installSnatMissEntry : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
@@ -493,8 +493,9 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfo));
         String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
-        addFlow(confTx, dpnId, NwConstants.PSNAT_TABLE, flowRef,  NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.PSNAT_TABLE, flowRef,
+                NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches,
+                instructions);
     }
 
     @Override
@@ -503,7 +504,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         LOG.debug("installSnatMissEntry : Removing SNAT miss entry in switch {}", dpnId);
 
         String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
-        removeFlow(confTx, dpnId, NwConstants.PSNAT_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.PSNAT_TABLE, flowRef);
     }
 
 }

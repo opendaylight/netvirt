@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -33,12 +32,10 @@ import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
-import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
-import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -67,12 +64,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -285,6 +277,12 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         return true;
     }
 
+    @Override
+    public boolean handleRouterUpdate(TypedReadWriteTransaction<Configuration> confTx,
+            Routers origRouter, Routers updatedRouter) throws ExecutionException, InterruptedException {
+        return true;
+    }
+
     protected void addCommonEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
             BigInteger dpnId) {
         String routerName = routers.getRouterName();
@@ -418,8 +416,9 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
         String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, routerId);
         flowRef = flowRef + "inbound" + externalIp;
-        addFlow(confTx, dpnId, NwConstants.L3_FIB_TABLE, flowRef, NatConstants.SNAT_FIB_FLOW_PRIORITY, flowRef,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo);
+        NatUtil.addFlow(confTx, mdsalManager,dpnId, NwConstants.L3_FIB_TABLE, flowRef,
+                NatConstants.SNAT_FIB_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches,
+                instructionInfo);
         String rd = NatUtil.getVpnRd(dataBroker, subNetId);
         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
         String ipPrefix = externalIp + "/32";
@@ -435,7 +434,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             String externalIp, Long routerId, String subNetId) throws ExecutionException, InterruptedException {
         String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, routerId);
         flowRef = flowRef + "inbound" + externalIp;
-        removeFlow(confTx, dpnId, NwConstants.L3_FIB_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.L3_FIB_TABLE, flowRef);
         String rd = NatUtil.getVpnRd(dataBroker, subNetId);
         String ipPrefix = externalIp + "/32";
         fibManager.removeFibEntry(rd, ipPrefix, confTx);
@@ -459,8 +458,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
         String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId);
-        addFlow(confTx, dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef, NatConstants.DEFAULT_TS_FLOW_PRIORITY,
-            flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef,
+                NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
     protected void removeTerminatingServiceTblEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
@@ -469,14 +468,14 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             + "for switch {}, routerId {}", dpnId, routerId);
 
         String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId);
-        removeFlow(confTx, dpnId,  NwConstants.INTERNAL_TUNNEL_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId,  NwConstants.INTERNAL_TUNNEL_TABLE, flowRef);
     }
 
     protected void addSnatMissEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
         Long routerId, String routerName, BigInteger primarySwitchId)  {
         LOG.debug("installSnatMissEntry : Installing SNAT miss entry in switch {}", dpnId);
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
-        String ifNamePrimary = getTunnelInterfaceName(dpnId, primarySwitchId);
+        String ifNamePrimary = NatUtil.getTunnelInterfaceName(dpnId, primarySwitchId, itmManager);
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         if (ifNamePrimary != null) {
             LOG.debug("installSnatMissEntry : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
@@ -524,8 +523,9 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfo));
         String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
-        addFlow(confTx, dpnId, NwConstants.PSNAT_TABLE, flowRef,  NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
-            NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.PSNAT_TABLE, flowRef,
+                NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches,
+                instructions);
     }
 
     protected void removeSnatMissEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
@@ -542,13 +542,13 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             dpnId, routerName, groupId);
 
         String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
-        removeFlow(confTx, dpnId, NwConstants.PSNAT_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.PSNAT_TABLE, flowRef);
     }
 
     protected void addInboundTerminatingServiceTblEntry(TypedReadWriteTransaction<Configuration> confTx,
         BigInteger dpnId, Long routerId, long extSubnetId) {
 
-        //Install the tunnel table entry in NAPT switch for inbound traffic to SNAP IP from a non a NAPT switch.
+        //Install the tunnel table entry in NAPT switch for inbound traffic to SNAT IP from a non a NAPT switch.
         LOG.info("installInboundTerminatingServiceTblEntry : creating entry for Terminating Service Table "
                 + "for switch {}, routerId {}", dpnId, routerId);
         List<MatchInfo> matches = new ArrayList<>();
@@ -566,17 +566,17 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
         String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue()) + "INBOUND";
-        addFlow(confTx, dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef, NatConstants.SNAT_FIB_FLOW_PRIORITY, flowRef,
-                 NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef,
+                NatConstants.SNAT_FIB_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
     protected void removeInboundTerminatingServiceTblEntry(TypedReadWriteTransaction<Configuration> confTx,
             BigInteger dpnId, Long routerId) throws ExecutionException, InterruptedException {
-        //Install the tunnel table entry in NAPT switch for inbound traffic to SNAP IP from a non a NAPT switch.
+        //Install the tunnel table entry in NAPT switch for inbound traffic to SNAT IP from a non a NAPT switch.
         LOG.info("installInboundTerminatingServiceTblEntry : creating entry for Terminating Service Table "
             + "for switch {}, routerId {}", dpnId, routerId);
         String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue()) + "INBOUND";
-        removeFlow(confTx, dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef);
     }
 
     protected void addDefaultFibRouteForSNAT(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
@@ -591,35 +591,20 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         instructions.add(new InstructionGotoTable(NwConstants.PSNAT_TABLE));
 
         String flowRef = "DefaultFibRouteForSNAT" + getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, extNetId);
-        addFlow(confTx, dpnId, NwConstants.L3_FIB_TABLE, flowRef, NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef,
-            NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.L3_FIB_TABLE, flowRef,
+                NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches,
+                instructions);
     }
 
     protected void removeDefaultFibRouteForSNAT(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
             Long extNetId) throws ExecutionException, InterruptedException {
         String flowRef = "DefaultFibRouteForSNAT" + getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, extNetId);
-        removeFlow(confTx, dpnId, NwConstants.L3_FIB_TABLE, flowRef);
+        NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.L3_FIB_TABLE, flowRef);
     }
 
     protected String getFlowRef(BigInteger dpnId, short tableId, long routerID) {
         return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR
             + tableId + NatConstants.FLOWID_SEPARATOR + routerID;
-    }
-
-    protected void addFlow(TypedWriteTransaction<Configuration> confTx, BigInteger dpId, short tableId,
-        String flowId, int priority, String flowName, BigInteger cookie, List<? extends MatchInfoBase> matches,
-        List<InstructionInfo> instructions) {
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName,
-                NatConstants.DEFAULT_IDLE_TIMEOUT, NatConstants.DEFAULT_IDLE_TIMEOUT, cookie, matches,
-                instructions);
-        LOG.trace("syncFlow : Installing DpnId {}, flowId {}", dpId, flowId);
-        mdsalManager.addFlow(confTx, flowEntity);
-    }
-
-    protected void removeFlow(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpId, short tableId,
-            String flowId) throws ExecutionException, InterruptedException {
-        LOG.trace("syncFlow : Removing Acl Flow DpnId {}, flowId {}", dpId, flowId);
-        mdsalManager.removeFlow(confTx, dpId, flowId, tableId);
     }
 
     protected long createGroupId(String groupIdKey) {
@@ -638,41 +623,6 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
     protected String getGroupIdKey(String routerName) {
         return "snatmiss." + routerName;
-    }
-
-    @Nullable
-    protected String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {
-        Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
-        RpcResult<GetTunnelInterfaceNameOutput> rpcResult;
-        try {
-            Future<RpcResult<GetTunnelInterfaceNameOutput>> result = itmManager
-                    .getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder().setSourceDpid(srcDpId)
-                            .setDestinationDpid(dstDpId).setTunnelType(tunType).build());
-            rpcResult = result.get();
-            if (!rpcResult.isSuccessful()) {
-                tunType = TunnelTypeGre.class ;
-                result = itmManager.getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder()
-                        .setSourceDpid(srcDpId)
-                        .setDestinationDpid(dstDpId)
-                        .setTunnelType(tunType)
-                        .build());
-                rpcResult = result.get();
-                if (!rpcResult.isSuccessful()) {
-                    LOG.warn("getTunnelInterfaceName : RPC Call to getTunnelInterfaceId returned with Errors {}",
-                            rpcResult.getErrors());
-                } else {
-                    return rpcResult.getResult().getInterfaceName();
-                }
-                LOG.warn("getTunnelInterfaceName : RPC Call to getTunnelInterfaceId returned with Errors {}",
-                        rpcResult.getErrors());
-            } else {
-                return rpcResult.getResult().getInterfaceName();
-            }
-        } catch (InterruptedException | ExecutionException | NullPointerException e) {
-            LOG.error("getTunnelInterfaceName : Exception when getting tunnel interface Id for tunnel "
-                    + "between {} and {}", srcDpId, dstDpId);
-        }
-        return null;
     }
 
     protected void removeMipAdjacencies(Routers routers) {
