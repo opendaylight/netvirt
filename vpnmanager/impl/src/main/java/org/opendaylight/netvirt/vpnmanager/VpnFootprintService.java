@@ -90,30 +90,34 @@ public class VpnFootprintService implements IVpnFootprintService {
     public void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String primaryRd, String interfaceName,
             ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, boolean add) {
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-        if (!dpId.equals(BigInteger.ZERO)) {
-            if (add) {
-                // Considering the possibility of VpnInstanceOpData not being ready yet cause
-                // the VPN is
-                // still in its creation process
-                if (vpnId == VpnConstants.INVALID_ID) {
-                    LOG.error("updateVpnToDpnMapping: Operational data  for vpn not ready. Waiting to update vpn"
-                            + " footprint for vpn {} on dpn {} interface {}", vpnName, dpId, interfaceName);
-                    vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId, vpnName,
-                            VpnConstants.PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS);
-                    vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-                }
-                if (interfaceName != null) {
-                    createOrUpdateVpnToDpnListForInterfaceName(vpnId, primaryRd, dpId, interfaceName, vpnName);
-                    publishInterfaceAddedToVpnNotification(interfaceName, dpId, vpnName, vpnId);
+        synchronized (vpnName.intern()) {
+            if (!dpId.equals(BigInteger.ZERO)) {
+                if (add) {
+                    // Considering the possibility of VpnInstanceOpData not being ready yet cause
+                    // the VPN is
+                    // still in its creation process
+                    if (vpnId == VpnConstants.INVALID_ID) {
+                        LOG.error("updateVpnToDpnMapping: Operational data  for vpn not ready. Waiting to update vpn"
+                                + " footprint for vpn {} on dpn {} interface {}", vpnName, dpId, interfaceName);
+                        vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId, vpnName,
+                                VpnConstants.PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS);
+                        vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+                    }
+                    if (interfaceName != null) {
+                        createOrUpdateVpnToDpnListForInterfaceName(vpnId, primaryRd, dpId, interfaceName, vpnName);
+                        publishInterfaceAddedToVpnNotification(interfaceName, dpId, vpnName, vpnId);
+                    } else {
+                        createOrUpdateVpnToDpnListForIPAddress(vpnId, primaryRd, dpId, ipAddressSourceValuePair,
+                                vpnName);
+                    }
                 } else {
-                    createOrUpdateVpnToDpnListForIPAddress(vpnId, primaryRd, dpId, ipAddressSourceValuePair, vpnName);
-                }
-            } else {
-                if (interfaceName != null) {
-                    removeOrUpdateVpnToDpnListForInterfaceName(vpnId, primaryRd, dpId, interfaceName, vpnName);
-                    publishInterfaceRemovedFromVpnNotification(interfaceName, dpId, vpnName, vpnId);
-                } else {
-                    removeOrUpdateVpnToDpnListForIpAddress(vpnId, primaryRd, dpId, ipAddressSourceValuePair, vpnName);
+                    if (interfaceName != null) {
+                        removeOrUpdateVpnToDpnListForInterfaceName(vpnId, primaryRd, dpId, interfaceName, vpnName);
+                        publishInterfaceRemovedFromVpnNotification(interfaceName, dpId, vpnName, vpnId);
+                    } else {
+                        removeOrUpdateVpnToDpnListForIpAddress(vpnId, primaryRd, dpId, ipAddressSourceValuePair,
+                                vpnName);
+                    }
                 }
             }
         }
