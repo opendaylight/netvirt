@@ -34,6 +34,7 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
         if (flatVlaSnatServiceImpl != null) {
             addNatServiceListener(flatVlaSnatServiceImpl);
         }
+        addNatServiceListener(factory.createFlatVlanIpv6ServiceImpl());
         AbstractSnatService vxlanGreSnatServiceImpl = factory.createVxlanGreSnatServiceImpl();
         if (vxlanGreSnatServiceImpl != null) {
             addNatServiceListener(vxlanGreSnatServiceImpl);
@@ -72,6 +73,10 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
 
                 case SNAT_ROUTER_DISBL:
                     result = snatServiceListener.removeSnat(confTx, router, primarySwitchId, dpnId);
+                    break;
+
+                case SNAT_ROUTER_UPDATE:
+                    result = snatServiceListener.handleRouterUpdate(confTx, oldRouter, router);
                     break;
 
                 //Enables or disables flows to send the traffic to the NAT tables in NAPT switch and

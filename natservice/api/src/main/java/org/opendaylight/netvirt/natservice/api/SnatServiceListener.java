@@ -104,4 +104,12 @@ public interface SnatServiceListener {
     boolean removeCentralizedRouter(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
             BigInteger primarySwitchId, BigInteger dpnId) throws ExecutionException, InterruptedException;
 
+    /**
+     * Handles changes to external router.
+     * @param origRouter the Orignal router.
+     * @param updatedRouter the Updated router.
+     * @return returns success/failure.
+     */
+    boolean handleRouterUpdate(TypedReadWriteTransaction<Configuration> confTx, Routers origRouter,
+            Routers updatedRouter) throws ExecutionException, InterruptedException;
 }
