@@ -22,6 +22,30 @@
       "revId": "1b04cda3202dbf6e5f4cca894d5ba317fe6093a7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3705722b_59219c50",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1633,
+      "author": {
+        "id": 6233
+      },
+      "writtenOn": "2018-06-18T05:09:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2078f87a_2f75afb8",
+      "range": {
+        "startLine": 1633,
+        "startChar": 8,
+        "endLine": 1633,
+        "endChar": 9
+      },
+      "revId": "1b04cda3202dbf6e5f4cca894d5ba317fe6093a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
