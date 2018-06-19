@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "02d2790e_aadd95e0",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 8007
+      },
+      "writtenOn": "2018-06-19T12:01:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe17a7ab_936d6f6d",
+      "revId": "441acf7875ad67215048c65aeb2901a60a061629",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "629c4408_97471062",
         "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 13
@@ -30,6 +48,30 @@
       "writtenOn": "2018-06-18T08:52:09Z",
       "side": 1,
       "message": "should be debug",
+      "range": {
+        "startLine": 535,
+        "startChar": 16,
+        "endLine": 535,
+        "endChar": 21
+      },
+      "revId": "441acf7875ad67215048c65aeb2901a60a061629",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "46c522df_cb6d7e26",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 8007
+      },
+      "writtenOn": "2018-06-19T12:01:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "629c4408_97471062",
       "range": {
         "startLine": 535,
         "startChar": 16,
