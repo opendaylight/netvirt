@@ -22,6 +22,30 @@
       "revId": "6f5db153417bb833d979cb90f90816522dce8323",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1431a88c_ea1908a4",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/NeutronPortChainListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2018-06-19T18:43:26Z",
+      "side": 0,
+      "message": "By looking at the usages, the remove() method is not used in Netvirt project.",
+      "parentUuid": "b9c5f28b_e73c8359",
+      "range": {
+        "startLine": 76,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 99
+      },
+      "revId": "6f5db153417bb833d979cb90f90816522dce8323",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
