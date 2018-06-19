@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd455439_a8e15237",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-06-19T11:37:20Z",
+      "side": 1,
+      "message": "Please add different logs for config and operational",
+      "revId": "1e834d8e76de3e1c6c4930b0c1d77aa2e068910d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "736d156f_d114df6c",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-06-19T11:37:20Z",
+      "side": 1,
+      "message": "Here also",
+      "revId": "1e834d8e76de3e1c6c4930b0c1d77aa2e068910d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
