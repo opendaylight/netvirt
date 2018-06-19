@@ -140,6 +140,30 @@
       "revId": "64da2f6e8a1e14ef73e521dabfece9e469e5125a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eda28f5f_eb17fdeb",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-06-19T06:04:00Z",
+      "side": 1,
+      "message": "This is a new method introduced in this review. Let us handle the exceptions thrown properly in all the places this method is being called in this review. It will be hard to figure out all scenarios that pass the ipAddress to this method, that might potentially send an invalid value.",
+      "parentUuid": "7b407075_7f4297e5",
+      "range": {
+        "startLine": 852,
+        "startChar": 59,
+        "endLine": 852,
+        "endChar": 84
+      },
+      "revId": "64da2f6e8a1e14ef73e521dabfece9e469e5125a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
