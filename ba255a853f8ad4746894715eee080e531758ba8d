@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26ef4922_cd324022",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-19T11:01:00Z",
+      "side": 1,
+      "message": "@Aswin, shall we move this part of code outside of \"synchronized()\" as here we are waiting for 3 mins and will be holding the lock during that time? Your thoughts?",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 21
+      },
+      "revId": "ba255a853f8ad4746894715eee080e531758ba8d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
