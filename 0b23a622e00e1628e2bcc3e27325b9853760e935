@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "a762d5f0_c16950f3",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-19T05:22:32Z",
+      "side": 1,
+      "message": "Imagine multiple ipv6 subnets in the same network and when they are associated/dis-associated from the neutron router, we should handle it accordingly. In Line340, you can see that we are adding the new \"ipv6Address\" as some v6 subnets are associated to the routerPort (as part of routerPort update event). Likewise in Line 346 we are deleting the flows for the subnet that is now disassociated with the router. \n\nThis use-case is not properly handled in your patch. Please take a look.",
+      "parentUuid": "47e58ad5_a34c1bba",
+      "range": {
+        "startLine": 341,
+        "startChar": 12,
+        "endLine": 341,
+        "endChar": 66
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a8732bc5_9d210667",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
         "patchSetId": 12
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "VpnManager receives these NA notifications.\nVpnManager validates these packets and learns the source IP if it is comming from hidden IP, programs FIB and advertises routes.",
       "parentUuid": "a8732bc5_9d210667",
+      "range": {
+        "startLine": 486,
+        "startChar": 8,
+        "endLine": 489,
+        "endChar": 9
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f4c2c02f_b9ccd771",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-19T05:22:32Z",
+      "side": 1,
+      "message": "Ok thanks @Som.",
+      "parentUuid": "5f3131af_3b8fa2d4",
       "range": {
         "startLine": 486,
         "startChar": 8,
