@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3a021677_84e2cea0",
+        "filename": "cloud-servicechain/impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/VpnServiceChainUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-06-19T05:38:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d31e34a_b1a449e9",
+      "range": {
+        "startLine": 359,
+        "startChar": 32,
+        "endLine": 359,
+        "endChar": 38
+      },
+      "revId": "64da2f6e8a1e14ef73e521dabfece9e469e5125a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28488095_af728bf7",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "0c4f30fe_27c2f874",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-06-19T05:38:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28488095_af728bf7",
+      "range": {
+        "startLine": 10,
+        "startChar": 4,
+        "endLine": 10,
+        "endChar": 14
+      },
+      "revId": "64da2f6e8a1e14ef73e521dabfece9e469e5125a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "abc3a4c8_75abe5ee",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 4
@@ -59,6 +107,30 @@
       "writtenOn": "2018-06-18T10:35:51Z",
       "side": 1,
       "message": "Do u need to be vary of the exceptions thrown by this util method?",
+      "range": {
+        "startLine": 852,
+        "startChar": 59,
+        "endLine": 852,
+        "endChar": 84
+      },
+      "revId": "64da2f6e8a1e14ef73e521dabfece9e469e5125a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7b407075_7f4297e5",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 852,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-06-19T05:38:53Z",
+      "side": 1,
+      "message": "@Kiran, I hope where ever we are calling this util, we should have proper IP prefix value.\n\nPlease confirm whether if there is chance that util caller for getEtherTypeFromIpPrefix(vrfEntry.getDestPrefix()) method will go with null or invalid IP prefix. If yes i will do the additional try-catch block for handling those exceptions.\n\nThanks in Advance,\nKarthikeyan.",
+      "parentUuid": "abc3a4c8_75abe5ee",
       "range": {
         "startLine": 852,
         "startChar": 59,
