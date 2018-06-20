@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e9e086a3_5fbc87d4",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 1759,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-20T07:09:55Z",
+      "side": 1,
+      "message": "Here we are doing a datastore read can we can move it outside of \"for loop\"? or move it closer to the place where its used (L1820).",
+      "range": {
+        "startLine": 1759,
+        "startChar": 49,
+        "endLine": 1759,
+        "endChar": 98
+      },
+      "revId": "4557028a8a3268fe7014360809f746aca1a126c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b01357c3_abb3042c",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-20T07:09:55Z",
+      "side": 1,
+      "message": "I hope your intention is to delete the MIP Adjacencies for the IPv4 external subnet. If so, please check the subnetType for IPv4 (or should we loop for all the external subnets?)",
+      "range": {
+        "startLine": 416,
+        "startChar": 42,
+        "endLine": 416,
+        "endChar": 65
+      },
+      "revId": "4557028a8a3268fe7014360809f746aca1a126c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9f48436c_a16c8360",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-20T07:09:55Z",
+      "side": 1,
+      "message": "Please check the subnetType",
+      "range": {
+        "startLine": 462,
+        "startChar": 42,
+        "endLine": 462,
+        "endChar": 88
+      },
+      "revId": "4557028a8a3268fe7014360809f746aca1a126c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd56409d_8bcac0f6",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 2084,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-20T07:09:55Z",
+      "side": 1,
+      "message": "Looks like this API is not used.",
+      "range": {
+        "startLine": 2084,
+        "startChar": 25,
+        "endLine": 2084,
+        "endChar": 49
+      },
+      "revId": "4557028a8a3268fe7014360809f746aca1a126c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f2db12d0_44eb090d",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 2136,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-20T07:09:55Z",
+      "side": 1,
+      "message": "Unused API?",
+      "range": {
+        "startLine": 2136,
+        "startChar": 29,
+        "endLine": 2136,
+        "endChar": 47
+      },
+      "revId": "4557028a8a3268fe7014360809f746aca1a126c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b2cf07e_965f0269",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 1562,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-20T07:09:55Z",
+      "side": 1,
+      "message": "Is debug fine or should we go for info/warn?\nAlso do we have to handle it instead of just logging it?",
+      "range": {
+        "startLine": 1562,
+        "startChar": 52,
+        "endLine": 1562,
+        "endChar": 57
+      },
+      "revId": "4557028a8a3268fe7014360809f746aca1a126c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
