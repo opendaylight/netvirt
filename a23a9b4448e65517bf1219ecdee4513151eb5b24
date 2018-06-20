@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d2a46f4d_fe41efb0",
+        "filename": "cloud-servicechain/impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/VpnServiceChainUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-06-20T10:48:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "906edc38_4bd7798a",
+      "range": {
+        "startLine": 357,
+        "startChar": 21,
+        "endLine": 357,
+        "endChar": 37
+      },
+      "revId": "a23a9b4448e65517bf1219ecdee4513151eb5b24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "126a7ec9_a770a4bd",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 7
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "fad30079_9362087c",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-06-20T10:48:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "126a7ec9_a770a4bd",
+      "range": {
+        "startLine": 513,
+        "startChar": 11,
+        "endLine": 513,
+        "endChar": 55
+      },
+      "revId": "a23a9b4448e65517bf1219ecdee4513151eb5b24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6fcb21bf_938c1055",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 7
@@ -59,6 +107,30 @@
       "writtenOn": "2018-06-20T08:46:25Z",
       "side": 1,
       "message": "can you do this in createFibEntries() method and then pass ether type to checkCreateLocalFibEntry()?",
+      "range": {
+        "startLine": 860,
+        "startChar": 12,
+        "endLine": 866,
+        "endChar": 13
+      },
+      "revId": "a23a9b4448e65517bf1219ecdee4513151eb5b24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "90360e75_9abd6433",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 866,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-06-20T10:48:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6fcb21bf_938c1055",
       "range": {
         "startLine": 860,
         "startChar": 12,
