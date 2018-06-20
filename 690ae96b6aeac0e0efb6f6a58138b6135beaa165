@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "850122f7_ab4add25",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-06-20T14:23:53Z",
+      "side": 1,
+      "message": "This is when the target IP is the neutron port\u0027s fixed IP. Since there is no need of learning this IP as it is already known, it\u0027s been ignored here.",
+      "parentUuid": "9aba9f31_1a6ce7db",
+      "range": {
+        "startLine": 179,
+        "startChar": 11,
+        "endLine": 181,
+        "endChar": 34
+      },
+      "revId": "690ae96b6aeac0e0efb6f6a58138b6135beaa165",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cba02992_06afac4b",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/NaNotificationHandler.java",
         "patchSetId": 15
@@ -36,6 +60,30 @@
       "writtenOn": "2018-06-15T13:28:27Z",
       "side": 1,
       "message": "Lets use the name Ipv6NaNotificationHandler, it would be more clear.",
+      "range": {
+        "startLine": 26,
+        "startChar": 13,
+        "endLine": 26,
+        "endChar": 34
+      },
+      "revId": "690ae96b6aeac0e0efb6f6a58138b6135beaa165",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "356c7435_7894beaf",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/NaNotificationHandler.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-06-20T14:23:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cba02992_06afac4b",
       "range": {
         "startLine": 26,
         "startChar": 13,
