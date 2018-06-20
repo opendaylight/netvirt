@@ -16,6 +16,24 @@
       "revId": "728f53388878990f483f98973d68a37f931c5581",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d7a21021_c3f92031",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 955,
+      "author": {
+        "id": 6233
+      },
+      "writtenOn": "2018-06-20T07:18:22Z",
+      "side": 1,
+      "message": "the exception was seen for the flow before this, \nsince that was doing an rpc call to ifm, this one in specific didn\u0027t throw any NPE. \nsandbox-job for l2 tests attached for ref:\nhttps://jenkins.opendaylight.org/sandbox/job/Karthikanetvirt-csit-1node-openstack-queens-upstream-stateful-itm-direct-tunnels-fluorine/7/",
+      "parentUuid": "9387e5f0_03b32cfe",
+      "revId": "728f53388878990f483f98973d68a37f931c5581",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
