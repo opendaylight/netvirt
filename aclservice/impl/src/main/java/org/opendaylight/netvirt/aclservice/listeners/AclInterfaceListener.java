@@ -179,9 +179,11 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         List<Uuid> deletedAcls = AclServiceUtils.getUpdatedAclList(aclInterfaceBefore.getSecurityGroups(),
                 aclInterfaceAfter.getSecurityGroups());
         if (deletedAcls != null && !deletedAcls.isEmpty()) {
+            LOG.debug("Update cache by removing interface={}", aclInterfaceAfter.getInterfaceId());
             aclDataUtil.removeAclInterfaceMap(deletedAcls, aclInterfaceAfter);
         }
         if (addedAcls != null && !addedAcls.isEmpty()) {
+            LOG.debug("Update cache by adding interface={}", aclInterfaceAfter.getInterfaceId());
             aclDataUtil.addOrUpdateAclInterfaceMap(addedAcls, aclInterfaceAfter);
         }
     }
