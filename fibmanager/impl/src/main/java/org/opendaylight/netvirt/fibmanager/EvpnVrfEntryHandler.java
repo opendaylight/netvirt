@@ -165,18 +165,17 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                                                  final Long vpnId, final String rd,
                                                  final VrfEntry vrfEntry) {
         final BigInteger dpnId = localNextHopInfo.getDpnId();
-        String jobKey = "FIB-" + vpnId.toString() + "-" + dpnId.toString() + "-" + vrfEntry.getDestPrefix();
+        String jobKey = FibUtil.getCreateLocalNextHopJobKey(vpnId, dpnId, vrfEntry.getDestPrefix());
         final long groupId = nexthopManager.createLocalNextHop(vpnId, dpnId,
             localNextHopInfo.getVpnInterfaceName(), localNextHopIP, vrfEntry.getDestPrefix(),
-            vrfEntry.getGatewayMacAddress(), jobKey);
+            vrfEntry.getGatewayMacAddress());
         LOG.debug("LocalNextHopGroup {} created/reused for prefix {} rd {} evi {} route-paths {}", groupId,
             vrfEntry.getDestPrefix(), rd, vrfEntry.getL3vni(), vrfEntry.getRoutePaths());
 
         final List<InstructionInfo> instructions = Collections.singletonList(
             new InstructionApplyActions(
                 Collections.singletonList(new ActionGroup(groupId))));
-        jobCoordinator.enqueueJob("FIB-" + vpnId.toString() + "-" + dpnId.toString()
-                + "-" + vrfEntry.getDestPrefix(),
+        jobCoordinator.enqueueJob(jobKey,
             () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 tx -> makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx,
                         null))));

@@ -363,7 +363,7 @@ public class NexthopManager implements AutoCloseable {
 
     public long createLocalNextHop(long vpnId, BigInteger dpnId, String ifName,
                                    String primaryIpAddress, String currDestIpPrefix,
-                                   String gwMacAddress, String jobKey) {
+                                   String gwMacAddress) {
         String vpnName = fibUtil.getVpnNameFromId(vpnId);
         if (vpnName == null) {
             return 0;
@@ -377,6 +377,7 @@ public class NexthopManager implements AutoCloseable {
             return groupId;
         }
         String nextHopLockStr = vpnId + primaryIpAddress;
+        String jobKey = FibUtil.getCreateLocalNextHopJobKey(vpnId, dpnId, currDestIpPrefix);
         jobCoordinator.enqueueJob(jobKey, () -> {
             try {
                 if (FibUtil.lockCluster(lockManager, nextHopLockStr, WAIT_TIME_TO_ACQUIRE_LOCK)) {
@@ -823,17 +824,25 @@ public class NexthopManager implements AutoCloseable {
         }
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
                 dpnId, groupId, destPrefix, GroupTypes.GroupSelect, listBucketInfo);
-        if (addOrRemove) {
-            mdsalApiManager.syncInstallGroup(groupEntity);
-            try {
-                Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
-            } catch (InterruptedException e1) {
-                LOG.warn("Thread got interrupted while programming LB group {}", groupEntity);
-                Thread.currentThread().interrupt();
+        String jobKey = FibUtil.getCreateLocalNextHopJobKey(parentVpnId, dpnId, destPrefix);
+        jobCoordinator.enqueueJob(jobKey, () -> {
+            if (addOrRemove) {
+                mdsalApiManager.syncInstallGroup(groupEntity);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Finished installing GroupEntity with jobCoordinator key {} groupEntity.groupId {}"
+                            + "  groupEntity.groupType {}", jobKey, groupEntity.getGroupId(),
+                            groupEntity.getGroupType());
+                }
+            } else {
+                mdsalApiManager.removeGroup(groupEntity);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Finished removing GroupEntity with jobCoordinator key {} groupEntity.groupId {}"
+                            + "  groupEntity.groupType {}", jobKey, groupEntity.getGroupId(),
+                            groupEntity.getGroupType());
+                }
             }
-        } else {
-            mdsalApiManager.removeGroup(groupEntity);
-        }
+            return Collections.emptyList();
+        });
         return groupId;
     }
 
@@ -846,11 +855,16 @@ public class NexthopManager implements AutoCloseable {
             clonedVpnExtraRoutes.remove(routes);
         }
         listBucketInfo.addAll(getBucketsForRemoteNexthop(vpnId, dpnId, vrfEntry, rd, clonedVpnExtraRoutes));
-        return setupLoadBalancingNextHop(vpnId, dpnId, vrfEntry.getDestPrefix(), listBucketInfo, true);
+        return setupLoadBalancingNextHop(vpnId, dpnId, vrfEntry.getDestPrefix(), listBucketInfo,true);
     }
 
     private List<BucketInfo> getBucketsForLocalNexthop(Long vpnId, BigInteger dpnId,
             VrfEntry vrfEntry, Routes routes) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("NexthopManager.getBucketsForLocalNexthop invoked with vpnId {} dpnId {} "
+                            + " vrfEntry.routePaths {}, routes.nexthopList {}", vpnId, dpnId, vrfEntry.getRoutePaths(),
+                    routes.getNexthopIpList());
+        }
         List<BucketInfo> listBucketInfo = new CopyOnWriteArrayList<>();
         routes.getNexthopIpList().parallelStream().forEach(nextHopIp -> {
             String localNextHopIP;

@@ -732,6 +732,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, localNextHopIP);
             List<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
                     vpnName, usedRds, localNextHopIP);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Creating Local fib entry with vpnName {} usedRds {} localNextHopIP {} vpnExtraRoutes {}",
+                        vpnName, usedRds, localNextHopIP, vpnExtraRoutes);
+            }
             boolean localNextHopSeen = false;
             //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
             for (Routes vpnExtraRoute : vpnExtraRoutes) {
@@ -828,7 +832,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         vpnId, rd, dpnId.toString());
                 return BigInteger.ZERO;
             }
-            String jobKey = FibUtil.getCreateLocalNextHopJobKey(vpnId, dpnId, vrfEntry.getDestPrefix());
             String interfaceName = localNextHopInfo.getVpnInterfaceName();
             String prefix = vrfEntry.getDestPrefix();
             String gwMacAddress = vrfEntry.getGatewayMacAddress();
@@ -841,21 +844,19 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     localNextHopIP = routes.getNexthopIpList().get(0) + NwConstants.IPV6PREFIX;
                 }
                 if (vpnExtraRoutes.size() > 1) {
-                    groupId = nextHopManager.createNextHopGroups(vpnId, rd, dpnId, vrfEntry, routes,
-                            vpnExtraRoutes);
+                    groupId = nextHopManager.createNextHopGroups(vpnId, rd, dpnId, vrfEntry, routes, vpnExtraRoutes);
                     localGroupId = nextHopManager.getLocalNextHopGroup(vpnId, localNextHopIP);
                 } else if (routes.getNexthopIpList().size() > 1) {
-                    groupId = nextHopManager.createNextHopGroups(vpnId, rd, dpnId, vrfEntry, routes,
-                            vpnExtraRoutes);
+                    groupId = nextHopManager.createNextHopGroups(vpnId, rd, dpnId, vrfEntry, routes, vpnExtraRoutes);
                     localGroupId = groupId;
                 } else {
                     groupId = nextHopManager.createLocalNextHop(vpnId, dpnId, interfaceName, localNextHopIP,
-                            prefix, gwMacAddress, jobKey);
+                            prefix, gwMacAddress);
                     localGroupId = groupId;
                 }
             } else {
                 groupId = nextHopManager.createLocalNextHop(vpnId, dpnId, interfaceName, localNextHopIP, prefix,
-                        gwMacAddress, jobKey);
+                        gwMacAddress);
                 localGroupId = groupId;
             }
             if (groupId == FibConstants.INVALID_GROUP_ID) {
@@ -871,6 +872,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             Arrays.asList(new ActionPopMpls(etherType), new ActionGroup(groupId))));
             java.util.Optional<Long> optLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
             List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
+            String jobKey = FibUtil.getCreateLocalNextHopJobKey(vpnId, dpnId, vrfEntry.getDestPrefix());
             jobCoordinator.enqueueJob(jobKey, () -> {
                 return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                     baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions,
