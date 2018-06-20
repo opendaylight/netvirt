@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9387e5f0_03b32cfe",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 955,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-06-20T06:46:37Z",
+      "side": 1,
+      "message": "Was there no exception for this flow? Similar exception which you got for the above flow, might occur here also.\n\nThough the code was there earlier, it would be better to change this flow as well since exception was seen for the above flow.",
+      "revId": "728f53388878990f483f98973d68a37f931c5581",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
