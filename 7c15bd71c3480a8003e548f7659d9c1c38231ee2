@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4da0f948_c063e6d6",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-20T07:09:55Z",
+      "side": 1,
+      "message": "This is causing NPEs when used with IPv6 subnets. Please validate that the subnet is an IPv4 subnet.\n\nYou can take a look at the following patch for reference: https://git.opendaylight.org/gerrit/#/c/72145/",
+      "range": {
+        "startLine": 410,
+        "startChar": 34,
+        "endLine": 410,
+        "endChar": 90
+      },
+      "revId": "7c15bd71c3480a8003e548f7659d9c1c38231ee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c8904e36_db30ebe3",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-20T07:09:55Z",
+      "side": 1,
+      "message": "We are reading all the vpnInterfaces in the system. Is it possible to optimize it. Can you please check.",
+      "range": {
+        "startLine": 415,
+        "startChar": 56,
+        "endLine": 415,
+        "endChar": 71
+      },
+      "revId": "7c15bd71c3480a8003e548f7659d9c1c38231ee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
