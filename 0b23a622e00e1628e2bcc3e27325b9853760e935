@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "2af0308a_2fe1b350",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-06-20T13:02:32Z",
+      "side": 1,
+      "message": "Removed these statements (L341 and L347) as it is already handled in addRouterIntf()/removePort() methods.\nThere were issues in associated/dis-associated of subnets from the neutron router, I have fixed it now.\n\nOpenstack supports multiple IPv4/IPv6 subnets within a single network.\nBut I don\u0027t think so we support multiple IPv6 subnets within a single network in ELAN and other modules.\nAs per my understanding, it\u0027s one IPv4 and/or one IPv6 subnet per network is what Netvirt supports as of now.",
+      "parentUuid": "a762d5f0_c16950f3",
+      "range": {
+        "startLine": 341,
+        "startChar": 12,
+        "endLine": 341,
+        "endChar": 66
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a8732bc5_9d210667",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
         "patchSetId": 12
