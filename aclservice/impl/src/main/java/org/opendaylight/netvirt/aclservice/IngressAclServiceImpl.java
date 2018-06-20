@@ -87,6 +87,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     @Override
     public void bindService(AclInterface aclInterface) {
         String interfaceName = aclInterface.getInterfaceId();
+        LOG.debug("Binding ACL service for interface {}", interfaceName);
         jobCoordinator.enqueueJob(interfaceName, () -> {
             int instructionKey = 0;
             List<Instruction> instructions = new ArrayList<>();
@@ -128,9 +129,9 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     @Override
     protected void programAntiSpoofingRules(AclInterface port,
             List<AllowedAddressPairs> allowedAddresses, Action action, int addOrRemove) {
+
         LOG.info("{} programAntiSpoofingRules for port {}, AAPs={}, action={}, addOrRemove={}", this.directionString,
                 port.getInterfaceId(), allowedAddresses, action, addOrRemove);
-
         BigInteger dpid = port.getDpId();
         int lportTag = port.getLPortTag();
         if (action == Action.ADD || action == Action.REMOVE) {
@@ -189,6 +190,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             int addOrRemove) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         flowMatches.addAll(AclServiceUtils.buildIpAndSrcServiceMatch(aclTag, aap));
+        LOG.debug("{} RemoteAclTableFlow on DPID {}", addOrRemove == NwConstants.DEL_FLOW ? "Deleting " : "Adding ",
+                dpId);
 
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclCommitterTable());
         String flowNameAdded = "Acl_Filter_Ingress_" + String.valueOf(aap.getIpAddress().getValue()) + "_" + aclTag;
@@ -304,8 +307,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         matches.add(MatchEthernetType.ARP);
         matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
-        LOG.debug(addOrRemove == NwConstants.DEL_FLOW ? "Deleting " : "Adding " + "ARP Rule on DPID {}, "
-                + "lportTag {}", dpId, lportTag);
+        LOG.debug("{} ARP Rule on DPID {}, lportTag {}", addOrRemove == NwConstants.DEL_FLOW ? "Deleting " : "Adding ",
+                dpId, lportTag);
         String flowName = "Ingress_ARP_" + dpId + "_" + lportTag;
         syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
