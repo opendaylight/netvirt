@@ -177,6 +177,8 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         if (null == aceList) {
             return;
         }
+        LOG.trace("{} ACL={} having aceList={} to update remote ACL cache", action == AclServiceManager.Action.REMOVE
+                ? "Removing " : "Adding ", aclName, aceList);
         for (Ace ace : aceList) {
             SecurityRuleAttr aceAttributes = ace.getAugmentation(SecurityRuleAttr.class);
             if (AclServiceUtils.doesAceHaveRemoteGroupId(aceAttributes)) {
