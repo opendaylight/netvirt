@@ -62,6 +62,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tun
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibEntryInputs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
@@ -761,6 +762,7 @@ public class NatTunnelInterfaceStateListener
             CreateFibEntryInput input =
                     new CreateFibEntryInputBuilder().setVpnName(externalVpnName).setSourceDpid(srcDpnId)
                     .setInstruction(customInstructions).setIpAddress(fibExternalIp)
+                    .setIpAddressSource(FibEntryInputs.IpAddressSource.ExternalFixedIP)
                     .setServiceId(serviceId).setInstruction(customInstructions).build();
             Future<RpcResult<Void>> future = fibRpcService.createFibEntry(input);
             ListenableFuture<RpcResult<Void>> listenableFuture = JdkFutureAdapters.listenInPoolThread(future);
@@ -893,6 +895,7 @@ public class NatTunnelInterfaceStateListener
                 customInstructions.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(0));
                 CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
                     .setSourceDpid(fipCfgdDpnId).setInstruction(customInstructions)
+                    .setIpAddressSource(FibEntryInputs.IpAddressSource.FloatingIP)
                     .setIpAddress(fibExternalIp).setServiceId(serviceId).setInstruction(customInstructions)
                         .build();
                 Future<RpcResult<Void>> future = fibRpcService.createFibEntry(input);
