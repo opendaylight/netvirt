@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5deaf872_9e02aad9",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-21T11:48:29Z",
+      "side": 1,
+      "message": "Thanks @Som. We are getting close.\n\nThere is a small issue, let me show it with an example:\nSay we have a routerPort with two IPv6 subnets (i.e., 2001::/64 and 2002::/64). Now a third subnet is associated to the same router, so we would get an update event with routerPort having three IPv6Addresses (2001::1/64, 2002::1/64 and 2003::1/64). This use-case is not handled in this implementation, please take a look.",
+      "range": {
+        "startLine": 334,
+        "startChar": 0,
+        "endLine": 341,
+        "endChar": 13
+      },
+      "revId": "802c6a058df04462a5d7b38840b1d6a43c6a3012",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
