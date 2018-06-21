@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03525108_464513ab",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1653,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-06-21T07:14:32Z",
+      "side": 1,
+      "message": "not required.",
+      "range": {
+        "startLine": 1653,
+        "startChar": 50,
+        "endLine": 1653,
+        "endChar": 56
+      },
+      "revId": "c720a67d585825afab830c8e38cd78bf882d3a17",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "316fe86d_15d70460",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1655,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-06-21T07:14:32Z",
+      "side": 1,
+      "message": "Move this after etherType \u003d NWUtil.getEtherTypeFromIpPrefix(vrfEntry.getDes...",
+      "range": {
+        "startLine": 1655,
+        "startChar": 44,
+        "endLine": 1655,
+        "endChar": 96
+      },
+      "revId": "c720a67d585825afab830c8e38cd78bf882d3a17",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
