@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b262676_e9a00574",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/NeutronPortChainListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-21T16:03:03Z",
+      "side": 1,
+      "message": "Deleting the all ACL flow classifiers and re-creating them affect live traffic, considering cases where one ALC is added/deleted to/from the existing list.\nYou might want to process the orig and updated flow classifier lists such that only new ALCs are added and obsoleted ones are deleted.",
+      "revId": "3528226caa8c845c06d1c1ce2a1f5697f0d8a9c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
