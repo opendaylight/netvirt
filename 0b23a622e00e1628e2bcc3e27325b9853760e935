@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "a4df992b_ca1fa24d",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-21T02:53:32Z",
+      "side": 1,
+      "message": "Its true that ELAN (and other services in Netvirt) today does not support data-path use-case[s] for multiple IPv6 Subnets in the same network, but \"ipv6Service\" works even for multiple ipv6 subnets in the same network -i.e., for control path use-cases like IPAddress assignment using RAs, supporting Neighbor Discovery for router ports etc. \n\nCan you please see if you can handle it even for the use-case you are working on?",
+      "parentUuid": "2af0308a_2fe1b350",
+      "range": {
+        "startLine": 341,
+        "startChar": 12,
+        "endLine": 341,
+        "endChar": 66
+      },
+      "revId": "0b23a622e00e1628e2bcc3e27325b9853760e935",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a8732bc5_9d210667",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
         "patchSetId": 12
