@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06c9f3a7_117554e3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-21T03:02:24Z",
+      "side": 1,
+      "message": "In your latest patchset, I\u0027m not able to see where its synchronized. Can you please clarify?",
+      "range": {
+        "startLine": 9,
+        "startChar": 32,
+        "endLine": 9,
+        "endChar": 48
+      },
+      "revId": "89bde2c0553e2b437ed7548299e881dd41c3b2ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "adce497d_e45b5044",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-21T03:02:24Z",
+      "side": 1,
+      "message": "@Aswin, for some reason this is not getting rendered properly.\n\nCan you please change it to \nJIRA: NETVIRT-1270",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 49
+      },
+      "revId": "89bde2c0553e2b437ed7548299e881dd41c3b2ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
