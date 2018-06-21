@@ -64,6 +64,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.Group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibEntryInputs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
@@ -774,6 +775,7 @@ public class NatTunnelInterfaceStateListener
             CreateFibEntryInput input =
                     new CreateFibEntryInputBuilder().setVpnName(externalVpnName).setSourceDpid(srcDpnId)
                     .setInstruction(customInstructions).setIpAddress(fibExternalIp)
+                    .setIpAddressSource(FibEntryInputs.IpAddressSource.ExternalFixedIP)
                     .setServiceId(serviceId).setInstruction(customInstructions).build();
             ListenableFuture<RpcResult<CreateFibEntryOutput>> listenableFuture = fibRpcService.createFibEntry(input);
 
@@ -905,6 +907,7 @@ public class NatTunnelInterfaceStateListener
                 customInstructions.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(0));
                 CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
                     .setSourceDpid(fipCfgdDpnId).setInstruction(customInstructions)
+                    .setIpAddressSource(FibEntryInputs.IpAddressSource.FloatingIP)
                     .setIpAddress(fibExternalIp).setServiceId(serviceId).setInstruction(customInstructions)
                         .build();
                 ListenableFuture<RpcResult<CreateFibEntryOutput>> listenableFuture =
