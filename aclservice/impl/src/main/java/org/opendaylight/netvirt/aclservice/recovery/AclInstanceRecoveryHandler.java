@@ -17,18 +17,18 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.srm.ServiceRecoveryInterface;
-import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceListener;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
+import org.opendaylight.serviceutils.srm.ServiceRecoveryInterface;
+import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.srm.types.rev170711.NetvirtAclInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.serviceutils.srm.types.rev180626.NetvirtAclInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
