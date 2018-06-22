@@ -38,5 +38,5 @@
            interface="org.opendaylight.netvirt.aclservice.api.AclInterfaceCache" />
 
     <reference id="serviceRecoveryRegistry"
-               interface="org.opendaylight.genius.srm.ServiceRecoveryRegistry"/>
+               interface="org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry"/>
 </blueprint>

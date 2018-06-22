@@ -98,6 +98,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>hwvtepsouthbound-api</artifactId>
             <version>${ovsdb.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.serviceutils</groupId>
+            <artifactId>tools-api</artifactId>
+            <version>0.2.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
