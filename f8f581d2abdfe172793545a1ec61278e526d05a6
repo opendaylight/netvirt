@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "39d82d0f_37b52772",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-22T16:28:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "72609914_744869ea",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "92ea25bd_46d1f43a",
         "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceCounters.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2018-06-18T16:28:48Z",
       "side": 1,
       "message": "you actually don\u0027t even have to \"hold on\" to the MetricProvider instance here?",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d7704fd8_6153e51a",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-22T16:28:32Z",
+      "side": 1,
+      "message": "I know, I like having the nice and simple meter method.",
+      "parentUuid": "92ea25bd_46d1f43a",
       "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1dd47b0a_e80570cc",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-22T16:28:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3869107d_173bd26c",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b146bab1_b1dc0e7b",
         "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceCounters.java",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2018-06-18T16:28:48Z",
       "side": 1,
       "message": "and here?",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4ca697bf_32178bb4",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-22T16:28:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b146bab1_b1dc0e7b",
       "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "cf1f0844_3ba4fb4d",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanManagerCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-22T16:28:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea3bbb34_909685c1",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "324e4a74_5e967d97",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanManagerCounters.java",
         "patchSetId": 2
@@ -98,6 +188,24 @@
       "writtenOn": "2018-06-18T16:28:48Z",
       "side": 1,
       "message": "remove _meter suffix",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25771b69_e0ac72b5",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanManagerCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-22T16:28:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "324e4a74_5e967d97",
       "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "19dab4ad_5db6932b",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanManagerCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-22T16:28:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "339ab68a_67e6f7f8",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "91891d6a_7fcfef61",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanManagerCounters.java",
         "patchSetId": 2
@@ -132,6 +258,24 @@
       "writtenOn": "2018-06-18T16:28:48Z",
       "side": 1,
       "message": "remove _meter suffix",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "80b917c6_3d1c32aa",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanManagerCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-22T16:28:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "91891d6a_7fcfef61",
       "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "7d740a91_6ecc9993",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanManagerCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-22T16:28:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d1f2508_0e9b1d05",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "abcb7e21_dede5c2f",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanManagerCounters.java",
         "patchSetId": 2
@@ -166,6 +328,24 @@
       "writtenOn": "2018-06-18T16:28:48Z",
       "side": 1,
       "message": "remove _meter suffix",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc606368_6533bd19",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanManagerCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-22T16:28:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "abcb7e21_dede5c2f",
       "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "1b529499_5b96082e",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatServiceCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-22T16:28:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28fdd8ca_0dc780e1",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8f22f677_f8193b90",
         "filename": "statistics/impl/src/main/java/org/opendaylight/netvirt/statistics/CounterRetriever.java",
         "patchSetId": 2
@@ -200,6 +398,24 @@
       "writtenOn": "2018-06-18T16:28:48Z",
       "side": 1,
       "message": "I don\u0027t really understand this change here, and how it related to changing metrics framework... or is this just code moved exactly as-is from the next class which you are deleting here?",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d1d248d_c9ab8b64",
+        "filename": "statistics/impl/src/main/java/org/opendaylight/netvirt/statistics/CounterRetriever.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-22T16:28:32Z",
+      "side": 1,
+      "message": "Yes, it’s moved as-is.",
+      "parentUuid": "8f22f677_f8193b90",
       "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -223,6 +439,24 @@
     },
     {
       "key": {
+        "uuid": "51faacf5_953ad08c",
+        "filename": "statistics/impl/src/main/java/org/opendaylight/netvirt/statistics/StatisticsCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-22T16:28:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "887b13dd_6ec37f8b",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c50716e_fe60ee73",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/utilities/VpnManagerCounters.java",
         "patchSetId": 2
@@ -234,6 +468,24 @@
       "writtenOn": "2018-06-18T16:28:48Z",
       "side": 1,
       "message": "as before",
+      "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3835d0f6_59645143",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/utilities/VpnManagerCounters.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-22T16:28:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c50716e_fe60ee73",
       "revId": "f8f581d2abdfe172793545a1ec61278e526d05a6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false

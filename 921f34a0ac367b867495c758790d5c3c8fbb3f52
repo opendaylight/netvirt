@@ -16,6 +16,24 @@
       "revId": "921f34a0ac367b867495c758790d5c3c8fbb3f52",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae995ca8_3a5772a9",
+        "filename": "dhcpservice/impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-22T16:28:32Z",
+      "side": 0,
+      "message": "I know — for some reason the features fail to start with this around after reworking the meters :-/.",
+      "parentUuid": "e01c8749_56b9cdef",
+      "revId": "921f34a0ac367b867495c758790d5c3c8fbb3f52",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
