@@ -25,7 +25,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <reference id="jobCoordinator"
                interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator" />
     <reference id="serviceRecoveryRegistry"
-               interface="org.opendaylight.genius.srm.ServiceRecoveryRegistry"/>
+               interface="org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry"/>
     <reference id="iInterfaceManager"
                interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
 
