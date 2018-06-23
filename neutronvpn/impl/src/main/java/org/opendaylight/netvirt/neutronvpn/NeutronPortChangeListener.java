@@ -665,6 +665,17 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                         routerIds.add(subnetMap.getRouterId());
                     }
                     internetVpnId = subnetMap.getInternetVpnId();
+
+                    if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(port.getDeviceOwner())) {
+                        String routerGwIpAddress = String.valueOf(ip.getIpAddress().getValue());
+                        if (vpnId != null) {
+                            neutronvpnUtils.removeVpnPortFixedIpToPort(vpnId.getValue(), routerGwIpAddress, confTx);
+                        }
+                        if (internetVpnId != null) {
+                            neutronvpnUtils.removeVpnPortFixedIpToPort(internetVpnId.getValue(),
+                                routerGwIpAddress, confTx);
+                        }
+                    }
                 }
                 if (vpnId != null || internetVpnId != null) {
                     // remove vpn-interface for this neutron port
