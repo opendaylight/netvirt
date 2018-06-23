@@ -138,16 +138,25 @@ public class RouterDpnChangeListener
                     natServiceManager.notify(router, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_ENBL);
                 } else {
-                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.key(), () -> {
+                    Long routerId = NatUtil.getVpnId(dataBroker, routerUuid);
+                    if (routerId == NatConstants.INVALID_ID) {
+                        LOG.error("add : Invalid routerId returned for routerName {}", routerUuid);
+                        return;
+                    }
+                    ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker,
+                            routerUuid, networkId);
+                    if (extNwProvType == ProviderTypes.FLAT || extNwProvType == ProviderTypes.VLAN) {
+                        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + networkId, () -> {
+                            extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
+                            installDefaultNatRouteForRouterExternalSubnets(dpnId,
+                                    NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
+                            return Collections.emptyList();
+                        });
+                    }
+                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + router.getRouterName(), () -> {
                         List<ListenableFuture<Void>> futures = new ArrayList<>(2);
                         LOG.debug("add : Router {} is associated with ext nw {}", routerUuid, networkId);
                         Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerUuid);
-                        Long routerId = NatUtil.getVpnId(dataBroker, routerUuid);
-                        if (routerId == NatConstants.INVALID_ID) {
-                            LOG.error("add : Invalid routerId returned for routerName {}", routerUuid);
-                            return futures;
-                        }
-                        extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
                         futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeFlowInvTx -> {
                             Long vpnId;
                             if (vpnName == null) {
@@ -161,8 +170,6 @@ public class RouterDpnChangeListener
                                 //Install default entry in FIB to SNAT table
                                 LOG.info("add : Installing default route in FIB on dpn {} for router {} with vpn {}",
                                         dpnId, routerUuid, vpnId);
-                                installDefaultNatRouteForRouterExternalSubnets(dpnId,
-                                        NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
                                 snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, writeFlowInvTx);
                             } else {
                                 LOG.debug("add : External BGP vpn associated to router {}", routerUuid);
@@ -171,21 +178,15 @@ public class RouterDpnChangeListener
                                     LOG.error("add : Invalid vpnId returned for routerName {}", routerUuid);
                                     return;
                                 }
-
                                 LOG.debug("add : Retrieved vpnId {} for router {}", vpnId, routerUuid);
                                 //Install default entry in FIB to SNAT table
                                 LOG.debug("add : Installing default route in FIB on dpn {} for routerId {} with "
                                         + "vpnId {}...", dpnId, routerUuid, vpnId);
-                                installDefaultNatRouteForRouterExternalSubnets(dpnId,
-                                        NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
                                 snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routerId,
                                         writeFlowInvTx);
                             }
-
                             if (router.isEnableSnat()) {
                                 LOG.info("add : SNAT enabled for router {}", routerUuid);
-                                ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker,
-                                        routerUuid, networkId);
                                 if (extNwProvType == null) {
                                     LOG.error("add : External Network Provider Type missing");
                                     return;
@@ -241,7 +242,7 @@ public class RouterDpnChangeListener
                     natServiceManager.notify(router, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_DISBL);
                 } else {
-                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.key(), () -> {
+                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routerUuid, () -> {
                         LOG.debug("remove : Router {} is associated with ext nw {}", routerUuid, networkId);
                         Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerUuid);
                         return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
