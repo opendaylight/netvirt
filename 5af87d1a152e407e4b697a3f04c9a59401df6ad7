@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c97528da_31b20808",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1034,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-23T00:45:00Z",
+      "side": 1,
+      "message": "I would keep the name as it is since there is a counterpart method with same name in NeutronvpnUtils class",
+      "parentUuid": "40fc19b6_9ca97248",
+      "revId": "5af87d1a152e407e4b697a3f04c9a59401df6ad7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ca405d09_5bac46e1",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ad9533e9_8ce1aa37",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1036,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-23T00:45:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca405d09_5bac46e1",
+      "revId": "5af87d1a152e407e4b697a3f04c9a59401df6ad7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "58d2b8bd_9ce390e3",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2018-06-20T03:12:59Z",
       "side": 1,
       "message": "suggest sticking with the other log message formats of including the method name first.",
+      "revId": "5af87d1a152e407e4b697a3f04c9a59401df6ad7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a716b03_d0da8cee",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1042,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-23T00:45:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58d2b8bd_9ce390e3",
       "revId": "5af87d1a152e407e4b697a3f04c9a59401df6ad7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
