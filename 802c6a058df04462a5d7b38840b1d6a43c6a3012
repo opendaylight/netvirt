@@ -22,6 +22,30 @@
       "revId": "802c6a058df04462a5d7b38840b1d6a43c6a3012",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bdbae622_5510cf87",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-06-24T09:24:41Z",
+      "side": 1,
+      "message": "Fixed it, please have a look.",
+      "parentUuid": "5deaf872_9e02aad9",
+      "range": {
+        "startLine": 334,
+        "startChar": 0,
+        "endLine": 341,
+        "endChar": 13
+      },
+      "revId": "802c6a058df04462a5d7b38840b1d6a43c6a3012",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
