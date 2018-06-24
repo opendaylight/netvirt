@@ -84,6 +84,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Tun
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
@@ -247,32 +248,29 @@ public class NexthopManager implements AutoCloseable {
 
     protected List<ActionInfo> getEgressActionsForInterface(final String ifName, int actionKey,
                                                             boolean isTunnelInterface) {
-        RpcResult rpcResult;
         List<Action> actions;
         try {
             if (isTunnelInterface && interfaceManager.isItmDirectTunnelsEnabled()) {
-                rpcResult = itmManager.getEgressActionsForTunnel(
-                        new GetEgressActionsForTunnelInputBuilder().setIntfName(ifName).build()).get();
+                RpcResult<GetEgressActionsForTunnelOutput> rpcResult =
+                        itmManager.getEgressActionsForTunnel(new GetEgressActionsForTunnelInputBuilder()
+                                .setIntfName(ifName).build()).get();
                 if (!rpcResult.isSuccessful()) {
                     LOG.error("RPC Call to Get egress tunnel actions for interface {} returned with Errors {}",
                             ifName, rpcResult.getErrors());
                     return Collections.emptyList();
                 } else {
-                    GetEgressActionsForInterfaceOutput output =
-                            (GetEgressActionsForInterfaceOutput)rpcResult.getResult();
-                    actions = output.getAction();
+                    actions = rpcResult.getResult().getAction();
                 }
             } else {
-                rpcResult = odlInterfaceRpcService.getEgressActionsForInterface(
-                        new GetEgressActionsForInterfaceInputBuilder().setIntfName(ifName).build()).get();
+                RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = odlInterfaceRpcService
+                        .getEgressActionsForInterface(new GetEgressActionsForInterfaceInputBuilder()
+                                .setIntfName(ifName).build()).get();
                 if (!rpcResult.isSuccessful()) {
                     LOG.error("RPC Call to Get egress vm actions for interface {} returned with Errors {}",
                             ifName, rpcResult.getErrors());
                     return Collections.emptyList();
                 } else {
-                    GetEgressActionsForInterfaceOutput output =
-                            (GetEgressActionsForInterfaceOutput)rpcResult.getResult();
-                    actions = output.getAction();
+                    actions = rpcResult.getResult().getAction();
                 }
             }
             List<ActionInfo> listActionInfo = new ArrayList<>();
