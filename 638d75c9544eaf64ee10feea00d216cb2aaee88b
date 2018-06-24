@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "450dccc5_8abca24a",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosCacheCLI.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-06-24T13:58:43Z",
+      "side": 1,
+      "message": "This API is deprecated - for new shell commands I think we should start use the karaf 4 Action interface which we\u0027ll have to convert to anyway.",
+      "range": {
+        "startLine": 18,
+        "startChar": 33,
+        "endLine": 18,
+        "endChar": 51
+      },
+      "revId": "638d75c9544eaf64ee10feea00d216cb2aaee88b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
