@@ -228,7 +228,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         if (ifNamePrimary != null) {
             LOG.debug("installSnatMissEntry : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
             listActionInfoPrimary = NatUtil.getEgressActionsForInterface(odlInterfaceRpcService, itmManager,
-                    interfaceManager, ifNamePrimary, routerId);
+                    interfaceManager, ifNamePrimary, routerId, true);
         }
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
         listBucketInfo.add(0, bucketPrimary);

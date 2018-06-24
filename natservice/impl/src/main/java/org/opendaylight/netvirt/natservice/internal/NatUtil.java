@@ -1295,51 +1295,46 @@ public final class NatUtil {
     public static List<ActionInfo> getEgressActionsForInterface(OdlInterfaceRpcService odlInterfaceRpcService,
                                                                 ItmRpcService itmRpcService,
                                                                 IInterfaceManager interfaceManager, String ifName,
-                                                                Long tunnelKey) {
+                                                                Long tunnelKey, boolean internalTunnelInterface) {
         return getEgressActionsForInterface(odlInterfaceRpcService, itmRpcService, interfaceManager,
-                ifName, tunnelKey, 0);
+                ifName, tunnelKey, 0, internalTunnelInterface);
     }
 
     @Nonnull
     public static List<ActionInfo> getEgressActionsForInterface(OdlInterfaceRpcService odlInterfaceRpcService,
                                                                 ItmRpcService itmRpcService,
                                                                 IInterfaceManager interfaceManager,
-                                                                String ifName, Long tunnelKey, int pos) {
+                                                                String ifName, Long tunnelKey, int pos,
+                                                                boolean internalTunnelInterface) {
         LOG.debug("getEgressActionsForInterface : called for interface {}", ifName);
         GetEgressActionsForInterfaceInputBuilder egressActionsIfmBuilder =
                 new GetEgressActionsForInterfaceInputBuilder().setIntfName(ifName);
-        GetEgressActionsForTunnelInputBuilder egressActionsItmBuilder = new GetEgressActionsForTunnelInputBuilder()
-            .setIntfName(ifName);
+        GetEgressActionsForTunnelInputBuilder egressActionsItmBuilder =
+                new GetEgressActionsForTunnelInputBuilder().setIntfName(ifName);
         if (tunnelKey != null) {
             egressActionsIfmBuilder.setTunnelKey(tunnelKey);
             egressActionsItmBuilder.setTunnelKey(tunnelKey);
-        }
+        } //init builders, ITM/IFM rpc can be called based on type of interface
 
         try {
-            RpcResult<GetEgressActionsForTunnelOutput> rpcResultItm = null;
-            RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = null;
             List<Action> actions = Collections.emptyList();
-            if (interfaceManager.isItmDirectTunnelsEnabled()) {
-                rpcResultItm =
+            if (interfaceManager.isItmDirectTunnelsEnabled() && internalTunnelInterface) {
+                RpcResult<GetEgressActionsForTunnelOutput> rpcResult =
                         itmRpcService.getEgressActionsForTunnel(egressActionsItmBuilder.build()).get();
+                if (!rpcResult.isSuccessful()) {
+                    LOG.error("getEgressActionsForTunnels : RPC Call to Get egress actions for Tunnels {} "
+                            + "returned with Errors {}", ifName, rpcResult.getErrors());
+                } else {
+                    actions = rpcResult.getResult().getAction();
+                }
             } else {
-                rpcResult =
+                RpcResult<GetEgressActionsForInterfaceOutput> rpcResult =
                         odlInterfaceRpcService.getEgressActionsForInterface(egressActionsIfmBuilder.build()).get();
-            }
-
-            if (!interfaceManager.isItmDirectTunnelsEnabled() && rpcResult != null) {
                 if (!rpcResult.isSuccessful()) {
                     LOG.error("getEgressActionsForInterface : RPC Call to Get egress actions for interface {} "
                             + "returned with Errors {}", ifName, rpcResult.getErrors());
                 } else {
                     actions = rpcResult.getResult().getAction();
-                }
-            } else if (interfaceManager.isItmDirectTunnelsEnabled() && rpcResultItm != null) {
-                if (!rpcResultItm.isSuccessful()) {
-                    LOG.error("getEgressActionsForTunnels : RPC Call to Get egress actions for Tunnels {} "
-                            + "returned with Errors {}", ifName, rpcResultItm.getErrors());
-                } else {
-                    actions = rpcResultItm.getResult().getAction();
                 }
             }
             List<ActionInfo> listActionInfo = new ArrayList<>();

@@ -816,7 +816,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         if (ifNamePrimary != null) {
             LOG.debug("handleSwitches : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
             listActionInfoPrimary = NatUtil.getEgressActionsForInterface(odlInterfaceRpcService, itmManager,
-                    interfaceManager, ifNamePrimary, routerId);
+                    interfaceManager, ifNamePrimary, routerId, true);
             if (listActionInfoPrimary.isEmpty()) {
                 LOG.error("handleSwitches : Unable to retrieve output actions on Non-NAPT switch {} for router {}"
                         + " towards Napt-switch {} via tunnel interface {}", dpnId, routerName, primarySwitchId,
@@ -842,7 +842,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             LOG.debug("getBucketInfoForNonNaptSwitches : On Non- Napt switch , Primary Tunnel interface is {}",
                     ifNamePrimary);
             listActionInfoPrimary = NatUtil.getEgressActionsForInterface(odlInterfaceRpcService, itmManager,
-                    interfaceManager, ifNamePrimary, routerId);
+                    interfaceManager, ifNamePrimary, routerId, true);
             if (listActionInfoPrimary.isEmpty()) {
                 LOG.error("getBucketInfoForNonNaptSwitches : Unable to retrieve output actions on Non-NAPT switch {} "
                         + "for router {} towards Napt-switch {} via tunnel interface {}",
