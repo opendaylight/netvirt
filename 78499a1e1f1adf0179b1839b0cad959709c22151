@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e94645c0_d4c73121",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 893,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-06-25T07:02:38Z",
+      "side": 1,
+      "message": "@Edwin, Please change this also to true. Since this is also internal tunnel call only. I didn\u0027t noticed this changes earlier. Sorry for that.",
+      "revId": "78499a1e1f1adf0179b1839b0cad959709c22151",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
