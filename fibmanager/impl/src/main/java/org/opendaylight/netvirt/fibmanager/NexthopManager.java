@@ -139,6 +139,7 @@ public class NexthopManager implements AutoCloseable {
     private static final String NEXTHOP_ID_POOL_NAME = "nextHopPointerPool";
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
     private static final long WAIT_TIME_TO_ACQUIRE_LOCK = 3000L;
+    private static final int SELECT_GROUP_WEIGHT = 1;
 
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -1130,7 +1131,8 @@ public class NexthopManager implements AutoCloseable {
             // clear off actions if there is no egress actions.
             listAction = Collections.emptyList();
         }
-        return MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, index,
+        //OVS expects a non-zero weight value for load balancing to happen in select groups
+        return MDSALUtil.buildBucket(listAction, SELECT_GROUP_WEIGHT, index,
                 MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP);
     }
 
