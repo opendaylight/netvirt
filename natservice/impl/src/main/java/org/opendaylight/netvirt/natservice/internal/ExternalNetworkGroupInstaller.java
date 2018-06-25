@@ -223,7 +223,7 @@ public class ExternalNetworkGroupInstaller {
         List<ActionInfo> egressActionList = new ArrayList<>();
         if (extInterface != null) {
             egressActionList = NatUtil.getEgressActionsForInterface(odlInterfaceRpcService, itmRpcService,
-                    interfaceManager, extInterface, null, setFieldEthDestActionPos + 1);
+                    interfaceManager, extInterface, null, setFieldEthDestActionPos + 1, false);
         }
         if (Strings.isNullOrEmpty(macAddress) || egressActionList.isEmpty()) {
             if (Strings.isNullOrEmpty(macAddress)) {
