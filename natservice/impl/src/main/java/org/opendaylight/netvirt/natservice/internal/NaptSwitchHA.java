@@ -742,7 +742,7 @@ public class NaptSwitchHA {
                 ifNamePrimary, dpnId, naptSwitch);
             List<ActionInfo> listActionInfoPrimary =
                 NatUtil.getEgressActionsForInterface(odlInterfaceRpcService, itmManager, interfaceManager,
-                        ifNamePrimary, routerId);
+                        ifNamePrimary, routerId, true);
             BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
             listBucketInfo.add(bucketPrimary);
         } else {
