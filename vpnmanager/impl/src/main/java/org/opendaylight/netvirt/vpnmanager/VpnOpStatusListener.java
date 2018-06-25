@@ -243,10 +243,10 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
             jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
                 rds.parallelStream().forEach(rd -> {
                     try {
-                        LOG.info("VpnOpStatusListener.update: updating BGPVPN for vpn {} with RD {}"
-                                + " Type is {}, IPv4 is {}, IPv6 is {}", vpnName, primaryRd, update.getType(),
-                                update.isIpv4Configured(), update.isIpv6Configured());
                         List<String> importRTList = rd.equals(primaryRd) ? irtList : Collections.emptyList();
+                        LOG.info("VpnOpStatusListener.update: updating BGPVPN for vpn {} with RD {}"
+                                + " Type is {}, IPv4 is {}, IPv6 is {}, iRT {}", vpnName, primaryRd, update.getType(),
+                                update.isIpv4Configured(), update.isIpv6Configured(), importRTList);
                         if (update.getType() == VpnInstanceOpDataEntry.Type.L2) {
                             bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.L2VPN);
                         }
