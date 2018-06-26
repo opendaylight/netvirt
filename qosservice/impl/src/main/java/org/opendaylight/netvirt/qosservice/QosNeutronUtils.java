@@ -449,10 +449,20 @@ public class QosNeutronUtils {
         OvsdbBridgeRef bridgeRefEntry = getBridgeRefEntryFromOperDS(dpId);
         Optional<Node> bridgeNode = MDSALUtil.read(LogicalDatastoreType.OPERATIONAL,
                 bridgeRefEntry.getValue().firstIdentifierOf(Node.class), dataBroker);
-
+        if (!bridgeNode.isPresent()) {
+            LOG.error("bridge not found for dpn {} port {} in operational datastore", dpId, port.getUuid().getValue());
+            return;
+        }
+        LOG.debug("bridgeNode {}", bridgeNode.get().getNodeId().getValue());
 
         TerminationPoint tp = SouthboundUtils.getTerminationPointByExternalId(bridgeNode.get(),
                 port.getUuid().getValue());
+        if (tp == null) {
+            LOG.debug("Skipping setting of bandwidth limit rules for subport {}",
+                    port.getUuid().getValue());
+            return;
+        }
+        LOG.debug("tp: {}", tp.getTpId().getValue());
         OvsdbTerminationPointAugmentation ovsdbTp = tp.augmentation(OvsdbTerminationPointAugmentation.class);
 
         OvsdbTerminationPointAugmentationBuilder tpAugmentationBuilder = new OvsdbTerminationPointAugmentationBuilder();
