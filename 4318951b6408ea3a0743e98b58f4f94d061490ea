@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0218c113_cc36f3af",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/flowclassifier/NeutronFlowClassifierListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-26T23:05:14Z",
+      "side": 1,
+      "message": "When a SfcFlowClassifier is added/removed, should the method NeutronFlowClassifierListener.add() or NeutronFlowClassifierListener.remove() get called?\n\nIt seems that if this class works as intended then we don\u0027t need the fix in this patch",
+      "revId": "4318951b6408ea3a0743e98b58f4f94d061490ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ada4d31_5043051f",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/flowclassifier/NeutronFlowClassifierListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-26T23:05:14Z",
+      "side": 1,
+      "message": "Align the \u0027-\u0027 with the next line. please fix it in other files as well",
+      "revId": "4318951b6408ea3a0743e98b58f4f94d061490ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a6f98f97_76da9130",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/NeutronPortChainListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-26T23:05:14Z",
+      "side": 1,
+      "message": "please remove this comment, it doesn\u0027t make sense",
+      "revId": "4318951b6408ea3a0743e98b58f4f94d061490ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4afb953b_6b0652a3",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/NeutronPortChainListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-26T23:05:14Z",
+      "side": 1,
+      "message": "since this method only calls one method processFlowClassifierUpdate, which is short and called only from the former, I think we could remove the processFlowClassifierUpdate method and move the body here.",
+      "revId": "4318951b6408ea3a0743e98b58f4f94d061490ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0aa5f5e4_e5a35fa5",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/NeutronPortChainListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-26T23:05:14Z",
+      "side": 1,
+      "message": "I think we might want to reuse the method processFlowClassifiers in add() and update() \nby \n- adding new parameter \u0027boolean added\u0027\n- modify such that:\n   if (added)\n     sfcMdsalHelper.addAclFlowClassifier(acl)\n   else\n     sfcMdsalHelper.removeAclFlowClassifier(acl)\n\nThen you don\u0027t have to write a new method which is very similar to existing one",
+      "revId": "4318951b6408ea3a0743e98b58f4f94d061490ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec23cf5a_50aed39c",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/NeutronPortChainListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-26T23:05:14Z",
+      "side": 1,
+      "message": "any chance that we have to process update to existing Flow Classifiers",
+      "revId": "4318951b6408ea3a0743e98b58f4f94d061490ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "73f8fa33_3d1175d3",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/NeutronPortChainListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-26T23:05:14Z",
+      "side": 1,
+      "message": "please see my previous comment about reuse this method",
+      "revId": "4318951b6408ea3a0743e98b58f4f94d061490ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
