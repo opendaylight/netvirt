@@ -276,7 +276,7 @@ public class GeniusProvider {
                 for (Options tpOption : tpOptions) {
                     // From the VXLAN Tunnels, we want the one with the GPE option set
                     if (tpOption.key().getOption().equals(OPTION_KEY_EXTS)) {
-                        if (tpOption.getValue().equals(OPTION_VALUE_EXTS_GPE)) {
+                        if (tpOption.getValue().equals(OPTION_VALUE_EXTS_GPE) && tp.getOfport() !=null) {
                             return Optional.ofNullable(tp.getOfport());
                         }
                     }
