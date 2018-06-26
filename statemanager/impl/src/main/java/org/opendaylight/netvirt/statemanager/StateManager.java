@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.statemanager;
 
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -60,8 +62,8 @@ public class StateManager implements IStateManager {
         TopologyBuilder tpb = new TopologyBuilder();
         tpb.setTopologyId(topologyId);
         try {
-            txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                tx -> tx.put(LogicalDatastoreType.OPERATIONAL, path, tpb.build())).get();
+            txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
+                tx -> tx.put(path, tpb.build())).get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("StateManager error initializing netvirt topology", e);
         }
