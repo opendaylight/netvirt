@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
@@ -102,14 +105,13 @@ public class DhcpNeutronPortListener
         LOG.trace("Port removed: {}", del);
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(del)) {
             jobCoordinator.enqueueJob(getJobKey(del),
-                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                     java.util.Optional<String> ip4Address = DhcpServiceUtils.getIpV4Address(del);
                     if (ip4Address.isPresent()) {
                         dhcpExternalTunnelManager.addOrRemoveDhcpArpFlowforElan(del.getNetworkId().getValue(),
                                 false, ip4Address.get(), del.getMacAddress().getValue());
                     }
-                    DhcpServiceUtils.removeSubnetDhcpPortData(del, subnetDhcpPortIdfr -> tx
-                            .delete(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr));
+                    DhcpServiceUtils.removeSubnetDhcpPortData(del, tx::delete);
                     processArpResponderForElanDpns(del, arpInput -> {
                         LOG.trace("Removing ARPResponder Flows  for dhcp port {} with ipaddress {} with mac {} "
                                         + " on dpn {}. ",arpInput.getInterfaceName(), arpInput.getSpa(),
@@ -143,7 +145,7 @@ public class DhcpNeutronPortListener
             }
             // Binding the DHCP service for an existing port because of subnet change.
             jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName),
-                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                     LOG.debug("Binding DHCP service for interface {}", interfaceName);
                     DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, tx);
                 })), DhcpMConstants.RETRY_COUNT);
@@ -153,9 +155,10 @@ public class DhcpNeutronPortListener
                     LOG.trace("Unable to install the DHCP flow since dpn is not available");
                     return Collections.emptyList();
                 }
-                return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(
-                    tx -> dhcpManager.installDhcpEntries(dpnId,
-                            DhcpServiceUtils.getAndUpdateVmMacAddress(tx, interfaceName, dhcpManager), tx)));
+                String vmMacAddress = txRunner.applyWithNewReadWriteTransactionAndSubmit(OPERATIONAL,
+                    tx -> DhcpServiceUtils.getAndUpdateVmMacAddress(tx, interfaceName, dhcpManager)).get();
+                return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                    tx -> dhcpManager.installDhcpEntries(dpnId, vmMacAddress, tx)));
             }, DhcpMConstants.RETRY_COUNT);
         }
         if (!isVnicTypeDirectOrMacVtap(update)) {
@@ -190,9 +193,8 @@ public class DhcpNeutronPortListener
         LOG.trace("Port added {}", add);
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(add)) {
             jobCoordinator.enqueueJob(getJobKey(add),
-                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                    DhcpServiceUtils.createSubnetDhcpPortData(add, (subnetDhcpPortIdfr, subnetToDhcpport) -> tx
-                            .put(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr, subnetToDhcpport));
+                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
+                    DhcpServiceUtils.createSubnetDhcpPortData(add, tx::put);
                     processArpResponderForElanDpns(add, arpInput -> {
                         LOG.trace(
                                 "Installing ARP RESPONDER Flows  for dhcp port {} ipaddress {} with mac {} on dpn {}",

@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.dhcpservice;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.List;
@@ -131,11 +133,11 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
             //check whether any changes have happened
             LOG.trace("DhcpSubnetListener installNeutronPortEntries dpId: {} vmMacAddress : {}", dpId, vmMacAddress);
             //Bind the dhcp service when enabled
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 tx -> DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, tx)), LOG,
                 "Error writing to the datastore");
             //install the entries
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 tx -> dhcpManager.installDhcpEntries(dpId, vmMacAddress, tx)), LOG,
                 "Error writing to the datastore");
         }
@@ -153,12 +155,12 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
             LOG.trace("DhcpSubnetListener uninstallNeutronPortEntries dpId: {} vmMacAddress : {}",
                     dpId, vmMacAddress);
             //Unbind the dhcp service when disabled
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 tx -> DhcpServiceUtils.unbindDhcpService(interfaceName, tx)), LOG,
                 "Error writing to the datastore");
 
             //uninstall the entries
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 tx -> dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress, tx)), LOG,
                 "Error writing to the datastore");
         }

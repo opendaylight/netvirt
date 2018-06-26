@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
@@ -32,11 +34,13 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TransactionAdapter;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -225,13 +229,14 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         jobCoordinator.enqueueJob(getJobKey(tunnelIpDpnKey), () -> {
             if (entityOwnershipUtils.isEntityOwner(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
                     HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
-                return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                    dpns.remove(designatedDpnId);
-                    for (BigInteger dpn : dpns) {
-                        installDhcpDropAction(dpn, vmMacAddress, tx);
-                    }
-                    installDhcpEntries(designatedDpnId, vmMacAddress, tx);
-                }));
+                return Collections.singletonList(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
+                        dpns.remove(designatedDpnId);
+                        for (BigInteger dpn : dpns) {
+                            installDhcpDropAction(dpn, vmMacAddress, tx);
+                        }
+                        installDhcpEntries(designatedDpnId, vmMacAddress, tx);
+                    }));
             } else {
                 LOG.trace("Exiting installDhcpEntries since this cluster node is not the owner for dpn");
             }
@@ -242,7 +247,8 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         updateLocalCache(tunnelIp, elanInstanceName, vmMacAddress);
     }
 
-    public void installDhcpFlowsForVms(BigInteger designatedDpnId, Set<String> listVmMacAddress, WriteTransaction tx) {
+    public void installDhcpFlowsForVms(BigInteger designatedDpnId, Set<String> listVmMacAddress,
+        TypedWriteTransaction<Configuration> tx) {
         for (String vmMacAddress : listVmMacAddress) {
             installDhcpEntries(designatedDpnId, vmMacAddress, tx);
         }
@@ -328,7 +334,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         }
         List<String> vmMacs = getAllVmMacs();
         LOG.trace("Installing drop actions to this new DPN {} VMs {}", dpId, vmMacs);
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
             for (String vmMacAddress : vmMacs) {
                 installDhcpDropAction(dpId, vmMacAddress, tx);
             }
@@ -407,7 +413,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         if (setOfTunnelIpElanNamePairs == null || setOfTunnelIpElanNamePairs.isEmpty()) {
             LOG.trace("No tunnelIpElanName to handle for dpn {}. Returning", dpnId);
         } else {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 if (!dpnId.equals(DhcpMConstants.INVALID_DPID)) {
                     List<String> listOfVms = getAllVmMacs();
                     for (String vmMacAddress : listOfVms) {
@@ -422,7 +428,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
     }
 
     public void updateCacheAndInstallNewFlows(List<BigInteger> listOfDpns, Pair<IpAddress, String> pair,
-            WriteTransaction tx) {
+            TypedWriteTransaction<Configuration> tx) {
         BigInteger newDesignatedDpn = chooseDpn(pair.getLeft(), pair.getRight(), listOfDpns);
         if (newDesignatedDpn.equals(DhcpMConstants.INVALID_DPID)) {
             return;
@@ -440,7 +446,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
     }
 
     private void changeExistingFlowToDrop(Pair<IpAddress, String> tunnelIpElanNamePair, BigInteger dpnId,
-                                          WriteTransaction tx) {
+                                          TypedWriteTransaction<Configuration> tx) {
         Set<String> setOfVmMacAddress = tunnelIpElanNameToVmMacCache.get(tunnelIpElanNamePair);
         if (setOfVmMacAddress == null || setOfVmMacAddress.isEmpty()) {
             return;
@@ -510,7 +516,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         writeDesignatedSwitchForExternalTunnel(DhcpMConstants.INVALID_DPID, tunnelIp, elanInstanceName);
     }
 
-    private void installDhcpEntries(BigInteger dpnId, String vmMacAddress, WriteTransaction tx) {
+    private void installDhcpEntries(BigInteger dpnId, String vmMacAddress, TypedWriteTransaction<Configuration> tx) {
         DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL,
                 vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil, dhcpServiceCounters, tx);
     }
@@ -631,12 +637,12 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
     }
 
 
-    public void unInstallDhcpEntries(BigInteger dpnId, String vmMacAddress, WriteTransaction tx) {
+    public void unInstallDhcpEntries(BigInteger dpnId, String vmMacAddress, TypedWriteTransaction<Configuration> tx) {
         DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL,
                 vmMacAddress, NwConstants.DEL_FLOW, mdsalUtil, dhcpServiceCounters, tx);
     }
 
-    private void installDhcpDropAction(BigInteger dpn, String vmMacAddress, WriteTransaction tx) {
+    private void installDhcpDropAction(BigInteger dpn, String vmMacAddress, TypedWriteTransaction<Configuration> tx) {
         DhcpServiceUtils.setupDhcpDropAction(dpn, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL,
                 vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil, dhcpServiceCounters, tx);
     }
@@ -662,7 +668,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
                     }
                 }
             }
-            return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 for (Pair<IpAddress, String> tunnelElanPair : tunnelElanPairSet) {
                     IpAddress tunnelIpInDpn = tunnelElanPair.getLeft();
                     String elanInstanceName = tunnelElanPair.getRight();
@@ -828,17 +834,16 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         return null;
     }
 
-    private WriteTransaction putRemoteMcastMac(WriteTransaction transaction, String elanName,
-                                               L2GatewayDevice device, IpAddress internalTunnelIp) {
+    private void putRemoteMcastMac(TypedWriteTransaction<Configuration> transaction, String elanName,
+                                   L2GatewayDevice device, IpAddress internalTunnelIp) {
         Optional<Node> optionalNode = getNode(broker, device.getHwvtepNodeId());
         Node dstNode = optionalNode.get();
         if (dstNode == null) {
             LOG.trace("could not get device node {} ", device.getHwvtepNodeId());
-            return null;
+            return;
         }
         RemoteMcastMacs macs = createRemoteMcastMac(dstNode, elanName, internalTunnelIp);
-        HwvtepUtils.putRemoteMcastMac(transaction, dstNode.getNodeId(), macs);
-        return transaction;
+        HwvtepUtils.putRemoteMcastMac(TransactionAdapter.toWriteTransaction(transaction), dstNode.getNodeId(), macs);
     }
 
     public void installRemoteMcastMac(final BigInteger designatedDpnId, final IpAddress tunnelIp,
@@ -870,7 +875,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
                     LOG.trace("Tunnel Interface is not present {}", tunnelInterfaceName);
                     return Collections.emptyList();
                 }
-                return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(
+                return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     tx -> putRemoteMcastMac(tx, elanInstanceName, device,
                             tunnelInterface.augmentation(IfTunnel.class).getTunnelSource())));
             }
@@ -915,7 +920,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
                 LOG.trace("There are no undesignated DPNs");
                 return Collections.emptyList();
             }
-            return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 for (Pair<IpAddress, String> pair : tunnelIpElanPair) {
                     if (tunnelIp.equals(pair.getLeft())) {
                         String elanInstanceName = pair.getRight();
@@ -961,11 +966,12 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         jobCoordinator.enqueueJob(getJobKey(vmMacAddress), () -> {
             if (entityOwnershipUtils.isEntityOwner(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
                     HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
-                return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                    for (final BigInteger dpn : dpns) {
-                        unInstallDhcpEntries(dpn, vmMacAddress, tx);
-                    }
-                }));
+                return Collections.singletonList(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
+                        for (final BigInteger dpn : dpns) {
+                            unInstallDhcpEntries(dpn, vmMacAddress, tx);
+                        }
+                    }));
             } else {
                 LOG.trace("Exiting unInstallDhcpEntries since this cluster node is not the owner for dpn");
             }
