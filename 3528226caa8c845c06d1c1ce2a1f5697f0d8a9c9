@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "c55e0c6c_11155d3c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-06-26T23:05:14Z",
+      "side": 1,
+      "message": "Please add more description, note that there is a new format for commit message.",
+      "revId": "3528226caa8c845c06d1c1ce2a1f5697f0d8a9c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5b262676_e9a00574",
         "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/NeutronPortChainListener.java",
         "patchSetId": 7
