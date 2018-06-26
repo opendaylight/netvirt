@@ -18,8 +18,9 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -184,12 +185,14 @@ public class DhcpManager {
         return prt;
     }
 
-    public void installDhcpEntries(@Nullable BigInteger dpnId, @Nullable String vmMacAddress, WriteTransaction tx) {
+    public void installDhcpEntries(@Nullable BigInteger dpnId, @Nullable String vmMacAddress,
+        TypedWriteTransaction<Configuration> tx) {
         DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.ADD_FLOW,
                 mdsalUtil, dhcpServiceCounters, tx);
     }
 
-    public void unInstallDhcpEntries(@Nullable BigInteger dpId, @Nullable String vmMacAddress, WriteTransaction tx) {
+    public void unInstallDhcpEntries(@Nullable BigInteger dpId, @Nullable String vmMacAddress,
+        TypedWriteTransaction<Configuration> tx) {
         DhcpServiceUtils.setupDhcpFlowEntry(dpId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.DEL_FLOW,
                 mdsalUtil, dhcpServiceCounters, tx);
     }

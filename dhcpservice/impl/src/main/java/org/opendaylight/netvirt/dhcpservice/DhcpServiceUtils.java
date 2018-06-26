@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.dhcpservice;
 
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -18,6 +20,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -27,11 +30,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.Datastore.Operational;
+import org.opendaylight.genius.infra.TransactionAdapter;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -116,7 +122,7 @@ public final class DhcpServiceUtils {
     public static void setupDhcpFlowEntry(@Nullable BigInteger dpId, short tableId, @Nullable String vmMacAddress,
                                           int addOrRemove,
                                           IMdsalApiManager mdsalUtil, DhcpServiceCounters dhcpServiceCounters,
-                                          WriteTransaction tx) {
+                                          TypedWriteTransaction<Configuration> tx) {
         if (dpId == null || dpId.equals(DhcpMConstants.INVALID_DPID) || vmMacAddress == null) {
             return;
         }
@@ -134,14 +140,14 @@ public final class DhcpServiceUtils {
                     DhcpMConstants.COOKIE_DHCP_BASE, matches, null);
             LOG.trace("Removing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             dhcpServiceCounters.removeDhcpFlow();
-            mdsalUtil.removeFlowToTx(flowEntity, tx);
+            mdsalUtil.removeFlowToTx(flowEntity, TransactionAdapter.toWriteTransaction(tx));
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress), DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY,
                     "DHCP", 0, 0, DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
             LOG.trace("Installing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             dhcpServiceCounters.installDhcpFlow();
-            mdsalUtil.addFlowToTx(flowEntity, tx);
+            mdsalUtil.addFlowToTx(flowEntity, TransactionAdapter.toWriteTransaction(tx));
         }
     }
 
@@ -162,7 +168,7 @@ public final class DhcpServiceUtils {
 
     public static void setupDhcpDropAction(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove,
                                            IMdsalApiManager mdsalUtil, DhcpServiceCounters dhcpServiceCounters,
-                                           WriteTransaction tx) {
+                                           TypedWriteTransaction<Configuration> tx) {
         if (dpId == null || dpId.equals(DhcpMConstants.INVALID_DPID) || vmMacAddress == null) {
             return;
         }
@@ -180,14 +186,14 @@ public final class DhcpServiceUtils {
                     DhcpMConstants.COOKIE_DHCP_BASE, matches, null);
             LOG.trace("Removing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             dhcpServiceCounters.removeDhcpDropFlow();
-            mdsalUtil.removeFlowToTx(flowEntity, tx);
+            mdsalUtil.removeFlowToTx(flowEntity, TransactionAdapter.toWriteTransaction(tx));
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress), DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY,
                     "DHCP", 0, 0, DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
             LOG.trace("Installing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             dhcpServiceCounters.installDhcpDropFlow();
-            mdsalUtil.addFlowToTx(flowEntity, tx);
+            mdsalUtil.addFlowToTx(flowEntity, TransactionAdapter.toWriteTransaction(tx));
         }
     }
 
@@ -334,7 +340,7 @@ public final class DhcpServiceUtils {
         return new StringBuilder().append(DhcpMConstants.DHCP_JOB_KEY_PREFIX).append(interfaceName).toString();
     }
 
-    public static void bindDhcpService(String interfaceName, short tableId, WriteTransaction tx) {
+    public static void bindDhcpService(String interfaceName, short tableId, TypedWriteTransaction<Configuration> tx) {
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(tableId, ++instructionKey));
@@ -344,14 +350,12 @@ public final class DhcpServiceUtils {
                 getBoundServices(String.format("%s.%s", "dhcp", interfaceName),
                         serviceIndex, DhcpMConstants.DEFAULT_FLOW_PRIORITY,
                         DhcpMConstants.COOKIE_VM_INGRESS_TABLE, instructions);
-        tx.put(LogicalDatastoreType.CONFIGURATION,
-                buildServiceId(interfaceName, serviceIndex), serviceInfo, WriteTransaction.CREATE_MISSING_PARENTS);
+        tx.put(buildServiceId(interfaceName, serviceIndex), serviceInfo, CREATE_MISSING_PARENTS);
     }
 
-    public static void unbindDhcpService(String interfaceName, WriteTransaction tx) {
+    public static void unbindDhcpService(String interfaceName, TypedWriteTransaction<Configuration> tx) {
         short serviceIndex = ServiceIndex.getIndex(NwConstants.DHCP_SERVICE_NAME, NwConstants.DHCP_SERVICE_INDEX);
-        tx.delete(LogicalDatastoreType.CONFIGURATION,
-                buildServiceId(interfaceName, serviceIndex));
+        tx.delete(buildServiceId(interfaceName, serviceIndex));
     }
 
     private static InstanceIdentifier<BoundServices> buildServiceId(String interfaceName,
@@ -484,13 +488,12 @@ public final class DhcpServiceUtils {
     }
 
     @Nullable
-    public static String getAndUpdateVmMacAddress(ReadWriteTransaction tx, String interfaceName,
-            DhcpManager dhcpManager) throws ReadFailedException {
+    public static String getAndUpdateVmMacAddress(TypedReadWriteTransaction<Operational> tx, String interfaceName,
+            DhcpManager dhcpManager) throws ExecutionException, InterruptedException {
         InstanceIdentifier<InterfaceNameMacAddress> instanceIdentifier =
                 InstanceIdentifier.builder(InterfaceNameMacAddresses.class)
                         .child(InterfaceNameMacAddress.class, new InterfaceNameMacAddressKey(interfaceName)).build();
-        Optional<InterfaceNameMacAddress> existingEntry =
-                tx.read(LogicalDatastoreType.OPERATIONAL, instanceIdentifier).checkedGet();
+        Optional<InterfaceNameMacAddress> existingEntry = tx.read(instanceIdentifier).get();
         if (!existingEntry.isPresent()) {
             LOG.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);
             String vmMacAddress = getNeutronMacAddress(interfaceName, dhcpManager);
@@ -502,8 +505,7 @@ public final class DhcpServiceUtils {
                     new InterfaceNameMacAddressBuilder()
                             .withKey(new InterfaceNameMacAddressKey(interfaceName))
                             .setInterfaceName(interfaceName).setMacAddress(vmMacAddress).build();
-            tx.merge(LogicalDatastoreType.OPERATIONAL, instanceIdentifier, interfaceNameMacAddress,
-                    WriteTransaction.CREATE_MISSING_PARENTS);
+            tx.merge(instanceIdentifier, interfaceNameMacAddress, CREATE_MISSING_PARENTS);
             return vmMacAddress;
         }
         return existingEntry.get().getMacAddress();
