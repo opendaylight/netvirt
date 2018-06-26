@@ -2,6 +2,91 @@
   "comments": [
     {
       "key": {
+        "uuid": "b5a20e6d_b4f648c1",
+        "filename": "qosservice/impl/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-26T13:08:51Z",
+      "side": 1,
+      "message": "what do you need this API for?  Isn\u0027t a transitive dependency of whatever javax.json API implementation you use?",
+      "revId": "638d75c9544eaf64ee10feea00d216cb2aaee88b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "56e3fee5_dddd5989",
+        "filename": "qosservice/impl/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-26T13:08:51Z",
+      "side": 1,
+      "message": "it\u0027s un-usual to see a fixed version for a common 3rd party library (JSON processing) in an application project like netvirt - you should use whatever (version of) JSON library that odlparent provides.",
+      "revId": "638d75c9544eaf64ee10feea00d216cb2aaee88b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1d05b2a8_9f13ab7d",
+        "filename": "qosservice/impl/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-26T13:08:51Z",
+      "side": 1,
+      "message": "wait, you need two different JSON APIs here - javax.json *and* GSON? That\u0027s curious.",
+      "revId": "638d75c9544eaf64ee10feea00d216cb2aaee88b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3e6427f2_73669747",
+        "filename": "qosservice/impl/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-26T13:08:51Z",
+      "side": 1,
+      "message": "as above, version should (typically) be inherited from odlparent",
+      "revId": "638d75c9544eaf64ee10feea00d216cb2aaee88b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc0fe2ce_3c8be60a",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-26T13:08:51Z",
+      "side": 1,
+      "message": "Whoa!  Are you sure we really need to combine javax.json *AND* GSON, two unrelated JSON libraries, to create and print out a JSON String?",
+      "revId": "638d75c9544eaf64ee10feea00d216cb2aaee88b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "450dccc5_8abca24a",
         "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosCacheCLI.java",
         "patchSetId": 2
@@ -13,6 +98,30 @@
       "writtenOn": "2018-06-24T13:58:43Z",
       "side": 1,
       "message": "This API is deprecated - for new shell commands I think we should start use the karaf 4 Action interface which we\u0027ll have to convert to anyway.",
+      "range": {
+        "startLine": 18,
+        "startChar": 33,
+        "endLine": 18,
+        "endChar": 51
+      },
+      "revId": "638d75c9544eaf64ee10feea00d216cb2aaee88b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "817f10c9_912e1104",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosCacheCLI.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-06-26T13:08:51Z",
+      "side": 1,
+      "message": "agreed, and here are some examples for your inspiration: https://git.opendaylight.org/gerrit/#/q/OsgiCommandSupport",
+      "parentUuid": "450dccc5_8abca24a",
       "range": {
         "startLine": 18,
         "startChar": 33,
