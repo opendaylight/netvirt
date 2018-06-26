@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77dc809a_32064a65",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-06-26T16:04:16Z",
+      "side": 1,
+      "message": "scheduleCentralizedSwitch?",
+      "range": {
+        "startLine": 69,
+        "startChar": 18,
+        "endLine": 69,
+        "endChar": 41
+      },
+      "revId": "b232ab0a491c11fbf2e9f833a6e3de1b6a9eec69",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
