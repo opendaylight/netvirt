@@ -7,20 +7,22 @@
  */
 package org.opendaylight.netvirt.dhcpservice.jobs;
 
-import com.google.common.util.concurrent.FutureCallback;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpManager;
@@ -42,18 +44,6 @@ import org.slf4j.LoggerFactory;
 public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Void>>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpInterfaceRemoveJob.class);
-
-    private static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
-        @Override
-        public void onSuccess(Void result) {
-            LOG.debug("Success in Datastore write operation");
-        }
-
-        @Override
-        public void onFailure(Throwable error) {
-            LOG.error("Error in Datastore write operation", error);
-        }
-    };
 
     private final DhcpManager dhcpManager;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
@@ -81,7 +71,7 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() {
+    public List<ListenableFuture<Void>> call() throws ExecutionException, InterruptedException {
         String interfaceName = interfaceDel.getName();
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
                 interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
@@ -98,7 +88,7 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
         }
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         // Support for VM migration use cases.
-        futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+        futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
             tx -> DhcpServiceUtils.unbindDhcpService(interfaceName, tx)));
         java.util.Optional<String> subnetId = DhcpServiceUtils.getNeutronSubnetId(port);
         if (subnetId.isPresent()) {
@@ -116,22 +106,26 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
         return futures;
     }
 
-    private List<ListenableFuture<Void>> unInstallDhcpEntries(String interfaceName, BigInteger dpId) {
-        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(
-            tx -> dhcpManager.unInstallDhcpEntries(dpId, getAndRemoveVmMacAddress(tx, interfaceName), tx)));
+    private List<ListenableFuture<Void>> unInstallDhcpEntries(String interfaceName, BigInteger dpId)
+        throws ExecutionException, InterruptedException {
+        String vmMacAddress = txRunner.applyWithNewReadWriteTransactionAndSubmit(OPERATIONAL,
+            tx -> getAndRemoveVmMacAddress(tx, interfaceName)).get();
+        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+            tx -> dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress, tx)));
     }
 
     @Nullable
-    private String getAndRemoveVmMacAddress(ReadWriteTransaction tx, String interfaceName) throws ReadFailedException {
+    private String getAndRemoveVmMacAddress(TypedReadWriteTransaction<Datastore.Operational> tx, String interfaceName)
+        throws ExecutionException, InterruptedException {
         InstanceIdentifier<InterfaceNameMacAddress> instanceIdentifier =
                 InstanceIdentifier.builder(InterfaceNameMacAddresses.class)
                         .child(InterfaceNameMacAddress.class, new InterfaceNameMacAddressKey(interfaceName)).build();
-        return tx.read(LogicalDatastoreType.OPERATIONAL, instanceIdentifier).checkedGet().toJavaUtil().map(
+        return tx.read(instanceIdentifier).get().toJavaUtil().map(
             interfaceNameMacAddress -> {
                 String vmMacAddress = interfaceNameMacAddress.getMacAddress();
                 LOG.trace("Entry for interface found in InterfaceNameVmMacAddress map {}, {}", interfaceName,
                         vmMacAddress);
-                tx.delete(LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
+                tx.delete(instanceIdentifier);
                 return vmMacAddress;
             }).orElseGet(() -> {
                 LOG.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);

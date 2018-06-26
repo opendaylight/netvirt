@@ -7,12 +7,16 @@
  */
 package org.opendaylight.netvirt.dhcpservice.jobs;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -65,7 +69,7 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() {
+    public List<ListenableFuture<Void>> call() throws ExecutionException, InterruptedException {
         String interfaceName = interfaceAdd.getName();
         LOG.trace("Received add DCN for interface {}, dpid {}", interfaceName, dpnId);
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
@@ -90,7 +94,7 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
             }
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             // Support for VM migration use cases.
-            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 tx -> DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, tx)));
             LOG.info("DhcpInterfaceEventListener add isEnableDhcp:{}", subnet.isEnableDhcp());
             futures.addAll(installDhcpEntries(interfaceAdd.getName(), dpnId));
@@ -114,9 +118,11 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
         return Collections.emptyList();
     }
 
-    private List<ListenableFuture<Void>> installDhcpEntries(String interfaceName, BigInteger dpId) {
-        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(
-            tx -> dhcpManager.installDhcpEntries(dpId,
-                    DhcpServiceUtils.getAndUpdateVmMacAddress(tx, interfaceName, dhcpManager), tx)));
+    private List<ListenableFuture<Void>> installDhcpEntries(String interfaceName, BigInteger dpId)
+        throws ExecutionException, InterruptedException {
+        String vmMacAddress = txRunner.applyWithNewReadWriteTransactionAndSubmit(OPERATIONAL,
+            tx -> DhcpServiceUtils.getAndUpdateVmMacAddress(tx, interfaceName, dhcpManager)).get();
+        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+            tx -> dhcpManager.installDhcpEntries(dpId, vmMacAddress, tx)));
     }
 }

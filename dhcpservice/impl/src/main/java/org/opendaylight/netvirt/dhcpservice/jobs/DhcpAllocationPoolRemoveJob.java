@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.dhcpservice.jobs;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +32,7 @@ public class DhcpAllocationPoolRemoveJob implements Callable<List<ListenableFutu
     }
 
     private List<ListenableFuture<Void>> unInstallDhcpEntries() {
-        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
             tx -> DhcpServiceUtils.unbindDhcpService(interfaceName, tx)));
     }
 }

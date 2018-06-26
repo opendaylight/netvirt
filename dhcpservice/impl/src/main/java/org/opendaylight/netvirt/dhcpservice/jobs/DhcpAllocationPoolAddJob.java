@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.dhcpservice.jobs;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +33,7 @@ public class DhcpAllocationPoolAddJob implements Callable<List<ListenableFuture<
     }
 
     private List<ListenableFuture<Void>> installDhcpEntries() {
-        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
             tx -> DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, tx)));
     }
 

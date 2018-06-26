@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.dhcpservice;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import java.util.Collections;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -75,7 +77,7 @@ public class DhcpInterfaceConfigListener
                 }
             }
             if (vlanInterface != null) {
-                return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     tx -> DhcpServiceUtils.unbindDhcpService(interfaceName, tx)));
             }
             return Collections.emptyList();
@@ -98,10 +100,11 @@ public class DhcpInterfaceConfigListener
             Port port = dhcpManager.getNeutronPort(interfaceName);
             Subnet subnet = dhcpManager.getNeutronSubnet(port);
             if (null != subnet && subnet.isEnableDhcp()) {
-                return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                    LOG.debug("Binding DHCP service for interface {}", interfaceName);
-                    DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, tx);
-                }));
+                return Collections.singletonList(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
+                        LOG.debug("Binding DHCP service for interface {}", interfaceName);
+                        DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, tx);
+                    }));
             }
             return Collections.emptyList();
         }, DhcpMConstants.RETRY_COUNT);
