@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b154b9b_b9b8c537",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-06-26T09:21:22Z",
+      "side": 1,
+      "message": "could you please change here also? (though it is not your change ;-))",
+      "revId": "b276db60940ab1a310a79ffd9ca85e1b3b9df702",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f02c1c75_e7abcfd4",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1627,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-06-26T09:21:22Z",
+      "side": 1,
+      "message": "Is it better to move iitmProvider.getInterface above interfaceManager.getInterfaceInfoFromConfigDataStore?\nOr which has more probability? \n\nIs iitmProvider used based on some flag set before odl bringup? If yes, can we use it to check which interface to read?",
+      "revId": "b276db60940ab1a310a79ffd9ca85e1b3b9df702",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
