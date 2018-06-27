@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e183f0fc_25100cd9",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-27T09:14:02Z",
+      "side": 1,
+      "message": "\u003cConfiguration\u003e",
+      "revId": "a522acf5ffce6648df3bf6dd144c40e42255f9b2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
