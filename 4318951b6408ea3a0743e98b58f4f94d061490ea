@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "90bf6af2_5da60a26",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/flowclassifier/NeutronFlowClassifierListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 7592
+      },
+      "writtenOn": "2018-06-27T06:17:36Z",
+      "side": 1,
+      "message": "This method intends to handle the deletion of flow classifiers. In our case, flow classifier is removed from the port chain only. So, this method will not fix our bug.",
+      "parentUuid": "0218c113_cc36f3af",
+      "revId": "4318951b6408ea3a0743e98b58f4f94d061490ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9ada4d31_5043051f",
         "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/flowclassifier/NeutronFlowClassifierListener.java",
         "patchSetId": 10
