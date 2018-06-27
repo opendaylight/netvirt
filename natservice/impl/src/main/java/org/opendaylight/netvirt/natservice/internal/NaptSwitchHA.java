@@ -246,14 +246,15 @@ public class NaptSwitchHA {
                 routerName);
             for (Uuid externalSubnetId : externalSubnetIdsForRouter) {
                 long subnetVpnId = NatUtil.getVpnId(dataBroker, externalSubnetId.getValue());
-                if (subnetVpnId != -1) {
+                if (subnetVpnId != -1 && !NatUtil.checkForRoutersWithSameExtSubnetAndNaptSwitch(
+                    dataBroker, externalSubnetId, routerName, naptSwitch)) {
                     String natPfibSubnetFlowRef = externalRouterListener.getFlowRefTs(naptSwitch,
                         NwConstants.NAPT_PFIB_TABLE, subnetVpnId);
                     FlowEntity natPfibFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.NAPT_PFIB_TABLE,
                         natPfibSubnetFlowRef);
                     mdsalManager.removeFlow(confTx, natPfibFlowEntity);
                     LOG.debug("removeSnatFlowsInOldNaptSwitch : Removed the flow in table {} with external subnet "
-                            + "Vpn Id {} as metadata on Napt Switch {}", NwConstants.NAPT_PFIB_TABLE,
+                              + "Vpn Id {} as metadata on Napt Switch {}", NwConstants.NAPT_PFIB_TABLE,
                         subnetVpnId, naptSwitch);
                 }
             }
@@ -272,7 +273,8 @@ public class NaptSwitchHA {
             // matching on the vpn ID.
             boolean switchSharedByRouters = false;
             Uuid extNetworkId = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
-            if (extNetworkId != null) {
+            if (extNetworkId != null && !NatUtil.checkForRoutersWithSameExtNetAndNaptSwitch(
+                dataBroker, networkId, routerName, naptSwitch)) {
                 List<String> routerNamesAssociated = getRouterIdsForExtNetwork(extNetworkId);
                 for (String routerNameAssociated : routerNamesAssociated) {
                     if (!routerNameAssociated.equals(routerName)) {
