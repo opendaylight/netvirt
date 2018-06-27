@@ -17,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
@@ -166,7 +168,7 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void removeVrfTable(String rd, WriteTransaction writeConfigTxn) {
+    public void removeVrfTable(String rd, TypedWriteTransaction<Datastore.Configuration> writeConfigTxn) {
         fibUtil.removeVrfTable(rd, writeConfigTxn);
     }
 
