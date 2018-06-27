@@ -1960,6 +1960,30 @@ public final class NatUtil {
         return false;
     }
 
+    public static boolean checkForRoutersWithSameExtSubnetAndNaptSwitch(DataBroker broker, Uuid externalSubnetId,
+                                                                        String routerName, BigInteger dpnId) {
+        List<Uuid> routerUuidList = getOptionalExternalSubnets(broker, externalSubnetId).toJavaUtil()
+            .map(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
+                .subnets.Subnets::getRouterIds).orElse(Collections.emptyList());
+        if (routerUuidList != null && !routerUuidList.isEmpty()) {
+            for (Uuid routerUuid : routerUuidList) {
+                String sharedRouterName = routerUuid.getValue();
+                if (!routerName.equals(sharedRouterName)) {
+                    BigInteger swtichDpnId = NatUtil.getPrimaryNaptfromRouterName(broker, sharedRouterName);
+                    if (swtichDpnId == null) {
+                        continue;
+                    } else if (swtichDpnId.equals(dpnId)) {
+                        LOG.debug("checkForRoutersWithSameExtSubnetAndNaptSwitch: external-subnetwork {} is "
+                                  + "associated with other active router {} on NAPT switch {}", externalSubnetId,
+                            sharedRouterName, swtichDpnId);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     public static void installRouterGwFlows(ManagedNewTransactionRunner txRunner, IVpnManager vpnManager,
             Routers router, BigInteger primarySwitchId, int addOrRemove) {
         ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
