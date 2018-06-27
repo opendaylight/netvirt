@@ -1956,12 +1956,17 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 icmpDropFlowRef);
         mdsalManager.removeFlow(confTx, icmpDropFlowEntity);
 
-        removeNaptFibExternalOutputFlows(routerId, dpnId, networkId, externalIps, confTx);
+        boolean lastRouterOnExternalNetwork =
+            !NatUtil.checkForRoutersWithSameExtNetAndNaptSwitch(dataBroker, networkId, routerName, dpnId);
+        if (lastRouterOnExternalNetwork) {
+            removeNaptFibExternalOutputFlows(routerId, dpnId, networkId, externalIps, confTx);
+        }
         //Remove the NAPT PFIB TABLE (47->21) which forwards the incoming packet to FIB Table matching on the
         // External Subnet Vpn Id.
         for (Uuid externalSubnetId : externalSubnetList) {
             long subnetVpnId = NatUtil.getVpnId(dataBroker, externalSubnetId.getValue());
-            if (subnetVpnId != -1) {
+            if (subnetVpnId != -1 && !NatUtil.checkForRoutersWithSameExtSubnetAndNaptSwitch(
+                    dataBroker, externalSubnetId, routerName, dpnId)) {
                 String natPfibSubnetFlowRef = getFlowRefTs(dpnId, NwConstants.NAPT_PFIB_TABLE, subnetVpnId);
                 FlowEntity natPfibFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE,
                         natPfibSubnetFlowRef);
@@ -1980,35 +1985,36 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 + "and router ID {}", NwConstants.NAPT_PFIB_TABLE, dpnId, routerId);
         mdsalManager.removeFlow(confTx, natPfibFlowEntity);
 
-        // Long vpnId = NatUtil.getVpnId(dataBroker, routerId);
-        // - This does not work since ext-routers is deleted already - no network info
-        //Get the VPN ID from the ExternalNetworks model
-        long vpnId = -1;
-        if (vpnName == null || vpnName.isEmpty()) {
-            // ie called from router delete cases
-            Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
-            LOG.debug("removeNaptFlowsFromActiveSwitch : vpnUuid is {}", vpnUuid);
-            if (vpnUuid != null) {
-                vpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
-                LOG.debug("removeNaptFlowsFromActiveSwitch : vpnId {} for external  network {} router delete or "
-                        + "disableSNAT scenario", vpnId, networkId);
-            }
-        } else {
-            // ie called from disassociate vpn case
-            LOG.debug("removeNaptFlowsFromActiveSwitch : This is disassociate nw with vpn case with vpnName {}",
+        if (lastRouterOnExternalNetwork) {
+            // Long vpnId = NatUtil.getVpnId(dataBroker, routerId);
+            // - This does not work since ext-routers is deleted already - no network info
+            //Get the VPN ID from the ExternalNetworks model
+            long vpnId = -1;
+            if (vpnName == null || vpnName.isEmpty()) {
+                // ie called from router delete cases
+                Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
+                LOG.debug("removeNaptFlowsFromActiveSwitch : vpnUuid is {}", vpnUuid);
+                if (vpnUuid != null) {
+                    LOG.debug("removeNaptFlowsFromActiveSwitch : vpnId {} for external network {} router delete or "
+                              + "disableSNAT scenario", vpnId, networkId);
+                }
+            } else {
+                // ie called from disassociate vpn case
+                LOG.debug("removeNaptFlowsFromActiveSwitch : This is disassociate nw with vpn case with vpnName {}",
                     vpnName);
-            vpnId = NatUtil.getVpnId(dataBroker, vpnName);
-            LOG.debug("removeNaptFlowsFromActiveSwitch : vpnId for disassociate nw with vpn scenario {}", vpnId);
-        }
+                vpnId = NatUtil.getVpnId(dataBroker, vpnName);
+                LOG.debug("removeNaptFlowsFromActiveSwitch : vpnId for disassociate nw with vpn scenario {}", vpnId);
+            }
 
-        if (vpnId != NatConstants.INVALID_ID) {
-            //Remove the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table matching on the VPN ID.
-            String natPfibVpnFlowRef = getFlowRefTs(dpnId, NwConstants.NAPT_PFIB_TABLE, vpnId);
-            FlowEntity natPfibVpnFlowEntity =
-                NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE, natPfibVpnFlowRef);
-            LOG.info("removeNaptFlowsFromActiveSwitch : Remove the flow in {} for the active switch with the DPN ID {} "
-                    + "and VPN ID {}", NwConstants.NAPT_PFIB_TABLE, dpnId, vpnId);
-            mdsalManager.removeFlow(confTx, natPfibVpnFlowEntity);
+            if (vpnId != NatConstants.INVALID_ID) {
+                //Remove the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table matching on the VPN ID.
+                String natPfibVpnFlowRef = getFlowRefTs(dpnId, NwConstants.NAPT_PFIB_TABLE, vpnId);
+                FlowEntity natPfibVpnFlowEntity =
+                    NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE, natPfibVpnFlowRef);
+                LOG.info("removeNaptFlowsFromActiveSwitch : Remove the flow in {} for the active switch with the "
+                         + "DPN ID {} and VPN ID {}", NwConstants.NAPT_PFIB_TABLE, dpnId, vpnId);
+                mdsalManager.removeFlow(confTx, natPfibVpnFlowEntity);
+            }
         }
 
         //For the router ID get the internal IP , internal port and the corresponding external IP and external Port.
