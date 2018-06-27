@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
@@ -25,6 +26,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.sal.common.util.Arguments;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -88,10 +90,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnectorKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
@@ -99,6 +103,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -338,47 +343,73 @@ public class NaptEventHandler {
 
         long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
         LOG.debug("prepareAndSendPacketOut : portTag from incoming packet is {}", portTag);
-        String interfaceName = getInterfaceNameFromTag(portTag);
-        LOG.debug("prepareAndSendPacketOut : interfaceName fetched from portTag is {}", interfaceName);
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
-                .interfaces.Interface iface = null;
-        int vlanId = 0;
-        iface = interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
-        if (iface == null) {
-            LOG.error("prepareAndSendPacketOut : Unable to read interface {} from config DataStore", interfaceName);
-            return;
-        }
         List<ActionInfo> actionInfos = new ArrayList<>();
-        IfL2vlan ifL2vlan = iface.augmentation(IfL2vlan.class);
-        if (ifL2vlan != null && ifL2vlan.getVlanId() != null) {
-            vlanId = ifL2vlan.getVlanId().getValue() == null ? 0 : ifL2vlan.getVlanId().getValue();
-        }
-        InterfaceInfo infInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
-        if (infInfo == null) {
-            LOG.error("prepareAndSendPacketOut : error in getting interfaceInfo from Operation DS");
-            return;
-        }
+        String interfaceName = getInterfaceNameFromTag(portTag);
+        BigInteger dpnID = null;
+        int portNum = -1;
+        if (interfaceName != null) {
+            LOG.debug("prepareAndSendPacketOut : interfaceName fetched from portTag is {}", interfaceName);
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
+                    .interfaces.Interface iface = null;
+            int vlanId = 0;
+            iface = interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
+            if (iface == null) {
+                LOG.error("prepareAndSendPacketOut : Unable to read interface {} from config DataStore", interfaceName);
+                return;
+            }
 
-        byte[] pktOut = buildNaptPacketOut(ethPkt);
-        if (ethPkt.getEtherType() != (short) NwConstants.ETHTYPE_802_1Q) {
-            // VLAN Access port
-            LOG.debug("prepareAndSendPacketOut : vlanId is {}", vlanId);
-            if (vlanId != 0) {
-                // Push vlan
-                actionInfos.add(new ActionPushVlan(0));
-                actionInfos.add(new ActionSetFieldVlanVid(1, vlanId));
+            IfL2vlan ifL2vlan = iface.augmentation(IfL2vlan.class);
+            if (ifL2vlan != null && ifL2vlan.getVlanId() != null) {
+                vlanId = ifL2vlan.getVlanId().getValue() == null ? 0 : ifL2vlan.getVlanId().getValue();
+            }
+            InterfaceInfo infInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
+            if (infInfo == null) {
+                LOG.error("prepareAndSendPacketOut : error in getting interfaceInfo from Operation DS");
+                return;
+            }
+            dpnID = infInfo.getDpId();
+            portNum = infInfo.getPortNo();
+            if (ethPkt.getEtherType() != (short) NwConstants.ETHTYPE_802_1Q) {
+                // VLAN Access port
+                LOG.debug("prepareAndSendPacketOut : vlanId is {}", vlanId);
+                if (vlanId != 0) {
+                    // Push vlan
+                    actionInfos.add(new ActionPushVlan(0));
+                    actionInfos.add(new ActionSetFieldVlanVid(1, vlanId));
+                } else {
+                    LOG.debug("prepareAndSendPacketOut : No vlanId {}, may be untagged", vlanId);
+                }
             } else {
-                LOG.debug("prepareAndSendPacketOut : No vlanId {}, may be untagged", vlanId);
+                // VLAN Trunk Port
+                LOG.debug("prepareAndSendPacketOut : This is VLAN Trunk port case - need not do VLAN tagging again");
             }
         } else {
-            // VLAN Trunk Port
-            LOG.debug("prepareAndSendPacketOut : This is VLAN Trunk port case - need not do VLAN tagging again");
+            // This case will be hit for packets send from non-napt switch.
+            LOG.info("prepareAndSendPacketOut : interfaceName is not available.Retrieve from packet received");
+            NodeConnectorId nodeId = naptEntryEvent.getPacketReceived().getMatch().getInPort();
+            portNum = Integer.parseInt(nodeId.getValue());
+            LOG.debug("prepareAndSendPacketOut : in_port portNum : {}", portNum);
+            //List<PathArgument> dpnNodes = naptEntryEvent.getPacketReceived().getIngress().getValue().getPath();
+            Iterable<PathArgument> outArgs = naptEntryEvent.getPacketReceived().getIngress().getValue()
+                    .getPathArguments();
+            PathArgument pathArgument = Iterables.get(outArgs, 2);
+            LOG.debug("prepareAndSendPacketOut : pathArgument : {}", pathArgument);
+            InstanceIdentifier.IdentifiableItem<?, ?> item = Arguments.checkInstanceOf(pathArgument,
+                    InstanceIdentifier.IdentifiableItem.class);
+            NodeConnectorKey key = Arguments.checkInstanceOf(item.getKey(), NodeConnectorKey.class);
+            LOG.info("prepareAndSendPacketOut : NodeConnectorKey key : {}", key.getId().getValue());
+            String dpnKey = key.getId().getValue();
+            if (dpnKey.contains(NatConstants.COLON_SEPARATOR)) {
+                dpnID = new BigInteger(dpnKey.split(NatConstants.COLON_SEPARATOR)[1]);
+            }
         }
+        byte[] pktOut = buildNaptPacketOut(ethPkt);
+
         if (pktOut != null) {
             String routerName = NatUtil.getRouterName(dataBroker, routerId);
             long tunId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, routerId,
                     routerName);
-            sendNaptPacketOut(pktOut, infInfo, actionInfos, tunId);
+            sendNaptPacketOut(pktOut, dpnID, portNum, actionInfos, tunId);
         } else {
             LOG.warn("prepareAndSendPacketOut : Unable to send Packet Out");
         }
@@ -635,14 +666,15 @@ public class NaptEventHandler {
         return null;
     }
 
-    private void sendNaptPacketOut(byte[] pktOut, InterfaceInfo infInfo, List<ActionInfo> actionInfos, Long tunId) {
-        LOG.trace("sendNaptPacketOut: Sending packet out DpId {}, interfaceInfo {}", infInfo.getDpId(), infInfo);
+    private void sendNaptPacketOut(byte[] pktOut, BigInteger dpnID, int portNum,
+            List<ActionInfo> actionInfos, Long tunId) {
+        LOG.trace("sendNaptPacketOut: Sending packet out DpId {}, interface {}", dpnID, portNum);
         // set inPort, and action as OFPP_TABLE so that it starts from table 0 (lowest table as per spec)
         actionInfos.add(new ActionSetFieldTunnelId(2, BigInteger.valueOf(tunId)));
         actionInfos.add(new ActionOutput(3, new Uri("0xfffffff9")));
-        NodeConnectorRef inPort = MDSALUtil.getNodeConnRef(infInfo.getDpId(), String.valueOf(infInfo.getPortNo()));
-        LOG.debug("sendNaptPacketOut : inPort for packetout is being set to {}", String.valueOf(infInfo.getPortNo()));
-        TransmitPacketInput output = MDSALUtil.getPacketOut(actionInfos, pktOut, infInfo.getDpId().longValue(), inPort);
+        NodeConnectorRef inPort = MDSALUtil.getNodeConnRef(dpnID, String.valueOf(portNum));
+        LOG.debug("sendNaptPacketOut : inPort for packetout is being set to {}", portNum);
+        TransmitPacketInput output = MDSALUtil.getPacketOut(actionInfos, pktOut, dpnID.longValue(), inPort);
         LOG.debug("sendNaptPacketOut : Transmitting packet: {}, inPort {}", output, inPort);
 
         JdkFutures.addErrorLogging(pktService.transmitPacket(output), LOG, "Transmit packet");
@@ -656,7 +688,9 @@ public class NaptEventHandler {
             interfaceManagerRpc.getInterfaceFromIfIndex(input);
         try {
             GetInterfaceFromIfIndexOutput output = futureOutput.get().getResult();
-            interfaceName = output.getInterfaceName();
+            if (output != null) {
+                interfaceName = output.getInterfaceName();
+            }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("getInterfaceNameFromTag : Error while retrieving the interfaceName from tag using "
                 + "getInterfaceFromIfIndex RPC");
