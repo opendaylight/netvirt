@@ -14,6 +14,8 @@ import java.math.BigInteger;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -68,7 +70,7 @@ public interface IFibManager {
 
     void addVrfTable(String rd, WriteTransaction writeConfigTxn);
 
-    void removeVrfTable(String rd, WriteTransaction writeConfigTxn);
+    void removeVrfTable(String rd, TypedWriteTransaction<Datastore.Configuration> writeConfigTxn);
 
     void removeInterVPNLinkRouteFlows(String interVpnLinkName,
                                       boolean isVpnFirstEndPoint,

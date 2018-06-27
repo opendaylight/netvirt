@@ -27,6 +27,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -180,12 +181,13 @@ public class LearntVpnVipToPortEventProcessor
 
         @Override
         public List<ListenableFuture<Void>> call() {
-            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
-                addMipAdjacency(vpnName, interfaceName,
-                        srcIpAddress, macAddress, destIpAddress);
-                VpnUtil.createLearntVpnVipToPort(dataBroker, vpnName, srcIpAddress,
-                        interfaceName, macAddress, operTx);
-            }));
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                                                                        Datastore.CONFIGURATION, operTx -> {
+                    addMipAdjacency(vpnName, interfaceName,
+                            srcIpAddress, macAddress, destIpAddress);
+                    VpnUtil.createLearntVpnVipToPort(dataBroker, vpnName, srcIpAddress,
+                            interfaceName, macAddress, operTx);
+                }));
         }
 
         private void addMipAdjacency(String vpnInstName, String vpnInterface, String srcPrefix, String mipMacAddress,
