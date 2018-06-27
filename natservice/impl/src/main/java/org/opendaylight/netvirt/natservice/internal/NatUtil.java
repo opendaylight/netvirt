@@ -2042,15 +2042,39 @@ public final class NatUtil {
                 for (Uuid routerUuid : routerUuidList) {
                     String sharedRouterName = routerUuid.getValue();
                     if (!routerName.equals(sharedRouterName)) {
-                        BigInteger swtichDpnId = NatUtil.getPrimaryNaptfromRouterName(broker, sharedRouterName);
-                        if (swtichDpnId == null) {
+                        BigInteger switchDpnId = NatUtil.getPrimaryNaptfromRouterName(broker, sharedRouterName);
+                        if (switchDpnId == null) {
                             continue;
-                        } else if (swtichDpnId.equals(dpnId)) {
+                        } else if (switchDpnId.equals(dpnId)) {
                             LOG.debug("checkForRoutersWithSameExtNetAndNaptSwitch: external-network {} is "
                                     + "associated with other active router {} on NAPT switch {}", networkId,
-                                    sharedRouterName, swtichDpnId);
+                                    sharedRouterName, switchDpnId);
                             return true;
                         }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean checkForRoutersWithSameExtSubnetAndNaptSwitch(DataBroker broker, Uuid externalSubnetId,
+                                                                        String routerName, BigInteger dpnId) {
+        List<Uuid> routerUuidList = getOptionalExternalSubnets(broker, externalSubnetId).toJavaUtil()
+            .map(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
+                .subnets.Subnets::getRouterIds).orElse(Collections.emptyList());
+        if (routerUuidList != null && !routerUuidList.isEmpty()) {
+            for (Uuid routerUuid : routerUuidList) {
+                String sharedRouterName = routerUuid.getValue();
+                if (!routerName.equals(sharedRouterName)) {
+                    BigInteger switchDpnId = NatUtil.getPrimaryNaptfromRouterName(broker, sharedRouterName);
+                    if (switchDpnId == null) {
+                        continue;
+                    } else if (switchDpnId.equals(dpnId)) {
+                        LOG.debug("checkForRoutersWithSameExtSubnetAndNaptSwitch: external-subnetwork {} is "
+                                  + "associated with other active router {} on NAPT switch {}", externalSubnetId,
+                            sharedRouterName, switchDpnId);
+                        return true;
                     }
                 }
             }
