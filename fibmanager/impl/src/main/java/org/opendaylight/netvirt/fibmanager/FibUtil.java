@@ -23,11 +23,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -503,14 +506,14 @@ public class FibUtil {
         }
     }
 
-    public void removeVrfTable(String rd, WriteTransaction writeConfigTxn) {
+    public void removeVrfTable(String rd, TypedWriteTransaction<Datastore.Configuration> writeConfigTxn) {
         LOG.debug("Removing vrf table for rd {}", rd);
         InstanceIdentifier.InstanceIdentifierBuilder<VrfTables> idBuilder =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
         InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
 
         if (writeConfigTxn != null) {
-            writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfTableId);
+            writeConfigTxn.delete(vrfTableId);
         } else {
             Optional<VrfTables> ifStateOptional = MDSALUtil.read(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, vrfTableId);
