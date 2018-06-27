@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77b1866f_77f3bb51",
+        "filename": "fibmanager/api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-27T08:42:44Z",
+      "side": 1,
+      "message": "Please add the datastore constraint here: TypedWriteTransaction\u003cConfiguration\u003e",
+      "revId": "bcfcf5c11645ca97d9b0e6622e8c846ad2f0498d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6524b4c_e31508dd",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-27T08:42:44Z",
+      "side": 1,
+      "message": "\u003cConfiguration\u003e",
+      "revId": "bcfcf5c11645ca97d9b0e6622e8c846ad2f0498d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a9d527bd_0046e877",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 948,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-27T08:42:44Z",
+      "side": 1,
+      "message": "\u003cOperational\u003e",
+      "revId": "bcfcf5c11645ca97d9b0e6622e8c846ad2f0498d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57f06704_511dcb0f",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 954,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-27T08:42:44Z",
+      "side": 1,
+      "message": "etc.",
+      "revId": "bcfcf5c11645ca97d9b0e6622e8c846ad2f0498d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
