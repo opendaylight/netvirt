@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cdd15db1_c9a4d46d",
+        "filename": "aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjectsBase.xtend",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-06-28T08:43:04Z",
+      "side": 0,
+      "message": "This file started showing up as I fixed some of the line endings to get it working on my windows laptop. Should I remove?",
+      "revId": "aca432eb88a0a8269b58238535f798f1a504d72a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
