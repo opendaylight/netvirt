@@ -31,7 +31,7 @@
   <reference id="cacheProvider"
              interface="org.opendaylight.infrautils.caches.CacheProvider"/>
   <reference id="serviceRecoveryRegistry"
-             interface="org.opendaylight.genius.srm.ServiceRecoveryRegistry"/>
+             interface="org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry"/>
   <reference id="hwvtepNodeHACache"
              interface="org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache"/>
   <reference id="metricProvider"
