@@ -13,7 +13,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.TransactionAdapter;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -53,10 +55,10 @@ public class AclNodeDefaultFlowsTxBuilder {
     private final BigInteger dpId;
     private final IMdsalApiManager mdsalManager;
     private final AclserviceConfig config;
-    private final WriteTransaction tx;
+    private final TypedWriteTransaction<Datastore.Configuration> tx;
 
     public AclNodeDefaultFlowsTxBuilder(BigInteger dpId, IMdsalApiManager mdsalManager, AclserviceConfig config,
-            WriteTransaction tx) {
+            TypedWriteTransaction<Datastore.Configuration> tx) {
         this.dpId = dpId;
         this.mdsalManager = mdsalManager;
         this.config = config;
@@ -410,7 +412,7 @@ public class AclNodeDefaultFlowsTxBuilder {
                                                           hardTimeOut, cookie, matches, instructions);
         LOG.trace("Installing Acl default Flow:: DpnId: {}, flowId: {}, flowName: {}, tableId: {}", dpId, flowId,
                   flowId, tableId);
-        mdsalManager.addFlowToTx(flowEntity, tx);
+        mdsalManager.addFlowToTx(flowEntity, TransactionAdapter.toWriteTransaction(tx));
     }
 
     /**
