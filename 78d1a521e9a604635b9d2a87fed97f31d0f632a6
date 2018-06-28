@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b172dcbb_84e89310",
+        "filename": "aclservice/impl/src/test/resources/simplelogger.properties",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-06-28T06:04:59Z",
+      "side": 1,
+      "message": "why is this file showing up?",
+      "revId": "78d1a521e9a604635b9d2a87fed97f31d0f632a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b2fcea3f_600954d1",
+        "filename": "cloud-servicechain/impl/src/test/resources/simplelogger.properties",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-06-28T06:04:59Z",
+      "side": 1,
+      "message": "why this in this change?",
+      "revId": "78d1a521e9a604635b9d2a87fed97f31d0f632a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
