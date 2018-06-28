@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
+ * Copyright (c) 2016, 2018 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,6 +7,8 @@
  */
 
 package org.opendaylight.netvirt.aclservice.listeners;
+
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import java.math.BigInteger;
 import java.util.Collections;
@@ -127,7 +129,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
             return;
         }
         jobCoordinator.enqueueJob(String.valueOf(dpId),
-            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 new AclNodeDefaultFlowsTxBuilder(dpId, mdsalManager, config, tx).build();
 
                 LOG.info("Adding default ACL flows for dpId={}", dpId);
