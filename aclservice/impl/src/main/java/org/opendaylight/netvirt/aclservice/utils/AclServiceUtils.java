@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others. All rights reserved.
+ * Copyright (c) 2016, 2018 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,6 +7,9 @@
  */
 
 package org.opendaylight.netvirt.aclservice.utils;
+
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -35,13 +38,14 @@ import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -1310,14 +1314,13 @@ public final class AclServiceUtils {
             String aclName = aclId.getValue();
             jobCoordinator.enqueueJob(aclName.intern(), () -> {
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
-                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                     for (AllowedAddressPairs aap : allowedAddresses) {
                         PortIds portIdObj =
                                 new PortIdsBuilder().withKey(new PortIdsKey(portId)).setPortId(portId).build();
                         InstanceIdentifier<PortIds> path =
                                 AclServiceUtils.getPortIdsPathInAclPortsLookup(aclName, aap.getIpAddress(), portId);
-                        tx.put(LogicalDatastoreType.OPERATIONAL, path, portIdObj,
-                                WriteTransaction.CREATE_MISSING_PARENTS);
+                        tx.put(path, portIdObj, CREATE_MISSING_PARENTS);
                     }
                 }));
                 return futures;
@@ -1340,11 +1343,11 @@ public final class AclServiceUtils {
             String aclName = aclId.getValue();
             jobCoordinator.enqueueJob(aclName.intern(), () -> {
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
-                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                     for (AllowedAddressPairs aap : allowedAddresses) {
                         InstanceIdentifier<PortIds> path =
                                 AclServiceUtils.getPortIdsPathInAclPortsLookup(aclName, aap.getIpAddress(), portId);
-                        tx.delete(LogicalDatastoreType.OPERATIONAL, path);
+                        tx.delete(path);
                     }
 
                     cleanUpStaleEntriesInAclPortsLookup(aclName, tx);
@@ -1354,7 +1357,7 @@ public final class AclServiceUtils {
         }
     }
 
-    private void cleanUpStaleEntriesInAclPortsLookup(String aclName, WriteTransaction tx) {
+    private void cleanUpStaleEntriesInAclPortsLookup(String aclName, TypedWriteTransaction<Operational> tx) {
         AclPortsByIp aclPortsByIp = getAclPortsByIpFromOperDs(aclName);
         if (aclPortsByIp == null) {
             return;
@@ -1374,13 +1377,13 @@ public final class AclServiceUtils {
             deleteEntireAcl = deleteMap;
         }
         if (deleteEntireAcl) {
-            tx.delete(LogicalDatastoreType.OPERATIONAL, AclServiceUtils.aclPortsByIpPath(aclName));
+            tx.delete(AclServiceUtils.aclPortsByIpPath(aclName));
         } else {
             for (AclIpPrefixes ipPrefix : ipPrefixes) {
                 if (ipPrefix.getPortIds() == null || ipPrefix.getPortIds().isEmpty()) {
                     InstanceIdentifier<AclIpPrefixes> delPath =
                             AclServiceUtils.getAclIpPrefixesPath(aclName, ipPrefix.getIpPrefix());
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, delPath);
+                    tx.delete(delPath);
                 }
             }
         }
