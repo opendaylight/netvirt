@@ -16,6 +16,24 @@
       "revId": "da647462c5c91a249c8d26d8ec12b791220159f3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9bd1948_867fa2d0",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclNodeDefaultFlowsTxBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-06-28T07:48:49Z",
+      "side": 1,
+      "message": "IDE auto imported it this way. Fixed it in other places, missed here.",
+      "parentUuid": "f6ba5cd5_eb26ed09",
+      "revId": "da647462c5c91a249c8d26d8ec12b791220159f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
