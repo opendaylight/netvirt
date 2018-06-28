@@ -15,7 +15,7 @@ import org.mockito.Mockito;
 import org.opendaylight.genius.interfacemanager.IfmUtil;
 import org.opendaylight.genius.interfacemanager.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
-import org.opendaylight.genius.tools.mdsal.rpc.FutureRpcResults;
+import org.opendaylight.serviceutils.tools.mdsal.rpc.FutureRpcResults;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
