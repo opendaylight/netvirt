@@ -1436,11 +1436,18 @@ public final class VpnUtil {
         if (subnet.isPresent()) {
             Class<? extends IpVersionBase> ipVersionBase = subnet.get().getIpVersion();
             if (ipVersionBase.equals(IpVersionV4.class)) {
-                LOG.trace("getVpnSubnetGatewayIp: Obtained subnet {} for vpn interface",
+                Subnetmap subnetmap = getSubnetmapFromItsUuid(dataBroker, subnetUuid);
+                if (subnetmap != null && subnetmap.getRouterInterfaceFixedIp() != null) {
+                    gwIpAddress = Optional.of(subnetmap.getRouterInterfaceFixedIp());
+                    LOG.trace("getVpnSubnetGatewayIp: Obtained subnetMap {} for vpn interface",subnetmap.getId().getValue());
+                } else {
+                    //For direct L3VPN to network association (no router) continue to use subnet-gateway IP
+                    LOG.trace("getVpnSubnetGatewayIp: Obtained subnet {} for vpn interface",
                         subnet.get().getUuid().getValue());
-                IpAddress gwIp = subnet.get().getGatewayIp();
-                if (gwIp != null && gwIp.getIpv4Address() != null) {
-                    gwIpAddress = Optional.of(gwIp.getIpv4Address().getValue());
+                    IpAddress gwIp = subnet.get().getGatewayIp();
+                    if (gwIp != null && gwIp.getIpv4Address() != null) {
+                        gwIpAddress = Optional.of(gwIp.getIpv4Address().getValue());
+                    }
                 }
             }
         }
