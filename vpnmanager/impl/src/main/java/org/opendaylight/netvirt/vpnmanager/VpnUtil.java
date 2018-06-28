@@ -1428,19 +1428,26 @@ public final class VpnUtil {
 
     public static Optional<String> getVpnSubnetGatewayIp(DataBroker dataBroker, final Uuid subnetUuid) {
         Optional<String> gwIpAddress = Optional.absent();
-        final SubnetKey subnetkey = new SubnetKey(subnetUuid);
-        final InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
-                .child(Subnets.class)
-                .child(Subnet.class, subnetkey);
-        final Optional<Subnet> subnet = read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
-        if (subnet.isPresent()) {
-            Class<? extends IpVersionBase> ipVersionBase = subnet.get().getIpVersion();
-            if (ipVersionBase.equals(IpVersionV4.class)) {
-                LOG.trace("getVpnSubnetGatewayIp: Obtained subnet {} for vpn interface",
-                        subnet.get().getUuid().getValue());
-                IpAddress gwIp = subnet.get().getGatewayIp();
-                if (gwIp != null && gwIp.getIpv4Address() != null) {
-                    gwIpAddress = Optional.of(gwIp.getIpv4Address().getValue());
+        Subnetmap subnetmap = getSubnetmapFromItsUuid(dataBroker, subnetUuid);
+        if (subnetmap != null && subnetmap.getRouterInterfaceFixedIp() != null) {
+            gwIpAddress = Optional.of(subnetmap.getRouterInterfaceFixedIp());
+            LOG.trace("getVpnSubnetGatewayIp: Obtained subnetMap {} for vpn interface",subnetmap.getId().getValue());
+        } else {
+            //For direct L3VPN to network association without router continue to use subnet-gateway IP
+            final SubnetKey subnetkey = new SubnetKey(subnetUuid);
+            final InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
+                    .child(Subnets.class)
+                    .child(Subnet.class, subnetkey);
+            final Optional<Subnet> subnet = read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
+            if (subnet.isPresent()) {
+                Class<? extends IpVersionBase> ipVersionBase = subnet.get().getIpVersion();
+                if (ipVersionBase.equals(IpVersionV4.class)) {
+                    LOG.trace("getVpnSubnetGatewayIp: Obtained subnet {} for vpn interface",
+                            subnet.get().getUuid().getValue());
+                    IpAddress gwIp = subnet.get().getGatewayIp();
+                    if (gwIp != null && gwIp.getIpv4Address() != null) {
+                        gwIpAddress = Optional.of(gwIp.getIpv4Address().getValue());
+                    }
                 }
             }
         }
