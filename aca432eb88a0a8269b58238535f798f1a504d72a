@@ -16,6 +16,24 @@
       "revId": "aca432eb88a0a8269b58238535f798f1a504d72a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b72a02b_40f0c2bf",
+        "filename": "aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjectsBase.xtend",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-06-28T10:41:12Z",
+      "side": 0,
+      "message": "Yes. You can configure git-bash to auto set the line endings for files in a repo. I think you can also set it in your global git config if you want. This is likely due to CRLF, shouldn\u0027t push windows style endings upstream. Just open the file in IDE and set line endings to Unix style.",
+      "parentUuid": "cdd15db1_c9a4d46d",
+      "revId": "aca432eb88a0a8269b58238535f798f1a504d72a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
