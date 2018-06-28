@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Sridhar Gaddam <sgaddam@redhat.com>
+Submitted-by: Sridhar Gaddam <sgaddam@redhat.com>
+Submitted-at: Thu, 28 Jun 2018 05:07:36 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/71876
+Project: netvirt
+Branch: refs/heads/stable/oxygen
