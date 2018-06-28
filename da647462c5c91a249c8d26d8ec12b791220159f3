@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6ba5cd5_eb26ed09",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclNodeDefaultFlowsTxBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-28T07:40:34Z",
+      "side": 1,
+      "message": "Since you’re going to push an update anyway, how about importing Configuration? It makes the code a bit easier to read without introducing confusion from conciseness (IMO).",
+      "revId": "da647462c5c91a249c8d26d8ec12b791220159f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
