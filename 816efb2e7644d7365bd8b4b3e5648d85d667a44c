@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e17f8277_fd7cad95",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1364,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-28T11:17:49Z",
+      "side": 1,
+      "message": "txRunner?",
+      "revId": "816efb2e7644d7365bd8b4b3e5648d85d667a44c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a563f941_2a5ceadc",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1411,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-06-28T11:17:49Z",
+      "side": 1,
+      "message": "txRunner?",
+      "revId": "816efb2e7644d7365bd8b4b3e5648d85d667a44c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
