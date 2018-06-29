@@ -11,16 +11,15 @@ module vpn-config {
                 "Initial revision";
     }
 
-
     container vpn-config {
         config true;
-        leaf arp-cache-size {
-            description "arp cache size";
+        leaf migrate-ip-cache-size {
+            description "Migrate IP cache size";
             type uint64;
             default 10000;
         }
-        leaf arp-learn-timeout {
-            description "arp learning timeout value (unit - ms)";
+        leaf ip-learn-timeout {
+            description "IP learning timeout value (unit - ms)";
             type uint32;
             default 2000;
         }
@@ -29,6 +28,21 @@ module vpn-config {
                 To turn off the rate limiting and installation of learnt flows, it should be set to 0";
             type uint32;
             default 10;
+        }
+        leaf ipv6-nd-monitor-failure-threshold {
+            description "IPv6 ND monitor failure threshold";
+            type uint32;
+            default 2;
+        }
+        leaf ipv6-nd-monitor-interval {
+            description "IPv6 ND monitor interval (unit - secs)";
+            type uint32;
+            default 120;
+        }
+        leaf ipv6-nd-monitor-window {
+            description "IPv6 ND monitor window";
+            type uint32;
+            default 4;
         }
     }
 }

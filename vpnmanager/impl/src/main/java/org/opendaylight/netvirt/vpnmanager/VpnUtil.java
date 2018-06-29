@@ -1201,19 +1201,20 @@ public final class VpnUtil {
         }
     }
 
-    public Optional<IpAddress> getIpv4GatewayAddressFromInterface(String srcInterface) {
+    public Optional<IpAddress> getGatewayIpAddressFromInterface(MacEntry macEntry) {
         Optional<IpAddress> gatewayIp = Optional.absent();
+        String srcInterface = macEntry.getInterfaceName();
+        InetAddress hiddenIp = macEntry.getIpAddress();
         if (neutronVpnService != null) {
             //TODO(Gobinath): Need to fix this as assuming port will belong to only one Subnet would be incorrect"
             Port port = neutronVpnService.getNeutronPort(srcInterface);
             if (port != null && port.getFixedIps() != null) {
-                for (FixedIps portIp: port.getFixedIps()) {
-                    if (portIp.getIpAddress().getIpv6Address() != null) {
-                        // Skip IPv6 address
-                        continue;
+                for (FixedIps portIp : port.getFixedIps()) {
+                    if (doesInterfaceAndHiddenIpAddressTypeMatch(hiddenIp, portIp)) {
+                        gatewayIp =
+                                Optional.of(neutronVpnService.getNeutronSubnet(portIp.getSubnetId()).getGatewayIp());
+                        break;
                     }
-                    gatewayIp = Optional.of(
-                            neutronVpnService.getNeutronSubnet(portIp.getSubnetId()).getGatewayIp());
                 }
             }
         } else {
@@ -1221,6 +1222,11 @@ public final class VpnUtil {
                     + " Failed for interface {}.", srcInterface);
         }
         return gatewayIp;
+    }
+
+    private boolean doesInterfaceAndHiddenIpAddressTypeMatch(InetAddress hiddenIp, FixedIps portIp) {
+        return (hiddenIp instanceof Inet4Address && portIp.getIpAddress().getIpv4Address() != null)
+                || hiddenIp instanceof Inet6Address && portIp.getIpAddress().getIpv6Address() != null;
     }
 
     public Optional<String> getGWMacAddressFromInterface(MacEntry macEntry, IpAddress gatewayIp) {
@@ -1236,7 +1242,7 @@ public final class VpnUtil {
             return gatewayMac;
         }
         VpnPortipToPort vpnTargetIpToPort = getNeutronPortFromVpnPortFixedIp(macEntry.getVpnName(),
-                gatewayIp.getIpv4Address().getValue());
+                String.valueOf(gatewayIp.getValue()));
         if (vpnTargetIpToPort != null && vpnTargetIpToPort.isSubnetIp()) {
             gatewayMac = Optional.of(vpnTargetIpToPort.getMacAddress());
         } else {

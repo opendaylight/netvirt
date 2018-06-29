@@ -15,9 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.opendaylight.genius.ipv6util.api.Ipv6Util;
 import org.opendaylight.netvirt.ipv6service.api.IVirtualNetwork;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
-import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
@@ -153,8 +153,7 @@ public class VirtualNetwork implements IVirtualNetwork {
         }
 
         public void updateNDTargetAddress(Ipv6Address ipv6Address, int addOrRemove) {
-            Ipv6Address ipv6 =
-                    Ipv6Address.getDefaultInstance(Ipv6ServiceUtils.getFormattedIpv6Address(ipv6Address.getValue()));
+            Ipv6Address ipv6 = Ipv6Address.getDefaultInstance(Ipv6Util.getFormattedIpv6Address(ipv6Address));
             if (addOrRemove == Ipv6ServiceConstants.ADD_ENTRY) {
                 this.ndTargetFlowsPunted.add(ipv6);
             } else {
@@ -163,8 +162,7 @@ public class VirtualNetwork implements IVirtualNetwork {
         }
 
         public boolean isNdTargetFlowAlreadyConfigured(Ipv6Address ipv6Address) {
-            Ipv6Address ipv6 =
-                    Ipv6Address.getDefaultInstance(Ipv6ServiceUtils.getFormattedIpv6Address(ipv6Address.getValue()));
+            Ipv6Address ipv6 = Ipv6Address.getDefaultInstance(Ipv6Util.getFormattedIpv6Address(ipv6Address));
             return this.ndTargetFlowsPunted.contains(ipv6);
         }
 

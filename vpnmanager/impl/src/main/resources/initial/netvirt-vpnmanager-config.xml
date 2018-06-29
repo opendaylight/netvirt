@@ -1,5 +1,8 @@
 <vpnmanager-config xmlns="urn:opendaylight:netvirt:vpn:config">
-  <arp-cache-size>10000</arp-cache-size>
-  <arp-learn-timeout>2000</arp-learn-timeout>
+  <migrate-ip-cache-size>10000</migrate-ip-cache-size>
+  <ip-learn-timeout>2000</ip-learn-timeout>
   <subnet-route-punt-timeout>10</subnet-route-punt-timeout>
+  <ipv6-nd-monitor-failure-threshold>2</ipv6-nd-monitor-failure-threshold>
+  <ipv6-nd-monitor-interval>120</ipv6-nd-monitor-interval>
+  <ipv6-nd-monitor-window>4</ipv6-nd-monitor-window>
 </vpnmanager-config>
