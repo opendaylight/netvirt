@@ -35,7 +35,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.configadmin</artifactId>
-            <version>1.8.14</version>
+            <version>1.8.16</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
