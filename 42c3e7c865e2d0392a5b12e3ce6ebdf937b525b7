@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "efae3c0b_fe2ef6eb",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-06-29T12:15:02Z",
+      "side": 0,
+      "message": "Thank you for clarification.",
+      "parentUuid": "35281605_b0c06a3d",
+      "range": {
+        "startLine": 476,
+        "startChar": 8,
+        "endLine": 476,
+        "endChar": 26
+      },
+      "revId": "42c3e7c865e2d0392a5b12e3ce6ebdf937b525b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5406092f_8b41ce80",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
         "patchSetId": 7
