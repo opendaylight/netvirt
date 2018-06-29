@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a40eb27d_caaa6f89",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-06-29T04:40:19Z",
+      "side": 0,
+      "message": "May I know why we removed this line. \nsetMore flag is to indicate quagga that I processed all received routes, send more routes.\nOnce we receive all routes, we set MORE flag to DONE.",
+      "range": {
+        "startLine": 476,
+        "startChar": 8,
+        "endLine": 476,
+        "endChar": 26
+      },
+      "revId": "42c3e7c865e2d0392a5b12e3ce6ebdf937b525b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5406092f_8b41ce80",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-06-29T04:40:19Z",
+      "side": 0,
+      "message": "May I know why we removed this line.",
+      "range": {
+        "startLine": 517,
+        "startChar": 8,
+        "endLine": 517,
+        "endChar": 39
+      },
+      "revId": "42c3e7c865e2d0392a5b12e3ce6ebdf937b525b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
