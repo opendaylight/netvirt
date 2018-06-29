@@ -46,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.profile.create.input.Profile;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.profile.create.input.ProfileBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.start.input.ConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,15 +62,17 @@ public final class AlivenessMonitorUtils {
     private final AlivenessMonitorService alivenessManager;
     private final IInterfaceManager interfaceManager;
     private final VpnUtil vpnUtil;
+    private final VpnConfig vpnConfig;
 
     @Inject
     public AlivenessMonitorUtils(DataBroker dataBroker, VpnUtil vpnUtil, INeutronVpnManager neutronvpnService,
-                                 AlivenessMonitorService alivenessManager, IInterfaceManager interfaceManager) {
+            AlivenessMonitorService alivenessManager, IInterfaceManager interfaceManager, VpnConfig vpnConfig) {
         this.dataBroker = dataBroker;
         this.vpnUtil = vpnUtil;
         this.neutronvpnService = neutronvpnService;
         this.alivenessManager = alivenessManager;
         this.interfaceManager = interfaceManager;
+        this.vpnConfig = vpnConfig;
     }
 
     void startIpMonitoring(MacEntry macEntry, Long ipMonitorProfileId) {
@@ -80,9 +83,9 @@ public final class AlivenessMonitorUtils {
             return;
         }
         Optional<IpAddress> gatewayIpOptional =
-            vpnUtil.getIpv4GatewayAddressFromInterface(macEntry.getInterfaceName());
+            vpnUtil.getGatewayIpAddressFromInterface(macEntry);
         if (!gatewayIpOptional.isPresent()) {
-            LOG.info("Interface{} does not have an IPv4 GatewayIp", macEntry.getInterfaceName());
+            LOG.info("Interface{} does not have an GatewayIp", macEntry.getInterfaceName());
             return;
         }
         final IpAddress gatewayIp = gatewayIpOptional.get();
@@ -149,13 +152,22 @@ public final class AlivenessMonitorUtils {
     private Optional<Long> allocateIpMonitorProfile(IpAddress targetIp) {
         Optional<Long> profileIdOptional = Optional.absent();
         if (targetIp.getIpv4Address() != null) {
-            profileIdOptional = allocateProfile(ArpConstants.FAILURE_THRESHOLD,
-                    ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, ArpConstants.MONITORING_WINDOW, EtherTypes.Arp);
+            profileIdOptional = allocateArpMonitorProfile();
         } else if (targetIp.getIpv6Address() != null) {
-            // TODO: handle IPv6 case
-            LOG.warn("allocateIpMonitorProfile: IPv6 address monitoring is not yet supported. targetIp={}", targetIp);
+            profileIdOptional = allocateIpv6NaMonitorProfile();
         }
         return profileIdOptional;
+    }
+
+    public Optional<Long> allocateArpMonitorProfile() {
+        return allocateProfile(ArpConstants.FAILURE_THRESHOLD, ArpConstants.ARP_CACHE_TIMEOUT_MILLIS,
+                ArpConstants.MONITORING_WINDOW, EtherTypes.Arp);
+    }
+
+    public Optional<Long> allocateIpv6NaMonitorProfile() {
+        Long monitorInterval = vpnConfig.getIpv6NdMonitorInterval() * 1000; // converting to milliseconds
+        return allocateProfile(vpnConfig.getIpv6NdMonitorFailureThreshold(), monitorInterval,
+                vpnConfig.getIpv6NdMonitorWindow(), EtherTypes.Ipv6Nd);
     }
 
     public Optional<Long> allocateProfile(long failureThreshold, long monitoringInterval, long monitoringWindow,

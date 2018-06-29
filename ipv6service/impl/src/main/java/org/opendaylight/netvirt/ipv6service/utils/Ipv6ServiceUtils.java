@@ -23,6 +23,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.ipv6util.api.Icmpv6Type;
 import org.opendaylight.genius.ipv6util.api.Ipv6Constants;
+import org.opendaylight.genius.ipv6util.api.Ipv6Util;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -196,34 +197,15 @@ public class Ipv6ServiceUtils {
                 .append(flowType).toString();
     }
 
-    /**
-     * Gets the formatted IPv6 address. <br>
-     * e.g., <br>
-     * 1. input = "1001:db8:0:2::1", return = "1001:db8:0:2:0:0:0:1" <br>
-     * 2. input = "2607:f0d0:1002:51::4", return = "2607:f0d0:1002:51:0:0:0:4" <br>
-     * 3. input = "1001:db8:0:2:0:0:0:1", return = "1001:db8:0:2:0:0:0:1"
-     *
-     * @param ipv6Address the ipv6 address
-     * @return the formatted ipv6 address
-     */
-    public static String getFormattedIpv6Address(String ipv6Address) {
-        try {
-            return InetAddress.getByName(ipv6Address).getHostAddress();
-        } catch (UnknownHostException e) {
-            LOG.warn("Unknown host {}", ipv6Address, e);
-            return null;
-        }
-    }
-
-    public void installIcmpv6NsPuntFlow(short tableId, BigInteger dpId,  Long elanTag, String ipv6Address,
+    public void installIcmpv6NsPuntFlow(short tableId, BigInteger dpId,  Long elanTag, Ipv6Address ipv6Address,
             int addOrRemove) {
-        List<MatchInfo> neighborSolicitationMatch = getIcmpv6NSMatch(elanTag, ipv6Address);
+        List<MatchInfo> neighborSolicitationMatch = getIcmpv6NSMatch(elanTag, ipv6Address.getValue());
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionPuntToController());
         instructions.add(new InstructionApplyActions(actionsInfos));
 
-        String formattedIp = getFormattedIpv6Address(ipv6Address);
+        String formattedIp = Ipv6Util.getFormattedIpv6Address(ipv6Address);
         FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, getIPv6FlowRef(dpId, elanTag, formattedIp),
                 Ipv6ServiceConstants.DEFAULT_FLOW_PRIORITY, "IPv6NS", 0, 0, NwConstants.COOKIE_IPV6_TABLE,
                 neighborSolicitationMatch, instructions);

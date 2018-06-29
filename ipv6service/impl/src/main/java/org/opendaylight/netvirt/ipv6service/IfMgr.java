@@ -630,12 +630,12 @@ public class IfMgr implements ElementCache, AutoCloseable {
                         && !dpnIfaceInfo.isNdTargetFlowAlreadyConfigured(ipv6Address)
                         && dpnIfaceInfo.getDpId() != null) {
                     ipv6ServiceUtils.installIcmpv6NsPuntFlow(NwConstants.IPV6_TABLE, dpnIfaceInfo.getDpId(), elanTag,
-                            ipv6Address.getValue(), Ipv6ServiceConstants.ADD_FLOW);
+                            ipv6Address, Ipv6ServiceConstants.ADD_FLOW);
                     dpnIfaceInfo.updateNDTargetAddress(ipv6Address, action);
                 } else if (action == Ipv6ServiceConstants.DEL_FLOW
                         && dpnIfaceInfo.isNdTargetFlowAlreadyConfigured(ipv6Address)) {
                     ipv6ServiceUtils.installIcmpv6NsPuntFlow(NwConstants.IPV6_TABLE, dpnIfaceInfo.getDpId(), elanTag,
-                            ipv6Address.getValue(), Ipv6ServiceConstants.DEL_FLOW);
+                            ipv6Address, Ipv6ServiceConstants.DEL_FLOW);
                     dpnIfaceInfo.updateNDTargetAddress(ipv6Address, action);
                 }
             }
@@ -707,7 +707,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
                 for (Ipv6Address ipv6Address : routerPort.getIpv6Addresses()) {
                     if (!dpnInfo.isNdTargetFlowAlreadyConfigured(ipv6Address)) {
                         ipv6ServiceUtils.installIcmpv6NsPuntFlow(NwConstants.IPV6_TABLE, dpId,
-                                elanTag, ipv6Address.getValue(), Ipv6ServiceConstants.ADD_FLOW);
+                                elanTag, ipv6Address, Ipv6ServiceConstants.ADD_FLOW);
                         dpnInfo.updateNDTargetAddress(ipv6Address, Ipv6ServiceConstants.ADD_FLOW);
                     }
                 }
@@ -920,7 +920,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
             for (Ipv6Address ipv6Address : dpnIfaceInfo.ndTargetFlowsPunted) {
                 if (ipv6ServiceEosHandler.isClusterOwner()) {
                     ipv6ServiceUtils.installIcmpv6NsPuntFlow(NwConstants.IPV6_TABLE, dpnIfaceInfo.getDpId(),
-                            elanTag, ipv6Address.getValue(), Ipv6ServiceConstants.DEL_FLOW);
+                            elanTag, ipv6Address, Ipv6ServiceConstants.DEL_FLOW);
                 }
                 dpnIfaceInfo.updateNDTargetAddress(ipv6Address, Ipv6ServiceConstants.DEL_ENTRY);
             }
