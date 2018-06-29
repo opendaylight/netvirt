@@ -8,8 +8,10 @@
 
 package org.opendaylight.netvirt.coe.listeners;
 
-import com.google.common.util.concurrent.ListenableFuture;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -171,7 +173,7 @@ public class PodListener implements DataTreeChangeListener<Pods> {
             LOG.trace("Adding Pod : {}", podInterface);
             String interfaceName = CoeUtils.buildInterfaceName(pods.getNetworkNS(), pods.getName());
             List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(tx ->  {
+            futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx ->  {
                 String nodeIp = String.valueOf(pods.getHostIpAddress().getValue());
                 ElanInstance elanInstance = CoeUtils.createElanInstanceForTheFirstPodInTheNetwork(
                         pods.getNetworkNS(), nodeIp, podInterface, tx);
@@ -186,7 +188,7 @@ public class PodListener implements DataTreeChangeListener<Pods> {
                         VpnInstance.Type.L3, 0, IpVersionChoice.IPV4, tx);
             }));
             if (podInterface.getIpAddress() != null) {
-                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                     CoeUtils.createPodNameToPodUuidMap(interfaceName, podsInstanceIdentifier, tx);
                 }));
             }
@@ -209,7 +211,7 @@ public class PodListener implements DataTreeChangeListener<Pods> {
         public List<ListenableFuture<Void>> call() {
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             String podInterfaceName = CoeUtils.buildInterfaceName(pods.getNetworkNS(), pods.getName());
-            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 LOG.trace("Deleting Pod : {}", podInterfaceName);
                 LOG.debug("Deleting VPN Interface for pod {}", podInterfaceName);
                 CoeUtils.deleteVpnInterface(podInterfaceName, tx);
@@ -221,7 +223,7 @@ public class PodListener implements DataTreeChangeListener<Pods> {
                 // TODO delete elan-instance if this is the last pod in the host
                 // TODO delete vpn-instance if this is the last pod in the network
             }));
-            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                 CoeUtils.deletePodNameToPodUuidMap(podInterfaceName, tx);
             }));
             return futures;
