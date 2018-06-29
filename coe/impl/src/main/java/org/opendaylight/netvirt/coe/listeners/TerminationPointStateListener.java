@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.coe.listeners;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +22,10 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
+import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.tools.mdsal.listener.AbstractSyncDataTreeChangeListener;
@@ -90,7 +95,8 @@ public class TerminationPointStateListener extends
                         CoeUtils.getPodMetaInstanceId(interfaceName), (unused, alsoUnused) -> {
                         LOG.info("Pod configuration {} detected for termination-point {},"
                                     + "proceeding with l2 and l3 configurations", interfaceName, tpNew.getName());
-                        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+                        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(
+                                CONFIGURATION, tx -> {
                             InstanceIdentifier<Pods> instanceIdentifier = CoeUtils.getPodUUIDforPodName(
                                         interfaceName, tx);
                             Pods pods = podsCache.get(instanceIdentifier).get();
@@ -115,7 +121,7 @@ public class TerminationPointStateListener extends
         update(null, tpNew);
     }
 
-    private static void bindKubeProxyService(ReadWriteTransaction tx, String interfaceName) {
+    private static void bindKubeProxyService(TypedReadWriteTransaction<Datastore.Configuration> tx, String interfaceName) {
         int priority = ServiceIndex.getIndex(NwConstants.COE_KUBE_PROXY_SERVICE_NAME,
                 NwConstants.COE_KUBE_PROXY_SERVICE_INDEX);
         int instructionKey = 0;
@@ -129,7 +135,7 @@ public class TerminationPointStateListener extends
                         priority, NwConstants.COOKIE_COE_KUBE_PROXY_TABLE, instructions);
         InstanceIdentifier<BoundServices> boundServicesInstanceIdentifier =
                 CoeUtils.buildKubeProxyServicesIId(interfaceName);
-        tx.put(LogicalDatastoreType.CONFIGURATION, boundServicesInstanceIdentifier, serviceInfo,true);
+        tx.put(boundServicesInstanceIdentifier, serviceInfo,true);
     }
 
     private static BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
