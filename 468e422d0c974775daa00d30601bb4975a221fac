@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05199475_dd885649",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/DisplayBgpConfigCli.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-06-29T04:19:40Z",
+      "side": 0,
+      "message": "May I know, what is the reason for removing these prints?",
+      "range": {
+        "startLine": 65,
+        "startChar": 12,
+        "endLine": 69,
+        "endChar": 13
+      },
+      "revId": "468e422d0c974775daa00d30601bb4975a221fac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2ff579a_770ec604",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-06-29T04:19:40Z",
+      "side": 0,
+      "message": "May I know, why did you remove these fields and did you try these changes with Quagga?",
+      "range": {
+        "startLine": 405,
+        "startChar": 8,
+        "endLine": 406,
+        "endChar": 50
+      },
+      "revId": "468e422d0c974775daa00d30601bb4975a221fac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
