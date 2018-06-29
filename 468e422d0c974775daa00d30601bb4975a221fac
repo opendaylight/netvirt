@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "3721c313_29bee8e3",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/DisplayBgpConfigCli.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-06-29T12:16:29Z",
+      "side": 0,
+      "message": "ahh.. !! Okay..\nThis is mainly for debugging purposes to know how the leadership changed over time",
+      "parentUuid": "a319777c_4d210afb",
+      "range": {
+        "startLine": 65,
+        "startChar": 12,
+        "endLine": 69,
+        "endChar": 13
+      },
+      "revId": "468e422d0c974775daa00d30601bb4975a221fac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c2ff579a_770ec604",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
         "patchSetId": 2
@@ -84,6 +108,30 @@
       "side": 0,
       "message": "This was many months ago but I believe it was b/c static analysis  warning revealed these were set but not used. I am not familiar with Quagga.",
       "parentUuid": "c2ff579a_770ec604",
+      "range": {
+        "startLine": 405,
+        "startChar": 8,
+        "endLine": 406,
+        "endChar": 50
+      },
+      "revId": "468e422d0c974775daa00d30601bb4975a221fac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "474e4d28_183a5c97",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-06-29T12:16:29Z",
+      "side": 0,
+      "message": "Fine, no issues. Will take care of it.",
+      "parentUuid": "b6ba2997_88a508b1",
       "range": {
         "startLine": 405,
         "startChar": 8,
