@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47a27489_925f1735",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-06-29T07:23:24Z",
+      "side": 1,
+      "message": "This will not provide updated BGP configuration. \nDuring reConnect, BgpManager has to replay complete configuration with quaggaBgpDaemon. As this bgpConfigSupplier is initialized once and never updated, stale information will be replayed.",
+      "range": {
+        "startLine": 219,
+        "startChar": 24,
+        "endLine": 219,
+        "endChar": 41
+      },
+      "revId": "e33e94ff7729c54671f18d8eca4d26c451d3844f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
