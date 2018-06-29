@@ -15,6 +15,7 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 
 public class IpMonitorStartTask implements Callable<List<ListenableFuture<Void>>> {
     private MacEntry macEntry;
@@ -23,23 +24,24 @@ public class IpMonitorStartTask implements Callable<List<ListenableFuture<Void>>
     private AlivenessMonitorService alivenessManager;
     private INeutronVpnManager neutronVpnService;
     private IInterfaceManager interfaceManager;
+    private final VpnConfig config;
 
     public IpMonitorStartTask(MacEntry macEntry, Long profileId, DataBroker databroker,
             AlivenessMonitorService alivenessManager,
-            INeutronVpnManager neutronVpnService, IInterfaceManager interfaceManager) {
+            INeutronVpnManager neutronVpnService, IInterfaceManager interfaceManager, VpnConfig config) {
         this.macEntry = macEntry;
         this.ipMonitorProfileId = profileId;
         this.databroker = databroker;
         this.alivenessManager = alivenessManager;
         this.neutronVpnService = neutronVpnService;
         this.interfaceManager = interfaceManager;
+        this.config = config;
     }
 
     @Override
     public List<ListenableFuture<Void>> call() {
-        AlivenessMonitorUtils.startIpMonitoring(macEntry, ipMonitorProfileId,
-            alivenessManager, databroker, neutronVpnService,
-            interfaceManager);
+        AlivenessMonitorUtils.startIpMonitoring(macEntry, ipMonitorProfileId, alivenessManager, databroker,
+                neutronVpnService, interfaceManager, config);
         return null;
     }
 }

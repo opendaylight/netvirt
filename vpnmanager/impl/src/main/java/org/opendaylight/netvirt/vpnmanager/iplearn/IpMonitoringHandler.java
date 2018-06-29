@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager.iplearn;
 
-import com.google.common.base.Optional;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import javax.annotation.PostConstruct;
@@ -16,7 +15,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.NWUtil;
@@ -31,9 +29,9 @@ import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.EtherTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,14 +46,16 @@ public class IpMonitoringHandler
     private final IInterfaceManager interfaceManager;
     private final EntityOwnershipUtils entityOwnershipUtils;
     private final JobCoordinator jobCoordinator;
+    private final VpnConfig config;
 
     private Long arpMonitorProfileId = 0L;
+    private Long ipv6NdMonitorProfileId = 0L;
     private EntityOwnershipCandidateRegistration candidateRegistration;
 
     @Inject
     public IpMonitoringHandler(final DataBroker dataBroker, AlivenessMonitorService alivenessManager,
             INeutronVpnManager neutronVpnService, IInterfaceManager interfaceManager,
-            EntityOwnershipService entityOwnershipService, JobCoordinator jobCoordinator) {
+            EntityOwnershipService entityOwnershipService, JobCoordinator jobCoordinator, VpnConfig config) {
         super(LearntVpnVipToPort.class, IpMonitoringHandler.class);
         this.dataBroker = dataBroker;
         this.alivenessManager = alivenessManager;
@@ -63,17 +63,16 @@ public class IpMonitoringHandler
         this.interfaceManager = interfaceManager;
         this.entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
         this.jobCoordinator = jobCoordinator;
+        this.config = config;
     }
 
     @PostConstruct
     public void start() {
-        Optional<Long> profileIdOptional = AlivenessMonitorUtils.allocateProfile(alivenessManager,
-            ArpConstants.FAILURE_THRESHOLD, ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, ArpConstants.MONITORING_WINDOW,
-            EtherTypes.Arp);
-        if (profileIdOptional.isPresent()) {
-            arpMonitorProfileId = profileIdOptional.get();
-        } else {
-            LOG.error("Error while allocating Profile Id {}", profileIdOptional);
+        this.arpMonitorProfileId = AlivenessMonitorUtils.allocateArpMonitorProfile(alivenessManager);
+        this.ipv6NdMonitorProfileId = AlivenessMonitorUtils.allocateIpv6NaMonitorProfile(alivenessManager, config);
+        if (this.arpMonitorProfileId == null || this.ipv6NdMonitorProfileId == null) {
+            LOG.error("Error while allocating ARP and IPv6 ND Profile Ids: ARP={}, IPv6ND={}", arpMonitorProfileId,
+                    ipv6NdMonitorProfileId);
         }
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
 
@@ -143,7 +142,7 @@ public class IpMonitoringHandler
                 Long monitorProfileId = getMonitorProfileId(value.getPortFixedip());
                 jobCoordinator.enqueueJob(buildIpMonitorJobKey(srcInetAddr.toString(), vpnName),
                         new IpMonitorStartTask(macEntry, monitorProfileId, dataBroker, alivenessManager,
-                                neutronVpnService, interfaceManager));
+                                neutronVpnService, interfaceManager, config));
             } catch (UnknownHostException e) {
                 LOG.error("Error in deserializing packet {} with exception", value, e);
             }
@@ -182,9 +181,7 @@ public class IpMonitoringHandler
         if (NWUtil.isIpv4Address(ipAddress)) {
             return this.arpMonitorProfileId;
         } else {
-            // TODO: Handle for IPv6 case
-            LOG.warn("IPv6 address monitoring is not yet supported - getMonitorProfileId(). ipAddress={}", ipAddress);
-            return null;
+            return this.ipv6NdMonitorProfileId;
         }
     }
 
