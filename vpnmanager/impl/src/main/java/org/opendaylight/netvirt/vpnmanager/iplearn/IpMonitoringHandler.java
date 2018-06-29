@@ -16,7 +16,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.NWUtil;
@@ -32,7 +31,6 @@ import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.EtherTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -53,6 +51,7 @@ public class IpMonitoringHandler
     private final VpnUtil vpnUtil;
 
     private Optional<Long> arpMonitorProfileId = Optional.absent();
+    private Optional<Long> ipv6NdMonitorProfileId = Optional.absent();
     private EntityOwnershipCandidateRegistration candidateRegistration;
 
     @Inject
@@ -73,12 +72,11 @@ public class IpMonitoringHandler
 
     @PostConstruct
     public void start() {
-        Optional<Long> profileIdOptional = alivenessMonitorUtils.allocateProfile(ArpConstants.FAILURE_THRESHOLD,
-                ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, ArpConstants.MONITORING_WINDOW, EtherTypes.Arp);
-        if (profileIdOptional.isPresent()) {
-            arpMonitorProfileId = profileIdOptional;
-        } else {
-            LOG.error("Error while allocating Profile Id {}", profileIdOptional);
+        this.arpMonitorProfileId = alivenessMonitorUtils.allocateArpMonitorProfile();
+        this.ipv6NdMonitorProfileId = alivenessMonitorUtils.allocateIpv6NaMonitorProfile();
+        if (this.arpMonitorProfileId == null || this.ipv6NdMonitorProfileId == null) {
+            LOG.error("Error while allocating ARP and IPv6 ND Profile Ids: ARP={}, IPv6ND={}", arpMonitorProfileId,
+                    ipv6NdMonitorProfileId);
         }
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
 
@@ -188,9 +186,7 @@ public class IpMonitoringHandler
         if (NWUtil.isIpv4Address(ipAddress)) {
             return this.arpMonitorProfileId;
         } else {
-            // TODO: Handle for IPv6 case
-            LOG.warn("IPv6 address monitoring is not yet supported - getMonitorProfileId(). ipAddress={}", ipAddress);
-            return Optional.absent();
+            return this.ipv6NdMonitorProfileId;
         }
     }
 }

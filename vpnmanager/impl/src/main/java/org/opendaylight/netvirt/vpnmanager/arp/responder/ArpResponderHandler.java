@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput.ArpReponderInputBuilder;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -131,7 +132,7 @@ public class ArpResponderHandler {
                 gatewayIp = gwIpOptional.get();
             }
         }
-        if (gatewayIp != null) {
+        if (gatewayIp != null && NWUtil.isIpv4Address(gatewayIp)) {
             ArpReponderInputBuilder builder = new ArpReponderInputBuilder();
             builder.setDpId(dpId).setInterfaceName(ifName).setSpa(gatewayIp).setLportTag(lportTag);
             elanService.removeArpResponderFlow(builder.buildForRemoveFlow());
