@@ -15,14 +15,18 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 
+import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -149,18 +153,19 @@ public final class CoeUtils {
     }
 
     public static void createElanInterface(String elanInterfaceName, String elanInstanceName,
-                                           WriteTransaction wrtConfigTxn) {
+                                           TypedReadWriteTransaction<Datastore.Configuration> wrtConfigTxn) {
         InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
                 .class, new ElanInterfaceKey(elanInterfaceName)).build();
         ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
                 .setName(elanInterfaceName).withKey(new ElanInterfaceKey(elanInterfaceName)).build();
-        wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, id, elanInterface);
+        wrtConfigTxn.put(id, elanInterface);
         LOG.debug("Creating new ELAN Interface {}", elanInterface);
     }
 
     public static void updateElanInterfaceWithStaticMac(String macAddress, IpAddress ipAddress,
-                                           String elanInterfaceName,
-                                           WriteTransaction wrtConfigTxn) {
+                                                        String elanInterfaceName,
+                                                        TypedReadWriteTransaction<Datastore.Configuration>
+                                                                wrtConfigTxn) {
         InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
                 .class, new ElanInterfaceKey(elanInterfaceName)).build();
         PhysAddress physAddress = PhysAddress.getDefaultInstance(macAddress);
@@ -170,62 +175,65 @@ public final class CoeUtils {
         staticMacEntriesList.add(staticMacEntries);
         ElanInterface elanInterface = new ElanInterfaceBuilder().setName(elanInterfaceName)
                 .withKey(new ElanInterfaceKey(elanInterfaceName)).setStaticMacEntries(staticMacEntriesList).build();
-        wrtConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, id, elanInterface);
+        wrtConfigTxn.merge(id, elanInterface);
         LOG.debug("Updating ELAN Interface with static mac {}", elanInterface);
     }
 
     public static void createPodNameToPodUuidMap(String podName, InstanceIdentifier<Pods> pod,
-                                                 WriteTransaction writeTransaction) {
+                                                 TypedWriteTransaction<Datastore.Operational> writeTransaction) {
         InstanceIdentifier<PodIdentifier> id = InstanceIdentifier.builder(PodidentifierInfo.class)
                 .child(PodIdentifier.class, new PodIdentifierKey(podName)).build();
         PodIdentifier podIdentifier = new PodIdentifierBuilder().withKey(new PodIdentifierKey(podName))
                 .setPodName(podName).setPodUuid(pod).build();
-        writeTransaction.put(LogicalDatastoreType.OPERATIONAL, id, podIdentifier);
+        writeTransaction.put(id, podIdentifier);
         LOG.debug("Creating podnametouuid map {} to {}", podName, pod);
     }
 
     public static void deletePodNameToPodUuidMap(String podName,
-                                                 WriteTransaction writeTransaction) {
+                                                 TypedWriteTransaction<Datastore.Operational> writeTransaction) {
         InstanceIdentifier<PodIdentifier> id = InstanceIdentifier.builder(PodidentifierInfo.class)
                 .child(PodIdentifier.class, new PodIdentifierKey(podName)).build();
-        writeTransaction.delete(LogicalDatastoreType.OPERATIONAL, id);
+        writeTransaction.delete(id);
         LOG.debug("Deleting podnametouuid map for {}", podName);
     }
 
-    public static InstanceIdentifier<Pods> getPodUUIDforPodName(String podName,
-                                            ReadTransaction readTransaction) throws ReadFailedException {
+    public static InstanceIdentifier<Pods> getPodUUIDforPodName(String podName, DataBroker dataBroker)
+            throws ReadFailedException, ExecutionException, InterruptedException {
+        ReadTransaction readTransaction = dataBroker.newReadOnlyTransaction();
         InstanceIdentifier<PodIdentifier> id = InstanceIdentifier.builder(PodidentifierInfo.class)
                 .child(PodIdentifier.class, new PodIdentifierKey(podName)).build();
         InstanceIdentifier<?> instanceIdentifier = readTransaction.read(LogicalDatastoreType.OPERATIONAL, id)
-                .checkedGet().toJavaUtil().map(PodIdentifier::getPodUuid).orElse(null);
+                .get().toJavaUtil().map(PodIdentifier::getPodUuid).orElse(null);
         if (instanceIdentifier != null) {
             return (InstanceIdentifier<Pods>) instanceIdentifier;
         }
         return null;
     }
 
-    public static void deleteElanInterface(String elanInterfaceName, WriteTransaction wrtConfigTxn) {
+    public static void deleteElanInterface(String elanInterfaceName,
+                                           TypedWriteTransaction<Datastore.Configuration> wrtConfigTxn) {
         InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
                 .class, new ElanInterfaceKey(elanInterfaceName)).build();
-        wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, id);
+        wrtConfigTxn.delete(id);
         LOG.debug("Deleting ELAN Interface {}", elanInterfaceName);
     }
 
     public static String createOfPortInterface(String interfaceName,
-                                               WriteTransaction wrtConfigTxn) {
+                                               TypedReadWriteTransaction<Datastore.Configuration> wrtConfigTxn) {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface inf =
                 buildInterface(interfaceName);
         String infName = inf.getName();
         LOG.info("Creating OFPort Interface {}", infName);
         InstanceIdentifier interfaceIdentifier = CoeUtils.buildVlanInterfaceIdentifier(infName);
-        wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, inf);
+        wrtConfigTxn.put(interfaceIdentifier, inf);
         return infName;
     }
 
-    public static void deleteOfPortInterface(String infName, WriteTransaction wrtConfigTxn) {
+    public static void deleteOfPortInterface(String infName,
+                                             TypedWriteTransaction<Datastore.Configuration> wrtConfigTxn) {
         LOG.debug("Deleting OFPort Interface {}", infName);
         InstanceIdentifier interfaceIdentifier = CoeUtils.buildVlanInterfaceIdentifier(infName);
-        wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier);
+        wrtConfigTxn.delete(interfaceIdentifier);
     }
 
     static InstanceIdentifier<ElanInstance> createElanInstanceIdentifier(String elanInstanceName) {
@@ -244,14 +252,15 @@ public final class CoeUtils {
         return new StringBuilder().append(nodeIp).append(SEPARATOR).append(networkNS).toString();
     }
 
-    public static ElanInstance createElanInstanceForTheFirstPodInTheNetwork(String networkNS, String nodeIp,
+    public static ElanInstance
+        createElanInstanceForTheFirstPodInTheNetwork(String networkNS, String nodeIp,
                                                  org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod
                                                          .rev170611.pod_attributes.Interface podInterface,
-                                                 ReadWriteTransaction wrtConfigTxn) throws ReadFailedException {
+                                                 TypedReadWriteTransaction<Datastore.Configuration> wrtConfigTxn)
+            throws ReadFailedException, ExecutionException, InterruptedException {
         String elanInstanceName = buildElanInstanceName(nodeIp, networkNS);
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
-        ElanInstance existingElanInstance = wrtConfigTxn.read(LogicalDatastoreType.CONFIGURATION, id)
-                .checkedGet().orNull();
+        ElanInstance existingElanInstance = wrtConfigTxn.read(id).get().orNull();
         if (existingElanInstance != null) {
             return existingElanInstance;
         }
@@ -262,7 +271,7 @@ public final class CoeUtils {
         Boolean isExternal = false;
         ElanInstance elanInstance = CoeUtils.buildElanInstance(elanInstanceName, segmentType,
                 segmentationId, isExternal);
-        wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, id, elanInstance);
+        wrtConfigTxn.put(id, elanInstance);
         LOG.info("ELAN instance created for the first pod in the network {}", podInterface.getUid());
         return elanInstance;
     }
@@ -300,8 +309,9 @@ public final class CoeUtils {
     }
 
     public static void createVpnInstance(String vpnName, List<String> rd, List<String> irt, List<String> ert,
-                                   VpnInstance.Type type, long l3vni, IpVersionChoice ipVersion,
-                                   ReadWriteTransaction tx) throws ReadFailedException {
+                                         VpnInstance.Type type, long l3vni, IpVersionChoice ipVersion,
+                                         TypedReadWriteTransaction<Datastore.Configuration> tx)
+            throws ReadFailedException {
         List<VpnTarget> vpnTargetList = new ArrayList<>();
         LOG.debug("Creating/Updating a new vpn-instance node: {} ", vpnName);
 
@@ -362,7 +372,7 @@ public final class CoeUtils {
         LOG.debug("Creating/Updating vpn-instance for {} ", vpnName);
         InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
                 .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
-        tx.put(LogicalDatastoreType.CONFIGURATION, vpnIdentifier, newVpn);
+        tx.put(vpnIdentifier, newVpn);
     }
 
     static void deleteVpnInstance(String vpnName, WriteTransaction wrtConfigTxn) {
@@ -379,7 +389,8 @@ public final class CoeUtils {
     }
 
     public static void createVpnInterface(String vpnName, Pods pod, String interfaceName, String macAddress,
-                                          boolean isRouterInterface, WriteTransaction wrtConfigTxn) {
+                                          boolean isRouterInterface,
+                                          TypedReadWriteTransaction<Datastore.Configuration> wrtConfigTxn) {
         LOG.trace("createVpnInterface for Port: {}, isRouterInterface: {}", interfaceName, isRouterInterface);
         List<VpnInstanceNames> listVpn = new ArrayList<>();
         listVpn.add(new VpnInstanceNamesBuilder().withKey(new VpnInstanceNamesKey(vpnName))
@@ -396,14 +407,15 @@ public final class CoeUtils {
         VpnInterface vpnIf = vpnb.build();
         LOG.info("Creating vpn interface {}", vpnIf);
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = buildVpnInterfaceIdentifier(interfaceName);
-        wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIf);
+        wrtConfigTxn.put(vpnIfIdentifier, vpnIf);
 
     }
 
-    public static void deleteVpnInterface(String interfaceName, WriteTransaction wrtConfigTxn) {
+    public static void deleteVpnInterface(String interfaceName,
+                                          TypedWriteTransaction<Datastore.Configuration> wrtConfigTxn) {
         LOG.trace("deleteVpnInterface for Pod {}", interfaceName);
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = buildVpnInterfaceIdentifier(interfaceName);
-        wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
+        wrtConfigTxn.delete(vpnIfIdentifier);
     }
 
     static Adjacencies createPortIpAdjacencies(Pods pod, String interfaceName, String macAddress,
@@ -442,7 +454,7 @@ public final class CoeUtils {
                 .child(BoundServices.class, new BoundServicesKey(NwConstants.COE_KUBE_PROXY_SERVICE_INDEX)).build();
     }
 
-    public static void unbindKubeProxyService(String interfaceName, WriteTransaction tx) {
-        tx.delete(LogicalDatastoreType.CONFIGURATION, buildKubeProxyServicesIId(interfaceName));
+    public static void unbindKubeProxyService(String interfaceName, TypedWriteTransaction<Datastore.Configuration> tx) {
+        tx.delete(buildKubeProxyServicesIId(interfaceName));
     }
 }
