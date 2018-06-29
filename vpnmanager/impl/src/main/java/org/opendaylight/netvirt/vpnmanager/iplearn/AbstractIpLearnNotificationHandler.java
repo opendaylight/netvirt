@@ -52,8 +52,8 @@ public class AbstractIpLearnNotificationHandler {
         this.interfaceManager = interfaceManager;
         this.config = vpnConfig;
 
-        long duration = config.getArpLearnTimeout() * 10;
-        long cacheSize = config.getArpCacheSize().longValue();
+        long duration = config.getIpLearnTimeout() * 10;
+        long cacheSize = config.getMigrateIpCacheSize().longValue();
         migrateIpCache =
                 CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(duration,
                         TimeUnit.MILLISECONDS).build();
@@ -133,7 +133,7 @@ public class AbstractIpLearnNotificationHandler {
     }
 
     private void putVpnIpToMigrateIpCache(String vpnName, String ipToQuery, MacAddress srcMac) {
-        long cacheSize = config.getArpCacheSize().longValue();
+        long cacheSize = config.getMigrateIpCacheSize().longValue();
         if (migrateIpCache.size() >= cacheSize) {
             LOG.debug("IP_MIGRATE_CACHE: max size {} reached, assuming cache eviction we still put IP {}"
                     + " vpnName {} with MAC {}", cacheSize, ipToQuery, vpnName, srcMac);
@@ -154,7 +154,7 @@ public class AbstractIpLearnNotificationHandler {
                     ipToQuery, vpnName);
             return false;
         }
-        if (System.currentTimeMillis() > prevTimeStampCached.longValue() + config.getArpLearnTimeout()) {
+        if (System.currentTimeMillis() > prevTimeStampCached.longValue() + config.getIpLearnTimeout()) {
             LOG.debug("IP_MIGRATE_CACHE: older than timeout value - remove from dirty cache IP {} vpnName {}",
                     ipToQuery, vpnName);
             migrateIpCache.invalidate(keyPair);
