@@ -81,12 +81,7 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
             LOG.debug("Removing old list {}", oldFcList);
             processFlowClassifiers(origPortChain, oldFcList, null, false);
         }
-        List<Uuid> newFcList = updatePortChain.getFlowClassifiers();
-        newFcList.removeAll(origPortChain.getFlowClassifiers());
-        if (!newFcList.isEmpty()) {
-            LOG.debug("Adding new list {}", newFcList);
-            processFlowClassifiers(updatePortChain, newFcList, null, true);
-        }
+        processPortChain(updatePortChain);
     }
 
     /**
