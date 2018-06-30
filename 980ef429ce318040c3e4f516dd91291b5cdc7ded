@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68c92190_bcf98e9f",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/NeutronPortChainListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-06-30T02:14:51Z",
+      "side": 1,
+      "message": "doesn\u0027t this undo the comment from vinh in the previous patch? Either way, could you add details to the commit-message so we understand why that comment is no longer valid?",
+      "revId": "980ef429ce318040c3e4f516dd91291b5cdc7ded",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
