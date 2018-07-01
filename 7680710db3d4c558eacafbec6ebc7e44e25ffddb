@@ -45,6 +45,29 @@
       "revId": "7680710db3d4c558eacafbec6ebc7e44e25ffddb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "31ad43f6_cb35d2d9",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-07-01T12:17:38Z",
+      "side": 1,
+      "message": "Here we are ignoring the port for the north-bound events. But what about southbound events (i.e., Ipv6ServiceInterfaceEventListener) add/remove() methods. Unlike the router-port which is virtual, dhcp-port (when used with neutron dhcp-agent) is a real tap interface. So there would be notifications like add/remove even in that file.",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 9
+      },
+      "revId": "7680710db3d4c558eacafbec6ebc7e44e25ffddb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
