@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "abea7abc_69b825e2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-07-01T12:10:10Z",
+      "side": 1,
+      "message": "IMO we can remove this link from the commit message as it will be deleted after sometime and does not add any value.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 147
+      },
+      "revId": "7680710db3d4c558eacafbec6ebc7e44e25ffddb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "479a9d90_ea1c642c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-07-01T12:10:10Z",
+      "side": 1,
+      "message": "Can you please tell me what is the problem with treating the dhcp-port as a VM interface? and why it is having issues with service bind/un-bind?",
+      "range": {
+        "startLine": 35,
+        "startChar": 27,
+        "endLine": 37,
+        "endChar": 67
+      },
+      "revId": "7680710db3d4c558eacafbec6ebc7e44e25ffddb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
