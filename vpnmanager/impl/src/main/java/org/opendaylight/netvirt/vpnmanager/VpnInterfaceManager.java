@@ -1412,8 +1412,22 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                                    String interfaceName, BigInteger dpnId,
                                                                    WriteTransaction writeConfigTxn) {
         return (nh) -> {
-            fibManager.removeOrUpdateFibEntry(vpnName, nextHop.getIpAddress(), nh,
-                    writeConfigTxn);
+            String primaryRd = VpnUtil.getVpnRd(dataBroker, vpnName);
+            String prefix = nextHop.getIpAddress();
+            String vpnNamePrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
+            LOG.info("remove adjacencies for nexthop {} vpnName {} interfaceName {} dpnId {}",
+                    nextHop, vpnName, interfaceName, dpnId);
+            synchronized (vpnNamePrefixKey.intern()) {
+                if (vpnManager.removeOrUpdateDSForExtraRoute(vpnName, primaryRd, dpnId.toString(), interfaceName,
+                        prefix, nextHop.getNextHopIpList().get(0), nh, writeConfigTxn)) {
+                    //If extra-route is present behind at least one VM, then do not remove or update
+                    //fib entry for route-path representing that CSS nexthop, just update vpntoextraroute and
+                    //prefixtointerface DS
+                    return;
+                }
+                fibManager.removeOrUpdateFibEntry(vpnName, nextHop.getIpAddress(), nh,
+                        writeConfigTxn);
+            }
             LOG.info("removeAdjacenciesFromVpn: removed/updated FIB with rd {} prefix {}"
                             + " nexthop {} for interface {} on dpn {} for internal vpn {}",
                     vpnName, nextHop.getIpAddress(), nh, interfaceName, dpnId, vpnName);
@@ -1427,7 +1441,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 VpnUtil.getVpnsImportingMyRoute(dataBroker, vpnName);
         nhList.forEach((nh) -> {
             //IRT: remove routes from other vpns importing it
-            vpnManager.removePrefixFromBGP(primaryRd, rd, vpnName, nextHop.getIpAddress(),
+            vpnManager.removePrefixFromBGP(vpnName, primaryRd, rd, interfaceName, nextHop.getIpAddress(),
                     nextHop.getNextHopIpList().get(0), nh, dpnId, writeConfigTxn);
             for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                 String vpnRd = vpn.getVrfId();
