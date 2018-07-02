@@ -16,6 +16,24 @@
       "revId": "980ef429ce318040c3e4f516dd91291b5cdc7ded",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a7c5d51_df99f117",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/NeutronPortChainListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 7592
+      },
+      "writtenOn": "2018-07-02T09:17:58Z",
+      "side": 1,
+      "message": "In our testing some combinations of test cases were not working. In this change first we are removing if any old flow classifier and then we are processing port chain with new flow classifier. This doesn\u0027t affect live traffic we tested it. I will add vinh to comment on it.",
+      "parentUuid": "68c92190_bcf98e9f",
+      "revId": "980ef429ce318040c3e4f516dd91291b5cdc7ded",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
