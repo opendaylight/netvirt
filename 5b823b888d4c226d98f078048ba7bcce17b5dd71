@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1f00263_1a914c9a",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-07-02T11:15:01Z",
+      "side": 1,
+      "message": "If vnet is NULL, how are we going to handle this?\nWe did come across this kind of scenarios in CLUSTER-ODL upgrade, same was fixed in https://git.opendaylight.org/gerrit/#/c/71874/. Do we need something similar to that here?\nApplies to all other places, where vnet/vsubnet checking is done.",
+      "range": {
+        "startLine": 634,
+        "startChar": 7,
+        "endLine": 634,
+        "endChar": 27
+      },
+      "revId": "5b823b888d4c226d98f078048ba7bcce17b5dd71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d9602fa_eba617ec",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-07-02T11:15:01Z",
+      "side": 1,
+      "message": "if elanTag is invalid, how do we handle it?",
+      "range": {
+        "startLine": 661,
+        "startChar": 13,
+        "endLine": 661,
+        "endChar": 20
+      },
+      "revId": "5b823b888d4c226d98f078048ba7bcce17b5dd71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
