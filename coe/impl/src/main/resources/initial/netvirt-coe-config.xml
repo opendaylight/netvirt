@@ -1,0 +1,3 @@
+<coe-config xmlns="urn:opendaylight:netvirt:coe:config">
+  <service-implementation-mode>kube-proxy</service-implementation-mode>
+</coe-config>
