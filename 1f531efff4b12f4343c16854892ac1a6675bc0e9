@@ -16,6 +16,144 @@
       "revId": "1f531efff4b12f4343c16854892ac1a6675bc0e9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "46a79d8e_4aa46247",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/listeners/NetvirtSfcInterfaceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-07-02T11:13:48Z",
+      "side": 1,
+      "message": "I thing we could filter out events on interfaces that are not neutron ports.\n\nI also think that what really matters is if the lower-layer if attribute of the interface changed in any way. So it\u0027s probably interesting to just implement the update event, check if the lower-layer-if of a nueutron port changed, if so, as soon it is found to be used in any of the ACLs, call updateALl once. Then add and remove would just call update with null before/after interfaces.",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 82,
+        "endChar": 37
+      },
+      "revId": "1f531efff4b12f4343c16854892ac1a6675bc0e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d5283ac_68ab8585",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/listeners/NetvirtSfcInterfaceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-07-02T11:13:48Z",
+      "side": 1,
+      "message": "Match might be augmented by NeutronNetwork or by NeutronPorts. When augmented by NeutronPorts, this will be null and this ACE is not affected.",
+      "range": {
+        "startLine": 99,
+        "startChar": 10,
+        "endLine": 99,
+        "endChar": 81
+      },
+      "revId": "1f531efff4b12f4343c16854892ac1a6675bc0e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "90f3bac4_0520bc0c",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/listeners/NetvirtSfcInterfaceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-07-02T11:13:48Z",
+      "side": 1,
+      "message": "Do not call this within the loop. Break the loop as soon as you find any affected ACE/ACL and call updateAll once. Handling it with Stream and Stream#findAny seems fitting.",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 42
+      },
+      "revId": "1f531efff4b12f4343c16854892ac1a6675bc0e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a189b0cc_1c520e5c",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/listeners/NetvirtSfcInterfaceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-07-02T11:13:48Z",
+      "side": 1,
+      "message": "If this match is augmented with NeutronPorts, NeutronNetwork will be null and ACE is affected if the remove interface is either NeutronPorts#sourcePort or NeutronPorts#destinationPort",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 132,
+        "endChar": 81
+      },
+      "revId": "1f531efff4b12f4343c16854892ac1a6675bc0e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "228b6f1e_7cb03950",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/listeners/NetvirtSfcInterfaceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-07-02T11:13:48Z",
+      "side": 1,
+      "message": "Consider the comment on add to call this only once",
+      "range": {
+        "startLine": 136,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 42
+      },
+      "revId": "1f531efff4b12f4343c16854892ac1a6675bc0e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "49f587d7_7fa56df9",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/listeners/NetvirtSfcInterfaceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-07-02T11:13:48Z",
+      "side": 1,
+      "message": "Why not use NetvirtProvider#getLogicalInterfacesFromNeutronNetwork directly?",
+      "range": {
+        "startLine": 153,
+        "startChar": 0,
+        "endLine": 192,
+        "endChar": 5
+      },
+      "revId": "1f531efff4b12f4343c16854892ac1a6675bc0e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
