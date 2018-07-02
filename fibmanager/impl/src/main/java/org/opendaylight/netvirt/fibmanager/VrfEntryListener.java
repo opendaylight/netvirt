@@ -318,11 +318,15 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             //Update the used rds and vpntoextraroute containers only for the deleted nextHops.
             List<String> nextHopsRemoved = FibHelper.getNextHopListFromRoutePaths(original);
             nextHopsRemoved.removeAll(FibHelper.getNextHopListFromRoutePaths(update));
-            ListenableFuture<Void> future =
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> nextHopsRemoved.parallelStream()
-                            .forEach(nextHopRemoved -> fibUtil.updateUsedRdAndVpnToExtraRoute(
-                                    tx, nextHopRemoved, rd, update.getDestPrefix())));
-            Futures.addCallback(future, new FutureCallback<Void>() {
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            ListenableFuture<Void> configFuture =
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(configTx ->
+                            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx ->
+                                    nextHopsRemoved.parallelStream()
+                                            .forEach(nextHopRemoved -> fibUtil.updateUsedRdAndVpnToExtraRoute(
+                                                    configTx, operTx, nextHopRemoved, rd, update.getDestPrefix())))));
+            futures.add(configFuture);
+            Futures.addCallback(configFuture, new FutureCallback<Void>() {
                 @Override
                 public void onSuccess(Void result) {
                     createFibEntries(identifier, update);
