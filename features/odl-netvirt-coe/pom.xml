@@ -49,5 +49,13 @@
             <artifactId>coe-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-coe-config.xml" -->
+            <groupId>org.opendaylight.netvirt</groupId>
+            <artifactId>coe-impl</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>config</classifier>
+        </dependency>
     </dependencies>
 </project>
