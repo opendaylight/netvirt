@@ -66,6 +66,7 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
@@ -692,6 +693,39 @@ public final class VpnUtil {
                           vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths(), rd);
             }
         });
+    }
+
+    public static boolean removeOrUpdateDSForExtraRoute(DataBroker dataBroker, IFibManager fibManager, String vpnName,
+            String primaryRd, String extraRouteRd, String vpnInterfaceName, String prefix, String nextHop,
+            String nextHopTunnelIp, WriteTransaction writeConfigTxn) {
+        LOG.info("removeOrUpdateDSForExtraRoute: VPN WITHDRAW: Removing Fib Entry rd {} prefix {} nexthop {}",
+                extraRouteRd, prefix, nextHop);
+        boolean areNextHopsClearedForRd = false;
+        Optional<Routes> optVpnExtraRoutes = VpnExtraRouteHelper
+                .getVpnExtraroutes(dataBroker, vpnName, extraRouteRd, prefix);
+        if (optVpnExtraRoutes.isPresent()) {
+            List<String> nhList = optVpnExtraRoutes.get().getNexthopIpList();
+            if (nhList != null && nhList.size() > 1) {
+                // If nhList is more than 1, just update vpntoextraroute and prefixtointerface DS
+                // For other cases, remove the corresponding tep ip from fibentry and withdraw prefix
+                nhList.remove(nextHop);
+                VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                        VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, extraRouteRd, prefix),
+                        VpnUtil.getVpnToExtraroute(prefix, nhList));
+                MDSALUtil.syncDelete(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, VpnExtraRouteHelper.getUsedRdsIdentifier(
+                                VpnUtil.getVpnId(dataBroker, vpnName), prefix, nextHop));
+                LOG.debug("removeOrUpdateDSForExtraRoute: Removed vpn-to-extraroute with rd {} prefix {} nexthop {}",
+                        extraRouteRd, prefix, nextHop);
+                fibManager.refreshVrfEntry(primaryRd, prefix);
+                writeConfigTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                        VpnUtil.getVpnInterfaceOpDataEntryAdjacencyIdentifier(vpnInterfaceName, vpnName, prefix));
+                LOG.info("VPN WITHDRAW: removeOrUpdateDSForExtraRoute: Removed Fib Entry rd {} prefix {} nexthop {}",
+                        extraRouteRd, prefix, nextHopTunnelIp);
+                areNextHopsClearedForRd = true;
+            }
+        }
+        return areNextHopsClearedForRd;
     }
 
     static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance
@@ -1733,6 +1767,14 @@ public final class VpnUtil {
         return InstanceIdentifier.builder(VpnInterfaces.class)
                 .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName))
                 .augmentation(Adjacencies.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
+    }
+
+    static InstanceIdentifier<Adjacency> getVpnInterfaceOpDataEntryAdjacencyIdentifier(String intfName,
+                                                                                       String vpnName,
+                                                                                       String ipAddress) {
+        return InstanceIdentifier.builder(VpnInterfaceOpData.class)
+                .child(VpnInterfaceOpDataEntry.class, new VpnInterfaceOpDataEntryKey(intfName, vpnName))
+                .augmentation(AdjacenciesOp.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
     }
 
     public static List<String> getIpsListFromExternalIps(List<ExternalIps> externalIps) {
