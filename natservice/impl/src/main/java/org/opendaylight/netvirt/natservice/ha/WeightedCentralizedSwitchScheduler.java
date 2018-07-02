@@ -63,6 +63,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
 
     @Override
     public boolean scheduleCentralizedSwitch(Routers router) {
+        LOG.info("scheduleCentralizedSwitch for router {}", router.getRouterName());
         BigInteger nextSwitchId = getSwitchWithLowestWeight();
         String routerName = router.getRouterName();
         RouterToNaptSwitchBuilder routerToNaptSwitchBuilder =
@@ -83,6 +84,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
 
     @Override
     public boolean updateCentralizedSwitch(Routers oldRouter, Routers newRouter) {
+        LOG.info("updateCentralizedSwitch for router {}", newRouter.getRouterName());
         String routerName = newRouter.getRouterName();
         List<Uuid> addedSubnetIds = getUpdatedSubnetIds(newRouter.getSubnetIds(), oldRouter.getSubnetIds());
         List<Uuid> deletedSubnetIds = getUpdatedSubnetIds(oldRouter.getSubnetIds(), newRouter.getSubnetIds());
@@ -94,6 +96,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
 
     @Override
     public boolean releaseCentralizedSwitch(Routers router) {
+        LOG.info("releaseCentralizedSwitch for router {}", router.getRouterName());
         String routerName = router.getRouterName();
         BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
         deleteFromDpnMaps(routerName, router.getSubnetIds(), primarySwitchId);
