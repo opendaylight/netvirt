@@ -1415,6 +1415,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                                    String interfaceName, BigInteger dpnId,
                                                                    WriteTransaction writeConfigTxn) {
         return (nh) -> {
+            String primaryRd = VpnUtil.getVpnRd(dataBroker, vpnName);
+            if (vpnManager.removeOrUpdateDSForExtraRoute(vpnName, primaryRd, dpnId.toString(), interfaceName,
+                    nextHop.getIpAddress(), nextHop.getNextHopIpList().get(0), nh, writeConfigTxn)) {
+                //If extra-route is present behind at least one VM, then do not remove or update
+                //fib entry for route-path representing that CSS nexthop, just update vpntoextraroute and
+                //prefixtointerface DS
+                return;
+            }
             fibManager.removeOrUpdateFibEntry(vpnName, nextHop.getIpAddress(), nh,
                     writeConfigTxn);
             LOG.info("removeAdjacenciesFromVpn: removed/updated FIB with rd {} prefix {}"
@@ -1430,7 +1438,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 VpnUtil.getVpnsImportingMyRoute(dataBroker, vpnName);
         nhList.forEach((nh) -> {
             //IRT: remove routes from other vpns importing it
-            vpnManager.removePrefixFromBGP(primaryRd, rd, vpnName, nextHop.getIpAddress(),
+            vpnManager.removePrefixFromBGP(vpnName, primaryRd, rd, interfaceName, nextHop.getIpAddress(),
                     nextHop.getNextHopIpList().get(0), nh, dpnId, writeConfigTxn);
             for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                 String vpnRd = vpn.getVrfId();
