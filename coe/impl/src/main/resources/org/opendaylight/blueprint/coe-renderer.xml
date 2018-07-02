@@ -20,4 +20,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                interface="org.opendaylight.infrautils.caches.CacheProvider"/>
     <reference id="iMdsalApiManager"
                interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager"/>
+
+    <odl:clustered-app-config id="coeConfig"
+                              binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.config.rev180703.CoeConfig"
+                              default-config-file-name="netvirt-coe-config.xml"
+                              update-strategy="none">
+    </odl:clustered-app-config>
+
 </blueprint>
