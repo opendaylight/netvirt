@@ -586,8 +586,8 @@ public class FibUtil {
         return "FIB-" + vpnId.toString() + "-" + dpnId.toString() ;
     }
 
-    public void updateUsedRdAndVpnToExtraRoute(WriteTransaction writeOperTxn, String tunnelIpRemoved, String primaryRd,
-            String prefix) {
+    public void updateUsedRdAndVpnToExtraRoute(WriteTransaction writeConfigTxn, WriteTransaction writeOperTxn,
+                                               String tunnelIpRemoved, String primaryRd, String prefix) {
         Optional<VpnInstanceOpDataEntry> optVpnInstance = getVpnInstanceOpData(primaryRd);
         if (!optVpnInstance.isPresent()) {
             return;
@@ -614,11 +614,14 @@ public class FibUtil {
                     //Delete datastore only if extra route is deleted or VM interface is deleted/down
                     if (!MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, adjId).isPresent()
                             || ifState == null || ifState.getOperStatus() == OperStatus.Down) {
+                        LOG.info("updating data-stores for prefix {} with primaryRd {} for interface {} on vpn {} ",
+                                prefix, primaryRd, prefixToInterface.getVpnInterfaceName(), vpnName);
                         writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                                getAdjacencyIdentifier(prefixToInterface.getVpnInterfaceName(), prefix));
+                                FibUtil.getAdjacencyIdentifierOp(prefixToInterface.getVpnInterfaceName(),
+                                        vpnName, prefix));
                         writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
                                 VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, usedRd, prefix));
-                        writeOperTxn.delete(LogicalDatastoreType.CONFIGURATION,
+                        writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION,
                                 VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHopRemoved));
                         break;
                     }
