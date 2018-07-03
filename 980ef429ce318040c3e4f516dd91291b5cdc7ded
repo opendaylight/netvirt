@@ -34,6 +34,24 @@
       "revId": "980ef429ce318040c3e4f516dd91291b5cdc7ded",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6d85c0e5_0288cc88",
+        "filename": "sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/NeutronPortChainListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-07-03T22:47:41Z",
+      "side": 1,
+      "message": "Is the new issue related to update of flow classifiers?If it is not related then we should create another jira issue and close the 1310. Alternatively we can add description of the new issue to the existing jira. Either way, the info helps the reviewers to see what problem that we are trying to fix.",
+      "parentUuid": "5a7c5d51_df99f117",
+      "revId": "980ef429ce318040c3e4f516dd91291b5cdc7ded",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
