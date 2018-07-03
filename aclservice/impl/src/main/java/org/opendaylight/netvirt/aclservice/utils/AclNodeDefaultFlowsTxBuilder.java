@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.TransactionAdapter;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -412,7 +411,7 @@ public class AclNodeDefaultFlowsTxBuilder {
                                                           hardTimeOut, cookie, matches, instructions);
         LOG.trace("Installing Acl default Flow:: DpnId: {}, flowId: {}, flowName: {}, tableId: {}", dpId, flowId,
                   flowId, tableId);
-        mdsalManager.addFlowToTx(flowEntity, TransactionAdapter.toWriteTransaction(tx));
+        mdsalManager.addFlow(tx, flowEntity);
     }
 
     /**

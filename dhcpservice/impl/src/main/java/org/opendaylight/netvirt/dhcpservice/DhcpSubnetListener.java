@@ -137,7 +137,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
                 tx -> DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, tx)), LOG,
                 "Error writing to the datastore");
             //install the entries
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                 tx -> dhcpManager.installDhcpEntries(dpId, vmMacAddress, tx)), LOG,
                 "Error writing to the datastore");
         }
@@ -160,7 +160,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
                 "Error writing to the datastore");
 
             //uninstall the entries
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                 tx -> dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress, tx)), LOG,
                 "Error writing to the datastore");
         }
