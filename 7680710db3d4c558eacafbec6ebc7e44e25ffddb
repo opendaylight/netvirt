@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "01a27418_6bdbeeff",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-07-03T16:24:51Z",
+      "side": 1,
+      "message": "Without ipv6service binding for dhcp port VM will get IPv6 address.\n\nTable 17-\u003e45 flow will get programmed as soon as VM neutron port is getting bounded to ipv6service. I have verified locally and it was working properly for ipv6 address assignment. Even with CSIT logs it proves there is no problem for VMs acquiring IPv6 address.",
+      "parentUuid": "6c704183_98ecefa4",
+      "range": {
+        "startLine": 35,
+        "startChar": 27,
+        "endLine": 37,
+        "endChar": 67
+      },
+      "revId": "7680710db3d4c558eacafbec6ebc7e44e25ffddb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "31ad43f6_cb35d2d9",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
         "patchSetId": 2
@@ -179,6 +203,30 @@
       "side": 1,
       "message": "@Karthik did you validate this with Neutron dhcp-agent?",
       "parentUuid": "d1aba32a_8f2a8104",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 9
+      },
+      "revId": "7680710db3d4c558eacafbec6ebc7e44e25ffddb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "84161fce_f927f1e0",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-07-03T16:24:51Z",
+      "side": 1,
+      "message": "Yes. I had validated the basic sanity with neutron q-dhcp agent only.",
+      "parentUuid": "15d71d17_62aeada7",
       "range": {
         "startLine": 61,
         "startChar": 0,
