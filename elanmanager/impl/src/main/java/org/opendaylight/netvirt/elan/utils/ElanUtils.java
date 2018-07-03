@@ -292,7 +292,7 @@ public class ElanUtils {
         }
     }
 
-    @SuppressWarnings("checkstyle:ForbiddenMethod")
+    @SuppressWarnings("checkstyle:ForbidCertainMethod")
     public static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
             InstanceIdentifier<T> path) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
@@ -300,7 +300,7 @@ public class ElanUtils {
         Futures.addCallback(tx.submit(), DEFAULT_CALLBACK, MoreExecutors.directExecutor());
     }
 
-    @SuppressWarnings("checkstyle:ForbiddenMethod")
+    @SuppressWarnings("checkstyle:ForbidCertainMethod")
     public static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
             InstanceIdentifier<T> path, FutureCallback<Void> callback) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();

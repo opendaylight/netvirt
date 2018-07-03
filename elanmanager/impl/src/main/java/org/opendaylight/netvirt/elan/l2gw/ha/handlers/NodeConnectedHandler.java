@@ -68,7 +68,7 @@ public class NodeConnectedHandler {
      * @param tx Transaction
      * @throws ReadFailedException  Exception thrown if read fails
      */
-    @SuppressWarnings("checkstyle:ForbiddenMethod")
+    @SuppressWarnings("checkstyle:ForbidCertainMethod")
     public void handleNodeConnected(Node childNode,
                                     InstanceIdentifier<Node> childNodePath,
                                     InstanceIdentifier<Node> haNodePath,

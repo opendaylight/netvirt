@@ -231,7 +231,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         jobCoordinator.enqueueJob(elanInstanceName, configWorker, ElanConstants.JOB_MAX_RETRIES);
     }
 
-    @SuppressWarnings("checkstyle:ForbiddenMethod")
+    @SuppressWarnings("checkstyle:ForbidCertainMethod")
     public List<ListenableFuture<Void>> removeElanInterface(ElanInstance elanInfo, String interfaceName,
             InterfaceInfo interfaceInfo) {
         String elanName = elanInfo.getElanInstanceName();
@@ -526,7 +526,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         e. if orig = {1,2,3,4} updated={2,3,4,5}
         then 1 should be removed , 5 should be added
     * */
-    @SuppressWarnings("checkstyle:ForbiddenMethod")
+    @SuppressWarnings("checkstyle:ForbidCertainMethod")
     @Override
     protected void update(InstanceIdentifier<ElanInterface> identifier, ElanInterface original, ElanInterface update) {
         // updating the static-Mac Entries for the existing elanInterface
@@ -654,7 +654,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
     }
 
-    @SuppressWarnings("checkstyle:ForbiddenMethod")
+    @SuppressWarnings("checkstyle:ForbidCertainMethod")
     List<ListenableFuture<Void>> addElanInterface(ElanInterface elanInterface,
             InterfaceInfo interfaceInfo, ElanInstance elanInstance) throws ElanException {
         Preconditions.checkNotNull(elanInstance, "elanInstance cannot be null");
@@ -751,7 +751,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         return futures;
     }
 
-    @SuppressWarnings("checkstyle:ForbiddenMethod")
+    @SuppressWarnings("checkstyle:ForbidCertainMethod")
     List<ListenableFuture<Void>> setupEntriesForElanInterface(ElanInstance elanInstance,
             ElanInterface elanInterface, InterfaceInfo interfaceInfo, boolean isFirstInterfaceInDpn)
             throws ElanException {
@@ -1087,7 +1087,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     // Install DMAC entry on dst DPN
-    @SuppressWarnings("checkstyle:ForbiddenMethod")
+    @SuppressWarnings("checkstyle:ForbidCertainMethod")
     public List<ListenableFuture<Void>> installDMacAddressTables(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
             BigInteger dstDpId) throws ElanException {
         String interfaceName = interfaceInfo.getInterfaceName();
