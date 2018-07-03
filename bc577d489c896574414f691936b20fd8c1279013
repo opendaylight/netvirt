@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d2635cf_27f993a5",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronRouterChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-03T17:54:01Z",
+      "side": 0,
+      "message": "Doesnt this do exactly the same thing as what the fix does?\nFOr every route in newRoutes, if the predicate is true, then it removes from newRoutes.",
+      "range": {
+        "startLine": 117,
+        "startChar": 12,
+        "endLine": 117,
+        "endChar": 50
+      },
+      "revId": "bc577d489c896574414f691936b20fd8c1279013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
