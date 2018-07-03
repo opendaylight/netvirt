@@ -144,6 +144,30 @@
     },
     {
       "key": {
+        "uuid": "2e1c301b_79afe65e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-07-03T17:05:37Z",
+      "side": 1,
+      "message": "In this patch you are avoiding ServiceBinding for the dhcp-port, so table 17-\u003e 45 flow will be missing for the dhcp-port right? You will see an IPAddress on the dhcp-tap interface because dhcp-agent configure it manually. Anyways, if you have verified that this is not causing any regressions, lets go with it. Please do the final changes and we can merge it.",
+      "parentUuid": "01a27418_6bdbeeff",
+      "range": {
+        "startLine": 35,
+        "startChar": 27,
+        "endLine": 37,
+        "endChar": 67
+      },
+      "revId": "7680710db3d4c558eacafbec6ebc7e44e25ffddb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "31ad43f6_cb35d2d9",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
         "patchSetId": 2
