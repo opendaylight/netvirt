@@ -21,5 +21,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
         <module name="com.github.sevntu.checkstyle.checks.coding.ForbidCertainMethodCheck">
             <property name="methodName" value="newReadWriteTransaction" />
         </module>
+        <module name="com.github.sevntu.checkstyle.checks.coding.ForbidCertainMethodCheck">
+            <property name="methodName" value="callWithNewWriteOnlyTransactionAndSubmit" />
+            <property name="argumentCount" value="1"/>
+        </module>
+        <module name="com.github.sevntu.checkstyle.checks.coding.ForbidCertainMethodCheck">
+            <property name="methodName" value="callWithNewReadWriteTransactionAndSubmit" />
+            <property name="argumentCount" value="1"/>
+        </module>
     </module>
 </module>
