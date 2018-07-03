@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6eac9d_0415a34a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-03T08:28:04Z",
+      "side": 1,
+      "message": "You can also mention that there is already code written to handle the case where rdList \u003c NExtHops, i.e, when the rd list is updated to have the right number, there is code to automatically process extra-routes on those dpns who did not have an rd allocated previously.",
+      "range": {
+        "startLine": 18,
+        "startChar": 9,
+        "endLine": 18,
+        "endChar": 22
+      },
+      "revId": "bb016f6a9da093ab5700cfacf5d4da78e53420d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
