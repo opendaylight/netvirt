@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e271246b_e130c05b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-07-03T10:20:34Z",
+      "side": 1,
+      "message": "I will update this commit message once your fine with other comments.",
+      "parentUuid": "abea7abc_69b825e2",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 147
+      },
+      "revId": "7680710db3d4c558eacafbec6ebc7e44e25ffddb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "479a9d90_ea1c642c",
         "filename": "/COMMIT_MSG",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "a3ded405_8aaa5f84",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-07-03T10:20:34Z",
+      "side": 1,
+      "message": "When subnet is removed from the network, at that time ODL is receiving neutron port delete event for DHCP port and IPv6Service Module is treated DHCP port as a VM port and it is calling unbindIpv6Service(dhcp_interface) method to unbindipv6service. \n\nBelow MDSAL Operational DS is not holding any DHCP port details. Hence querying this DS call will return always empty or null value\nrestconf/operational/interface-service-bindings:bound-services-state-list.\n\nHence issue reported warning message is appearing frequently in the karaf logs. To avoid this log, removed binding/unbinding ipv6 service for dhcp ports. Still dhcp port related information we can able to see FIB outputs and flow tables at 21. Only in IPv6 service cache place only removed. \n\nWaring message appearing code snippet.\n\nBoundServicesState boundServiceState \u003d FlowBasedServicesUtils.getBoundServicesState(tx, this.interfaceName, this.serviceMode);\n                if (boundServiceState \u003d\u003d null) {\n                    FlowBasedServicesConfigListener.LOG.warn(\"bound-service-state is not present for interface:{}, service-mode:{}, service-name:{}, service-priority:{}\", new Object[]{this.interfaceName, this.serviceMode, this.boundServicesNew.getServiceName(), this.boundServicesNew.getServicePriority()});\n                }  \n\n\nPlease let me know your input on this approach. This will not caue any problem as you told earlier in some other review DHCP reach-ability from external world\n\nThanks,\nKarthikeyan.",
+      "parentUuid": "479a9d90_ea1c642c",
+      "range": {
+        "startLine": 35,
+        "startChar": 27,
+        "endLine": 37,
+        "endChar": 67
+      },
+      "revId": "7680710db3d4c558eacafbec6ebc7e44e25ffddb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "31ad43f6_cb35d2d9",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2018-07-01T12:17:38Z",
       "side": 1,
       "message": "Here we are ignoring the port for the north-bound events. But what about southbound events (i.e., Ipv6ServiceInterfaceEventListener) add/remove() methods. Unlike the router-port which is virtual, dhcp-port (when used with neutron dhcp-agent) is a real tap interface. So there would be notifications like add/remove even in that file.",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 9
+      },
+      "revId": "7680710db3d4c558eacafbec6ebc7e44e25ffddb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d1aba32a_8f2a8104",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-07-03T10:20:34Z",
+      "side": 1,
+      "message": "Hi Sridhar,\n\nBelow validation is taken care of dhcp port ignoring for all south bound event notification. Since interface type for dhcp is not an l2vlan type (\"type\":\"iana-if-type:other\" --\u003e DHCP tap interface type)\n\nif (!L2vlan.class.equals(add.getType())) {\n            return;\n        }\n\n\nrestconf/operational/ietf-interfaces:interfaces-state\n            {\n                \"name\": \"tap90fa41a5-94\",\n                \"lower-layer-if\": [\n                    \"openflow:63788268904008:2\"\n                ],\n                \"type\": \"iana-if-type:other\",\n                \"if-index\": 65536,\n                \"statistics\": {\n                    \"discontinuity-time\": \"2018-07-03T09:09:46.754Z\"\n                },\n                \"phys-address\": \"00:00:00:00:00:00\",\n                \"admin-status\": \"up\",\n                \"oper-status\": \"up\"\n            }\n\n\nPlease let me know your inputs",
+      "parentUuid": "31ad43f6_cb35d2d9",
       "range": {
         "startLine": 61,
         "startChar": 0,
