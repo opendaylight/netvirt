@@ -35,7 +35,6 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
-import org.opendaylight.genius.infra.TransactionAdapter;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
@@ -122,7 +121,7 @@ public final class DhcpServiceUtils {
     public static void setupDhcpFlowEntry(@Nullable BigInteger dpId, short tableId, @Nullable String vmMacAddress,
                                           int addOrRemove,
                                           IMdsalApiManager mdsalUtil, DhcpServiceCounters dhcpServiceCounters,
-                                          TypedWriteTransaction<Configuration> tx) {
+                                          TypedReadWriteTransaction<Configuration> tx) {
         if (dpId == null || dpId.equals(DhcpMConstants.INVALID_DPID) || vmMacAddress == null) {
             return;
         }
@@ -134,20 +133,16 @@ public final class DhcpServiceUtils {
         actionsInfos.add(new ActionPuntToController());
         instructions.add(new InstructionApplyActions(actionsInfos));
         if (addOrRemove == NwConstants.DEL_FLOW) {
-            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
-                    getDhcpFlowRef(dpId, tableId, vmMacAddress),
-                    DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
-                    DhcpMConstants.COOKIE_DHCP_BASE, matches, null);
             LOG.trace("Removing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             dhcpServiceCounters.removeDhcpFlow();
-            mdsalUtil.removeFlowToTx(flowEntity, TransactionAdapter.toWriteTransaction(tx));
+            mdsalUtil.removeFlow(tx, dpId, getDhcpFlowRef(dpId, tableId, vmMacAddress), tableId);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress), DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY,
                     "DHCP", 0, 0, DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
             LOG.trace("Installing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             dhcpServiceCounters.installDhcpFlow();
-            mdsalUtil.addFlowToTx(flowEntity, TransactionAdapter.toWriteTransaction(tx));
+            mdsalUtil.addFlow(tx, flowEntity);
         }
     }
 
@@ -168,7 +163,7 @@ public final class DhcpServiceUtils {
 
     public static void setupDhcpDropAction(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove,
                                            IMdsalApiManager mdsalUtil, DhcpServiceCounters dhcpServiceCounters,
-                                           TypedWriteTransaction<Configuration> tx) {
+                                           TypedReadWriteTransaction<Configuration> tx) {
         if (dpId == null || dpId.equals(DhcpMConstants.INVALID_DPID) || vmMacAddress == null) {
             return;
         }
@@ -180,20 +175,16 @@ public final class DhcpServiceUtils {
         // Drop Action
         actionsInfos.add(new ActionDrop());
         if (addOrRemove == NwConstants.DEL_FLOW) {
-            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
-                    getDhcpFlowRef(dpId, tableId, vmMacAddress),
-                    DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
-                    DhcpMConstants.COOKIE_DHCP_BASE, matches, null);
             LOG.trace("Removing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             dhcpServiceCounters.removeDhcpDropFlow();
-            mdsalUtil.removeFlowToTx(flowEntity, TransactionAdapter.toWriteTransaction(tx));
+            mdsalUtil.removeFlow(tx, dpId, getDhcpFlowRef(dpId, tableId, vmMacAddress), tableId);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress), DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY,
                     "DHCP", 0, 0, DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
             LOG.trace("Installing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             dhcpServiceCounters.installDhcpDropFlow();
-            mdsalUtil.addFlowToTx(flowEntity, TransactionAdapter.toWriteTransaction(tx));
+            mdsalUtil.addFlow(tx, flowEntity);
         }
     }
 
