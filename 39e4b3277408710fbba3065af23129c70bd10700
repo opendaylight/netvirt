@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e59e3d11_8be76581",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-07-03T05:11:25Z",
+      "side": 1,
+      "message": "Since we are adding a log, it might be a good idea to display some additional useful info as part of the log message. For example, in this case - print the nextSwitchId?",
+      "range": {
+        "startLine": 66,
+        "startChar": 18,
+        "endLine": 66,
+        "endChar": 57
+      },
+      "revId": "39e4b3277408710fbba3065af23129c70bd10700",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "debfab55_fb10d883",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-07-03T05:11:25Z",
+      "side": 1,
+      "message": "Here we can print the primarySwitchId",
+      "range": {
+        "startLine": 99,
+        "startChar": 26,
+        "endLine": 99,
+        "endChar": 27
+      },
+      "revId": "39e4b3277408710fbba3065af23129c70bd10700",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
