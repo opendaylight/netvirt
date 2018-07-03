@@ -122,7 +122,7 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
         throws ExecutionException, InterruptedException {
         String vmMacAddress = txRunner.applyWithNewReadWriteTransactionAndSubmit(OPERATIONAL,
             tx -> DhcpServiceUtils.getAndUpdateVmMacAddress(tx, interfaceName, dhcpManager)).get();
-        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
             tx -> dhcpManager.installDhcpEntries(dpId, vmMacAddress, tx)));
     }
 }
