@@ -66,8 +66,8 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
 
     @Override
     public boolean scheduleCentralizedSwitch(Routers router) {
-        LOG.info("scheduleCentralizedSwitch for router {}", router.getRouterName());
         BigInteger nextSwitchId = getSwitchWithLowestWeight();
+        LOG.info("scheduleCentralizedSwitch for router {} on switch {}", router.getRouterName(), nextSwitchId);
         String routerName = router.getRouterName();
         RouterToNaptSwitchBuilder routerToNaptSwitchBuilder =
                 new RouterToNaptSwitchBuilder().setRouterName(routerName);
@@ -99,9 +99,9 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
 
     @Override
     public boolean releaseCentralizedSwitch(Routers router) {
-        LOG.info("releaseCentralizedSwitch for router {}", router.getRouterName());
         String routerName = router.getRouterName();
         BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
+        LOG.info("releaseCentralizedSwitch for router {} from switch {}", router.getRouterName(), primarySwitchId);
         deleteFromDpnMaps(routerName, router.getSubnetIds(), primarySwitchId);
         try {
             SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
