@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d0db424_df29d13d",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1420,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-03T12:04:30Z",
+      "side": 1,
+      "message": "use a boolean to have a clear picture of what this method does.",
+      "range": {
+        "startLine": 1419,
+        "startChar": 33,
+        "endLine": 1420,
+        "endChar": 58
+      },
+      "revId": "f70b087e63e0b7a707d25a2c99062c83e6875d57",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2dc183e7_784874c7",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-03T12:04:30Z",
+      "side": 1,
+      "message": "Just to get a clear idea of what this method finally returns,\nUse a boolean areNextHopsClearedForRd \u003d true.",
+      "range": {
+        "startLine": 307,
+        "startChar": 45,
+        "endLine": 307,
+        "endChar": 56
+      },
+      "revId": "f70b087e63e0b7a707d25a2c99062c83e6875d57",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b11d532_77b46989",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-03T12:04:30Z",
+      "side": 1,
+      "message": "areNextHopsClearedForRd \u003d false",
+      "range": {
+        "startLine": 330,
+        "startChar": 16,
+        "endLine": 330,
+        "endChar": 27
+      },
+      "revId": "f70b087e63e0b7a707d25a2c99062c83e6875d57",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "72dd3133_04ebb3a5",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-03T12:04:30Z",
+      "side": 1,
+      "message": "return areNextHopsClearedForRd;",
+      "range": {
+        "startLine": 333,
+        "startChar": 14,
+        "endLine": 334,
+        "endChar": 5
+      },
+      "revId": "f70b087e63e0b7a707d25a2c99062c83e6875d57",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "96f445f2_184d0589",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-03T12:04:30Z",
+      "side": 1,
+      "message": "use a boolean to have a clear picture of what this method does.",
+      "range": {
+        "startLine": 345,
+        "startChar": 20,
+        "endLine": 346,
+        "endChar": 45
+      },
+      "revId": "f70b087e63e0b7a707d25a2c99062c83e6875d57",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
