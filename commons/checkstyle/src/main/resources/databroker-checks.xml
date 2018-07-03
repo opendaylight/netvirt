@@ -15,10 +15,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <module name="TreeWalker">
         <module name="SuppressWarningsHolder" />
 
-        <module name="org.opendaylight.netvirt.checkstyle.ForbiddenMethodCheck">
+        <module name="com.github.sevntu.checkstyle.checks.coding.ForbidCertainMethodCheck">
             <property name="methodName" value="newWriteOnlyTransaction" />
         </module>
-        <module name="org.opendaylight.netvirt.checkstyle.ForbiddenMethodCheck">
+        <module name="com.github.sevntu.checkstyle.checks.coding.ForbidCertainMethodCheck">
             <property name="methodName" value="newReadWriteTransaction" />
         </module>
     </module>
