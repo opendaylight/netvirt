@@ -16,6 +16,24 @@
       "revId": "a7e10d287bb9df92e567c87cacfe93e61dd46cc7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e2665f4_589853c5",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-03T08:44:18Z",
+      "side": 1,
+      "message": "Thanks for spotting this. Its an error during merge conflict resolution.\nI have removed this file now.",
+      "parentUuid": "bd1b38c4_7268b697",
+      "revId": "a7e10d287bb9df92e567c87cacfe93e61dd46cc7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
