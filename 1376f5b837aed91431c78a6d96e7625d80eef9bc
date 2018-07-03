@@ -22,6 +22,29 @@
       "revId": "1376f5b837aed91431c78a6d96e7625d80eef9bc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0f1dc07f_8ea65115",
+        "filename": "features/odl-netvirt-coe/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-07-03T21:48:43Z",
+      "side": 1,
+      "message": "${project.groupId}",
+      "range": {
+        "startLine": 54,
+        "startChar": 21,
+        "endLine": 54,
+        "endChar": 45
+      },
+      "revId": "1376f5b837aed91431c78a6d96e7625d80eef9bc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
