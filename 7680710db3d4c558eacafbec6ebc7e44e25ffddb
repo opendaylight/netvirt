@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "6c704183_98ecefa4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-07-03T15:07:52Z",
+      "side": 1,
+      "message": "If Ipv6Service does not call bind/unbind for dhcp-port it will not be able to acquire IPv6 address right? i.e., if there is no bind there will not be a flow in Table17 that will send packets from dhcp-port to Table45 (which will punt RS/NS to Controller)? Am I missing something?",
+      "parentUuid": "a3ded405_8aaa5f84",
+      "range": {
+        "startLine": 35,
+        "startChar": 27,
+        "endLine": 37,
+        "endChar": 67
+      },
+      "revId": "7680710db3d4c558eacafbec6ebc7e44e25ffddb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "31ad43f6_cb35d2d9",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
         "patchSetId": 2
@@ -131,6 +155,30 @@
       "side": 1,
       "message": "Hi Sridhar,\n\nBelow validation is taken care of dhcp port ignoring for all south bound event notification. Since interface type for dhcp is not an l2vlan type (\"type\":\"iana-if-type:other\" --\u003e DHCP tap interface type)\n\nif (!L2vlan.class.equals(add.getType())) {\n            return;\n        }\n\n\nrestconf/operational/ietf-interfaces:interfaces-state\n            {\n                \"name\": \"tap90fa41a5-94\",\n                \"lower-layer-if\": [\n                    \"openflow:63788268904008:2\"\n                ],\n                \"type\": \"iana-if-type:other\",\n                \"if-index\": 65536,\n                \"statistics\": {\n                    \"discontinuity-time\": \"2018-07-03T09:09:46.754Z\"\n                },\n                \"phys-address\": \"00:00:00:00:00:00\",\n                \"admin-status\": \"up\",\n                \"oper-status\": \"up\"\n            }\n\n\nPlease let me know your inputs",
       "parentUuid": "31ad43f6_cb35d2d9",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 9
+      },
+      "revId": "7680710db3d4c558eacafbec6ebc7e44e25ffddb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "15d71d17_62aeada7",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-07-03T15:07:52Z",
+      "side": 1,
+      "message": "@Karthik did you validate this with Neutron dhcp-agent?",
+      "parentUuid": "d1aba32a_8f2a8104",
       "range": {
         "startLine": 61,
         "startChar": 0,
