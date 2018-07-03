@@ -134,20 +134,27 @@ public class RouterDpnChangeListener
                     natServiceManager.notify(router, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_ENBL);
                 } else {
-                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.getKey(), () -> {
+                    Long routerId = NatUtil.getVpnId(dataBroker, routerUuid);
+                    if (routerId == NatConstants.INVALID_ID) {
+                        LOG.error("add : Invalid routerId returned for routerName {}", routerUuid);
+                        return;
+                    }
+                    ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker,
+                            routerUuid, networkId);
+                    if (extNwProvType == ProviderTypes.FLAT || extNwProvType == ProviderTypes.VLAN) {
+                        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + networkId, () -> {
+                            extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
+                            installDefaultNatRouteForRouterExternalSubnets(dpnId,
+                                    NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
+                            return Collections.emptyList();
+                        });
+                    }
+                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + router.getRouterName(), () -> {
                         WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
                         WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
                         LOG.debug("add : Router {} is associated with ext nw {}", routerUuid, networkId);
-                        Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerUuid);
                         Long routerId = NatUtil.getVpnId(dataBroker, routerUuid);
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
-                        if (routerId == NatConstants.INVALID_ID) {
-                            LOG.error("add : Invalid routerId returned for routerName {}", routerUuid);
-                            writeFlowInvTx.cancel();
-                            removeFlowInvTx.cancel();
-                            return futures;
-                        }
-                        extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
                         Long vpnId;
                         if (vpnName == null) {
                             LOG.debug("add : Internal vpn associated to router {}", routerUuid);
@@ -162,8 +169,6 @@ public class RouterDpnChangeListener
                             //Install default entry in FIB to SNAT table
                             LOG.info("add : Installing default route in FIB on dpn {} for router {} with vpn {}",
                                     dpnId, routerUuid, vpnId);
-                            installDefaultNatRouteForRouterExternalSubnets(dpnId,
-                                    NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
                             snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, writeFlowInvTx);
                         } else {
                             LOG.debug("add : External BGP vpn associated to router {}", routerUuid);
@@ -179,8 +184,6 @@ public class RouterDpnChangeListener
                             //Install default entry in FIB to SNAT table
                             LOG.debug("add : Installing default route in FIB on dpn {} for routerId {} with "
                                     + "vpnId {}...", dpnId, routerUuid, vpnId);
-                            installDefaultNatRouteForRouterExternalSubnets(dpnId,
-                                    NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
                             snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routerId, writeFlowInvTx);
                         }
 
@@ -245,7 +248,7 @@ public class RouterDpnChangeListener
                     natServiceManager.notify(router, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_DISBL);
                 } else {
-                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.getKey(), () -> {
+                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routerUuid, () -> {
                         WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
                         LOG.debug("remove : Router {} is associated with ext nw {}", routerUuid, networkId);
                         Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerUuid);
