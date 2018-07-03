@@ -88,6 +88,8 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
 
 
     @Override
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     protected void remove(final InstanceIdentifier<VpnInterfaceOpDataEntry> identifier,
             final VpnInterfaceOpDataEntry del) {
         final VpnInterfaceOpDataEntryKey key = identifier.firstKeyOf(VpnInterfaceOpDataEntry.class);
@@ -100,6 +102,8 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
             })));
     }
 
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     private void postProcessVpnInterfaceRemoval(InstanceIdentifier<VpnInterfaceOpDataEntry> identifier,
             VpnInterfaceOpDataEntry del, ReadWriteTransaction readWriteTxn) {
         if (readWriteTxn == null) {

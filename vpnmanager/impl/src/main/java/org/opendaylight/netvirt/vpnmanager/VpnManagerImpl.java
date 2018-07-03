@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -681,6 +680,8 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     public void updateRouteTargetsToSubnetAssociation(Set<VpnTarget> routeTargets, String cidr, String vpnName) {
         ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
             for (VpnTarget rt : routeTargets) {
@@ -712,6 +713,8 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     public void removeRouteTargetsToSubnetAssociation(Set<VpnTarget> routeTargets, String cidr, String vpnName) {
         ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
             for (VpnTarget rt : routeTargets) {

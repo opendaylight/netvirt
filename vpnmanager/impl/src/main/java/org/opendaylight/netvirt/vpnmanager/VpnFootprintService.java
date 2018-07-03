@@ -125,6 +125,8 @@ public class VpnFootprintService implements IVpnFootprintService {
         }
     }
 
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     private void createOrUpdateVpnToDpnListForInterfaceName(Uint32 vpnId, String primaryRd, Uint64 dpnId,
             String intfName, String vpnName) {
         AtomicBoolean newDpnOnVpn = new AtomicBoolean(false);
@@ -196,6 +198,8 @@ public class VpnFootprintService implements IVpnFootprintService {
         }
     }
 
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     private void createOrUpdateVpnToDpnListForIPAddress(Uint32 vpnId, String primaryRd, Uint64 dpnId,
             ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, String vpnName) {
         AtomicBoolean newDpnOnVpn = new AtomicBoolean(false);
@@ -256,6 +260,8 @@ public class VpnFootprintService implements IVpnFootprintService {
         }
     }
 
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     private void removeOrUpdateVpnToDpnListForInterfaceName(Uint32 vpnId, String rd, Uint64 dpnId, String intfName,
             String vpnName) {
         AtomicBoolean lastDpnOnVpn = new AtomicBoolean(false);
@@ -331,6 +337,8 @@ public class VpnFootprintService implements IVpnFootprintService {
         }
     }
 
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     private void removeOrUpdateVpnToDpnListForIpAddress(Uint32 vpnId, String rd, Uint64 dpnId,
             ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, String vpnName) {
         AtomicBoolean lastDpnOnVpn = new AtomicBoolean(false);

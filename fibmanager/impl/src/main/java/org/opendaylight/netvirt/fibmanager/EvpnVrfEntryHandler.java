@@ -163,6 +163,8 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
         return returnLocalDpnId;
     }
 
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     private Uint64 checkCreateLocalEvpnFlows(Prefixes localNextHopInfo, String localNextHopIP,
                                                  final Uint32 vpnId, final String rd,
                                                  final VrfEntry vrfEntry) {
@@ -184,6 +186,8 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
         return dpnId;
     }
 
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     private void createRemoteEvpnFlows(String rd, VrfEntry vrfEntry, VpnInstanceOpDataEntry vpnInstance,
                                        List<Uint64> localDpnId, VrfTablesKey vrfTableKey, boolean isNatPrefix) {
         LOG.info("Creating remote EVPN flows for prefix {} rd {} route-paths {} evi {}",
@@ -274,6 +278,8 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
         LOG.debug("Successfully added FIB entry for prefix {} in rd {}", vrfEntry.getDestPrefix(), rd);
     }
 
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     private void deleteRemoteEvpnFlows(String rd, VrfEntry vrfEntry, VpnInstanceOpDataEntry vpnInstance,
                                        VrfTablesKey vrfTableKey, List<Uint64> localDpnIdList) {
         List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
@@ -321,6 +327,8 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
         }
     }
 
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     private List<Uint64> checkDeleteLocalEvpnFLows(Uint32 vpnId, String rd, VrfEntry vrfEntry,
                                                        VpnNexthop localNextHopInfo) {
         List<Uint64> returnLocalDpnId = new ArrayList<>();

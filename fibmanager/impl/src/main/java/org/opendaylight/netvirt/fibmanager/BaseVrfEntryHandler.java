@@ -236,6 +236,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         return adjacencyList;
     }
 
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     protected void makeConnectedRoute(Uint64 dpId, Uint32 vpnId, VrfEntry vrfEntry, String rd,
                                       @Nullable List<InstructionInfo> instructions, int addOrRemove,
                                       WriteTransaction tx, @Nullable List<SubTransaction> subTxns) {
@@ -431,6 +433,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         return res;
     }
 
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     public void programRemoteFib(final Uint64 remoteDpnId, final Uint32 vpnId,
                                  final VrfEntry vrfEntry, WriteTransaction tx, String rd,
                                  List<AdjacencyResult> adjacencyResults,
@@ -502,6 +506,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
     }
 
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     public void deleteRemoteRoute(@Nullable final Uint64 localDpnId, final Uint64 remoteDpnId,
                                   final Uint32 vpnId, final VrfTablesKey vrfTableKey,
                                   final VrfEntry vrfEntry, Optional<Routes> extraRouteOptional,

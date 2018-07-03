@@ -1222,6 +1222,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
     }
 
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     private void programRemoteFibWithLoadBalancingGroups(final Uint64 remoteDpnId, final Uint32 vpnId, String rd,
             final VrfEntry vrfEntry, List<Routes> vpnExtraRoutes) {
         // create loadbalancing groups for extra routes only when the extra route is

@@ -290,6 +290,8 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
                 vrfEntry.getDestPrefix(), vpnId, remoteDpnId);
     }
 
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     public void createRemoteFibEntry(final Uint64 remoteDpnId,
                                      final Uint32 vpnId,
                                      final String rd,
@@ -329,6 +331,8 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements Reso
         }
     }
 
+    // Allow deprecated TransactionRunner calls for now
+    @SuppressWarnings("ForbidCertainMethod")
     public void deleteRemoteRoute(@Nullable final Uint64 localDpnId, final Uint64 remoteDpnId,
                                   final Uint32 vpnId, final VrfTablesKey vrfTableKey,
                                   final VrfEntry vrfEntry, Optional<Routes> extraRouteOptional,
