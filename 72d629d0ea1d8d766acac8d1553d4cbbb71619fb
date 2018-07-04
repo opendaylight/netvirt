@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "79c05350_c083411e",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-07-04T12:11:12Z",
+      "side": 1,
+      "message": "Sorry typo.. in the previous comment..\nThere is no mdsalManager.removeFlow(TypedWriteTransaction\u003cDatastore.Configuration\u003e, BigInteger, Flow). \n\nIt is with TypedReadWriteTransaction. Can I add a new function?",
+      "parentUuid": "85725c98_5bf694b5",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d6463406_a034ff27",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 2
