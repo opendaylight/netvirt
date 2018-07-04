@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "0e8c2053_7978cdaf",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-07-04T12:17:51Z",
+      "side": 1,
+      "message": "It needs a read-write transaction, so you need to give it a read-write transaction. You’ll have to propagate the change up the call tree, up to a txRunner.callWithNewWriteOnlyTransactionAndSubmit(), which will need to be changed to txRunner.callWithNewReadWriteTransactionAndSubmit().",
+      "parentUuid": "79c05350_c083411e",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d6463406_a034ff27",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 2
