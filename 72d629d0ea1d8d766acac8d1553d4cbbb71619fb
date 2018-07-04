@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0b26a3b_79e1ec35",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-07-04T09:02:18Z",
+      "side": 1,
+      "message": "Please use mdsalManager.removeFlow() instead.",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6463406_a034ff27",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 967,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-07-04T09:02:18Z",
+      "side": 1,
+      "message": "As above.",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e4d3840_ec30c718",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-07-04T09:02:18Z",
+      "side": 1,
+      "message": "Please use mdsalManager.addFlow() instead.",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b1754c2c_fb55281b",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-07-04T09:02:18Z",
+      "side": 1,
+      "message": "As above.",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "268cb703_e2023445",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-07-04T09:02:18Z",
+      "side": 1,
+      "message": "As above.",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b942ddbf_b9722d90",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-07-04T09:02:18Z",
+      "side": 1,
+      "message": "As above.",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a58c7ddc_8da40489",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1119,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-07-04T09:02:18Z",
+      "side": 1,
+      "message": "Please use mdsalManager.removeFlow() instead.",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c194300_bf9a4c7f",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1125,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-07-04T09:02:18Z",
+      "side": 1,
+      "message": "As above.",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e771b75e_231e8d9a",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1471,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-07-04T09:02:18Z",
+      "side": 1,
+      "message": "Please use mdsalManager.addFlow() instead.",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
