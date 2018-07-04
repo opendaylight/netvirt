@@ -325,7 +325,7 @@ public final class NatUtil {
             .child(InternalToExternalPortMap.class, new InternalToExternalPortMapKey(internalIp)).build();
     }
 
-    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
+    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
         .instance.to.vpn.id.VpnInstance> getVpnInstanceToVpnIdIdentifier(String vpnName) {
         return InstanceIdentifier.builder(VpnInstanceToVpnId.class)
             .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
