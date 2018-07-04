@@ -10,12 +10,14 @@ package org.opendaylight.netvirt.natservice.ha;
 
 import java.math.BigInteger;
 
+import java.time.Duration;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
 import org.opendaylight.netvirt.natservice.internal.NatUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
@@ -37,14 +39,17 @@ public class SnatCentralizedSwitchChangeListener
     private final DataBroker dataBroker;
     private final SnatServiceManager snatServiceManger;
     private final NatDataUtil natDataUtil;
+    private final DataTreeEventCallbackRegistrar eventCallbacks;
 
     @Inject
     public SnatCentralizedSwitchChangeListener(final DataBroker dataBroker,
-            final SnatServiceManager snatServiceManger, NatDataUtil natDataUtil) {
+            final SnatServiceManager snatServiceManger, NatDataUtil natDataUtil,
+            final DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar) {
         super(RouterToNaptSwitch.class, SnatCentralizedSwitchChangeListener.class);
         this.dataBroker = dataBroker;
         this.snatServiceManger = snatServiceManger;
         this.natDataUtil = natDataUtil;
+        this.eventCallbacks = dataTreeEventCallbackRegistrar;
     }
 
     @Override
@@ -94,11 +99,28 @@ public class SnatCentralizedSwitchChangeListener
     protected void add(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
         LOG.debug("Adding {}", routerToNaptSwitch);
         BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
-        Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerToNaptSwitch.getRouterName());
-        if (router != null) {
-            natDataUtil.addtoRouterMap(router);
-            snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+        String routerName = routerToNaptSwitch.getRouterName();
+        Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
+        if (router == null) {
+            LOG.warn("No router found for NaptSwitch {} for router {}", primarySwitchId, routerName);
+            eventCallbacks.onAddOrUpdate(LogicalDatastoreType.CONFIGURATION,
+                NatUtil.buildRouterIdentifier(routerName), (unused, newRouter) -> {
+                    handleAdd(newRouter, primarySwitchId);
+                    return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
+                }, Duration.ofSeconds(5), iid -> {
+                    LOG.error("Router {} not found for primarySwitch {}", routerName, primarySwitchId);
+                });
+            return;
+
         }
+        if (router != null) {
+            handleAdd(router, primarySwitchId);
+        }
+    }
+
+    private void handleAdd(Routers router, BigInteger primarySwitchId) {
+        natDataUtil.addtoRouterMap(router);
+        snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
     }
 
     @Override

@@ -379,7 +379,7 @@ public final class NatUtil {
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Routers::getNetworkId).orElse(null);
     }
 
-    static InstanceIdentifier<Routers> buildRouterIdentifier(String routerId) {
+    public static InstanceIdentifier<Routers> buildRouterIdentifier(String routerId) {
         InstanceIdentifier<Routers> routerInstanceIndentifier = InstanceIdentifier.builder(ExtRouters.class)
             .child(Routers.class, new RoutersKey(routerId)).build();
         return routerInstanceIndentifier;
