@@ -34,6 +34,24 @@
       "revId": "759061a4a2b232881ad4521037d2a47f6be5e8be",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c87440e5_cc2f60d1",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/SnatCentralizedSwitchChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-07-04T06:57:41Z",
+      "side": 1,
+      "message": "Thanks, fix makes sense with vpnId check.",
+      "parentUuid": "249588ae_6a0036f8",
+      "revId": "759061a4a2b232881ad4521037d2a47f6be5e8be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
