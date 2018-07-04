@@ -2084,7 +2084,7 @@ public class BgpConfigurationManager {
             return;
         }
         tepIpList.forEach(tepIp -> {
-            bgpUtil.removeOrUpdateLBGroups(tepIp, NwConstants.MOD_FLOW, false);
+            bgpUtil.removeOrUpdateLBGroups(tepIp, NwConstants.MOD_FLOW);
         });
     }
 
@@ -2095,7 +2095,7 @@ public class BgpConfigurationManager {
             return;
         }
         tepIpList.forEach(tepIp -> {
-            bgpUtil.removeOrUpdateLBGroups(tepIp, NwConstants.MOD_FLOW, true);
+            bgpUtil.removeOrUpdateLBGroups(tepIp, NwConstants.MOD_FLOW);
         });
     }
 
@@ -2549,6 +2549,7 @@ public class BgpConfigurationManager {
         DcgwTep dto = new DcgwTepBuilder().setDcGwIp(dcgwIp).setTepIps(tepList)
                 .build();
         update(iid, dto);
+        bgpUtil.removeOrUpdateLBGroups(tepIp,NwConstants.MOD_FLOW);
     }
 
     public void addLogging(String fileName, String logLevel) {
