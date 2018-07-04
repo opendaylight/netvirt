@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fff3ed7b_62d3c63c",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/SnatCentralizedSwitchChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-07-04T07:03:54Z",
+      "side": 1,
+      "message": "missed this extra line, will cleanup in subsequent patch once no more review comments.",
+      "revId": "c249f91aa76cb260abed850abbd305971cf27765",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
