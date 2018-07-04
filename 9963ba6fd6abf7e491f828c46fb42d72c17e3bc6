@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67e8e7ae_bb99e475",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-07-04T09:03:04Z",
+      "side": 1,
+      "message": "Aswin, the log is a bit misleading. It should just say \"learntVpnVipToPortData is null\" right as its not specific for the router/network?",
+      "range": {
+        "startLine": 469,
+        "startChar": 12,
+        "endLine": 470,
+        "endChar": 44
+      },
+      "revId": "9963ba6fd6abf7e491f828c46fb42d72c17e3bc6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
