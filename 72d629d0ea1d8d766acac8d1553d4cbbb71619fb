@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "270d552d_99c9a1e7",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-07-04T11:33:36Z",
+      "side": 1,
+      "message": "There is no removeFlowToTx(TypedWriteTransaction\u003cDatastore.Configuration\u003e, BigInteger, Flow). It is with TypedReadWriteTransaction. Can I add a new function?",
+      "parentUuid": "e0b26a3b_79e1ec35",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d6463406_a034ff27",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 2
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "1840be12_0ca6eaf8",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-07-04T11:33:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0e4d3840_ec30c718",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b1754c2c_fb55281b",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
         "patchSetId": 2
@@ -64,6 +100,24 @@
       "writtenOn": "2018-07-04T09:02:18Z",
       "side": 1,
       "message": "As above.",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dd006aef_f2961751",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-07-04T11:33:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b1754c2c_fb55281b",
       "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +141,24 @@
     },
     {
       "key": {
+        "uuid": "33062528_3befd50a",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-07-04T11:33:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "268cb703_e2023445",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b942ddbf_b9722d90",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
         "patchSetId": 2
@@ -98,6 +170,24 @@
       "writtenOn": "2018-07-04T09:02:18Z",
       "side": 1,
       "message": "As above.",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d5f798b6_e2fc305e",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-07-04T11:33:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b942ddbf_b9722d90",
       "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -149,6 +239,24 @@
       "writtenOn": "2018-07-04T09:02:18Z",
       "side": 1,
       "message": "Please use mdsalManager.addFlow() instead.",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "279406ea_2f948165",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1471,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-07-04T11:33:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e771b75e_231e8d9a",
       "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
