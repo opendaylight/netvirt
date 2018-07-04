@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.recovery.impl;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -61,11 +63,11 @@ public class ElanInterfaceRecoveryHandler implements ServiceRecoveryInterface {
                     .getElanInterfaceConfigurationDataPathId(entityId);
             try {
                 LOG.trace("deleting elan interface {}", entityId);
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                    tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, elanInterfaceId)).get();
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                    tx -> tx.delete(elanInterfaceId)).get();
                 LOG.trace("recreating elan interface {}, {}", entityId, elanInterface);
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                    tx -> tx.put(LogicalDatastoreType.CONFIGURATION, elanInterfaceId, elanInterface)).get();
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                    tx -> tx.put(elanInterfaceId, elanInterface)).get();
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Service recovery failed for elan interface {}", entityId, e);
             }

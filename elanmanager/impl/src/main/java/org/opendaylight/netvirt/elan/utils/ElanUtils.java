@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.utils;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -17,6 +19,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,11 +27,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -37,8 +42,11 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TransactionAdapter;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -1041,18 +1049,18 @@ public class ElanUtils {
     }
 
     public void deleteMacFlows(@Nullable ElanInstance elanInfo, @Nullable InterfaceInfo interfaceInfo,
-            MacEntry macEntry, WriteTransaction deleteFlowGroupTx) {
+            MacEntry macEntry, TypedWriteTransaction<Configuration> flowTx) {
         if (elanInfo == null || interfaceInfo == null) {
             return;
         }
         String macAddress = macEntry.getMacAddress().getValue();
         synchronized (getElanMacDPNKey(elanInfo.getElanTag(), macAddress, interfaceInfo.getDpId())) {
-            deleteMacFlows(elanInfo, interfaceInfo, macAddress, /* alsoDeleteSMAC */ true, deleteFlowGroupTx);
+            deleteMacFlows(elanInfo, interfaceInfo, macAddress, /* alsoDeleteSMAC */ true, flowTx);
         }
     }
 
     public void deleteMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
-            boolean deleteSmac, WriteTransaction deleteFlowGroupTx) {
+            boolean deleteSmac, TypedWriteTransaction<Configuration> flowTx) {
         String elanInstanceName = elanInfo.getElanInstanceName();
         List<DpnInterfaces> remoteFEs = getInvolvedDpnsInElan(elanInstanceName);
         BigInteger srcdpId = interfaceInfo.getDpId();
@@ -1061,40 +1069,40 @@ public class ElanUtils {
             Long elanTag = elanInfo.getElanTag();
             BigInteger dstDpId = dpnInterface.getDpId();
             if (executeDeleteMacFlows(elanInfo, interfaceInfo, macAddress, deleteSmac, elanInstanceName, srcdpId,
-                    elanTag, dstDpId, deleteFlowGroupTx)) {
+                    elanTag, dstDpId, flowTx)) {
                 isFlowsRemovedInSrcDpn = true;
             }
             executeEtreeDeleteMacFlows(elanInfo, interfaceInfo, macAddress, deleteSmac, elanInstanceName, srcdpId,
-                    elanTag, dstDpId, deleteFlowGroupTx);
+                    elanTag, dstDpId, flowTx);
         }
         if (!isFlowsRemovedInSrcDpn) {
-            deleteSmacAndDmacFlows(elanInfo, interfaceInfo, macAddress, deleteSmac, deleteFlowGroupTx);
+            deleteSmacAndDmacFlows(elanInfo, interfaceInfo, macAddress, deleteSmac, flowTx);
         }
     }
 
     private void executeEtreeDeleteMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
             boolean deleteSmac, String elanInstanceName, BigInteger srcdpId, Long elanTag, BigInteger dstDpId,
-            WriteTransaction deleteFlowGroupTx) {
+            TypedWriteTransaction<Configuration> flowTx) {
         EtreeLeafTagName etreeLeafTag = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag);
         if (etreeLeafTag != null) {
             executeDeleteMacFlows(elanInfo, interfaceInfo, macAddress, deleteSmac, elanInstanceName, srcdpId,
-                    etreeLeafTag.getEtreeLeafTag().getValue(), dstDpId, deleteFlowGroupTx);
+                    etreeLeafTag.getEtreeLeafTag().getValue(), dstDpId, flowTx);
         }
     }
 
     private boolean executeDeleteMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
             boolean deleteSmac, String elanInstanceName, BigInteger srcdpId, Long elanTag, BigInteger dstDpId,
-            WriteTransaction deleteFlowGroupTx) {
+            TypedWriteTransaction<Configuration> flowTx) {
         boolean isFlowsRemovedInSrcDpn = false;
         if (dstDpId.equals(srcdpId)) {
             isFlowsRemovedInSrcDpn = true;
-            deleteSmacAndDmacFlows(elanInfo, interfaceInfo, macAddress, deleteSmac, deleteFlowGroupTx);
+            deleteSmacAndDmacFlows(elanInfo, interfaceInfo, macAddress, deleteSmac, flowTx);
         } else if (isDpnPresent(dstDpId)) {
             mdsalManager
                     .removeFlowToTx(dstDpId,
                             MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE, getKnownDynamicmacFlowRef(
                                     NwConstants.ELAN_DMAC_TABLE, dstDpId, srcdpId, macAddress, elanTag)),
-                            deleteFlowGroupTx);
+                                    TransactionAdapter.toWriteTransaction(flowTx));
             LOG.debug("Dmac flow entry deleted for elan:{}, logical interface port:{} and mac address:{} on dpn:{}",
                     elanInstanceName, interfaceInfo.getPortName(), macAddress, dstDpId);
         }
@@ -1102,7 +1110,7 @@ public class ElanUtils {
     }
 
     private void deleteSmacAndDmacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
-            boolean deleteSmac, WriteTransaction deleteFlowGroupTx) {
+            boolean deleteSmac, TypedWriteTransaction<Configuration> flowTx) {
         String elanInstanceName = elanInfo.getElanInstanceName();
         long ifTag = interfaceInfo.getInterfaceTag();
         BigInteger srcdpId = interfaceInfo.getDpId();
@@ -1112,12 +1120,12 @@ public class ElanUtils {
                     .removeFlowToTx(srcdpId,
                             MDSALUtil.buildFlow(NwConstants.ELAN_SMAC_TABLE, getKnownDynamicmacFlowRef(
                                     NwConstants.ELAN_SMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)),
-                            deleteFlowGroupTx);
+                                    TransactionAdapter.toWriteTransaction(flowTx));
         }
         mdsalManager.removeFlowToTx(srcdpId,
                 MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE,
                         getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)),
-                deleteFlowGroupTx);
+                        TransactionAdapter.toWriteTransaction(flowTx));
         LOG.debug("All the required flows deleted for elan:{}, logical Interface port:{} and MAC address:{} on dpn:{}",
                 elanInstanceName, interfaceInfo.getPortName(), macAddress, srcdpId);
     }
@@ -1459,9 +1467,9 @@ public class ElanUtils {
     public void addDmacRedirectToDispatcherFlows(Long elanTag, String displayName,
             String macAddress, List<BigInteger> dpnIds) {
         for (BigInteger dpId : dpnIds) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                tx -> mdsalManager.addFlowToTx(
-                        buildDmacRedirectToDispatcherFlow(dpId, macAddress, displayName, elanTag), tx)), LOG,
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                tx -> mdsalManager.addFlow(tx, buildDmacRedirectToDispatcherFlow(dpId, macAddress, displayName,
+                        elanTag))), LOG,
                 "Error adding DMAC redirect to dispatcher flows");
         }
     }
