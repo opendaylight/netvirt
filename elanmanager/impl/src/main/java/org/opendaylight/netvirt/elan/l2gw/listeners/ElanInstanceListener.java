@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
@@ -64,14 +66,15 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
                 if (connections.isEmpty()) {
                     return Collections.emptyList();
                 }
-                ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
-                    for (L2gatewayConnection connection : connections) {
-                        InstanceIdentifier<L2gatewayConnection> iid =
-                                InstanceIdentifier.create(Neutron.class).child(
-                                        L2gatewayConnections.class).child(
-                                        L2gatewayConnection.class, connection.key());
-                        tx.delete(LogicalDatastoreType.CONFIGURATION, iid);
-                    }
+                ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                        tx -> {
+                            for (L2gatewayConnection connection : connections) {
+                                InstanceIdentifier<L2gatewayConnection> iid =
+                                        InstanceIdentifier.create(Neutron.class).child(
+                                                L2gatewayConnections.class).child(
+                                                L2gatewayConnection.class, connection.key());
+                                tx.delete(iid);
+                            }
                 });
                 ListenableFutures.addErrorLogging(future, LOG,
                         "Failed to delete associate L2 gateway connection while deleting network");

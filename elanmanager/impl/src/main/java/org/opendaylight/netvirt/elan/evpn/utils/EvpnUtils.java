@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.evpn.utils;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -364,7 +366,7 @@ public class EvpnUtils {
     }
 
     public void bindElanServiceToExternalTunnel(String elanName, String interfaceName) {
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             int instructionKey = 0;
             LOG.trace("Binding external interface {} elan {}", interfaceName, elanName);
             List<Instruction> instructions = new ArrayList<>();
@@ -376,21 +378,20 @@ public class EvpnUtils {
                     ElanUtils.getElanServiceName(elanName, interfaceName), elanServiceIndex,
                     NwConstants.ELAN_SERVICE_INDEX, NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
             InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
-            if (!tx.read(LogicalDatastoreType.CONFIGURATION, bindServiceId).checkedGet().isPresent()) {
-                tx.put(LogicalDatastoreType.CONFIGURATION, bindServiceId, serviceInfo,
-                        WriteTransaction.CREATE_MISSING_PARENTS);
+            if (!tx.read(bindServiceId).get().isPresent()) {
+                tx.put(bindServiceId, serviceInfo, WriteTransaction.CREATE_MISSING_PARENTS);
             }
         }), LOG, "Error binding an ELAN service to an external tunnel");
     }
 
     public void unbindElanServiceFromExternalTunnel(String elanName, String interfaceName) {
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             LOG.trace("UnBinding external interface {} elan {}", interfaceManager, elanName);
             short elanServiceIndex =
                     ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
             InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
-            if (tx.read(LogicalDatastoreType.CONFIGURATION, bindServiceId).checkedGet().isPresent()) {
-                tx.delete(LogicalDatastoreType.CONFIGURATION, bindServiceId);
+            if (tx.read(bindServiceId).get().isPresent()) {
+                tx.delete(bindServiceId);
             }
         }), LOG, "Error binding an ELAN service to an external tunnel");
     }
