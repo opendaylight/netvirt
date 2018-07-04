@@ -465,6 +465,10 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         LOG.info("removeLearntIpPorts for router {} and network {}", routers.getRouterName(), routers.getNetworkId());
         String networkId = routers.getNetworkId().getValue();
         LearntVpnVipToPortData learntVpnVipToPortData = NatUtil.getLearntVpnVipToPortData(dataBroker);
+        if (learntVpnVipToPortData == null) {
+            LOG.info("removeLearntIpPorts, no learned ports present");
+            return;
+        }
         LearntVpnVipToPortDataBuilder learntVpnVipToPortDataBuilder = new LearntVpnVipToPortDataBuilder();
         List<LearntVpnVipToPort> learntVpnVipToPortList = new ArrayList<>();
         for (LearntVpnVipToPort learntVpnVipToPort : learntVpnVipToPortData.getLearntVpnVipToPort()) {
