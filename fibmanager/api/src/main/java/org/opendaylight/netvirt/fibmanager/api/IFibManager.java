@@ -79,8 +79,8 @@ public interface IFibManager {
                                       boolean isVpnFirstEndPoint,
                                       VrfEntry vrfEntry);
 
-    void programDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId, String destinationIp,
-                                       int addRemoveOrUpdate, boolean isTunnelUp,
+    void programDcGwLoadBalancingGroup(BigInteger dpnId,
+            String destinationIp, int addRemoveOrUpdate, boolean isTunnelUp,
                                        Class<? extends TunnelTypeBase> tunnelType);
 
     void refreshVrfEntry(String rd, String prefix);
