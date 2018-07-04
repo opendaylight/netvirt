@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "249588ae_6a0036f8",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/SnatCentralizedSwitchChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-07-04T06:39:20Z",
+      "side": 1,
+      "message": "Should we be checking NatUtil.getVpnId(dataBroker, routerName) is -1?",
+      "revId": "759061a4a2b232881ad4521037d2a47f6be5e8be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
