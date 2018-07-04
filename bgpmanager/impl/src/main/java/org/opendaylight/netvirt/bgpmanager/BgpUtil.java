@@ -7,14 +7,12 @@
  */
 package org.opendaylight.netvirt.bgpmanager;
 
-import static java.util.stream.Collectors.toList;
-
 import com.google.common.base.Optional;
+
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -52,7 +50,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeMplsOverGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.DcGatewayIpList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
@@ -377,25 +374,14 @@ public class BgpUtil implements AutoCloseable {
         }
     }
 
-    private List<String> getDcGwIps() {
-        InstanceIdentifier<DcGatewayIpList> dcGatewayIpListid =
-                InstanceIdentifier.builder(DcGatewayIpList.class).build();
-        DcGatewayIpList dcGatewayIpListConfig =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, dcGatewayIpListid).orNull();
-        if (dcGatewayIpListConfig == null) {
-            return Collections.EMPTY_LIST;
-        }
-        return dcGatewayIpListConfig.getDcGatewayIp()
-                .stream()
-                .filter(dcGwIp -> dcGwIp.getTunnnelType().equals(TunnelTypeMplsOverGre.class))
-                .map(dcGwIp -> String.valueOf(dcGwIp.getIpAddress().getIpv4Address())).sorted()
-                .collect(toList());
+    public void removeLBGroups(String peerIp) {
+        List<String> tepIpList = getDcgwTepConfig(peerIp);
+        tepIpList.forEach(tepIp -> {
+            removeOrUpdateLBGroups(tepIp, NwConstants.DEL_FLOW);
+        });
     }
 
-
-    public void removeOrUpdateLBGroups(String tepIp, int addRemoveOrUpdate, boolean isTunnelUp) {
-        LOG.debug("removing bucket towards DCGW {}", tepIp);
-        List<String> availableDcGws = getDcGwIps();
+    public void removeOrUpdateLBGroups(String tepIp, int addRemoveOrUpdate) {
         getDpnTEPsInfos(dataBroker).forEach(dpnInfo -> {
             if (NwConstants.MOD_FLOW == addRemoveOrUpdate) {
                 LOG.debug("Updating bucket in DPN {}", dpnInfo.getDPNID());
@@ -403,8 +389,8 @@ public class BgpUtil implements AutoCloseable {
                 LOG.debug("Deleting groups in DPN {}", dpnInfo.getDPNID());
             }
             Class<? extends TunnelTypeBase> tunType = TunnelTypeMplsOverGre.class;
-            fibManager.programDcGwLoadBalancingGroup(availableDcGws, dpnInfo.getDPNID(),
-                    tepIp, addRemoveOrUpdate, isTunnelUp, tunType);
+            fibManager.programDcGwLoadBalancingGroup(dpnInfo.getDPNID(),
+                    tepIp, addRemoveOrUpdate, false, tunType);
         });
     }
 }

@@ -92,15 +92,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.DpidL3vpnLbNexthops;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.L3vpnDcGws;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.L3vpnLbNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpid.l3vpn.lb.nexthops.DpnLbNexthops;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpid.l3vpn.lb.nexthops.DpnLbNexthopsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpid.l3vpn.lb.nexthops.DpnLbNexthopsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.dc.gws.DcGateway;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.dc.gws.DcGatewayBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.dc.gws.DcGatewayKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.lb.nexthops.Nexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.lb.nexthops.NexthopsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.lb.nexthops.NexthopsKey;
@@ -681,19 +681,41 @@ public class FibUtil {
         return "gre-" + availableDcGws.stream().sorted().collect(joining(":"));
     }
 
-    public static void updateLbGroupInfo(BigInteger dpnId, String destinationIp, String groupIdKey,
+    public static void updateLbGroupInfo(BigInteger dpnId, String groupIdKey,
             String groupId, TypedWriteTransaction<Operational> tx) {
-        InstanceIdentifier<DpnLbNexthops> id = getDpnLbNexthopsIdentifier(dpnId, destinationIp);
-        DpnLbNexthops dpnToLbNextHop = buildDpnLbNextHops(dpnId, destinationIp, groupIdKey);
-        tx.merge(id, dpnToLbNextHop);
         InstanceIdentifier<Nexthops> nextHopsId = getNextHopsIdentifier(groupIdKey);
         Nexthops nextHopsToGroupId = buildNextHops(dpnId, groupIdKey, groupId);
         tx.merge(nextHopsId, nextHopsToGroupId);
     }
 
-    public static void removeDpnIdToNextHopInfo(String destinationIp, BigInteger dpnId,
-            TypedWriteTransaction<Operational> tx) {
-        tx.delete(getDpnLbNexthopsIdentifier(dpnId, destinationIp));
+    public static void removeL3vpnDcGateWay(String destinationIp, TypedReadWriteTransaction<Operational> tx)
+            throws InterruptedException, ExecutionException {
+        InstanceIdentifier<DcGateway> dcGwateWayId = getDcGwInstance(destinationIp);
+        Optional<DcGateway> dcGateWayOpt = tx.read(dcGwateWayId).get();
+        if (!dcGateWayOpt.isPresent()) {
+            return;
+        }
+        tx.delete(dcGwateWayId);
+    }
+
+
+    public static void addL3vpnDcGateWay(String destinationIp, TypedReadWriteTransaction<Operational> tx)
+            throws InterruptedException, ExecutionException {
+        InstanceIdentifier<DcGateway> dcGwateWayId = getDcGwInstance(destinationIp);
+        Optional<DcGateway> dcGateWayOpt = tx.read(dcGwateWayId).get();
+        if (!dcGateWayOpt.isPresent()) {
+            tx.put(dcGwateWayId,
+                    new DcGatewayBuilder()
+                    .withKey(new DcGatewayKey(destinationIp))
+                    .setIpAddress(destinationIp).build()
+            );
+        }
+    }
+
+    private static InstanceIdentifier<DcGateway> getDcGwInstance(String destinationIp) {
+        return InstanceIdentifier.builder(L3vpnDcGws.class)
+                .child(DcGateway.class, new DcGatewayKey(destinationIp))
+                .build();
     }
 
     public static void removeOrUpdateNextHopInfo(BigInteger dpnId, String nextHopKey, String groupId,
@@ -713,13 +735,6 @@ public class FibUtil {
         }
     }
 
-    private static InstanceIdentifier<DpnLbNexthops> getDpnLbNexthopsIdentifier(BigInteger dpnId,
-            String destinationIp) {
-        return InstanceIdentifier.builder(DpidL3vpnLbNexthops.class)
-                .child(DpnLbNexthops.class, new DpnLbNexthopsKey(destinationIp, dpnId))
-                .build();
-    }
-
     private static InstanceIdentifier<Nexthops> getNextHopsIdentifier(String groupIdKey) {
         return InstanceIdentifier.builder(L3vpnLbNexthops.class)
                 .child(Nexthops.class, new NexthopsKey(groupIdKey)).build();
@@ -732,24 +747,20 @@ public class FibUtil {
                 .setTargetDeviceId(Collections.singletonList(dpnId.toString())).build();
     }
 
-    private static DpnLbNexthops buildDpnLbNextHops(BigInteger dpnId, String destinationIp,
-            String groupIdKey) {
-        return new DpnLbNexthopsBuilder().withKey(new DpnLbNexthopsKey(destinationIp, dpnId))
-                .setDstDeviceId(destinationIp).setSrcDpId(dpnId)
-                .setNexthopKey(Collections.singletonList(groupIdKey)).build();
-    }
-
     public Optional<Nexthops> getNexthops(String nextHopKey) {
         InstanceIdentifier<Nexthops> nextHopsId = InstanceIdentifier.builder(L3vpnLbNexthops.class)
                 .child(Nexthops.class, new NexthopsKey(nextHopKey)).build();
         return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, nextHopsId);
     }
 
-    public Optional<DpnLbNexthops> getDpnLbNexthops(BigInteger dpnId, String destinationIp) {
-        InstanceIdentifier<DpnLbNexthops> id = InstanceIdentifier.builder(DpidL3vpnLbNexthops.class)
-                .child(DpnLbNexthops.class, new DpnLbNexthopsKey(destinationIp, dpnId))
+    public List<String> getL3VpnDcGateWays() {
+        InstanceIdentifier<L3vpnDcGws> id = InstanceIdentifier.builder(L3vpnDcGws.class)
                 .build();
-        return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<L3vpnDcGws> dcGwsOpt = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        if (!dcGwsOpt.isPresent()) {
+            return Collections.emptyList();
+        }
+        return dcGwsOpt.get().getDcGateway().stream().map(DcGateway::getIpAddress).collect(toList());
     }
 
     static boolean isVxlanNetwork(NetworkType networkType) {
