@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "81751427_b8a4563e",
+        "filename": "coe/impl/src/main/resources/initial/netvirt-coe-config.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-07-04T13:57:15Z",
+      "side": 1,
+      "message": "Thanks Michael! I knew there is some typo somewhere, but was not able figure out, even though i checked in karaf logs for CoeConfig related errors",
+      "parentUuid": "4784ea0e_f8c7261f",
+      "revId": "1376f5b837aed91431c78a6d96e7625d80eef9bc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0f1dc07f_8ea65115",
         "filename": "features/odl-netvirt-coe/pom.xml",
         "patchSetId": 4
