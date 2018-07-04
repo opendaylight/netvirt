@@ -8,13 +8,13 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +29,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -36,7 +37,6 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -64,7 +64,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Tep
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelOperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelsState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.DcGatewayIpList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.DestPrefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
@@ -154,7 +153,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     protected void remove(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList del) {
         LOG.trace("remove: Tunnel deletion---- {}", del);
         if (isGreTunnel(del)) {
-            programDcGwLoadBalancingGroup(del, NwConstants.DEL_FLOW);
+            programDcGwLoadBalancingGroup(del, NwConstants.MOD_FLOW, false);
         }
         handleTunnelEventForDPN(del, TunnelAction.TUNNEL_EP_DELETE);
     }
@@ -173,8 +172,9 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                     update.getTunnelInterfaceName());
             return;
         }
+        boolean isTunnelUp = TunnelOperStatus.Up == update.getOperState();
         if (isGreTunnel(update)) {
-            programDcGwLoadBalancingGroup(update, NwConstants.MOD_FLOW);
+            programDcGwLoadBalancingGroup(update, NwConstants.MOD_FLOW, isTunnelUp);
         }
 
         //Remove the corresponding nexthop from the routepath under extraroute in fibentries.
@@ -230,8 +230,9 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         if (tunOpStatus != TunnelOperStatus.Up) {
             LOG.error("add: Tunnel {} is not yet UP.", add.getTunnelInterfaceName());
         }
+        boolean isTunnelUp = TunnelOperStatus.Up == add.getOperState();
         if (isGreTunnel(add)) {
-            programDcGwLoadBalancingGroup(add, NwConstants.ADD_FLOW);
+            programDcGwLoadBalancingGroup(add, NwConstants.ADD_FLOW, isTunnelUp);
         }
         LOG.info("add: ITM Tunnel ,type {} ,added between src: {} and dest: {}",
                 fibManager.getTransportTypeStr(add.getTransportType().toString()),
@@ -564,29 +565,12 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         return del.getTransportType() == TunnelTypeMplsOverGre.class;
     }
 
-    private void programDcGwLoadBalancingGroup(StateTunnelList tunnelState, int addOrRemove) {
+    private void programDcGwLoadBalancingGroup(StateTunnelList tunnelState, int addOrRemove, boolean isTunnelUp) {
         IpAddress dcGwIp = tunnelState.getDstInfo().getTepIp();
-        String dcGwIpAddress = dcGwIp.stringValue();
-        List<String> availableDcGws = getDcGwIps();
+        String dcGwIpAddress = String.valueOf(dcGwIp.stringValue());
         BigInteger dpId = new BigInteger(tunnelState.getSrcInfo().getTepDeviceId());
-        boolean isTunnelUp = TunnelOperStatus.Up == tunnelState.getOperState();
-        fibManager.programDcGwLoadBalancingGroup(availableDcGws, dpId, dcGwIpAddress, addOrRemove, isTunnelUp,
+        fibManager.programDcGwLoadBalancingGroup(dpId, dcGwIpAddress, addOrRemove, isTunnelUp,
                 tunnelState.getTransportType());
-    }
-
-    private List<String> getDcGwIps() {
-        InstanceIdentifier<DcGatewayIpList> dcGatewayIpListid =
-                InstanceIdentifier.builder(DcGatewayIpList.class).build();
-        DcGatewayIpList dcGatewayIpListConfig =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, dcGatewayIpListid).orNull();
-        if (dcGatewayIpListConfig == null) {
-            return emptyList();
-        }
-        return dcGatewayIpListConfig.getDcGatewayIp()
-                .stream()
-                .filter(dcGwIp -> dcGwIp.getTunnnelType().equals(TunnelTypeMplsOverGre.class))
-                .map(dcGwIp -> dcGwIp.getIpAddress().stringValue()).sorted()
-                .collect(toList());
     }
 
     private boolean isTunnelInLogicalGroup(StateTunnelList stateTunnelList) {
