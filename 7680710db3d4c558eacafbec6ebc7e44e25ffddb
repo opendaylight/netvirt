@@ -168,6 +168,30 @@
     },
     {
       "key": {
+        "uuid": "7c73effb_04d83268",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-07-04T05:52:14Z",
+      "side": 1,
+      "message": "Thanks Sridhar. Finally i have one query regarding your comment. Please clarify my below query.\n\nWithout this fix, i have observed dhcp port related flow is getting programmed on table0-\u003e17 (Matching lport tag), table17-\u003e45 (Writing metadata as ELAN+LportTag) and table45 have NS/RS punt flows matching as ELAN Tag + ICMPv6, observed dhcp related flow count is getting increased at table0-\u003e17, table 17-\u003e45, but at table45 it is always hitting default flow table45-\u003e17. With this approach what is the use of keeping dhcp related flows and is there is a change like from dhcp port any icmpv6 packet will come? (Observed only unsolicited RA packets only reached to dhcp-port)\n\n\ncookie\u003d0x8000000, duration\u003d180.016s, table\u003d0, n_packets\u003d7, n_bytes\u003d104560, priority\u003d4,in_port\u003d2,vlan_tci\u003d0x0000/0x1fff actions\u003dwrite_metadata:0x10000000000/0xffffff0000000001,goto_table:17\n\ncookie\u003d0x4000000, duration\u003d97.687s, table\u003d17, n_packets\u003d7, n_bytes\u003d104560, priority\u003d10,metadata\u003d0x10000000000/0xffffff0000000000 actions\u003dwrite_metadata:0x9000011389000000/0xfffffffffffffffe,goto_table:45\n\n\ncookie\u003d0x4000000, duration\u003d213.379s, table\u003d45, n_packets\u003d7, n_bytes\u003d104560, priority\u003d0 actions\u003dresubmit(,17)\n\ndhcp pipeline flow:\ntable0-\u003e17-\u003e45-\u003e17\n\n\nThanks in Advance,\nKarthikeyan.",
+      "parentUuid": "2e1c301b_79afe65e",
+      "range": {
+        "startLine": 35,
+        "startChar": 27,
+        "endLine": 37,
+        "endChar": 67
+      },
+      "revId": "7680710db3d4c558eacafbec6ebc7e44e25ffddb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "31ad43f6_cb35d2d9",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
         "patchSetId": 2
