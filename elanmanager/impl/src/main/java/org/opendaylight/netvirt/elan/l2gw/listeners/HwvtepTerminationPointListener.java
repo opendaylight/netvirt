@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -147,9 +149,9 @@ public class HwvtepTerminationPointListener
 
     private List<ListenableFuture<Void>> handlePortDeleted(InstanceIdentifier<TerminationPoint> identifier) {
         InstanceIdentifier<Node> psNodeIid = identifier.firstIdentifierOf(Node.class);
-        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(
-            tx -> tx.read(LogicalDatastoreType.CONFIGURATION, psNodeIid).checkedGet().toJavaUtil().ifPresent(
-                node -> tx.delete(LogicalDatastoreType.CONFIGURATION, identifier))));
+        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+            tx -> tx.read(psNodeIid).get().toJavaUtil().ifPresent(
+                node -> tx.delete(identifier))));
     }
 
     private List<VlanBindings> getVlanBindings(List<L2gatewayConnection> l2GwConns, NodeId hwvtepNodeId, String psName,

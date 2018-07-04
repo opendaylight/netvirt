@@ -7,17 +7,25 @@
  */
 package org.opendaylight.netvirt.elan.utils;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -78,13 +86,14 @@ public class ElanForwardingEntriesHandler {
         createElanInterfaceForwardingTablesList(interfaceName, macEntry, tx);
     }
 
-    public void deleteElanInterfaceForwardingTablesList(String interfaceName, MacEntry mac, WriteTransaction tx) {
+    public void deleteElanInterfaceForwardingTablesList(String interfaceName, MacEntry mac, 
+                                                        WriteTransaction interfaceTx) {
         InstanceIdentifier<MacEntry> existingMacEntryId = ElanUtils
                 .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, mac.getMacAddress());
         MacEntry existingInterfaceMacEntry = elanUtils
                 .getInterfaceMacEntriesOperationalDataPathFromId(existingMacEntryId);
         if (existingInterfaceMacEntry != null) {
-            tx.delete(LogicalDatastoreType.OPERATIONAL, existingMacEntryId);
+            interfaceTx.delete(LogicalDatastoreType.OPERATIONAL, existingMacEntryId);
         }
     }
 
@@ -132,7 +141,7 @@ public class ElanForwardingEntriesHandler {
                     .getMacEntryOperationalDataPath(elanInfo.getElanInstanceName(), macEntry.getMacAddress());
             interfaceTx.delete(LogicalDatastoreType.OPERATIONAL, macEntryId);
             deleteElanInterfaceForwardingTablesList(interfaceInfo.getInterfaceName(), macEntry, interfaceTx);
-            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(flowTx -> {
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, flowTx -> {
                 elanUtils.deleteMacFlows(elanInfo, interfaceInfo, macEntry, flowTx);
             }));
         }));

@@ -7,20 +7,27 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TransactionAdapter;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -129,7 +136,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
 
     private void createArpDefaultFlowsForArpCheckTable(BigInteger dpId) {
         jobCoordinator.enqueueJob("ARP_CHECK_TABLE-" + dpId.toString(),
-            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 LOG.debug("Received notification to install Arp Check Default entries for dpn {} ", dpId);
                 createArpRequestMatchFlows(dpId, tx);
                 createArpResponseMatchFlows(dpId, tx);
@@ -310,7 +317,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
                         Collections.singletonList(new InstructionGotoTable(NwConstants.ELAN_BASE_TABLE))));
     }
 
-    private void createArpRequestMatchFlows(BigInteger dpId, WriteTransaction writeFlowTx) {
+    private void createArpRequestMatchFlows(BigInteger dpId, TypedWriteTransaction<Configuration> tx) {
 
         long arpRequestGroupId = ArpResponderUtil.retrieveStandardArpResponderGroupId(idManagerService);
         List<BucketInfo> buckets = ArpResponderUtil.getDefaultBucketInfos(NwConstants.ARP_RESPONDER_TABLE);
@@ -324,20 +331,20 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
                                 new ActionNxResubmit(NwConstants.ARP_LEARN_TABLE_2),
                                 new ActionNxResubmit(NwConstants.ELAN_BASE_TABLE)));
         LOG.trace("Invoking MDSAL to install Arp Rquest Match Flow for table {}", NwConstants.ARP_CHECK_TABLE);
-        mdsalManager.addFlowToTx(arpReqArpCheckTbl, writeFlowTx);
+        mdsalManager.addFlowToTx(arpReqArpCheckTbl, TransactionAdapter.toWriteTransaction(tx));
     }
 
-    private void createArpResponseMatchFlows(BigInteger dpId, WriteTransaction writeFlowTx) {
+    private void createArpResponseMatchFlows(BigInteger dpId, TypedWriteTransaction<Configuration> tx) {
         FlowEntity arpRepArpCheckTbl = ArpResponderUtil.createArpDefaultFlow(dpId, NwConstants.ARP_CHECK_TABLE,
                 NwConstants.ARP_REPLY, () -> Arrays.asList(MatchEthernetType.ARP, MatchArpOp.REPLY), () ->
                         Arrays.asList(new ActionNxResubmit(NwConstants.ARP_LEARN_TABLE_1),
                                 new ActionNxResubmit(NwConstants.ARP_LEARN_TABLE_2),
                                 new ActionNxResubmit(NwConstants.ELAN_BASE_TABLE)));
         LOG.trace("Invoking MDSAL to install  Arp Reply Match Flow for Table {} ", NwConstants.ARP_CHECK_TABLE);
-        mdsalManager.addFlowToTx(arpRepArpCheckTbl, writeFlowTx);
+        mdsalManager.addFlowToTx(arpRepArpCheckTbl, TransactionAdapter.toWriteTransaction(tx));
     }
 
-    private void createArpPuntAndLearnFlow(BigInteger dpId, WriteTransaction writeFlowTx) {
+    private void createArpPuntAndLearnFlow(BigInteger dpId, TypedWriteTransaction<Configuration> tx) {
         LOG.debug("adding arp punt and learn entry in table {}", NwConstants.ARP_LEARN_TABLE_1);
 
         List<MatchInfo> matches = new ArrayList<>();
@@ -387,10 +394,10 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         FlowEntity flow = MDSALUtil.buildFlowEntity(dpId, NwConstants.ARP_LEARN_TABLE_1, flowid,
                 NwConstants.TABLE_MISS_PRIORITY, "arp punt/learn flow", 0,
                 0, cookie, matches, instructions);
-        mdsalManager.addFlowToTx(flow, writeFlowTx);
+        mdsalManager.addFlowToTx(flow, TransactionAdapter.toWriteTransaction(tx));
     }
 
-    private void addGarpLearnMatchFlow(BigInteger dpId, WriteTransaction writeFlowTx) {
+    private void addGarpLearnMatchFlow(BigInteger dpId, TypedWriteTransaction<Configuration> tx) {
         List<ActionInfo> actions = new ArrayList<>();
         List<MatchInfoBase> matches = new ArrayList<>();
 
@@ -408,10 +415,10 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         FlowEntity garpFlow = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_BASE_TABLE, flowid,
                 NwConstants.DEFAULT_ARP_FLOW_PRIORITY, "GARP learn match flow", 0, 0,
                 ElanConstants.COOKIE_ELAN_BASE_SMAC, matches, instructions);
-        mdsalManager.addFlowToTx(garpFlow, writeFlowTx);
+        mdsalManager.addFlowToTx(garpFlow, TransactionAdapter.toWriteTransaction(tx));
     }
 
-    private void addArpLearnMatchFlow(BigInteger dpId, WriteTransaction writeFlowTx) {
+    private void addArpLearnMatchFlow(BigInteger dpId, TypedWriteTransaction<Configuration> tx) {
         List<ActionInfo> actions = new ArrayList<>();
         List<MatchInfoBase> matches = new ArrayList<>();
 
@@ -428,7 +435,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         FlowEntity arpFlow = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_BASE_TABLE, flowid,
                 NwConstants.DEFAULT_ARP_FLOW_PRIORITY, "ARP learn match flow", 0, 0,
                 ElanConstants.COOKIE_ELAN_BASE_SMAC, matches, instructions);
-        mdsalManager.addFlowToTx(arpFlow, writeFlowTx);
+        mdsalManager.addFlowToTx(arpFlow, TransactionAdapter.toWriteTransaction(tx));
     }
 
 }
