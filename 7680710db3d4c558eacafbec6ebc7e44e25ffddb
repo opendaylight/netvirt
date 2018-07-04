@@ -192,6 +192,30 @@
     },
     {
       "key": {
+        "uuid": "ac7c1d7c_6381b715",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-07-04T07:29:00Z",
+      "side": 1,
+      "message": "@Sridhar, Please share your input/thoughts on above requested query.\n\nThanks in Advance,\nKarthikeyan.",
+      "parentUuid": "7c73effb_04d83268",
+      "range": {
+        "startLine": 35,
+        "startChar": 27,
+        "endLine": 37,
+        "endChar": 67
+      },
+      "revId": "7680710db3d4c558eacafbec6ebc7e44e25ffddb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "31ad43f6_cb35d2d9",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
         "patchSetId": 2
