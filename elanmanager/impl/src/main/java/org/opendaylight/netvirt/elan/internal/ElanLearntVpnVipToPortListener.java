@@ -7,22 +7,32 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TransactionAdapter;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -124,15 +134,15 @@ public class ElanLearntVpnVipToPortListener extends
                 return Collections.emptyList();
             }
             List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(interfaceTx -> futures.add(
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                        flowTx -> addMacEntryToDsAndSetupFlows(elanInterface.get().getElanInstanceName(),
-                                interfaceTx, flowTx, ElanConstants.STATIC_MAC_TIMEOUT)))));
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, interfaceTx ->
+                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, flowTx ->
+                    addMacEntryToDsAndSetupFlows(elanInterface.get().getElanInstanceName(), interfaceTx,
+                            flowTx, ElanConstants.STATIC_MAC_TIMEOUT)))));
             return futures;
         }
 
-        private void addMacEntryToDsAndSetupFlows(String elanName, WriteTransaction interfaceTx,
-                WriteTransaction flowTx, int macTimeOut) throws ElanException {
+        private void addMacEntryToDsAndSetupFlows(String elanName, TypedWriteTransaction<Operational> interfaceTx,
+                TypedWriteTransaction<Configuration> flowTx, int macTimeOut) throws ElanException {
             LOG.trace("Adding mac address {} and interface name {} to ElanInterfaceForwardingEntries and "
                 + "ElanForwardingTables DS", macAddress, interfaceName);
             BigInteger timeStamp = new BigInteger(String.valueOf(System.currentTimeMillis()));
@@ -142,13 +152,13 @@ public class ElanLearntVpnVipToPortListener extends
                     .setIsStaticAddress(false).build();
             InstanceIdentifier<MacEntry> macEntryId = ElanUtils
                     .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
-            interfaceTx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, macEntry);
+            interfaceTx.put(macEntryId, macEntry);
             InstanceIdentifier<MacEntry> elanMacEntryId =
                     ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
-            interfaceTx.put(LogicalDatastoreType.OPERATIONAL, elanMacEntryId, macEntry);
+            interfaceTx.put(elanMacEntryId, macEntry);
             ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
             elanUtils.setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName), macTimeOut,
-                    macAddress, true, flowTx);
+                    macAddress, true, TransactionAdapter.toWriteTransaction(flowTx));
         }
     }
 
@@ -169,15 +179,15 @@ public class ElanLearntVpnVipToPortListener extends
                 return Collections.emptyList();
             }
             List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(interfaceTx -> futures.add(
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                        flowTx -> deleteMacEntryFromDsAndRemoveFlows(elanInterface.get().getElanInstanceName(),
-                                interfaceTx, flowTx)))));
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, interfaceTx ->
+                futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, flowTx ->
+                    deleteMacEntryFromDsAndRemoveFlows(elanInterface.get().getElanInstanceName(),
+                            interfaceTx, flowTx)))));
             return futures;
         }
 
-        private void deleteMacEntryFromDsAndRemoveFlows(String elanName, WriteTransaction interfaceTx,
-                WriteTransaction flowTx) {
+        private void deleteMacEntryFromDsAndRemoveFlows(String elanName,
+                TypedWriteTransaction<Operational> interfaceTx, TypedReadWriteTransaction<Configuration> flowTx) {
             LOG.trace("Deleting mac address {} and interface name {} from ElanInterfaceForwardingEntries "
                     + "and ElanForwardingTables DS", macAddress, interfaceName);
             PhysAddress physAddress = new PhysAddress(macAddress);
@@ -185,9 +195,9 @@ public class ElanLearntVpnVipToPortListener extends
             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
             if (macEntry != null && interfaceInfo != null) {
                 elanUtils.deleteMacFlows(elanInstanceCache.get(elanName).orNull(), interfaceInfo, macEntry, flowTx);
-                interfaceTx.delete(LogicalDatastoreType.OPERATIONAL,
+                interfaceTx.delete(
                         ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress));
-                interfaceTx.delete(LogicalDatastoreType.OPERATIONAL,
+                interfaceTx.delete(
                         ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress));
             }
         }

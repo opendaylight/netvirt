@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -56,8 +58,8 @@ public class ElanExtnTepConfigListener
 
     @Override
     protected void add(InstanceIdentifier<ExternalTeps> iid, ExternalTeps tep) {
-        JdkFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-            tx.put(LogicalDatastoreType.OPERATIONAL, iid, tep, true);
+        JdkFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
+            tx.put(iid, tep, true);
         }), LOG, "Failed to update operational external teps {}", iid);
     }
 
@@ -67,8 +69,8 @@ public class ElanExtnTepConfigListener
 
     @Override
     protected void remove(InstanceIdentifier<ExternalTeps> iid, ExternalTeps tep) {
-        JdkFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-            tx.delete(LogicalDatastoreType.OPERATIONAL, iid);
+        JdkFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
+            tx.delete(iid);
         }), LOG, "Failed to update operational external teps {}", iid);
     }
 

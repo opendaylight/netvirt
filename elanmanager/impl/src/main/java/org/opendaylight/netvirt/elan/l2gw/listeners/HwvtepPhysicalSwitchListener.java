@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.HashSet;
@@ -380,15 +382,14 @@ public class HwvtepPhysicalSwitchListener
                                       PhysicalSwitchAugmentation phySwitchAdded) {
         if (phySwitchAdded.getTunnelIps() != null) {
             ListenableFutures.addErrorLogging(
-                txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
-                    Optional<PhysicalSwitchAugmentation> existingSwitch = tx.read(
-                            LogicalDatastoreType.CONFIGURATION, identifier).checkedGet();
+                txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+                    Optional<PhysicalSwitchAugmentation> existingSwitch = tx.read(identifier).get();
                     PhysicalSwitchAugmentationBuilder psBuilder = new PhysicalSwitchAugmentationBuilder();
                     if (existingSwitch.isPresent()) {
                         psBuilder = new PhysicalSwitchAugmentationBuilder(existingSwitch.get());
                     }
                     psBuilder.setTunnelIps(phySwitchAdded.getTunnelIps());
-                    tx.put(LogicalDatastoreType.CONFIGURATION, identifier, psBuilder.build(), true);
+                    tx.put(identifier, psBuilder.build(), true);
                     LOG.trace("Updating config tunnel ips {}", identifier);
                 }), LOG, "Failed to update the config tunnel ips {}", identifier);
         }
