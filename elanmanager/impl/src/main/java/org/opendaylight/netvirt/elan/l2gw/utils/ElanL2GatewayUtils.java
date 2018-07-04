@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
@@ -1048,16 +1050,17 @@ public class ElanL2GatewayUtils {
                 return;
             }
             JdkFutures.addErrorLogging(
-                new ManagedNewTransactionRunnerImpl(dataBroker).callWithNewReadWriteTransactionAndSubmit(tx -> {
-                    optionalElan.get().getElanInstance().stream()
+                new ManagedNewTransactionRunnerImpl(dataBroker).callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                    tx -> {
+                        optionalElan.get().getElanInstance().stream()
                         .flatMap(elan -> elan.getExternalTeps().stream()
                                 .map(externalTep -> ElanL2GatewayMulticastUtils.buildExternalTepPath(
                                         elan.getElanInstanceName(), externalTep.getTepIp())))
                         .filter(externalTepIid -> Objects.equals(
                                 deviceVteps.getIpAddress(), externalTepIid.firstKeyOf(ExternalTeps.class).getTepIp()))
                         .peek(externalTepIid -> LOG.info("Deleting stale external tep {}", externalTepIid))
-                        .forEach(externalTepIid -> tx.delete(LogicalDatastoreType.CONFIGURATION, externalTepIid));
-                }), LOG, "Failed to delete stale external teps {}", deviceVteps);
+                        .forEach(externalTepIid -> tx.delete(externalTepIid));
+                    }), LOG, "Failed to delete stale external teps {}", deviceVteps);
             Thread.sleep(10000);//TODO remove the sleep currently it waits for interfacemgr to finish the cleanup
         } catch (ReadFailedException | InterruptedException e) {
             LOG.error("Failed to delete stale l2gw tep {}", deviceVteps, e);

@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import static java.util.Collections.emptyList;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -116,8 +117,8 @@ public class ElanL2GatewayMulticastUtils {
      */
     public ListenableFuture<Void> handleMcastForElanL2GwDeviceAdd(String elanName, L2GatewayDevice device) {
         InstanceIdentifier<ExternalTeps> tepPath = buildExternalTepPath(elanName, device.getTunnelIp());
-        JdkFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-            tx.put(LogicalDatastoreType.CONFIGURATION, tepPath, buildExternalTeps(device));
+        JdkFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
+            tx.put(tepPath, buildExternalTeps(device));
         }), LOG, "Failed to write to config external tep {}", tepPath);
         return updateMcastMacsForAllElanDevices(elanName, device, true/* updateThisDevice */);
     }
