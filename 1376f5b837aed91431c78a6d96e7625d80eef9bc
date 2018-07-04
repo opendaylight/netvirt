@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "4784ea0e_f8c7261f",
+        "filename": "coe/impl/src/main/resources/initial/netvirt-coe-config.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-07-04T13:16:57Z",
+      "side": 1,
+      "message": "Nope, you had named that enum value \"kube-proxy\", not \"kubeproxy\"... ;-)\n\nhere\u0027s how I figured:\n\nlooking at netvirt/features/odl-netvirt-coe/target/SFT/karaf.log locally or e.g. this https://logs.opendaylight.org/releng/vex-yul-odl-jenkins-1/netvirt-maven-verify-fluorine-mvn35-openjdk8/449/features/odl-netvirt-coe/target/SFT/karaf.log.gz and grep for \"ERROR\" we find:\n\n2018-07-04T14:51:38,815 | ERROR | Blueprint Extender: 1 | AbstractFuture                   | 94 - com.google.guava - 23.6.1.jre | RuntimeException while executing runnable CallbackListener{org.opendaylight.controller.blueprint.ext.DataStoreAppConfigMetadata$1@d288b9d} with executor MoreExecutors.directExecutor()\njava.lang.IllegalArgumentException: Invalid value \u0027kubeproxy\u0027 for enum type. Allowed values are: [kube-proxy, odl-kube-proxy]\n\nthis causes the coeConfig to not be available, which then causes \"Missing dependencies: Initial app config CoeConfig\".",
+      "revId": "1376f5b837aed91431c78a6d96e7625d80eef9bc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0f1dc07f_8ea65115",
         "filename": "features/odl-netvirt-coe/pom.xml",
         "patchSetId": 4
