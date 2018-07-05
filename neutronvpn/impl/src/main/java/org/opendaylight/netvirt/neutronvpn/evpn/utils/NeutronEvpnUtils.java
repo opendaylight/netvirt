@@ -1,11 +1,13 @@
 /*
- * Copyright © 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2017, 2018 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 package org.opendaylight.netvirt.neutronvpn.evpn.utils;
+
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
 import java.util.Collections;
@@ -81,9 +83,9 @@ public class NeutronEvpnUtils {
     public void updateElanWithVpnInfo(String elanInstanceName, VpnInstance vpnInstance, Operation operation) {
         String vpnName = vpnInstance.getVpnInstanceName();
         InstanceIdentifier<ElanInstance> elanIid = ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName);
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             Optional<ElanInstance> elanInstanceOptional =
-                    tx.read(LogicalDatastoreType.CONFIGURATION, elanIid).checkedGet();
+                    tx.read(elanIid).get();
             if (!elanInstanceOptional.isPresent()) {
                 return;
             }
@@ -103,8 +105,7 @@ public class NeutronEvpnUtils {
             }
 
             elanInstanceBuilder.addAugmentation(EvpnAugmentation.class, evpnAugmentationBuilder.build());
-            tx.put(LogicalDatastoreType.CONFIGURATION, elanIid, elanInstanceBuilder.build(),
-                    WriteTransaction.CREATE_MISSING_PARENTS);
+            tx.put(elanIid, elanInstanceBuilder.build(), WriteTransaction.CREATE_MISSING_PARENTS);
         }), LOG, "Error updating ELAN with VPN info {}, {}, {}", elanInstanceName, vpnInstance, operation);
     }
 
@@ -114,10 +115,10 @@ public class NeutronEvpnUtils {
         InstanceIdentifier<EvpnRdToNetwork> rdToNetworkIdentifier = getRdToNetworkIdentifier(rd);
 
         jobCoordinator.enqueueJob("EVPN_ASSOCIATE-" + rd,
-            () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 if (operation == Operation.DELETE) {
                     LOG.debug("Deleting Evpn-Network with key {}", rd);
-                    tx.delete(LogicalDatastoreType.CONFIGURATION, rdToNetworkIdentifier);
+                    tx.delete(rdToNetworkIdentifier);
                 } else {
                     EvpnRdToNetworkBuilder evpnRdToNetworkBuilder = new EvpnRdToNetworkBuilder().withKey(
                             new EvpnRdToNetworkKey(rd));
@@ -125,7 +126,7 @@ public class NeutronEvpnUtils {
                     evpnRdToNetworkBuilder.setNetworkId(elanInstanceName);
                     LOG.info("updating Evpn {} with elaninstance {} and rd {}",
                             vpnInstance.getVpnInstanceName(), elanInstanceName, rd);
-                    tx.put(LogicalDatastoreType.CONFIGURATION, rdToNetworkIdentifier,
+                    tx.put(rdToNetworkIdentifier,
                             evpnRdToNetworkBuilder.build(), WriteTransaction.CREATE_MISSING_PARENTS);
                 }
             })));
