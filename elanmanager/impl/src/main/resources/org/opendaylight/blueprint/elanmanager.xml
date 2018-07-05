@@ -31,7 +31,7 @@
   <reference id="cacheProvider"
              interface="org.opendaylight.infrautils.caches.CacheProvider"/>
   <reference id="serviceRecoveryRegistry"
-             interface="org.opendaylight.genius.srm.ServiceRecoveryRegistry"/>
+             interface="org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry"/>
 
   <odl:rpc-service id="odlInterfaceRpcService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
