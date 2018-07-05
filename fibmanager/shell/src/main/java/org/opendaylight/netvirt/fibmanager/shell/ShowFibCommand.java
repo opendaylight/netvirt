@@ -112,8 +112,10 @@ public class ShowFibCommand extends OsgiCommandSupport {
                     printVrfTable(vrfTable, console);
                 }
             } catch (ExpectedDataObjectNotFoundException e404) {
+                /* This is always thrown the first time FIB DS is accessed,
+                   and no route have yet been configured in it. So, no need to print FATAL on the console.
+                */
                 String errMsg = "FATAL: fib-entries container is missing from MD-SAL";
-                console.println("\n" + errMsg);
                 LOG.error(errMsg, e404);
             } catch (ReadFailedException rfe) {
                 String errMsg = "Internal Error occurred while processing vpnservice:fib-show command";
