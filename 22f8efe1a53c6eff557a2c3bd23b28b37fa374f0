@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cec41fe3_0d6ee5ad",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 945,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-07-05T04:31:39Z",
+      "side": 1,
+      "message": "@Stephen: Need help with how to do this?",
+      "revId": "22f8efe1a53c6eff557a2c3bd23b28b37fa374f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
