@@ -42,8 +42,10 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
@@ -826,7 +828,7 @@ public class NeutronvpnUtils {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void createVpnPortFixedIpToPort(String vpnName, String fixedIp, String portName, String macAddress,
-            boolean isSubnetIp, WriteTransaction writeConfigTxn) {
+            boolean isSubnetIp, TypedWriteTransaction<Datastore.Configuration> writeConfigTxn) {
         InstanceIdentifier<VpnPortipToPort> id = NeutronvpnUtils.buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         VpnPortipToPortBuilder builder = new VpnPortipToPortBuilder()
             .withKey(new VpnPortipToPortKey(fixedIp, vpnName))
@@ -834,7 +836,7 @@ public class NeutronvpnUtils {
             .setPortName(portName).setMacAddress(macAddress).setSubnetIp(isSubnetIp);
         try {
             if (writeConfigTxn != null) {
-                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, id, builder.build());
+                writeConfigTxn.put(id, builder.build());
             } else {
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, builder.build());
             }
@@ -848,11 +850,12 @@ public class NeutronvpnUtils {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void removeVpnPortFixedIpToPort(String vpnName, String fixedIp, WriteTransaction writeConfigTxn) {
+    protected void removeVpnPortFixedIpToPort(String vpnName, String fixedIp,
+                                              TypedWriteTransaction<Datastore.Configuration> writeConfigTxn) {
         InstanceIdentifier<VpnPortipToPort> id = NeutronvpnUtils.buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         try {
             if (writeConfigTxn != null) {
-                writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, id);
+                writeConfigTxn.delete(id);
             } else {
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
             }
