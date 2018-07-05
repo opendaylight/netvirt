@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2015, 2018 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,9 +8,8 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import static java.util.Collections.singletonList;
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 import static org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker.syncReadOptional;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -45,13 +44,14 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.KeyedLocks;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
@@ -788,7 +788,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     protected Adjacencies createPortIpAdjacencies(Port port, Boolean isRouterInterface,
-                                  WriteTransaction wrtConfigTxn, Subnetmap sn, VpnInterface vpnIface) {
+                                                  TypedWriteTransaction<Datastore.Configuration> wrtConfigTxn,
+                                                  Subnetmap sn, VpnInterface vpnIface) {
         List<Adjacency> adjList = new ArrayList<>();
         if (vpnIface != null) {
             adjList = vpnIface.augmentation(Adjacencies.class).getAdjacency();
@@ -836,7 +837,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         return new AdjacenciesBuilder().setAdjacency(adjList).build();
     }
 
-    protected void createVpnInterface(Collection<Uuid> vpnIds, Port port, WriteTransaction wrtConfigTxn) {
+    protected void createVpnInterface(Collection<Uuid> vpnIds, Port port,
+                                      TypedWriteTransaction<Datastore.Configuration> wrtConfigTxn) {
         boolean isRouterInterface = false;
         if (port.getDeviceOwner() != null) {
             isRouterInterface = NeutronConstants.DEVICE_OWNER_ROUTER_INF.equals(port.getDeviceOwner());
@@ -848,7 +850,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     protected void withdrawPortIpFromVpnIface(Uuid vpnId, Uuid internetVpnId,
-                       Port port, Subnetmap sn, WriteTransaction wrtConfigTxn) {
+                       Port port, Subnetmap sn, TypedWriteTransaction<Datastore.Configuration> wrtConfigTxn) {
         String infName = port.getUuid().getValue();
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
         Optional<VpnInterface> optionalVpnInterface = null;
@@ -931,10 +933,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void deleteVpnInterface(String infName, @Nullable String vpnId, WriteTransaction wrtConfigTxn) {
+    protected void deleteVpnInterface(String infName, @Nullable String vpnId,
+                                      TypedWriteTransaction<Datastore.Configuration> wrtConfigTxn) {
         if (wrtConfigTxn == null) {
             ListenableFutures.addErrorLogging(
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> deleteVpnInterface(infName, vpnId, tx)),
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                        tx -> deleteVpnInterface(infName, vpnId, tx)),
                     LOG, "Error deleting VPN interface {} {}", infName, vpnId);
             return;
         }
@@ -967,16 +971,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
                 VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get())
                         .setVpnInstanceNames(vpnList);
-                wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIfBuilder
+                wrtConfigTxn.put(vpnIfIdentifier, vpnIfBuilder
                         .build());
             }
         }
         LOG.debug("Deleting vpn interface {}", infName);
-        wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
+        wrtConfigTxn.delete(vpnIfIdentifier);
     }
 
     protected void removeVpnFromVpnInterface(Uuid vpnId, Port port,
-                                     WriteTransaction writeConfigTxn, Subnetmap sm) {
+                                             TypedWriteTransaction<Datastore.Configuration> writeConfigTxn,
+                                             Subnetmap sm) {
         if (vpnId == null || port == null) {
             return;
         }
@@ -1032,8 +1037,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     }
                     deleteVpnInterface(port.getUuid().getValue(), null /* vpn-id */, writeConfigTxn);
                 } else {
-                    writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIfBuilder
-                            .build());
+                    writeConfigTxn.put(vpnIfIdentifier, vpnIfBuilder.build());
                 }
             } else {
                 LOG.info("removeVpnFromVpnInterface: VPN Interface {} not found", infName);
@@ -1044,7 +1048,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     protected void updateVpnInterface(Uuid vpnId, Uuid oldVpnId, Port port, boolean isBeingAssociated,
-                                      boolean isSubnetIp, WriteTransaction writeConfigTxn) {
+                                      boolean isSubnetIp,
+                                      TypedWriteTransaction<Datastore.Configuration> writeConfigTxn) {
         if (vpnId == null || port == null) {
             return;
         }
@@ -1108,8 +1113,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     neutronvpnUtils.createVpnPortFixedIpToPort(vpnId.getValue(), ipValue, infName, port
                             .getMacAddress().getValue(), isSubnetIp, writeConfigTxn);
                 }
-                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIfBuilder
-                        .build());
+                writeConfigTxn.put(vpnIfIdentifier, vpnIfBuilder.build());
             } else {
                 LOG.error("VPN Interface {} not found", infName);
             }
@@ -1601,7 +1605,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 final Boolean isRouterInterface = port.getDeviceOwner()
                         .equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF) ? true : false;
                 jobCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> singletonList(
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(wrtConfigTxn -> {
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, wrtConfigTxn -> {
                         Adjacencies portAdj = createPortIpAdjacencies(port, isRouterInterface, wrtConfigTxn, sn,
                                     vpnIface);
                         if (vpnIface == null) {
@@ -1691,16 +1695,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 LOG.debug("withdrawing subnet IP {} from vpn-interface {}", sn.getSubnetIp(), portId.getValue());
                 final Port port = neutronvpnUtils.getNeutronPort(portId);
                 jobCoordinator.enqueueJob("PORT-" + portId.getValue(),
-                    () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                        if (port != null) {
-                            withdrawPortIpFromVpnIface(vpnId, internetId, port, sn, tx);
-                        } else {
-                            LOG.warn(
-                                    "Cannot proceed with withdrawPortIpFromVpnIface for port {} in subnet {} since "
-                                            + "port is absent in Neutron config DS", portId.getValue(),
-                                    subnet.getValue());
-                        }
-                    })));
+                    () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                            CONFIGURATION, tx -> {
+                            if (port != null) {
+                                withdrawPortIpFromVpnIface(vpnId, internetId, port, sn, tx);
+                            } else {
+                                LOG.warn(
+                                        "Cannot proceed with withdrawPortIpFromVpnIface for port {} in subnet {} since "
+                                                + "port is absent in Neutron config DS", portId.getValue(),
+                                        subnet.getValue());
+                            }
+                        })));
             }
         }
         //update subnet-vpn association
@@ -1724,7 +1729,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
 
         jobCoordinator.enqueueJob("VPN-" + vpn.getValue(), () -> singletonList(
-            txRunner.callWithNewWriteOnlyTransactionAndSubmit(wrtConfigTxn -> {
+            txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, wrtConfigTxn -> {
                 if (isBeingAssociated) {
                     updateVpnInterface(vpn, null, neutronvpnUtils.getNeutronPort(
                             sm.getRouterInterfacePortId()), true, true, wrtConfigTxn);
@@ -1743,14 +1748,15 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 LOG.debug("Updating vpn-interface for port {} isBeingAssociated {}",
                         port.getValue(), isBeingAssociated);
                 jobCoordinator.enqueueJob("PORT-" + port.getValue(),
-                    () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                        if (isBeingAssociated) {
-                            updateVpnInterface(vpn, null, neutronvpnUtils.getNeutronPort(port),
-                                    true, false, tx);
-                        } else {
-                            removeVpnFromVpnInterface(vpn, neutronvpnUtils.getNeutronPort(port), tx, sm);
-                        }
-                    })));
+                    () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                        tx -> {
+                            if (isBeingAssociated) {
+                                updateVpnInterface(vpn, null, neutronvpnUtils.getNeutronPort(port),
+                                        true, false, tx);
+                            } else {
+                                removeVpnFromVpnInterface(vpn, neutronvpnUtils.getNeutronPort(port), tx, sm);
+                            }
+                        })));
             }
         }
     }
@@ -1772,7 +1778,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         //Update Router Interface first synchronously.
         //CAUTION:  Please DONOT make the router interface VPN Movement as an asynchronous commit again !
         ListenableFuture<Void> future =
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> updateVpnInterface(newVpnId, oldVpnId,
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                    tx -> updateVpnInterface(newVpnId, oldVpnId,
                         neutronvpnUtils.getNeutronPort(sn.getRouterInterfacePortId()),
                         isBeingAssociated, true, tx));
         Futures.addCallback(future, new FutureCallback<Void>() {
@@ -1786,7 +1793,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         LOG.debug("Updating vpn-interface for port {} isBeingAssociated {}",
                                 port.getValue(), isBeingAssociated);
                         jobCoordinator.enqueueJob("PORT-" + port.getValue(), () -> Collections.singletonList(
-                                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                                txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                                     tx -> updateVpnInterface(newVpnId, oldVpnId,
                                             neutronvpnUtils.getNeutronPort(port), isBeingAssociated, false,
                                             tx))));
@@ -2884,7 +2891,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         result.add("-------------------------------------------------------------------------------------------");
         InstanceIdentifier<Ports> portidentifier = InstanceIdentifier.create(Neutron.class).child(Ports.class);
 
-        Optional<Ports> ports = syncReadOptional(dataBroker, CONFIGURATION, portidentifier);
+        Optional<Ports> ports = syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION, portidentifier);
         if (ports.isPresent() && ports.get().getPort() != null) {
             for (Port port : ports.get().getPort()) {
                 List<FixedIps> fixedIPs = port.getFixedIps();
@@ -2994,7 +3001,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             return;
         }
 
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
             for (String elanInterface : extElanInterfaces) {
                 createExternalVpnInterface(extNetId, elanInterface, tx);
             }
@@ -3009,17 +3016,18 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             LOG.error("No external ports attached for external network {}", extNetId.getValue());
             return;
         }
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
             for (String elanInterface : extElanInterfaces) {
                 InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils
                         .buildVpnInterfaceIdentifier(elanInterface);
                 LOG.info("Removing vpn interface {}", elanInterface);
-                tx.delete(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
+                tx.delete(vpnIfIdentifier);
             }
         }), LOG, "Error removing external VPN interfaces for {}", extNetId);
     }
 
-    private void createExternalVpnInterface(Uuid vpnId, String infName, WriteTransaction wrtConfigTxn) {
+    private void createExternalVpnInterface(Uuid vpnId, String infName,
+                                            TypedWriteTransaction<Datastore.Configuration> wrtConfigTxn) {
         writeVpnInterfaceToDs(Collections.singletonList(vpnId), infName, null,
                 false /* not a router iface */, wrtConfigTxn);
     }
@@ -3027,13 +3035,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void writeVpnInterfaceToDs(@Nonnull Collection<Uuid> vpnIdList, String infName, Adjacencies adjacencies,
-            Boolean isRouterInterface, WriteTransaction wrtConfigTxn) {
+            Boolean isRouterInterface, TypedWriteTransaction<Datastore.Configuration> wrtConfigTxn) {
         if (vpnIdList.isEmpty() || infName == null) {
             LOG.error("vpn id or interface is null");
             return;
         }
         if (wrtConfigTxn == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 tx -> writeVpnInterfaceToDs(vpnIdList, infName, adjacencies, isRouterInterface, tx)), LOG,
                 "Error writing VPN interface");
             return;
@@ -3056,20 +3064,21 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         VpnInterface vpnIf = vpnb.build();
         try {
             LOG.info("Creating vpn interface {}", vpnIf);
-            wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIf);
+            wrtConfigTxn.put(vpnIfIdentifier, vpnIf);
         } catch (Exception ex) {
             LOG.error("Creation of vpninterface {} failed", infName, ex);
         }
     }
 
     private void updateVpnInterfaceWithAdjacencies(Uuid vpnId, String infName, Adjacencies adjacencies,
-            WriteTransaction wrtConfigTxn) {
+                                                   TypedWriteTransaction<Datastore.Configuration> wrtConfigTxn) {
         if (vpnId == null || infName == null) {
             LOG.error("vpn id or interface is null");
             return;
         }
         if (wrtConfigTxn == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            LOG.error("updateVpnInterfaceWithAdjancies called with wrtConfigTxn as null");
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 updateVpnInterfaceWithAdjacencies(vpnId, infName, adjacencies, tx);
             }), LOG, "Error updating VPN interface with adjacencies");
             return;
@@ -3111,7 +3120,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     vpnIfBuilder.setVpnInstanceNames(listVpnInstances);
                 }
                 LOG.info("Updating vpn interface {} with new adjacencies", infName);
-                wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIfBuilder.build());
+                wrtConfigTxn.put(vpnIfIdentifier, vpnIfBuilder.build());
             }
         } catch (IllegalStateException | ReadFailedException ex) {
             LOG.error("Update of vpninterface {} failed", infName, ex);
@@ -3227,7 +3236,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataOptional;
         try {
             vpnInstanceOpDataOptional = SingleTransactionDataBroker
-                    .syncReadOptional(dataBroker, OPERATIONAL, neutronvpnUtils.getVpnOpDataIdentifier(primaryRd));
+                .syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    neutronvpnUtils.getVpnOpDataIdentifier(primaryRd));
         } catch (ReadFailedException e) {
             LOG.error("getExistingOperationalVpn: Exception while checking operational status of vpn with rd {}",
                     primaryRd, e);

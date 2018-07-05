@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2017, 2018 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 package org.opendaylight.netvirt.neutronvpn;
+
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Preconditions;
 import java.util.ArrayList;
@@ -150,10 +152,11 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
              * Interface is already created for parent NeutronPort. We're updating parent refs
              * and VLAN Information
              */
-            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                tx.merge(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, newIface);
-                LOG.trace("Creating trunk member interface {}", newIface);
-            }));
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                CONFIGURATION, tx -> {
+                    tx.merge(interfaceIdentifier, newIface);
+                    LOG.trace("Creating trunk member interface {}", newIface);
+                }));
         });
     }
 
@@ -186,10 +189,11 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
              * and this being subport delete path, don't expect any significant changes to
              * corresponding Neutron Port. Deletion of NeutronPort should follow soon enough.
              */
-            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                tx.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, newIface);
-                LOG.trace("Resetting trunk member interface {}", newIface);
-            }));
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                CONFIGURATION, tx -> {
+                    tx.put(interfaceIdentifier, newIface);
+                    LOG.trace("Resetting trunk member interface {}", newIface);
+                }));
         });
 
     }
