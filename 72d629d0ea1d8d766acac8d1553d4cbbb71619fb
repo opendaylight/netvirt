@@ -91,6 +91,24 @@
     },
     {
       "key": {
+        "uuid": "afdec1cc_988c6165",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-07-05T12:00:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0e8c2053_7978cdaf",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d6463406_a034ff27",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 2
@@ -102,6 +120,24 @@
       "writtenOn": "2018-07-04T09:02:18Z",
       "side": 1,
       "message": "As above.",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "057cc987_88e6b09f",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 967,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-07-05T12:00:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d6463406_a034ff27",
       "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -265,6 +301,24 @@
     },
     {
       "key": {
+        "uuid": "d24a065e_471e4c62",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1119,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-07-05T12:00:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a58c7ddc_8da40489",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9c194300_bf9a4c7f",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 2
@@ -276,6 +330,24 @@
       "writtenOn": "2018-07-04T09:02:18Z",
       "side": 1,
       "message": "As above.",
+      "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dd442491_b1db5382",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1125,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-07-05T12:00:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c194300_bf9a4c7f",
       "revId": "72d629d0ea1d8d766acac8d1553d4cbbb71619fb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
