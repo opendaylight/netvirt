@@ -65,7 +65,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <module>neutronvpn</module>
         <module>qosservice</module>
         <module>statemanager</module>
-        <module>statistics</module>
         <module>vpnmanager</module>
     </modules>
 
