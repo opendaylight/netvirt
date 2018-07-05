@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e62c70e8_ccd56aff",
+        "filename": "fibmanager/shell/src/main/java/org/opendaylight/netvirt/fibmanager/shell/ShowFibCommand.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-05T12:23:48Z",
+      "side": 1,
+      "message": "FibEntries is the parent container. It wont be present in cases where no routes have been created ever.\nIn such cases, the code wont comve here. The read itself throws a 404 (ExpectedDataObjectNotFoundException), which is caught properly.",
+      "parentUuid": "e175a24a_e52bfdb7",
+      "range": {
+        "startLine": 105,
+        "startChar": 48,
+        "endLine": 105,
+        "endChar": 73
+      },
+      "revId": "c4787f35a2857222b97bfda78ab21c90644e883b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
