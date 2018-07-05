@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2018 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,6 +7,8 @@
  */
 
 package org.opendaylight.netvirt.neutronvpn;
+
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableBiMap;
@@ -37,13 +39,14 @@ import javax.inject.Singleton;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
@@ -826,7 +829,7 @@ public class NeutronvpnUtils {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void createVpnPortFixedIpToPort(String vpnName, String fixedIp, String portName, String macAddress,
-            boolean isSubnetIp, WriteTransaction writeConfigTxn) {
+            boolean isSubnetIp, TypedWriteTransaction<Datastore.Configuration> writeConfigTxn) {
         InstanceIdentifier<VpnPortipToPort> id = NeutronvpnUtils.buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         VpnPortipToPortBuilder builder = new VpnPortipToPortBuilder()
             .withKey(new VpnPortipToPortKey(fixedIp, vpnName))
@@ -834,7 +837,7 @@ public class NeutronvpnUtils {
             .setPortName(portName).setMacAddress(macAddress).setSubnetIp(isSubnetIp);
         try {
             if (writeConfigTxn != null) {
-                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, id, builder.build());
+                writeConfigTxn.put(id, builder.build());
             } else {
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, builder.build());
             }
@@ -848,11 +851,12 @@ public class NeutronvpnUtils {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void removeVpnPortFixedIpToPort(String vpnName, String fixedIp, WriteTransaction writeConfigTxn) {
+    protected void removeVpnPortFixedIpToPort(String vpnName, String fixedIp,
+                                              TypedWriteTransaction<Datastore.Configuration> writeConfigTxn) {
         InstanceIdentifier<VpnPortipToPort> id = NeutronvpnUtils.buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         try {
             if (writeConfigTxn != null) {
-                writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, id);
+                writeConfigTxn.delete(id);
             } else {
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
             }
@@ -1522,15 +1526,16 @@ public class NeutronvpnUtils {
             if (isFinalVpnInstanceIpv6Changed) {
                 builder.setIpv6Configured(finalIsIpv6Configured);
             }
-            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                OPERATIONAL, tx -> {
+                    InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
                         .child(VpnInstanceOpDataEntry.class,
                                 new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
-                tx.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
-                LOG.info("updateVpnInstanceWithIpFamily: Successfully {} {} to Vpn {}",
-                        add ? "added" : "removed",
-                        ipVersion.toString(), vpnName);
-            }));
+                    tx.merge(id, builder.build(), false);
+                    LOG.info("updateVpnInstanceWithIpFamily: Successfully {} {} to Vpn {}",
+                            add ? "added" : "removed",
+                            ipVersion.toString(), vpnName);
+                }));
         });
     }
 
@@ -1679,8 +1684,8 @@ public class NeutronvpnUtils {
         }
         VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
         builder.setBgpvpnType(choice);
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-            tx.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
+            tx.merge(id, builder.build(), false);
             LOG.debug("updateVpnInstanceOpWithType: sent merge to operDS BgpvpnType {} for {}", choice, vpn.getValue());
         }), LOG, "Error updating VPN instance op {} with type {}", vpn, choice);
     }

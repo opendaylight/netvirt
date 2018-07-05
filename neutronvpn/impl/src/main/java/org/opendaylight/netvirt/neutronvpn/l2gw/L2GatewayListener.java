@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2018 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 package org.opendaylight.netvirt.neutronvpn.l2gw;
+
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
@@ -101,11 +103,11 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
         LOG.info("Removing L2gateway with ID: {}", input.getUuid());
         List<L2gatewayConnection> connections = l2gwService
                 .getL2GwConnectionsByL2GatewayId(input.getUuid());
-        Futures.addCallback(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+        Futures.addCallback(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             for (L2gatewayConnection connection : connections) {
                 InstanceIdentifier<L2gatewayConnection> iid = InstanceIdentifier.create(Neutron.class)
                         .child(L2gatewayConnections.class).child(L2gatewayConnection.class, connection.key());
-                tx.delete(LogicalDatastoreType.CONFIGURATION, iid);
+                tx.delete(iid);
             }
         }), new FutureCallback<Void>() {
             @Override
@@ -140,7 +142,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
             return;
         }
         jobCoordinator.enqueueJob("l2gw.update", () -> {
-            ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 DeviceInterfaces updatedDeviceInterfaces = new DeviceInterfaces(update);
                 original.getDevices()
                         .stream()
