@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -173,7 +175,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
             jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> Collections.singletonList(
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                         tx -> qosNeutronUtils.setPortBandwidthLimits(port, input, tx))));
         }
     }
@@ -218,7 +220,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
             jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> Collections.singletonList(
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                         tx -> qosNeutronUtils.setPortBandwidthLimits(port, zeroBwLimitRule, tx))));
         }
     }
@@ -284,7 +286,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
             jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> Collections.singletonList(
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                         tx -> qosNeutronUtils.setPortBandwidthLimits(port, update, tx))));
         }
     }

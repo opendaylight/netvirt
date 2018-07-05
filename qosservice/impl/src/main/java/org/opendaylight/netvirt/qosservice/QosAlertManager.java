@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.qosservice;
 
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map.Entry;
@@ -22,8 +25,6 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
@@ -279,9 +280,9 @@ public final class QosAlertManager implements Runnable {
                 .setQosAlertPollInterval(alertPollInterval)
                 .build();
 
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-            tx -> tx.put(LogicalDatastoreType.CONFIGURATION, path, qosAlertConfig,
-                    WriteTransaction.CREATE_MISSING_PARENTS)), LOG, "Error writing to the config data store");
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+            tx -> tx.put(path, qosAlertConfig,
+                    CREATE_MISSING_PARENTS)), LOG, "Error writing to the config data store");
     }
 
     private void pollDirectStatisticsForAllNodes() {
