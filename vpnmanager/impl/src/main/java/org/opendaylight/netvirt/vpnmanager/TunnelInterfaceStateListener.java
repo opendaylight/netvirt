@@ -182,35 +182,34 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             LOG.trace("update: No vpnInstanceOpdata present");
             return;
         }
-        if (tunOpStatus == TunnelOperStatus.Up) {
-            handleTunnelEventForDPN(update, TunnelAction.TUNNEL_EP_ADD);
-        } else {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx ->
-                    vpnInstanceOpData.stream()
-                            .filter(opData -> opData.getVpnToDpnList() != null
-                                    && opData.getVpnToDpnList().stream().anyMatch(
-                                        vpnToDpn -> vpnToDpn.getDpnId().equals(srcDpnId)))
-                            .forEach(opData -> {
-                                List<DestPrefixes> prefixes = VpnExtraRouteHelper.getExtraRouteDestPrefixes(dataBroker,
-                                        opData.getVpnId());
-                                prefixes.forEach(destPrefix -> {
-                                    VrfEntry vrfEntry = vpnUtil.getVrfEntry(opData.getVrfId(),
-                                            destPrefix.getDestPrefix());
-                                    if (vrfEntry == null || vrfEntry.getRoutePaths() == null) {
-                                        return;
-                                    }
-                                    List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
-                                    routePaths.forEach(routePath -> {
-                                        if (routePath.getNexthopAddress().equals(srcTepIp)) {
-                                            fibManager.updateRoutePathForFibEntry(opData.getVrfId(),
-                                                    destPrefix.getDestPrefix(), srcTepIp, routePath.getLabel(),
-                                                    false, confTx);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx ->
+                vpnInstanceOpData.stream()
+                        .filter(opData -> opData.getVpnToDpnList() != null
+                                && opData.getVpnToDpnList().stream().anyMatch(
+                                    vpnToDpn -> vpnToDpn.getDpnId().equals(srcDpnId)))
+                        .forEach(opData -> {
+                            List<DestPrefixes> prefixes = VpnExtraRouteHelper.getExtraRouteDestPrefixes(dataBroker,
+                                    opData.getVpnId());
+                            prefixes.forEach(destPrefix -> {
+                                VrfEntry vrfEntry = vpnUtil.getVrfEntry(opData.getVrfId(),
+                                        destPrefix.getDestPrefix());
+                                if (vrfEntry == null || vrfEntry.getRoutePaths() == null) {
+                                    return;
+                                }
+                                List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
+                                routePaths.forEach(routePath -> {
+                                    if (routePath.getNexthopAddress().equals(srcTepIp)) {
+                                        String prefix = destPrefix.getDestPrefix();
+                                        String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(opData.getVpnInstanceName(),
+                                                prefix);
+                                        synchronized (vpnPrefixKey.intern()) {
+                                            fibManager.refreshVrfEntry(opData.getVrfId(), prefix);
                                         }
-                                    });
+                                    }
                                 });
-                            })
-            ), LOG, "Error updating route paths for FIB entries");
-        }
+                            });
+                        })
+        ), LOG, "Error updating route paths for FIB entries");
     }
 
     @Override
