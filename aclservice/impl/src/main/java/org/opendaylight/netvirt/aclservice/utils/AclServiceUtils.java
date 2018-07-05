@@ -40,8 +40,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -74,6 +72,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
@@ -877,11 +876,9 @@ public final class AclServiceUtils {
     public void deleteSubnetInfo(String portId) {
         InstanceIdentifier<PortSubnet> id = InstanceIdentifier.builder(PortSubnets.class)
                 .child(PortSubnet.class, new PortSubnetKey(portId)).build();
-        try {
-            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-        } catch (TransactionCommitFailedException e) {
-            LOG.error("Failed to delete subnet info for port={}", portId, e);
-        }
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.OPERATIONAL, id)), LOG,
+                ("Failed to delete subnet info for port: " + portId));
     }
 
     private static List<MatchInfoBase> updateAAPMatches(boolean isSourceIpMacMatch, List<MatchInfoBase> flows,
@@ -1247,11 +1244,6 @@ public final class AclServiceUtils {
             }
         }
         return skipDelete;
-    }
-
-    public static void deleteAclPortsLookupEntry(String aclName, DataBroker broker)
-            throws TransactionCommitFailedException {
-        SingleTransactionDataBroker.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, aclPortsByIpPath(aclName));
     }
 
     public static InstanceIdentifier<AclPortsByIp> aclPortsByIpPath(String aclName) {
