@@ -30,9 +30,6 @@
         <configfile finalname="etc/org.opendaylight.netvirt.qosservice.cfg">
             mvn:org.opendaylight.netvirt/qosservice-impl/${project.version}/cfg/config
         </configfile>
-        <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-statistics-config.xml">
-            mvn:org.opendaylight.netvirt/statistics-impl/${project.version}/xml/config
-        </configfile>
         <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-vpnmanager-config.xml">
             mvn:org.opendaylight.netvirt/vpnmanager-impl/${project.version}/xml/config
         </configfile>

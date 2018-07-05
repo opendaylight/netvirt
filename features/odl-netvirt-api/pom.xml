@@ -147,11 +147,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>statistics-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>vpnmanager-api</artifactId>
             <version>${project.version}</version>
         </dependency>

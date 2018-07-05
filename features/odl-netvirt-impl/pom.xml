@@ -189,11 +189,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>statistics-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>vpnmanager-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -256,14 +251,6 @@
             <artifactId>qosservice-impl</artifactId>
             <version>${project.version}</version>
             <type>cfg</type>
-            <classifier>config</classifier>
-        </dependency>
-        <dependency>
-            <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-statistics-config.xml" -->
-            <groupId>${project.groupId}</groupId>
-            <artifactId>statistics-impl</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
             <classifier>config</classifier>
         </dependency>
         <dependency>
