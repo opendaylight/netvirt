@@ -12,10 +12,10 @@ import java.util.Queue;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.opendaylight.genius.srm.RecoverableListener;
-import org.opendaylight.genius.srm.ServiceRecoveryInterface;
-import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
+import org.opendaylight.serviceutils.srm.RecoverableListener;
+import org.opendaylight.serviceutils.srm.ServiceRecoveryInterface;
+import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
