@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -24,10 +26,11 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -203,7 +206,7 @@ public class QosNeutronUtils {
         QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
 
         jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(),
-            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 // handle Bandwidth Limit Rules update
                 if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
                         && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
@@ -241,7 +244,7 @@ public class QosNeutronUtils {
         QosPolicy qosPolicyOld = qosPolicyMap.get(qosUuidOld);
 
         jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(),
-            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 // handle Bandwidth Limit Rules update
                 if (qosPolicyNew != null && qosPolicyNew.getBandwidthLimitRules() != null
                         && !qosPolicyNew.getBandwidthLimitRules().isEmpty()) {
@@ -282,7 +285,7 @@ public class QosNeutronUtils {
             QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
 
             jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(),
-                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                     // handle Bandwidth Limit Rules removal
                     if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
                             && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
@@ -347,16 +350,17 @@ public class QosNeutronUtils {
                 if (port != null && (port.augmentation(QosPortExtension.class) == null
                         || port.augmentation(QosPortExtension.class).getQosPolicyId() == null)) {
                     jobCoordinator.enqueueJob("QosPort-" + portId.getValue(),
-                        () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                            if (qosPolicy.getBandwidthLimitRules() != null
-                                    && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
-                                setPortBandwidthLimits(port, qosPolicy.getBandwidthLimitRules().get(0), tx);
-                            }
-                            if (qosPolicy.getDscpmarkingRules() != null
-                                    && !qosPolicy.getDscpmarkingRules().isEmpty()) {
-                                setPortDscpMarking(port, qosPolicy.getDscpmarkingRules().get(0));
-                            }
-                        })));
+                        () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                            CONFIGURATION, tx -> {
+                                if (qosPolicy.getBandwidthLimitRules() != null
+                                        && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
+                                    setPortBandwidthLimits(port, qosPolicy.getBandwidthLimitRules().get(0), tx);
+                                }
+                                if (qosPolicy.getDscpmarkingRules() != null
+                                        && !qosPolicy.getDscpmarkingRules().isEmpty()) {
+                                    setPortDscpMarking(port, qosPolicy.getDscpmarkingRules().get(0));
+                                }
+                            })));
                 }
             }
         }
@@ -375,19 +379,20 @@ public class QosNeutronUtils {
                 if (port != null && (port.augmentation(QosPortExtension.class) == null
                         || port.augmentation(QosPortExtension.class).getQosPolicyId() == null)) {
                     jobCoordinator.enqueueJob("QosPort-" + portId.getValue(),
-                        () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                            if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
-                                    && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
-                                BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
-                                setPortBandwidthLimits(port, bwLimitBuilder
-                                        .setMaxBurstKbps(BigInteger.ZERO)
-                                        .setMaxKbps(BigInteger.ZERO).build(), tx);
-                            }
-                            if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
-                                    && !qosPolicy.getDscpmarkingRules().isEmpty()) {
-                                unsetPortDscpMark(port);
-                            }
-                        })));
+                        () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                            CONFIGURATION, tx -> {
+                                if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
+                                        && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
+                                    BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
+                                    setPortBandwidthLimits(port, bwLimitBuilder
+                                            .setMaxBurstKbps(BigInteger.ZERO)
+                                            .setMaxKbps(BigInteger.ZERO).build(), tx);
+                                }
+                                if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
+                                        && !qosPolicy.getDscpmarkingRules().isEmpty()) {
+                                    unsetPortDscpMark(port);
+                                }
+                            })));
                 }
             }
         }
@@ -405,7 +410,7 @@ public class QosNeutronUtils {
                 if (port != null && (port.augmentation(QosPortExtension.class) == null
                         || port.augmentation(QosPortExtension.class).getQosPolicyId() == null)) {
                     jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> Collections.singletonList(
-                            txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                            txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                                 tx -> setPortBandwidthLimits(port, zeroBwLimitRule, tx))));
                 }
             }
@@ -434,7 +439,8 @@ public class QosNeutronUtils {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void setPortBandwidthLimits(Port port, BandwidthLimitRules bwLimit, WriteTransaction writeConfigTxn) {
+    public void setPortBandwidthLimits(Port port, BandwidthLimitRules bwLimit,
+                                       TypedWriteTransaction<Datastore.Configuration> writeConfigTxn) {
         if (!qosEosHandler.isQosClusterOwner()) {
             LOG.debug("Not Qos Cluster Owner. Ignoring setting bandwidth limits");
             return;
@@ -475,7 +481,7 @@ public class QosNeutronUtils {
         tpBuilder.addAugmentation(OvsdbTerminationPointAugmentation.class, tpAugmentationBuilder.build());
         try {
             if (writeConfigTxn != null) {
-                writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
+                writeConfigTxn.merge(InstanceIdentifier
                         .create(NetworkTopology.class)
                         .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
                         .child(Node.class, bridgeNode.get().key())

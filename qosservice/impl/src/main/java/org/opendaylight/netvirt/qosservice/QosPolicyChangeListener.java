@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -173,7 +176,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
             jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> Collections.singletonList(
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                         tx -> qosNeutronUtils.setPortBandwidthLimits(port, input, tx))));
         }
     }
@@ -218,7 +221,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
             jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> Collections.singletonList(
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                         tx -> qosNeutronUtils.setPortBandwidthLimits(port, zeroBwLimitRule, tx))));
         }
     }
@@ -284,7 +287,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
             jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> Collections.singletonList(
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                         tx -> qosNeutronUtils.setPortBandwidthLimits(port, update, tx))));
         }
     }
@@ -319,9 +322,9 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
         qrtBuilder.setRuleTypes(value);
 
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
             InstanceIdentifier instanceIdentifier = InstanceIdentifier.create(Neutron.class).child(QosRuleTypes.class);
-            tx.merge(LogicalDatastoreType.OPERATIONAL, instanceIdentifier, qrtBuilder.build());
+            tx.merge(instanceIdentifier, qrtBuilder.build());
         }), LOG, "Error setting up supported QoS rule types");
     }
 

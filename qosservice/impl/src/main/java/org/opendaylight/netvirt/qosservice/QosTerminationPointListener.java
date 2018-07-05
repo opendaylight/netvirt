@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.qosservice;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import java.util.Collections;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -176,7 +178,7 @@ public class QosTerminationPointListener extends
                 port.getUuid(), update.getName(), qosPolicy.getName());
 
         jobCoordinator.enqueueJob("QosPort-" + port.getUuid(), () ->
-                Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                     BandwidthLimitRules bwRule = qosPolicy.getBandwidthLimitRules().get(0);
                     OvsdbTerminationPointAugmentationBuilder tpAugmentationBuilder =
                             new OvsdbTerminationPointAugmentationBuilder();
@@ -184,7 +186,7 @@ public class QosTerminationPointListener extends
                     tpAugmentationBuilder.setIngressPolicingRate(bwRule.getMaxKbps().longValue());
                     tpAugmentationBuilder.setIngressPolicingBurst(bwRule.getMaxBurstKbps().longValue());
 
-                    tx.merge(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(NetworkTopology.class)
+                    tx.merge(InstanceIdentifier.create(NetworkTopology.class)
                             .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
                             .child(Node.class, identifier.firstKeyOf(Node.class))
                             .child(TerminationPoint.class, identifier.firstKeyOf(TerminationPoint.class))
