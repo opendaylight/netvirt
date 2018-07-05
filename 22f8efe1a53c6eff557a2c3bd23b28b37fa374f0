@@ -16,6 +16,24 @@
       "revId": "22f8efe1a53c6eff557a2c3bd23b28b37fa374f0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c407716d_d4f1bb66",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 945,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-07-05T05:13:14Z",
+      "side": 1,
+      "message": "Nevermind, was importing the wrong CONFIGURATION and that was causing conflict.",
+      "parentUuid": "cec41fe3_0d6ee5ad",
+      "revId": "22f8efe1a53c6eff557a2c3bd23b28b37fa374f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
