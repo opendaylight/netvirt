@@ -16,6 +16,24 @@
       "revId": "bcdf39d020cf2a6242b58f310111a0218d19c836",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c4915b2_321b276a",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 873,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2018-07-06T10:07:53Z",
+      "side": 1,
+      "message": "I have done datastore-constrained changes in master branch. Similar changes are not done in stable/oxygen as support for datastore-constrained transactions is not present in stable/oxygen.",
+      "parentUuid": "7f1fc591_97e56e2c",
+      "revId": "bcdf39d020cf2a6242b58f310111a0218d19c836",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
