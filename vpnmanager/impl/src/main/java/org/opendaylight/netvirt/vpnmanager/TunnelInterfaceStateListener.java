@@ -167,34 +167,33 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             return;
         }
         WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-        if (tunOpStatus == TunnelOperStatus.Up) {
-            handleTunnelEventForDPN(update, TunnelAction.TUNNEL_EP_ADD);
-        } else {
-            vpnInstanceOpData.stream().filter(opData -> {
-                if (opData.getVpnToDpnList() == null) {
-                    return false;
+        vpnInstanceOpData.stream().filter(opData -> {
+            if (opData.getVpnToDpnList() == null) {
+                return false;
+            }
+            return opData.getVpnToDpnList().stream().anyMatch(vpnToDpn -> vpnToDpn.getDpnId().equals(srcDpnId));
+        }).forEach(opData -> {
+            List<DestPrefixes> prefixes = VpnExtraRouteHelper.getExtraRouteDestPrefixes(dataBroker,
+                    opData.getVpnId());
+            prefixes.forEach(destPrefix -> {
+                VrfEntry vrfEntry = VpnUtil.getVrfEntry(dataBroker, opData.getVrfId(),
+                        destPrefix.getDestPrefix());
+                if (vrfEntry == null || vrfEntry.getRoutePaths() == null) {
+                    return;
                 }
-                return opData.getVpnToDpnList().stream().anyMatch(vpnToDpn -> vpnToDpn.getDpnId().equals(srcDpnId));
-            }).forEach(opData -> {
-                List<DestPrefixes> prefixes = VpnExtraRouteHelper.getExtraRouteDestPrefixes(dataBroker,
-                        opData.getVpnId());
-                prefixes.forEach(destPrefix -> {
-                    VrfEntry vrfEntry = VpnUtil.getVrfEntry(dataBroker, opData.getVrfId(),
-                            destPrefix.getDestPrefix());
-                    if (vrfEntry == null || vrfEntry.getRoutePaths() == null) {
-                        return;
-                    }
-                    List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
-                    routePaths.forEach(routePath -> {
-                        if (routePath.getNexthopAddress().equals(srcTepIp)) {
-                            fibManager.updateRoutePathForFibEntry(opData.getVrfId(),
-                                    destPrefix.getDestPrefix(), srcTepIp, routePath.getLabel(),
-                                    false, writeConfigTxn);
+                List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
+                routePaths.forEach(routePath -> {
+                    if (routePath.getNexthopAddress().equals(srcTepIp)) {
+                        String prefix = destPrefix.getDestPrefix();
+                        String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(opData.getVpnInstanceName(),
+                                prefix);
+                        synchronized (vpnPrefixKey.intern()) {
+                            fibManager.refreshVrfEntry(opData.getVrfId(), prefix);
                         }
-                    });
+                    }
                 });
             });
-        }
+        });
         writeConfigTxn.submit();
     }
 
