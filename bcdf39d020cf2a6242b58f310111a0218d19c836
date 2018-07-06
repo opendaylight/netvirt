@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f1fc591_97e56e2c",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 873,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-07-06T07:38:33Z",
+      "side": 1,
+      "message": "Please use the new datastore-constrained variant instead:\n\n    ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.OPERATIONAL,\n        tx -\u003e tx.delete(id)), LOG,\n            (\"Failed to delete subnet info for port: \" + portId));",
+      "revId": "bcdf39d020cf2a6242b58f310111a0218d19c836",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
