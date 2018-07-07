@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce3750ad_0ba8e934",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-07-07T07:50:47Z",
+      "side": 1,
+      "message": "not related to the patch. one other problem i have seen in this file is that it registers all listeners before initializing eos here. And many listeners do have isEntityOwner() check before processing the event. There can be cases where the events will get missed during the initial bring up because of this.",
+      "revId": "67f2da0cdab392f6d19464346ad512d62f07c285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
