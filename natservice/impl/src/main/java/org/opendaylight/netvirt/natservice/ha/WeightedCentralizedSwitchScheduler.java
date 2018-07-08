@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -34,8 +35,10 @@ import org.opendaylight.netvirt.natservice.internal.NatUtil;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
@@ -72,6 +75,12 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     @Override
     public boolean scheduleCentralizedSwitch(Routers router) {
         BigInteger nextSwitchId = getSwitchWithLowestWeight();
+        if (nextSwitchId == BigInteger.valueOf(0)) {
+            LOG.error("In scheduleCentralizedSwitch, unable to schedule the router {} as there is no available switch.",
+                    router.getRouterName());
+            return false;
+        }
+
         LOG.info("scheduleCentralizedSwitch for router {} on switch {}", router.getRouterName(), nextSwitchId);
         String routerName = router.getRouterName();
         RouterToNaptSwitchBuilder routerToNaptSwitchBuilder =
@@ -191,9 +200,48 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     public boolean addSwitch(BigInteger dpnId) {
         /* Initialize the switch in the map with weight 0 */
         LOG.info("addSwitch: Adding {} dpnId to switchWeightsMap", dpnId);
+        boolean scheduleRouters = (switchWeightsMap.size() == 0) ? true : false;
         switchWeightsMap.put(dpnId, INITIAL_SWITCH_WEIGHT);
-        return true;
 
+        if (scheduleRouters) {
+            ExtRouters routers;
+            try {
+                routers = SingleTransactionDataBroker.syncRead(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        InstanceIdentifier.create(ExtRouters.class));
+            } catch (ReadFailedException e) {
+                LOG.error("addSwitch: Error reading external routers", e);
+                return false;
+            }
+
+            // Get the list of routers and verify if any routers do not have primarySwitch allocated.
+            for (Routers router : routers.getRouters()) {
+                List<ExternalIps> externalIps = router.getExternalIps();
+                if (router.isEnableSnat() && externalIps != null && !externalIps.isEmpty()) {
+                    // Check if the primarySwitch is allocated for the router.
+                    if (!isPrimarySwitchAllocatedForRouter(router.getRouterName())) {
+                        scheduleCentralizedSwitch(router);
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean isPrimarySwitchAllocatedForRouter(String routerName) {
+        InstanceIdentifier<RouterToNaptSwitch> routerToNaptSwitch =
+                NatUtil.buildNaptSwitchRouterIdentifier(routerName);
+        try {
+            RouterToNaptSwitch rtrToNapt = SingleTransactionDataBroker.syncRead(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
+            BigInteger dpnId = rtrToNapt.getPrimarySwitchId();
+            if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
+                return false;
+            }
+        } catch (ReadFailedException e) {
+            LOG.error("isPrimarySwitchAllocatedForRouter: Error reading RouterToNaptSwitch model", e);
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -233,6 +281,8 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 nextSwitchId =  dpnId;
             }
         }
+        LOG.info("getSwitchWithLowestWeight: switchWeightsMap {}, returning nextSwitchId {} ",
+                switchWeightsMap, nextSwitchId);
         return nextSwitchId;
     }
 
