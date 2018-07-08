@@ -1968,6 +1968,12 @@ public final class NatUtil {
     }
 
     @Nullable
+    public static ExtRouters getExternalRouters(TypedReadTransaction<Configuration> tx)
+            throws ExecutionException, InterruptedException {
+        return tx.read(InstanceIdentifier.create(ExtRouters.class)).get().orNull();
+    }
+
+    @Nullable
     public static String getPrimaryRd(String vpnName, TypedReadTransaction<Configuration> tx)
         throws ExecutionException, InterruptedException {
         return tx.read(getVpnInstanceIdentifier(vpnName)).get().toJavaUtil().map(NatUtil::getPrimaryRd).orElse(null);
