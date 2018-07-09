@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.netvirt.natservice.internal.NatUtil.buildfloatingIpIdToPortMappingIdentifier;
 
 import com.google.common.base.Optional;
@@ -244,12 +245,12 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                 LOG.debug("onAddFloatingIp : Add Floating Ip {} , found associated to fixed port {}",
                         externalIp, interfaceName);
                 String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId);
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                     vpnManager.addSubnetMacIntoVpnInstance(networkVpnName, subnetVpnName,
                             floatingIpPortMacAddress, dpnId, tx);
                     vpnManager.addArpResponderFlowsToExternalNetworkIps(routerUuid,
                             Collections.singleton(externalIp),
-                            floatingIpPortMacAddress, dpnId, networkId, tx);
+                            floatingIpPortMacAddress, dpnId, networkId);
                 });
                 return future1;
             } else {
@@ -309,8 +310,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             return;
         }
 
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-            String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+            String networkVpnName =  NatUtil.getAssociatedVPN(tx, networkId);
             vpnManager.removeSubnetMacFromVpnInstance(networkVpnName, subnetId.getValue(), floatingIpPortMacAddress,
                     dpnId, tx);
             vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerUuid, Collections.singletonList(externalIp),

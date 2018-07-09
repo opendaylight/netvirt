@@ -37,7 +37,9 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.TypedReadTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -410,6 +412,16 @@ public final class NatUtil {
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Networks::getVpnid).orElse(null);
     }
 
+    @Nullable
+    public static Uuid getVpnIdfromNetworkId(TypedReadTransaction<Configuration> tx, Uuid networkId) {
+        try {
+            return tx.read(buildNetworkIdentifier(networkId)).get().toJavaUtil().map(Networks::getVpnid).orElse(null);
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error reading network VPN id for {}", networkId, e);
+            return null;
+        }
+    }
+
     public static ProviderTypes getProviderTypefromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
@@ -651,6 +663,15 @@ public final class NatUtil {
 
     public static String getAssociatedVPN(DataBroker dataBroker, Uuid networkId) {
         Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
+        if (vpnUuid == null) {
+            LOG.error("getAssociatedVPN : No VPN instance associated with ext network {}", networkId);
+            return null;
+        }
+        return vpnUuid.getValue();
+    }
+
+    public static String getAssociatedVPN(TypedReadTransaction<Configuration> tx, Uuid networkId) {
+        Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(tx, networkId);
         if (vpnUuid == null) {
             LOG.error("getAssociatedVPN : No VPN instance associated with ext network {}", networkId);
             return null;
