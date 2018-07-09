@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "185ec26a_b3c3e256",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-07-09T09:16:19Z",
+      "side": 1,
+      "message": "Better to use readwrite transaction in fluorine?",
+      "revId": "f7d129498326a7336c40c8783fea35228cc672fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66f7689b_579f1392",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-07-09T09:16:19Z",
+      "side": 1,
+      "message": "This needs to be done only if it is first switch added to the map?",
+      "revId": "f7d129498326a7336c40c8783fea35228cc672fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
