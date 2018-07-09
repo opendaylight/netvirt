@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -429,6 +430,16 @@ public final class NatUtil {
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Networks::getVpnid).orElse(null);
     }
 
+    @Nullable
+    public static Uuid getVpnIdfromNetworkId(TypedReadTransaction<Configuration> tx, Uuid networkId) {
+        try {
+            return tx.read(buildNetworkIdentifier(networkId)).get().toJavaUtil().map(Networks::getVpnid).orElse(null);
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error reading network VPN id for {}", networkId, e);
+            return null;
+        }
+    }
+
     public static ProviderTypes getProviderTypefromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
@@ -692,6 +703,15 @@ public final class NatUtil {
 
     public static String getAssociatedVPN(DataBroker dataBroker, Uuid networkId) {
         Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
+        if (vpnUuid == null) {
+            LOG.error("getAssociatedVPN : No VPN instance associated with ext network {}", networkId);
+            return null;
+        }
+        return vpnUuid.getValue();
+    }
+
+    public static String getAssociatedVPN(TypedReadTransaction<Configuration> tx, Uuid networkId) {
+        Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(tx, networkId);
         if (vpnUuid == null) {
             LOG.error("getAssociatedVPN : No VPN instance associated with ext network {}", networkId);
             return null;
@@ -2060,7 +2080,7 @@ public final class NatUtil {
 
     public static void installRouterGwFlows(ManagedNewTransactionRunner txRunner, IVpnManager vpnManager,
             Routers router, BigInteger primarySwitchId, int addOrRemove) {
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             List<ExternalIps> externalIps = router.getExternalIps();
             List<String> externalIpsSting = new ArrayList<>();
 
@@ -2077,7 +2097,7 @@ public final class NatUtil {
                         router.getNetworkId(), subnetVpnName.getValue(), tx);
                 vpnManager.addArpResponderFlowsToExternalNetworkIps(router.getRouterName(), externalIpsSting,
                         router.getExtGwMacAddress(), primarySwitchId,
-                        router.getNetworkId(), tx);
+                        router.getNetworkId());
             } else {
                 vpnManager.removeRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
                         router.getNetworkId(), subnetVpnName.getValue(), tx);
