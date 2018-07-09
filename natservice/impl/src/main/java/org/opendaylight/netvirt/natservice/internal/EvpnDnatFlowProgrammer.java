@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -159,11 +161,11 @@ public class EvpnDnatFlowProgrammer {
         LOG.debug("onAddFloatingIp : Add Floating Ip {} , found associated to fixed port {}",
                 externalIp, interfaceName);
         if (floatingIpPortMacAddress != null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 vpnManager.addSubnetMacIntoVpnInstance(vpnName, null, floatingIpPortMacAddress, dpnId, tx);
                 vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName,
                         Collections.singleton(externalIp),
-                        floatingIpPortMacAddress, dpnId, networkId, tx);
+                        floatingIpPortMacAddress, dpnId, networkId);
             }), LOG, "Error processing floating IP port with MAC address {}", floatingIpPortMacAddress);
         }
         final long finalL3Vni = l3Vni;
