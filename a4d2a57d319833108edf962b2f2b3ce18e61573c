@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f2499b2_c207f1c2",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1942,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-07-09T11:32:43Z",
+      "side": 1,
+      "message": "2nd parameter passed as networkid, but accepted as extSubnetID in the method and queried External-subnet DS.",
+      "revId": "a4d2a57d319833108edf962b2f2b3ce18e61573c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c705b291_1f56a5fc",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1994,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-07-09T11:32:43Z",
+      "side": 1,
+      "message": "Since in GRE/VXLAN use-case, external-subnets DS not populated, can we have a parameter passed to this method(true-flat/vlan, false-gre/vxlan) and query the routerUuidList from ExternalNetworks for gre/vxlan.\n\nCan make use of extNetworkProviderType available in called methods",
+      "range": {
+        "startLine": 1992,
+        "startChar": 0,
+        "endLine": 1994,
+        "endChar": 80
+      },
+      "revId": "a4d2a57d319833108edf962b2f2b3ce18e61573c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
