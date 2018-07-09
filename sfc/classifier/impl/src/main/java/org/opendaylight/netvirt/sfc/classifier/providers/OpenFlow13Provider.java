@@ -14,7 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.sfc.classifier.utils.AclMatches;
 import org.opendaylight.netvirt.sfc.classifier.utils.OpenFlow13Utils;
@@ -90,7 +91,7 @@ public class OpenFlow13Provider {
         return new AclMatches(matches).buildMatch();
     }
 
-    public void appendFlowForCreate(NodeId node, Flow flow, WriteTransaction tx) {
+    public void appendFlowForCreate(NodeId node, Flow flow, TypedWriteTransaction<Configuration> tx) {
         NodeKey nodeKey = new NodeKey(node);
         InstanceIdentifier<Flow> iidFlow = InstanceIdentifier.builder(Nodes.class)
             .child(Node.class, nodeKey)
@@ -99,10 +100,10 @@ public class OpenFlow13Provider {
             .child(Flow.class, flow.key())
             .build();
 
-        tx.put(LogicalDatastoreType.CONFIGURATION, iidFlow, flow, WriteTransaction.CREATE_MISSING_PARENTS);
+        tx.put(iidFlow, flow, WriteTransaction.CREATE_MISSING_PARENTS);
     }
 
-    public void appendFlowForDelete(NodeId node, Flow flow, WriteTransaction tx) {
+    public void appendFlowForDelete(NodeId node, Flow flow, TypedWriteTransaction<Configuration> tx) {
         NodeKey nodeKey = new NodeKey(node);
         InstanceIdentifier<Flow> iidFlow = InstanceIdentifier.builder(Nodes.class)
             .child(Node.class, nodeKey)
@@ -111,7 +112,7 @@ public class OpenFlow13Provider {
             .child(Flow.class, flow.key())
             .build();
 
-        tx.delete(LogicalDatastoreType.CONFIGURATION, iidFlow);
+        tx.delete(iidFlow);
     }
 
     /*
