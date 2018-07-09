@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -185,7 +186,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         } else {
             vpnManager.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd, null /* routerId */,
                     vpnOpEntry.getL3vni(), RouteOrigin.STATIC, null /* intfName */,
-                            null /*Adjacency*/, encapType, null);
+                            null /*Adjacency*/, encapType, (WriteTransaction) null);
         }
 
         AddStaticRouteOutput labelOutput = new AddStaticRouteOutputBuilder().setLabel(label).build();
@@ -243,7 +244,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             bgpManager.withdrawPrefix(vpnRd, destination);
         } else {
             vpnManager.delExtraRoute(vpnInstanceName, destination,
-                    nexthop, vpnRd, null /* routerId */, null /* intfName */, null);
+                    nexthop, vpnRd, null /* routerId */, null /* intfName */, (WriteTransaction) null);
         }
         result.set(RpcResultBuilder.success(new RemoveStaticRouteOutputBuilder().build()).build());
 

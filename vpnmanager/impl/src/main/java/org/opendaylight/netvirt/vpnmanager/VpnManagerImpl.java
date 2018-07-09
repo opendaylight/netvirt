@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,17 +28,21 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TransactionAdapter;
+import org.opendaylight.genius.infra.TypedReadTransaction;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.UpgradeState;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
@@ -77,7 +81,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.RouteTargetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.route.target.AssociatedSubnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.route.target.associated.subnet.AssociatedVpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
@@ -188,14 +191,10 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-        int label,RouteOrigin origin) {
-        LOG.info("Adding extra route with destination {}, nextHop {}, label{} and origin {}",
-            destination, nextHop, label, origin);
-        VpnInstanceOpDataEntry vpnOpEntry = vpnUtil.getVpnInstanceOpData(rd);
-        Boolean isVxlan = VpnUtil.isL3VpnOverVxLan(vpnOpEntry.getL3vni());
-        VrfEntry.EncapType encapType = VpnUtil.getEncapType(isVxlan);
-        addExtraRoute(vpnName, destination, nextHop, rd, routerID, vpnOpEntry.getL3vni(),
-                origin,/*intfName*/ null, null /*Adjacency*/, encapType, null);
+        Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj, VrfEntry.EncapType encapType,
+        TypedWriteTransaction<Configuration> confTx) {
+        addExtraRoute(vpnName, destination, nextHop, rd, routerID, l3vni, origin, intfName, operationalAdj, encapType,
+            TransactionAdapter.toWriteTransaction(confTx));
     }
 
     @Override
@@ -272,9 +271,10 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID) {
-        LOG.info("Deleting extra route with destination {} and nextHop {}", destination, nextHop);
-        delExtraRoute(vpnName, destination, nextHop, rd, routerID, null, null);
+    public void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
+        String intfName, TypedWriteTransaction<Configuration> confTx) {
+        delExtraRoute(vpnName, destination, nextHop, rd, routerID, intfName,
+            TransactionAdapter.toWriteTransaction(confTx));
     }
 
     @Override
@@ -310,7 +310,14 @@ public class VpnManagerImpl implements IVpnManager {
         }
     }
 
- // TODO Clean up the exception handling
+    @Override
+    public void removePrefixFromBGP(String primaryRd, String rd, String vpnName, String prefix, String nextHop,
+        String tunnelIp, BigInteger dpnId, TypedWriteTransaction<Configuration> confTx) {
+        removePrefixFromBGP(primaryRd, rd, vpnName, prefix, nextHop, tunnelIp, dpnId,
+            TransactionAdapter.toWriteTransaction(confTx));
+    }
+
+    // TODO Clean up the exception handling
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void removePrefixFromBGP(String primaryRd, String rd, String vpnName, String prefix, String nextHop,
@@ -383,13 +390,10 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public List<BigInteger> getDpnsOnVpn(String vpnInstanceName) {
-        return vpnUtil.getDpnsOnVpn(vpnInstanceName);
-    }
-
-    @Override
-    public boolean existsVpn(String vpnName) {
-        return vpnUtil.getVpnInstance(vpnName) != null;
+    public void addSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
+        BigInteger dpnId, TypedWriteTransaction<Configuration> confTx) {
+        setupSubnetMacInVpnInstance(vpnName, subnetVpnName, srcMacAddress, dpnId,
+            (vpnId, dpId, subnetVpnId) -> addGwMac(srcMacAddress, confTx, vpnId, dpId, subnetVpnId));
     }
 
     @Override
@@ -397,6 +401,13 @@ public class VpnManagerImpl implements IVpnManager {
             BigInteger dpnId, WriteTransaction tx) {
         setupSubnetMacInVpnInstance(vpnName, subnetVpnName, srcMacAddress, dpnId,
             (vpnId, dpId, subnetVpnId) -> addGwMac(srcMacAddress, tx, vpnId, dpId, subnetVpnId));
+    }
+
+    @Override
+    public void removeSubnetMacFromVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
+        BigInteger dpnId, TypedReadWriteTransaction<Configuration> confTx) {
+        setupSubnetMacInVpnInstance(vpnName, subnetVpnName, srcMacAddress, dpnId,
+            (vpnId, dpId, subnetVpnId) -> removeGwMac(srcMacAddress, confTx, vpnId, dpId, subnetVpnId));
     }
 
     @Override
@@ -435,9 +446,29 @@ public class VpnManagerImpl implements IVpnManager {
         mdsalManager.addFlowToTx(flowEntity, tx);
     }
 
+    private void addGwMac(String srcMacAddress, TypedWriteTransaction<Configuration> tx, long vpnId, BigInteger dpId,
+        long subnetVpnId) {
+        FlowEntity flowEntity = vpnUtil.buildL3vpnGatewayFlow(dpId, srcMacAddress, vpnId, subnetVpnId);
+        mdsalManager.addFlow(tx, flowEntity);
+    }
+
     private void removeGwMac(String srcMacAddress, WriteTransaction tx, long vpnId, BigInteger dpId, long subnetVpnId) {
         FlowEntity flowEntity = vpnUtil.buildL3vpnGatewayFlow(dpId, srcMacAddress, vpnId, subnetVpnId);
         mdsalManager.removeFlowToTx(flowEntity, tx);
+    }
+
+    private void removeGwMac(String srcMacAddress, TypedReadWriteTransaction<Configuration> tx, long vpnId,
+        BigInteger dpId, long subnetVpnId) {
+        mdsalManager.removeFlow(tx, dpId,
+            VpnUtil.getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, srcMacAddress, subnetVpnId),
+            NwConstants.L3_GW_MAC_TABLE);
+    }
+
+    @Override
+    public void addRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
+        String subnetVpnName, TypedWriteTransaction<Configuration> confTx) {
+        setupRouterGwMacFlow(routerName, routerGwMac, dpnId, extNetworkId,
+            vpnId -> addSubnetMacIntoVpnInstance(vpnId, subnetVpnName, routerGwMac, dpnId, confTx), "Installing");
     }
 
     @Override
@@ -445,6 +476,13 @@ public class VpnManagerImpl implements IVpnManager {
             String subnetVpnName, WriteTransaction writeTx) {
         setupRouterGwMacFlow(routerName, routerGwMac, dpnId, extNetworkId, writeTx,
             (vpnId, tx) -> addSubnetMacIntoVpnInstance(vpnId, subnetVpnName, routerGwMac, dpnId, tx), "Installing");
+    }
+
+    @Override
+    public void removeRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
+        String subnetVpnName, TypedReadWriteTransaction<Configuration> confTx) {
+        setupRouterGwMacFlow(routerName, routerGwMac, dpnId, extNetworkId,
+            vpnId -> removeSubnetMacFromVpnInstance(vpnId, subnetVpnName, routerGwMac, dpnId, confTx), "Removing");
     }
 
     @Override
@@ -488,9 +526,38 @@ public class VpnManagerImpl implements IVpnManager {
         }
     }
 
+    private void setupRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
+        Consumer<String> consumer, String operation) {
+        if (routerGwMac == null) {
+            LOG.warn("Failed to handle router GW flow in GW-MAC table. MAC address is missing for router-id {}",
+                routerName);
+            return;
+        }
+
+        if (dpnId == null || BigInteger.ZERO.equals(dpnId)) {
+            LOG.info("setupRouterGwMacFlow: DPN id is missing for router-id {}",
+                routerName);
+            return;
+        }
+
+        Uuid vpnId = vpnUtil.getExternalNetworkVpnId(extNetworkId);
+        if (vpnId == null) {
+            LOG.warn("Network {} is not associated with VPN", extNetworkId.getValue());
+            return;
+        }
+
+        LOG.info("{} router GW MAC flow for router-id {} on switch {}", operation, routerName, dpnId);
+        consumer.accept(vpnId.getValue());
+    }
+
     @Override
     public void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-            BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx) {
+        BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx) {
+        addArpResponderFlowsToExternalNetworkIps(id, fixedIps, macAddress, dpnId, extNetworkId);
+    }
+
+    public void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
+            BigInteger dpnId, Uuid extNetworkId) {
 
         if (dpnId == null || BigInteger.ZERO.equals(dpnId)) {
             LOG.warn("Failed to install arp responder flows for router {}. DPN id is missing.", id);
@@ -500,7 +567,7 @@ public class VpnManagerImpl implements IVpnManager {
         String extInterfaceName = elanService.getExternalElanInterface(extNetworkId.getValue(), dpnId);
         if (extInterfaceName != null) {
             doAddArpResponderFlowsToExternalNetworkIps(
-                    id, fixedIps, macAddress, dpnId, extNetworkId, writeTx, extInterfaceName);
+                    id, fixedIps, macAddress, dpnId, extInterfaceName);
             return;
         }
 
@@ -549,11 +616,7 @@ public class VpnManagerImpl implements IVpnManager {
             }
 
             final String extIfcFinal = extIfc;
-            ListenableFuture<Void> listenableFuture =
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> doAddArpResponderFlowsToExternalNetworkIps(
-                    id, fixedIps, macAddress, dpnId, extNetworkId, tx, extIfcFinal));
-            ListenableFutures.addErrorLogging(listenableFuture, LOG,
-                    "Error while configuring arp responder for ext. interface");
+            doAddArpResponderFlowsToExternalNetworkIps(id, fixedIps, macAddress, dpnId, extIfcFinal);
 
             return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
         });
@@ -562,7 +625,7 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-            BigInteger dpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx) {
+            BigInteger dpnId, String extInterfaceName, int lportTag) {
         if (fixedIps == null || fixedIps.isEmpty()) {
             LOG.debug("No external IPs defined for {}", id);
             return;
@@ -570,33 +633,18 @@ public class VpnManagerImpl implements IVpnManager {
 
         LOG.info("Installing ARP responder flows for {} fixed-ips {} on switch {}", id, fixedIps, dpnId);
 
-        if (writeTx == null) {
-            ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                tx -> {
-                    for (String fixedIp : fixedIps) {
-                        IpVersionChoice ipVersionChoice = VpnUtil.getIpVersionFromString(fixedIp);
-                        if (ipVersionChoice == IpVersionChoice.IPV6) {
-                            continue;
-                        }
-                        installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag,
-                                fixedIp);
-                    }
-                });
-            ListenableFutures.addErrorLogging(future, LOG, "Commit transaction");
-        } else {
-            for (String fixedIp : fixedIps) {
-                IpVersionChoice ipVersionChoice = VpnUtil.getIpVersionFromString(fixedIp);
-                if (ipVersionChoice == IpVersionChoice.IPV6) {
-                    continue;
-                }
-                installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag,
-                        fixedIp);
+        for (String fixedIp : fixedIps) {
+            IpVersionChoice ipVersionChoice = VpnUtil.getIpVersionFromString(fixedIp);
+            if (ipVersionChoice == IpVersionChoice.IPV6) {
+                continue;
             }
+            installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag,
+                    fixedIp);
         }
     }
 
     private void doAddArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-                            BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx, String extInterfaceName) {
+            BigInteger dpnId, String extInterfaceName) {
         Interface extInterfaceState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker, extInterfaceName);
         if (extInterfaceState == null) {
             LOG.debug("No interface state found for interface {}. Delaying responder flows for {}", extInterfaceName,
@@ -617,8 +665,7 @@ public class VpnManagerImpl implements IVpnManager {
             return;
         }
 
-        addArpResponderFlowsToExternalNetworkIps(id, fixedIps, macAddress, dpnId, extInterfaceName, lportTag,
-                writeTx);
+        addArpResponderFlowsToExternalNetworkIps(id, fixedIps, macAddress, dpnId, extInterfaceName, lportTag);
     }
 
     @Override
@@ -680,18 +727,6 @@ public class VpnManagerImpl implements IVpnManager {
         return VpnUtil.getPrimaryRd(vpnInstance);
     }
 
-    @Override
-    public List<MatchInfoBase> getEgressMatchesForVpn(String vpnName) {
-        long vpnId = vpnUtil.getVpnId(vpnName);
-        if (vpnId == VpnConstants.INVALID_ID) {
-            LOG.warn("No VPN id found for {}", vpnName);
-            return Collections.emptyList();
-        }
-
-        return Collections
-                .singletonList(new NxMatchRegister(VpnConstants.VPN_REG_ID, vpnId, MetaDataUtil.getVpnIdMaskForReg()));
-    }
-
     private void installArpResponderFlowsToExternalNetworkIp(String macAddress, BigInteger dpnId,
             String extInterfaceName, int lportTag, String fixedIp) {
         // reset the split-horizon bit to allow traffic to be sent back to the
@@ -731,8 +766,19 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
+    public String getVpnRd(TypedReadTransaction<Configuration> confTx, String vpnName) {
+        return VpnUtil.getVpnRd(confTx, vpnName);
+    }
+
+    @Override
     public String getVpnRd(DataBroker broker, String vpnName) {
         return vpnUtil.getVpnRd(vpnName);
+    }
+
+    @Override
+    public VpnPortipToPort getNeutronPortFromVpnPortFixedIp(TypedReadTransaction<Configuration> confTx, String vpnName,
+        String fixedIp) {
+        return vpnUtil.getNeutronPortFromVpnPortFixedIp(confTx, vpnName, fixedIp);
     }
 
     @Override
