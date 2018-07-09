@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.List;
@@ -78,7 +80,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
             }
             long routerId = NatUtil.getVpnId(dataBroker, routerName);
             try {
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     tx -> externalRoutersListener.changeLocalVpnIdToBgpVpnId(routerName, routerId, vpnName, tx,
                             extNwProvType)).get();
             } catch (InterruptedException | ExecutionException e) {
@@ -116,7 +118,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
             }
             long routerId = NatUtil.getVpnId(dataBroker, routerName);
             try {
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     tx -> externalRoutersListener.changeBgpVpnIdToLocalVpnId(routerName, routerId, vpnName, tx,
                             extNwProvType)).get();
             } catch (InterruptedException | ExecutionException e) {

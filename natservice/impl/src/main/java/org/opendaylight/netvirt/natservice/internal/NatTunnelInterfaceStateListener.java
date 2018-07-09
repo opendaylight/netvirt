@@ -33,7 +33,6 @@ import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TransactionAdapter;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -583,8 +582,7 @@ public class NatTunnelInterfaceStateListener
             //Install default entry in FIB to SNAT table
             LOG.debug("hndlTepAddOnNonNaptSwitch : Installing default route in FIB on DPN {} for router {} with"
                 + " vpn {}...", srcDpnId, routerName, vpnId);
-            defaultRouteProgrammer.installDefNATRouteInDPN(srcDpnId, vpnId,
-                TransactionAdapter.toWriteTransaction(confTx));
+            defaultRouteProgrammer.installDefNATRouteInDPN(srcDpnId, vpnId, confTx);
 
             LOG.debug("hndlTepAddOnNonNaptSwitch : SNAT -> Install the group which forward packet to the tunnel port "
                 + "for the NAPT switch {} and the flow 26 which forwards to group", primaryDpnId);
@@ -606,8 +604,7 @@ public class NatTunnelInterfaceStateListener
             //Install default entry in FIB to SNAT table
             LOG.debug("hndlTepAddOnNonNaptSwitch : Installing default route in FIB on dpn {} for routerId {} "
                 + "with vpnId {}...", srcDpnId, routerId, vpnId);
-            defaultRouteProgrammer.installDefNATRouteInDPN(srcDpnId, vpnId, routerId,
-                TransactionAdapter.toWriteTransaction(confTx));
+            defaultRouteProgrammer.installDefNATRouteInDPN(srcDpnId, vpnId, routerId, confTx);
 
             LOG.debug("hndlTepAddOnNonNaptSwitch : Install group in non NAPT switch {} for router {}",
                     srcDpnId, routerName);
@@ -729,8 +726,7 @@ public class NatTunnelInterfaceStateListener
                 LOG.debug("hndlTepAddOnNaptSwitch : SNAT -> Advertise the route to the externalIp {} "
                         + "having nextHopIp {}", externalIp, nextHopIp);
                 NatEvpnUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, externalVpnName, rd,
-                        externalIp, nextHopIp, l3Vni, tunnelName, gwMacAddress,
-                        TransactionAdapter.toWriteTransaction(confTx), RouteOrigin.STATIC, srcDpnId);
+                        externalIp, nextHopIp, l3Vni, tunnelName, gwMacAddress, confTx, RouteOrigin.STATIC, srcDpnId);
                 serviceId = l3Vni;
             } else {
 
@@ -878,8 +874,8 @@ public class NatTunnelInterfaceStateListener
                     LOG.debug("hndlTepAddForDnatInEachRtr : DNAT -> Advertise the route to the externalIp {} "
                             + "having nextHopIp {}", externalIp, nextHopIp);
                     NatEvpnUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, vpnName, rd,
-                            externalIp, nextHopIp, l3Vni, interfaceName, gwMacAddress,
-                            TransactionAdapter.toWriteTransaction(confTx), RouteOrigin.STATIC, fipCfgdDpnId);
+                        externalIp, nextHopIp, l3Vni, interfaceName, gwMacAddress, confTx, RouteOrigin.STATIC,
+                        fipCfgdDpnId);
                     serviceId = l3Vni;
                 } else {
                     long label = floatingIPListener.getOperationalIpMapping(routerName, interfaceName, internalIp);
@@ -996,8 +992,7 @@ public class NatTunnelInterfaceStateListener
                 //Install default entry in FIB to SNAT table
                 LOG.debug("hndlTepDelForSnatInEachRtr : Installing default route in FIB on DPN {} for router {} with"
                         + " vpn {}...", dpnId, routerName, bgpVpnId);
-                defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, bgpVpnId,
-                    TransactionAdapter.toWriteTransaction(confTx));
+                defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, bgpVpnId, confTx);
             } else {
                 bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
                 if (bgpVpnId == NatConstants.INVALID_ID) {
@@ -1010,8 +1005,7 @@ public class NatTunnelInterfaceStateListener
                 //Install default entry in FIB to SNAT table
                 LOG.debug("hndlTepDelForSnatInEachRtr : Installing default route in FIB on dpn {} for routerId {} "
                         + "with vpnId {}...", dpnId, routerId, bgpVpnId);
-                defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, bgpVpnId, routerId,
-                    TransactionAdapter.toWriteTransaction(confTx));
+                defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, bgpVpnId, routerId, confTx);
             }
 
             if (routerData.get().isEnableSnat()) {

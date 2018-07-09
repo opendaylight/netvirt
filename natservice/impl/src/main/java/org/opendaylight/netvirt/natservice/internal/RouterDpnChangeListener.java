@@ -25,7 +25,6 @@ import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TransactionAdapter;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -175,8 +174,7 @@ public class RouterDpnChangeListener
                                     LOG.info(
                                         "add : Installing default route in FIB on dpn {} for router {} with vpn {}",
                                         dpnId, routerUuid, vpnId);
-                                    snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId,
-                                        TransactionAdapter.toWriteTransaction(confTx));
+                                    snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, confTx);
                                 } else {
                                     LOG.debug("add : External BGP vpn associated to router {}", routerUuid);
                                     vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
@@ -188,8 +186,7 @@ public class RouterDpnChangeListener
                                     //Install default entry in FIB to SNAT table
                                     LOG.debug("add : Installing default route in FIB on dpn {} for routerId {} with "
                                         + "vpnId {}...", dpnId, routerUuid, vpnId);
-                                    snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routerId,
-                                        TransactionAdapter.toWriteTransaction(confTx));
+                                    snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routerId, confTx);
                                 }
                                 if (router.isEnableSnat()) {
                                     LOG.info("add : SNAT enabled for router {}", routerUuid);
@@ -262,8 +259,7 @@ public class RouterDpnChangeListener
                                     //Remove default entry in FIB
                                     LOG.debug("remove : Removing default route in FIB on dpn {} for vpn {} ...", dpnId,
                                         vpnName);
-                                    snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId,
-                                        TransactionAdapter.toWriteTransaction(confTx));
+                                    snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, confTx);
                                 } else {
                                     LOG.debug("remove : External vpn associated to router {}", routerUuid);
                                     vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
@@ -275,8 +271,7 @@ public class RouterDpnChangeListener
                                     //Remove default entry in FIB
                                     LOG.debug("remove : Removing default route in FIB on dpn {} for vpn {} ...", dpnId,
                                         vpnName);
-                                    snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, routerId,
-                                        TransactionAdapter.toWriteTransaction(confTx));
+                                    snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, routerId, confTx);
                                 }
 
                                 if (router.isEnableSnat()) {

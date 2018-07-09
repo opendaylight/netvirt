@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -22,12 +25,13 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -277,20 +281,21 @@ public class NatInterfaceStateChangeListener
     }
 
     void handleRouterInterfacesUpEvent(String routerName, String interfaceName, BigInteger dpId,
-            WriteTransaction writeOperTxn) {
+            TypedReadWriteTransaction<Operational> operTx) throws ExecutionException, InterruptedException {
         LOG.debug("handleRouterInterfacesUpEvent : Handling UP event for router interface {} in Router {} on Dpn {}",
                 interfaceName, routerName, dpId);
-        NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerName, interfaceName, dpId, writeOperTxn);
-        NatUtil.addToDpnRoutersMap(dataBroker, routerName, interfaceName, dpId, writeOperTxn);
+        NatUtil.addToNeutronRouterDpnsMap(routerName, interfaceName, dpId, operTx);
+        NatUtil.addToDpnRoutersMap(routerName, interfaceName, dpId, operTx);
     }
 
     void handleRouterInterfacesDownEvent(String routerName, String interfaceName, BigInteger dpnId,
-                                         WriteTransaction writeOperTxn) {
+                                         TypedReadWriteTransaction<Operational> operTx)
+        throws ExecutionException, InterruptedException {
         LOG.debug("handleRouterInterfacesDownEvent : Handling DOWN event for router Interface {} in Router {}",
                 interfaceName, routerName);
-        NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, interfaceName, dpnId, writeOperTxn);
+        NatUtil.removeFromNeutronRouterDpnsMap(routerName, dpnId, operTx);
         NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, interfaceName, dpnId, odlInterfaceRpcService,
-                writeOperTxn);
+                operTx);
     }
 
     private IntfTransitionState getTransitionState(Interface.OperStatus original , Interface.OperStatus updated) {
@@ -319,7 +324,7 @@ public class NatInterfaceStateChangeListener
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             try {
                 LOG.trace("call : Received interface {} PORT UP OR ADD event ", interfaceName);
-                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+                futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx ->
                     handleRouterInterfacesUpEvent(routerName, interfaceName, intfDpnId, tx)));
             } catch (Exception e) {
                 LOG.error("call : Exception caught in Interface {} Operational State Up event",
@@ -346,7 +351,7 @@ public class NatInterfaceStateChangeListener
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             try {
                 LOG.trace("call : Received interface {} PORT DOWN or REMOVE event", interfaceName);
-                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+                futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx ->
                         handleRouterInterfacesDownEvent(routerName, interfaceName, intfDpnId, tx)));
             } catch (Exception e) {
                 LOG.error("call : Exception observed in handling deletion of VPN Interface {}.", interfaceName, e);
@@ -382,14 +387,14 @@ public class NatInterfaceStateChangeListener
                             interfaceName, original.getOperStatus(), update.getOperStatus());
                     return futures;
                 }
-                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
                     if (state.equals(IntfTransitionState.STATE_DOWN)) {
                         LOG.debug("call : DPN {} connnected to the interface {} has gone down."
                                 + "Hence clearing the dpn-vpninterfaces-list entry from the"
                                 + " neutron-router-dpns model in the ODL:L3VPN", intfDpnId, interfaceName);
                         // If the interface state is unknown, it means that the corresponding DPN has gone down.
                         // So remove the dpn-vpninterfaces-list from the neutron-router-dpns model.
-                        NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, intfDpnId, tx);
+                        NatUtil.removeFromNeutronRouterDpnsMap(routerName, intfDpnId, tx);
                     } else if (state.equals(IntfTransitionState.STATE_UP)) {
                         LOG.debug("call : DPN {} connnected to the interface {} has come up. Hence adding"
                                 + " the dpn-vpninterfaces-list entry from the neutron-router-dpns model"
@@ -412,7 +417,7 @@ public class NatInterfaceStateChangeListener
             return;
         }
         InstanceIdentifier<RouterPorts> portIid = NatUtil.buildRouterPortsIdentifier(routerId);
-        ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+        ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
                 floatingIPListener.createNATFlowEntries(portName, intExtPortMap, portIid, routerId, tx);
             }
@@ -491,7 +496,7 @@ public class NatInterfaceStateChangeListener
             return;
         }
         InstanceIdentifier<RouterPorts> portIid = NatUtil.buildRouterPortsIdentifier(routerId);
-        ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+        ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
                 LOG.trace("processInterfaceRemoved : Removing DNAT Flow entries for dpnId {} ", dpnId);
                 floatingIPListener.removeNATFlowEntries(portName, intExtPortMap, portIid, routerId, dpnId, tx);

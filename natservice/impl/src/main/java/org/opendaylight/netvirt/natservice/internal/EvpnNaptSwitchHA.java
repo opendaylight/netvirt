@@ -13,7 +13,8 @@ import java.math.BigInteger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -41,7 +42,7 @@ public class EvpnNaptSwitchHA {
     }
 
     public void evpnRemoveSnatFlowsInOldNaptSwitch(String routerName, long routerId, String vpnName,
-                                                   BigInteger naptSwitch, WriteTransaction removeFlowInvTx) {
+            BigInteger naptSwitch, TypedReadWriteTransaction<Configuration> confTx) {
         //Handling VXLAN Provider type flow removal from old NAPT switch
         Long vpnId = NatUtil.getNetworkVpnIdFromRouterId(dataBroker, routerId);
         if (vpnId == NatConstants.INVALID_ID) {
@@ -67,10 +68,10 @@ public class EvpnNaptSwitchHA {
             return;
         }
         //Remove the L3_GW_MAC_TABLE which forwards the packet to Inbound NAPT Table (table19->44)
-        NatEvpnUtil.removeL3GwMacTableEntry(naptSwitch, vpnId, gwMacAddress, mdsalManager, removeFlowInvTx);
+        NatEvpnUtil.removeL3GwMacTableEntry(naptSwitch, vpnId, gwMacAddress, mdsalManager, confTx);
 
         //Remove the PDNAT_TABLE which forwards the packet to Inbound NAPT Table (table25->44)
-        NatUtil.removePreDnatToSnatTableEntry(mdsalManager, naptSwitch, removeFlowInvTx);
+        NatUtil.removePreDnatToSnatTableEntry(confTx, mdsalManager, naptSwitch);
 
         //Remove the PSNAT_TABLE which forwards the packet to Outbound NAPT Table (table26->46)
         String flowRef = getFlowRefSnat(naptSwitch, NwConstants.PSNAT_TABLE, routerName);
@@ -78,13 +79,13 @@ public class EvpnNaptSwitchHA {
         LOG.info("evpnRemoveSnatFlowsInOldNaptSwitch: Remove the flow (table26->46) in table {} "
                 + "for the old napt switch with the DPN ID {} and router ID {}",
                 NwConstants.PSNAT_TABLE, naptSwitch, routerId);
-        mdsalManager.removeFlowToTx(flowEntity, removeFlowInvTx);
+        mdsalManager.removeFlow(confTx, flowEntity);
 
         //Remove the Terminating Service table entry which forwards the packet to Inbound NAPT Table (table36->44)
         LOG.info("evpnRemoveSnatFlowsInOldNaptSwitch : Remove the flow (table36->44) in table {} "
                 + "for the old napt switch with the DPN ID {} and router ID {}",
                 NwConstants.INTERNAL_TUNNEL_TABLE, naptSwitch, routerId);
-        evpnSnatFlowProgrammer.removeTunnelTableEntry(naptSwitch, l3Vni, removeFlowInvTx);
+        evpnSnatFlowProgrammer.removeTunnelTableEntry(naptSwitch, l3Vni, confTx);
 
         //Remove the INTERNAL_TUNNEL_TABLE entry which forwards the packet to Outbound NAPT Table (table36->46)
         long tunnelId = NatEvpnUtil.getTunnelIdForRouter(idManager, dataBroker, routerName, routerId);
@@ -93,7 +94,7 @@ public class EvpnNaptSwitchHA {
         FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE, tsFlowRef);
         LOG.info("evpnRemoveSnatFlowsInOldNaptSwitch : Remove the flow in the {} for the active switch "
                 + "with the DPN ID {} and router ID {}", NwConstants.INTERNAL_TUNNEL_TABLE, naptSwitch, routerId);
-        mdsalManager.removeFlowToTx(tsNatFlowEntity, removeFlowInvTx);
+        mdsalManager.removeFlow(confTx, tsNatFlowEntity);
 
     }
 

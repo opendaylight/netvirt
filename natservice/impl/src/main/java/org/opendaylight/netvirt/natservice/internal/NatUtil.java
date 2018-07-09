@@ -8,9 +8,10 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.CheckedFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -31,15 +32,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.TypedReadTransaction;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -232,7 +234,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.ni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.load.grouping.NxRegLoad;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1041,8 +1042,8 @@ public final class NatUtil {
                     .RouterInterfaceKey(interfaceName)).build();
     }
 
-    public static void addToNeutronRouterDpnsMap(DataBroker broker, String routerName, String interfaceName,
-            BigInteger dpId , WriteTransaction writeOperTxn) {
+    public static void addToNeutronRouterDpnsMap(String routerName, String interfaceName, BigInteger dpId,
+        TypedReadWriteTransaction<Operational> operTx) throws ExecutionException, InterruptedException {
 
         if (dpId.equals(BigInteger.ZERO)) {
             LOG.warn("addToNeutronRouterDpnsMap : Could not retrieve dp id for interface {} "
@@ -1054,9 +1055,7 @@ public final class NatUtil {
                 + "ODL-L3VPN : NeutronRouterDpn map", routerName, dpId, interfaceName);
         InstanceIdentifier<DpnVpninterfacesList> dpnVpnInterfacesListIdentifier = getRouterDpnId(routerName, dpId);
 
-        Optional<DpnVpninterfacesList> optionalDpnVpninterfacesList =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                        LogicalDatastoreType.OPERATIONAL, dpnVpnInterfacesListIdentifier);
+        Optional<DpnVpninterfacesList> optionalDpnVpninterfacesList = operTx.read(dpnVpnInterfacesListIdentifier).get();
         org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns
             .router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces routerInterface =
             new RouterInterfacesBuilder().withKey(new RouterInterfacesKey(interfaceName))
@@ -1064,10 +1063,10 @@ public final class NatUtil {
         if (optionalDpnVpninterfacesList.isPresent()) {
             LOG.debug("addToNeutronRouterDpnsMap : RouterDpnList already present for the Router {} and DPN {} for the "
                     + "Interface {} in the ODL-L3VPN : NeutronRouterDpn map", routerName, dpId, interfaceName);
-            writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, dpnVpnInterfacesListIdentifier
+            operTx.merge(dpnVpnInterfacesListIdentifier
                     .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router
                             .dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces.class,
-                            new RouterInterfacesKey(interfaceName)), routerInterface, true);
+                            new RouterInterfacesKey(interfaceName)), routerInterface, CREATE_MISSING_PARENTS);
         } else {
             LOG.debug("addToNeutronRouterDpnsMap : Building new RouterDpnList for the Router {} and DPN {} for the "
                     + "Interface {} in the ODL-L3VPN : NeutronRouterDpn map", routerName, dpId, interfaceName);
@@ -1079,14 +1078,12 @@ public final class NatUtil {
             routerInterfaces.add(routerInterface);
             dpnVpnList.setRouterInterfaces(routerInterfaces);
             routerDpnListBuilder.setDpnVpninterfacesList(Collections.singletonList(dpnVpnList.build()));
-            writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
-                    getRouterId(routerName),
-                    routerDpnListBuilder.build(), true);
+            operTx.merge(getRouterId(routerName), routerDpnListBuilder.build(), CREATE_MISSING_PARENTS);
         }
     }
 
-    public static void addToDpnRoutersMap(DataBroker broker, String routerName, String interfaceName,
-            BigInteger dpId, WriteTransaction writeOperTxn) {
+    public static void addToDpnRoutersMap(String routerName, String interfaceName, BigInteger dpId,
+        TypedReadWriteTransaction<Operational> operTx) throws ExecutionException, InterruptedException {
         if (dpId.equals(BigInteger.ZERO)) {
             LOG.error("addToDpnRoutersMap : Could not retrieve dp id for interface {} to handle router {} "
                     + "association model", interfaceName, routerName);
@@ -1097,9 +1094,7 @@ public final class NatUtil {
                 + "DPNRouters map", dpId, routerName, interfaceName);
         InstanceIdentifier<DpnRoutersList> dpnRoutersListIdentifier = getDpnRoutersId(dpId);
 
-        Optional<DpnRoutersList> optionalDpnRoutersList =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                        LogicalDatastoreType.OPERATIONAL, dpnRoutersListIdentifier);
+        Optional<DpnRoutersList> optionalDpnRoutersList = operTx.read(dpnRoutersListIdentifier).get();
 
         if (optionalDpnRoutersList.isPresent()) {
             RoutersList routersList = new RoutersListBuilder().withKey(new RoutersListKey(routerName))
@@ -1108,9 +1103,8 @@ public final class NatUtil {
             if (!routersListFromDs.contains(routersList)) {
                 LOG.debug("addToDpnRoutersMap : Router {} not present for the DPN {}"
                         + " in the ODL-L3VPN : DPNRouters map", routerName, dpId);
-                writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
-                        dpnRoutersListIdentifier
-                        .child(RoutersList.class, new RoutersListKey(routerName)), routersList, true);
+                operTx.merge(dpnRoutersListIdentifier
+                        .child(RoutersList.class, new RoutersListKey(routerName)), routersList, CREATE_MISSING_PARENTS);
             } else {
                 LOG.debug("addToDpnRoutersMap : Router {} already mapped to the DPN {} in the ODL-L3VPN : "
                         + "DPNRouters map", routerName, dpId);
@@ -1123,69 +1117,31 @@ public final class NatUtil {
             RoutersListBuilder routersListBuilder = new RoutersListBuilder();
             routersListBuilder.setRouter(routerName);
             dpnRoutersListBuilder.setRoutersList(Collections.singletonList(routersListBuilder.build()));
-            writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
-                    getDpnRoutersId(dpId),
-                    dpnRoutersListBuilder.build(), true);
+            operTx.merge(getDpnRoutersId(dpId), dpnRoutersListBuilder.build(), CREATE_MISSING_PARENTS);
         }
     }
 
-
-    public static void removeFromNeutronRouterDpnsMap(DataBroker broker, String routerName, String interfaceName,
-                                               BigInteger dpId, WriteTransaction writeOperTxn) {
-        if (dpId.equals(BigInteger.ZERO)) {
-            LOG.error("removeFromNeutronRouterDpnsMap : Could not retrieve dp id for interface {} to handle router {} "
-                    + "dissociation model", interfaceName, routerName);
-            return;
-        }
-        InstanceIdentifier<DpnVpninterfacesList> routerDpnListIdentifier = getRouterDpnId(routerName, dpId);
-        Optional<DpnVpninterfacesList> optionalRouterDpnList =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                        LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier);
-        if (optionalRouterDpnList.isPresent()) {
-            List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router
-                .dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces> routerInterfaces =
-                optionalRouterDpnList.get().getRouterInterfaces();
-            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router
-                .dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces routerInterface =
-                new RouterInterfacesBuilder().withKey(new RouterInterfacesKey(interfaceName))
-                    .setInterface(interfaceName).build();
-            if (routerInterfaces != null && routerInterfaces.remove(routerInterface)) {
-                if (routerInterfaces.isEmpty()) {
-                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier);
-                } else {
-                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier.child(
-                        org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router
-                            .dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces.class,
-                        new RouterInterfacesKey(interfaceName)));
-                }
-            }
-        }
-    }
-
-    public static void removeFromNeutronRouterDpnsMap(DataBroker broker, String routerName,
-                                               BigInteger dpId, WriteTransaction writeOperTxn) {
+    public static void removeFromNeutronRouterDpnsMap(String routerName, BigInteger dpId,
+        TypedReadWriteTransaction<Operational> operTx) throws ExecutionException, InterruptedException {
         if (dpId.equals(BigInteger.ZERO)) {
             LOG.warn("removeFromNeutronRouterDpnsMap : DPN ID is invalid for the router {} ", routerName);
             return;
         }
 
         InstanceIdentifier<DpnVpninterfacesList> routerDpnListIdentifier = getRouterDpnId(routerName, dpId);
-        Optional<DpnVpninterfacesList> optionalRouterDpnList =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                        LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier);
+        Optional<DpnVpninterfacesList> optionalRouterDpnList = operTx.read(routerDpnListIdentifier).get();
         if (optionalRouterDpnList.isPresent()) {
             LOG.debug("removeFromNeutronRouterDpnsMap : Removing the dpn-vpninterfaces-list from the "
                     + "odl-l3vpn:neutron-router-dpns model for the router {}", routerName);
-            writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier);
+            operTx.delete(routerDpnListIdentifier);
         } else {
             LOG.debug("removeFromNeutronRouterDpnsMap : dpn-vpninterfaces-list does not exist in the "
                     + "odl-l3vpn:neutron-router-dpns model for the router {}", routerName);
         }
     }
 
-    public static void removeFromNeutronRouterDpnsMap(DataBroker broker, String routerName, String vpnInterfaceName,
-                                               OdlInterfaceRpcService ifaceMgrRpcService,
-                                               WriteTransaction writeOperTxn) {
+    public static void removeFromNeutronRouterDpnsMap(String routerName, String vpnInterfaceName,
+        OdlInterfaceRpcService ifaceMgrRpcService, @Nonnull TypedReadWriteTransaction<Operational> operTx) {
         BigInteger dpId = getDpnForInterface(ifaceMgrRpcService, vpnInterfaceName);
         if (dpId.equals(BigInteger.ZERO)) {
             LOG.debug("removeFromNeutronRouterDpnsMap : Could not retrieve dp id for interface {} to handle router {}"
@@ -1193,9 +1149,13 @@ public final class NatUtil {
             return;
         }
         InstanceIdentifier<DpnVpninterfacesList> routerDpnListIdentifier = getRouterDpnId(routerName, dpId);
-        Optional<DpnVpninterfacesList> optionalRouterDpnList =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                        LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier);
+        Optional<DpnVpninterfacesList> optionalRouterDpnList;
+        try {
+            optionalRouterDpnList = operTx.read(routerDpnListIdentifier).get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error reading the router DPN list for {}", routerDpnListIdentifier, e);
+            optionalRouterDpnList = Optional.absent();
+        }
         if (optionalRouterDpnList.isPresent()) {
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns
                 .router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces> routerInterfaces =
@@ -1207,30 +1167,20 @@ public final class NatUtil {
 
             if (routerInterfaces != null && routerInterfaces.remove(routerInterface)) {
                 if (routerInterfaces.isEmpty()) {
-                    if (writeOperTxn != null) {
-                        writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier);
-                    } else {
-                        MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier);
-                    }
+                    operTx.delete(routerDpnListIdentifier);
                 } else {
-                    if (writeOperTxn != null) {
-                        writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier.child(
-                            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router
-                                .dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces.class,
-                            new RouterInterfacesKey(vpnInterfaceName)));
-                    } else {
-                        MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier.child(
-                            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron
-                                .router.dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces.class,
-                            new RouterInterfacesKey(vpnInterfaceName)));
-                    }
+                    operTx.delete(routerDpnListIdentifier.child(
+                        org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router
+                            .dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces.class,
+                        new RouterInterfacesKey(vpnInterfaceName)));
                 }
             }
         }
     }
 
     public static void removeFromDpnRoutersMap(DataBroker broker, String routerName, String vpnInterfaceName,
-                                        OdlInterfaceRpcService ifaceMgrRpcService, WriteTransaction writeOperTxn) {
+        OdlInterfaceRpcService ifaceMgrRpcService, TypedReadWriteTransaction<Operational> operTx)
+        throws ExecutionException, InterruptedException {
         BigInteger dpId = getDpnForInterface(ifaceMgrRpcService, vpnInterfaceName);
         if (dpId.equals(BigInteger.ZERO)) {
             LOG.debug("removeFromDpnRoutersMap : removeFromDpnRoutersMap() : "
@@ -1238,12 +1188,12 @@ public final class NatUtil {
                 vpnInterfaceName, routerName);
             return;
         }
-        removeFromDpnRoutersMap(broker, routerName, vpnInterfaceName, dpId, ifaceMgrRpcService, writeOperTxn);
+        removeFromDpnRoutersMap(broker, routerName, vpnInterfaceName, dpId, ifaceMgrRpcService, operTx);
     }
 
     static void removeFromDpnRoutersMap(DataBroker broker, String routerName, String vpnInterfaceName,
-                                        BigInteger curDpnId,
-                                        OdlInterfaceRpcService ifaceMgrRpcService, WriteTransaction writeOperTxn) {
+        BigInteger curDpnId, OdlInterfaceRpcService ifaceMgrRpcService, TypedReadWriteTransaction<Operational> operTx)
+        throws ExecutionException, InterruptedException {
         /*
             1) Get the DpnRoutersList for the DPN.
             2) Get the RoutersList identifier for the DPN and router.
@@ -1257,9 +1207,7 @@ public final class NatUtil {
 
         //Get the dpn-routers-list instance for the current DPN.
         InstanceIdentifier<DpnRoutersList> dpnRoutersListIdentifier = getDpnRoutersId(curDpnId);
-        Optional<DpnRoutersList> dpnRoutersListData =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                        LogicalDatastoreType.OPERATIONAL, dpnRoutersListIdentifier);
+        Optional<DpnRoutersList> dpnRoutersListData = operTx.read(dpnRoutersListIdentifier).get();
 
         if (dpnRoutersListData == null || !dpnRoutersListData.isPresent()) {
             LOG.error("removeFromDpnRoutersMap : dpn-routers-list is not present for DPN {} "
@@ -1269,9 +1217,7 @@ public final class NatUtil {
 
         //Get the routers-list instance for the router on the current DPN only
         InstanceIdentifier<RoutersList> routersListIdentifier = getRoutersList(curDpnId, routerName);
-        Optional<RoutersList> routersListData =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                        LogicalDatastoreType.OPERATIONAL, routersListIdentifier);
+        Optional<RoutersList> routersListData = operTx.read(routersListIdentifier).get();
 
         if (routersListData == null || !routersListData.isPresent()) {
             LOG.error("removeFromDpnRoutersMap : routers-list is not present for the DPN {} "
@@ -1293,7 +1239,7 @@ public final class NatUtil {
             LOG.debug("removeFromDpnRoutersMap : Unable to get the routers list for the DPN {}. Possibly all subnets "
                     + "removed from router {} OR Router {} has been deleted. Hence DPN router model WILL be cleared ",
                 curDpnId, routerName, routerName);
-            writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routersListIdentifier);
+            operTx.delete(routersListIdentifier);
             return;
         }
 
@@ -1327,7 +1273,7 @@ public final class NatUtil {
         LOG.debug("removeFromDpnRoutersMap : Router {} is present in the DPN {} only through the interface {} "
             + "Hence DPN router model WILL be cleared. Possibly last VM for the router "
             + "deleted in the DPN", routerName, curDpnId, vpnInterfaceName);
-        writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routersListIdentifier);
+        operTx.delete(routersListIdentifier);
     }
 
     private static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn
@@ -1593,11 +1539,34 @@ public final class NatUtil {
                 FloatingIpIdToPortMapping::getFloatingIpPortMacAddress).orElse(null);
     }
 
+    protected static String getFloatingIpPortMacFromFloatingIpId(TypedReadTransaction<Configuration> confTx,
+        Uuid floatingIpId) {
+        try {
+            return confTx.read(buildfloatingIpIdToPortMappingIdentifier(floatingIpId)).get().toJavaUtil().map(
+                FloatingIpIdToPortMapping::getFloatingIpPortMacAddress).orElse(null);
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error reading the floating IP port MAC for {}", floatingIpId, e);
+            return null;
+        }
+    }
+
     protected static Uuid getFloatingIpPortSubnetIdFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
         InstanceIdentifier<FloatingIpIdToPortMapping> id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
                 FloatingIpIdToPortMapping::getFloatingIpPortSubnetId).orElse(null);
+    }
+
+    @Nullable
+    protected static Uuid getFloatingIpPortSubnetIdFromFloatingIpId(TypedReadTransaction<Configuration> confTx,
+        Uuid floatingIpId) {
+        try {
+            return confTx.read(buildfloatingIpIdToPortMappingIdentifier(floatingIpId)).get().toJavaUtil().map(
+                FloatingIpIdToPortMapping::getFloatingIpPortSubnetId).orElse(null);
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error reading the floating IP port subnet for {}", floatingIpId, e);
+            return null;
+        }
     }
 
     static InstanceIdentifier<FloatingIpIdToPortMapping> buildfloatingIpIdToPortMappingIdentifier(Uuid floatingIpId) {
@@ -1917,7 +1886,7 @@ public final class NatUtil {
     }
 
     public static void makePreDnatToSnatTableEntry(IMdsalApiManager mdsalManager, BigInteger naptDpnId,
-            short tableId, WriteTransaction writeFlowTx) {
+            short tableId, TypedWriteTransaction<Configuration> confTx) {
         LOG.debug("makePreDnatToSnatTableEntry : Create Pre-DNAT table {} --> table {} flow on NAPT DpnId {} ",
                 NwConstants.PDNAT_TABLE, tableId, naptDpnId);
 
@@ -1930,19 +1899,19 @@ public final class NatUtil {
                 5, flowRef, 0, 0,  NwConstants.COOKIE_DNAT_TABLE,
                 matches, preDnatToSnatInstructions);
 
-        mdsalManager.addFlowToTx(naptDpnId, preDnatToSnatTableFlowEntity, writeFlowTx);
+        mdsalManager.addFlow(confTx, naptDpnId, preDnatToSnatTableFlowEntity);
         LOG.debug("makePreDnatToSnatTableEntry : Successfully installed Pre-DNAT flow {} on NAPT DpnId {} ",
                 preDnatToSnatTableFlowEntity,  naptDpnId);
     }
 
-    public static void removePreDnatToSnatTableEntry(IMdsalApiManager mdsalManager, BigInteger naptDpnId,
-                                                     WriteTransaction removeFlowInvTx) {
+    public static void removePreDnatToSnatTableEntry(TypedReadWriteTransaction<Configuration> confTx,
+        IMdsalApiManager mdsalManager, BigInteger naptDpnId) {
         LOG.debug("removePreDnatToSnatTableEntry : Remove Pre-DNAT table {} --> table {} flow on NAPT DpnId {} ",
                 NwConstants.PDNAT_TABLE, NwConstants.INBOUND_NAPT_TABLE, naptDpnId);
         String flowRef = getFlowRefPreDnatToSnat(naptDpnId, NwConstants.PDNAT_TABLE, "PreDNATToSNAT");
         Flow preDnatToSnatTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.PDNAT_TABLE,flowRef,
                 5, flowRef, 0, 0,  NwConstants.COOKIE_DNAT_TABLE, null, null);
-        mdsalManager.removeFlowToTx(naptDpnId, preDnatToSnatTableFlowEntity, removeFlowInvTx);
+        mdsalManager.removeFlow(confTx, naptDpnId, preDnatToSnatTableFlowEntity);
         LOG.debug("removePreDnatToSnatTableEntry: Successfully removed Pre-DNAT flow {} on NAPT DpnId = {}",
                 preDnatToSnatTableFlowEntity, naptDpnId);
     }
@@ -1999,9 +1968,9 @@ public final class NatUtil {
     }
 
     @Nullable
-    public static String getPrimaryRd(String vpnName, ReadTransaction tx) throws ReadFailedException {
-        return tx.read(LogicalDatastoreType.CONFIGURATION,
-                getVpnInstanceIdentifier(vpnName)).checkedGet().toJavaUtil().map(NatUtil::getPrimaryRd).orElse(null);
+    public static String getPrimaryRd(String vpnName, TypedReadTransaction<Configuration> tx)
+        throws ExecutionException, InterruptedException {
+        return tx.read(getVpnInstanceIdentifier(vpnName)).get().toJavaUtil().map(NatUtil::getPrimaryRd).orElse(null);
     }
 
     public static String getPrimaryRd(DataBroker dataBroker, String vpnName) {
@@ -2117,17 +2086,6 @@ public final class NatUtil {
                         router.getNetworkId());
             }
         }), LOG, "Error installing router gateway flows");
-    }
-
-    public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(
-            WriteTransaction tx) {
-        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
-        try {
-            futures.get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error writing to datastore {}", e);
-        }
-        return futures;
     }
 
     public static Boolean isOpenStackVniSemanticsEnforcedForGreAndVxlan(IElanService elanManager,
