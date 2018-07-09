@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import java.math.BigInteger;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -88,9 +91,9 @@ public class NatRouterInterfaceListener
                         interfaceName, routerId);
                 return;
             }
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
-                NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerId, interfaceName, dpId, operTx);
-                NatUtil.addToDpnRoutersMap(dataBroker, routerId, interfaceName, dpId, operTx);
+            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
+                NatUtil.addToNeutronRouterDpnsMap(routerId, interfaceName, dpId, operTx);
+                NatUtil.addToDpnRoutersMap(routerId, interfaceName, dpId, operTx);
             }), LOG, "Error processing NAT router interface addition");
         } else {
             LOG.info("add : Interface {} not yet operational to handle router interface add event in router {}",
@@ -105,13 +108,13 @@ public class NatRouterInterfaceListener
         final String interfaceName = interfaceInfo.getInterfaceId();
 
         //Delete the RouterInterfaces maintained in the ODL:L3VPN configuration model
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx -> {
-            confTx.delete(LogicalDatastoreType.CONFIGURATION, NatUtil.getRouterInterfaceId(interfaceName));
-        }), LOG, "Error handling NAT router interface removal");
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+            confTx -> confTx.delete(NatUtil.getRouterInterfaceId(interfaceName))), LOG,
+            "Error handling NAT router interface removal");
 
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
             //Delete the NeutronRouterDpnMap from the ODL:L3VPN operational model
-            NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerId, interfaceName, interfaceManager, operTx);
+            NatUtil.removeFromNeutronRouterDpnsMap(routerId, interfaceName, interfaceManager, operTx);
 
             //Delete the DpnRouterMap from the ODL:L3VPN operational model
             NatUtil.removeFromDpnRoutersMap(dataBroker, routerId, interfaceName, interfaceManager, operTx);

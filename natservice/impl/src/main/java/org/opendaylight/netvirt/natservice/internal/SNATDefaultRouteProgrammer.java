@@ -18,9 +18,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -127,7 +129,7 @@ public class SNATDefaultRouteProgrammer {
 
     }
 
-    void installDefNATRouteInDPN(BigInteger dpnId, long vpnId, WriteTransaction writeFlowInvTx) {
+    void installDefNATRouteInDPN(BigInteger dpnId, long vpnId, TypedWriteTransaction<Configuration> confTx) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
         if (flowEntity == null) {
             LOG.error("installDefNATRouteInDPN : Flow entity received is NULL."
@@ -135,10 +137,11 @@ public class SNATDefaultRouteProgrammer {
             return;
         }
         natServiceCounters.installDefaultNatFlow();
-        mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
+        mdsalManager.addFlow(confTx, flowEntity);
     }
 
-    void installDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId, WriteTransaction writeFlowInvTx) {
+    void installDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId,
+        TypedWriteTransaction<Configuration> confTx) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, bgpVpnId, routerId);
         if (flowEntity == null) {
             LOG.error("installDefNATRouteInDPN : Flow entity received is NULL."
@@ -146,7 +149,7 @@ public class SNATDefaultRouteProgrammer {
             return;
         }
         natServiceCounters.installDefaultNatFlow();
-        mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
+        mdsalManager.addFlow(confTx, flowEntity);
     }
 
     void installDefNATRouteInDPN(BigInteger dpnId, long vpnId, String subnetId) {
@@ -160,7 +163,7 @@ public class SNATDefaultRouteProgrammer {
         mdsalManager.installFlow(flowEntity);
     }
 
-    void removeDefNATRouteInDPN(BigInteger dpnId, long vpnId, WriteTransaction writeFlowInvTx) {
+    void removeDefNATRouteInDPN(BigInteger dpnId, long vpnId, TypedReadWriteTransaction<Configuration> confTx) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
         if (flowEntity == null) {
             LOG.error("removeDefNATRouteInDPN : Flow entity received is NULL."
@@ -168,10 +171,11 @@ public class SNATDefaultRouteProgrammer {
             return;
         }
         natServiceCounters.removeDefaultNatFlow();
-        mdsalManager.removeFlowToTx(flowEntity, writeFlowInvTx);
+        mdsalManager.removeFlow(confTx, flowEntity);
     }
 
-    void removeDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId, WriteTransaction writeFlowInvTx) {
+    void removeDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId,
+        TypedReadWriteTransaction<Configuration> confTx) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, bgpVpnId, routerId);
         if (flowEntity == null) {
             LOG.error("removeDefNATRouteInDPN : Flow entity received is NULL."
@@ -179,7 +183,7 @@ public class SNATDefaultRouteProgrammer {
             return;
         }
         natServiceCounters.removeDefaultNatFlow();
-        mdsalManager.removeFlowToTx(flowEntity, writeFlowInvTx);
+        mdsalManager.removeFlow(confTx, flowEntity);
     }
 
     void addOrDelDefaultFibRouteToSNATForSubnet(Subnets subnet, String networkId, int flowAction, long vpnId) {

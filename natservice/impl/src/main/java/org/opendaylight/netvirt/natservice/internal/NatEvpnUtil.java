@@ -15,9 +15,12 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TransactionAdapter;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -167,7 +170,7 @@ public final class NatEvpnUtil {
                                                  long l3Vni,
                                                  String interfaceName,
                                                  String gwMacAddress,
-                                                 WriteTransaction writeTx,
+                                                 TypedWriteTransaction<Configuration> writeTx,
                                                  RouteOrigin origin, BigInteger dpId) {
         try {
             LOG.info("addRoutesForVxLanProvType : Adding Fib entry rd {} prefix {} nextHop {} l3Vni {}",
@@ -182,7 +185,7 @@ public final class NatEvpnUtil {
 
             fibManager.addOrUpdateFibEntry(rd, null /*macAddress*/, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE,
-                    l3Vni, gwMacAddress, null /* parent-vpn-rd */, origin, writeTx);
+                l3Vni, gwMacAddress, null /* parent-vpn-rd */, origin, TransactionAdapter.toWriteTransaction(writeTx));
             /* Publish to Bgp only if its an INTERNET VPN */
             if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
@@ -197,8 +200,9 @@ public final class NatEvpnUtil {
     }
 
     static void makeL3GwMacTableEntry(final BigInteger dpnId, final long vpnId, String macAddress,
-                                      List<Instruction> customInstructions, IMdsalApiManager mdsalManager,
-                                      WriteTransaction writeFlowTx) {
+        List<Instruction> customInstructions, IMdsalApiManager mdsalManager,
+        TypedWriteTransaction<Configuration> confTx) {
+
         List<MatchInfo> matchInfo = new ArrayList<>();
         matchInfo.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
         matchInfo.add(new MatchEthernetDestination(new MacAddress(macAddress)));
@@ -210,13 +214,13 @@ public final class NatEvpnUtil {
         Flow l3GwMacTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_GW_MAC_TABLE,
                 flowRef, 21, flowRef, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, matchInfo, customInstructions);
 
-        mdsalManager.addFlowToTx(dpnId, l3GwMacTableFlowEntity, writeFlowTx);
+        mdsalManager.addFlow(confTx, dpnId, l3GwMacTableFlowEntity);
         LOG.debug("makeL3GwMacTableEntry : Successfully created flow entity {} on DPN = {}",
                 l3GwMacTableFlowEntity, dpnId);
     }
 
     static void removeL3GwMacTableEntry(final BigInteger dpnId, final long vpnId, final String macAddress,
-                                        IMdsalApiManager mdsalManager, WriteTransaction removeFlowInvTx) {
+        IMdsalApiManager mdsalManager, TypedReadWriteTransaction<Configuration> confTx) {
         List<MatchInfo> matchInfo = new ArrayList<>();
         matchInfo.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
         matchInfo.add(new MatchEthernetSource(new MacAddress(macAddress)));
@@ -228,7 +232,7 @@ public final class NatEvpnUtil {
         Flow l3GwMacTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_GW_MAC_TABLE,
                 flowRef, 21, flowRef, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, matchInfo, null);
 
-        mdsalManager.removeFlowToTx(dpnId, l3GwMacTableFlowEntity, removeFlowInvTx);
+        mdsalManager.removeFlow(confTx, dpnId, l3GwMacTableFlowEntity);
         LOG.debug("removeL3GwMacTableEntry : Successfully removed flow entity {} on DPN = {}",
                 l3GwMacTableFlowEntity, dpnId);
     }

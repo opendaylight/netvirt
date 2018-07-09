@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -18,12 +20,13 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -283,52 +286,52 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     }
 
     private void createDNATTblEntry(BigInteger dpnId, InternalToExternalPortMap mapping, long routerId,
-                                    long associatedVpnId, WriteTransaction writeFlowInvTx) {
+                                    long associatedVpnId, TypedReadWriteTransaction<Configuration> confTx) {
         FlowEntity preFlowEntity = buildPreDNATFlowEntity(dpnId, mapping, routerId, associatedVpnId);
         if (preFlowEntity == null) {
             LOG.error("createDNATTblEntry : Flow entity received as NULL. "
                     + "Cannot proceed with installation of Pre-DNAT flow table {} --> table {} on DpnId {}",
                     NwConstants.PDNAT_TABLE, NwConstants.DNAT_TABLE, dpnId);
         } else {
-            mdsalManager.addFlowToTx(preFlowEntity, writeFlowInvTx);
+            mdsalManager.addFlow(confTx, preFlowEntity);
             FlowEntity flowEntity = buildDNATFlowEntity(dpnId, mapping, routerId, associatedVpnId);
             if (flowEntity != null) {
-                mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
+                mdsalManager.addFlow(confTx, flowEntity);
             }
         }
     }
 
     private void removeDNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long routerId,
-                                    WriteTransaction removeFlowInvTx) {
+        TypedReadWriteTransaction<Configuration> confTx) {
         FlowEntity preFlowEntity = buildPreDNATDeleteFlowEntity(dpnId, externalIp, routerId);
-        mdsalManager.removeFlowToTx(preFlowEntity, removeFlowInvTx);
+        mdsalManager.removeFlow(confTx, preFlowEntity);
 
         FlowEntity flowEntity = buildDNATDeleteFlowEntity(dpnId, internalIp, routerId);
         if (flowEntity != null) {
-            mdsalManager.removeFlowToTx(flowEntity, removeFlowInvTx);
+            mdsalManager.removeFlow(confTx, flowEntity);
         }
     }
 
     private void createSNATTblEntry(BigInteger dpnId, InternalToExternalPortMap mapping, long vpnId, long routerId,
-                                    long associatedVpnId, Uuid externalNetworkId, WriteTransaction writeFlowInvTx) {
+        long associatedVpnId, Uuid externalNetworkId, TypedReadWriteTransaction<Configuration> confTx) {
         FlowEntity preFlowEntity = buildPreSNATFlowEntity(dpnId, mapping.getInternalIp(), mapping.getExternalIp(),
             vpnId, routerId, associatedVpnId);
-        mdsalManager.addFlowToTx(preFlowEntity, writeFlowInvTx);
+        mdsalManager.addFlow(confTx, preFlowEntity);
 
         FlowEntity flowEntity = buildSNATFlowEntity(dpnId, mapping, vpnId, externalNetworkId);
         if (flowEntity != null) {
-            mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
+            mdsalManager.addFlow(confTx, flowEntity);
         }
     }
 
     private void removeSNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long routerId, long vpnId,
-                                    WriteTransaction removeFlowInvTx) {
+                                    TypedReadWriteTransaction<Configuration> removeFlowInvTx) {
         FlowEntity preFlowEntity = buildPreSNATDeleteFlowEntity(dpnId, internalIp, routerId);
-        mdsalManager.removeFlowToTx(preFlowEntity, removeFlowInvTx);
+        mdsalManager.removeFlow(removeFlowInvTx, preFlowEntity);
 
         FlowEntity flowEntity = buildSNATDeleteFlowEntity(dpnId, externalIp, vpnId);
         if (flowEntity != null) {
-            mdsalManager.removeFlowToTx(flowEntity, removeFlowInvTx);
+            mdsalManager.removeFlow(removeFlowInvTx, flowEntity);
         }
     }
 
@@ -386,7 +389,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
         InstanceIdentifier<RouterPorts> portIid = identifier.firstIdentifierOf(RouterPorts.class);
         coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + mapping.key(), () -> Collections.singletonList(
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                     tx -> createNATFlowEntries(interfaceName, mapping, portIid, routerId, tx))),
                 NatConstants.NAT_DJC_MAX_RETRIES);
     }
@@ -401,7 +404,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
         InstanceIdentifier<RouterPorts> portIid = identifier.firstIdentifierOf(RouterPorts.class);
         coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + mapping.key(), () -> Collections.singletonList(
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                     tx -> removeNATFlowEntries(interfaceName, mapping, portIid, routerId, null, tx))),
                 NatConstants.NAT_DJC_MAX_RETRIES);
     }
@@ -422,7 +425,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
     void createNATFlowEntries(String interfaceName, final InternalToExternalPortMap mapping,
                               final InstanceIdentifier<RouterPorts> portIid, final String routerName,
-                              WriteTransaction writeFlowInvTx) {
+        TypedReadWriteTransaction<Configuration> confTx) {
         if (!validateIpMapping(mapping)) {
             LOG.error("createNATFlowEntries : Not a valid ip addresses in the mapping {}", mapping);
             return;
@@ -472,16 +475,16 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         //Install the DNAT default FIB flow L3_FIB_TABLE (21) -> PSNAT_TABLE (26) if SNAT is disabled
         boolean isSnatEnabled = NatUtil.isSnatEnabledForRouterId(dataBroker, routerName);
         if (!isSnatEnabled) {
-            addOrDelDefaultFibRouteForDnat(dpnId, routerName, routerId, writeFlowInvTx, true);
+            addOrDelDefaultFibRouteForDnat(dpnId, routerName, routerId, confTx, true);
         }
         //Create the DNAT and SNAT table entries
-        createDNATTblEntry(dpnId, mapping, routerId, associatedVpnId, writeFlowInvTx);
-        createSNATTblEntry(dpnId, mapping, vpnId, routerId, associatedVpnId, extNwId, writeFlowInvTx);
-        floatingIPHandler.onAddFloatingIp(dpnId, routerName, routerId, extNwId, interfaceName, mapping, writeFlowInvTx);
+        createDNATTblEntry(dpnId, mapping, routerId, associatedVpnId, confTx);
+        createSNATTblEntry(dpnId, mapping, vpnId, routerId, associatedVpnId, extNwId, confTx);
+        floatingIPHandler.onAddFloatingIp(dpnId, routerName, routerId, extNwId, interfaceName, mapping, confTx);
     }
 
     void createNATFlowEntries(BigInteger dpnId,  String interfaceName, String routerName, Uuid externalNetworkId,
-                              InternalToExternalPortMap mapping, WriteTransaction writeFlowInvTx) {
+                              InternalToExternalPortMap mapping, TypedReadWriteTransaction<Configuration> confTx) {
         String internalIp = mapping.getInternalIp();
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
@@ -507,13 +510,13 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         //Install the DNAT default FIB flow L3_FIB_TABLE (21) -> PSNAT_TABLE (26) if SNAT is disabled
         boolean isSnatEnabled = NatUtil.isSnatEnabledForRouterId(dataBroker, routerName);
         if (!isSnatEnabled) {
-            addOrDelDefaultFibRouteForDnat(dpnId, routerName, routerId, writeFlowInvTx, true);
+            addOrDelDefaultFibRouteForDnat(dpnId, routerName, routerId, confTx, true);
         }
         //Create the DNAT and SNAT table entries
-        createDNATTblEntry(dpnId, mapping, routerId, associatedVpnId, writeFlowInvTx);
-        createSNATTblEntry(dpnId, mapping, vpnId, routerId, associatedVpnId, externalNetworkId, writeFlowInvTx);
+        createDNATTblEntry(dpnId, mapping, routerId, associatedVpnId, confTx);
+        createSNATTblEntry(dpnId, mapping, vpnId, routerId, associatedVpnId, externalNetworkId, confTx);
         floatingIPHandler.onAddFloatingIp(dpnId, routerName, routerId, externalNetworkId, interfaceName, mapping,
-                writeFlowInvTx);
+                confTx);
     }
 
     void createNATOnlyFlowEntries(BigInteger dpnId, String routerName, String associatedVPN,
@@ -560,7 +563,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
     void removeNATFlowEntries(String interfaceName, final InternalToExternalPortMap mapping,
                               InstanceIdentifier<RouterPorts> portIid, final String routerName, BigInteger dpnId,
-                              WriteTransaction removeFlowInvTx) {
+                              TypedReadWriteTransaction<Configuration> removeFlowInvTx) {
         String internalIp = mapping.getInternalIp();
         String externalIp = mapping.getExternalIp();
         //Get the DPN on which this interface resides
@@ -624,7 +627,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     }
 
     void removeNATFlowEntries(BigInteger dpnId, String interfaceName, String vpnName, String routerName,
-                              InternalToExternalPortMap mapping, WriteTransaction removeFlowInvTx) {
+                              InternalToExternalPortMap mapping, TypedReadWriteTransaction<Configuration> confTx) {
         String internalIp = mapping.getInternalIp();
         String externalIp = mapping.getExternalIp();
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
@@ -641,12 +644,12 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
 
         //Delete the DNAT and SNAT table entries
-        removeDNATTblEntry(dpnId, internalIp, externalIp, routerId, removeFlowInvTx);
-        removeSNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId, removeFlowInvTx);
+        removeDNATTblEntry(dpnId, internalIp, externalIp, routerId, confTx);
+        removeSNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId, confTx);
         //Remove the DNAT default FIB flow L3_FIB_TABLE (21) -> PSNAT_TABLE (26) if SNAT is disabled
         boolean isSnatEnabled = NatUtil.isSnatEnabledForRouterId(dataBroker, routerName);
         if (!isSnatEnabled) {
-            addOrDelDefaultFibRouteForDnat(dpnId, routerName, routerId, removeFlowInvTx, false);
+            addOrDelDefaultFibRouteForDnat(dpnId, routerName, routerId, confTx, false);
         }
         Uuid externalNetworkId = NatUtil.getNetworkIdFromRouterName(dataBroker,routerName);
         ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName, externalNetworkId);
@@ -656,7 +659,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
         if (provType == ProviderTypes.VXLAN) {
             floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, NatConstants.DEFAULT_L3VNI_VALUE,
-                    removeFlowInvTx, provType);
+                    confTx, provType);
             removeOperationalDS(routerName, interfaceName, internalIp);
             return;
         }
@@ -666,7 +669,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                     internalIp, routerId);
             return;
         }
-        floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, label, removeFlowInvTx, provType);
+        floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, label, confTx, provType);
         removeOperationalDS(routerName, interfaceName, internalIp);
     }
 
@@ -767,10 +770,10 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         return flowEntity;
     }
 
-    private void addOrDelDefaultFibRouteForDnat(BigInteger dpnId, String routerName,
-                                                long routerId, WriteTransaction tx, boolean create) {
-        if (tx == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+    private void addOrDelDefaultFibRouteForDnat(BigInteger dpnId, String routerName, long routerId,
+        TypedReadWriteTransaction<Configuration> confTx, boolean create) {
+        if (confTx == null) {
+            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                 newTx -> addOrDelDefaultFibRouteForDnat(dpnId, routerName, routerId, newTx, create)), LOG,
                 "Error handling default FIB route for DNAT");
             return;
@@ -785,21 +788,21 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             if (associatedVpnId != NatConstants.INVALID_ID) {
                 LOG.debug("addOrDelDefaultFibRouteForDnat: Install NAT default route on DPN {} for the router {} with "
                         + "vpn-id {}", dpnId, routerName, associatedVpnId);
-                defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, associatedVpnId, routerId, tx);
+                defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, associatedVpnId, routerId, confTx);
             } else {
                 LOG.debug("addOrDelDefaultFibRouteForDnat: Install NAT default route on DPN {} for the router {} with "
                         + "vpn-id {}", dpnId, routerName, routerId);
-                defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, routerId, tx);
+                defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, routerId, confTx);
             }
         } else {
             if (associatedVpnId != NatConstants.INVALID_ID) {
                 LOG.debug("addOrDelDefaultFibRouteForDnat: Remove NAT default route on DPN {} for the router {} "
                         + "with vpn-id {}", dpnId, routerName, associatedVpnId);
-                defaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, associatedVpnId, routerId, tx);
+                defaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, associatedVpnId, routerId, confTx);
             } else {
                 LOG.debug("addOrDelDefaultFibRouteForDnat: Remove NAT default route on DPN {} for the router {} "
                         + "with vpn-id {}", dpnId, routerName, routerId);
-                defaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, routerId, tx);
+                defaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, routerId, confTx);
             }
         }
     }

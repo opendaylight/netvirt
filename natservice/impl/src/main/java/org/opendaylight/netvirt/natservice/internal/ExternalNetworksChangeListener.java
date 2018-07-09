@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.Collection;
@@ -17,11 +19,12 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -122,7 +125,7 @@ public class ExternalNetworksChangeListener
         Uuid originalVpn = original.getVpnid();
         Uuid updatedVpn = update.getVpnid();
         coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.key(),
-            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 if (originalVpn == null && updatedVpn != null) {
                     //external network is dis-associated from L3VPN instance
                     associateExternalNetworkWithVPN(update, tx);
@@ -135,7 +138,8 @@ public class ExternalNetworksChangeListener
             })), NatConstants.NAT_DJC_MAX_RETRIES);
     }
 
-    private void removeSnatEntries(Networks original, Uuid networkUuid, WriteTransaction writeFlowInvTx) {
+    private void removeSnatEntries(Networks original, Uuid networkUuid,
+        TypedReadWriteTransaction<Configuration> writeFlowInvTx) {
         List<Uuid> routerUuids = original.getRouterIds();
         for (Uuid routerUuid : routerUuids) {
             Long routerId = NatUtil.getVpnId(dataBroker, routerUuid.getValue());
@@ -151,7 +155,7 @@ public class ExternalNetworksChangeListener
         }
     }
 
-    private void associateExternalNetworkWithVPN(Networks network, WriteTransaction writeFlowInvTx) {
+    private void associateExternalNetworkWithVPN(Networks network, TypedReadWriteTransaction<Configuration> confTx) {
         List<Uuid> routerIds = network.getRouterIds();
         for (Uuid routerId : routerIds) {
             //long router = NatUtil.getVpnId(dataBroker, routerId.getValue());
@@ -178,7 +182,7 @@ public class ExternalNetworksChangeListener
                 for (InternalToExternalPortMap ipMap : intExtPortMapList) {
                     //remove all VPN related entries
                     floatingIpListener.createNATFlowEntries(dpnId, portName, routerId.getValue(), network.getId(),
-                            ipMap, writeFlowInvTx);
+                            ipMap, confTx);
                 }
             }
         }
@@ -235,7 +239,7 @@ public class ExternalNetworksChangeListener
                         externalRouterListener.advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
                                 vpnName, routerIdentifier, routerId.getValue(),
                                 externalIp, network.getId(), null /* external-router */,
-                                writeFlowInvTx);
+                                confTx);
                     }
                 }
             } else {
@@ -246,11 +250,11 @@ public class ExternalNetworksChangeListener
             // Install 47 entry to point to 21
             if (natMode == NatMode.Controller) {
                 externalRouterListener.installNaptPfibEntriesForExternalSubnets(routerId.getValue(), dpnId,
-                        writeFlowInvTx);
+                        confTx);
                 if (vpnId != -1) {
                     LOG.debug("associateExternalNetworkWithVPN : Calling externalRouterListener installNaptPfibEntry "
                             + "for dpnId {} and vpnId {}", dpnId, vpnId);
-                    externalRouterListener.installNaptPfibEntry(dpnId, vpnId, writeFlowInvTx);
+                    externalRouterListener.installNaptPfibEntry(dpnId, vpnId, confTx);
                 }
             }
         }
@@ -272,7 +276,7 @@ public class ExternalNetworksChangeListener
             RouterPorts routerPorts = optRouterPorts.get();
             List<Ports> interfaces = routerPorts.getPorts();
             try {
-                txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                     for (Ports port : interfaces) {
                         String portName = port.getPortName();
                         BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);

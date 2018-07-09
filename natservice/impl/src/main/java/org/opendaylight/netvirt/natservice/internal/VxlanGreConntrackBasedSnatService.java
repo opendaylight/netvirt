@@ -14,7 +14,6 @@ import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.TransactionAdapter;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -165,8 +164,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         }
         //The logic now handle only one external IP per router, others if present will be ignored.
         String externalIp = NatUtil.validateAndAddNetworkMask(externalIps.get(0).getIpAddress());
-        externalRouterListener.handleSnatReverseTraffic(dpnId, routers, routerId, routerName, externalIp,
-            TransactionAdapter.toWriteTransaction(confTx));
+        externalRouterListener.handleSnatReverseTraffic(confTx, dpnId, routers, routerId, routerName, externalIp);
     }
 
     @Override
@@ -207,8 +205,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         //The logic now handle only one external IP per router, others if present will be ignored.
         String externalIp = NatUtil.validateAndAddNetworkMask(externalIps.get(0).getIpAddress());
         externalRouterListener.clearFibTsAndReverseTraffic(dpnId, routerId, routers.getNetworkId(),
-            Collections.singletonList(externalIp), null, routers.getExtGwMacAddress(),
-            TransactionAdapter.toWriteTransaction(confTx));
+            Collections.singletonList(externalIp), null, routers.getExtGwMacAddress(), confTx);
     }
 
     protected void addOutboundTblTrackEntryForVxlanGre(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId,
