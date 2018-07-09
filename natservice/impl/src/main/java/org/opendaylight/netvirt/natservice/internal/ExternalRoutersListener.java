@@ -1326,7 +1326,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                 + "operation");
                         vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName, addedExternalIps,
                                 update.getExtGwMacAddress(), dpnId,
-                                update.getNetworkId(), null);
+                                update.getNetworkId());
 
                         for (String addedExternalIp : addedExternalIps) {
                 /*

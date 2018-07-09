@@ -164,11 +164,11 @@ public class EvpnDnatFlowProgrammer {
         LOG.debug("onAddFloatingIp : Add Floating Ip {} , found associated to fixed port {}",
                 externalIp, interfaceName);
         if (floatingIpPortMacAddress != null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 vpnManager.addSubnetMacIntoVpnInstance(vpnName, null, floatingIpPortMacAddress, dpnId, tx);
                 vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName,
                         Collections.singleton(externalIp),
-                        floatingIpPortMacAddress, dpnId, networkId, tx);
+                        floatingIpPortMacAddress, dpnId, networkId);
             }), LOG, "Error processing floating IP port with MAC address {}", floatingIpPortMacAddress);
         }
         final long finalL3Vni = l3Vni;
