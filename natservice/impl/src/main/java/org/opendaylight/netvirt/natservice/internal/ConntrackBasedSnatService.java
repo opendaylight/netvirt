@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -71,61 +74,109 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     @Override
-    protected void installSnatSpecificEntriesForNaptSwitch(Routers routers, BigInteger dpnId, int addOrRemove) {
+    protected void addSnatSpecificEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
+        Routers routers, BigInteger dpnId) {
         LOG.info("installSnatSpecificEntriesForNaptSwitch: called for router {}",
-                routers.getRouterName());
+            routers.getRouterName());
         String routerName = routers.getRouterName();
-        Long routerId = NatUtil.getVpnId(getDataBroker(), routerName);
-        int elanId = NatUtil.getElanInstanceByName(routers.getNetworkId().getValue(), getDataBroker())
-                .getElanTag().intValue();
+        Long routerId = NatUtil.getVpnId(confTx, routerName);
+        int elanId = NatUtil.getElanInstanceByName(confTx, routers.getNetworkId().getValue())
+            .getElanTag().intValue();
         if (routerId == NatConstants.INVALID_ID) {
             LOG.error("InvalidRouterId: unable to installSnatSpecificEntriesForNaptSwitch on dpn {}", dpnId);
             return;
         }
         /* Install Outbound NAT entries */
 
-        installSnatMissEntryForPrimrySwch(dpnId, routerId, elanId, addOrRemove);
-        installTerminatingServiceTblEntry(dpnId, routerId, elanId, addOrRemove);
+        addSnatMissEntryForPrimrySwch(confTx, dpnId, routerId, elanId);
+        addTerminatingServiceTblEntry(confTx, dpnId, routerId, elanId);
 
-        String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterName(getDataBroker(), routerName);
-        createOutboundTblTrackEntry(dpnId, routerId, extGwMacAddress, addOrRemove);
+        String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterName(confTx, routerName);
+        addOutboundTblTrackEntry(confTx, dpnId, routerId, extGwMacAddress);
         for (ExternalIps externalIp : routers.getExternalIps()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
             }
             //The logic now handle only one external IP per router, others if present will be ignored.
-            long extSubnetId = NatConstants.INVALID_ID;
-            if (addOrRemove == NwConstants.ADD_FLOW) {
-                extSubnetId = NatUtil.getExternalSubnetVpnId(getDataBroker(), externalIp.getSubnetId());
-            }
-            createOutboundTblEntry(dpnId, routerId, externalIp.getIpAddress(), elanId, extGwMacAddress, addOrRemove);
-            installNaptPfibFlow(routers, dpnId, routerId, extSubnetId, addOrRemove);
+            long extSubnetId = NatUtil.getExternalSubnetVpnId(confTx, externalIp.getSubnetId());
+            addOutboundTblEntry(confTx, dpnId, routerId, externalIp.getIpAddress(), elanId, extGwMacAddress);
+            addNaptPfibFlow(confTx, routers, dpnId, routerId, extSubnetId);
 
             //Install Inbound NAT entries
-            installInboundEntry(dpnId, routerId, externalIp.getIpAddress(), elanId, extSubnetId, addOrRemove);
-            installNaptPfibEntry(dpnId, routerId, addOrRemove);
+            addInboundEntry(confTx, dpnId, routerId, externalIp.getIpAddress(), elanId, extSubnetId);
+            addNaptPfibEntry(confTx, dpnId, routerId);
 
             String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp.getIpAddress());
-            Optional<Subnets> externalSubnet = NatUtil.getOptionalExternalSubnets(dataBroker, externalIp.getSubnetId());
+            Optional<Subnets> externalSubnet = NatUtil.getOptionalExternalSubnets(confTx, externalIp.getSubnetId());
             if (externalSubnet.isPresent()) {
                 String externalVpn =  externalIp.getSubnetId().getValue();
-                String vpnRd = NatUtil.getVpnRd(dataBroker, externalVpn);
+                String vpnRd = NatUtil.getVpnRd(confTx, externalVpn);
                 vpnFootprintService.updateVpnToDpnMapping(dpnId, externalVpn, vpnRd, null /* interfaceName*/,
-                        new ImmutablePair<>(IpAddresses.IpAddressSource.ExternalFixedIP, fibExternalIp),
-                        addOrRemove == NwConstants.ADD_FLOW);
+                    new ImmutablePair<>(IpAddresses.IpAddressSource.ExternalFixedIP, fibExternalIp),
+                    true);
             }
             break;
         }
     }
 
     @Override
-    protected void installSnatSpecificEntriesForNonNaptSwitch(Routers routers, BigInteger dpnId, int addOrRemove) {
-        // Nothing to to do here.
+    protected void removeSnatSpecificEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
+        Routers routers, BigInteger dpnId) {
+        LOG.info("installSnatSpecificEntriesForNaptSwitch: called for router {}",
+            routers.getRouterName());
+        String routerName = routers.getRouterName();
+        Long routerId = NatUtil.getVpnId(confTx, routerName);
+        if (routerId == NatConstants.INVALID_ID) {
+            LOG.error("InvalidRouterId: unable to installSnatSpecificEntriesForNaptSwitch on dpn {}", dpnId);
+            return;
+        }
+        /* Remove Outbound NAT entries */
 
+        removeSnatMissEntryForPrimrySwch(confTx, dpnId, routerId);
+        removeTerminatingServiceTblEntry(confTx, dpnId, routerId);
+
+        removeOutboundTblTrackEntry(confTx, dpnId, routerId);
+        for (ExternalIps externalIp : routers.getExternalIps()) {
+            if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
+                // In this class we handle only IPv4 use-cases.
+                continue;
+            }
+            //The logic now handle only one external IP per router, others if present will be ignored.
+            removeOutboundTblEntry(confTx, dpnId, routerId);
+            removeNaptPfibFlow(confTx, routers, dpnId, routerId);
+
+            //Install Inbound NAT entries
+            removeInboundEntry(confTx, dpnId, routerId);
+            removeNaptPfibEntry(confTx, dpnId, routerId);
+
+            String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp.getIpAddress());
+            Optional<Subnets> externalSubnet = NatUtil.getOptionalExternalSubnets(confTx, externalIp.getSubnetId());
+            if (externalSubnet.isPresent()) {
+                String externalVpn =  externalIp.getSubnetId().getValue();
+                String vpnRd = NatUtil.getVpnRd(confTx, externalVpn);
+                vpnFootprintService.updateVpnToDpnMapping(dpnId, externalVpn, vpnRd, null /* interfaceName*/,
+                    new ImmutablePair<>(IpAddresses.IpAddressSource.ExternalFixedIP, fibExternalIp),
+                    false);
+            }
+            break;
+        }
     }
 
-    protected void installSnatMissEntryForPrimrySwch(BigInteger dpnId, Long routerId, int elanId, int addOrRemove) {
+    @Override
+    protected void addSnatSpecificEntriesForNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
+        Routers routers, BigInteger dpnId) {
+        // Nothing to to do here
+    }
+
+    @Override
+    protected void removeSnatSpecificEntriesForNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
+        Routers routers, BigInteger dpnId) {
+        // Nothing to to do here
+    }
+
+    protected void addSnatMissEntryForPrimrySwch(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        Long routerId, int elanId) {
         LOG.info("installSnatSpecificEntriesForNaptSwitch : called for the primary NAPT switch dpnId {}", dpnId);
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
@@ -142,17 +193,25 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         instructions.add(new InstructionApplyActions(actionsInfos));
 
         String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
-        syncFlow(dpnId, NwConstants.PSNAT_TABLE, flowRef, NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
+        addFlow(confTx, dpnId, NwConstants.PSNAT_TABLE, flowRef, NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
+                NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
-    protected void installTerminatingServiceTblEntry(BigInteger dpnId, Long  routerId, int elanId, int addOrRemove) {
+    protected void removeSnatMissEntryForPrimrySwch(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        Long routerId) {
+        LOG.info("installSnatSpecificEntriesForNaptSwitch : called for the primary NAPT switch dpnId {}", dpnId);
+
+        String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
+        removeFlow(confTx, dpnId, NwConstants.PSNAT_TABLE, flowRef);
+    }
+
+    protected void addTerminatingServiceTblEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        Long routerId, int elanId) {
         LOG.info("installTerminatingServiceTblEntry : creating entry for Terminating Service Table "
                 + "for switch {}, routerId {}", dpnId, routerId);
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new MatchTunnelId(BigInteger.valueOf(routerId)));
-
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<NxCtAction> ctActionsList = new ArrayList<>();
@@ -161,130 +220,159 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         ActionNxConntrack actionNxConntrack = new ActionNxConntrack(0, 0, elanId, NwConstants
                 .OUTBOUND_NAPT_TABLE,ctActionsList);
         ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
-                .getVpnIdMetadata(routerId.longValue()), LOAD_START, LOAD_END);
+                .getVpnIdMetadata(routerId), LOAD_START, LOAD_END);
         actionsInfos.add(actionLoadMeta);
         actionsInfos.add(actionNxConntrack);
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
-        String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
-        syncFlow(dpnId,  NwConstants.INTERNAL_TUNNEL_TABLE, flowRef, NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef,
-                 NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
-
+        String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId);
+        addFlow(confTx, dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef, NatConstants.DEFAULT_TS_FLOW_PRIORITY,
+            flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
-    protected void createOutboundTblTrackEntry(BigInteger dpnId, Long routerId, String extGwMacAddress,
-            int addOrRemove) {
+    protected void removeTerminatingServiceTblEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        Long routerId) {
+        LOG.info("installTerminatingServiceTblEntry : creating entry for Terminating Service Table "
+            + "for switch {}, routerId {}", dpnId, routerId);
+
+        String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId);
+        removeFlow(confTx, dpnId,  NwConstants.INTERNAL_TUNNEL_TABLE, flowRef);
+    }
+
+    protected void addOutboundTblTrackEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        Long routerId, String extGwMacAddress) {
         LOG.info("createOutboundTblTrackEntry : called for switch {}, routerId {}", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new NxMatchCtState(SNAT_CT_STATE, SNAT_CT_STATE_MASK));
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            listActionInfo.add(new ActionSetFieldEthernetSource(new MacAddress(extGwMacAddress)));
-        }
+        listActionInfo.add(new ActionSetFieldEthernetSource(new MacAddress(extGwMacAddress)));
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
         listActionInfo.add(new ActionNxResubmit(NwConstants.NAPT_PFIB_TABLE));
         instructionInfo.add(new InstructionApplyActions(listActionInfo));
 
-        String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
-        flowRef += "trkest";
-        syncFlow(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef, NatConstants.SNAT_TRK_FLOW_PRIORITY, flowRef,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo, addOrRemove);
-
+        String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId) + "trkest";
+        addFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef, NatConstants.SNAT_TRK_FLOW_PRIORITY, flowRef,
+                NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo);
     }
 
-    protected void createOutboundTblEntry(BigInteger dpnId, long routerId, String externalIp,
-            int elanId, String extGwMacAddress,  int addOrRemove) {
+    protected void removeOutboundTblTrackEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        Long routerId) {
+        LOG.info("createOutboundTblTrackEntry : called for switch {}, routerId {}", dpnId, routerId);
+
+        String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId) + "trkest";
+        removeFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef);
+    }
+
+    protected void addOutboundTblEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId, long routerId,
+        String externalIp, int elanId, String extGwMacAddress) {
         LOG.info("createOutboundTblEntry : dpId {} and routerId {}", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new NxMatchCtState(TRACKED_NEW_CT_STATE, TRACKED_NEW_CT_MASK));
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            actionsInfos.add(new ActionSetFieldEthernetSource(new MacAddress(extGwMacAddress)));
-        }
+        actionsInfos.add(new ActionSetFieldEthernetSource(new MacAddress(extGwMacAddress)));
         List<NxCtAction> ctActionsListCommit = new ArrayList<>();
         int rangePresent = NxActionNatRangePresent.NXNATRANGEIPV4MIN.getIntValue();
         int flags = NxActionNatFlags.NXNATFSRC.getIntValue();
         NxCtAction nxCtActionCommit = new ActionNxConntrack.NxNat(0, flags, rangePresent,
-                new IpPrefixOrAddress(externalIp.toCharArray()).getIpAddress(),
-                null,0, 0);
+            new IpPrefixOrAddress(externalIp.toCharArray()).getIpAddress(),
+            null,0, 0);
         ctActionsListCommit.add(nxCtActionCommit);
         int ctCommitFlag = 1;
         ActionNxConntrack actionNxConntrackSubmit = new ActionNxConntrack(ctCommitFlag, 0, elanId,
-                NwConstants.NAPT_PFIB_TABLE, ctActionsListCommit);
+            NwConstants.NAPT_PFIB_TABLE, ctActionsListCommit);
         actionsInfos.add(actionNxConntrackSubmit);
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
         String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
-        syncFlow(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef,  NatConstants.SNAT_NEW_FLOW_PRIORITY,
-                flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
+        addFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef,  NatConstants.SNAT_NEW_FLOW_PRIORITY,
+            flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
-    protected void installNaptPfibFlow(Routers routers, BigInteger dpnId, long routerId,
-            long extSubnetId, int addOrRemove) {
-        Long extNetId = NatUtil.getVpnId(getDataBroker(), routers.getNetworkId().getValue());
+    protected void removeOutboundTblEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        long routerId) {
+        LOG.info("createOutboundTblEntry : dpId {} and routerId {}", dpnId, routerId);
+        String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
+        removeFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef);
+    }
+
+    protected void addNaptPfibFlow(TypedReadWriteTransaction<Configuration> confTx, Routers routers, BigInteger dpnId,
+        long routerId, long extSubnetId) {
+        Long extNetId = NatUtil.getVpnId(confTx, routers.getNetworkId().getValue());
         LOG.info("installNaptPfibFlow : dpId {}, extNetId {}", dpnId, extNetId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new NxMatchCtState(SNAT_CT_STATE, SNAT_CT_STATE_MASK));
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
         List<ActionInfo> listActionInfo = new ArrayList<>();
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            if (extSubnetId == NatConstants.INVALID_ID) {
-                LOG.error("installNaptPfibFlow : external subnet id is invalid.");
-                return;
-            }
-            ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
-                    .getVpnIdMetadata(extSubnetId), LOAD_START, LOAD_END);
-            listActionInfo.add(actionLoadMeta);
+        if (extSubnetId == NatConstants.INVALID_ID) {
+            LOG.error("installNaptPfibFlow : external subnet id is invalid.");
+            return;
         }
+        ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
+            .getVpnIdMetadata(extSubnetId), LOAD_START, LOAD_END);
+        listActionInfo.add(actionLoadMeta);
         ArrayList<InstructionInfo> instructions = new ArrayList<>();
         listActionInfo.add(new ActionNxLoadInPort(BigInteger.ZERO));
         listActionInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         instructions.add(new InstructionApplyActions(listActionInfo));
         String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId);
         flowRef = flowRef + "OUTBOUND";
-        syncFlow(dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef, NatConstants.SNAT_TRK_FLOW_PRIORITY,
-                flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
+        addFlow(confTx, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef, NatConstants.SNAT_TRK_FLOW_PRIORITY,
+            flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
-    protected void installInboundEntry(BigInteger dpnId, long routerId, String externalIp, int elanId, long extSubnetId,
-            int addOrRemove) {
+    protected void removeNaptPfibFlow(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger dpnId, long routerId) {
+        Long extNetId = NatUtil.getVpnId(confTx, routers.getNetworkId().getValue());
+        LOG.info("installNaptPfibFlow : dpId {}, extNetId {}", dpnId, extNetId);
+        String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId) + "OUTBOUND";
+        removeFlow(confTx, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef);
+    }
+
+    protected void addInboundEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId, long routerId,
+        String externalIp, int elanId, long extSubnetId) {
         LOG.info("installInboundEntry : dpId {} and routerId {}", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new MatchIpv4Destination(externalIp,"32"));
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            if (extSubnetId == NatConstants.INVALID_ID) {
-                LOG.error("installInboundEntry : external subnet id is invalid.");
-                return;
-            }
-            matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extSubnetId),
-                    MetaDataUtil.METADATA_MASK_VRFID));
+        if (extSubnetId == NatConstants.INVALID_ID) {
+            LOG.error("installInboundEntry : external subnet id is invalid.");
+            return;
         }
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extSubnetId),
+            MetaDataUtil.METADATA_MASK_VRFID));
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<NxCtAction> ctActionsList = new ArrayList<>();
         NxCtAction nxCtAction = new ActionNxConntrack.NxNat(0, 0, 0,null, null,0, 0);
         ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
-                .getVpnIdMetadata(routerId), LOAD_START, LOAD_END);
+            .getVpnIdMetadata(routerId), LOAD_START, LOAD_END);
         actionsInfos.add(actionLoadMeta);
         ctActionsList.add(nxCtAction);
         ActionNxConntrack actionNxConntrack = new ActionNxConntrack(0, 0, elanId, NwConstants
-                .NAPT_PFIB_TABLE,ctActionsList);
+            .NAPT_PFIB_TABLE,ctActionsList);
 
         actionsInfos.add(actionNxConntrack);
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
         String flowRef = getFlowRef(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId);
         flowRef = flowRef + "OUTBOUND";
-        syncFlow(dpnId, NwConstants.INBOUND_NAPT_TABLE, flowRef, NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
+        addFlow(confTx, dpnId, NwConstants.INBOUND_NAPT_TABLE, flowRef, NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef,
+            NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
-    protected void installNaptPfibEntry(BigInteger dpnId, long routerId, int addOrRemove) {
+    protected void removeInboundEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        long routerId) {
+        LOG.info("installInboundEntry : dpId {} and routerId {}", dpnId, routerId);
+
+        String flowRef = getFlowRef(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId) + "OUTBOUND";
+        removeFlow(confTx, dpnId, NwConstants.INBOUND_NAPT_TABLE, flowRef);
+    }
+
+    protected void addNaptPfibEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId, long routerId) {
         LOG.info("installNaptPfibEntry : called for dpnId {} and routerId {} ", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
@@ -297,10 +385,15 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         listActionInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         instructionInfo.add(new InstructionApplyActions(listActionInfo));
 
+        String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId) + "INBOUND";
+        addFlow(confTx, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef, NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
+            NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo);
+    }
 
-        String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId);
-        flowRef = flowRef + "INBOUND";
-        syncFlow(dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef, NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo, addOrRemove);
+    protected void removeNaptPfibEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        long routerId) {
+        LOG.info("installNaptPfibEntry : called for dpnId {} and routerId {} ", dpnId, routerId);
+        String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId) + "INBOUND";
+        removeFlow(confTx, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef);
     }
 }

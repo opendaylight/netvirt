@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
@@ -49,24 +50,25 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
     }
 
     @Override
-    public void notify(Routers router, BigInteger primarySwitchId, BigInteger dpnId, Action action) {
+    public void notify(TypedReadWriteTransaction<Datastore.Configuration> confTx,
+        Routers router, BigInteger primarySwitchId, BigInteger dpnId, Action action) {
         for (SnatServiceListener snatServiceListener : snatServiceListeners) {
             boolean result = false;
             switch (action) {
                 case SNAT_ALL_SWITCH_ENBL:
-                    result = snatServiceListener.handleSnatAllSwitch(router, primarySwitchId, NwConstants.ADD_FLOW);
+                    result = snatServiceListener.addSnatAllSwitch(confTx, router, primarySwitchId);
                     break;
 
                 case SNAT_ALL_SWITCH_DISBL:
-                    result = snatServiceListener.handleSnatAllSwitch(router, primarySwitchId, NwConstants.DEL_FLOW);
+                    result = snatServiceListener.removeSnatAllSwitch(confTx, router, primarySwitchId);
                     break;
 
                 case SNAT_ROUTER_ENBL:
-                    result = snatServiceListener.handleSnat(router, primarySwitchId, dpnId,  NwConstants.ADD_FLOW);
+                    result = snatServiceListener.addSnat(confTx, router, primarySwitchId, dpnId);
                     break;
 
                 case SNAT_ROUTER_DISBL:
-                    result = snatServiceListener.handleSnat(router, primarySwitchId, dpnId, NwConstants.DEL_FLOW);
+                    result = snatServiceListener.removeSnat(confTx, router, primarySwitchId, dpnId);
                     break;
 
                 default:

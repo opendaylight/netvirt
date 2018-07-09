@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.natservice.internal;
 import java.math.BigInteger;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -39,22 +41,35 @@ public class FlatVlanConntrackBasedSnatService extends ConntrackBasedSnatService
     }
 
     @Override
-    public boolean handleSnatAllSwitch(Routers routers, BigInteger primarySwitchId,  int addOrRemove) {
-        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, routers.getNetworkId());
-        LOG.debug("FlatVlanConntrackBasedSnatService: handleSnatAllSwitch ProviderTypes {}", extNwProviderType);
-        if (extNwProviderType == ProviderTypes.VXLAN || extNwProviderType == ProviderTypes.GRE) {
+    public boolean addSnatAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger primarySwitchId) {
+        if (checkProviderType(confTx, routers)) {
             return false;
         }
-        return super.handleSnatAllSwitch(routers, primarySwitchId, addOrRemove);
+        return super.addSnatAllSwitch(confTx, routers, primarySwitchId);
     }
 
     @Override
-    public boolean handleSnat(Routers routers, BigInteger primarySwitchId, BigInteger dpnId,  int addOrRemove) {
-        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, routers.getNetworkId());
-        LOG.debug("FlatVlanConntrackBasedSnatService: handleSnat ProviderTypes {}", extNwProviderType);
-        if (extNwProviderType == ProviderTypes.VXLAN || extNwProviderType == ProviderTypes.GRE) {
-            return false;
-        }
-        return super.handleSnat(routers, primarySwitchId, dpnId, addOrRemove);
+    public boolean removeSnatAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger primarySwitchId) {
+        return !checkProviderType(confTx, routers) && super.removeSnatAllSwitch(confTx, routers, primarySwitchId);
+    }
+
+    @Override
+    public boolean addSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger primarySwitchId, BigInteger dpnId) {
+        return !checkProviderType(confTx, routers) && super.addSnat(confTx, routers, primarySwitchId, dpnId);
+    }
+
+    @Override
+    public boolean removeSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger primarySwitchId, BigInteger dpnId) {
+        return !checkProviderType(confTx, routers) && super.removeSnat(confTx, routers, primarySwitchId, dpnId);
+    }
+
+    private boolean checkProviderType(TypedReadWriteTransaction<Configuration> confTx, Routers routers) {
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(confTx, routers.getNetworkId());
+        LOG.debug("FlatVlanConntrackBasedSnatService: ProviderTypes {}", extNwProviderType);
+        return extNwProviderType == ProviderTypes.VXLAN || extNwProviderType == ProviderTypes.GRE;
     }
 }
