@@ -15,6 +15,11 @@ import java.util.Set;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TypedReadTransaction;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
@@ -27,57 +32,70 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 
 
 public interface IVpnManager {
-    void addExtraRoute(String vpnName, String destination, String nextHop,
-            String rd, String routerID, int label, RouteOrigin origin);
-
+    @Deprecated
     void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
             Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
             VrfEntry.EncapType encapType, WriteTransaction writeConfigTxn);
 
-    void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID);
+    void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
+        Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
+        VrfEntry.EncapType encapType, TypedWriteTransaction<Configuration> confTx);
 
+    @Deprecated
     void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
             String intfName, WriteTransaction writeConfigTxn);
 
+    void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
+        String intfName, TypedWriteTransaction<Configuration> confTx);
+
+    @Deprecated
     void removePrefixFromBGP(String primaryRd, String rd, String vpnName, String prefix, String nextHop,
             String tunnelIp, BigInteger dpnId, WriteTransaction writeConfigTxn);
 
-    /**
-     * Returns true if the specified VPN exists.
-     *
-     * @param vpnName it must match against the vpn-instance-name attrib in one of the VpnInstances
-     */
-    boolean existsVpn(String vpnName);
+    void removePrefixFromBGP(String primaryRd, String rd, String vpnName, String prefix, String nextHop,
+        String tunnelIp, BigInteger dpnId, TypedWriteTransaction<Configuration> confTx);
 
     boolean isVPNConfigured();
 
-    /**
-     * Retrieves the list of DPNs where the specified VPN has footprint.
-     *
-     * @param vpnInstanceName The name of the Vpn instance
-     * @return The list of DPNs
-     */
-    List<BigInteger> getDpnsOnVpn(String vpnInstanceName);
-
     String getPrimaryRdFromVpnInstance(VpnInstance vpnInstance);
 
+    @Deprecated
     void addSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
             BigInteger dpnId, WriteTransaction tx);
 
+    void addSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
+        BigInteger dpnId, TypedWriteTransaction<Configuration> confTx);
+
+    @Deprecated
     void removeSubnetMacFromVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
             BigInteger dpnId, WriteTransaction tx);
 
+    void removeSubnetMacFromVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
+        BigInteger dpnId, TypedReadWriteTransaction<Configuration> confTx);
+
+    @Deprecated
     void addRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
             String subnetVpnName, WriteTransaction writeTx);
 
+    void addRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
+        String subnetVpnName, TypedWriteTransaction<Configuration> confTx);
+
+    @Deprecated
     void removeRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
             String subnetVpnName, WriteTransaction writeTx);
 
+    void removeRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
+        String subnetVpnName, TypedReadWriteTransaction<Configuration> confTx);
+
+    @Deprecated
     void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
             BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx);
 
+    void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
+        BigInteger dpnId, Uuid extNetworkId);
+
     void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String routerGwMac,
-            BigInteger dpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx);
+            BigInteger dpnId, String extInterfaceName, int lportTag);
 
     void removeArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
             BigInteger dpnId, Uuid extNetworkId);
@@ -89,13 +107,18 @@ public interface IVpnManager {
 
     void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn);
 
-    List<MatchInfoBase> getEgressMatchesForVpn(String vpnName);
-
     VpnInstance getVpnInstance(DataBroker broker, String vpnInstanceName);
 
+    @Deprecated
     String getVpnRd(DataBroker broker, String vpnName);
 
+    String getVpnRd(TypedReadTransaction<Configuration> confTx, String vpnName);
+
+    @Deprecated
     VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp);
+
+    VpnPortipToPort getNeutronPortFromVpnPortFixedIp(TypedReadTransaction<Configuration> confTx, String vpnName,
+        String fixedIp);
 
     void updateRouteTargetsToSubnetAssociation(Set<VpnTarget> routeTargets, String cidr, String vpnName);
 
