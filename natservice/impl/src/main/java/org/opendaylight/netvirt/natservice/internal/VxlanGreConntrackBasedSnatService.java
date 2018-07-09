@@ -13,8 +13,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TransactionAdapter;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -39,7 +41,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.natservice.ha.NatDataUtil;
@@ -63,7 +64,6 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
     private static final Logger LOG = LoggerFactory.getLogger(VxlanGreConntrackBasedSnatService.class);
     private final ExternalRoutersListener externalRouterListener;
     private final IElanService elanManager;
-    private final ManagedNewTransactionRunner txRunner;
 
     public VxlanGreConntrackBasedSnatService(DataBroker dataBroker, IMdsalApiManager mdsalManager,
                                              ItmRpcService itmManager, OdlInterfaceRpcService odlInterfaceRpcService,
@@ -76,86 +76,143 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
                 interfaceManager, vpnFootprintService, fibManager, natDataUtil);
         this.externalRouterListener = externalRouterListener;
         this.elanManager = elanManager;
-        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
     @Override
-    public boolean handleSnatAllSwitch(Routers routers, BigInteger primarySwitchId,  int addOrRemove) {
-        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, routers.getNetworkId());
+    public boolean addSnatAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger primarySwitchId) {
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(confTx, routers.getNetworkId());
         LOG.debug("VxlanGreConntrackBasedSnatService: handleSnatAllSwitch ProviderTypes {}", extNwProviderType);
         if (extNwProviderType == ProviderTypes.FLAT || extNwProviderType == ProviderTypes.VLAN) {
             LOG.debug("handleSnatAllSwitch : Skip FLAT/VLAN provider networks.");
             return true;
         }
-        return super.handleSnatAllSwitch(routers, primarySwitchId, addOrRemove);
+        return super.addSnatAllSwitch(confTx, routers, primarySwitchId);
     }
 
     @Override
-    public boolean handleSnat(Routers routers, BigInteger primarySwitchId, BigInteger dpnId,  int addOrRemove) {
-        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, routers.getNetworkId());
+    public boolean removeSnatAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger primarySwitchId) {
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(confTx, routers.getNetworkId());
+        LOG.debug("VxlanGreConntrackBasedSnatService: handleSnatAllSwitch ProviderTypes {}", extNwProviderType);
+        if (extNwProviderType == ProviderTypes.FLAT || extNwProviderType == ProviderTypes.VLAN) {
+            LOG.debug("handleSnatAllSwitch : Skip FLAT/VLAN provider networks.");
+            return true;
+        }
+        return super.removeSnatAllSwitch(confTx, routers, primarySwitchId);
+    }
+
+    @Override
+    public boolean addSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger primarySwitchId, BigInteger dpnId) {
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(confTx, routers.getNetworkId());
         LOG.debug("VxlanGreConntrackBasedSnatService: handleSnat ProviderTypes {}", extNwProviderType);
         if (extNwProviderType == ProviderTypes.FLAT || extNwProviderType == ProviderTypes.VLAN) {
             LOG.debug("handleSnat : Skip FLAT/VLAN provider networks.");
             return true;
         }
-        return super.handleSnat(routers, primarySwitchId, dpnId, addOrRemove);
+        return super.addSnat(confTx, routers, primarySwitchId, dpnId);
     }
 
     @Override
-    protected void installSnatSpecificEntriesForNaptSwitch(Routers routers, BigInteger dpnId, int addOrRemove) {
+    public boolean removeSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger primarySwitchId, BigInteger dpnId) {
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(confTx, routers.getNetworkId());
+        LOG.debug("VxlanGreConntrackBasedSnatService: handleSnat ProviderTypes {}", extNwProviderType);
+        if (extNwProviderType == ProviderTypes.FLAT || extNwProviderType == ProviderTypes.VLAN) {
+            LOG.debug("handleSnat : Skip FLAT/VLAN provider networks.");
+            return true;
+        }
+        return super.removeSnat(confTx, routers, primarySwitchId, dpnId);
+    }
+
+    @Override
+    protected void addSnatSpecificEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger dpnId) {
+
         LOG.info("installSnatSpecificEntriesForNaptSwitch for router {}",
-                routers.getRouterName());
+            routers.getRouterName());
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         int elanId = NatUtil.getElanInstanceByName(routers.getNetworkId().getValue(), dataBroker)
-                .getElanTag().intValue();
+            .getElanTag().intValue();
         /* Install Outbound NAT entries */
 
-        installSnatMissEntryForPrimrySwch(dpnId, routerId, elanId, addOrRemove);
-        installTerminatingServiceTblEntryForVxlanGre(dpnId, routerName, routerId, elanId, addOrRemove);
+        addSnatMissEntryForPrimrySwch(confTx, dpnId, routerId, elanId);
+        addTerminatingServiceTblEntryForVxlanGre(confTx, dpnId, routerName, routerId, elanId);
         //Long extNetVpnId = NatUtil.getNetworkVpnIdFromRouterId(dataBroker, routerId);
         Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, routers.getNetworkId());
         if (vpnUuid == null) {
             LOG.error("installSnatSpecificEntriesForNaptSwitch: Unable to retrieve external vpn_id for "
-                    + "external network {} with routerId {}", routers.getNetworkId(), routerId);
+                + "external network {} with routerId {}", routers.getNetworkId(), routerId);
             return;
         }
         Long extNetVpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
-        /*//Long extNetVpnId = NatUtil.getAssociatedVPN(dataBroker, routers.getNetworkId(), LOG);
-        if (extNetVpnId == NatConstants.INVALID_ID && addOrRemove == NwConstants.ADD_FLOW) {
-            LOG.error("installSnatSpecificEntriesForNaptSwitch: Unable to retrieve external vpn_id for "
-                    + "external network {} with routerId {}", routers.getNetworkId(), routerId);
-            return;
-        }*/
         LOG.info("installSnatSpecificEntriesForNaptSwitch: external network vpn_id {} for router {}",
-                extNetVpnId, routers.getRouterName());
+            extNetVpnId, routers.getRouterName());
         List<ExternalIps> externalIps = routers.getExternalIps();
-        createOutboundTblTrackEntryForVxlanGre(dpnId, routerId, extNetVpnId, addOrRemove);
-        createOutboundTblEntryForVxlanGre(dpnId, routerId, extNetVpnId, externalIps, elanId, addOrRemove);
-        installNaptPfibFlowForVxlanGre(routers, dpnId, extNetVpnId, addOrRemove);
-        installNaptPfibEntry(dpnId, routerId, addOrRemove);
+        addOutboundTblTrackEntryForVxlanGre(confTx, dpnId, routerId, extNetVpnId);
+        addOutboundTblEntryForVxlanGre(confTx, dpnId, routerId, extNetVpnId, externalIps, elanId);
+        addNaptPfibFlowForVxlanGre(confTx, routers, dpnId, extNetVpnId);
+        addNaptPfibEntry(confTx, dpnId, routerId);
 
         //Install Inbound NAT entries
-        installInboundEntryForVxlanGre(dpnId, routerId, extNetVpnId, externalIps, elanId, addOrRemove);
+        addInboundEntryForVxlanGre(confTx, dpnId, routerId, extNetVpnId, externalIps, elanId);
         if (externalIps.isEmpty()) {
             LOG.error("installSnatSpecificEntriesForNaptSwitch: No externalIP present for router {}",
-                    routerName);
+                routerName);
             return;
         }
         //The logic now handle only one external IP per router, others if present will be ignored.
         String externalIp = NatUtil.validateAndAddNetworkMask(externalIps.get(0).getIpAddress());
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-            if (addOrRemove == NwConstants.ADD_FLOW) {
-                externalRouterListener.handleSnatReverseTraffic(dpnId, routers, routerId, routerName, externalIp, tx);
-            } else {
-                externalRouterListener.clearFibTsAndReverseTraffic(dpnId, routerId, routers.getNetworkId(),
-                        Collections.singletonList(externalIp), null, routers.getExtGwMacAddress(), tx);
-            }
-        }), LOG, "Error installing SNAT-specific entries for NAPT switch");
+        externalRouterListener.handleSnatReverseTraffic(dpnId, routers, routerId, routerName, externalIp,
+            TransactionAdapter.toWriteTransaction(confTx));
     }
 
-    protected void createOutboundTblTrackEntryForVxlanGre(BigInteger dpnId, Long routerId, Long extNetVpnId,
-                                               int addOrRemove) {
+    @Override
+    protected void removeSnatSpecificEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
+        Routers routers, BigInteger dpnId) {
+
+        LOG.info("installSnatSpecificEntriesForNaptSwitch for router {}",
+            routers.getRouterName());
+        String routerName = routers.getRouterName();
+        Long routerId = NatUtil.getVpnId(dataBroker, routerName);
+
+        /* Remove Outbound NAT entries */
+        removeSnatMissEntryForPrimrySwch(confTx, dpnId, routerId);
+        removeTerminatingServiceTblEntryForVxlanGre(confTx, dpnId, routerId);
+        //Long extNetVpnId = NatUtil.getNetworkVpnIdFromRouterId(dataBroker, routerId);
+        Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, routers.getNetworkId());
+        if (vpnUuid == null) {
+            LOG.error("installSnatSpecificEntriesForNaptSwitch: Unable to retrieve external vpn_id for "
+                + "external network {} with routerId {}", routers.getNetworkId(), routerId);
+            return;
+        }
+        Long extNetVpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
+        LOG.info("installSnatSpecificEntriesForNaptSwitch: external network vpn_id {} for router {}",
+            extNetVpnId, routers.getRouterName());
+        List<ExternalIps> externalIps = routers.getExternalIps();
+        removeOutboundTblTrackEntryForVxlanGre(confTx, dpnId, routerId);
+        removeOutboundTblEntryForVxlanGre(confTx, dpnId, routerId, externalIps);
+        removeNaptPfibFlowForVxlanGre(confTx, routers, dpnId, extNetVpnId);
+        removeNaptPfibEntry(confTx, dpnId, routerId);
+
+        //Install Inbound NAT entries
+        removeInboundEntryForVxlanGre(confTx, dpnId, routerId, externalIps);
+        if (externalIps.isEmpty()) {
+            LOG.error("installSnatSpecificEntriesForNaptSwitch: No externalIP present for router {}",
+                routerName);
+            return;
+        }
+        //The logic now handle only one external IP per router, others if present will be ignored.
+        String externalIp = NatUtil.validateAndAddNetworkMask(externalIps.get(0).getIpAddress());
+        externalRouterListener.clearFibTsAndReverseTraffic(dpnId, routerId, routers.getNetworkId(),
+            Collections.singletonList(externalIp), null, routers.getExtGwMacAddress(),
+            TransactionAdapter.toWriteTransaction(confTx));
+    }
+
+    protected void addOutboundTblTrackEntryForVxlanGre(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        Long routerId, Long extNetVpnId) {
         LOG.info("createOutboundTblTrackEntryForVxlanGre: Install Outbound tracking table flow on dpId {} for "
                 + "routerId {}", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
@@ -164,24 +221,30 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
-                    .getVpnIdMetadata(extNetVpnId));
-            listActionInfo.add(actionSetFieldMeta);
-        }
+        ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil.getVpnIdMetadata(extNetVpnId));
+        listActionInfo.add(actionSetFieldMeta);
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
         listActionInfo.add(new ActionNxResubmit(NwConstants.NAPT_PFIB_TABLE));
         instructionInfo.add(new InstructionApplyActions(listActionInfo));
 
-        String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
-        flowRef += "trkest";
-        syncFlow(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef, NatConstants.SNAT_TRK_FLOW_PRIORITY, flowRef,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo, addOrRemove);
+        String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId) + "trkest";
+        addFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef, NatConstants.SNAT_TRK_FLOW_PRIORITY, flowRef,
+                NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo);
 
     }
 
-    protected void createOutboundTblEntryForVxlanGre(BigInteger dpnId, long routerId, Long extNetVpnId,
-                                                     List<ExternalIps> externalIps, int elanId, int addOrRemove) {
+    protected void removeOutboundTblTrackEntryForVxlanGre(TypedReadWriteTransaction<Configuration> confTx,
+        BigInteger dpnId, Long routerId) {
+        LOG.info("createOutboundTblTrackEntryForVxlanGre: Install Outbound tracking table flow on dpId {} for "
+            + "routerId {}", dpnId, routerId);
+
+        String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId) + "trkest";
+        removeFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef);
+
+    }
+
+    protected void addOutboundTblEntryForVxlanGre(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        long routerId, Long extNetVpnId, List<ExternalIps> externalIps, int elanId) {
         LOG.info("createOutboundTblEntryForVxlanGre: Install Outbound table flow on dpId {} for routerId {}", dpnId,
                 routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
@@ -196,11 +259,9 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         //The logic now handle only one external IP per router, others if present will be ignored.
         String externalIp = externalIps.get(0).getIpAddress();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
-                    .getVpnIdMetadata(extNetVpnId));
-            actionsInfos.add(actionSetFieldMeta);
-        }
+        ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
+                .getVpnIdMetadata(extNetVpnId));
+        actionsInfos.add(actionSetFieldMeta);
         List<ActionNxConntrack.NxCtAction> ctActionsListCommit = new ArrayList<>();
         int rangePresent = NxActionNatRangePresent.NXNATRANGEIPV4MIN.getIntValue();
         int flags = NxActionNatFlags.NXNATFSRC.getIntValue();
@@ -215,32 +276,52 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
         String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
-        syncFlow(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef,  NatConstants.SNAT_NEW_FLOW_PRIORITY,
-                flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
+        addFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef,  NatConstants.SNAT_NEW_FLOW_PRIORITY,
+                flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
-    protected void installNaptPfibFlowForVxlanGre(Routers routers, BigInteger dpnId, Long extNetVpnId,
-                                                  int addOrRemove) {
+    protected void removeOutboundTblEntryForVxlanGre(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        long routerId, List<ExternalIps> externalIps) {
+        LOG.info("createOutboundTblEntryForVxlanGre: Install Outbound table flow on dpId {} for routerId {}", dpnId,
+            routerId);
+        if (externalIps.isEmpty()) {
+            LOG.error("createOutboundTblEntryForVxlanGre: No externalIP present for routerId {}",
+                routerId);
+            return;
+        }
+        //The logic now handle only one external IP per router, others if present will be ignored.
+        String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
+        removeFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef);
+    }
+
+    protected void addNaptPfibFlowForVxlanGre(TypedWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger dpnId, Long extNetVpnId) {
         LOG.info("installNaptPfibFlowForVxlanGre: Install Napt preFibFlow on dpId {} with matching extNetVpnId {} "
                 + "for router {}", dpnId, extNetVpnId, routers.getRouterName());
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extNetVpnId),
-                    MetaDataUtil.METADATA_MASK_VRFID));
-        }
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extNetVpnId),
+                MetaDataUtil.METADATA_MASK_VRFID));
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructions = new ArrayList<>();
         listActionInfo.add(new ActionNxLoadInPort(BigInteger.ZERO));
         listActionInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         instructions.add(new InstructionApplyActions(listActionInfo));
         String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, extNetVpnId);
-        syncFlow(dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef, NatConstants.SNAT_TRK_FLOW_PRIORITY,
-                flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
+        addFlow(confTx, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef, NatConstants.SNAT_TRK_FLOW_PRIORITY,
+                flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
-    protected void installInboundEntryForVxlanGre(BigInteger dpnId, long routerId, Long extNeVpnId,
-                                                  List<ExternalIps> externalIps, int elanId, int addOrRemove) {
+    protected void removeNaptPfibFlowForVxlanGre(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger dpnId, Long extNetVpnId) {
+        LOG.info("installNaptPfibFlowForVxlanGre: Install Napt preFibFlow on dpId {} with matching extNetVpnId {} "
+            + "for router {}", dpnId, extNetVpnId, routers.getRouterName());
+        String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, extNetVpnId);
+        removeFlow(confTx, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef);
+    }
+
+    protected void addInboundEntryForVxlanGre(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        long routerId, Long extNeVpnId, List<ExternalIps> externalIps, int elanId) {
         LOG.info("installInboundEntryForVxlanGre:  Install Inbound table entry on dpId {} for routerId {}",
                 dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
@@ -252,10 +333,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         }
         String externalIp = externalIps.get(0).getIpAddress();
         matches.add(new MatchIpv4Destination(externalIp,"32"));
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extNeVpnId),
-                    MetaDataUtil.METADATA_MASK_VRFID));
-        }
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extNeVpnId), MetaDataUtil.METADATA_MASK_VRFID));
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<ActionNxConntrack.NxCtAction> ctActionsList = new ArrayList<>();
         ActionNxConntrack.NxCtAction nxCtAction = new ActionNxConntrack.NxNat(0, 0, 0,null, null,0, 0);
@@ -270,12 +348,26 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
         String flowRef = getFlowRef(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId);
-        syncFlow(dpnId, NwConstants.INBOUND_NAPT_TABLE, flowRef, NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
+        addFlow(confTx, dpnId, NwConstants.INBOUND_NAPT_TABLE, flowRef, NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef,
+                NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
-    protected void installTerminatingServiceTblEntryForVxlanGre(BigInteger dpnId, String routerName,
-            Long  routerId, int elanId, int addOrRemove) {
+    protected void removeInboundEntryForVxlanGre(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        long routerId, List<ExternalIps> externalIps) {
+        LOG.info("removeInboundEntryForVxlanGre: remove Inbound table entry on dpId {} for routerId {}",
+            dpnId, routerId);
+        if (externalIps.isEmpty()) {
+            LOG.error("removeInboundEntryForVxlanGre : createInboundTblEntry no externalIP present for routerId {}",
+                routerId);
+            return;
+        }
+
+        String flowRef = getFlowRef(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId);
+        removeFlow(confTx, dpnId, NwConstants.INBOUND_NAPT_TABLE, flowRef);
+    }
+
+    protected void addTerminatingServiceTblEntryForVxlanGre(TypedWriteTransaction<Configuration> confTx,
+        BigInteger dpnId, String routerName, Long routerId, int elanId) {
         LOG.info("installTerminatingServiceTblEntryForVxlanGre : creating entry for"
                 + "Terminating Service Table for switch {}, routerId {}", dpnId, routerId);
         List<MatchInfo> matches = new ArrayList<>();
@@ -300,13 +392,24 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
         String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
-        syncFlow(dpnId,  NwConstants.INTERNAL_TUNNEL_TABLE, flowRef, NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef,
-                 NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
+        addFlow(confTx, dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef, NatConstants.DEFAULT_TS_FLOW_PRIORITY,
+            flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
 
     }
 
-    protected void installSnatMissEntry(BigInteger dpnId, Long routerId, String routerName, BigInteger primarySwitchId,
-            int addOrRemove) {
+    protected void removeTerminatingServiceTblEntryForVxlanGre(TypedReadWriteTransaction<Configuration> confTx,
+        BigInteger dpnId, Long routerId) {
+        LOG.info("removeTerminatingServiceTblEntryForVxlanGre : removing entry for"
+            + "Terminating Service Table for switch {}, routerId {}", dpnId, routerId);
+
+        String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
+        removeFlow(confTx, dpnId,  NwConstants.INTERNAL_TUNNEL_TABLE, flowRef);
+
+    }
+
+    @Override
+    protected void addSnatMissEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId, Long routerId,
+        String routerName, BigInteger primarySwitchId) {
         LOG.debug("installSnatMissEntry : Installing SNAT miss entry in switch {}", dpnId);
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
         String ifNamePrimary = getTunnelInterfaceName(dpnId, primarySwitchId);
@@ -325,7 +428,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll,
                 listBucketInfo);
         LOG.debug("installSnatMissEntry : installing the SNAT to NAPT GroupEntity:{}", groupEntity);
-        mdsalManager.installGroup(groupEntity);
+        mdsalManager.addGroup(confTx, groupEntity);
         // Install miss entry pointing to group
         LOG.debug("installSnatMissEntry : buildSnatFlowEntity is called for dpId {}, routerName {} and groupId {}",
                 dpnId, routerName, groupId);
@@ -346,8 +449,17 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfo));
         String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
-        syncFlow(dpnId, NwConstants.PSNAT_TABLE, flowRef,  NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
-                NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
+        addFlow(confTx, dpnId, NwConstants.PSNAT_TABLE, flowRef,  NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
+                NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
+    }
+
+    @Override
+    protected void removeSnatMissEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        Long routerId, String routerName) {
+        LOG.debug("installSnatMissEntry : Removing SNAT miss entry in switch {}", dpnId);
+
+        String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
+        removeFlow(confTx, dpnId, NwConstants.PSNAT_TABLE, flowRef);
     }
 
 }
