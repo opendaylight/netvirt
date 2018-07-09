@@ -421,7 +421,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 LOG.info("processVpnInterfaceUp: Plumbed vpn interface {} onto dpn {} for vpn {}", interfaceName,
                         dpId, vpnName);
                 if (interfaceManager.isExternalInterface(interfaceName)) {
-                    processExternalVpnInterface(interfaceName, vpnName, vpnId, dpId, lportTag, writeInvTxn,
+                    processExternalVpnInterface(interfaceName, vpnName, dpId, lportTag,
                         NwConstants.ADD_FLOW);
                 }
                 return;
@@ -470,8 +470,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             LOG.info("processVpnInterfaceUp: Plumbed vpn interface {} onto dpn {} for vpn {} after waiting for"
                     + " FIB to clean up", interfaceName, dpId, vpnName);
             if (interfaceManager.isExternalInterface(interfaceName)) {
-                processExternalVpnInterface(interfaceName, vpnName, vpnId, dpId,
-                               lportTag, writeInvTxn, NwConstants.ADD_FLOW);
+                processExternalVpnInterface(interfaceName, vpnName, dpId,
+                               lportTag, NwConstants.ADD_FLOW);
             }
         } else {
             try {
@@ -509,8 +509,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    private void processExternalVpnInterface(String interfaceName, String vpnName, long vpnId, BigInteger dpId,
-            int lportTag, WriteTransaction writeInvTxn, int addOrRemove) {
+    private void processExternalVpnInterface(String interfaceName, String vpnName, BigInteger dpId,
+        int lportTag, int addOrRemove) {
         Uuid extNetworkId;
         try {
             // vpn instance of ext-net interface is the network-id
@@ -540,7 +540,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     if (addOrRemove == NwConstants.ADD_FLOW) {
                         vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName,
                                 VpnUtil.getIpsListFromExternalIps(router.getExternalIps()), router.getExtGwMacAddress(),
-                                dpId, interfaceName, lportTag, writeInvTxn);
+                                dpId, interfaceName, lportTag);
                     } else {
                         vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerName,
                                 VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
@@ -1310,8 +1310,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             removeAdjacenciesFromVpn(dpId, lportTag, interfaceName, vpnName,
                     vpnId, gwMac, writeConfigTxn, writeOperTxn, writeInvTxn);
             if (interfaceManager.isExternalInterface(interfaceName)) {
-                processExternalVpnInterface(interfaceName, vpnName, vpnId, dpId, lportTag, writeInvTxn,
-                        NwConstants.DEL_FLOW);
+                processExternalVpnInterface(interfaceName, vpnName, dpId, lportTag,
+                    NwConstants.DEL_FLOW);
             }
             if (!isBgpVpnInternetVpn) {
                 vpnUtil.unbindService(interfaceName, isInterfaceStateDown);

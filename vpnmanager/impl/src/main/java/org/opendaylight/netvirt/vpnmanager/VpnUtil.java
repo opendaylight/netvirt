@@ -45,8 +45,10 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedReadTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -560,6 +562,15 @@ public final class VpnUtil {
         return rd;
     }
 
+    public static String getVpnRd(TypedReadTransaction<Configuration> confTx, String vpnName) {
+        try {
+            return confTx.read(VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName)).get().toJavaUtil().map(
+                vpnInstance -> vpnInstance.getVrfId()).orElse(null);
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     List<String> getVpnRdsFromVpnInstanceConfig(String vpnName) {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
             .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
@@ -825,12 +836,12 @@ public final class VpnUtil {
     }
 
     static void removeVpnInstanceToVpnId(String vpnName,
-                                                @Nonnull TypedWriteTransaction<Datastore.Configuration> confTx) {
+                                                @Nonnull TypedWriteTransaction<Configuration> confTx) {
         confTx.delete(VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName));
     }
 
     static void removeVpnIdToVpnInstance(long vpnId,
-                                                @Nonnull TypedWriteTransaction<Datastore.Configuration> confTx) {
+                                                @Nonnull TypedWriteTransaction<Configuration> confTx) {
         confTx.delete(getVpnIdToVpnInstanceIdentifier(vpnId));
     }
 
@@ -897,7 +908,7 @@ public final class VpnUtil {
     }
 
     protected static void removeVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp,
-                                                     TypedWriteTransaction<Datastore.Configuration> writeConfigTxn) {
+                                                     TypedWriteTransaction<Configuration> writeConfigTxn) {
         synchronized ((vpnName + fixedIp).intern()) {
             InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
             if (writeConfigTxn != null) {
@@ -990,6 +1001,16 @@ public final class VpnUtil {
             return vpnPortipToPortData.get();
         }
         return null;
+    }
+
+    public static VpnPortipToPort getNeutronPortFromVpnPortFixedIp(TypedReadTransaction<Configuration> confTx,
+            String vpnName, String fixedIp) {
+        InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
+        try {
+            return confTx.read(id).get().orNull();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public LearntVpnVipToPort getLearntVpnVipToPort(String vpnName, String fixedIp) {
