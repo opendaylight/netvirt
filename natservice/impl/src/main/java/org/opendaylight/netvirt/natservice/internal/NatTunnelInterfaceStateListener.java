@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.FutureCallback;
@@ -17,7 +19,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -26,16 +27,18 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TransactionAdapter;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -60,7 +63,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Tep
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeInternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelsState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryOutput;
@@ -223,7 +225,7 @@ public class NatTunnelInterfaceStateListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     void removeSNATFromDPN(BigInteger dpnId, String routerName, long routerId, long routerVpnId,
-            Uuid networkId, ProviderTypes extNwProvType, WriteTransaction writeFlowInvTx) {
+            Uuid networkId, ProviderTypes extNwProvType, TypedReadWriteTransaction<Configuration> confTx) {
         //irrespective of naptswitch or non-naptswitch, SNAT default miss entry need to be removed
         //remove miss entry to NAPT switch
         //if naptswitch elect new switch and install Snat flows and remove those flows in oldnaptswitch
@@ -253,7 +255,7 @@ public class NatTunnelInterfaceStateListener
             BigInteger naptSwitch = dpnId;
             boolean naptStatus =
                 naptSwitchHA.isNaptSwitchDown(routerName, routerId, dpnId, naptSwitch,
-                        routerVpnId, externalIpCache, false, writeFlowInvTx);
+                        routerVpnId, externalIpCache, false, confTx);
             if (!naptStatus) {
                 LOG.debug("removeSNATFromDPN:SNAT->NaptSwitchDown:Switch with DpnId {} is not naptSwitch for router {}",
                     dpnId, routerName);
@@ -268,7 +270,7 @@ public class NatTunnelInterfaceStateListener
                         return;
                     }
                     LOG.debug("removeSNATFromDPN : SNAT->Removing default SNAT miss entry flow entity {}", flowEntity);
-                    mdsalManager.removeFlowToTx(flowEntity, writeFlowInvTx);
+                    mdsalManager.removeFlow(confTx, flowEntity);
 
                 } catch (Exception ex) {
                     LOG.error("removeSNATFromDPN : SNAT->Failed to remove default SNAT miss entry flow entity {}",
@@ -279,21 +281,17 @@ public class NatTunnelInterfaceStateListener
                     dpnId, routerName);
 
                 //remove group
-                GroupEntity groupEntity = null;
                 try {
-                    groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName,
-                        GroupTypes.GroupAll, Collections.emptyList() /*listBucketInfo*/);
-                    LOG.info("removeSNATFromDPN : SNAT->Removing NAPT GroupEntity:{} on Dpn {}", groupEntity, dpnId);
-                    mdsalManager.removeGroup(groupEntity);
+                    LOG.info("removeSNATFromDPN : SNAT->Removing NAPT Group :{} on Dpn {}", groupId, dpnId);
+                    mdsalManager.removeGroup(confTx, dpnId, groupId);
                 } catch (Exception ex) {
-                    LOG.error("removeSNATFromDPN : SNAT->Failed to remove group entity {}", groupEntity, ex);
+                    LOG.error("removeSNATFromDPN : SNAT->Failed to remove group {}", groupId, ex);
                     return;
                 }
                 LOG.debug("removeSNATFromDPN : SNAT->Removed default SNAT miss entry flow for dpnID {}, routerName {}",
                     dpnId, routerName);
             } else {
-                naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, routerId, dpnId,
-                        externalIpLabel, writeFlowInvTx);
+                naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, routerId, dpnId, externalIpLabel, confTx);
                 //remove table 26 flow ppointing to table46
                 FlowEntity flowEntity = null;
                 try {
@@ -306,7 +304,7 @@ public class NatTunnelInterfaceStateListener
                     }
                     LOG.debug("removeSNATFromDPN : SNAT->Removing default SNAT miss entry flow entity for "
                         + "router {} with dpnId {} in napt switch {}", routerName, dpnId, naptSwitch);
-                    mdsalManager.removeFlowToTx(flowEntity, writeFlowInvTx);
+                    mdsalManager.removeFlow(confTx, flowEntity);
 
                 } catch (Exception ex) {
                     LOG.error("removeSNATFromDPN : SNAT->Failed to remove default SNAT miss entry flow entity {}",
@@ -317,7 +315,7 @@ public class NatTunnelInterfaceStateListener
                         + "with routername {}", dpnId, routerName);
 
                 //best effort to check IntExt model
-                naptSwitchHA.bestEffortDeletion(routerId, routerName, externalIpLabel, writeFlowInvTx);
+                naptSwitchHA.bestEffortDeletion(routerId, routerName, externalIpLabel, confTx);
             }
         } catch (Exception ex) {
             LOG.error("removeSNATFromDPN : SNAT->Exception while handling naptSwitch down for router {}",
@@ -325,8 +323,6 @@ public class NatTunnelInterfaceStateListener
         }
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     private void hndlTepEvntsForDpn(StateTunnelList stateTunnelList, TunnelAction tunnelAction) {
         final BigInteger srcDpnId = new BigInteger(stateTunnelList.getSrcInfo().getTepDeviceId());
         final String srcTepIp = String.valueOf(stateTunnelList.getSrcInfo().getTepIp().getValue());
@@ -335,56 +331,52 @@ public class NatTunnelInterfaceStateListener
                 srcDpnId, srcTepIp, destTepIp);
         int tunTypeVal = getTunnelType(stateTunnelList);
         LOG.trace("hndlTepEvntsForDpn : tunTypeVal is {}", tunTypeVal);
-        try {
-            String srcTepId = stateTunnelList.getSrcInfo().getTepDeviceId();
-            String tunnelType = stateTunnelList.getTransportType().toString();
-            String tunnelName = stateTunnelList.getTunnelInterfaceName();
+        String srcTepId = stateTunnelList.getSrcInfo().getTepDeviceId();
+        String tunnelType = stateTunnelList.getTransportType().toString();
+        String tunnelName = stateTunnelList.getTunnelInterfaceName();
 
-            if (tunTypeVal == NatConstants.ITMTunnelLocType.Invalid.getValue()) {
-                LOG.warn("hndlTepEvntsForDpn : Ignoring TEP event {} for the DPN {} "
-                        + "since its a INVALID TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and " + "TUNNEL NAME {} ",
-                    tunnelAction, srcTepId, tunnelType, srcTepIp, destTepIp, tunnelName);
-                return;
-            }
+        if (tunTypeVal == NatConstants.ITMTunnelLocType.Invalid.getValue()) {
+            LOG.warn("hndlTepEvntsForDpn : Ignoring TEP event {} for the DPN {} "
+                    + "since its a INVALID TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and " + "TUNNEL NAME {} ",
+                tunnelAction, srcTepId, tunnelType, srcTepIp, destTepIp, tunnelName);
+            return;
+        }
 
-            switch (tunnelAction) {
-                case TUNNEL_EP_ADD:
-                    try {
-                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                            if (isTunnelInLogicalGroup(stateTunnelList)
-                                    || !hndlTepAddForAllRtrs(srcDpnId, tunnelType, tunnelName, srcTepIp, destTepIp,
-                                    tx)) {
-                                LOG.debug("hndlTepEvntsForDpn : Unable to process TEP ADD");
-                            }
-                        }).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        LOG.error("Error processing tunnel endpoint addition", e);
-                    }
-                    break;
-                case TUNNEL_EP_DELETE:
-                    try {
-                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                            if (!handleTepDelForAllRtrs(srcDpnId, tunnelType, tunnelName, srcTepIp, destTepIp, tx)) {
-                                LOG.debug("hndlTepEvntsForDpn : Unable to process TEP DEL");
-                            }
-                        }).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        LOG.error("Error processing tunnel endpoint removal", e);
-                    }
-                    break;
-                case TUNNEL_EP_UPDATE:
-                    break;
-                default:
-                    LOG.warn("hndlTepEvntsForDpn: unknown tunnelAction: {}", tunnelAction);
-                    break;
-            }
-        } catch (Exception e) {
-            LOG.error("hndlTepEvntsForDpn : Unable to handle the TEP event.", e);
+        switch (tunnelAction) {
+            case TUNNEL_EP_ADD:
+                try {
+                    txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+                        if (isTunnelInLogicalGroup(stateTunnelList)
+                                || !hndlTepAddForAllRtrs(srcDpnId, tunnelType, tunnelName, srcTepIp, destTepIp,
+                                tx)) {
+                            LOG.debug("hndlTepEvntsForDpn : Unable to process TEP ADD");
+                        }
+                    }).get();
+                } catch (InterruptedException | ExecutionException e) {
+                    LOG.error("Error processing tunnel endpoint addition", e);
+                }
+                break;
+            case TUNNEL_EP_DELETE:
+                try {
+                    txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+                        if (!handleTepDelForAllRtrs(srcDpnId, tunnelType, tunnelName, srcTepIp, destTepIp, tx)) {
+                            LOG.debug("hndlTepEvntsForDpn : Unable to process TEP DEL");
+                        }
+                    }).get();
+                } catch (InterruptedException | ExecutionException e) {
+                    LOG.error("Error processing tunnel endpoint removal", e);
+                }
+                break;
+            case TUNNEL_EP_UPDATE:
+                break;
+            default:
+                LOG.warn("hndlTepEvntsForDpn: unknown tunnelAction: {}", tunnelAction);
+                break;
         }
     }
 
     private boolean hndlTepAddForAllRtrs(BigInteger srcDpnId, String tunnelType, String tunnelName, String srcTepIp,
-                                         String destTepIp, WriteTransaction writeFlowInvTx) {
+                                         String destTepIp, TypedReadWriteTransaction<Configuration> writeFlowInvTx) {
         LOG.trace("hndlTepAddForAllRtrs: TEP ADD ----- for EXTERNAL/HWVTEP ITM Tunnel, TYPE {} ,State is UP b/w SRC IP"
             + " : {} and DEST IP: {}", fibManager.getTransportTypeStr(tunnelType), srcTepIp, destTepIp);
 
@@ -435,7 +427,7 @@ public class NatTunnelInterfaceStateListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private boolean handleTepDelForAllRtrs(BigInteger srcDpnId, String tunnelType, String tunnelName, String srcTepIp,
-                                           String destTepIp, WriteTransaction writeFlowInvTx) {
+                                           String destTepIp, TypedReadWriteTransaction<Configuration> writeFlowInvTx) {
 
         LOG.trace("handleTepDelForAllRtrs : TEP DEL ----- for EXTERNAL/HWVTEP ITM Tunnel,TYPE {},State is UP b/w SRC IP"
             + " : {} and DEST IP: {}", fibManager.getTransportTypeStr(tunnelType), srcTepIp, destTepIp);
@@ -504,7 +496,7 @@ public class NatTunnelInterfaceStateListener
 
     private void hndlTepAddForSnatInEachRtr(RoutersList router, long routerId, final BigInteger srcDpnId,
             String tunnelType, String srcTepIp, String destTepIp, String tunnelName, String nextHopIp,
-            ProviderTypes extNwProvType, WriteTransaction writeFlowInvTx) {
+            ProviderTypes extNwProvType, TypedReadWriteTransaction<Configuration> writeFlowInvTx) {
 
         /*SNAT : Remove the old routes to the external IP having the old TEP IP as the next hop IP
                  Advertise to the BGP about the new route to the external IP having the new TEP IP
@@ -514,9 +506,13 @@ public class NatTunnelInterfaceStateListener
 
         // Check if this is externalRouter else ignore
         InstanceIdentifier<Routers> extRoutersId = NatUtil.buildRouterIdentifier(routerName);
-        Optional<Routers> routerData =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                        LogicalDatastoreType.CONFIGURATION, extRoutersId);
+        Optional<Routers> routerData;
+        try {
+            routerData = writeFlowInvTx.read(extRoutersId).get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error reading router data for {}", extRoutersId, e);
+            routerData = Optional.absent();
+        }
         if (!routerData.isPresent()) {
             LOG.warn("hndlTepAddForSnatInEachRtr : SNAT->Ignoring TEP add for router {} since its not External Router",
                     routerName);
@@ -531,7 +527,7 @@ public class NatTunnelInterfaceStateListener
             return;
         }
         if (natMode == NatMode.Conntrack) {
-            natServiceManager.notify(routerData.get(), naptId, srcDpnId,
+            natServiceManager.notify(writeFlowInvTx, routerData.get(), naptId, srcDpnId,
                     SnatServiceManager.Action.SNAT_ROUTER_ENBL);
         } else {
             Uuid bgpVpnUuId = NatUtil.getVpnForRouter(dataBroker, routerName);
@@ -561,8 +557,8 @@ public class NatTunnelInterfaceStateListener
     }
 
     private boolean hndlTepAddOnNonNaptSwitch(BigInteger srcDpnId, BigInteger primaryDpnId, String tunnelType,
-                                              String srcTepIp, String destTepIp, String tunnelName, String routerName,
-                                              long routerId, Uuid vpnName, WriteTransaction writeFlowInvTx) {
+        String srcTepIp, String destTepIp, String tunnelName, String routerName, long routerId, Uuid vpnName,
+        TypedWriteTransaction<Configuration> confTx) {
 
         /*
         1) Install default NAT rule from table 21 to 26
@@ -587,7 +583,8 @@ public class NatTunnelInterfaceStateListener
             //Install default entry in FIB to SNAT table
             LOG.debug("hndlTepAddOnNonNaptSwitch : Installing default route in FIB on DPN {} for router {} with"
                 + " vpn {}...", srcDpnId, routerName, vpnId);
-            defaultRouteProgrammer.installDefNATRouteInDPN(srcDpnId, vpnId, writeFlowInvTx);
+            defaultRouteProgrammer.installDefNATRouteInDPN(srcDpnId, vpnId,
+                TransactionAdapter.toWriteTransaction(confTx));
 
             LOG.debug("hndlTepAddOnNonNaptSwitch : SNAT -> Install the group which forward packet to the tunnel port "
                 + "for the NAPT switch {} and the flow 26 which forwards to group", primaryDpnId);
@@ -609,7 +606,8 @@ public class NatTunnelInterfaceStateListener
             //Install default entry in FIB to SNAT table
             LOG.debug("hndlTepAddOnNonNaptSwitch : Installing default route in FIB on dpn {} for routerId {} "
                 + "with vpnId {}...", srcDpnId, routerId, vpnId);
-            defaultRouteProgrammer.installDefNATRouteInDPN(srcDpnId, vpnId, routerId, writeFlowInvTx);
+            defaultRouteProgrammer.installDefNATRouteInDPN(srcDpnId, vpnId, routerId,
+                TransactionAdapter.toWriteTransaction(confTx));
 
             LOG.debug("hndlTepAddOnNonNaptSwitch : Install group in non NAPT switch {} for router {}",
                     srcDpnId, routerName);
@@ -621,7 +619,7 @@ public class NatTunnelInterfaceStateListener
                     + "in the non NAPT switch {}", groupId, srcDpnId);
             FlowEntity flowEntity =
                 externalRouterListner.buildSnatFlowEntityWithUpdatedVpnId(srcDpnId, routerName, groupId, vpnId);
-            mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
+            mdsalManager.addFlow(confTx, flowEntity);
         }
         return true;
     }
@@ -629,7 +627,7 @@ public class NatTunnelInterfaceStateListener
     private boolean hndlTepAddOnNaptSwitch(BigInteger srcDpnId, String tunnelType, String srcTepIp,
                                            String destTepIp, String tunnelName, long routerId,
                                            Optional<Routers> routerData, String nextHopIp, Uuid vpnName,
-                                           ProviderTypes extNwProvType, WriteTransaction writeFlowInvTx) {
+                                           ProviderTypes extNwProvType, TypedWriteTransaction<Configuration> confTx) {
         if (!routerData.isPresent()) {
             LOG.warn("hndlTepAddOnNaptSwitch: routerData is not present");
             return false;
@@ -731,8 +729,8 @@ public class NatTunnelInterfaceStateListener
                 LOG.debug("hndlTepAddOnNaptSwitch : SNAT -> Advertise the route to the externalIp {} "
                         + "having nextHopIp {}", externalIp, nextHopIp);
                 NatEvpnUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, externalVpnName, rd,
-                        externalIp, nextHopIp, l3Vni, tunnelName, gwMacAddress, writeFlowInvTx, RouteOrigin.STATIC,
-                        srcDpnId);
+                        externalIp, nextHopIp, l3Vni, tunnelName, gwMacAddress,
+                        TransactionAdapter.toWriteTransaction(confTx), RouteOrigin.STATIC, srcDpnId);
                 serviceId = l3Vni;
             } else {
 
@@ -804,7 +802,7 @@ public class NatTunnelInterfaceStateListener
     }
 
     private void hndlTepAddForDnatInEachRtr(RoutersList router, long routerId, String nextHopIp,
-            BigInteger tepAddedDpnId, ProviderTypes extNwProvType, WriteTransaction writeFlowInvTx) {
+            BigInteger tepAddedDpnId, ProviderTypes extNwProvType, TypedWriteTransaction<Configuration> confTx) {
         //DNAT : Advertise the new route to the floating IP having the new TEP IP as the next hop IP
         final String routerName = router.getRouter();
 
@@ -880,8 +878,8 @@ public class NatTunnelInterfaceStateListener
                     LOG.debug("hndlTepAddForDnatInEachRtr : DNAT -> Advertise the route to the externalIp {} "
                             + "having nextHopIp {}", externalIp, nextHopIp);
                     NatEvpnUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, vpnName, rd,
-                            externalIp, nextHopIp, l3Vni, interfaceName, gwMacAddress, writeFlowInvTx,
-                            RouteOrigin.STATIC, fipCfgdDpnId);
+                            externalIp, nextHopIp, l3Vni, interfaceName, gwMacAddress,
+                            TransactionAdapter.toWriteTransaction(confTx), RouteOrigin.STATIC, fipCfgdDpnId);
                     serviceId = l3Vni;
                 } else {
                     long label = floatingIPListener.getOperationalIpMapping(routerName, interfaceName, internalIp);
@@ -937,8 +935,8 @@ public class NatTunnelInterfaceStateListener
     }
 
     private void hndlTepDelForSnatInEachRtr(RoutersList router, long routerId, BigInteger dpnId, String tunnelType,
-                                            String srcTepIp, String destTepIp, String tunnelName,
-                                            ProviderTypes extNwProvType, WriteTransaction writeFlowInvTx) {
+        String srcTepIp, String destTepIp, String tunnelName, ProviderTypes extNwProvType,
+        TypedReadWriteTransaction<Configuration> confTx) {
        /*SNAT :
             1) Elect a new switch as the primary NAPT
             2) Advertise the new routes to BGP for the newly elected TEP IP as the DPN IP
@@ -951,9 +949,13 @@ public class NatTunnelInterfaceStateListener
 
         // Check if this is externalRouter else ignore
         InstanceIdentifier<Routers> extRoutersId = NatUtil.buildRouterIdentifier(routerName);
-        Optional<Routers> routerData =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                        LogicalDatastoreType.CONFIGURATION, extRoutersId);
+        Optional<Routers> routerData;
+        try {
+            routerData = confTx.read(extRoutersId).get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error retrieving routers {}", extRoutersId, e);
+            routerData = Optional.absent();
+        }
         if (!routerData.isPresent()) {
             LOG.debug("hndlTepDelForSnatInEachRtr : SNAT->Ignoring TEP del for router {} since its not External Router",
                     routerName);
@@ -969,7 +971,8 @@ public class NatTunnelInterfaceStateListener
             return;
         }
         if (natMode == NatMode.Conntrack) {
-            natServiceManager.notify(routerData.get(), naptId, dpnId, SnatServiceManager.Action.SNAT_ROUTER_DISBL);
+            natServiceManager.notify(confTx, routerData.get(), naptId, dpnId,
+                SnatServiceManager.Action.SNAT_ROUTER_DISBL);
         } else {
 
 
@@ -993,7 +996,8 @@ public class NatTunnelInterfaceStateListener
                 //Install default entry in FIB to SNAT table
                 LOG.debug("hndlTepDelForSnatInEachRtr : Installing default route in FIB on DPN {} for router {} with"
                         + " vpn {}...", dpnId, routerName, bgpVpnId);
-                defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, bgpVpnId, writeFlowInvTx);
+                defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, bgpVpnId,
+                    TransactionAdapter.toWriteTransaction(confTx));
             } else {
                 bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
                 if (bgpVpnId == NatConstants.INVALID_ID) {
@@ -1006,7 +1010,8 @@ public class NatTunnelInterfaceStateListener
                 //Install default entry in FIB to SNAT table
                 LOG.debug("hndlTepDelForSnatInEachRtr : Installing default route in FIB on dpn {} for routerId {} "
                         + "with vpnId {}...", dpnId, routerId, bgpVpnId);
-                defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, bgpVpnId, routerId, writeFlowInvTx);
+                defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, bgpVpnId, routerId,
+                    TransactionAdapter.toWriteTransaction(confTx));
             }
 
             if (routerData.get().isEnableSnat()) {
@@ -1022,7 +1027,7 @@ public class NatTunnelInterfaceStateListener
                             + "associated to the router {}", routerVpnId, routerName);
                 }
                 //Re-elect the other available switch as the NAPT switch and program the NAT flows.
-                removeSNATFromDPN(dpnId, routerName, routerId, routerVpnId, networkId, extNwProvType, writeFlowInvTx);
+                removeSNATFromDPN(dpnId, routerName, routerId, routerVpnId, networkId, extNwProvType, confTx);
             } else {
                 LOG.info("hndlTepDelForSnatInEachRtr : SNAT is not enabled for router {} to handle addDPN event {}",
                         routerId, dpnId);

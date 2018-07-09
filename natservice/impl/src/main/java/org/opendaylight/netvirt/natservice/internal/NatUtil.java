@@ -37,7 +37,9 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.TypedReadTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -285,6 +287,22 @@ public final class NatUtil {
         return vpnId;
     }
 
+    public static long getVpnId(TypedReadTransaction<Configuration> confTx, String vpnName) {
+        if (vpnName == null) {
+            return NatConstants.INVALID_ID;
+        }
+
+        try {
+            return confTx.read(getVpnInstanceToVpnIdIdentifier(vpnName)).get().toJavaUtil().map(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                    .VpnInstance::getVpnId).orElse(NatConstants.INVALID_ID);
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error retrieving VPN id for {}", vpnName, e);
+        }
+
+        return NatConstants.INVALID_ID;
+    }
+
     public static Long getNetworkVpnIdFromRouterId(DataBroker broker, long routerId) {
         //Get the external network ID from the ExternalRouter model
         Uuid networkId = NatUtil.getNetworkIdFromRouterId(broker, routerId);
@@ -416,6 +434,17 @@ public final class NatUtil {
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Networks::getProviderNetworkType).orElse(null);
     }
 
+    @Nullable
+    public static ProviderTypes getProviderTypefromNetworkId(TypedReadTransaction<Configuration> tx, Uuid networkId) {
+        InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
+        try {
+            return tx.read(id).get().toJavaUtil().map(Networks::getProviderNetworkType).orElse(null);
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error retrieving provider type for {}", networkId, e);
+            return null;
+        }
+    }
+
     @Nonnull
     public static List<Uuid> getRouterIdsfromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
@@ -529,6 +558,17 @@ public final class NatUtil {
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
                         .VpnInstance::getVrfId).orElse(null);
+    }
+
+    public static String getVpnRd(TypedReadTransaction<Configuration> tx, String vpnName) {
+        try {
+            return tx.read(getVpnInstanceToVpnIdIdentifier(vpnName)).get().toJavaUtil().map(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                    .VpnInstance::getVrfId).orElse(null);
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error reading the VPN VRF id for {}", vpnName, e);
+            return null;
+        }
     }
 
     public static IpPortExternal getExternalIpPortMap(DataBroker broker, Long routerId, String internalIpAddress,
@@ -1589,6 +1629,16 @@ public final class NatUtil {
                 LogicalDatastoreType.CONFIGURATION, routerIdentifier).orNull();
     }
 
+    @Nullable
+    public static Routers getRoutersFromConfigDS(TypedReadTransaction<Configuration> confTx, String routerName) {
+        try {
+            return confTx.read(NatUtil.buildRouterIdentifier(routerName)).get().orNull();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error reading router {}", routerName, e);
+            return null;
+        }
+    }
+
     static void createRouterIdsConfigDS(DataBroker dataBroker, long routerId, String routerName) {
         if (routerId == NatConstants.INVALID_ID) {
             LOG.error("createRouterIdsConfigDS : invalid routerId for routerName {}", routerName);
@@ -1642,6 +1692,16 @@ public final class NatUtil {
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Routers::getExtGwMacAddress).orElse(null);
     }
 
+    @Nullable
+    static String getExtGwMacAddFromRouterName(TypedReadTransaction<Configuration> tx, String routerName) {
+        try {
+            return tx.read(buildRouterIdentifier(routerName)).get().toJavaUtil().map(
+                Routers::getExtGwMacAddress).orElse(null);
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error retrieving external gateway MAC address for router {}", routerName, e);
+            return null;
+        }
+    }
 
     static InstanceIdentifier<Router> buildNeutronRouterIdentifier(Uuid routerUuid) {
         InstanceIdentifier<Router> routerInstanceIdentifier = InstanceIdentifier.create(Neutron.class)
@@ -1739,12 +1799,44 @@ public final class NatUtil {
                 LogicalDatastoreType.CONFIGURATION, subnetsIdentifier);
     }
 
+    @Nonnull
+    protected static Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
+        .subnets.Subnets> getOptionalExternalSubnets(TypedReadTransaction<Configuration> tx, Uuid subnetId) {
+        if (subnetId == null) {
+            LOG.warn("getOptionalExternalSubnets : subnetId is null");
+            return Optional.absent();
+        }
+
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice
+            .rev160111.external.subnets.Subnets> subnetsIdentifier =
+            InstanceIdentifier.builder(ExternalSubnets.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice
+                    .rev160111.external.subnets.Subnets.class, new SubnetsKey(subnetId)).build();
+        try {
+            return tx.read(subnetsIdentifier).get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error retrieving external subnets on {}", subnetId, e);
+            return Optional.absent();
+        }
+    }
+
     protected static long getExternalSubnetVpnId(DataBroker dataBroker, Uuid subnetId) {
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
             .subnets.Subnets> optionalExternalSubnets = NatUtil.getOptionalExternalSubnets(dataBroker,
                    subnetId);
         if (optionalExternalSubnets.isPresent()) {
             return NatUtil.getVpnId(dataBroker, subnetId.getValue());
+        }
+
+        return NatConstants.INVALID_ID;
+    }
+
+    protected static long getExternalSubnetVpnId(TypedReadTransaction<Configuration> tx, Uuid subnetId) {
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
+            .subnets.Subnets> optionalExternalSubnets = NatUtil.getOptionalExternalSubnets(tx,
+            subnetId);
+        if (optionalExternalSubnets.isPresent()) {
+            return NatUtil.getVpnId(tx, subnetId.getValue());
         }
 
         return NatConstants.INVALID_ID;
@@ -1797,6 +1889,16 @@ public final class NatUtil {
         InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                 LogicalDatastoreType.CONFIGURATION, elanIdentifierId).orNull();
+    }
+
+    @Nullable
+    public static ElanInstance getElanInstanceByName(TypedReadTransaction<Configuration> tx, String elanInstanceName) {
+        try {
+            return tx.read(getElanInstanceConfigurationDataPath(elanInstanceName)).get().orNull();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error retrieving ELAN instance by name {}", elanInstanceName, e);
+            return null;
+        }
     }
 
     public static InstanceIdentifier<ElanInstance> getElanInstanceConfigurationDataPath(String elanInstanceName) {

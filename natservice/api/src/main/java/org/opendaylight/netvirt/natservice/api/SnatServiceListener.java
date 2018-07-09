@@ -9,27 +9,56 @@ package org.opendaylight.netvirt.natservice.api;
 
 import java.math.BigInteger;
 
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 
 public interface SnatServiceListener {
 
     /**
-     * Adds/removes snat flows for all dpns having ports on the router subnet.
+     * Adds snat flows for all dpns having ports on the router subnet.
+     *
+     * @param confTx The transaction to use.
      * @param routers the router.
      * @param primarySwitchId the primaryswitchId
-     * @param addOrRemove add or remove the flow.
      * @return returns success/failure.
      */
-    boolean handleSnatAllSwitch(Routers routers, BigInteger primarySwitchId,  int addOrRemove);
+    boolean addSnatAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger primarySwitchId);
 
     /**
-     * Adds/removes snat flows for the dpnId.
+     * Adds snat flows for the dpnId.
+     *
+     * @param confTx The transaction to use.
      * @param routers the router.
      * @param primarySwitchId the primaryswitchId.
      * @param dpnId the dpnId for which the flows needs to be added/removed.
-     * @param addOrRemove add or remove the flow.
      * @return returns success/failure.
      */
-    boolean handleSnat(Routers routers, BigInteger primarySwitchId, BigInteger dpnId,  int addOrRemove);
+    boolean addSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers, BigInteger primarySwitchId,
+        BigInteger dpnId);
+
+    /**
+     * Removes snat flows for all dpns having ports on the router subnet.
+     *
+     * @param confTx The transaction to use.
+     * @param routers the router.
+     * @param primarySwitchId the primaryswitchId
+     * @return returns success/failure.
+     */
+    boolean removeSnatAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger primarySwitchId);
+
+    /**
+     * Removes snat flows for the dpnId.
+     *
+     * @param confTx The transaction to use.
+     * @param routers the router.
+     * @param primarySwitchId the primaryswitchId.
+     * @param dpnId the dpnId for which the flows needs to be added/removed.
+     * @return returns success/failure.
+     */
+    boolean removeSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers, BigInteger primarySwitchId,
+        BigInteger dpnId);
 
 }

@@ -9,6 +9,8 @@ package org.opendaylight.netvirt.natservice.api;
 
 import java.math.BigInteger;
 
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 
 public interface SnatServiceManager {
@@ -24,6 +26,7 @@ public interface SnatServiceManager {
 
     void removeNatServiceListener(SnatServiceListener aclServiceListner);
 
-    void notify(Routers router, BigInteger primarySwitchId, BigInteger dpnId, Action action);
+    void notify(TypedReadWriteTransaction<Configuration> confTx,
+        Routers router, BigInteger primarySwitchId, BigInteger dpnId, Action action);
 
 }
