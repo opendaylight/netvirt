@@ -2057,43 +2057,6 @@ public final class VpnUtil {
         return false;
     }
 
-    void removePrefixToInterfaceAdj(Adjacency adj, long vpnId, VpnInterfaceOpDataEntry vpnInterfaceOpDataEntry,
-                                    WriteTransaction writeOperTxn) {
-        if (writeOperTxn == null) {
-            ListenableFutures.addErrorLogging(
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
-                        removePrefixToInterfaceAdj(adj, vpnId, vpnInterfaceOpDataEntry, tx)), LOG,
-                    "Error removing prefix");
-            return;
-        }
-
-        Optional<Prefixes> prefix = read(LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getPrefixToInterfaceIdentifier(vpnId, VpnUtil.getIpPrefix(adj.getIpAddress())));
-        List<Prefixes> prefixToInterface = new ArrayList<>();
-        List<Prefixes> prefixToInterfaceLocal = new ArrayList<>();
-        if (prefix.isPresent()) {
-            prefixToInterfaceLocal.add(prefix.get());
-        }
-        if (prefixToInterfaceLocal.isEmpty()) {
-            for (String nh : adj.getNextHopIpList()) {
-                prefix = read(LogicalDatastoreType.OPERATIONAL, VpnUtil.getPrefixToInterfaceIdentifier(vpnId,
-                                VpnUtil.getIpPrefix(nh)));
-                if (prefix.isPresent()) {
-                    prefixToInterfaceLocal.add(prefix.get());
-                }
-            }
-        }
-        if (!prefixToInterfaceLocal.isEmpty()) {
-            prefixToInterface.addAll(prefixToInterfaceLocal);
-        }
-        for (Prefixes pref : prefixToInterface) {
-            if (VpnUtil.isMatchedPrefixToInterface(pref, vpnInterfaceOpDataEntry)) {
-                writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                        VpnUtil.getPrefixToInterfaceIdentifier(vpnId, pref.getIpAddress()));
-            }
-        }
-    }
-
     public static void sendNeighborSolicationToOfGroup(Ipv6NdUtilService ipv6NdUtilService, Ipv6Address srcIpv6Address,
             MacAddress srcMac, Ipv6Address dstIpv6Address, Long ofGroupId, BigInteger dpId) {
         SendNeighborSolicitationToOfGroupInput input = new SendNeighborSolicitationToOfGroupInputBuilder()
