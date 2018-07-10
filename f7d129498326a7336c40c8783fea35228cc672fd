@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e1f46903_680c7c43",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-07-10T11:38:24Z",
+      "side": 1,
+      "message": "If there’s anything to write, yes, but that doesn’t seem to be the case here. However creating a new SingleTransactionDataBroker every time is overkill: either declare the data broker as an instance variable, or use the static variants:\n\n    routers \u003d SingleTransactionDataBroker.syncRead(dataBroker, ...)",
+      "parentUuid": "185ec26a_b3c3e256",
+      "revId": "f7d129498326a7336c40c8783fea35228cc672fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "66f7689b_579f1392",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
         "patchSetId": 2
