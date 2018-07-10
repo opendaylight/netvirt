@@ -1581,17 +1581,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                 && !adj.isPhysNetworkFunc()) {
                                             delAdjFromVpnInterface(vpnInterfaceOpIdentifier, adj, dpnId,
                                                     operTx, confTx);
-                                            Optional<VpnInterfaceOpDataEntry> optVpnInterface = operTx.read(
-                                                    LogicalDatastoreType.OPERATIONAL, vpnInterfaceOpIdentifier).get();
-                                            if (optVpnInterface.isPresent()) {
-                                                VpnInterfaceOpDataEntry vpnInterfaceOpDataEntry = optVpnInterface.get();
-                                                long vpnId = vpnUtil.getVpnId(newVpnName);
-                                                vpnUtil.removePrefixToInterfaceAdj(adj, vpnId,
-                                                        vpnInterfaceOpDataEntry, operTx);
-                                            } else {
-                                                LOG.info("update: Vpninterface {} not present in Operational",
-                                                        vpnInterfaceName);
-                                            }
                                             //remove FIB entry
                                             String vpnRd = vpnUtil.getVpnRd(newVpnName);
                                             LOG.debug("update: remove prefix {} from the FIB and BGP entry "
