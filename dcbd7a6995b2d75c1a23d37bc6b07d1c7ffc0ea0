@@ -16,6 +16,24 @@
       "revId": "dcbd7a6995b2d75c1a23d37bc6b07d1c7ffc0ea0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5674216a_b06b1406",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1918,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-10T12:20:22Z",
+      "side": 1,
+      "message": "This vpnInterface read is a safety check that we added in cases where the ER was the same prefix as the primary prefix for the interface.\nReading it when interfaceName is null is wrong. I have rectified it.\nAnd yes, in case of no interface on the nextHop prefix, we just set the interfaceName to null in the extra-route adjacency container. The interface-state event will then handle adding the extra-route into the interface. That will come in one of the next reviews.",
+      "parentUuid": "841f8cc1_b5e271ad",
+      "revId": "dcbd7a6995b2d75c1a23d37bc6b07d1c7ffc0ea0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
