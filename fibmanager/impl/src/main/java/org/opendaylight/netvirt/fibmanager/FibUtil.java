@@ -42,7 +42,6 @@ import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -608,23 +607,16 @@ public class FibUtil {
                 Prefixes prefixToInterface = getPrefixToInterface(vpnId, getIpPrefix(nextHopRemoved));
                 if (prefixToInterface != null && tunnelIpRemoved
                         .equals(getEndpointIpAddressForDPN(prefixToInterface.getDpnId()))) {
-                    InstanceIdentifier<Adjacency> adjId = getAdjacencyIdentifier(
-                            prefixToInterface.getVpnInterfaceName(), prefix);
-                    Interface ifState = getInterfaceStateFromOperDS(prefixToInterface.getVpnInterfaceName());
-                    //Delete datastore only if extra route is deleted or VM interface is deleted/down
-                    if (!MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, adjId).isPresent()
-                            || ifState == null || ifState.getOperStatus() == OperStatus.Down) {
-                        LOG.info("updating data-stores for prefix {} with primaryRd {} for interface {} on vpn {} ",
-                                prefix, primaryRd, prefixToInterface.getVpnInterfaceName(), vpnName);
-                        writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                                FibUtil.getAdjacencyIdentifierOp(prefixToInterface.getVpnInterfaceName(),
-                                        vpnName, prefix));
-                        writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                                VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, usedRd, prefix));
-                        writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION,
-                                VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHopRemoved));
-                        break;
-                    }
+                    LOG.info("updating data-stores for prefix {} with primaryRd {} for interface {} on vpn {} ",
+                            prefix, primaryRd, prefixToInterface.getVpnInterfaceName(), vpnName);
+                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                            FibUtil.getAdjacencyIdentifierOp(prefixToInterface.getVpnInterfaceName(),
+                                    vpnName, prefix));
+                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                            VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, usedRd, prefix));
+                    writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION,
+                            VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHopRemoved));
+                    break;
                 }
             }
         }
