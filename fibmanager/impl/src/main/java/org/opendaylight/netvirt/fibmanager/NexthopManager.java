@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 
 import com.google.common.base.Optional;
@@ -993,12 +995,11 @@ public class NexthopManager implements AutoCloseable {
         }
         Group group = MDSALUtil.buildGroup(groupId, groupIdKey, GroupTypes.GroupSelect,
                         MDSALUtil.buildBucketLists(listBucket));
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx -> {
-            mdsalApiManager.addGroupToTx(dpnId, group, confTx);
-        }), LOG, "Error adding load-balancing group");
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
-            FibUtil.updateLbGroupInfo(dpnId, destinationIp, groupIdKey, groupId.toString(), operTx);
-        }), LOG, "Error updating load-balancing group info");
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+            confTx -> mdsalApiManager.addGroup(confTx, dpnId, group)), LOG, "Error adding load-balancing group");
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
+            operTx -> FibUtil.updateLbGroupInfo(dpnId, destinationIp, groupIdKey, groupId.toString(), operTx)), LOG,
+            "Error updating load-balancing group info");
         LOG.trace("LB group {} towards DC-GW installed on dpn {}. Group - {}", groupIdKey, dpnId, group);
     }
 
@@ -1043,8 +1044,8 @@ public class NexthopManager implements AutoCloseable {
     public void removeOrUpdateDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
             String destinationIp) {
         Preconditions.checkNotNull(availableDcGws, "There are no dc-gws present");
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx -> {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, operTx -> {
                 int noOfDcGws = availableDcGws.size();
                 // If availableDcGws does not contain the destination Ip it means this is a configuration delete.
                 if (!availableDcGws.contains(destinationIp)) {
@@ -1058,7 +1059,7 @@ public class NexthopManager implements AutoCloseable {
                     return;
                 }
                 List<String> nextHopKeys = dpnLbNextHops.get().getNexthopKey();
-                nextHopKeys.forEach(nextHopKey -> {
+                for (String nextHopKey : nextHopKeys) {
                     Optional<Nexthops> optionalNextHops = fibUtil.getNexthops(nextHopKey);
                     if (!optionalNextHops.isPresent()) {
                         return;
@@ -1067,19 +1068,17 @@ public class NexthopManager implements AutoCloseable {
                     final String groupId = nexthops.getGroupId();
                     final long groupIdValue = Long.parseLong(groupId);
                     if (noOfDcGws > 1) {
-                        mdsalApiManager.removeBucketToTx(dpnId, groupIdValue, bucketId, confTx);
+                        mdsalApiManager.removeBucket(confTx, dpnId, groupIdValue, bucketId);
                     } else {
-                        Group group = MDSALUtil.buildGroup(groupIdValue, nextHopKey, GroupTypes.GroupSelect,
-                                MDSALUtil.buildBucketLists(Collections.emptyList()));
-                        LOG.trace("Removed LB group {} on dpn {}", group, dpnId);
-                        mdsalApiManager.removeGroupToTx(dpnId, group, confTx);
+                        LOG.trace("Removed LB group {} on dpn {}", groupIdValue, dpnId);
+                        mdsalApiManager.removeGroup(confTx, dpnId, groupIdValue);
                         removeNextHopPointer(nextHopKey);
                     }
                     // When the DC-GW is removed from configuration.
                     if (noOfDcGws != availableDcGws.size()) {
                         FibUtil.removeOrUpdateNextHopInfo(dpnId, nextHopKey, groupId, nexthops, operTx);
                     }
-                });
+                }
                 FibUtil.removeDpnIdToNextHopInfo(destinationIp, dpnId, operTx);
             }), LOG, "Error removing or updating load-balancing group");
         }), LOG, "Error removing or updating load-balancing group");
@@ -1092,7 +1091,7 @@ public class NexthopManager implements AutoCloseable {
     public void updateDcGwLoadBalancingGroup(List<String> availableDcGws,
             BigInteger dpnId, String destinationIp, boolean isTunnelUp, Class<? extends TunnelTypeBase> tunnelType) {
         Preconditions.checkNotNull(availableDcGws, "There are no dc-gws present");
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx -> {
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
             // TODO : Place the logic to construct all possible DC-GW combination here.
             int bucketId = availableDcGws.indexOf(destinationIp);
             Optional<DpnLbNexthops> dpnLbNextHops = fibUtil.getDpnLbNexthops(dpnId, destinationIp);
@@ -1100,7 +1099,7 @@ public class NexthopManager implements AutoCloseable {
                 return;
             }
             List<String> nextHopKeys = dpnLbNextHops.get().getNexthopKey();
-            nextHopKeys.forEach(nextHopKey -> {
+            for (String nextHopKey : nextHopKeys) {
                 Optional<Nexthops> optionalNextHops = fibUtil.getNexthops(nextHopKey);
                 if (!optionalNextHops.isPresent()) {
                     return;
@@ -1111,12 +1110,12 @@ public class NexthopManager implements AutoCloseable {
                 if (isTunnelUp) {
                     Bucket bucket = buildBucketForDcGwLbGroup(destinationIp, dpnId, bucketId, tunnelType);
                     LOG.trace("Added bucket {} to group {} on dpn {}.", bucket, groupId, dpnId);
-                    mdsalApiManager.addBucketToTx(dpnId, groupIdValue, bucket , confTx);
+                    mdsalApiManager.addBucket(confTx, dpnId, groupIdValue, bucket);
                 } else {
                     LOG.trace("Removed bucketId {} from group {} on dpn {}.", bucketId, groupId, dpnId);
-                    mdsalApiManager.removeBucketToTx(dpnId, groupIdValue, bucketId, confTx);
+                    mdsalApiManager.removeBucket(confTx, dpnId, groupIdValue, bucketId);
                 }
-            });
+            }
         }), LOG, "Error updating load-balancing group");
     }
 

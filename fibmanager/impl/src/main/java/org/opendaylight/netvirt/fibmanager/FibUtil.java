@@ -28,7 +28,10 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.Datastore.Operational;
+import org.opendaylight.genius.infra.TypedReadTransaction;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -201,6 +204,11 @@ public class FibUtil {
         return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
+    static Optional<VpnInstanceOpDataEntry> getVpnInstanceOpData(TypedReadTransaction<Operational> operTx, String rd)
+        throws ExecutionException, InterruptedException {
+        return operTx.read(getVpnInstanceOpDataIdentifier(rd)).get();
+    }
+
     VpnInstanceOpDataEntry getVpnInstance(String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id =
                 InstanceIdentifier.create(VpnInstanceOpData.class)
@@ -218,6 +226,11 @@ public class FibUtil {
         Optional<Prefixes> localNextHopInfoData = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
             getPrefixToInterfaceIdentifier(vpnId, ipPrefix));
         return localNextHopInfoData.isPresent() ? localNextHopInfoData.get() : null;
+    }
+
+    static Prefixes getPrefixToInterface(TypedReadTransaction<Operational> operTx, Long vpnId, String ipPrefix)
+            throws ExecutionException, InterruptedException {
+        return operTx.read(getPrefixToInterfaceIdentifier(vpnId, ipPrefix)).get().orNull();
     }
 
     String getMacAddressFromPrefix(String ifName, String vpnName, String ipPrefix) {
@@ -502,7 +515,7 @@ public class FibUtil {
         }
     }
 
-    public void removeVrfTable(String rd, TypedWriteTransaction<Datastore.Configuration> writeConfigTxn) {
+    public void removeVrfTable(String rd, TypedWriteTransaction<Configuration> writeConfigTxn) {
         LOG.debug("Removing vrf table for rd {}", rd);
         InstanceIdentifier.InstanceIdentifierBuilder<VrfTables> idBuilder =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
@@ -582,37 +595,34 @@ public class FibUtil {
         return "FIB-" + vpnId.toString() + "-" + dpnId.toString() ;
     }
 
-    public void updateUsedRdAndVpnToExtraRoute(WriteTransaction writeConfigTxn, WriteTransaction writeOperTxn,
-                                               String tunnelIpRemoved, String primaryRd, String prefix) {
-        Optional<VpnInstanceOpDataEntry> optVpnInstance = getVpnInstanceOpData(primaryRd);
+    public void updateUsedRdAndVpnToExtraRoute(TypedReadWriteTransaction<Configuration> confTx,
+            TypedReadWriteTransaction<Operational> operTx, String tunnelIpRemoved, String primaryRd, String prefix)
+            throws ExecutionException, InterruptedException {
+        Optional<VpnInstanceOpDataEntry> optVpnInstance = getVpnInstanceOpData(operTx, primaryRd);
         if (!optVpnInstance.isPresent()) {
             return;
         }
         VpnInstanceOpDataEntry vpnInstance = optVpnInstance.get();
         String vpnName = vpnInstance.getVpnInstanceName();
         long vpnId = vpnInstance.getVpnId();
-        List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, prefix);
+        List<String> usedRds = VpnExtraRouteHelper.getUsedRds(confTx, vpnId, prefix);
         // To identify the rd to be removed, iterate through the allocated rds for the prefix and check
         // which rd is allocated for the particular OVS.
         for (String usedRd : usedRds) {
-            Optional<Routes> vpnExtraRoutes = VpnExtraRouteHelper
-                    .getVpnExtraroutes(dataBroker, vpnName, usedRd, prefix);
+            Optional<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getVpnExtraroutes(operTx, vpnName, usedRd, prefix);
             if (vpnExtraRoutes.isPresent()) {
                 // Since all the nexthops under one OVS will be present under one rd, only 1 nexthop is read
                 // to identify the OVS
                 String nextHopRemoved = vpnExtraRoutes.get().getNexthopIpList().get(0);
-                Prefixes prefixToInterface = getPrefixToInterface(vpnId, getIpPrefix(nextHopRemoved));
+                Prefixes prefixToInterface = getPrefixToInterface(operTx, vpnId, getIpPrefix(nextHopRemoved));
                 if (prefixToInterface != null && tunnelIpRemoved
                         .equals(getEndpointIpAddressForDPN(prefixToInterface.getDpnId()))) {
                     LOG.info("updating data-stores for prefix {} with primaryRd {} for interface {} on vpn {} ",
                             prefix, primaryRd, prefixToInterface.getVpnInterfaceName(), vpnName);
-                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                            FibUtil.getAdjacencyIdentifierOp(prefixToInterface.getVpnInterfaceName(),
+                    operTx.delete(FibUtil.getAdjacencyIdentifierOp(prefixToInterface.getVpnInterfaceName(),
                                     vpnName, prefix));
-                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                            VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, usedRd, prefix));
-                    writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION,
-                            VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHopRemoved));
+                    operTx.delete(VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, usedRd, prefix));
+                    confTx.delete(VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHopRemoved));
                     break;
                 }
             }
@@ -667,33 +677,33 @@ public class FibUtil {
     }
 
     public static void updateLbGroupInfo(BigInteger dpnId, String destinationIp, String groupIdKey,
-            String groupId, WriteTransaction tx) {
+            String groupId, TypedWriteTransaction<Operational> tx) {
         InstanceIdentifier<DpnLbNexthops> id = getDpnLbNexthopsIdentifier(dpnId, destinationIp);
         DpnLbNexthops dpnToLbNextHop = buildDpnLbNextHops(dpnId, destinationIp, groupIdKey);
-        tx.merge(LogicalDatastoreType.OPERATIONAL, id, dpnToLbNextHop);
+        tx.merge(id, dpnToLbNextHop);
         InstanceIdentifier<Nexthops> nextHopsId = getNextHopsIdentifier(groupIdKey);
         Nexthops nextHopsToGroupId = buildNextHops(dpnId, groupIdKey, groupId);
-        tx.merge(LogicalDatastoreType.OPERATIONAL, nextHopsId, nextHopsToGroupId);
+        tx.merge(nextHopsId, nextHopsToGroupId);
     }
 
-    public static void removeDpnIdToNextHopInfo(String destinationIp, BigInteger dpnId, WriteTransaction tx) {
-        InstanceIdentifier<DpnLbNexthops> id = getDpnLbNexthopsIdentifier(dpnId, destinationIp);
-        tx.delete(LogicalDatastoreType.OPERATIONAL, id);
+    public static void removeDpnIdToNextHopInfo(String destinationIp, BigInteger dpnId,
+            TypedWriteTransaction<Operational> tx) {
+        tx.delete(getDpnLbNexthopsIdentifier(dpnId, destinationIp));
     }
 
     public static void removeOrUpdateNextHopInfo(BigInteger dpnId, String nextHopKey, String groupId,
-            Nexthops nexthops, WriteTransaction tx) {
+            Nexthops nexthops, TypedWriteTransaction<Operational> tx) {
         InstanceIdentifier<Nexthops> nextHopsId = getNextHopsIdentifier(nextHopKey);
         List<String> targetDeviceIds = nexthops.getTargetDeviceId();
         targetDeviceIds.remove(dpnId.toString());
         if (targetDeviceIds.isEmpty()) {
-            tx.delete(LogicalDatastoreType.OPERATIONAL, nextHopsId);
+            tx.delete(nextHopsId);
         } else {
             Nexthops nextHopsToGroupId = new NexthopsBuilder().withKey(new NexthopsKey(nextHopKey))
                 .setNexthopKey(nextHopKey)
                 .setGroupId(groupId)
                 .setTargetDeviceId(targetDeviceIds).build();
-            tx.put(LogicalDatastoreType.OPERATIONAL, nextHopsId, nextHopsToGroupId);
+            tx.put(nextHopsId, nextHopsToGroupId);
         }
     }
 
