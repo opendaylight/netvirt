@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -219,6 +220,9 @@ public final class NatEvpnUtil {
                 l3GwMacTableFlowEntity, dpnId);
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     static void removeL3GwMacTableEntry(final BigInteger dpnId, final long vpnId, final String macAddress,
         IMdsalApiManager mdsalManager, TypedReadWriteTransaction<Configuration> confTx) {
         List<MatchInfo> matchInfo = new ArrayList<>();
@@ -232,7 +236,12 @@ public final class NatEvpnUtil {
         Flow l3GwMacTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_GW_MAC_TABLE,
                 flowRef, 21, flowRef, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, matchInfo, null);
 
-        mdsalManager.removeFlow(confTx, dpnId, l3GwMacTableFlowEntity);
+        try {
+            mdsalManager.removeFlow(confTx, dpnId, l3GwMacTableFlowEntity);
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
+        }
         LOG.debug("removeL3GwMacTableEntry : Successfully removed flow entity {} on DPN = {}",
                 l3GwMacTableFlowEntity, dpnId);
     }

@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.natservice.internal;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -301,14 +302,22 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void removeDNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long routerId,
-        TypedReadWriteTransaction<Configuration> confTx) {
-        FlowEntity preFlowEntity = buildPreDNATDeleteFlowEntity(dpnId, externalIp, routerId);
-        mdsalManager.removeFlow(confTx, preFlowEntity);
+            TypedReadWriteTransaction<Configuration> confTx) {
+        try {
+            FlowEntity preFlowEntity = buildPreDNATDeleteFlowEntity(dpnId, externalIp, routerId);
+            mdsalManager.removeFlow(confTx, preFlowEntity);
 
-        FlowEntity flowEntity = buildDNATDeleteFlowEntity(dpnId, internalIp, routerId);
-        if (flowEntity != null) {
-            mdsalManager.removeFlow(confTx, flowEntity);
+            FlowEntity flowEntity = buildDNATDeleteFlowEntity(dpnId, internalIp, routerId);
+            if (flowEntity != null) {
+                mdsalManager.removeFlow(confTx, flowEntity);
+            }
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
         }
     }
 
@@ -324,14 +333,22 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void removeSNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long routerId, long vpnId,
                                     TypedReadWriteTransaction<Configuration> removeFlowInvTx) {
-        FlowEntity preFlowEntity = buildPreSNATDeleteFlowEntity(dpnId, internalIp, routerId);
-        mdsalManager.removeFlow(removeFlowInvTx, preFlowEntity);
+        try {
+            FlowEntity preFlowEntity = buildPreSNATDeleteFlowEntity(dpnId, internalIp, routerId);
+            mdsalManager.removeFlow(removeFlowInvTx, preFlowEntity);
 
-        FlowEntity flowEntity = buildSNATDeleteFlowEntity(dpnId, externalIp, vpnId);
-        if (flowEntity != null) {
-            mdsalManager.removeFlow(removeFlowInvTx, flowEntity);
+            FlowEntity flowEntity = buildSNATDeleteFlowEntity(dpnId, externalIp, vpnId);
+            if (flowEntity != null) {
+                mdsalManager.removeFlow(removeFlowInvTx, flowEntity);
+            }
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
         }
     }
 

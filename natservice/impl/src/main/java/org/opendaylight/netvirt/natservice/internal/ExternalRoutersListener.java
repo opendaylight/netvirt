@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -1901,165 +1902,181 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         NatEvpnUtil.releaseLPortTagForRouter(dataBroker, idManager, routerName);
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     public void removeNaptFlowsFromActiveSwitch(long routerId, String routerName,
                                                 BigInteger dpnId, Uuid networkId, String vpnName,
                                                 @Nonnull Collection<String> externalIps,
                                                 Collection<Uuid> externalSubnetList,
                                                 TypedReadWriteTransaction<Configuration> confTx,
                                                 ProviderTypes extNwProvType) {
-        LOG.debug("removeNaptFlowsFromActiveSwitch : Remove NAPT flows from Active switch");
-        BigInteger cookieSnatFlow = NatUtil.getCookieNaptFlow(routerId);
+        try {
+            LOG.debug("removeNaptFlowsFromActiveSwitch : Remove NAPT flows from Active switch");
+            BigInteger cookieSnatFlow = NatUtil.getCookieNaptFlow(routerId);
 
-        //Remove the PSNAT entry which forwards the packet to Outbound NAPT Table (For the
-        // traffic which comes from the  VMs of the NAPT switches)
-        String preSnatFlowRef = getFlowRefSnat(dpnId, NwConstants.PSNAT_TABLE, routerName);
-        FlowEntity preSnatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.PSNAT_TABLE, preSnatFlowRef);
+            //Remove the PSNAT entry which forwards the packet to Outbound NAPT Table (For the
+            // traffic which comes from the  VMs of the NAPT switches)
+            String preSnatFlowRef = getFlowRefSnat(dpnId, NwConstants.PSNAT_TABLE, routerName);
+            FlowEntity preSnatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.PSNAT_TABLE, preSnatFlowRef);
 
-        LOG.info("removeNaptFlowsFromActiveSwitch : Remove the flow in the {} for the active switch with the DPN ID {} "
-                + "and router ID {}", NwConstants.PSNAT_TABLE, dpnId, routerId);
-        mdsalManager.removeFlow(confTx, preSnatFlowEntity);
+            LOG.info(
+                "removeNaptFlowsFromActiveSwitch : Remove the flow in the {} for the active switch with the DPN ID {} "
+                    + "and router ID {}", NwConstants.PSNAT_TABLE, dpnId, routerId);
+            mdsalManager.removeFlow(confTx, preSnatFlowEntity);
 
-        //Remove the Terminating Service table entry which forwards the packet to Outbound NAPT Table (For the
-        // traffic which comes from the VMs of the non NAPT switches)
-        long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, routerId,
+            //Remove the Terminating Service table entry which forwards the packet to Outbound NAPT Table (For the
+            // traffic which comes from the VMs of the non NAPT switches)
+            long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, routerId,
                 routerName);
-        String tsFlowRef = getFlowRefTs(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, tunnelId);
-        FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, tsFlowRef);
-        LOG.info("removeNaptFlowsFromActiveSwitch : Remove the flow in the {} for the active switch with the DPN ID {} "
-                + "and router ID {}", NwConstants.INTERNAL_TUNNEL_TABLE, dpnId, routerId);
-        mdsalManager.removeFlow(confTx, tsNatFlowEntity);
+            String tsFlowRef = getFlowRefTs(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, tunnelId);
+            FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, tsFlowRef);
+            LOG.info(
+                "removeNaptFlowsFromActiveSwitch : Remove the flow in the {} for the active switch with the DPN ID {} "
+                    + "and router ID {}", NwConstants.INTERNAL_TUNNEL_TABLE, dpnId, routerId);
+            mdsalManager.removeFlow(confTx, tsNatFlowEntity);
 
-        //Remove the flow table 25->44 from NAPT Switch
-        if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanManager, extNwProvType)) {
-            NatUtil.removePreDnatToSnatTableEntry(confTx, mdsalManager, dpnId);
-        }
+            //Remove the flow table 25->44 from NAPT Switch
+            if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanManager, extNwProvType)) {
+                NatUtil.removePreDnatToSnatTableEntry(confTx, mdsalManager, dpnId);
+            }
 
-        //Remove the Outbound flow entry which forwards the packet to FIB Table
-        LOG.info("removeNaptFlowsFromActiveSwitch : Remove the flow in the {} for the active switch with the DPN ID {}"
-                + " and router ID {}", NwConstants.OUTBOUND_NAPT_TABLE, dpnId, routerId);
+            //Remove the Outbound flow entry which forwards the packet to FIB Table
+            LOG.info(
+                "removeNaptFlowsFromActiveSwitch : Remove the flow in the {} for the active switch with the DPN ID {}"
+                    + " and router ID {}", NwConstants.OUTBOUND_NAPT_TABLE, dpnId, routerId);
 
-        String outboundTcpNatFlowRef = getFlowRefOutbound(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId,
+            String outboundTcpNatFlowRef = getFlowRefOutbound(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId,
                 NwConstants.IP_PROT_TCP);
-        FlowEntity outboundTcpNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.OUTBOUND_NAPT_TABLE,
-            outboundTcpNatFlowRef);
-        mdsalManager.removeFlow(confTx, outboundTcpNatFlowEntity);
+            FlowEntity outboundTcpNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.OUTBOUND_NAPT_TABLE,
+                outboundTcpNatFlowRef);
+            mdsalManager.removeFlow(confTx, outboundTcpNatFlowEntity);
 
-        String outboundUdpNatFlowRef = getFlowRefOutbound(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId,
+            String outboundUdpNatFlowRef = getFlowRefOutbound(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId,
                 NwConstants.IP_PROT_UDP);
-        FlowEntity outboundUdpNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.OUTBOUND_NAPT_TABLE,
+            FlowEntity outboundUdpNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.OUTBOUND_NAPT_TABLE,
                 outboundUdpNatFlowRef);
-        mdsalManager.removeFlow(confTx, outboundUdpNatFlowEntity);
+            mdsalManager.removeFlow(confTx, outboundUdpNatFlowEntity);
 
-        String icmpDropFlowRef = getFlowRefOutbound(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId,
+            String icmpDropFlowRef = getFlowRefOutbound(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId,
                 NwConstants.IP_PROT_ICMP);
-        FlowEntity icmpDropFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.OUTBOUND_NAPT_TABLE,
+            FlowEntity icmpDropFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.OUTBOUND_NAPT_TABLE,
                 icmpDropFlowRef);
-        mdsalManager.removeFlow(confTx, icmpDropFlowEntity);
+            mdsalManager.removeFlow(confTx, icmpDropFlowEntity);
 
-        removeNaptFibExternalOutputFlows(routerId, dpnId, networkId, externalIps, confTx);
-        //Remove the NAPT PFIB TABLE (47->21) which forwards the incoming packet to FIB Table matching on the
-        // External Subnet Vpn Id.
-        for (Uuid externalSubnetId : externalSubnetList) {
-            long subnetVpnId = NatUtil.getVpnId(dataBroker, externalSubnetId.getValue());
-            if (subnetVpnId != -1) {
-                String natPfibSubnetFlowRef = getFlowRefTs(dpnId, NwConstants.NAPT_PFIB_TABLE, subnetVpnId);
-                FlowEntity natPfibFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE,
+            removeNaptFibExternalOutputFlows(routerId, dpnId, networkId, externalIps, confTx);
+            //Remove the NAPT PFIB TABLE (47->21) which forwards the incoming packet to FIB Table matching on the
+            // External Subnet Vpn Id.
+            for (Uuid externalSubnetId : externalSubnetList) {
+                long subnetVpnId = NatUtil.getVpnId(dataBroker, externalSubnetId.getValue());
+                if (subnetVpnId != -1) {
+                    String natPfibSubnetFlowRef = getFlowRefTs(dpnId, NwConstants.NAPT_PFIB_TABLE, subnetVpnId);
+                    FlowEntity natPfibFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE,
                         natPfibSubnetFlowRef);
-                mdsalManager.removeFlow(confTx, natPfibFlowEntity);
-                LOG.debug("removeNaptFlowsFromActiveSwitch : Removed the flow in table {} with external subnet "
-                        + "Vpn Id {} as metadata on Napt Switch {}", NwConstants.NAPT_PFIB_TABLE,
+                    mdsalManager.removeFlow(confTx, natPfibFlowEntity);
+                    LOG.debug("removeNaptFlowsFromActiveSwitch : Removed the flow in table {} with external subnet "
+                            + "Vpn Id {} as metadata on Napt Switch {}", NwConstants.NAPT_PFIB_TABLE,
                         subnetVpnId, dpnId);
-            }
-        }
-
-        //Remove the NAPT PFIB TABLE which forwards the incoming packet to FIB Table matching on the router ID.
-        String natPfibFlowRef = getFlowRefTs(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId);
-        FlowEntity natPfibFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE, natPfibFlowRef);
-
-        LOG.info("removeNaptFlowsFromActiveSwitch : Remove the flow in the {} for the active switch with the DPN ID {} "
-                + "and router ID {}", NwConstants.NAPT_PFIB_TABLE, dpnId, routerId);
-        mdsalManager.removeFlow(confTx, natPfibFlowEntity);
-
-        // Long vpnId = NatUtil.getVpnId(dataBroker, routerId);
-        // - This does not work since ext-routers is deleted already - no network info
-        //Get the VPN ID from the ExternalNetworks model
-        long vpnId = -1;
-        if (vpnName == null || vpnName.isEmpty()) {
-            // ie called from router delete cases
-            Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
-            LOG.debug("removeNaptFlowsFromActiveSwitch : vpnUuid is {}", vpnUuid);
-            if (vpnUuid != null) {
-                vpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
-                LOG.debug("removeNaptFlowsFromActiveSwitch : vpnId {} for external  network {} router delete or "
-                        + "disableSNAT scenario", vpnId, networkId);
-            }
-        } else {
-            // ie called from disassociate vpn case
-            LOG.debug("removeNaptFlowsFromActiveSwitch : This is disassociate nw with vpn case with vpnName {}",
-                    vpnName);
-            vpnId = NatUtil.getVpnId(dataBroker, vpnName);
-            LOG.debug("removeNaptFlowsFromActiveSwitch : vpnId for disassociate nw with vpn scenario {}", vpnId);
-        }
-
-        if (vpnId != NatConstants.INVALID_ID) {
-            //Remove the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table matching on the VPN ID.
-            String natPfibVpnFlowRef = getFlowRefTs(dpnId, NwConstants.NAPT_PFIB_TABLE, vpnId);
-            FlowEntity natPfibVpnFlowEntity =
-                NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE, natPfibVpnFlowRef);
-            LOG.info("removeNaptFlowsFromActiveSwitch : Remove the flow in {} for the active switch with the DPN ID {} "
-                    + "and VPN ID {}", NwConstants.NAPT_PFIB_TABLE, dpnId, vpnId);
-            mdsalManager.removeFlow(confTx, natPfibVpnFlowEntity);
-        }
-
-        //For the router ID get the internal IP , internal port and the corresponding external IP and external Port.
-        IpPortMapping ipPortMapping = NatUtil.getIportMapping(dataBroker, routerId);
-        if (ipPortMapping == null) {
-            LOG.error("removeNaptFlowsFromActiveSwitch : Unable to retrieve the IpPortMapping");
-            return;
-        }
-
-        List<IntextIpProtocolType> intextIpProtocolTypes = ipPortMapping.getIntextIpProtocolType();
-        for (IntextIpProtocolType intextIpProtocolType : intextIpProtocolTypes) {
-            List<IpPortMap> ipPortMaps = intextIpProtocolType.getIpPortMap();
-            for (IpPortMap ipPortMap : ipPortMaps) {
-                String ipPortInternal = ipPortMap.getIpPortInternal();
-                String[] ipPortParts = ipPortInternal.split(":");
-                if (ipPortParts.length != 2) {
-                    LOG.error("removeNaptFlowsFromActiveSwitch : Unable to retrieve the Internal IP and port");
-                    return;
                 }
-                String internalIp = ipPortParts[0];
-                String internalPort = ipPortParts[1];
-
-                //Build the flow for the outbound NAPT table
-                naptPacketInHandler.removeIncomingPacketMap(routerId + NatConstants.COLON_SEPARATOR + internalIp
-                        + NatConstants.COLON_SEPARATOR + internalPort);
-                String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE,
-                    String.valueOf(routerId), internalIp, Integer.parseInt(internalPort));
-                FlowEntity outboundNaptFlowEntity =
-                    NatUtil.buildFlowEntity(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, cookieSnatFlow, switchFlowRef);
-
-                LOG.info("removeNaptFlowsFromActiveSwitch : Remove the flow in the {} for the active switch "
-                        + "with the DPN ID {} and router ID {}", NwConstants.OUTBOUND_NAPT_TABLE, dpnId, routerId);
-                mdsalManager.removeFlow(confTx, outboundNaptFlowEntity);
-
-                IpPortExternal ipPortExternal = ipPortMap.getIpPortExternal();
-                String externalIp = ipPortExternal.getIpAddress();
-                int externalPort = ipPortExternal.getPortNum();
-
-                //Build the flow for the inbound NAPT table
-                switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NwConstants.INBOUND_NAPT_TABLE,
-                    String.valueOf(routerId), externalIp, externalPort);
-                FlowEntity inboundNaptFlowEntity =
-                    NatUtil.buildFlowEntity(dpnId, NwConstants.INBOUND_NAPT_TABLE, cookieSnatFlow, switchFlowRef);
-
-                LOG.info("removeNaptFlowsFromActiveSwitch : Remove the flow in the {} for the active active switch "
-                        + "with the DPN ID {} and router ID {}", NwConstants.INBOUND_NAPT_TABLE, dpnId, routerId);
-                mdsalManager.removeFlow(confTx, inboundNaptFlowEntity);
             }
+
+            //Remove the NAPT PFIB TABLE which forwards the incoming packet to FIB Table matching on the router ID.
+            String natPfibFlowRef = getFlowRefTs(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId);
+            FlowEntity natPfibFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE, natPfibFlowRef);
+
+            LOG.info(
+                "removeNaptFlowsFromActiveSwitch : Remove the flow in the {} for the active switch with the DPN ID {} "
+                    + "and router ID {}", NwConstants.NAPT_PFIB_TABLE, dpnId, routerId);
+            mdsalManager.removeFlow(confTx, natPfibFlowEntity);
+
+            // Long vpnId = NatUtil.getVpnId(dataBroker, routerId);
+            // - This does not work since ext-routers is deleted already - no network info
+            //Get the VPN ID from the ExternalNetworks model
+            long vpnId = -1;
+            if (vpnName == null || vpnName.isEmpty()) {
+                // ie called from router delete cases
+                Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
+                LOG.debug("removeNaptFlowsFromActiveSwitch : vpnUuid is {}", vpnUuid);
+                if (vpnUuid != null) {
+                    vpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
+                    LOG.debug("removeNaptFlowsFromActiveSwitch : vpnId {} for external  network {} router delete or "
+                        + "disableSNAT scenario", vpnId, networkId);
+                }
+            } else {
+                // ie called from disassociate vpn case
+                LOG.debug("removeNaptFlowsFromActiveSwitch : This is disassociate nw with vpn case with vpnName {}",
+                    vpnName);
+                vpnId = NatUtil.getVpnId(dataBroker, vpnName);
+                LOG.debug("removeNaptFlowsFromActiveSwitch : vpnId for disassociate nw with vpn scenario {}", vpnId);
+            }
+
+            if (vpnId != NatConstants.INVALID_ID) {
+                //Remove the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table matching on the VPN ID.
+                String natPfibVpnFlowRef = getFlowRefTs(dpnId, NwConstants.NAPT_PFIB_TABLE, vpnId);
+                FlowEntity natPfibVpnFlowEntity =
+                    NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE, natPfibVpnFlowRef);
+                LOG.info(
+                    "removeNaptFlowsFromActiveSwitch : Remove the flow in {} for the active switch with the DPN ID {} "
+                        + "and VPN ID {}", NwConstants.NAPT_PFIB_TABLE, dpnId, vpnId);
+                mdsalManager.removeFlow(confTx, natPfibVpnFlowEntity);
+            }
+
+            //For the router ID get the internal IP , internal port and the corresponding external IP and external Port.
+            IpPortMapping ipPortMapping = NatUtil.getIportMapping(dataBroker, routerId);
+            if (ipPortMapping == null) {
+                LOG.error("removeNaptFlowsFromActiveSwitch : Unable to retrieve the IpPortMapping");
+                return;
+            }
+
+            List<IntextIpProtocolType> intextIpProtocolTypes = ipPortMapping.getIntextIpProtocolType();
+            for (IntextIpProtocolType intextIpProtocolType : intextIpProtocolTypes) {
+                List<IpPortMap> ipPortMaps = intextIpProtocolType.getIpPortMap();
+                for (IpPortMap ipPortMap : ipPortMaps) {
+                    String ipPortInternal = ipPortMap.getIpPortInternal();
+                    String[] ipPortParts = ipPortInternal.split(":");
+                    if (ipPortParts.length != 2) {
+                        LOG.error("removeNaptFlowsFromActiveSwitch : Unable to retrieve the Internal IP and port");
+                        return;
+                    }
+                    String internalIp = ipPortParts[0];
+                    String internalPort = ipPortParts[1];
+
+                    //Build the flow for the outbound NAPT table
+                    naptPacketInHandler.removeIncomingPacketMap(routerId + NatConstants.COLON_SEPARATOR + internalIp
+                        + NatConstants.COLON_SEPARATOR + internalPort);
+                    String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE,
+                        String.valueOf(routerId), internalIp, Integer.parseInt(internalPort));
+                    FlowEntity outboundNaptFlowEntity =
+                        NatUtil.buildFlowEntity(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, cookieSnatFlow, switchFlowRef);
+
+                    LOG.info("removeNaptFlowsFromActiveSwitch : Remove the flow in the {} for the active switch "
+                        + "with the DPN ID {} and router ID {}", NwConstants.OUTBOUND_NAPT_TABLE, dpnId, routerId);
+                    mdsalManager.removeFlow(confTx, outboundNaptFlowEntity);
+
+                    IpPortExternal ipPortExternal = ipPortMap.getIpPortExternal();
+                    String externalIp = ipPortExternal.getIpAddress();
+                    int externalPort = ipPortExternal.getPortNum();
+
+                    //Build the flow for the inbound NAPT table
+                    switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NwConstants.INBOUND_NAPT_TABLE,
+                        String.valueOf(routerId), externalIp, externalPort);
+                    FlowEntity inboundNaptFlowEntity =
+                        NatUtil.buildFlowEntity(dpnId, NwConstants.INBOUND_NAPT_TABLE, cookieSnatFlow, switchFlowRef);
+
+                    LOG.info("removeNaptFlowsFromActiveSwitch : Remove the flow in the {} for the active active switch "
+                        + "with the DPN ID {} and router ID {}", NwConstants.INBOUND_NAPT_TABLE, dpnId, routerId);
+                    mdsalManager.removeFlow(confTx, inboundNaptFlowEntity);
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
         }
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     protected void removeNaptFibExternalOutputFlows(long routerId, BigInteger dpnId, Uuid networkId,
                                                     @Nonnull Collection<String> externalIps,
                                                     TypedReadWriteTransaction<Configuration> writeFlowInvTx) {
@@ -2086,7 +2103,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 + " with the DPN ID {} and router ID {} and IP {} flowRef {}",
                 NwConstants.NAPT_PFIB_TABLE, dpnId, routerId, extIp, naptFlowRef);
             FlowEntity natPfibVpnFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE, naptFlowRef);
-            mdsalManager.removeFlow(writeFlowInvTx, natPfibVpnFlowEntity);
+            try {
+                mdsalManager.removeFlow(writeFlowInvTx, natPfibVpnFlowEntity);
+            } catch (Exception e) {
+                LOG.error("Error removing flow", e);
+                throw new RuntimeException("Error removing flow", e);
+            }
         }
     }
 
@@ -2097,6 +2119,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         return ip;
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     public void removeNaptFlowsFromActiveSwitchInternetVpn(long routerId, String routerName,
                                                            BigInteger dpnId, Uuid networkId, String vpnName,
                                                            TypedReadWriteTransaction<Configuration> writeFlowInvTx) {
@@ -2122,7 +2147,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE, natPfibVpnFlowRef);
             LOG.info("removeNaptFlowsFromActiveSwitchInternetVpn : Remove the flow in the {} for the active switch "
                     + "with the DPN ID {} and VPN ID {}", NwConstants.NAPT_PFIB_TABLE, dpnId, vpnId);
-            mdsalManager.removeFlow(writeFlowInvTx, natPfibVpnFlowEntity);
+            try {
+                mdsalManager.removeFlow(writeFlowInvTx, natPfibVpnFlowEntity);
+            } catch (Exception e) {
+                LOG.error("Error removing flow", e);
+                throw new RuntimeException("Error removing flow", e);
+            }
 
             // Remove IP-PORT active NAPT entries and release port from IdManager
             // For the router ID get the internal IP , internal port and the corresponding
@@ -2157,7 +2187,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     LOG.info("removeNaptFlowsFromActiveSwitchInternetVpn : Remove the flow in the {} for the "
                             + "active switch with the DPN ID {} and router ID {}",
                             NwConstants.OUTBOUND_NAPT_TABLE, dpnId, routerId);
-                    mdsalManager.removeFlow(writeFlowInvTx, outboundNaptFlowEntity);
+                    try {
+                        mdsalManager.removeFlow(writeFlowInvTx, outboundNaptFlowEntity);
+                    } catch (Exception e) {
+                        LOG.error("Error removing flow", e);
+                        throw new RuntimeException("Error removing flow", e);
+                    }
 
                     IpPortExternal ipPortExternal = ipPortMap.getIpPortExternal();
                     String externalIp = ipPortExternal.getIpAddress();
@@ -2172,7 +2207,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     LOG.info("removeNaptFlowsFromActiveSwitchInternetVpn : Remove the flow in the {} for the "
                             + "active active switch with the DPN ID {} and router ID {}",
                             NwConstants.INBOUND_NAPT_TABLE, dpnId, routerId);
-                    mdsalManager.removeFlow(writeFlowInvTx, inboundNaptFlowEntity);
+                    try {
+                        mdsalManager.removeFlow(writeFlowInvTx, inboundNaptFlowEntity);
+                    } catch (Exception e) {
+                        LOG.error("Error removing flow", e);
+                        throw new RuntimeException("Error removing flow", e);
+                    }
 
                     // Finally release port from idmanager
                     String internalIpPort = internalIp + ":" + internalPort;
@@ -2188,6 +2228,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     public void removeFlowsFromNonActiveSwitches(long routerId, String routerName,
             BigInteger naptSwitchDpnId, TypedReadWriteTransaction<Configuration> removeFlowInvTx) {
         LOG.debug("removeFlowsFromNonActiveSwitches : Remove NAPT related flows from non active switches");
@@ -2199,29 +2242,35 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             LOG.error("removeFlowsFromNonActiveSwitches : Unable to get the swithces for the router {}", routerName);
             return;
         }
-        for (BigInteger dpnId : allSwitchList) {
-            if (!naptSwitchDpnId.equals(dpnId)) {
-                LOG.info("removeFlowsFromNonActiveSwitches : Handle Ordinary switch");
+        try {
+            for (BigInteger dpnId : allSwitchList) {
+                if (!naptSwitchDpnId.equals(dpnId)) {
+                    LOG.info("removeFlowsFromNonActiveSwitches : Handle Ordinary switch");
 
-                //Remove the PSNAT entry which forwards the packet to Terminating Service table
-                String preSnatFlowRef = getFlowRefSnat(dpnId, NwConstants.PSNAT_TABLE, String.valueOf(routerName));
-                FlowEntity preSnatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.PSNAT_TABLE, preSnatFlowRef);
+                    //Remove the PSNAT entry which forwards the packet to Terminating Service table
+                    String preSnatFlowRef = getFlowRefSnat(dpnId, NwConstants.PSNAT_TABLE, String.valueOf(routerName));
+                    FlowEntity preSnatFlowEntity =
+                        NatUtil.buildFlowEntity(dpnId, NwConstants.PSNAT_TABLE, preSnatFlowRef);
 
-                LOG.info("removeFlowsFromNonActiveSwitches : Remove the flow in the {} for the non active switch "
+                    LOG.info("removeFlowsFromNonActiveSwitches : Remove the flow in the {} for the non active switch "
                         + "with the DPN ID {} and router ID {}", NwConstants.PSNAT_TABLE, dpnId, routerId);
-                mdsalManager.removeFlow(removeFlowInvTx, preSnatFlowEntity);
+                    mdsalManager.removeFlow(removeFlowInvTx, preSnatFlowEntity);
 
-                //Remove the group entry which forwards the traffic to the out port (VXLAN tunnel).
-                long groupId = createGroupId(getGroupIdKey(routerName));
-                List<BucketInfo> listBucketInfo = new ArrayList<>();
-                GroupEntity preSnatGroupEntity =
-                    MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll, listBucketInfo);
+                    //Remove the group entry which forwards the traffic to the out port (VXLAN tunnel).
+                    long groupId = createGroupId(getGroupIdKey(routerName));
+                    List<BucketInfo> listBucketInfo = new ArrayList<>();
+                    GroupEntity preSnatGroupEntity =
+                        MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll, listBucketInfo);
 
-                LOG.info("removeFlowsFromNonActiveSwitches : Remove the group {} for the non active switch with "
+                    LOG.info("removeFlowsFromNonActiveSwitches : Remove the group {} for the non active switch with "
                         + "the DPN ID {} and router ID {}", groupId, dpnId, routerId);
-                mdsalManager.removeGroup(removeFlowInvTx, preSnatGroupEntity);
+                    mdsalManager.removeGroup(removeFlowInvTx, preSnatGroupEntity);
 
+                }
             }
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
         }
     }
 
@@ -2499,6 +2548,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         NatUtil.removePrefixFromBGP(bgpManager, fibManager, rd, externalIp, vpnName, LOG);
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void removeTunnelTableEntry(BigInteger dpnId, long serviceId,
         TypedReadWriteTransaction<Configuration> writeFlowInvTx) {
         LOG.info("removeTunnelTableEntry : called with DpnId = {} and label = {}", dpnId, serviceId);
@@ -2509,10 +2561,18 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""),
             5, String.format("%s:%d", "TST Flow Entry ", serviceId), 0, 0,
             COOKIE_TUNNEL.add(BigInteger.valueOf(serviceId)), mkMatches, null);
-        mdsalManager.removeFlow(writeFlowInvTx, dpnId, flowEntity);
+        try {
+            mdsalManager.removeFlow(writeFlowInvTx, dpnId, flowEntity);
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
+        }
         LOG.debug("removeTunnelTableEntry : dpID {} : label : {} removed successfully", dpnId, serviceId);
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void removeLFibTableEntry(BigInteger dpnId, long serviceId,
         TypedReadWriteTransaction<Configuration> writeFlowInvTx) {
         List<MatchInfo> matches = new ArrayList<>();
@@ -2527,7 +2587,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             10, flowRef, 0, 0,
             COOKIE_VM_LFIB_TABLE, matches, null);
 
-        mdsalManager.removeFlow(writeFlowInvTx, dpnId, flowEntity);
+        try {
+            mdsalManager.removeFlow(writeFlowInvTx, dpnId, flowEntity);
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
+        }
 
         LOG.debug("removeLFibTableEntry : dpID : {} label : {} removed successfully", dpnId, serviceId);
     }

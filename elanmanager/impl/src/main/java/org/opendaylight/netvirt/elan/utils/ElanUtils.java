@@ -20,6 +20,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1089,6 +1090,9 @@ public class ElanUtils {
         }
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private boolean executeDeleteMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
             boolean deleteSmac, String elanInstanceName, BigInteger srcdpId, Long elanTag, BigInteger dstDpId,
             TypedReadWriteTransaction<Configuration> flowTx) {
@@ -1097,31 +1101,44 @@ public class ElanUtils {
             isFlowsRemovedInSrcDpn = true;
             deleteSmacAndDmacFlows(elanInfo, interfaceInfo, macAddress, deleteSmac, flowTx);
         } else if (isDpnPresent(dstDpId)) {
-            mdsalManager
+            try {
+                mdsalManager
                     .removeFlow(flowTx, dstDpId,
-                            MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE, getKnownDynamicmacFlowRef(
-                                    NwConstants.ELAN_DMAC_TABLE, dstDpId, srcdpId, macAddress, elanTag)));
+                        MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE, getKnownDynamicmacFlowRef(
+                            NwConstants.ELAN_DMAC_TABLE, dstDpId, srcdpId, macAddress, elanTag)));
+            } catch (Exception e) {
+                LOG.error("Error removing flow", e);
+                throw new RuntimeException("Error removing flow", e);
+            }
             LOG.debug("Dmac flow entry deleted for elan:{}, logical interface port:{} and mac address:{} on dpn:{}",
                     elanInstanceName, interfaceInfo.getPortName(), macAddress, dstDpId);
         }
         return isFlowsRemovedInSrcDpn;
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void deleteSmacAndDmacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
             boolean deleteSmac, TypedReadWriteTransaction<Configuration> flowTx) {
         String elanInstanceName = elanInfo.getElanInstanceName();
         long ifTag = interfaceInfo.getInterfaceTag();
         BigInteger srcdpId = interfaceInfo.getDpId();
         Long elanTag = elanInfo.getElanTag();
-        if (deleteSmac) {
-            mdsalManager
-                    .removeFlow(flowTx, srcdpId,
-                            MDSALUtil.buildFlow(NwConstants.ELAN_SMAC_TABLE, getKnownDynamicmacFlowRef(
-                                    NwConstants.ELAN_SMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)));
-        }
-        mdsalManager.removeFlow(flowTx, srcdpId,
+        try {
+            if (deleteSmac) {
+                mdsalManager
+                        .removeFlow(flowTx, srcdpId,
+                                MDSALUtil.buildFlow(NwConstants.ELAN_SMAC_TABLE, getKnownDynamicmacFlowRef(
+                                        NwConstants.ELAN_SMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)));
+            }
+            mdsalManager.removeFlow(flowTx, srcdpId,
                 MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE,
-                        getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)));
+                    getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)));
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
+        }
         LOG.debug("All the required flows deleted for elan:{}, logical Interface port:{} and MAC address:{} on dpn:{}",
                 elanInstanceName, interfaceInfo.getPortName(), macAddress, srcdpId);
     }

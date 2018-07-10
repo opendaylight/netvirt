@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -409,13 +410,21 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                 + NwConstants.FLOWID_SEPARATOR + ipAddress;
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void removeTunnelTableEntry(BigInteger dpnId, long serviceId,
         TypedReadWriteTransaction<Configuration> confTx) {
 
         LOG.debug("removeTunnelTableEntry : called with DpnId = {} and label = {}", dpnId, serviceId);
-        mdsalManager.removeFlow(confTx, dpnId,
-            new FlowKey(new FlowId(getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""))),
-            NwConstants.INTERNAL_TUNNEL_TABLE);
+        try {
+            mdsalManager.removeFlow(confTx, dpnId,
+                new FlowKey(new FlowId(getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""))),
+                NwConstants.INTERNAL_TUNNEL_TABLE);
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
+        }
         LOG.debug("removeTunnelTableEntry : Terminating service Entry for dpID {} : label : {} removed successfully",
                 dpnId, serviceId);
     }
@@ -471,6 +480,9 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         LOG.debug("makeLFibTableEntry : LFIB Entry for dpID {} : label : {} modified successfully", dpId, serviceId);
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void removeLFibTableEntry(BigInteger dpnId, long serviceId,
         TypedReadWriteTransaction<Configuration> confTx) {
 
@@ -478,7 +490,12 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
         LOG.debug("removeLFibTableEntry : removing LFib entry with flow ref {}", flowRef);
 
-        mdsalManager.removeFlow(confTx, dpnId, new FlowKey(new FlowId(flowRef)), NwConstants.L3_LFIB_TABLE);
+        try {
+            mdsalManager.removeFlow(confTx, dpnId, new FlowKey(new FlowId(flowRef)), NwConstants.L3_LFIB_TABLE);
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
+        }
 
         LOG.debug("removeLFibTableEntry : LFIB Entry for dpID : {} label : {} removed successfully",
                 dpnId, serviceId);
