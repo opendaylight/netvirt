@@ -1904,6 +1904,9 @@ public final class NatUtil {
                 preDnatToSnatTableFlowEntity,  naptDpnId);
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     public static void removePreDnatToSnatTableEntry(TypedReadWriteTransaction<Configuration> confTx,
         IMdsalApiManager mdsalManager, BigInteger naptDpnId) {
         LOG.debug("removePreDnatToSnatTableEntry : Remove Pre-DNAT table {} --> table {} flow on NAPT DpnId {} ",
@@ -1911,7 +1914,12 @@ public final class NatUtil {
         String flowRef = getFlowRefPreDnatToSnat(naptDpnId, NwConstants.PDNAT_TABLE, "PreDNATToSNAT");
         Flow preDnatToSnatTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.PDNAT_TABLE,flowRef,
                 5, flowRef, 0, 0,  NwConstants.COOKIE_DNAT_TABLE, null, null);
-        mdsalManager.removeFlow(confTx, naptDpnId, preDnatToSnatTableFlowEntity);
+        try {
+            mdsalManager.removeFlow(confTx, naptDpnId, preDnatToSnatTableFlowEntity);
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
+        }
         LOG.debug("removePreDnatToSnatTableEntry: Successfully removed Pre-DNAT flow {} on NAPT DpnId = {}",
                 preDnatToSnatTableFlowEntity, naptDpnId);
     }

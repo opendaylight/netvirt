@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -163,6 +164,9 @@ public class SNATDefaultRouteProgrammer {
         mdsalManager.installFlow(flowEntity);
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     void removeDefNATRouteInDPN(BigInteger dpnId, long vpnId, TypedReadWriteTransaction<Configuration> confTx) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
         if (flowEntity == null) {
@@ -171,9 +175,17 @@ public class SNATDefaultRouteProgrammer {
             return;
         }
         natServiceCounters.removeDefaultNatFlow();
-        mdsalManager.removeFlow(confTx, flowEntity);
+        try {
+            mdsalManager.removeFlow(confTx, flowEntity);
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
+        }
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     void removeDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId,
         TypedReadWriteTransaction<Configuration> confTx) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, bgpVpnId, routerId);
@@ -183,7 +195,12 @@ public class SNATDefaultRouteProgrammer {
             return;
         }
         natServiceCounters.removeDefaultNatFlow();
-        mdsalManager.removeFlow(confTx, flowEntity);
+        try {
+            mdsalManager.removeFlow(confTx, flowEntity);
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
+        }
     }
 
     void addOrDelDefaultFibRouteToSNATForSubnet(Subnets subnet, String networkId, int flowAction, long vpnId) {

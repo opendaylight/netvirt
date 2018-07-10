@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 
 import javax.inject.Inject;
@@ -41,6 +42,9 @@ public class EvpnNaptSwitchHA {
         this.idManager = idManager;
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     public void evpnRemoveSnatFlowsInOldNaptSwitch(String routerName, long routerId, String vpnName,
             BigInteger naptSwitch, TypedReadWriteTransaction<Configuration> confTx) {
         //Handling VXLAN Provider type flow removal from old NAPT switch
@@ -79,7 +83,12 @@ public class EvpnNaptSwitchHA {
         LOG.info("evpnRemoveSnatFlowsInOldNaptSwitch: Remove the flow (table26->46) in table {} "
                 + "for the old napt switch with the DPN ID {} and router ID {}",
                 NwConstants.PSNAT_TABLE, naptSwitch, routerId);
-        mdsalManager.removeFlow(confTx, flowEntity);
+        try {
+            mdsalManager.removeFlow(confTx, flowEntity);
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
+        }
 
         //Remove the Terminating Service table entry which forwards the packet to Inbound NAPT Table (table36->44)
         LOG.info("evpnRemoveSnatFlowsInOldNaptSwitch : Remove the flow (table36->44) in table {} "
@@ -94,7 +103,12 @@ public class EvpnNaptSwitchHA {
         FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE, tsFlowRef);
         LOG.info("evpnRemoveSnatFlowsInOldNaptSwitch : Remove the flow in the {} for the active switch "
                 + "with the DPN ID {} and router ID {}", NwConstants.INTERNAL_TUNNEL_TABLE, naptSwitch, routerId);
-        mdsalManager.removeFlow(confTx, tsNatFlowEntity);
+        try {
+            mdsalManager.removeFlow(confTx, tsNatFlowEntity);
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
+        }
 
     }
 

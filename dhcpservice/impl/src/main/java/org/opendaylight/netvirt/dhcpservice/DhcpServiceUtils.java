@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.dhcpservice;
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.base.Optional;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -118,6 +119,9 @@ public final class DhcpServiceUtils {
 
     private DhcpServiceUtils() { }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     public static void setupDhcpFlowEntry(@Nullable BigInteger dpId, short tableId, @Nullable String vmMacAddress,
                                           int addOrRemove,
                                           IMdsalApiManager mdsalUtil, DhcpServiceCounters dhcpServiceCounters,
@@ -135,7 +139,12 @@ public final class DhcpServiceUtils {
         if (addOrRemove == NwConstants.DEL_FLOW) {
             LOG.trace("Removing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             dhcpServiceCounters.removeDhcpFlow();
-            mdsalUtil.removeFlow(tx, dpId, getDhcpFlowRef(dpId, tableId, vmMacAddress), tableId);
+            try {
+                mdsalUtil.removeFlow(tx, dpId, getDhcpFlowRef(dpId, tableId, vmMacAddress), tableId);
+            } catch (Exception e) {
+                LOG.error("Error removing flow", e);
+                throw new RuntimeException("Error removing flow", e);
+            }
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress), DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY,
@@ -161,6 +170,9 @@ public final class DhcpServiceUtils {
                 .append(ipAddress).toString();
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     public static void setupDhcpDropAction(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove,
                                            IMdsalApiManager mdsalUtil, DhcpServiceCounters dhcpServiceCounters,
                                            TypedReadWriteTransaction<Configuration> tx) {
@@ -177,7 +189,12 @@ public final class DhcpServiceUtils {
         if (addOrRemove == NwConstants.DEL_FLOW) {
             LOG.trace("Removing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             dhcpServiceCounters.removeDhcpDropFlow();
-            mdsalUtil.removeFlow(tx, dpId, getDhcpFlowRef(dpId, tableId, vmMacAddress), tableId);
+            try {
+                mdsalUtil.removeFlow(tx, dpId, getDhcpFlowRef(dpId, tableId, vmMacAddress), tableId);
+            } catch (Exception e) {
+                LOG.error("Error removing flow", e);
+                throw new RuntimeException("Error removing flow", e);
+            }
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress), DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY,
