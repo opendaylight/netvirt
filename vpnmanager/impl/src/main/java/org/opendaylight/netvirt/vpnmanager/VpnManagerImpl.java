@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -457,11 +458,19 @@ public class VpnManagerImpl implements IVpnManager {
         mdsalManager.removeFlowToTx(flowEntity, tx);
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void removeGwMac(String srcMacAddress, TypedReadWriteTransaction<Configuration> tx, long vpnId,
         BigInteger dpId, long subnetVpnId) {
-        mdsalManager.removeFlow(tx, dpId,
-            VpnUtil.getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, srcMacAddress, subnetVpnId),
-            NwConstants.L3_GW_MAC_TABLE);
+        try {
+            mdsalManager.removeFlow(tx, dpId,
+                VpnUtil.getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, srcMacAddress, subnetVpnId),
+                NwConstants.L3_GW_MAC_TABLE);
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
+        }
     }
 
     @Override

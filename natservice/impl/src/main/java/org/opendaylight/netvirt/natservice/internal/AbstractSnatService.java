@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -369,6 +370,9 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     protected void removeSnatMissEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
         Long routerId, String routerName) {
         LOG.debug("installSnatMissEntry : Removing SNAT miss entry from switch {}", dpnId);
@@ -376,7 +380,12 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         long groupId = createGroupId(getGroupIdKey(routerName));
 
         LOG.debug("removing the PSNAT to NAPTSwitch on DPN {} with GroupId: {}", dpnId, groupId);
-        mdsalManager.removeGroup(confTx, dpnId, groupId);
+        try {
+            mdsalManager.removeGroup(confTx, dpnId, groupId);
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
+        }
 
         // Install miss entry pointing to group
         LOG.debug("installSnatMissEntry : buildSnatFlowEntity is called for dpId {}, routerName {} and groupId {}",
@@ -469,10 +478,18 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         mdsalManager.addFlow(confTx, flowEntity);
     }
 
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     protected void removeFlow(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpId, short tableId,
         String flowId) {
         LOG.trace("syncFlow : Removing Acl Flow DpnId {}, flowId {}", dpId, flowId);
-        mdsalManager.removeFlow(confTx, dpId, flowId, tableId);
+        try {
+            mdsalManager.removeFlow(confTx, dpId, flowId, tableId);
+        } catch (Exception e) {
+            LOG.error("Error removing flow", e);
+            throw new RuntimeException("Error removing flow", e);
+        }
     }
 
     protected long createGroupId(String groupIdKey) {
