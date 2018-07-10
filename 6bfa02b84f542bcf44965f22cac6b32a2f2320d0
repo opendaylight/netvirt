@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e31f21a0_942b0d95",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-07-10T13:27:45Z",
+      "side": 1,
+      "message": "Write transactions (including read-write transactions) are relatively expensive to set up, so they should be avoided when nothing needs to be written.",
+      "revId": "6bfa02b84f542bcf44965f22cac6b32a2f2320d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebb0d2b9_4e061e70",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-07-10T13:27:45Z",
+      "side": 1,
+      "message": "If the above read fails, this will cause a NPE: routers is set to null, and errors are only logged, so execution will continue here.",
+      "revId": "6bfa02b84f542bcf44965f22cac6b32a2f2320d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
