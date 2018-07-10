@@ -19,6 +19,9 @@ import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.Datastore.Operational;
+import org.opendaylight.genius.infra.TypedReadTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelTypeInputBuilder;
@@ -60,6 +63,11 @@ public final class VpnExtraRouteHelper {
         return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId);
     }
 
+    public static Optional<Routes> getVpnExtraroutes(TypedReadTransaction<Operational> operTx, String vpnName,
+            String vpnRd, String destPrefix) throws ExecutionException, InterruptedException {
+        return operTx.read(getVpnToExtrarouteVrfIdIdentifier(vpnName, vpnRd, destPrefix)).get();
+    }
+
     public static  InstanceIdentifier<Routes> getVpnToExtrarouteVrfIdIdentifier(String vpnName, String vrfId,
             String ipPrefix) {
         return InstanceIdentifier.builder(VpnToExtraroutes.class)
@@ -97,6 +105,13 @@ public final class VpnExtraRouteHelper {
         Optional<DestPrefixes> usedRds = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, usedRdsId);
         return usedRds.isPresent() ? usedRds.get().getAllocatedRds().stream()
                 .map(AllocatedRds::getRd).distinct().collect(toList()) : new ArrayList<>();
+    }
+
+    public static  List<String> getUsedRds(TypedReadTransaction<Configuration> confTx, long vpnId, String destPrefix)
+            throws ExecutionException, InterruptedException {
+        Optional<DestPrefixes> usedRds = confTx.read(getUsedRdsIdentifier(vpnId, destPrefix)).get();
+        return usedRds.isPresent() ? usedRds.get().getAllocatedRds().stream()
+            .map(AllocatedRds::getRd).distinct().collect(toList()) : new ArrayList<>();
     }
 
     public static  InstanceIdentifier<ExtrarouteRds> getUsedRdsIdentifier(long vpnId) {
