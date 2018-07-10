@@ -16,6 +16,24 @@
       "revId": "117877f447a7e15d12efb6676d952d042b7a0826",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1132d9ac_76cfb529",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-07-10T14:15:43Z",
+      "side": 1,
+      "message": "Sorry Stephen, missed it. Will update the patch and thanks again for reviewing.",
+      "parentUuid": "eb2a17fb_e6011832",
+      "revId": "117877f447a7e15d12efb6676d952d042b7a0826",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
