@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "77381dc8_3d4ddc29",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-07-10T13:07:19Z",
+      "side": 1,
+      "message": "Ooo.. Saw this after updating the patch. Please take a look at the updated patch and let me know your comments. Thanks.",
+      "parentUuid": "e1f46903_680c7c43",
+      "revId": "f7d129498326a7336c40c8783fea35228cc672fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "66f7689b_579f1392",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
         "patchSetId": 2
@@ -48,6 +66,24 @@
       "writtenOn": "2018-07-09T09:16:19Z",
       "side": 1,
       "message": "This needs to be done only if it is first switch added to the map?",
+      "revId": "f7d129498326a7336c40c8783fea35228cc672fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "717d3872_98aca773",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-07-10T13:07:19Z",
+      "side": 1,
+      "message": "Yeah @Aswin, thanks for reviewing.",
+      "parentUuid": "66f7689b_579f1392",
       "revId": "f7d129498326a7336c40c8783fea35228cc672fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
