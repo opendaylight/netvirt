@@ -295,9 +295,9 @@ public final class VpnUtil {
 
     static VpnInterfaceOpDataEntry getVpnInterfaceOpDataEntry(String intfName, String vpnName,
                                         AdjacenciesOp aug, BigInteger dpnId,
-                                        Boolean isSheduledForRemove, long lportTag, String gwMac) {
+                                        long lportTag, String gwMac) {
         return new VpnInterfaceOpDataEntryBuilder().setKey(new VpnInterfaceOpDataEntryKey(intfName, vpnName))
-            .setDpnId(dpnId).setScheduledForRemove(isSheduledForRemove).addAugmentation(AdjacenciesOp.class, aug)
+            .setDpnId(dpnId).addAugmentation(AdjacenciesOp.class, aug)
                 .setLportTag(lportTag).setGatewayMacAddress(gwMac).build();
     }
 
@@ -1135,14 +1135,14 @@ public final class VpnUtil {
     }
 
     public static void scheduleVpnInterfaceForRemoval(DataBroker broker,String interfaceName, BigInteger dpnId,
-                                                      String vpnInstanceName, Boolean isScheduledToRemove,
+                                                      String vpnInstanceName, 
                                                       WriteTransaction writeOperTxn) {
         InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
             VpnUtil.getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnInstanceName);
         VpnInterfaceOpDataEntry interfaceToUpdate =
             new VpnInterfaceOpDataEntryBuilder().setKey(new VpnInterfaceOpDataEntryKey(interfaceName,
             vpnInstanceName)).setName(interfaceName).setDpnId(dpnId).setVpnInstanceName(vpnInstanceName)
-            .setScheduledForRemove(isScheduledToRemove).build();
+            .build();
         if (writeOperTxn != null) {
             writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, interfaceId, interfaceToUpdate, true);
         } else {
@@ -2102,8 +2102,7 @@ public final class VpnUtil {
     }
 
     public static void unsetScheduledToRemoveForVpnInterface(DataBroker dataBroker, String interfaceName) {
-        VpnInterfaceBuilder builder = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName))
-                .setScheduledForRemove(false);
+        VpnInterfaceBuilder builder = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName));
         MDSALDataStoreUtils.asyncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL,
                 VpnUtil.getVpnInterfaceIdentifier(interfaceName), builder.build(), DEFAULT_CALLBACK);
     }
