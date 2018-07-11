@@ -148,7 +148,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         Long existingElanTag = original.getElanTag();
         String elanName = update.getElanInstanceName();
         if (existingElanTag == null || !existingElanTag.equals(update.getElanTag())) {
-            if (update.getElanTag() == null) {
+            if (update.getElanTag() == null  || update.getElanTag() == 0L) {
                 // update the elan-Instance with new properties
                 ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                     tx -> ElanUtils.updateOperationalDataStore(idManager, update, new ArrayList<>(), tx)),
