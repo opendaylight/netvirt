@@ -244,7 +244,8 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             bgpManager.withdrawPrefix(vpnRd, destination);
         } else {
             vpnManager.delExtraRoute(vpnInstanceName, destination,
-                    nexthop, vpnRd, null /* routerId */, null /* intfName */, (WriteTransaction) null);
+                    nexthop, vpnRd, null /* routerId */, null /* intfName */, (WriteTransaction) null,
+                    (WriteTransaction) null);
         }
         result.set(RpcResultBuilder.success(new RemoveStaticRouteOutputBuilder().build()).build());
 

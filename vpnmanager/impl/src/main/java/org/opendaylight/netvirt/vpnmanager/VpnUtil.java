@@ -46,6 +46,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadTransaction;
@@ -73,6 +74,7 @@ import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
@@ -247,6 +249,7 @@ public final class VpnUtil {
 
     private final DataBroker dataBroker;
     private final IdManagerService idManager;
+    private final IFibManager fibManager;
     private final IBgpManager bgpManager;
     private final LockManagerService lockManager;
     private final INeutronVpnManager neutronVpnService;
@@ -280,12 +283,13 @@ public final class VpnUtil {
         }
     }
 
-    public VpnUtil(DataBroker dataBroker, IdManagerService idManager, IBgpManager bgpManager,
-                   LockManagerService lockManager, INeutronVpnManager neutronVpnService,
-                   IMdsalApiManager mdsalManager, JobCoordinator jobCoordinator,
-                   IInterfaceManager interfaceManager, OdlInterfaceRpcService ifmRpcService) {
+    public VpnUtil(DataBroker dataBroker, IdManagerService idManager, IFibManager fibManager,
+                   IBgpManager bgpManager, LockManagerService lockManager, INeutronVpnManager neutronVpnService,
+                   IMdsalApiManager mdsalManager, JobCoordinator jobCoordinator, IInterfaceManager interfaceManager,
+                   OdlInterfaceRpcService ifmRpcService) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
+        this.fibManager = fibManager;
         this.bgpManager = bgpManager;
         this.lockManager = lockManager;
         this.neutronVpnService = neutronVpnService;
@@ -643,6 +647,39 @@ public final class VpnUtil {
         });
     }
 
+    public boolean removeOrUpdateDSForExtraRoute(String vpnName, String primaryRd, String extraRouteRd,
+                                                 String vpnInterfaceName, String prefix, String nextHop,
+                                                 String nextHopTunnelIp, WriteTransaction operTx) {
+        LOG.info("removeOrUpdateDSForExtraRoute: VPN WITHDRAW: Removing Fib Entry rd {} prefix {} nexthop {}",
+                extraRouteRd, prefix, nextHop);
+        boolean areNextHopsClearedForRd = false;
+        Optional<Routes> optVpnExtraRoutes = VpnExtraRouteHelper
+                .getVpnExtraroutes(dataBroker, vpnName, extraRouteRd, prefix);
+        if (optVpnExtraRoutes.isPresent()) {
+            List<String> nhList = optVpnExtraRoutes.get().getNexthopIpList();
+            if (nhList != null && nhList.size() > 1) {
+                // If nhList is more than 1, just update vpntoextraroute and prefixtointerface DS
+                // For other cases, remove the corresponding tep ip from fibentry and withdraw prefix
+                nhList.remove(nextHop);
+                syncWrite(LogicalDatastoreType.OPERATIONAL,
+                        VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, extraRouteRd, prefix),
+                        VpnUtil.getVpnToExtraroute(prefix, nhList));
+                MDSALUtil.syncDelete(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, VpnExtraRouteHelper.getUsedRdsIdentifier(getVpnId(vpnName),
+                                prefix, nextHop));
+                LOG.debug("removeOrUpdateDSForExtraRoute: Removed vpn-to-extraroute with rd {} prefix {} nexthop {}",
+                        extraRouteRd, prefix, nextHop);
+                fibManager.refreshVrfEntry(primaryRd, prefix);
+                operTx.delete(LogicalDatastoreType.OPERATIONAL, VpnUtil
+                        .getVpnInterfaceOpDataEntryAdjacencyIdentifier(vpnInterfaceName, vpnName, prefix));
+                LOG.info("VPN WITHDRAW: removeOrUpdateDSForExtraRoute: Removed Fib Entry rd {} prefix {} nexthop {}",
+                        extraRouteRd, prefix, nextHopTunnelIp);
+                areNextHopsClearedForRd = true;
+            }
+        }
+        return areNextHopsClearedForRd;
+    }
+
     static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance
         getVpnInstanceToVpnId(String vpnName, long vpnId, String rd) {
         return new VpnInstanceBuilder().setVpnId(vpnId).setVpnInstanceName(vpnName).setVrfId(rd).build();
@@ -815,14 +852,14 @@ public final class VpnUtil {
     }
 
     static void removePrefixToInterfaceForVpnId(long vpnId,
-                                                       @Nonnull TypedWriteTransaction<Datastore.Operational> operTx) {
+                                                       @Nonnull TypedWriteTransaction<Operational> operTx) {
         // Clean up PrefixToInterface Operational DS
         operTx.delete(InstanceIdentifier.builder(
                     PrefixToInterface.class).child(VpnIds.class, new VpnIdsKey(vpnId)).build());
     }
 
     static void removeVpnExtraRouteForVpn(String vpnName,
-                                                    @Nonnull TypedWriteTransaction<Datastore.Operational> operTx) {
+                                                    @Nonnull TypedWriteTransaction<Operational> operTx) {
         // Clean up VPNExtraRoutes Operational DS
         operTx.delete(InstanceIdentifier.builder(VpnToExtraroutes.class).child(Vpn.class, new VpnKey(vpnName)).build());
     }
@@ -830,7 +867,7 @@ public final class VpnUtil {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     static void removeVpnOpInstance(String vpnName,
-                                                    @Nonnull TypedWriteTransaction<Datastore.Operational> operTx) {
+                                                    @Nonnull TypedWriteTransaction<Operational> operTx) {
         // Clean up VPNInstanceOpDataEntry
         operTx.delete(getVpnInstanceOpDataIdentifier(vpnName));
     }
@@ -846,15 +883,14 @@ public final class VpnUtil {
     }
 
     static void removeL3nexthopForVpnId(long vpnId,
-                                               @Nonnull TypedWriteTransaction<Datastore.Operational> operTx) {
+                                               @Nonnull TypedWriteTransaction<Operational> operTx) {
         // Clean up L3NextHop Operational DS
         operTx.delete(InstanceIdentifier.builder(L3nexthop.class).child(
                                     VpnNexthops.class, new VpnNexthopsKey(vpnId)).build());
     }
 
-    void scheduleVpnInterfaceForRemoval(String interfaceName, BigInteger dpnId,
-                                                      String vpnInstanceName,
-                                                      TypedWriteTransaction<Datastore.Operational> writeOperTxn) {
+    void scheduleVpnInterfaceForRemoval(String interfaceName, BigInteger dpnId, String vpnInstanceName,
+                                        TypedWriteTransaction<Operational> writeOperTxn) {
         InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
                 getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnInstanceName);
         VpnInterfaceOpDataEntry interfaceToUpdate =
@@ -869,7 +905,7 @@ public final class VpnUtil {
     }
 
     void createLearntVpnVipToPort(String vpnName, String fixedIp, String
-            portName, String macAddress, TypedWriteTransaction<Datastore.Operational> writeOperTxn) {
+            portName, String macAddress, TypedWriteTransaction<Operational> writeOperTxn) {
         synchronized ((vpnName + fixedIp).intern()) {
             InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
             LearntVpnVipToPortBuilder builder =
@@ -894,7 +930,7 @@ public final class VpnUtil {
     }
 
     void removeLearntVpnVipToPort(String vpnName, String fixedIp,
-                                                   TypedWriteTransaction<Datastore.Operational> writeOperTxn) {
+                                                   TypedWriteTransaction<Operational> writeOperTxn) {
         synchronized ((vpnName + fixedIp).intern()) {
             InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
             if (writeOperTxn != null) {
@@ -923,7 +959,7 @@ public final class VpnUtil {
 
     public void createLearntVpnVipToPortEvent(String vpnName, String srcIp, String destIP, String portName,
                                               String macAddress, LearntVpnVipToPortEventAction action,
-                                              TypedWriteTransaction<Datastore.Operational> writeOperTxn) {
+                                              TypedWriteTransaction<Operational> writeOperTxn) {
         String eventId = MicroTimestamp.INSTANCE.get();
 
         InstanceIdentifier<LearntVpnVipToPortEvent> id = buildLearntVpnVipToPortEventIdentifier(eventId);
@@ -946,7 +982,7 @@ public final class VpnUtil {
         return id;
     }
 
-    void removeLearntVpnVipToPortEvent(String eventId, TypedWriteTransaction<Datastore.Operational> writeOperTxn) {
+    void removeLearntVpnVipToPortEvent(String eventId, TypedWriteTransaction<Operational> writeOperTxn) {
         InstanceIdentifier<LearntVpnVipToPortEvent> id = buildLearntVpnVipToPortEventIdentifier(eventId);
         if (writeOperTxn != null) {
             writeOperTxn.delete(id);
@@ -1387,6 +1423,13 @@ public final class VpnUtil {
         return InstanceIdentifier.builder(VpnInterfaces.class)
                 .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName))
                 .augmentation(Adjacencies.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
+    }
+
+    static InstanceIdentifier<Adjacency> getVpnInterfaceOpDataEntryAdjacencyIdentifier(String intfName, String vpnName,
+                String ipAddress) {
+        return InstanceIdentifier.builder(VpnInterfaceOpData.class)
+                .child(VpnInterfaceOpDataEntry.class, new VpnInterfaceOpDataEntryKey(intfName, vpnName))
+                .augmentation(AdjacenciesOp.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
     }
 
     public static List<String> getIpsListFromExternalIps(List<ExternalIps> externalIps) {
