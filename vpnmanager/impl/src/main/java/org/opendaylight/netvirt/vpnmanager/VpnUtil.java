@@ -319,10 +319,10 @@ public final class VpnUtil {
     }
 
     static VpnInterfaceOpDataEntry getVpnInterfaceOpDataEntry(String intfName, String vpnName, AdjacenciesOp aug,
-                                                       BigInteger dpnId, Boolean isSheduledForRemove, long lportTag,
+                                                       BigInteger dpnId, long lportTag,
                                                        String gwMac) {
         return new VpnInterfaceOpDataEntryBuilder().withKey(new VpnInterfaceOpDataEntryKey(intfName, vpnName))
-            .setDpnId(dpnId).setScheduledForRemove(isSheduledForRemove).addAugmentation(AdjacenciesOp.class, aug)
+            .setDpnId(dpnId).addAugmentation(AdjacenciesOp.class, aug)
                 .setLportTag(lportTag).setGatewayMacAddress(gwMac).build();
     }
 
@@ -860,7 +860,7 @@ public final class VpnUtil {
         VpnInterfaceOpDataEntry interfaceToUpdate =
             new VpnInterfaceOpDataEntryBuilder().withKey(new VpnInterfaceOpDataEntryKey(interfaceName,
             vpnInstanceName)).setName(interfaceName).setDpnId(dpnId).setVpnInstanceName(vpnInstanceName)
-            .setScheduledForRemove(isScheduledToRemove).build();
+            .build();
         if (writeOperTxn != null) {
             writeOperTxn.merge(interfaceId, interfaceToUpdate, true);
         } else {
@@ -1719,8 +1719,7 @@ public final class VpnUtil {
     }
 
     ListenableFuture<Void> unsetScheduledToRemoveForVpnInterface(String interfaceName) {
-        VpnInterfaceBuilder builder = new VpnInterfaceBuilder().withKey(new VpnInterfaceKey(interfaceName))
-                .setScheduledForRemove(false);
+        VpnInterfaceBuilder builder = new VpnInterfaceBuilder().withKey(new VpnInterfaceKey(interfaceName));
         return txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.OPERATIONAL, tx -> tx.merge(
                 VpnUtil.getVpnInterfaceIdentifier(interfaceName), builder.build(),
                 WriteTransaction.CREATE_MISSING_PARENTS));

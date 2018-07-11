@@ -121,7 +121,6 @@ public class VpnElanInterfaceChangeListener
         listVpn.add(vpnInstance);
         VpnInterface vpnInterface = new VpnInterfaceBuilder().withKey(new VpnInterfaceKey(interfaceName))
             .setVpnInstanceNames(listVpn)
-            .setScheduledForRemove(Boolean.FALSE)
             .build();
         InstanceIdentifier<VpnInterface> vpnInterfaceIdentifier = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
         vpnUtil.syncWrite(LogicalDatastoreType.CONFIGURATION, vpnInterfaceIdentifier, vpnInterface);
