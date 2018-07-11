@@ -2420,44 +2420,6 @@ public final class VpnUtil {
         return false;
     }
 
-    public static void removePrefixToInterfaceAdj(DataBroker dataBroker, Adjacency adj, long vpnId,
-                                                  VpnInterfaceOpDataEntry vpnInterfaceOpDataEntry,
-                                                  WriteTransaction writeOperTxn) {
-        Optional<Prefixes> prefix = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getPrefixToInterfaceIdentifier(vpnId,
-                        VpnUtil.getIpPrefix(adj.getIpAddress())));
-        List<Prefixes> prefixToInterface = new ArrayList<>();
-        List<Prefixes> prefixToInterfaceLocal = new ArrayList<>();
-        if (prefix.isPresent()) {
-            prefixToInterfaceLocal.add(prefix.get());
-        }
-        if (prefixToInterfaceLocal.isEmpty()) {
-            for (String nh : adj.getNextHopIpList()) {
-                prefix = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                        VpnUtil.getPrefixToInterfaceIdentifier(vpnId,
-                                VpnUtil.getIpPrefix(nh)));
-                if (prefix.isPresent()) {
-                    prefixToInterfaceLocal.add(prefix.get());
-                }
-            }
-        }
-        if (!prefixToInterfaceLocal.isEmpty()) {
-            prefixToInterface.addAll(prefixToInterfaceLocal);
-        }
-        for (Prefixes pref : prefixToInterface) {
-            if (VpnUtil.isMatchedPrefixToInterface(pref, vpnInterfaceOpDataEntry)) {
-                if (writeOperTxn != null) {
-                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                            VpnUtil.getPrefixToInterfaceIdentifier(vpnId, pref.getIpAddress()));
-                } else {
-                    VpnUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                            VpnUtil.getPrefixToInterfaceIdentifier(vpnId, pref.getIpAddress()),
-                            VpnUtil.DEFAULT_CALLBACK);
-                }
-            }
-        }
-    }
-
     static Set<org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets
         .VpnTarget> getRtListForVpn(DataBroker dataBroker, String vpnName) {
         Set<org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets
