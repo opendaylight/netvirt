@@ -352,7 +352,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 intfName = interfaces.getInterfaceName();
                 VpnInterface vpnInterface =
                      vpnUtil.getConfiguredVpnInterface(intfName);
-                if (vpnInterface != null && !Boolean.TRUE.equals(vpnInterface.isScheduledForRemove())) {
+                if (vpnInterface != null) {
                     listVpnName.addAll(VpnHelper
                         .getVpnInterfaceVpnInstanceNamesString(vpnInterface.getVpnInstanceNames()));
                     handleTunnelEventForDPNVpn(stateTunnelList, vpnIdRdMap,
@@ -442,7 +442,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 if (method == TunnelEventProcessingMethod.POPULATESUBNETS) {
                     Optional<VpnInterfaceOpDataEntry> opVpnInterface = vpnUtil
                             .getVpnInterfaceOpDataEntry(intfName, vpnName);
-                    if (opVpnInterface.isPresent() && !opVpnInterface.get().isScheduledForRemove()) {
+                    if (opVpnInterface.isPresent()) {
                         VpnInterfaceOpDataEntry vpnInterface  = opVpnInterface.get();
                         jobCoordinator.enqueueJob("VPNINTERFACE-" + intfName,
                                 new UpdateVpnInterfaceOnTunnelEvent(tunnelAction,
