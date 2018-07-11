@@ -21,11 +21,17 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -1054,46 +1060,65 @@ public class NexthopManager implements AutoCloseable {
     public void removeOrUpdateDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
             String destinationIp) {
         Preconditions.checkNotNull(availableDcGws, "There are no dc-gws present");
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx -> {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
-                int noOfDcGws = availableDcGws.size();
-                // If availableDcGws does not contain the destination Ip it means this is a configuration delete.
-                if (!availableDcGws.contains(destinationIp)) {
-                    availableDcGws.add(destinationIp);
-                    Collections.sort(availableDcGws);
-                }
-                // TODO : Place the logic to construct all possible DC-GW combination here.
-                int bucketId = availableDcGws.indexOf(destinationIp);
-                Optional<DpnLbNexthops> dpnLbNextHops = fibUtil.getDpnLbNexthops(dpnId, destinationIp);
-                if (!dpnLbNextHops.isPresent()) {
-                    return;
-                }
-                List<String> nextHopKeys = dpnLbNextHops.get().getNexthopKey();
-                nextHopKeys.forEach(nextHopKey -> {
-                    Optional<Nexthops> optionalNextHops = fibUtil.getNexthops(nextHopKey);
-                    if (!optionalNextHops.isPresent()) {
-                        return;
-                    }
-                    Nexthops nexthops = optionalNextHops.get();
-                    final String groupId = nexthops.getGroupId();
-                    final long groupIdValue = Long.parseLong(groupId);
-                    if (noOfDcGws > 1) {
-                        mdsalApiManager.removeBucketToTx(dpnId, groupIdValue, bucketId, confTx);
-                    } else {
-                        Group group = MDSALUtil.buildGroup(groupIdValue, nextHopKey, GroupTypes.GroupSelect,
-                                MDSALUtil.buildBucketLists(Collections.emptyList()));
-                        LOG.trace("Removed LB group {} on dpn {}", group, dpnId);
-                        mdsalApiManager.removeGroupToTx(dpnId, group, confTx);
-                        removeNextHopPointer(nextHopKey);
-                    }
-                    // When the DC-GW is removed from configuration.
-                    if (noOfDcGws != availableDcGws.size()) {
-                        FibUtil.removeOrUpdateNextHopInfo(dpnId, nextHopKey, groupId, nexthops, operTx);
-                    }
-                });
-                FibUtil.removeDpnIdToNextHopInfo(destinationIp, dpnId, operTx);
-            }), LOG, "Error removing or updating load-balancing group");
-        }), LOG, "Error removing or updating load-balancing group");
+        BindingTransactionChain txChain = dataBroker.createTransactionChain(new TransactionChainListener() {
+            @Override
+            public void onTransactionChainFailed(TransactionChain<?, ?> chain, AsyncTransaction<?, ?> transaction,
+                Throwable cause) {
+                LOG.error("Error removing or updating DC gateway LB group", cause);
+            }
+
+            @Override
+            public void onTransactionChainSuccessful(TransactionChain<?, ?> chain) {
+                // Nothing to do
+            }
+        });
+        WriteTransaction confTx = txChain.newWriteOnlyTransaction();
+        final int noOfDcGws = availableDcGws.size();
+        // If availableDcGws does not contain the destination Ip it means this is a configuration delete.
+        if (!availableDcGws.contains(destinationIp)) {
+            availableDcGws.add(destinationIp);
+            Collections.sort(availableDcGws);
+        }
+        // TODO : Place the logic to construct all possible DC-GW combination here.
+        int bucketId = availableDcGws.indexOf(destinationIp);
+        Optional<DpnLbNexthops> dpnLbNextHops = fibUtil.getDpnLbNexthops(dpnId, destinationIp);
+        if (!dpnLbNextHops.isPresent()) {
+            return;
+        }
+        List<String> nextHopKeys = dpnLbNextHops.get().getNexthopKey();
+        List<Consumer<WriteTransaction>> operQueue = new ArrayList<>();
+        nextHopKeys.forEach(nextHopKey -> {
+            Optional<Nexthops> optionalNextHops = fibUtil.getNexthops(nextHopKey);
+            if (!optionalNextHops.isPresent()) {
+                return;
+            }
+            Nexthops nexthops = optionalNextHops.get();
+            final String groupId = nexthops.getGroupId();
+            final long groupIdValue = Long.parseLong(groupId);
+            if (noOfDcGws > 1) {
+                mdsalApiManager.removeBucketToTx(dpnId, groupIdValue, bucketId, confTx);
+            } else {
+                Group group = MDSALUtil.buildGroup(groupIdValue, nextHopKey, GroupTypes.GroupSelect,
+                        MDSALUtil.buildBucketLists(Collections.emptyList()));
+                LOG.trace("Removed LB group {} on dpn {}", group, dpnId);
+                mdsalApiManager.removeGroupToTx(dpnId, group, confTx);
+                removeNextHopPointer(nextHopKey);
+            }
+            // When the DC-GW is removed from configuration.
+            if (noOfDcGws != availableDcGws.size()) {
+                // Queue the removals/updates up for later processing
+                operQueue.add(
+                    operTx -> FibUtil.removeOrUpdateNextHopInfo(dpnId, nextHopKey, groupId, nexthops, operTx));
+            }
+        });
+        ListenableFutures.addErrorLogging(confTx.commit(), LOG,
+            "Error removing or updating DC gateway LB group from configuration");
+        WriteTransaction operTx = txChain.newWriteOnlyTransaction();
+        operQueue.forEach(action -> action.accept(operTx));
+        FibUtil.removeDpnIdToNextHopInfo(destinationIp, dpnId, operTx);
+        ListenableFutures.addErrorLogging(operTx.commit(), LOG,
+            "Error removing or updating DC gateway LB group from operational");
+        txChain.close();
     }
 
     /**
