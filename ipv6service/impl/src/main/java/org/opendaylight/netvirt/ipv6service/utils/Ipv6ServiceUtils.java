@@ -41,6 +41,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv6NdTarget;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
+import org.opendaylight.netvirt.ipv6service.VirtualSubnet;
 import org.opendaylight.netvirt.ipv6service.api.IVirtualPort;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
@@ -367,5 +368,12 @@ public class Ipv6ServiceUtils {
         // return Ipv6ServiceConstants.DEVICE_OWNER_COMPUTE_NOVA.equalsIgnoreCase(deviceOwner);
         return Ipv6ServiceConstants.DEVICE_OWNER_COMPUTE_NOVA.equalsIgnoreCase(deviceOwner)
                 || StringUtils.isEmpty(deviceOwner);
+    }
+
+    public static boolean isIpv6Subnet(VirtualSubnet subnet) {
+        if (subnet == null) {
+            return false;
+        }
+        return subnet.getIpVersion().equals(Ipv6ServiceConstants.IP_VERSION_V6) ? true : false;
     }
 }
