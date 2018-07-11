@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
 import io.netty.util.Timeout;
 import java.math.BigInteger;
@@ -78,6 +79,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
     private static ConcurrentMap<Uuid, Set<VirtualPort>> unprocessedNetIntfs = new ConcurrentHashMap<>();
     private static ConcurrentMap<Uuid, Integer> unprocessedNetRSFlowIntfs = new ConcurrentHashMap<>();
     private static ConcurrentMap<Uuid, Set<Ipv6Address>> unprocessedNetNSFlowIntfs = new ConcurrentHashMap<>();
+    private static ConcurrentMap<Uuid, Set<VirtualSubnet>> unprocessedNetNaFlowIntfs = new ConcurrentHashMap<>();
     private final OdlInterfaceRpcService interfaceManagerRpc;
     private final IElanService elanProvider;
     private final Ipv6ServiceUtils ipv6ServiceUtils;
@@ -252,7 +254,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
              */
             programIcmpv6RSPuntFlows(intf.getNetworkID(), Ipv6ServiceConstants.ADD_FLOW);
             programIcmpv6NSPuntFlowForAddress(intf.getNetworkID(), llAddr, Ipv6ServiceConstants.ADD_FLOW);
-            programIcmpv6NaForwardFlows(intf, snetId, Ipv6ServiceConstants.ADD_FLOW);
+            programIcmpv6NaForwardFlows(intf.getNetworkID(), getSubnet(snetId), Ipv6ServiceConstants.ADD_FLOW);
         } else {
             intf = prevIntf;
             intf.setSubnetInfo(snetId, fixedIp);
@@ -483,7 +485,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
                     programIcmpv6NSPuntFlowForAddress(intf.getNetworkID(), ipv6Address, Ipv6ServiceConstants.DEL_FLOW);
                 }
                 for (VirtualSubnet subnet : intf.getSubnets()) {
-                    programIcmpv6NaForwardFlows(intf, subnet.getSubnetUUID(), Ipv6ServiceConstants.DEL_FLOW);
+                    programIcmpv6NaForwardFlows(networkID, subnet, Ipv6ServiceConstants.DEL_FLOW);
                 }
                 transmitRouterAdvertisement(intf, Ipv6RouterAdvertisementType.CEASE_ADVERTISEMENT);
                 timer.cancelPeriodicTransmissionTimeout(intf.getPeriodicTimeout());
@@ -521,35 +523,48 @@ public class IfMgr implements ElementCache, AutoCloseable {
         return null;
     }
 
-    public void addUnprocessedRSFlows(Map<Uuid, Integer>
-                                              unprocessed, Uuid id, Integer action) {
+    public void addUnprocessedRSFlows(Map<Uuid, Integer> unprocessed, Uuid id, Integer action) {
         unprocessed.put(id, action);
 
     }
 
-    public Integer removeUnprocessedRSFlows(Map<Uuid, Integer>
-                                                    unprocessed, Uuid id) {
+    public Integer removeUnprocessedRSFlows(Map<Uuid, Integer> unprocessed, Uuid id) {
         return unprocessed.remove(id);
     }
 
-    public void addUnprocessedNSFlows(Map<Uuid, Set<Ipv6Address>> unprocessed,
-                                      Uuid id, Ipv6Address ipv6Address,
-                                      Integer action) {
-        Set<Ipv6Address> ipv6AddressesList = unprocessed.get(id);
+    private void addUnprocessedNSFlows(Map<Uuid, Set<Ipv6Address>> unprocessed, Uuid id, Ipv6Address ipv6Address,
+            Integer action) {
         if (action == Ipv6ServiceConstants.ADD_FLOW) {
             unprocessed.computeIfAbsent(id, key -> Collections.synchronizedSet(ConcurrentHashMap.newKeySet()))
                     .add(ipv6Address);
         } else if (action == Ipv6ServiceConstants.DEL_FLOW) {
+            Set<Ipv6Address> ipv6AddressesList = unprocessed.get(id);
             if ((ipv6AddressesList != null) && (ipv6AddressesList.contains(ipv6Address))) {
                 ipv6AddressesList.remove(ipv6Address);
             }
         }
-        return;
     }
 
-    public Set<Ipv6Address> removeUnprocessedNSFlows(Map<Uuid, Set<Ipv6Address>>
-                                                             unprocessed, Uuid id) {
-        return unprocessed.remove(id);
+    private Set<Ipv6Address> removeUnprocessedNSFlows(Map<Uuid, Set<Ipv6Address>> unprocessed, Uuid id) {
+        Set<Ipv6Address> removedIps = unprocessed.remove(id);
+        return removedIps != null ? removedIps : Collections.emptySet();
+    }
+
+    private void addUnprocessedNaFlows(Uuid networkId, Collection<VirtualSubnet> subnets, Integer action) {
+        if (action == Ipv6ServiceConstants.ADD_FLOW) {
+            unprocessedNetNaFlowIntfs.computeIfAbsent(networkId, key -> ConcurrentHashMap.newKeySet())
+                    .addAll(subnets);
+        } else if (action == Ipv6ServiceConstants.DEL_FLOW) {
+            Set<VirtualSubnet> subnetsInCache = unprocessedNetNaFlowIntfs.get(networkId);
+            if (subnetsInCache != null) {
+                subnetsInCache.removeAll(subnets);
+            }
+        }
+    }
+
+    private Set<VirtualSubnet> removeUnprocessedNaFlows(Uuid networkId) {
+        Set<VirtualSubnet> removedSubnets = unprocessedNetNaFlowIntfs.remove(networkId);
+        return removedSubnets != null ? removedSubnets : Collections.emptySet();
     }
 
     public VirtualPort getRouterV6InterfaceForNetwork(Uuid networkId) {
@@ -629,7 +644,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
-    private void programIcmpv6NaPuntFlow(Uuid networkID, List<VirtualSubnet> subnets, int action) {
+    private void programIcmpv6NaPuntFlow(Uuid networkID, Collection<VirtualSubnet> subnets, int action) {
         if (!ipv6ServiceEosHandler.isClusterOwner()) {
             LOG.trace("Not a cluster Owner, skip flow programming.");
             return;
@@ -659,20 +674,27 @@ public class IfMgr implements ElementCache, AutoCloseable {
                     }
                 }
             }
+        } else {
+            addUnprocessedNaFlows(networkID, subnets, action);
         }
     }
 
-    public void handleInterfaceStateEvent(IVirtualPort port, BigInteger dpId, VirtualPort routerPort, int addOrRemove) {
+    public void handleInterfaceStateEvent(VirtualPort port, BigInteger dpId, VirtualPort routerPort, int addOrRemove) {
         Long elanTag = getNetworkElanTag(port.getNetworkID());
         if (addOrRemove == Ipv6ServiceConstants.ADD_FLOW && routerPort != null) {
             // Check and program icmpv6 punt flows on the dpnID if its the first VM on the host.
             programIcmpv6PuntFlows(port, dpId, elanTag, routerPort);
         }
-        programIcmpv6NaForwardFlow(port, dpId, elanTag, addOrRemove);
+        if (elanTag != null) {
+            programIcmpv6NaForwardFlow(port, dpId, elanTag, addOrRemove);
+        } else {
+            addUnprocessedNaFlows(port.getNetworkID(), port.getSubnets(), addOrRemove);
+        }
     }
 
     private void programIcmpv6PuntFlows(IVirtualPort vmPort, BigInteger dpId, Long elanTag, VirtualPort routerPort) {
-        VirtualNetwork vnet = getNetwork(vmPort.getNetworkID());
+        Uuid networkId = vmPort.getNetworkID();
+        VirtualNetwork vnet = getNetwork(networkId);
         if (null != vnet) {
             VirtualNetwork.DpnInterfaceInfo dpnInfo = vnet.getDpnIfaceInfo(dpId);
             if (null != dpnInfo) {
@@ -700,28 +722,43 @@ public class IfMgr implements ElementCache, AutoCloseable {
                     }
                 }
             }
+        } else {
+            addUnprocessedRSFlows(unprocessedNetRSFlowIntfs, networkId, Ipv6ServiceConstants.ADD_FLOW);
+            for (Ipv6Address ipv6Address : routerPort.getIpv6Addresses()) {
+                addUnprocessedNSFlows(unprocessedNetNSFlowIntfs, networkId, ipv6Address, Ipv6ServiceConstants.ADD_FLOW);
+            }
+            addUnprocessedNaFlows(networkId, routerPort.getSubnets(), Ipv6ServiceConstants.ADD_FLOW);
         }
     }
 
-    private void programIcmpv6NaForwardFlows(IVirtualPort routerPort, Uuid snetId, int action) {
+    private void programIcmpv6NaForwardFlows(Uuid networkId, VirtualSubnet subnet, int action) {
         if (!ipv6ServiceEosHandler.isClusterOwner()) {
             LOG.trace("Not a cluster Owner, skip flow programming.");
             return;
         }
+        if (subnet == null) {
+            LOG.debug("Subnet is null, skipping programIcmpv6NaForwardFlows.");
+            return;
+        }
 
-        VirtualNetwork vnet = getNetwork(routerPort.getNetworkID());
+        VirtualNetwork vnet = getNetwork(networkId);
         if (vnet != null) {
-            Long elanTag = getNetworkElanTag(routerPort.getNetworkID());
+            if (!Ipv6ServiceUtils.isIpv6Subnet(subnet)) {
+                return;
+            }
+            Long elanTag = getNetworkElanTag(networkId);
             Collection<VirtualNetwork.DpnInterfaceInfo> dpnIfaceList = vnet.getDpnIfaceList();
             for (VirtualNetwork.DpnInterfaceInfo dpnIfaceInfo : dpnIfaceList) {
                 if (dpnIfaceInfo.getDpId() == null) {
                     continue;
                 }
-                List<VirtualPort> vmPorts = getVmPortsInSubnetByDpId(snetId, dpnIfaceInfo.getDpId());
+                List<VirtualPort> vmPorts = getVmPortsInSubnetByDpId(subnet.getSubnetUUID(), dpnIfaceInfo.getDpId());
                 for (VirtualPort vmPort : vmPorts) {
                     programIcmpv6NaForwardFlow(vmPort, dpnIfaceInfo.getDpId(), elanTag, action);
                 }
             }
+        } else {
+            addUnprocessedNaFlows(networkId, Sets.newHashSet(subnet), action);
         }
     }
 
@@ -828,6 +865,12 @@ public class IfMgr implements ElementCache, AutoCloseable {
 
         Integer action = removeUnprocessedRSFlows(unprocessedNetRSFlowIntfs, networkId);
         programIcmpv6RSPuntFlows(networkId, action);
+
+        Set<VirtualSubnet> subnets = removeUnprocessedNaFlows(networkId);
+        programIcmpv6NaPuntFlow(networkId, subnets, Ipv6ServiceConstants.ADD_FLOW);
+        for (VirtualSubnet subnet : subnets) {
+            programIcmpv6NaForwardFlows(networkId, subnet, action);
+        }
     }
 
     public void removeNetwork(Uuid networkId) {
