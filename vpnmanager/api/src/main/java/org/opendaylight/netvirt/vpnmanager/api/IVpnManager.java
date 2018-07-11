@@ -47,11 +47,16 @@ public interface IVpnManager {
         String intfName, TypedWriteTransaction<Configuration> confTx);
 
     @Deprecated
-    void removePrefixFromBGP(String primaryRd, String rd, String vpnName, String prefix, String nextHop,
-            String tunnelIp, BigInteger dpnId, WriteTransaction writeConfigTxn);
+    void removePrefixFromBGP(String vpnName, String primaryRd, String extraRouteRd, String vpnInterfaceName,
+        String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId, WriteTransaction writeConfigTxn);
 
-    void removePrefixFromBGP(String primaryRd, String rd, String vpnName, String prefix, String nextHop,
-        String tunnelIp, BigInteger dpnId, TypedWriteTransaction<Configuration> confTx);
+    void removePrefixFromBGP(String vpnName, String primaryRd, String extraRouteRd, String vpnInterfaceName,
+        String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId,
+        TypedWriteTransaction<Configuration> confTx);
+
+    boolean removeOrUpdateDSForExtraRoute(String vpnName, String primaryRd, String extraRouteRd,
+        String vpnInterfaceName, String prefix, String nextHop, String nextHopTunnelIp,
+        WriteTransaction writeConfigTxn);
 
     boolean isVPNConfigured();
 

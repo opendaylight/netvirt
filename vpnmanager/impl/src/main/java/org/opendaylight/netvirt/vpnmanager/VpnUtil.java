@@ -1389,6 +1389,13 @@ public final class VpnUtil {
                 .augmentation(Adjacencies.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
     }
 
+    static InstanceIdentifier<Adjacency> getVpnInterfaceOpDataEntryAdjacencyIdentifier(String intfName, String vpnName,
+                String ipAddress) {
+        return InstanceIdentifier.builder(VpnInterfaceOpData.class)
+                .child(VpnInterfaceOpDataEntry.class, new VpnInterfaceOpDataEntryKey(intfName, vpnName))
+                .augmentation(AdjacenciesOp.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
+    }
+
     public static List<String> getIpsListFromExternalIps(List<ExternalIps> externalIps) {
         if (externalIps == null) {
             return Collections.emptyList();
