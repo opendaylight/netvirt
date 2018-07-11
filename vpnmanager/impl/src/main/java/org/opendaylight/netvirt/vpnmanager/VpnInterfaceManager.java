@@ -636,7 +636,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void withdrawAdjacenciesForVpnFromBgp(final InstanceIdentifier<VpnInterfaceOpDataEntry> identifier,
-                        String vpnName, String interfaceName, WriteTransaction writeConfigTxn) {
+                        String vpnName, String interfaceName, WriteTransaction writeConfigTxn,
+                        WriteTransaction writeOperTx) {
         //Read NextHops
         InstanceIdentifier<AdjacenciesOp> path = identifier.augmentation(AdjacenciesOp.class);
         String rd = vpnUtil.getVpnRd(interfaceName);
@@ -683,7 +684,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             String allocatedRd = nextHop.getVrfId();
                             for (String nh : nextHop.getNextHopIpList()) {
                                 deleteExtraRouteFromCurrentAndImportingVpns(
-                                    vpnName, nextHop.getIpAddress(), nh, allocatedRd, interfaceName, writeConfigTxn);
+                                    vpnName, nextHop.getIpAddress(), nh, allocatedRd, interfaceName, writeConfigTxn,
+                                    writeOperTx);
                             }
                         }
                     } catch (Exception e) {
@@ -1321,7 +1323,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         } else {
             // Interface is retained in the DPN, but its Link Down.
             // Only withdraw the prefixes for this interface from BGP
-            withdrawAdjacenciesForVpnFromBgp(identifier, vpnName, interfaceName, writeConfigTxn);
+            withdrawAdjacenciesForVpnFromBgp(identifier, vpnName, interfaceName, writeConfigTxn, writeOperTxn);
         }
     }
 
@@ -1366,10 +1368,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 //this is an internal vpn - the rd is assigned to the vpn instance name;
                                 //remove from FIB directly
                                 nhList.forEach(removeAdjacencyFromInternalVpn(nextHop, vpnName,
-                                        interfaceName, dpnId, writeConfigTxn));
+                                        interfaceName, dpnId, writeConfigTxn, writeOperTxn));
                             } else {
                                 removeAdjacencyFromBgpvpn(nextHop, nhList, vpnName, primaryRd, dpnId, rd,
-                                        interfaceName, writeConfigTxn);
+                                        interfaceName, writeConfigTxn, writeOperTxn);
                             }
                         } else {
                             LOG.error("removeAdjacenciesFromVpn: nextHop empty for ip {} rd {} adjacencyType {}"
@@ -1407,12 +1409,26 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    private Consumer<String> removeAdjacencyFromInternalVpn(Adjacency nextHop, String vpnName,
-                                                                   String interfaceName, BigInteger dpnId,
-                                                                   WriteTransaction writeConfigTxn) {
+    private Consumer<String> removeAdjacencyFromInternalVpn(Adjacency nextHop, String vpnName, String interfaceName,
+                                                            BigInteger dpnId, WriteTransaction writeConfigTxn,
+                                                            WriteTransaction writeOperTx) {
         return (nh) -> {
-            fibManager.removeOrUpdateFibEntry(vpnName, nextHop.getIpAddress(), nh,
-                    writeConfigTxn);
+            String primaryRd = vpnUtil.getVpnRd(vpnName);
+            String prefix = nextHop.getIpAddress();
+            String vpnNamePrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
+            LOG.info("remove adjacencies for nexthop {} vpnName {} interfaceName {} dpnId {}",
+                    nextHop, vpnName, interfaceName, dpnId);
+            synchronized (vpnNamePrefixKey.intern()) {
+                if (vpnUtil.removeOrUpdateDSForExtraRoute(vpnName, primaryRd, dpnId.toString(), interfaceName,
+                        prefix, nextHop.getNextHopIpList().get(0), nh, writeOperTx)) {
+                    //If extra-route is present behind at least one VM, then do not remove or update
+                    //fib entry for route-path representing that CSS nexthop, just update vpntoextraroute and
+                    //prefixtointerface DS
+                    return;
+                }
+                fibManager.removeOrUpdateFibEntry(vpnName, nextHop.getIpAddress(), nh,
+                        writeConfigTxn);
+            }
             LOG.info("removeAdjacenciesFromVpn: removed/updated FIB with rd {} prefix {}"
                             + " nexthop {} for interface {} on dpn {} for internal vpn {}",
                     vpnName, nextHop.getIpAddress(), nh, interfaceName, dpnId, vpnName);
@@ -1421,13 +1437,13 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     private void removeAdjacencyFromBgpvpn(Adjacency nextHop, List<String> nhList, String vpnName, String primaryRd,
                                            BigInteger dpnId, String rd, String interfaceName,
-                                           WriteTransaction writeConfigTxn) {
+                                           WriteTransaction writeConfigTxn, WriteTransaction writeOperTx) {
         List<VpnInstanceOpDataEntry> vpnsToImportRoute =
                 vpnUtil.getVpnsImportingMyRoute(vpnName);
         nhList.forEach((nh) -> {
             //IRT: remove routes from other vpns importing it
-            vpnManager.removePrefixFromBGP(primaryRd, rd, vpnName, nextHop.getIpAddress(),
-                    nextHop.getNextHopIpList().get(0), nh, dpnId, writeConfigTxn);
+            vpnManager.removePrefixFromBGP(vpnName, primaryRd, rd, interfaceName, nextHop.getIpAddress(),
+                    nextHop.getNextHopIpList().get(0), nh, dpnId, writeConfigTxn, writeOperTx);
             for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                 String vpnRd = vpn.getVrfId();
                 if (vpnRd != null) {
@@ -1849,7 +1865,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     for (String nh : adj.getNextHopIpList()) {
                                         deleteExtraRouteFromCurrentAndImportingVpns(
                                                 currVpnIntf.getVpnInstanceName(), adj.getIpAddress(), nh, rd,
-                                                currVpnIntf.getName(), writeConfigTxn);
+                                                currVpnIntf.getName(), writeConfigTxn, writeOperTxn);
                                     }
                                 } else if (adj.isPhysNetworkFunc()) {
                                     LOG.info("delAdjFromVpnInterface: deleting PNF adjacency prefix {} subnet {}",
@@ -1876,13 +1892,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     private void deleteExtraRouteFromCurrentAndImportingVpns(String vpnName, String destination, String nextHop,
-        String rd, String intfName, WriteTransaction writeConfigTxn) {
-        vpnManager.delExtraRoute(vpnName, destination, nextHop, rd, vpnName, intfName, writeConfigTxn);
+        String rd, String intfName, WriteTransaction writeConfigTxn, WriteTransaction writeOperTx) {
+        vpnManager.delExtraRoute(vpnName, destination, nextHop, rd, vpnName, intfName, writeConfigTxn, writeOperTx);
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnUtil.getVpnsImportingMyRoute(vpnName);
         for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
             String vpnRd = vpn.getVrfId();
             if (vpnRd != null) {
-                vpnManager.delExtraRoute(vpnName, destination, nextHop, vpnRd, vpnName, intfName, writeConfigTxn);
+                vpnManager.delExtraRoute(vpnName, destination, nextHop, vpnRd, vpnName, intfName, writeConfigTxn,
+                        writeOperTx);
             }
         }
     }

@@ -30,6 +30,7 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TransactionAdapter;
@@ -38,7 +39,6 @@ import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.UpgradeState;
@@ -77,7 +77,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetsAssociatedToRouteTargets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.RouteTarget;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.RouteTargetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnets.associated.to.route.targets.route.target.AssociatedSubnet;
@@ -273,18 +272,24 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-        String intfName, TypedWriteTransaction<Configuration> confTx) {
+        String intfName, TypedWriteTransaction<Configuration> confTx, TypedWriteTransaction<Operational> operTx) {
         delExtraRoute(vpnName, destination, nextHop, rd, routerID, intfName,
-            TransactionAdapter.toWriteTransaction(confTx));
+            TransactionAdapter.toWriteTransaction(confTx), TransactionAdapter.toWriteTransaction(operTx));
     }
 
     @Override
     public void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-            String intfName, WriteTransaction writeConfigTxn) {
+            String intfName, WriteTransaction writeConfigTxn, WriteTransaction writeOperTx) {
         if (writeConfigTxn == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
-                delExtraRoute(vpnName, destination, nextHop, rd, routerID, intfName, tx)),
-                    LOG, "Error deleting extra route");
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                delExtraRoute(vpnName, destination, nextHop, rd, routerID, intfName, tx, writeOperTx);
+            }), LOG, "Error deleting extra route");
+            return;
+        }
+        if (writeOperTx == null) {
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                delExtraRoute(vpnName, destination, nextHop, rd, routerID, intfName, writeConfigTxn, tx);
+            }), LOG, "Error deleting extra route");
             return;
         }
         BigInteger dpnId = null;
@@ -301,7 +306,8 @@ public class VpnManagerImpl implements IVpnManager {
         }
         if (rd != null) {
             String primaryRd = vpnUtil.getVpnRd(vpnName);
-            removePrefixFromBGP(primaryRd, rd, vpnName, destination, nextHop, tunnelIp, dpnId, writeConfigTxn);
+            removePrefixFromBGP(vpnName, primaryRd, rd, intfName, destination, nextHop, tunnelIp, dpnId,
+                    writeConfigTxn, writeOperTx);
             LOG.info("delExtraRoute: Removed extra route {} from interface {} for rd {}", destination, intfName, rd);
         } else {
             // add FIB route directly
@@ -312,61 +318,37 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public void removePrefixFromBGP(String primaryRd, String rd, String vpnName, String prefix, String nextHop,
-        String tunnelIp, BigInteger dpnId, TypedWriteTransaction<Configuration> confTx) {
-        removePrefixFromBGP(primaryRd, rd, vpnName, prefix, nextHop, tunnelIp, dpnId,
-            TransactionAdapter.toWriteTransaction(confTx));
+    public void removePrefixFromBGP(String vpnName, String primaryRd, String extraRouteRd, String vpnInterfaceName,
+                                    String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId,
+                                    TypedWriteTransaction<Configuration> confTx,
+                                    TypedWriteTransaction<Operational> operTx) {
+        removePrefixFromBGP(vpnName, primaryRd, extraRouteRd, vpnInterfaceName, prefix, nextHop, nextHopTunnelIp,
+                dpnId, TransactionAdapter.toWriteTransaction(confTx), TransactionAdapter.toWriteTransaction(operTx));
     }
 
     // TODO Clean up the exception handling
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void removePrefixFromBGP(String primaryRd, String rd, String vpnName, String prefix, String nextHop,
-                                     String tunnelIp, BigInteger dpnId, WriteTransaction writeConfigTxn) {
+    public void removePrefixFromBGP(String vpnName, String primaryRd, String extraRouteRd, String vpnInterfaceName,
+        String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId, WriteTransaction writeConfigTxn,
+        WriteTransaction writeOperTx) {
         try {
-            LOG.info("removePrefixFromBGP: VPN WITHDRAW: Removing Fib Entry rd {} prefix {} nexthop {}", rd, prefix,
-                    nextHop);
             String vpnNamePrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
             synchronized (vpnNamePrefixKey.intern()) {
-                Optional<Routes> optVpnExtraRoutes = VpnExtraRouteHelper
-                        .getVpnExtraroutes(dataBroker, vpnName, rd, prefix);
-                if (optVpnExtraRoutes.isPresent()) {
-                    List<String> nhList = optVpnExtraRoutes.get().getNexthopIpList();
-                    if (nhList != null && nhList.size() > 1) {
-                        // If nhList is more than 1, just update vpntoextraroute and prefixtointerface DS
-                        // For other cases, remove the corresponding tep ip from fibentry and withdraw prefix
-                        nhList.remove(nextHop);
-                        vpnUtil.syncWrite(LogicalDatastoreType.OPERATIONAL,
-                                VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, rd, prefix),
-                                VpnUtil.getVpnToExtraroute(prefix, nhList));
-                        MDSALUtil.syncDelete(dataBroker,
-                                LogicalDatastoreType.CONFIGURATION, VpnExtraRouteHelper.getUsedRdsIdentifier(
-                                vpnUtil.getVpnId(vpnName), prefix, nextHop));
-                        LOG.debug("removePrefixFromBGP: Removed vpn-to-extraroute with rd {} prefix {} nexthop {}",
-                                rd, prefix, nextHop);
-                        fibManager.refreshVrfEntry(primaryRd, prefix);
-                        long vpnId = vpnUtil.getVpnId(vpnName);
-                        Optional<Prefixes> prefixToInterface = vpnUtil.getPrefixToInterface(vpnId, nextHop);
-                        if (prefixToInterface.isPresent()) {
-                            writeConfigTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                                    VpnUtil.getAdjacencyIdentifier(prefixToInterface.get().getVpnInterfaceName(),
-                                            prefix));
-                        }
-                        LOG.info("VPN WITHDRAW: removePrefixFromBGP: Removed Fib Entry rd {} prefix {} nexthop {}",
-                                rd, prefix, tunnelIp);
-                        return;
-                    }
+                if (vpnUtil.removeOrUpdateDSForExtraRoute(vpnName, primaryRd, extraRouteRd, vpnInterfaceName, prefix,
+                        nextHop, nextHopTunnelIp, writeOperTx)) {
+                    return;
                 }
-                fibManager.removeOrUpdateFibEntry(primaryRd, prefix, tunnelIp, writeConfigTxn);
-                if (VpnUtil.isEligibleForBgp(primaryRd, vpnName, dpnId, null /*networkName*/)) {
+                fibManager.removeOrUpdateFibEntry(primaryRd, prefix, nextHopTunnelIp, writeConfigTxn);
+                if (VpnUtil.isEligibleForBgp(extraRouteRd, vpnName, dpnId, null /*networkName*/)) {
                     // TODO: Might be needed to include nextHop here
-                    bgpManager.withdrawPrefix(rd, prefix);
+                    bgpManager.withdrawPrefix(extraRouteRd, prefix);
                 }
             }
-            LOG.info("removePrefixFromBGP: VPN WITHDRAW: Removed Fib Entry rd {} prefix {} nexthop {}", rd, prefix,
-                    nextHop);
+            LOG.info("removePrefixFromBGP: VPN WITHDRAW: Removed Fib Entry rd {} prefix {} nexthop {}", extraRouteRd,
+                    prefix, nextHop);
         } catch (RuntimeException e) {
-            LOG.error("removePrefixFromBGP: Delete prefix {} rd {} nextHop {} failed", prefix, rd, nextHop);
+            LOG.error("removePrefixFromBGP: Delete prefix {} rd {} nextHop {} failed", prefix, extraRouteRd, nextHop);
         }
     }
 
