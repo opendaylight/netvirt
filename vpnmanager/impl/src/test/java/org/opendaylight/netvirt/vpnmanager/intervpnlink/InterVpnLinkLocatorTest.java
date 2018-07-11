@@ -29,6 +29,7 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.VpnOperDsUtils;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
@@ -67,6 +68,8 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
     @Mock
     IdManagerService idManager;
     @Mock
+    IFibManager fibManager;
+    @Mock
     IBgpManager bgpManager;
     @Mock
     LockManagerService lockManager;
@@ -86,8 +89,8 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
 
         dataBroker = getDataBroker();
 
-        vpnUtil = new VpnUtil(dataBroker, idManager, bgpManager, lockManager, neutronVpnService, mdsalManager,
-                jobCoordinator, interfaceManager, ifmRpcService);
+        vpnUtil = new VpnUtil(dataBroker, idManager, fibManager, bgpManager, lockManager, neutronVpnService,
+                mdsalManager, jobCoordinator, interfaceManager, ifmRpcService);
 
         // Creating both empty containers: InterVpnLinks and InterVpnLinkStates
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
