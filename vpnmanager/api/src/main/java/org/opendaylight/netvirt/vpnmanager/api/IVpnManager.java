@@ -16,6 +16,7 @@ import java.util.Set;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.TypedReadTransaction;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
@@ -41,17 +42,19 @@ public interface IVpnManager {
 
     @Deprecated
     void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-            String intfName, WriteTransaction writeConfigTxn);
+            String intfName, WriteTransaction writeConfigTxn, WriteTransaction writeOperTx);
 
     void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-        String intfName, TypedWriteTransaction<Configuration> confTx);
+        String intfName, TypedWriteTransaction<Configuration> confTx, TypedWriteTransaction<Operational> operTx);
 
     @Deprecated
-    void removePrefixFromBGP(String primaryRd, String rd, String vpnName, String prefix, String nextHop,
-            String tunnelIp, BigInteger dpnId, WriteTransaction writeConfigTxn);
+    void removePrefixFromBGP(String vpnName, String primaryRd, String extraRouteRd, String vpnInterfaceName,
+        String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId, WriteTransaction writeConfigTxn,
+        WriteTransaction writeOperTx);
 
-    void removePrefixFromBGP(String primaryRd, String rd, String vpnName, String prefix, String nextHop,
-        String tunnelIp, BigInteger dpnId, TypedWriteTransaction<Configuration> confTx);
+    void removePrefixFromBGP(String vpnName, String primaryRd, String extraRouteRd, String vpnInterfaceName,
+        String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId,
+        TypedWriteTransaction<Configuration> confTx, TypedWriteTransaction<Operational> operTx);
 
     boolean isVPNConfigured();
 
