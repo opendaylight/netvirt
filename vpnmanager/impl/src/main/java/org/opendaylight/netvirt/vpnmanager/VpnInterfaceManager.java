@@ -369,7 +369,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             }
 
             boolean waitForVpnInterfaceOpRemoval = false;
-            if (opVpnInterface != null && !opVpnInterface.isScheduledForRemove()) {
+            if (opVpnInterface != null) {
                 String opVpnName = opVpnInterface.getVpnInstanceName();
                 String primaryInterfaceIp = null;
                 if (opVpnName.equals(vpnName)) {
@@ -880,7 +880,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private void addVpnInterfaceToOperational(String vpnName, String interfaceName, BigInteger dpnId, AdjacenciesOp aug,
                                               long lportTag, String gwMac, WriteTransaction writeOperTxn) {
         VpnInterfaceOpDataEntry opInterface =
-              VpnUtil.getVpnInterfaceOpDataEntry(interfaceName, vpnName, aug, dpnId, Boolean.FALSE, lportTag, gwMac);
+              VpnUtil.getVpnInterfaceOpDataEntry(interfaceName, vpnName, aug, dpnId, lportTag, gwMac);
         InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId = VpnUtil
             .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
         writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface,
@@ -1312,7 +1312,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                     interfaceName, vpnName);
         if (!isInterfaceStateDown) {
             final long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-            VpnUtil.scheduleVpnInterfaceForRemoval(dataBroker, interfaceName, dpId, vpnName, Boolean.TRUE,
+            VpnUtil.scheduleVpnInterfaceForRemoval(dataBroker, interfaceName, dpId, vpnName,
                     null);
             final boolean isBgpVpnInternetVpn = VpnUtil.isBgpVpnInternet(dataBroker, vpnName);
             removeAdjacenciesFromVpn(dpId, lportTag, interfaceName, vpnName,
@@ -1823,7 +1823,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 AdjacenciesOp aug = VpnUtil.getVpnInterfaceOpDataEntryAugmentation(adjacencies);
                 VpnInterfaceOpDataEntry newVpnIntf =
                         VpnUtil.getVpnInterfaceOpDataEntry(currVpnIntf.getName(), currVpnIntf.getVpnInstanceName(),
-                                aug, dpnId, currVpnIntf.isScheduledForRemove(), currVpnIntf.getLportTag(),
+                                aug, dpnId, currVpnIntf.getLportTag(),
                                 currVpnIntf.getGatewayMacAddress());
 
                 writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf, true);
