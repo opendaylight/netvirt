@@ -217,7 +217,15 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     @Override
     protected void remove(InstanceIdentifier<ElanInterface> identifier, ElanInterface del) {
         String interfaceName = del.getName();
-        ElanInstance elanInfo = elanInstanceCache.get(del.getElanInstanceName()).orNull();
+        String elanInstanceName = del.getElanInstanceName();
+        Queue<ElanInterface> elanInterfaces = unProcessedElanInterfaces.get(elanInstanceName);
+        if (elanInterfaces != null && elanInterfaces.contains(del)) {
+            elanInterfaces.remove(del);
+            if (elanInterfaces.isEmpty()) {
+                unProcessedElanInterfaces.remove(elanInstanceName);
+            }
+        }
+        ElanInstance elanInfo = elanInstanceCache.get(elanInstanceName).orNull();
         /*
          * Handling in case the elan instance is deleted.If the Elan instance is
          * deleted, there is no need to explicitly delete the elan interfaces
@@ -232,7 +240,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             // from Operational DS instead
             interfaceInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
         }
-        String elanInstanceName = elanInfo.getElanInstanceName();
         InterfaceRemoveWorkerOnElan configWorker = new InterfaceRemoveWorkerOnElan(elanInstanceName, elanInfo,
                 interfaceName, interfaceInfo, this);
         jobCoordinator.enqueueJob(elanInstanceName, configWorker, ElanConstants.JOB_MAX_RETRIES);
@@ -594,12 +601,14 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             // If elan tag is not updated, then put the elan interface into
             // unprocessed entry map and entry. Let entries
             // in this map get processed during ELAN update DCN.
-            if (elanTag == null) {
+            if (elanTag == null || elanTag == 0L) {
                 ConcurrentLinkedQueue<ElanInterface> elanInterfaces = unProcessedElanInterfaces.get(elanInstanceName);
                 if (elanInterfaces == null) {
                     elanInterfaces = new ConcurrentLinkedQueue<>();
                 }
-                elanInterfaces.add(elanInterfaceAdded);
+                if (!elanInterfaces.contains(elanInterfaceAdded)) {
+                    elanInterfaces.add(elanInterfaceAdded);
+                }
                 unProcessedElanInterfaces.put(elanInstanceName, elanInterfaces);
                 return;
             }
@@ -620,6 +629,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
             futures.addAll(addElanInterface(elanInterface, interfaceInfo, elanInstance));
         }
+        unProcessedElanInterfaces.remove(elanInstance.getElanInstanceName());
         return futures;
     }
 
