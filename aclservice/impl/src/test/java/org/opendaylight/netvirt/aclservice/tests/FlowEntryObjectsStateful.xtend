@@ -66,8 +66,6 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + etheregressFlowPort2
         + remoteEgressFlowsPort1
         + remoteEgressFlowsPort2
-        + remoteEgressFlowsPort1
-        + remoteEgressFlowsPort2
         + ingressCommitNonConntrack1
         + ingressCommitNonConntrack1
         + egressCommitNonConntrack1
@@ -109,8 +107,6 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + egressDispatcherLast
         + remoteIngressFlowsPort1
         + remoteIngressFlowsPort2
-        + remoteIngressFlowsPort1
-        + remoteIngressFlowsPort2
         + ingressCommitNonConntrack1
         + ingressCommitNonConntrack1
         + egressCommitNonConntrack1
@@ -149,8 +145,6 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + ingressDispatcherLast
         + remoteEgressFlowsPort1
         + remoteEgressFlowsPort2
-        + remoteEgressFlowsPort1
-        + remoteEgressFlowsPort2
         + ingressCommitNonConntrack1
         + ingressCommitNonConntrack1
         + egressCommitNonConntrack1
@@ -186,8 +180,6 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + egressDispatcherFirst
         + egressDispatcherLast
         + egressDispatcherLast
-        + remoteIngressFlowsPort1
-        + remoteIngressFlowsPort2
         + remoteIngressFlowsPort1
         + remoteIngressFlowsPort2
         + ingressCommitNonConntrack1
@@ -264,7 +256,6 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
     protected def aapFlows() {
         icmpFlows()
         + aapRemoteFlowsPort1
-        + aapRemoteFlowsPort1
         + aapFlowsPort2
     }
 
@@ -285,8 +276,6 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + etheregressFlowPort2
-        + remoteEgressFlowsPort1
-        + remoteEgressFlowsPort2
         + remoteEgressFlowsPort1
         + remoteEgressFlowsPort2
         + tcpEgressFlowPort2WithRemoteIpSg
