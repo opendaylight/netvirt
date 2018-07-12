@@ -137,9 +137,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             return false;
         }
         bindService(port);
-        if (port.getDpId() != null) {
-            updateRemoteAclFilterTable(port, NwConstants.ADD_FLOW);
-        }
         return true;
     }
 
@@ -151,7 +148,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
         if (port.getDpId() != null) {
             unbindService(port);
-            updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW);
         }
         return true;
     }
