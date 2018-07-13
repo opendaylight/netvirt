@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -65,9 +66,10 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
                                      IdManagerService idManager, NAPTSwitchSelector naptSwitchSelector,
                                      OdlInterfaceRpcService odlInterfaceRpcService,
                                      IInterfaceManager interfaceManager, IVpnFootprintService vpnFootprintService,
-                                     IFibManager fibManager, NatDataUtil natDataUtil) {
+                                     IFibManager fibManager, NatDataUtil natDataUtil,
+                                     DataTreeEventCallbackRegistrar eventCallbacks) {
         super(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService, idManager, naptSwitchSelector,
-                interfaceManager, vpnFootprintService, fibManager, natDataUtil);
+                interfaceManager, vpnFootprintService, fibManager, natDataUtil, eventCallbacks);
     }
 
     @Override

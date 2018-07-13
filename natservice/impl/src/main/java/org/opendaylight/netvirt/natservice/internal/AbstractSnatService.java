@@ -18,6 +18,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -63,6 +64,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.G
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
@@ -95,13 +97,15 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected final IVpnFootprintService vpnFootprintService;
     protected final IFibManager fibManager;
     protected final NatDataUtil natDataUtil;
+    protected final DataTreeEventCallbackRegistrar eventCallbacks;
 
     protected AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                   final ItmRpcService itmManager, final OdlInterfaceRpcService odlInterfaceRpcService,
                                   final IdManagerService idManager, final NAPTSwitchSelector naptSwitchSelector,
                                   final IInterfaceManager interfaceManager,
                                   final IVpnFootprintService vpnFootprintService,
-                                  final IFibManager fibManager, final NatDataUtil natDataUtil) {
+                                  final IFibManager fibManager, final NatDataUtil natDataUtil,
+                                  final DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
@@ -112,6 +116,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         this.vpnFootprintService = vpnFootprintService;
         this.fibManager = fibManager;
         this.natDataUtil = natDataUtil;
+        this.eventCallbacks = dataTreeEventCallbackRegistrar;
     }
 
     protected DataBroker getDataBroker() {
@@ -274,14 +279,33 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             LOG.debug("removing the PSNAT to NAPTSwitch GroupEntity:{} with GroupId: {}", groupEntity, groupId);
             mdsalManager.syncRemoveGroup(groupEntity);
         }
+        try {
+            InstanceIdentifier<Group> groupIid = NatUtil.getGroupInstanceId(dpnId, groupId);
+            if (SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    groupIid).isPresent()) {
+                LOG.info("group {} is present in the config hence adding the flow", groupId);
+                installSnatMissFlowForGroup(dpnId, routerId, groupId, addOrRemove);
+                return;
+            }
+            eventCallbacks.onAddOrUpdate(LogicalDatastoreType.CONFIGURATION,
+                NatUtil.getGroupInstanceId(dpnId, groupId), (unused, newGroupId) -> {
+                    LOG.info("group {} is created in the config", groupId);
+                    installSnatMissFlowForGroup(dpnId, routerId, groupId, addOrRemove);
+                    return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
+                });
+        } catch (ReadFailedException e) {
+            LOG.warn("Failed to read the group with error {}", e.getMessage());
+        }
 
+    }
+
+    private void installSnatMissFlowForGroup(BigInteger dpnId, Long routerId, long groupId, int addOrRemove) {
         // Install miss entry pointing to group
-        LOG.debug("installSnatMissEntry : buildSnatFlowEntity is called for dpId {}, routerName {} and groupId {}",
-                dpnId, routerName, groupId);
+        LOG.debug("installSnatMissEntry : buildSnatFlowEntity is called for dpId {}, routerId {} and groupId {}",
+                dpnId, routerId, groupId);
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchEthernetType(0x0800L));
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
-
 
         List<ActionInfo> actionsInfo = new ArrayList<>();
         actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(routerId)));
@@ -292,6 +316,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
         syncFlow(dpnId, NwConstants.PSNAT_TABLE, flowRef,  NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
                 NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
+
     }
 
     protected void installInboundTerminatingServiceTblEntry(BigInteger dpnId, Long routerId,
