@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
 import java.util.Collections;
@@ -18,9 +18,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
@@ -33,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class HAConfigNodeListener extends HwvtepNodeBaseListener {
+public class HAConfigNodeListener extends HwvtepNodeBaseListener<Configuration> {
 
     private static final Logger LOG = LoggerFactory.getLogger(HAConfigNodeListener.class);
 
@@ -44,7 +43,7 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
     public HAConfigNodeListener(DataBroker db, HAEventHandler haEventHandler,
                                 NodeCopier nodeCopier, HwvtepNodeHACache hwvtepNodeHACache,
                                 MetricProvider metricProvider) throws Exception {
-        super(LogicalDatastoreType.CONFIGURATION, db, hwvtepNodeHACache, metricProvider, true);
+        super(CONFIGURATION, db, hwvtepNodeHACache, metricProvider, true);
         this.haEventHandler = haEventHandler;
         this.nodeCopier = nodeCopier;
     }
@@ -52,7 +51,8 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
     @Override
     void onPsNodeAdd(InstanceIdentifier<Node> haPsPath,
                      Node haPSNode,
-                     ReadWriteTransaction tx) throws ReadFailedException {
+                     TypedReadWriteTransaction<Configuration> tx)
+             throws ExecutionException, InterruptedException {
         //copy the ps node data to children
         String psId = haPSNode.getNodeId().getValue();
         Set<InstanceIdentifier<Node>> childSwitchIds = getPSChildrenIdsForHAPSNode(psId);
@@ -65,7 +65,7 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
                     HwvtepHAUtil.convertToGlobalNodeId(childPsPath.firstKeyOf(Node.class).getNodeId().getValue());
             InstanceIdentifier<Node> childGlobalPath = HwvtepHAUtil.convertToInstanceIdentifier(nodeId);
             nodeCopier.copyPSNode(Optional.fromNullable(haPSNode), haPsPath, childPsPath, childGlobalPath,
-                    LogicalDatastoreType.CONFIGURATION, tx);
+                    CONFIGURATION, tx);
         }
         LOG.trace("Handle config ps node add {}", psId);
     }
@@ -74,7 +74,7 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
     void onPsNodeUpdate(Node haPSUpdated,
             Node haPSOriginal,
             DataObjectModification<Node> mod,
-            ReadWriteTransaction tx) throws InterruptedException, ExecutionException, ReadFailedException {
+            TypedReadWriteTransaction<Configuration> tx) {
         //copy the ps node data to children
         String psId = haPSUpdated.getNodeId().getValue();
         Set<InstanceIdentifier<Node>> childSwitchIds = getPSChildrenIdsForHAPSNode(psId);
@@ -88,8 +88,7 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
                             Node haUpdated,
                             Node haOriginal,
                             DataObjectModification<Node> mod,
-                            ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+                            TypedReadWriteTransaction<Configuration> tx) {
         Set<InstanceIdentifier<Node>> childNodeIds = getHwvtepNodeHACache().getChildrenForHANode(key);
         for (InstanceIdentifier<Node> haChildNodeId : childNodeIds) {
             haEventHandler.copyHAGlobalUpdateToChild(haChildNodeId, mod, tx);
@@ -99,24 +98,25 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
     @Override
     void onPsNodeDelete(InstanceIdentifier<Node> key,
                         Node deletedPsNode,
-                        ReadWriteTransaction tx) throws ReadFailedException {
+                        TypedReadWriteTransaction<Configuration> tx)
+            throws ExecutionException, InterruptedException {
         //delete ps children nodes
         String psId = deletedPsNode.getNodeId().getValue();
         Set<InstanceIdentifier<Node>> childPsIds = getPSChildrenIdsForHAPSNode(psId);
         for (InstanceIdentifier<Node> childPsId : childPsIds) {
-            HwvtepHAUtil.deleteNodeIfPresent(tx, CONFIGURATION, childPsId);
+            HwvtepHAUtil.deleteNodeIfPresent(tx, childPsId);
         }
     }
 
     @Override
     void onGlobalNodeDelete(InstanceIdentifier<Node> key,
                             Node haNode,
-                            ReadWriteTransaction tx)
-            throws ReadFailedException {
+                            TypedReadWriteTransaction<Configuration> tx)
+            throws ExecutionException, InterruptedException {
         //delete child nodes
         Set<InstanceIdentifier<Node>> children = getHwvtepNodeHACache().getChildrenForHANode(key);
         for (InstanceIdentifier<Node> childId : children) {
-            HwvtepHAUtil.deleteNodeIfPresent(tx, CONFIGURATION, childId);
+            HwvtepHAUtil.deleteNodeIfPresent(tx, childId);
         }
         HwvtepHAUtil.deletePSNodesOfNode(key, haNode, tx);
     }

@@ -38,8 +38,8 @@ public class HwvtepDeviceMcastMacUpdateJob implements Callable<List<ListenableFu
     public List<ListenableFuture<Void>> call() {
         LOG.info("running update mcast mac entry job for {} {}",
                 elanName, l2GatewayDevice.getHwvtepNodeId());
-        return Collections.singletonList(
-                elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevice(elanName, l2GatewayDevice));
+        elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevice(elanName, l2GatewayDevice);
+        return Collections.emptyList();
     }
 
 }

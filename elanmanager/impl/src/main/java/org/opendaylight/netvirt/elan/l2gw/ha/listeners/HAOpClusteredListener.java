@@ -7,12 +7,15 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -21,9 +24,10 @@ import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeLis
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.infra.Datastore.Operational;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
@@ -33,7 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class HAOpClusteredListener extends HwvtepNodeBaseListener implements ClusteredDataTreeChangeListener<Node> {
+public class HAOpClusteredListener extends HwvtepNodeBaseListener<Operational>
+        implements ClusteredDataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(HAOpClusteredListener.class);
 
     private final Set<InstanceIdentifier<Node>> connectedNodes = ConcurrentHashMap.newKeySet();
@@ -42,7 +47,7 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
     @Inject
     public HAOpClusteredListener(DataBroker db, HwvtepNodeHACache hwvtepNodeHACache,
                                  MetricProvider metricProvider) throws Exception {
-        super(LogicalDatastoreType.OPERATIONAL, db, hwvtepNodeHACache, metricProvider, false);
+        super(OPERATIONAL, db, hwvtepNodeHACache, metricProvider, false);
         LOG.info("Registering HAOpClusteredListener");
     }
 
@@ -51,32 +56,34 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
     }
 
     @Override
-    synchronized  void onGlobalNodeDelete(InstanceIdentifier<Node> key, Node added, ReadWriteTransaction tx)  {
+    synchronized  void onGlobalNodeDelete(InstanceIdentifier<Node> key, Node added,
+            TypedReadWriteTransaction<Operational> tx)  {
         connectedNodes.remove(key);
         getHwvtepNodeHACache().updateDisconnectedNodeStatus(key);
     }
 
     @Override
-    void onPsNodeDelete(InstanceIdentifier<Node> key, Node addedPSNode, ReadWriteTransaction tx)  {
+    void onPsNodeDelete(InstanceIdentifier<Node> key, Node addedPSNode, TypedReadWriteTransaction<Operational> tx)  {
         connectedNodes.remove(key);
         getHwvtepNodeHACache().updateDisconnectedNodeStatus(key);
     }
 
     @Override
-    void onPsNodeAdd(InstanceIdentifier<Node> key, Node addedPSNode, ReadWriteTransaction tx)    {
+    void onPsNodeAdd(InstanceIdentifier<Node> key, Node addedPSNode, TypedReadWriteTransaction<Operational> tx)    {
         connectedNodes.add(key);
         getHwvtepNodeHACache().updateConnectedNodeStatus(key);
     }
 
     @Override
-    public synchronized void onGlobalNodeAdd(InstanceIdentifier<Node> key, Node updated, ReadWriteTransaction tx) {
+    public synchronized void onGlobalNodeAdd(InstanceIdentifier<Node> key, Node updated,
+            TypedReadWriteTransaction<Operational> tx) {
         connectedNodes. add(key);
         HwvtepHAUtil.addToCacheIfHAChildNode(key, updated, getHwvtepNodeHACache());
         getHwvtepNodeHACache().updateConnectedNodeStatus(key);
         if (waitingJobs.containsKey(key) && !waitingJobs.get(key).isEmpty()) {
             try {
                 HAJobScheduler jobScheduler = HAJobScheduler.getInstance();
-                Optional<Node> nodeOptional = tx.read(LogicalDatastoreType.OPERATIONAL, key).checkedGet();
+                Optional<Node> nodeOptional = tx.read(key).get();
                 if (nodeOptional.isPresent()) {
                     waitingJobs.get(key).forEach(
                         (waitingJob) -> jobScheduler.submitJob(() -> waitingJob.accept(nodeOptional)));
@@ -84,7 +91,7 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
                 } else {
                     LOG.error("Failed to read oper node {}", key);
                 }
-            } catch (ReadFailedException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Failed to read oper node {}", key);
             }
         }
@@ -95,7 +102,7 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
                             Node updatedChildNode,
                             Node beforeChildNode,
                             DataObjectModification<Node> mod,
-                            ReadWriteTransaction tx) {
+                            TypedReadWriteTransaction<Operational> tx) {
         boolean wasHAChild = getHwvtepNodeHACache().isHAEnabledDevice(childPath);
         addToHACacheIfBecameHAChild(childPath, updatedChildNode, beforeChildNode);
         boolean isHAChild = getHwvtepNodeHACache().isHAEnabledDevice(childPath);

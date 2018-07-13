@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha;
 
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.base.Optional;
@@ -19,11 +19,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.Datastore.Operational;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.SwitchesCmd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
@@ -156,16 +161,6 @@ public final class HwvtepHAUtil {
         return otherConfigsBuilder;
     }
 
-    public static Node readNode(ReadWriteTransaction tx, LogicalDatastoreType storeType,
-                                InstanceIdentifier<Node> nodeId)
-            throws ReadFailedException {
-        Optional<Node> optional = tx.read(storeType, nodeId).checkedGet();
-        if (optional.isPresent()) {
-            return optional.get();
-        }
-        return null;
-    }
-
     public static String convertToGlobalNodeId(String psNodeId) {
         int idx = psNodeId.indexOf(PHYSICALSWITCH);
         if (idx > 0) {
@@ -213,10 +208,7 @@ public final class HwvtepHAUtil {
     }
 
     public static boolean isEmpty(Collection collection) {
-        if (collection == null || collection.isEmpty()) {
-            return true;
-        }
-        return false;
+        return collection == null || collection.isEmpty();
     }
 
     public static Node getOriginal(DataObjectModification<Node> mod) {
@@ -457,7 +449,7 @@ public final class HwvtepHAUtil {
      * @param haNodePath Ha node path
      * @param haGlobalCfg HA global node object
      */
-    public static void buildGlobalConfigForHANode(ReadWriteTransaction tx,
+    public static void buildGlobalConfigForHANode(TypedWriteTransaction<Configuration> tx,
                                                   Node childNode,
                                                   InstanceIdentifier<Node> haNodePath,
                                                   Optional<Node> haGlobalCfg) {
@@ -470,15 +462,14 @@ public final class HwvtepHAUtil {
         nodeBuilder.setNodeId(haNodePath.firstKeyOf(Node.class).getNodeId());
         nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, hwvtepGlobalBuilder.build());
         Node configHANode = nodeBuilder.build();
-        tx.merge(CONFIGURATION, haNodePath, configHANode,Boolean.TRUE);
+        tx.merge(haNodePath, configHANode, CREATE_MISSING_PARENTS);
     }
 
-    public static void deleteNodeIfPresent(ReadWriteTransaction tx,
-                                           LogicalDatastoreType logicalDatastoreType,
-                                           InstanceIdentifier<?> iid) throws ReadFailedException {
-        if (tx.read(logicalDatastoreType, iid).checkedGet().isPresent()) {
+    public static <D extends Datastore> void deleteNodeIfPresent(TypedReadWriteTransaction<D> tx,
+            InstanceIdentifier<?> iid) throws ExecutionException, InterruptedException {
+        if (tx.read(iid).get().isPresent()) {
             LOG.info("Deleting child node {}", getNodeIdVal(iid));
-            tx.delete(logicalDatastoreType, iid);
+            tx.delete(iid);
         }
     }
 
@@ -488,12 +479,9 @@ public final class HwvtepHAUtil {
      * @param key Node object
      * @param haNode Ha Node from which to be deleted
      * @param tx Transaction
-     * @throws ReadFailedException  Exception thrown if read fails
      */
-    public static void deletePSNodesOfNode(InstanceIdentifier<Node> key,
-                                           Node haNode,
-                                           ReadWriteTransaction tx)
-            throws ReadFailedException {
+    public static void deletePSNodesOfNode(InstanceIdentifier<Node> key, Node haNode,
+            TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         //read from switches attribute and clean up them
         HwvtepGlobalAugmentation globalAugmentation = haNode.augmentation(HwvtepGlobalAugmentation.class);
         if (globalAugmentation == null) {
@@ -504,13 +492,12 @@ public final class HwvtepHAUtil {
         if (switches != null) {
             for (Switches switche : switches) {
                 InstanceIdentifier<Node> psId = (InstanceIdentifier<Node>)switche.getSwitchRef().getValue();
-                deleteNodeIfPresent(tx, CONFIGURATION, psId);
+                deleteNodeIfPresent(tx, psId);
                 deleted.put(psId, Boolean.TRUE);
             }
         }
         //also read from managed by attribute of switches and cleanup them as a back up if the above cleanup fails
-        Optional<Topology> topologyOptional = tx
-                .read(CONFIGURATION, key.firstIdentifierOf(Topology.class)).checkedGet();
+        Optional<Topology> topologyOptional = tx .read(key.firstIdentifierOf(Topology.class)).get();
         String deletedNodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
         if (topologyOptional.isPresent()) {
             Topology topology = topologyOptional.get();
@@ -524,7 +511,7 @@ public final class HwvtepHAUtil {
                             InstanceIdentifier<Node> psNodeId =
                                     convertToInstanceIdentifier(psNode.getNodeId().getValue());
                             if (deleted.containsKey(psNodeId)) {
-                                deleteNodeIfPresent(tx, CONFIGURATION, psNodeId);
+                                deleteNodeIfPresent(tx, psNodeId);
                             }
                         }
                     }
@@ -538,13 +525,11 @@ public final class HwvtepHAUtil {
      *
      * @param haPath HA node path from whih switches will be deleted
      * @param tx  Transaction object
-     * @throws ReadFailedException  Exception thrown if read fails
      */
     public static void deleteSwitchesManagedByNode(InstanceIdentifier<Node> haPath,
-                                                   ReadWriteTransaction tx)
-            throws ReadFailedException {
+            TypedReadWriteTransaction<Operational> tx) throws ExecutionException, InterruptedException {
 
-        Optional<Node> nodeOptional = tx.read(OPERATIONAL, haPath).checkedGet();
+        Optional<Node> nodeOptional = tx.read(haPath).get();
         if (!nodeOptional.isPresent()) {
             return;
         }
@@ -557,7 +542,7 @@ public final class HwvtepHAUtil {
         if (switches != null) {
             for (Switches switche : switches) {
                 InstanceIdentifier<Node> id = (InstanceIdentifier<Node>)switche.getSwitchRef().getValue();
-                deleteNodeIfPresent(tx, OPERATIONAL, id);
+                deleteNodeIfPresent(tx, id);
             }
         }
     }

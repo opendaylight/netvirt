@@ -7,7 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.utils;
 
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -15,14 +17,17 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -40,19 +45,18 @@ public class ElanForwardingEntriesHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanForwardingEntriesHandler.class);
 
-    private final DataBroker broker;
     private final ManagedNewTransactionRunner txRunner;
     private final ElanUtils elanUtils;
 
     @Inject
     public ElanForwardingEntriesHandler(DataBroker dataBroker, ElanUtils elanUtils) {
-        this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.elanUtils = elanUtils;
     }
 
     public void updateElanInterfaceForwardingTablesList(String elanInstanceName, String interfaceName,
-            String existingInterfaceName, MacEntry mac, WriteTransaction tx) {
+            String existingInterfaceName, MacEntry mac, TypedReadWriteTransaction<Operational> tx)
+            throws ExecutionException, InterruptedException {
         if (existingInterfaceName.equals(interfaceName)) {
             LOG.error("Static MAC address {} has already been added for the same ElanInstance "
                             + "{} on the same Logical Interface Port {}."
@@ -73,7 +77,8 @@ public class ElanForwardingEntriesHandler {
     }
 
     public void addElanInterfaceForwardingTableList(String elanInstanceName, String interfaceName,
-                                                    StaticMacEntries staticMacEntries, WriteTransaction tx) {
+            StaticMacEntries staticMacEntries, TypedReadWriteTransaction<Operational> tx)
+            throws ExecutionException, InterruptedException {
         MacEntry macEntry = new MacEntryBuilder().setIsStaticAddress(true)
                 .setMacAddress(staticMacEntries.getMacAddress())
                 .setIpPrefix(staticMacEntries.getIpPrefix())
@@ -84,63 +89,64 @@ public class ElanForwardingEntriesHandler {
     }
 
     public void deleteElanInterfaceForwardingTablesList(String interfaceName, MacEntry mac,
-                                                        WriteTransaction interfaceTx) {
+                                                        TypedReadWriteTransaction<Operational> interfaceTx)
+            throws ExecutionException, InterruptedException {
         InstanceIdentifier<MacEntry> existingMacEntryId = ElanUtils
                 .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, mac.getMacAddress());
         MacEntry existingInterfaceMacEntry = elanUtils
-                .getInterfaceMacEntriesOperationalDataPathFromId(existingMacEntryId);
+                .getInterfaceMacEntriesOperationalDataPathFromId(interfaceTx, existingMacEntryId);
         if (existingInterfaceMacEntry != null) {
-            interfaceTx.delete(LogicalDatastoreType.OPERATIONAL, existingMacEntryId);
+            interfaceTx.delete(existingMacEntryId);
         }
     }
 
-    public void createElanInterfaceForwardingTablesList(String interfaceName, MacEntry mac, WriteTransaction tx) {
+    public void createElanInterfaceForwardingTablesList(String interfaceName, MacEntry mac,
+            TypedReadWriteTransaction<Operational> tx) throws ExecutionException, InterruptedException {
         InstanceIdentifier<MacEntry> existingMacEntryId = ElanUtils
                 .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, mac.getMacAddress());
         MacEntry existingInterfaceMacEntry = elanUtils
-                .getInterfaceMacEntriesOperationalDataPathFromId(existingMacEntryId);
+                .getInterfaceMacEntriesOperationalDataPathFromId(tx, existingMacEntryId);
         if (existingInterfaceMacEntry == null) {
             MacEntry macEntry = new MacEntryBuilder().setMacAddress(mac.getMacAddress()).setIpPrefix(mac.getIpPrefix())
                     .setInterface(interfaceName)
                     .setIsStaticAddress(true).withKey(new MacEntryKey(mac.getMacAddress())).build();
-            tx.put(LogicalDatastoreType.OPERATIONAL, existingMacEntryId, macEntry,
-                    WriteTransaction.CREATE_MISSING_PARENTS);
+            tx.put(existingMacEntryId, macEntry, CREATE_MISSING_PARENTS);
         }
     }
 
     public void updateElanForwardingTablesList(String elanName, String interfaceName, MacEntry mac,
-            WriteTransaction tx) {
+            TypedReadWriteTransaction<Operational> tx) throws ExecutionException, InterruptedException {
         InstanceIdentifier<MacEntry> macEntryId = ElanUtils.getMacEntryOperationalDataPath(elanName,
                 mac.getMacAddress());
-        MacEntry existingMacEntry = elanUtils.getMacEntryFromElanMacId(macEntryId);
+        MacEntry existingMacEntry = elanUtils.getMacEntryFromElanMacId(tx, macEntryId);
         if (existingMacEntry != null && elanUtils.getElanMacTable(elanName) != null) {
             MacEntry newMacEntry = new MacEntryBuilder().setInterface(interfaceName).setIsStaticAddress(true)
                     .setMacAddress(mac.getMacAddress()).setIpPrefix(mac.getIpPrefix())
                     .withKey(new MacEntryKey(mac.getMacAddress())).build();
-            tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, newMacEntry);
+            tx.put(macEntryId, newMacEntry);
         }
     }
 
-    private void createElanForwardingTablesList(String elanName, MacEntry macEntry, WriteTransaction tx) {
+    private void createElanForwardingTablesList(String elanName, MacEntry macEntry,
+            TypedReadWriteTransaction<Operational> tx) throws ExecutionException, InterruptedException {
         InstanceIdentifier<MacEntry> macEntryId = ElanUtils.getMacEntryOperationalDataPath(elanName,
                 macEntry.getMacAddress());
-        Optional<MacEntry> existingMacEntry = ElanUtils.read(broker, LogicalDatastoreType.OPERATIONAL, macEntryId);
+        Optional<MacEntry> existingMacEntry = tx.read(macEntryId).get();
         if (!existingMacEntry.isPresent() && elanUtils.getElanMacTable(elanName) != null) {
-            tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, macEntry, WriteTransaction.CREATE_MISSING_PARENTS);
+            tx.put(macEntryId, macEntry, CREATE_MISSING_PARENTS);
         }
     }
 
     public void deleteElanInterfaceForwardingEntries(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
             MacEntry macEntry) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(interfaceTx -> {
+        futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, interfaceTx -> {
             InstanceIdentifier<MacEntry> macEntryId = ElanUtils
                     .getMacEntryOperationalDataPath(elanInfo.getElanInstanceName(), macEntry.getMacAddress());
-            interfaceTx.delete(LogicalDatastoreType.OPERATIONAL, macEntryId);
+            interfaceTx.delete(macEntryId);
             deleteElanInterfaceForwardingTablesList(interfaceInfo.getInterfaceName(), macEntry, interfaceTx);
-            futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, flowTx -> {
-                elanUtils.deleteMacFlows(elanInfo, interfaceInfo, macEntry, flowTx);
-            }));
+            futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                flowTx -> elanUtils.deleteMacFlows(elanInfo, interfaceInfo, macEntry, flowTx)));
         }));
         for (ListenableFuture<Void> future : futures) {
             ListenableFutures.addErrorLogging(future, LOG, "Error deleting ELAN interface forwarding entries");

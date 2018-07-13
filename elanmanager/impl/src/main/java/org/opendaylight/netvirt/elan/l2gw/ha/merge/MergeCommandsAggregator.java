@@ -7,20 +7,23 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.merge;
 
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import java.util.function.BiPredicate;
 
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.Datastore.Operational;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.utils.SuperTypeUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalUcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.MergeCommand;
@@ -38,8 +41,8 @@ public abstract class MergeCommandsAggregator<BuilderTypeT extends Builder, AugT
 
     protected Map<Class<?>, MergeCommand> commands = new HashMap<>();
 
-    private final BiPredicate<LogicalDatastoreType, Class> skipCopy =
-        (dsType, cmdType) -> (dsType == CONFIGURATION ? commands.get(cmdType) instanceof LocalUcastCmd
+    private final BiPredicate<Class<? extends Datastore>, Class> skipCopy =
+        (dsType, cmdType) -> (Configuration.class.equals(dsType) ? commands.get(cmdType) instanceof LocalUcastCmd
                 : commands.get(cmdType) instanceof RemoteUcastCmd);
 
     protected MergeCommandsAggregator() {
@@ -73,20 +76,20 @@ public abstract class MergeCommandsAggregator<BuilderTypeT extends Builder, AugT
 
     public void mergeConfigUpdate(InstanceIdentifier<Node> dstPath,
                                   DataObjectModification mod,
-                                  ReadWriteTransaction tx) {
+                                  TypedReadWriteTransaction<Configuration> tx) {
         mergeUpdate(dstPath, mod, CONFIGURATION, tx);
     }
 
     public void mergeOpUpdate(InstanceIdentifier<Node> dstPath,
                               DataObjectModification mod,
-                              ReadWriteTransaction tx) {
+                              TypedReadWriteTransaction<Operational> tx) {
         mergeUpdate(dstPath, mod, OPERATIONAL, tx);
     }
 
-    public void mergeUpdate(InstanceIdentifier<Node> dstPath,
+    public <D extends Datastore> void mergeUpdate(InstanceIdentifier<Node> dstPath,
                             DataObjectModification mod,
-                            LogicalDatastoreType datastoreType,
-                            ReadWriteTransaction tx) {
+                            Class<D> datastoreType,
+                            TypedReadWriteTransaction<D> tx) {
         if (mod == null) {
             return;
         }
@@ -105,24 +108,24 @@ public abstract class MergeCommandsAggregator<BuilderTypeT extends Builder, AugT
 
                 Optional<DataObject> existingDataOptional = null;
                 try {
-                    existingDataOptional = tx.read(datastoreType, transformedId).checkedGet();
-                } catch (ReadFailedException ex) {
+                    existingDataOptional = tx.read(transformedId).get();
+                } catch (InterruptedException | ExecutionException ex) {
                     LOG.error("Failed to read data {} from {}", transformedId, datastoreType);
                     return;
                 }
 
-                String destination = datastoreType == CONFIGURATION ? "child" : "parent";
+                String destination = Configuration.class.equals(datastoreType) ? "child" : "parent";
                 if (create) {
                     if (isDataUpdated(existingDataOptional, transformedItem)) {
                         LOG.debug("Copy to {} {} {}", destination, datastoreType, transformedId);
-                        tx.put(datastoreType, transformedId, transformedItem, true);
+                        tx.put(transformedId, transformedItem, CREATE_MISSING_PARENTS);
                     } else {
                         LOG.debug("Data not updated skip copy to {}", transformedId);
                     }
                 } else {
                     if (existingDataOptional.isPresent()) {
                         LOG.debug("Delete from {} {} {}", destination, datastoreType, transformedId);
-                        tx.delete(datastoreType, transformedId);
+                        tx.delete(transformedId);
                     } else {
                         LOG.debug("Delete skipped for {}", transformedId);
                     }

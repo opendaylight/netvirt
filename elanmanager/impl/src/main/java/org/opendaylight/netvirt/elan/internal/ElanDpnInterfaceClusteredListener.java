@@ -82,8 +82,10 @@ public class ElanDpnInterfaceClusteredListener
             return;
         }
         elanClusterUtils.runOnlyInOwnerNode(elanName, "updating mcast mac upon tunnel event",
-            () -> Collections.singletonList(
-                elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName)));
+            () -> {
+                elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName);
+                return Collections.emptyList();
+            });
     }
 
     @Override
