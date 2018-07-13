@@ -15,7 +15,6 @@ import java.util.Set;
 
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.TypedReadTransaction;
@@ -32,69 +31,36 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 
 
 public interface IVpnManager {
-    @Deprecated
-    void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-            Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
-            VrfEntry.EncapType encapType, WriteTransaction writeConfigTxn);
-
     void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
         Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
         VrfEntry.EncapType encapType, TypedWriteTransaction<Configuration> confTx);
 
-    @Deprecated
-    void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-            String intfName, WriteTransaction writeConfigTxn, WriteTransaction writeOperTx);
-
     void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
         String intfName, TypedWriteTransaction<Configuration> confTx, TypedWriteTransaction<Operational> operTx);
 
-    @Deprecated
     void removePrefixFromBGP(String vpnName, String primaryRd, String extraRouteRd, String vpnInterfaceName,
-        String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId, WriteTransaction writeConfigTxn,
-        WriteTransaction writeOperTx);
-
-    void removePrefixFromBGP(String vpnName, String primaryRd, String extraRouteRd, String vpnInterfaceName,
-        String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId,
-        TypedWriteTransaction<Configuration> confTx, TypedWriteTransaction<Operational> operTx);
+                                    String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId,
+                                    TypedWriteTransaction<Configuration> confTx,
+                                    TypedWriteTransaction<Operational> operTx);
 
     boolean isVPNConfigured();
 
     String getPrimaryRdFromVpnInstance(VpnInstance vpnInstance);
 
-    @Deprecated
-    void addSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-            BigInteger dpnId, WriteTransaction tx) throws ExecutionException, InterruptedException;
-
     void addSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
         BigInteger dpnId, TypedWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException;
-
-    @Deprecated
-    void removeSubnetMacFromVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-            BigInteger dpnId, WriteTransaction tx) throws ExecutionException, InterruptedException;
 
     void removeSubnetMacFromVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
         BigInteger dpnId, TypedReadWriteTransaction<Configuration> confTx)
         throws ExecutionException, InterruptedException;
 
-    @Deprecated
-    void addRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-            String subnetVpnName, WriteTransaction writeTx) throws ExecutionException, InterruptedException;
-
     void addRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
         String subnetVpnName, TypedWriteTransaction<Configuration> confTx)
         throws ExecutionException, InterruptedException;
 
-    @Deprecated
-    void removeRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-            String subnetVpnName, WriteTransaction writeTx) throws ExecutionException, InterruptedException;
-
     void removeRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
         String subnetVpnName, TypedReadWriteTransaction<Configuration> confTx)
         throws ExecutionException, InterruptedException;
-
-    @Deprecated
-    void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-            BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx);
 
     void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
         BigInteger dpnId, Uuid extNetworkId);

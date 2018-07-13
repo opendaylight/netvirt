@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,12 +18,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -31,7 +33,6 @@ import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TransactionAdapter;
 import org.opendaylight.genius.infra.TypedReadTransaction;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
@@ -191,24 +192,7 @@ public class VpnManagerImpl implements IVpnManager {
     @Override
     public void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
         Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj, VrfEntry.EncapType encapType,
-        TypedWriteTransaction<Configuration> confTx) {
-        addExtraRoute(vpnName, destination, nextHop, rd, routerID, l3vni, origin, intfName, operationalAdj, encapType,
-            TransactionAdapter.toWriteTransaction(confTx));
-    }
-
-    @Override
-    public void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-            Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
-            VrfEntry.EncapType encapType, WriteTransaction writeConfigTxn) {
-        if (writeConfigTxn == null) {
-            String finalNextHop = nextHop;
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
-                addExtraRoute(vpnName, destination, finalNextHop, rd, routerID, l3vni, origin, intfName, operationalAdj,
-                        encapType, tx)),
-                    LOG, "Error adding extra route");
-            return;
-        }
-
+        @Nonnull TypedWriteTransaction<Configuration> confTx) {
         //add extra route to vpn mapping; advertise with nexthop as tunnel ip
         vpnUtil.syncUpdate(LogicalDatastoreType.OPERATIONAL,
                 VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, rd != null ? rd : routerID,
@@ -263,7 +247,7 @@ public class VpnManagerImpl implements IVpnManager {
                     L3vpnInput input = new L3vpnInput().setNextHop(operationalAdj).setNextHopIp(nextHop).setL3vni(l3vni)
                             .setPrimaryRd(primaryRd).setVpnName(vpnName).setDpnId(dpnId)
                             .setEncapType(encapType).setRd(rd).setRouteOrigin(origin);
-                    L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(input, writeConfigTxn);
+                    L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(input, confTx);
                 }
             }
         }
@@ -271,26 +255,8 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-        String intfName, TypedWriteTransaction<Configuration> confTx, TypedWriteTransaction<Operational> operTx) {
-        delExtraRoute(vpnName, destination, nextHop, rd, routerID, intfName,
-            TransactionAdapter.toWriteTransaction(confTx), TransactionAdapter.toWriteTransaction(operTx));
-    }
-
-    @Override
-    public void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-            String intfName, WriteTransaction writeConfigTxn, WriteTransaction writeOperTx) {
-        if (writeConfigTxn == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                delExtraRoute(vpnName, destination, nextHop, rd, routerID, intfName, tx, writeOperTx);
-            }), LOG, "Error deleting extra route");
-            return;
-        }
-        if (writeOperTx == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                delExtraRoute(vpnName, destination, nextHop, rd, routerID, intfName, writeConfigTxn, tx);
-            }), LOG, "Error deleting extra route");
-            return;
-        }
+                              String intfName, @Nonnull TypedWriteTransaction<Configuration> confTx,
+                              @Nonnull TypedWriteTransaction<Operational> operTx) {
         BigInteger dpnId = null;
         String tunnelIp = nextHop;
         if (intfName != null && !intfName.isEmpty()) {
@@ -305,40 +271,31 @@ public class VpnManagerImpl implements IVpnManager {
         }
         if (rd != null) {
             String primaryRd = vpnUtil.getVpnRd(vpnName);
-            removePrefixFromBGP(vpnName, primaryRd, rd, intfName, destination, nextHop, tunnelIp, dpnId,
-                    writeConfigTxn, writeOperTx);
+            removePrefixFromBGP(vpnName, primaryRd, rd, intfName, destination,
+                                nextHop, tunnelIp, dpnId, confTx, operTx);
             LOG.info("delExtraRoute: Removed extra route {} from interface {} for rd {}", destination, intfName, rd);
         } else {
             // add FIB route directly
-            fibManager.removeOrUpdateFibEntry(routerID, destination, tunnelIp, writeConfigTxn);
+            fibManager.removeOrUpdateFibEntry(routerID, destination, tunnelIp, confTx);
             LOG.info("delExtraRoute: Removed extra route {} from interface {} for rd {}", destination, intfName,
                     routerID);
         }
     }
 
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void removePrefixFromBGP(String vpnName, String primaryRd, String extraRouteRd, String vpnInterfaceName,
                                     String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId,
                                     TypedWriteTransaction<Configuration> confTx,
                                     TypedWriteTransaction<Operational> operTx) {
-        removePrefixFromBGP(vpnName, primaryRd, extraRouteRd, vpnInterfaceName, prefix, nextHop, nextHopTunnelIp,
-                dpnId, TransactionAdapter.toWriteTransaction(confTx), TransactionAdapter.toWriteTransaction(operTx));
-    }
-
-    // TODO Clean up the exception handling
-    @Override
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public void removePrefixFromBGP(String vpnName, String primaryRd, String extraRouteRd, String vpnInterfaceName,
-        String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId, WriteTransaction writeConfigTxn,
-        WriteTransaction writeOperTx) {
         try {
             String vpnNamePrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
             synchronized (vpnNamePrefixKey.intern()) {
                 if (vpnUtil.removeOrUpdateDSForExtraRoute(vpnName, primaryRd, extraRouteRd, vpnInterfaceName, prefix,
-                        nextHop, nextHopTunnelIp, writeOperTx)) {
+                        nextHop, nextHopTunnelIp, operTx)) {
                     return;
                 }
-                fibManager.removeOrUpdateFibEntry(primaryRd, prefix, nextHopTunnelIp, writeConfigTxn);
+                fibManager.removeOrUpdateFibEntry(primaryRd, prefix, nextHopTunnelIp, confTx);
                 if (VpnUtil.isEligibleForBgp(extraRouteRd, vpnName, dpnId, null /*networkName*/)) {
                     // TODO: Might be needed to include nextHop here
                     bgpManager.withdrawPrefix(extraRouteRd, prefix);
@@ -380,25 +337,11 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public void addSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-            BigInteger dpnId, WriteTransaction tx) throws ExecutionException, InterruptedException {
-        setupSubnetMacInVpnInstance(vpnName, subnetVpnName, srcMacAddress, dpnId,
-            (vpnId, dpId, subnetVpnId) -> addGwMac(srcMacAddress, tx, vpnId, dpId, subnetVpnId));
-    }
-
-    @Override
     public void removeSubnetMacFromVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
             BigInteger dpnId, TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
         setupSubnetMacInVpnInstance(vpnName, subnetVpnName, srcMacAddress, dpnId,
             (vpnId, dpId, subnetVpnId) -> removeGwMac(srcMacAddress, confTx, vpnId, dpId, subnetVpnId));
-    }
-
-    @Override
-    public void removeSubnetMacFromVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-            BigInteger dpnId, WriteTransaction tx) throws ExecutionException, InterruptedException {
-        setupSubnetMacInVpnInstance(vpnName, subnetVpnName, srcMacAddress, dpnId,
-            (vpnId, dpId, subnetVpnId) -> removeGwMac(srcMacAddress, tx, vpnId, dpId, subnetVpnId));
     }
 
     @FunctionalInterface
@@ -426,22 +369,15 @@ public class VpnManagerImpl implements IVpnManager {
         }
     }
 
-    private void addGwMac(String srcMacAddress, WriteTransaction tx, long vpnId, BigInteger dpId, long subnetVpnId) {
-        FlowEntity flowEntity = vpnUtil.buildL3vpnGatewayFlow(dpId, srcMacAddress, vpnId, subnetVpnId);
-        mdsalManager.addFlowToTx(flowEntity, tx);
-    }
-
     private void addGwMac(String srcMacAddress, TypedWriteTransaction<Configuration> tx, long vpnId, BigInteger dpId,
         long subnetVpnId) {
         FlowEntity flowEntity = vpnUtil.buildL3vpnGatewayFlow(dpId, srcMacAddress, vpnId, subnetVpnId);
         mdsalManager.addFlow(tx, flowEntity);
     }
 
-    private void removeGwMac(String srcMacAddress, WriteTransaction tx, long vpnId, BigInteger dpId, long subnetVpnId) {
-        FlowEntity flowEntity = vpnUtil.buildL3vpnGatewayFlow(dpId, srcMacAddress, vpnId, subnetVpnId);
-        mdsalManager.removeFlowToTx(flowEntity, tx);
-    }
-
+    // TODO skitt Fix the exception handling here
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void removeGwMac(String srcMacAddress, TypedReadWriteTransaction<Configuration> tx, long vpnId,
             BigInteger dpId, long subnetVpnId) throws ExecutionException, InterruptedException {
         mdsalManager.removeFlow(tx, dpId,
@@ -458,60 +394,11 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public void addRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-            String subnetVpnName, WriteTransaction writeTx) throws ExecutionException, InterruptedException {
-        setupRouterGwMacFlow(routerName, routerGwMac, dpnId, extNetworkId, writeTx,
-            (vpnId, tx) -> addSubnetMacIntoVpnInstance(vpnId, subnetVpnName, routerGwMac, dpnId, tx), "Installing");
-    }
-
-    @Override
     public void removeRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
             String subnetVpnName, TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
         setupRouterGwMacFlow(routerName, routerGwMac, dpnId, extNetworkId,
             vpnId -> removeSubnetMacFromVpnInstance(vpnId, subnetVpnName, routerGwMac, dpnId, confTx), "Removing");
-    }
-
-    @Override
-    public void removeRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-            String subnetVpnName, WriteTransaction writeTx) throws ExecutionException, InterruptedException {
-        setupRouterGwMacFlow(routerName, routerGwMac, dpnId, extNetworkId, writeTx,
-            (vpnId, tx) -> removeSubnetMacFromVpnInstance(vpnId, subnetVpnName, routerGwMac, dpnId, tx), "Removing");
-    }
-
-    @FunctionalInterface
-    private interface RouterGwMacFlowSetupMethod {
-        void process(String vpnId, WriteTransaction tx) throws InterruptedException, ExecutionException;
-    }
-
-    private void setupRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-            WriteTransaction writeTx, RouterGwMacFlowSetupMethod consumer, String operation)
-            throws ExecutionException, InterruptedException {
-        if (routerGwMac == null) {
-            LOG.warn("Failed to handle router GW flow in GW-MAC table. MAC address is missing for router-id {}",
-                    routerName);
-            return;
-        }
-
-        if (dpnId == null || BigInteger.ZERO.equals(dpnId)) {
-            LOG.info("setupRouterGwMacFlow: DPN id is missing for router-id {}",
-                    routerName);
-            return;
-        }
-
-        Uuid vpnId = vpnUtil.getExternalNetworkVpnId(extNetworkId);
-        if (vpnId == null) {
-            LOG.warn("Network {} is not associated with VPN", extNetworkId.getValue());
-            return;
-        }
-
-        LOG.info("{} router GW MAC flow for router-id {} on switch {}", operation, routerName, dpnId);
-        if (writeTx == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                tx -> consumer.process(vpnId.getValue(), tx)), LOG, "Commit transaction");
-        } else {
-            consumer.process(vpnId.getValue(), writeTx);
-        }
     }
 
     private void setupRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
@@ -537,12 +424,6 @@ public class VpnManagerImpl implements IVpnManager {
 
         LOG.info("{} router GW MAC flow for router-id {} on switch {}", operation, routerName, dpnId);
         consumer.accept(vpnId.getValue());
-    }
-
-    @Override
-    public void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-        BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx) {
-        addArpResponderFlowsToExternalNetworkIps(id, fixedIps, macAddress, dpnId, extNetworkId);
     }
 
     public void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,

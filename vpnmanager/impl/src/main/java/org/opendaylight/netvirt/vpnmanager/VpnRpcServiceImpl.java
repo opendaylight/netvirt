@@ -7,16 +7,20 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -24,7 +28,6 @@ import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteInput;
@@ -52,8 +55,7 @@ import org.slf4j.helpers.MessageFormatter;
 @Singleton
 public class VpnRpcServiceImpl implements VpnRpcService {
     private static final Logger LOG = LoggerFactory.getLogger(VpnRpcServiceImpl.class);
-    private final DataBroker dataBroker;
-    private final IdManagerService idManager;
+    private final ManagedNewTransactionRunner txRunner;
     private final IFibManager fibManager;
     private final IBgpManager bgpManager;
     private final IVpnManager vpnManager;
@@ -62,11 +64,10 @@ public class VpnRpcServiceImpl implements VpnRpcService {
     private final InterVpnLinkUtil interVpnLinkUtil;
 
     @Inject
-    public VpnRpcServiceImpl(final DataBroker dataBroker, final IdManagerService idManager,
+    public VpnRpcServiceImpl(final DataBroker dataBroker,
             final IFibManager fibManager, IBgpManager bgpManager, final IVpnManager vpnManager,
             final InterVpnLinkCache interVpnLinkCache, VpnUtil vpnUtil, InterVpnLinkUtil interVpnLinkUtil) {
-        this.dataBroker = dataBroker;
-        this.idManager = idManager;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.fibManager = fibManager;
         this.bgpManager = bgpManager;
         this.vpnManager = vpnManager;
@@ -184,9 +185,17 @@ public class VpnRpcServiceImpl implements VpnRpcService {
                 return result;
             }
         } else {
-            vpnManager.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd, null /* routerId */,
-                    vpnOpEntry.getL3vni(), RouteOrigin.STATIC, null /* intfName */,
-                            null /*Adjacency*/, encapType, (WriteTransaction) null);
+            try {
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                    confTx -> vpnManager.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd,
+                            null /* routerId */, vpnOpEntry.getL3vni(), RouteOrigin.STATIC, null /* intfName */,
+                        null /*Adjacency*/, encapType, confTx)).get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Error adding static route {}", input, e);
+                result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(ErrorType.APPLICATION,
+                    "Error adding static route " + input, e).build());
+                return result;
+            }
         }
 
         AddStaticRouteOutput labelOutput = new AddStaticRouteOutputBuilder().setLabel(label).build();
@@ -244,12 +253,13 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             bgpManager.withdrawPrefix(vpnRd, destination);
         } else {
             vpnManager.delExtraRoute(vpnInstanceName, destination,
-                    nexthop, vpnRd, null /* routerId */, null /* intfName */, (WriteTransaction) null,
-                    (WriteTransaction) null);
+                    nexthop, vpnRd, null /* routerId */, null /* intfName */, null,
+                    null);
         }
         result.set(RpcResultBuilder.success(new RemoveStaticRouteOutputBuilder().build()).build());
 
         return result;
+
     }
 
     private String formatAndLog(Consumer<String> logger, String template, Object arg1, Object arg2) {
