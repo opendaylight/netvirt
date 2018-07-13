@@ -72,8 +72,6 @@ public final class ArpResponderUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArpResponderUtil.class);
 
-    private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
-
     /**
      * A Utility class.
      */
@@ -100,11 +98,6 @@ public final class ArpResponderUtil {
         LOG.trace("Installing group flow on dpn {}", dpnId);
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupdId, groupName, GroupTypes.GroupAll, buckets);
         mdSalManager.syncInstallGroup(groupEntity);
-        try {
-            Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
-        } catch (InterruptedException e1) {
-            LOG.warn("Error while waiting for ARP Responder Group Entry to be installed on DPN {} ", dpnId);
-        }
     }
 
     /**
