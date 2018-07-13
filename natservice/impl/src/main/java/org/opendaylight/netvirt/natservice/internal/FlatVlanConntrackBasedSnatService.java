@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.natservice.internal;
 import java.math.BigInteger;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -34,10 +35,11 @@ public class FlatVlanConntrackBasedSnatService extends ConntrackBasedSnatService
                                              IdManagerService idManager, NAPTSwitchSelector naptSwitchSelector,
                                              IInterfaceManager interfaceManager,
                                              IVpnFootprintService vpnFootprintService,
-                                             IFibManager fibManager, NatDataUtil natDataUtil) {
+                                             IFibManager fibManager, NatDataUtil natDataUtil,
+                                             DataTreeEventCallbackRegistrar eventCallbacks) {
         super(dataBroker, mdsalManager, itmManager, idManager, naptSwitchSelector,
                 odlInterfaceRpcService, interfaceManager, vpnFootprintService, fibManager ,
-                natDataUtil);
+                natDataUtil, eventCallbacks);
     }
 
     @Override
