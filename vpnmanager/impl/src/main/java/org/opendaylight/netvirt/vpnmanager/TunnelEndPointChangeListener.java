@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -113,12 +116,15 @@ public class TunnelEndPointChangeListener
                                 }
                                 final int lPortTag = interfaceState.getIfIndex();
                                 List<ListenableFuture<Void>> futures = new ArrayList<>();
-                                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                                    writeConfigTxn -> futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                                        writeOperTxn -> futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                                            writeInvTxn -> vpnInterfaceManager.processVpnInterfaceAdjacencies(
-                                                    dpnId, lPortTag, vpnName, primaryRd, vpnInterfaceName, vpnId,
-                                                    writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState)))))));
+                                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                                    writeConfigTxn -> futures.add(
+                                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
+                                            writeOperTxn -> futures.add(
+                                                txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                                                    writeInvTxn -> vpnInterfaceManager.processVpnInterfaceAdjacencies(
+                                                        dpnId, lPortTag, vpnName, primaryRd, vpnInterfaceName, vpnId,
+                                                        writeConfigTxn, writeOperTxn, writeInvTxn,
+                                                        interfaceState)))))));
                                 LOG.trace("add: Handled TEP {} add for VPN instance {} VPN interface {}",
                                         tep.getInterfaceName(), vpnName, vpnInterfaceName);
                                 return futures;

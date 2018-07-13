@@ -7,13 +7,14 @@
  */
 package org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks;
 
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkUtil;
@@ -42,10 +43,9 @@ public class InterVpnLinkCreatorTask implements Callable<List<ListenableFuture<V
             interVpnLinkToPersist.getSecondEndpoint().getVpnUuid(),
             interVpnLinkToPersist.getSecondEndpoint().getIpAddress());
 
-        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
-            tx.merge(LogicalDatastoreType.CONFIGURATION,
-                    InterVpnLinkUtil.getInterVpnLinkPath(interVpnLinkToPersist.getName()),
-                    interVpnLinkToPersist, WriteTransaction.CREATE_MISSING_PARENTS)));
+        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
+            tx.merge(InterVpnLinkUtil.getInterVpnLinkPath(interVpnLinkToPersist.getName()),
+                    interVpnLinkToPersist, CREATE_MISSING_PARENTS)));
     }
 
 }

@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.fibmanager;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -293,7 +294,7 @@ public class FibUtil {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void addOrUpdateFibEntry(String rd, String macAddress, String prefix, List<String> nextHopList,
             VrfEntry.EncapType encapType, long label, long l3vni, String gwMacAddress, String parentVpnRd,
-            RouteOrigin origin, WriteTransaction writeConfigTxn) {
+            RouteOrigin origin, TypedWriteTransaction<Configuration> writeConfigTxn) {
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
@@ -321,14 +322,14 @@ public class FibUtil {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void writeFibEntryToDs(InstanceIdentifier<VrfEntry> vrfEntryId, String prefix, List<String> nextHopList,
             long label, Long l3vni, VrfEntry.EncapType encapType, RouteOrigin origin, String macAddress,
-            String gatewayMacAddress, String parentVpnRd, WriteTransaction writeConfigTxn) {
+            String gatewayMacAddress, String parentVpnRd, TypedWriteTransaction<Configuration> writeConfigTxn) {
         VrfEntryBuilder vrfEntryBuilder = new VrfEntryBuilder().setDestPrefix(prefix).setOrigin(origin.getValue());
         if (parentVpnRd != null) {
             vrfEntryBuilder.setParentVpnRd(parentVpnRd);
         }
         buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, label, l3vni, macAddress, gatewayMacAddress, nextHopList);
         if (writeConfigTxn != null) {
-            writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build(), true);
+            writeConfigTxn.merge(vrfEntryId, vrfEntryBuilder.build(), CREATE_MISSING_PARENTS);
         } else {
             MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build());
         }
@@ -336,7 +337,7 @@ public class FibUtil {
 
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void addFibEntryForRouterInterface(String rd, String prefix, RouterInterface routerInterface, long label,
-            WriteTransaction writeConfigTxn) {
+            TypedWriteTransaction<Configuration> writeConfigTxn) {
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
@@ -354,7 +355,7 @@ public class FibUtil {
                 .addAugmentation(RouterInterface.class, routerInterface).build();
 
             if (writeConfigTxn != null) {
-                writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
+                writeConfigTxn.merge(vrfEntryId, vrfEntry, CREATE_MISSING_PARENTS);
             } else {
                 MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
             }
@@ -385,7 +386,7 @@ public class FibUtil {
         builder.setRoutePaths(routePaths);
     }
 
-    public void removeFibEntry(String rd, String prefix, WriteTransaction writeConfigTxn) {
+    public void removeFibEntry(String rd, String prefix, TypedWriteTransaction<Configuration> writeConfigTxn) {
 
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
@@ -399,7 +400,7 @@ public class FibUtil {
                 .child(VrfTables.class, new VrfTablesKey(rd)).child(VrfEntry.class, new VrfEntryKey(prefix));
         InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
         if (writeConfigTxn != null) {
-            writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+            writeConfigTxn.delete(vrfEntryId);
         } else {
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
         }
@@ -415,7 +416,7 @@ public class FibUtil {
      *                        If null or empty, then the whole VrfEntry is removed
      */
     public void removeOrUpdateFibEntry(String rd, String prefix, String nextHopToRemove,
-            WriteTransaction writeConfigTxn) {
+            TypedWriteTransaction<Configuration> writeConfigTxn) {
 
         LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {} nextHop {}", prefix, rd,
                 nextHopToRemove);
@@ -443,7 +444,7 @@ public class FibUtil {
             if (routePaths.size() == 1) {
                 // Remove the whole entry
                 if (writeConfigTxn != null) {
-                    writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                    writeConfigTxn.delete(vrfEntryId);
                 } else {
                     MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
                 }
@@ -477,7 +478,7 @@ public class FibUtil {
                 RoutePaths routePaths = FibHelper.buildRoutePath(nextHop, label);
                 if (writeConfigTxn != null) {
                     writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, routePathId, routePaths,
-                            WriteTransaction.CREATE_MISSING_PARENTS);
+                            CREATE_MISSING_PARENTS);
                 } else {
                     MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routePathId, routePaths);
                 }
