@@ -7,19 +7,24 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.netvirt.elan.l2gw.ha.BatchedTransaction;
+import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.Datastore.Operational;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAJobScheduler;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
@@ -47,66 +52,64 @@ public class NodeCopier implements INodeCopier {
     private final PSAugmentationMerger psAugmentationMerger = PSAugmentationMerger.getInstance();
     private final GlobalNodeMerger globalNodeMerger = GlobalNodeMerger.getInstance();
     private final PSNodeMerger psNodeMerger = PSNodeMerger.getInstance();
-    private final DataBroker db;
+    private final ManagedNewTransactionRunner txRunner;
 
     @Inject
     public NodeCopier(DataBroker db) {
-        this.db = db;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(db);
     }
 
     @Override
-    public void copyGlobalNode(Optional<Node> srcGlobalNodeOptional,
+    public <D extends Datastore> void copyGlobalNode(Optional<Node> srcGlobalNodeOptional,
                                InstanceIdentifier<Node> srcPath,
                                InstanceIdentifier<Node> dstPath,
-                               LogicalDatastoreType logicalDatastoreType,
-                               ReadWriteTransaction tx) throws ReadFailedException {
-        if (!srcGlobalNodeOptional.isPresent() && logicalDatastoreType == CONFIGURATION) {
-            Futures.addCallback(tx.read(logicalDatastoreType, srcPath), new FutureCallback<Optional<Node>>() {
+                               Class<D> datastoreType,
+                               TypedReadWriteTransaction<D> tx)
+            throws ExecutionException, InterruptedException {
+        if (!srcGlobalNodeOptional.isPresent() && Configuration.class.equals(datastoreType)) {
+            Futures.addCallback(tx.read(srcPath), new FutureCallback<Optional<Node>>() {
                 @Override
                 public void onSuccess(Optional<Node> nodeOptional) {
-                    HAJobScheduler.getInstance().submitJob(() -> {
-                        try {
-                            ReadWriteTransaction tx1 = new BatchedTransaction();
+                    HAJobScheduler.getInstance().submitJob(() -> ListenableFutures.addErrorLogging(
+                        txRunner.callWithNewReadWriteTransactionAndSubmit(datastoreType, tx -> {
                             if (nodeOptional.isPresent()) {
-                                copyGlobalNode(nodeOptional, srcPath, dstPath, logicalDatastoreType, tx1);
+                                copyGlobalNode(nodeOptional, srcPath, dstPath, datastoreType, tx);
                             } else {
-                                /**
+                                /*
                                  * In case the Parent HA Global Node is not present and Child HA node is present
-                                 * It means that both the child are disconnected/removed hence the parent is deleted.
+                                 * It means that both the child are disconnected/removed hence the parent is
+                                 * deleted.
                                  * @see org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpNodeListener
                                  * OnGLobalNode() delete function
                                  * So we should delete the existing config child node as cleanup
                                  */
-                                HwvtepHAUtil.deleteNodeIfPresent(tx1, logicalDatastoreType, dstPath);
+                                HwvtepHAUtil.deleteNodeIfPresent(tx, dstPath);
                             }
-                        } catch (ReadFailedException e) {
-                            LOG.error("Failed to read source node {}",srcPath);
-                        }
-                    });
+                        }), LOG, "Failed to read source node {}", srcPath));
                 }
 
                 @Override
                 public void onFailure(Throwable throwable) {
                 }
-            });
+            }, MoreExecutors.directExecutor());
             return;
         }
         HwvtepGlobalAugmentation srcGlobalAugmentation =
                 srcGlobalNodeOptional.get().augmentation(HwvtepGlobalAugmentation.class);
         if (srcGlobalAugmentation == null) {
-            /**
+            /*
              * If Source HA Global Node is not present
              * It means that both the child are disconnected/removed hence the parent is deleted.
              * @see org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpNodeListener OnGLobalNode() delete function
              * So we should delete the existing config child node as cleanup
              */
-            HwvtepHAUtil.deleteNodeIfPresent(tx, logicalDatastoreType, dstPath);
+            HwvtepHAUtil.deleteNodeIfPresent(tx, dstPath);
             return;
         }
         NodeBuilder haNodeBuilder = HwvtepHAUtil.getNodeBuilderForPath(dstPath);
         HwvtepGlobalAugmentationBuilder haBuilder = new HwvtepGlobalAugmentationBuilder();
 
-        Optional<Node> existingDstGlobalNodeOptional = tx.read(logicalDatastoreType, dstPath).checkedGet();
+        Optional<Node> existingDstGlobalNodeOptional = tx.read(dstPath).get();
         Node existingDstGlobalNode =
                 existingDstGlobalNodeOptional.isPresent() ? existingDstGlobalNodeOptional.get() : null;
         HwvtepGlobalAugmentation existingHAGlobalData = HwvtepHAUtil.getGlobalAugmentationOfNode(existingDstGlobalNode);
@@ -116,53 +119,54 @@ public class NodeCopier implements INodeCopier {
                 existingDstGlobalNode, srcGlobalNodeOptional.get(), dstPath);
 
 
-        if (OPERATIONAL == logicalDatastoreType) {
+        if (Operational.class.equals(datastoreType)) {
             haBuilder.setManagers(HwvtepHAUtil.buildManagersForHANode(srcGlobalNodeOptional.get(),
                     existingDstGlobalNodeOptional));
             //Also update the manager section in config which helps in cluster reboot scenarios
-            haBuilder.getManagers().forEach((manager) -> {
-                InstanceIdentifier<Managers> managerIid = dstPath.augmentation(HwvtepGlobalAugmentation.class)
-                        .child(Managers.class, manager.key());
-                tx.put(CONFIGURATION, managerIid, manager, true);
-            });
+            ListenableFutures.addErrorLogging(
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                    confTx -> haBuilder.getManagers().forEach(manager -> {
+                        InstanceIdentifier<Managers> managerIid =
+                            dstPath.augmentation(HwvtepGlobalAugmentation.class).child(Managers.class, manager.key());
+                        confTx.put(managerIid, manager, CREATE_MISSING_PARENTS);
+                    })), LOG, "Error updating the manager section in config");
 
         }
         haBuilder.setDbVersion(srcGlobalAugmentation.getDbVersion());
         haNodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, haBuilder.build());
         Node haNode = haNodeBuilder.build();
-        if (OPERATIONAL == logicalDatastoreType) {
-            tx.merge(logicalDatastoreType, dstPath, haNode, true);
+        if (Operational.class.equals(datastoreType)) {
+            tx.merge(dstPath, haNode, CREATE_MISSING_PARENTS);
         } else {
-            tx.put(logicalDatastoreType, dstPath, haNode, true);
+            tx.put(dstPath, haNode, CREATE_MISSING_PARENTS);
         }
     }
 
     @Override
-    public void copyPSNode(Optional<Node> srcPsNodeOptional,
+    public <D extends Datastore> void copyPSNode(Optional<Node> srcPsNodeOptional,
                            InstanceIdentifier<Node> srcPsPath,
                            InstanceIdentifier<Node> dstPsPath,
                            InstanceIdentifier<Node> dstGlobalPath,
-                           LogicalDatastoreType logicalDatastoreType,
-                           ReadWriteTransaction tx) throws ReadFailedException {
-        if (!srcPsNodeOptional.isPresent() && logicalDatastoreType == CONFIGURATION) {
-            Futures.addCallback(tx.read(logicalDatastoreType, srcPsPath), new FutureCallback<Optional<Node>>() {
+                           Class<D> datastoreType,
+                           TypedReadWriteTransaction<D> tx)
+            throws ExecutionException, InterruptedException {
+        if (!srcPsNodeOptional.isPresent() && Configuration.class.equals(datastoreType)) {
+            Futures.addCallback(tx.read(srcPsPath), new FutureCallback<Optional<Node>>() {
                 @Override
                 public void onSuccess(Optional<Node> nodeOptional) {
                     HAJobScheduler.getInstance().submitJob(() -> {
-                        try {
-                            ReadWriteTransaction tx1 = new BatchedTransaction();
-                            if (nodeOptional.isPresent()) {
-                                copyPSNode(nodeOptional,
-                                        srcPsPath, dstPsPath, dstGlobalPath, logicalDatastoreType, tx1);
-                            } else {
-                                /**
-                                 * Deleting node please refer @see #copyGlobalNode for explanation
-                                 */
-                                HwvtepHAUtil.deleteNodeIfPresent(tx1, logicalDatastoreType, dstPsPath);
-                            }
-                        } catch (ReadFailedException e) {
-                            LOG.error("Failed to read src node {}", srcPsNodeOptional.get());
-                        }
+                        ListenableFutures.addErrorLogging(
+                            txRunner.callWithNewReadWriteTransactionAndSubmit(datastoreType, tx -> {
+                                if (nodeOptional.isPresent()) {
+                                    copyPSNode(nodeOptional,
+                                        srcPsPath, dstPsPath, dstGlobalPath, datastoreType, tx);
+                                } else {
+                                    /*
+                                     * Deleting node please refer @see #copyGlobalNode for explanation
+                                     */
+                                    HwvtepHAUtil.deleteNodeIfPresent(tx, dstPsPath);
+                                }
+                            }), LOG, "Failed to read source node {}", srcPsNodeOptional.get());
                     });
                 }
 
@@ -178,10 +182,10 @@ public class NodeCopier implements INodeCopier {
         PhysicalSwitchAugmentation srcPsAugmenatation =
                 srcPsNodeOptional.get().augmentation(PhysicalSwitchAugmentation.class);
 
-        Node existingDstPsNode = HwvtepHAUtil.readNode(tx, logicalDatastoreType, dstPsPath);
+        Node existingDstPsNode = tx.read(dstPsPath).get().orNull();
         PhysicalSwitchAugmentation existingDstPsAugmentation =
                 HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(existingDstPsNode);
-        if (OPERATIONAL == logicalDatastoreType) {
+        if (Operational.class.equals(datastoreType)) {
             psAugmentationMerger.mergeOperationalData(dstPsAugmentationBuilder, existingDstPsAugmentation,
                     srcPsAugmenatation, dstPsPath);
             psNodeMerger.mergeOperationalData(dstPsNodeBuilder, existingDstPsNode, srcPsNodeOptional.get(), dstPsPath);
@@ -193,8 +197,8 @@ public class NodeCopier implements INodeCopier {
 
         dstPsNodeBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstPsAugmentationBuilder.build());
         Node dstPsNode = dstPsNodeBuilder.build();
-        tx.merge(logicalDatastoreType, dstPsPath, dstPsNode, true);
-        LOG.debug("Copied {} physical switch node from {} to {}", logicalDatastoreType, srcPsPath, dstPsPath);
+        tx.merge(dstPsPath, dstPsNode, CREATE_MISSING_PARENTS);
+        LOG.debug("Copied {} physical switch node from {} to {}", datastoreType, srcPsPath, dstPsPath);
     }
 
     public void mergeOpManagedByAttributes(PhysicalSwitchAugmentation psAugmentation,

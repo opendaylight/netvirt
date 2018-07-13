@@ -7,15 +7,14 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
-import com.google.common.util.concurrent.CheckedFuture;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.infra.Datastore.Operational;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -37,14 +36,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 public class NodeConnectedHandlerUtils {
 
-    CheckedFuture<Void, TransactionCommitFailedException> addNode(InstanceIdentifier<Node> path,
+    void addNode(InstanceIdentifier<Node> path,
             InstanceIdentifier<Node> psPath, String logicalSwitchData, String localUcasMacData, String localMcastData,
             String remoteMcastData, String remoteUcasteMacData, String globalTerminationPointIp,
-            WriteTransaction transaction) throws Exception {
-        NodeBuilder nodeBuilder = null;
-        HwvtepGlobalAugmentationBuilder augmentationBuilder = null;
-        nodeBuilder = prepareOperationalNode(path);
-        augmentationBuilder = prepareAugmentationBuilder();
+            TypedWriteTransaction<Operational> tx) {
+        NodeBuilder nodeBuilder = prepareOperationalNode(path);
+        HwvtepGlobalAugmentationBuilder augmentationBuilder = prepareAugmentationBuilder();
 
         GlobalAugmentationHelper.addLogicalSwitches(augmentationBuilder, getData(logicalSwitchData));
 
@@ -62,15 +59,11 @@ public class NodeConnectedHandlerUtils {
 
         nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, augmentationBuilder.build());
 
-        return TestUtil.submitNode(OPERATIONAL, path, nodeBuilder.build(), transaction);
+        tx.put(path, nodeBuilder.build());
     }
 
-    CheckedFuture<Void, TransactionCommitFailedException> addPsNode(InstanceIdentifier<Node> path,
-            InstanceIdentifier<Node> parentPath, List<String> portNameList, WriteTransaction transaction)
-            throws Exception {
-        NodeBuilder nodeBuilder = null;
-
-        nodeBuilder = prepareOperationalNode(path);
+    void addPsNode(InstanceIdentifier<Node> path, InstanceIdentifier<Node> parentPath, List<String> portNameList,
+            TypedWriteTransaction<Operational> tx) {
         PhysicalSwitchAugmentationBuilder physicalSwitchAugmentationBuilder = new PhysicalSwitchAugmentationBuilder();
         physicalSwitchAugmentationBuilder.setManagedBy(new HwvtepGlobalRef(parentPath));
         physicalSwitchAugmentationBuilder.setPhysicalSwitchUuid(getUUid("d1s3"));
@@ -82,27 +75,28 @@ public class NodeConnectedHandlerUtils {
         tunnelIps.add(new TunnelIpsBuilder().withKey(new TunnelIpsKey(ip)).setTunnelIpsKey(ip).build());
         physicalSwitchAugmentationBuilder.setTunnelIps(tunnelIps);
 
+        NodeBuilder nodeBuilder = prepareOperationalNode(path);
         nodeBuilder.addAugmentation(PhysicalSwitchAugmentation.class, physicalSwitchAugmentationBuilder.build());
         PhysicalSwitchHelper.dId = parentPath;
         nodeBuilder.setTerminationPoint(PhysicalSwitchHelper
-                .addPhysicalSwitchTerminationPoints(path, transaction, portNameList));
+                .addPhysicalSwitchTerminationPoints(path, portNameList));
 
-        return TestUtil.submitNode(OPERATIONAL, path, nodeBuilder.build(), transaction);
+        tx.put(path, nodeBuilder.build(), CREATE_MISSING_PARENTS);
     }
 
-    NodeBuilder prepareOperationalNode(InstanceIdentifier<Node> iid) {
+    private NodeBuilder prepareOperationalNode(InstanceIdentifier<Node> iid) {
         NodeBuilder nodeBuilder = new NodeBuilder();
         nodeBuilder.setNodeId(iid.firstKeyOf(Node.class).getNodeId());
         return nodeBuilder;
     }
 
-    HwvtepGlobalAugmentationBuilder prepareAugmentationBuilder() {
+    private HwvtepGlobalAugmentationBuilder prepareAugmentationBuilder() {
         HwvtepGlobalAugmentationBuilder builder = new HwvtepGlobalAugmentationBuilder();
         builder.setManagers(TestBuilders.buildManagers());
         return builder;
     }
 
-    public List<String> getData(String data) {
+    private List<String> getData(String data) {
         return Arrays.asList(data.split(","));
     }
 
