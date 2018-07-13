@@ -7,8 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Optional;
 import java.util.UUID;
@@ -19,6 +19,9 @@ import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.NodeConnectedHandler;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
@@ -117,17 +120,21 @@ public class NodeConnectedHandlerTest extends AbstractConcurrentDataBrokerTest {
                 DataProvider.getGlobalTerminationPointIpD1(), tx).checkedGet();
 
         readNodes();
-        tx = getDataBroker().newReadWriteTransaction();
-        nodeConnectedHandler.handleNodeConnected(d1GlobalOpNode.get(), d1NodePath, haNodePath, haGlobalConfigNode,
-                haPsConfigNode, tx);
-        tx.submit().checkedGet();
+        ManagedNewTransactionRunner txRunner = new ManagedNewTransactionRunnerImpl(getDataBroker());
+        txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+            confTx -> txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL,
+                operTx -> nodeConnectedHandler.handleNodeConnected(d1GlobalOpNode.get(), d1NodePath, haNodePath,
+                    haGlobalConfigNode, haPsConfigNode, confTx, operTx)).get()).get();
         readNodes();
         //verify global ha manager config should have ha_children
-        Assert.assertTrue(haGlobalConfigNode.isPresent() && d1GlobalOpNode.isPresent());
+        Assert.assertTrue(haGlobalConfigNode.isPresent());
+        Assert.assertTrue(d1GlobalOpNode.isPresent());
         TestUtil.verifyHAconfigNode(haGlobalConfigNode.get(), d1GlobalOpNode.get());
 
-        Assert.assertTrue(d1GlobalOpNode.isPresent() && haGlobalOpNode.isPresent() && d1PsOpNode.isPresent()
-                && haPsOpNode.isPresent());
+        Assert.assertTrue(d1GlobalOpNode.isPresent());
+        Assert.assertTrue(haGlobalOpNode.isPresent());
+        Assert.assertTrue(d1PsOpNode.isPresent());
+        Assert.assertTrue(haPsOpNode.isPresent());
         TestUtil.verifyHAOpNode(d1GlobalOpNode.get(), haGlobalOpNode.get(),
                 d1PsOpNode.get(), haPsOpNode.get(), haNodePath, d1PsNodePath, haPsNodePath, haNodeId, getDataBroker());
     }
@@ -159,21 +166,21 @@ public class NodeConnectedHandlerTest extends AbstractConcurrentDataBrokerTest {
 
     public void readNodes() throws Exception {
         ReadOnlyTransaction tx = getDataBroker().newReadOnlyTransaction();
-        d1GlobalOpNode = TestUtil.readNode(OPERATIONAL, d1NodePath, tx);
-        d2GlobalOpNode = TestUtil.readNode(OPERATIONAL, d2NodePath, tx);
-        haGlobalOpNode = TestUtil.readNode(OPERATIONAL, haNodePath, tx);
+        d1GlobalOpNode = TestUtil.readNode(LogicalDatastoreType.OPERATIONAL, d1NodePath, tx);
+        d2GlobalOpNode = TestUtil.readNode(LogicalDatastoreType.OPERATIONAL, d2NodePath, tx);
+        haGlobalOpNode = TestUtil.readNode(LogicalDatastoreType.OPERATIONAL, haNodePath, tx);
 
-        d1PsOpNode = TestUtil.readNode(OPERATIONAL, d1PsNodePath, tx);
-        d2PsOpNode = TestUtil.readNode(OPERATIONAL, d2PsNodePath, tx);
-        haPsOpNode = TestUtil.readNode(OPERATIONAL, haPsNodePath, tx);
+        d1PsOpNode = TestUtil.readNode(LogicalDatastoreType.OPERATIONAL, d1PsNodePath, tx);
+        d2PsOpNode = TestUtil.readNode(LogicalDatastoreType.OPERATIONAL, d2PsNodePath, tx);
+        haPsOpNode = TestUtil.readNode(LogicalDatastoreType.OPERATIONAL, haPsNodePath, tx);
 
-        haGlobalConfigNode = TestUtil.readNode(CONFIGURATION, haNodePath, tx);
-        d1GlobalConfigNode = TestUtil.readNode(CONFIGURATION, d1NodePath, tx);
-        d2GlobalConfigNode = TestUtil.readNode(CONFIGURATION, d2NodePath, tx);
+        haGlobalConfigNode = TestUtil.readNode(LogicalDatastoreType.CONFIGURATION, haNodePath, tx);
+        d1GlobalConfigNode = TestUtil.readNode(LogicalDatastoreType.CONFIGURATION, d1NodePath, tx);
+        d2GlobalConfigNode = TestUtil.readNode(LogicalDatastoreType.CONFIGURATION, d2NodePath, tx);
 
-        haPsConfigNode = TestUtil.readNode(CONFIGURATION, haPsNodePath, tx);
-        d1PsConfigNode = TestUtil.readNode(CONFIGURATION, d1PsNodePath, tx);
-        d2PsConfigNode = TestUtil.readNode(CONFIGURATION, d2PsNodePath, tx);
+        haPsConfigNode = TestUtil.readNode(LogicalDatastoreType.CONFIGURATION, haPsNodePath, tx);
+        d1PsConfigNode = TestUtil.readNode(LogicalDatastoreType.CONFIGURATION, d1PsNodePath, tx);
+        d2PsConfigNode = TestUtil.readNode(LogicalDatastoreType.CONFIGURATION, d2PsNodePath, tx);
 
         tx.close();
     }

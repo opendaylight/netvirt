@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,7 +25,6 @@ import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeLis
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
@@ -200,18 +202,20 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
         if (IS_PS_NODE_IID.test(nodeIid)) {
             return;
         }
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
-            haOpClusteredListener.onGlobalNodeAdd(nodeIid, modification.getRootNode().getDataAfter(), tx);
-            if (!isHAChild(nodeIid)) {
+        // TODO skitt we're only using read transactions here
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL,
+            tx -> haOpClusteredListener.onGlobalNodeAdd(nodeIid, modification.getRootNode().getDataAfter(), tx)), LOG,
+            "Error processing added parent");
+        if (!isHAChild(nodeIid)) {
+            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 LOG.trace("On parent add {}", nodeIid);
                 Node operNode = modification.getRootNode().getDataAfter();
-                Set<LocalUcastMacs> configMacs =
-                        getMacs(tx.read(LogicalDatastoreType.CONFIGURATION, nodeIid).checkedGet().orNull());
+                Set<LocalUcastMacs> configMacs = getMacs(tx.read(nodeIid).get().orNull());
                 Set<LocalUcastMacs> operMacs = getMacs(operNode);
                 Set<LocalUcastMacs> staleMacs = Sets.difference(configMacs, operMacs);
                 staleMacs.forEach(staleMac -> removed(getMacIid(nodeIid, staleMac), staleMac));
-            }
-        }), LOG, "Error processing added parent");
+            }), LOG, "Error processing added parent");
+        }
     }
 
     InstanceIdentifier<LocalUcastMacs> getMacIid(InstanceIdentifier<Node> nodeIid, LocalUcastMacs mac) {
