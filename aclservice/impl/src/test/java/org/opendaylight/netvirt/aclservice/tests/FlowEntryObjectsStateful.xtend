@@ -11,6 +11,7 @@ import org.opendaylight.genius.mdsalutil.MetaDataUtil
 import org.opendaylight.genius.mdsalutil.NwConstants
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack
+import org.opendaylight.genius.mdsalutil.actions.ActionNxCtClear
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable
@@ -2062,6 +2063,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short,
                             Collections.singletonList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE))
                         ),
+                        new ActionNxCtClear(),
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -2083,6 +2085,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short,
                             Collections.singletonList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE))
                         ),
+                        new ActionNxCtClear(),
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -2104,6 +2107,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new ActionNxConntrack(2, 1, 0, 5000, 255 as short,
                             Collections.singletonList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE))
                     ),
+                    new ActionNxCtClear(),
                     new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -2124,6 +2128,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short,
                             Collections.singletonList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE))
                         ),
+                        new ActionNxCtClear(),
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -2250,6 +2255,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                                 Collections.singletonList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE)
                                 )
                             ),
+                            new ActionNxCtClear(),
                             new ActionNxResubmit(220 as short)
                         ])
                     ]
@@ -2271,6 +2277,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short,
                             Collections.singletonList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE))
                         ),
+                        new ActionNxCtClear(),
                         new ActionNxResubmit(220 as short)
                         ])
                     ]
@@ -2299,6 +2306,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short,
                             Collections.singletonList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE))
                         ),
+                        new ActionNxCtClear(),
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -2319,6 +2327,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short,
                             Collections.singletonList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE))
                         ),
+                        new ActionNxCtClear(),
                         new ActionNxResubmit(17 as short)
                     ])
                 ]

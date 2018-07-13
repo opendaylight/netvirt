@@ -31,6 +31,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack.NxCtAction;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxCtClear;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -959,6 +960,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             List<NxCtAction> ctActionsList =
                     Lists.newArrayList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE));
             actionsInfos.add(new ActionNxConntrack(2, 1, 0, elanId.intValue(), (short) 255, ctActionsList));
+            actionsInfos.add(new ActionNxCtClear());
         }
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
