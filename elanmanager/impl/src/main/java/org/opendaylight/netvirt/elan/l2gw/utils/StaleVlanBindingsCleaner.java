@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -108,9 +108,10 @@ public class StaleVlanBindingsCleaner {
                 () -> {
                     L2GatewayDevice l2GwDevice = l2GatewayCache.get(deviceName);
                     NodeId globalNodeId = globalNodeIid.firstKeyOf(Node.class).getNodeId();
-                    Node configNode = MDSALUtil.read(broker, CONFIGURATION, globalNodeIid)
+                    Node configNode = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, globalNodeIid)
                             .or(defaultNode(globalNodeId));
-                    Node configPsNode = MDSALUtil.read(broker, CONFIGURATION, psNodeIid).or(defaultNode(psNodeId));
+                    Node configPsNode =
+                        MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, psNodeIid).or(defaultNode(psNodeId));
                     cleanupStaleLogicalSwitches(l2GwDevice, configNode, configPsNode);
                     cleanupTasks.remove(psNodeIid.firstKeyOf(Node.class).getNodeId());
                 }, getCleanupDelay(), TimeUnit.SECONDS);
@@ -187,10 +188,9 @@ public class StaleVlanBindingsCleaner {
 
         LOG.trace("CleanupStaleBindings for logical switch {}", staleLogicalSwitch);
         ListenableFutures.addErrorLogging(
-            txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 if (vlans.containsKey(staleLogicalSwitch)) {
-                    vlans.get(staleLogicalSwitch)
-                            .forEach((vlanIid) -> tx.delete(LogicalDatastoreType.CONFIGURATION, vlanIid));
+                    vlans.get(staleLogicalSwitch).forEach((vlanIid) -> tx.delete(vlanIid));
                 }
             }),
             LOG, "Failed to delete stale vlan bindings from node {}", globalNodeId);

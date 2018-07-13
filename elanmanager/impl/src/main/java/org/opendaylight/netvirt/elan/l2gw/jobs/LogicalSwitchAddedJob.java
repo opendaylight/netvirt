@@ -73,8 +73,7 @@ public class LogicalSwitchAddedJob implements Callable<List<ListenableFuture<Voi
         futures.add(elanL2GatewayUtils.updateVlanBindingsInL2GatewayDevice(
             new NodeId(elanL2GwDevice.getHwvtepNodeId()), logicalSwitchName, physicalDevice, defaultVlanId));
         LOG.info("creating mast mac entries for {} {}", logicalSwitchName, elanL2GwDevice.getHwvtepNodeId());
-        futures.add(elanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceAdd(logicalSwitchName,
-                elanL2GwDevice));
+        elanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceAdd(logicalSwitchName, elanL2GwDevice);
         futures.add(elanL2GatewayUtils.installElanMacsInL2GatewayDevice(
                 logicalSwitchName, elanL2GwDevice));
         return futures;
