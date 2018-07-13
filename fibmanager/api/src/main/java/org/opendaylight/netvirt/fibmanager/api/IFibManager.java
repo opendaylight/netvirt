@@ -14,7 +14,7 @@ import java.math.BigInteger;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
@@ -55,22 +55,24 @@ public interface IFibManager {
 
     void addOrUpdateFibEntry(String rd, String macAddress, String prefix, List<String> nextHopList,
                              VrfEntry.EncapType encapType, long label, long l3vni, String gwMacAddress,
-                             String parentVpnRd, RouteOrigin origin, WriteTransaction writeConfigTxn);
+                             String parentVpnRd, RouteOrigin origin,
+                             TypedWriteTransaction<Configuration> writeConfigTxn);
 
     void addFibEntryForRouterInterface(String rd, String prefix,
-                                       RouterInterface routerInterface, long label, WriteTransaction writeConfigTxn);
+                                       RouterInterface routerInterface, long label,
+                                       TypedWriteTransaction<Configuration> writeConfigTxn);
 
     void removeOrUpdateFibEntry(String rd, String prefix, String nextHopToRemove,
-                                WriteTransaction writeConfigTxn);
+                                TypedWriteTransaction<Configuration> writeConfigTxn);
 
-    void removeFibEntry(String rd, String prefix, WriteTransaction writeConfigTxn);
+    void removeFibEntry(String rd, String prefix, TypedWriteTransaction<Configuration> writeConfigTxn);
 
     void updateRoutePathForFibEntry(String rd, String prefix, String nextHop,
                                     long label, boolean nextHopAdd, WriteTransaction writeConfigTxn);
 
     void addVrfTable(String rd, WriteTransaction writeConfigTxn);
 
-    void removeVrfTable(String rd, TypedWriteTransaction<Datastore.Configuration> writeConfigTxn);
+    void removeVrfTable(String rd, TypedWriteTransaction<Configuration> writeConfigTxn);
 
     void removeInterVPNLinkRouteFlows(String interVpnLinkName,
                                       boolean isVpnFirstEndPoint,

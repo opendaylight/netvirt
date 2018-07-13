@@ -18,7 +18,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.TransactionAdapter;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
@@ -186,7 +185,7 @@ public final class NatEvpnUtil {
 
             fibManager.addOrUpdateFibEntry(rd, null /*macAddress*/, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE,
-                l3Vni, gwMacAddress, null /* parent-vpn-rd */, origin, TransactionAdapter.toWriteTransaction(writeTx));
+                l3Vni, gwMacAddress, null /* parent-vpn-rd */, origin, writeTx);
             /* Publish to Bgp only if its an INTERNET VPN */
             if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
