@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -124,7 +123,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
 
         LOG.debug("UnBinding ACL service for interface {}", interfaceName);
         jobCoordinator.enqueueJob(interfaceName, () -> Collections.singletonList(txRunner
-                .callWithNewWriteOnlyTransactionAndSubmit(tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, path))));
+                .callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> tx.delete(path))));
     }
 
     @Override
