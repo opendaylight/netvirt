@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
@@ -23,7 +26,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -362,9 +364,8 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         // Removing the InterVpnLinkState
         InstanceIdentifier<InterVpnLinkState> interVpnLinkStateIid =
             InterVpnLinkUtil.getInterVpnLinkStateIid(del.getName());
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
-            tx.delete(LogicalDatastoreType.CONFIGURATION, interVpnLinkStateIid)), LOG,
-                "Error deleting inter-VPN link state {}", interVpnLinkStateIid);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
+            tx.delete(interVpnLinkStateIid)), LOG, "Error deleting inter-VPN link state {}", interVpnLinkStateIid);
     }
 
     // We're catching Exception here to continue deleting as much as possible
@@ -464,9 +465,8 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             new InterVpnLinkStateBuilder(vpnLinkState).setState(InterVpnLinkState.State.Error)
                 .setErrorDescription(errorMsg)
                 .build();
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
-            tx.put(LogicalDatastoreType.CONFIGURATION, vpnLinkStateIid, vpnLinkErrorState,
-                    WriteTransaction.CREATE_MISSING_PARENTS)),
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
+            tx.put(vpnLinkStateIid, vpnLinkErrorState, CREATE_MISSING_PARENTS)),
                 LOG, "Error storing the VPN link error state for {}, {}", vpnLinkStateIid, vpnLinkErrorState);
 
         // Sending out an error Notification
