@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.utils;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.MapDifference.ValueDifference;
@@ -19,19 +21,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedReadTransaction;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.internal.ElanBridgeManager;
@@ -79,6 +84,7 @@ public class TransportZoneNotificationUtil {
     private static final String ALL_SUBNETS_GW = "0.0.0.0";
     private static final String ALL_SUBNETS = "0.0.0.0/0";
     private final ManagedNewTransactionRunner txRunner;
+    private final SingleTransactionDataBroker singleTxBroker;
     private final SouthboundUtils southBoundUtils;
     private final IElanService elanService;
     private final ElanConfig elanConfig;
@@ -90,6 +96,7 @@ public class TransportZoneNotificationUtil {
             final IElanService elanService, final ElanConfig elanConfig, final ElanBridgeManager elanBridgeManager,
             final ElanInstanceCache elanInstanceCache) {
         this.txRunner = new ManagedNewTransactionRunnerImpl(dbx);
+        this.singleTxBroker = new SingleTransactionDataBroker(dbx);
         this.elanService = elanService;
         this.elanConfig = elanConfig;
         this.elanBridgeManager = elanBridgeManager;
@@ -129,17 +136,18 @@ public class TransportZoneNotificationUtil {
         return tzb.build();
     }
 
-    private void updateTransportZone(TransportZone zone, BigInteger dpnId, @Nonnull WriteTransaction tx) {
+    private void updateTransportZone(TransportZone zone, BigInteger dpnId,
+            @Nonnull TypedWriteTransaction<Configuration> tx) {
         InstanceIdentifier<TransportZone> path = InstanceIdentifier.builder(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zone.getZoneName())).build();
 
-        tx.merge(LogicalDatastoreType.CONFIGURATION, path, zone);
+        tx.merge(path, zone);
         LOG.info("Transport zone {} updated due to dpn {} handling.", zone.getZoneName(), dpnId);
     }
 
     public void updateTransportZone(String zoneNamePrefix, BigInteger dpnId) {
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
-            Map<String, String> localIps = getDpnLocalIps(dpnId, tx);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+            Map<String, String> localIps = getDpnLocalIps(dpnId);
             if (!localIps.isEmpty()) {
                 LOG.debug("Will use local_ips for transport zone update for dpn {} and zone name prefix {}", dpnId,
                         zoneNamePrefix);
@@ -150,19 +158,20 @@ public class TransportZoneNotificationUtil {
                     updateTransportZone(zoneName, dpnId, localIp, tx);
                 }
             } else {
-                updateTransportZone(zoneNamePrefix, dpnId, getDpnLocalIp(dpnId, tx), tx);
+                updateTransportZone(zoneNamePrefix, dpnId, getDpnLocalIp(dpnId), tx);
             }
         }), LOG, "Error updating transport zone");
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void updateTransportZone(String zoneName, BigInteger dpnId, @Nullable String localIp,
-            @Nonnull ReadWriteTransaction tx) throws ReadFailedException {
+            @Nonnull TypedReadWriteTransaction<Configuration> tx)
+            throws ExecutionException, InterruptedException {
         InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zoneName));
 
         // FIXME: Read this through a cache
-        TransportZone zone = tx.read(LogicalDatastoreType.CONFIGURATION, inst).checkedGet().orNull();
+        TransportZone zone = tx.read(inst).get().orNull();
 
         if (zone == null) {
             zone = createZone(ALL_SUBNETS, zoneName);
@@ -177,16 +186,17 @@ public class TransportZoneNotificationUtil {
         }
     }
 
-    private void deleteTransportZone(TransportZone zone, BigInteger dpnId, @Nonnull WriteTransaction tx) {
+    private void deleteTransportZone(TransportZone zone, BigInteger dpnId,
+            @Nonnull TypedWriteTransaction<Configuration> tx) {
         InstanceIdentifier<TransportZone> path = InstanceIdentifier.builder(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zone.getZoneName())).build();
-        tx.delete(LogicalDatastoreType.CONFIGURATION, path);
+        tx.delete(path);
         LOG.info("Transport zone {} deleted due to dpn {} handling.", zone.getZoneName(), dpnId);
     }
 
     public void deleteTransportZone(String zoneNamePrefix, BigInteger dpnId) {
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
-            Map<String, String> localIps = getDpnLocalIps(dpnId, tx);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+            Map<String, String> localIps = getDpnLocalIps(dpnId);
             if (!localIps.isEmpty()) {
                 LOG.debug("Will use local_ips for transport zone delete for dpn {} and zone name prefix {}", dpnId,
                         zoneNamePrefix);
@@ -201,13 +211,13 @@ public class TransportZoneNotificationUtil {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void deleteTransportZone(String zoneName, BigInteger dpnId, @Nonnull ReadWriteTransaction tx)
-            throws ReadFailedException {
+    private void deleteTransportZone(String zoneName, BigInteger dpnId,
+            @Nonnull TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zoneName));
 
         // FIXME: Read this through a cache
-        TransportZone zone = tx.read(LogicalDatastoreType.CONFIGURATION, inst).checkedGet().orNull();
+        TransportZone zone = tx.read(inst).get().orNull();
         if (zone != null) {
             try {
                 deleteTransportZone(zone, dpnId, tx);
@@ -255,7 +265,7 @@ public class TransportZoneNotificationUtil {
             return;
         }
 
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             BigInteger dpId = dpIdOpt.get();
             Optional<DPNTEPsInfo> dpnTepsInfoOpt = getDpnTepsInfo(dpId, tx);
             if (!dpnTepsInfoOpt.isPresent()) {
@@ -281,7 +291,7 @@ public class TransportZoneNotificationUtil {
     }
 
     private void handleAddedLocalIps(Map<String, String> addedEntries, BigInteger dpId, Set<String> zonePrefixes,
-            ReadWriteTransaction tx) throws ReadFailedException {
+            TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         if (addedEntries == null || addedEntries.isEmpty()) {
             LOG.trace("No added local_ips found for DPN {}", dpId);
             return;
@@ -299,8 +309,8 @@ public class TransportZoneNotificationUtil {
     }
 
     private void handleChangedLocalIps(Map<String, ValueDifference<String>> changedEntries, BigInteger dpId,
-            Set<String> zonePrefixes, Map<String, List<String>> tepTzMap, @Nonnull ReadWriteTransaction tx)
-            throws ReadFailedException {
+            Set<String> zonePrefixes, Map<String, List<String>> tepTzMap,
+            @Nonnull TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         if (changedEntries == null || changedEntries.isEmpty()) {
             LOG.trace("No changed local_ips found for DPN {}", dpId);
             return;
@@ -329,7 +339,7 @@ public class TransportZoneNotificationUtil {
     }
 
     private void handleRemovedLocalIps(Map<String, String> removedEntries, BigInteger dpId, Set<String> zonePrefixes,
-            Map<String, List<String>> tepTzMap, @Nonnull WriteTransaction tx) {
+            Map<String, List<String>> tepTzMap, @Nonnull TypedWriteTransaction<Configuration> tx) {
         if (removedEntries == null || removedEntries.isEmpty()) {
             LOG.trace("No removed local_ips found on DPN {}", dpId);
             return;
@@ -361,12 +371,12 @@ public class TransportZoneNotificationUtil {
                 .collect(Collectors.toList());
     }
 
-    private Optional<DPNTEPsInfo> getDpnTepsInfo(BigInteger dpId, ReadTransaction tx) {
+    private Optional<DPNTEPsInfo> getDpnTepsInfo(BigInteger dpId, TypedReadTransaction<Configuration> tx) {
         InstanceIdentifier<DPNTEPsInfo> identifier = InstanceIdentifier.builder(DpnEndpoints.class)
                 .child(DPNTEPsInfo.class, new DPNTEPsInfoKey(dpId)).build();
         try {
-            return tx.read(LogicalDatastoreType.CONFIGURATION, identifier).checkedGet();
-        } catch (ReadFailedException e) {
+            return tx.read(identifier).get();
+        } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Failed to read DPNTEPsInfo for DPN id {}", dpId);
             return Optional.absent();
         }
@@ -401,12 +411,12 @@ public class TransportZoneNotificationUtil {
         return false;
     }
 
-    private void removeVtep(String zoneName, BigInteger dpId, @Nonnull WriteTransaction tx) {
+    private void removeVtep(String zoneName, BigInteger dpId, @Nonnull TypedWriteTransaction<Configuration> tx) {
         InstanceIdentifier<Vteps> path = InstanceIdentifier.builder(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zoneName))
                 .child(Subnets.class, new SubnetsKey(IpPrefixBuilder.getDefaultInstance(ALL_SUBNETS)))
                 .child(Vteps.class, new VtepsKey(dpId, TUNNEL_PORT)).build();
-        tx.delete(LogicalDatastoreType.CONFIGURATION, path);
+        tx.delete(path);
     }
 
     // search for relevant subnets for the given subnetIP, add one if it is
@@ -434,8 +444,8 @@ public class TransportZoneNotificationUtil {
         return subnetsBuilder.build();
     }
 
-    private String getDpnLocalIp(BigInteger dpId, ReadTransaction tx) throws ReadFailedException {
-        Optional<Node> node = getPortsNode(dpId, tx);
+    private String getDpnLocalIp(BigInteger dpId) throws ReadFailedException {
+        Optional<Node> node = getPortsNode(dpId);
 
         if (node.isPresent()) {
             String localIp = southBoundUtils.getOpenvswitchOtherConfig(node.get(), LOCAL_IP);
@@ -451,21 +461,21 @@ public class TransportZoneNotificationUtil {
     }
 
     @Nonnull
-    private Map<String, String> getDpnLocalIps(BigInteger dpId, ReadTransaction tx) throws ReadFailedException {
+    private Map<String, String> getDpnLocalIps(BigInteger dpId) throws ReadFailedException {
         // Example of local IPs from other_config:
         // local_ips="10.0.43.159:MPLS,11.11.11.11:DSL,ip:underlay-network"
-        return getPortsNode(dpId, tx).toJavaUtil().map(
+        return getPortsNode(dpId).toJavaUtil().map(
             node -> elanBridgeManager.getOpenvswitchOtherConfigMap(node, LOCAL_IPS)).orElse(Collections.emptyMap());
     }
 
     @SuppressWarnings("unchecked")
-    private Optional<Node> getPortsNode(BigInteger dpnId, ReadTransaction tx) throws ReadFailedException {
+    private Optional<Node> getPortsNode(BigInteger dpnId) throws ReadFailedException {
         InstanceIdentifier<BridgeRefEntry> bridgeRefInfoPath = InstanceIdentifier.create(BridgeRefInfo.class)
                 .child(BridgeRefEntry.class, new BridgeRefEntryKey(dpnId));
 
         // FIXME: Read this through a cache
         Optional<BridgeRefEntry> optionalBridgeRefEntry =
-                tx.read(LogicalDatastoreType.OPERATIONAL, bridgeRefInfoPath).checkedGet();
+            singleTxBroker.syncReadOptional(LogicalDatastoreType.OPERATIONAL, bridgeRefInfoPath);
         if (!optionalBridgeRefEntry.isPresent()) {
             LOG.error("no bridge ref entry found for dpnId {}", dpnId);
             return Optional.absent();
@@ -475,7 +485,7 @@ public class TransportZoneNotificationUtil {
                 optionalBridgeRefEntry.get().getBridgeReference().getValue().firstIdentifierOf(Node.class);
 
         // FIXME: Read this through a cache
-        Optional<Node> optionalNode = tx.read(LogicalDatastoreType.OPERATIONAL, nodeId).checkedGet();
+        Optional<Node> optionalNode = singleTxBroker.syncReadOptional(LogicalDatastoreType.OPERATIONAL, nodeId);
         if (!optionalNode.isPresent()) {
             LOG.error("missing node for dpnId {}", dpnId);
         }

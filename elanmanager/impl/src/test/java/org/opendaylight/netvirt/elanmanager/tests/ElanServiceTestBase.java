@@ -11,6 +11,7 @@ import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.Ordered;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -178,32 +180,32 @@ public class ElanServiceTestBase {
         /*ELAN1+":"+DPN1MAC1 ->
         (vlanInterfaceInfo(String interfaceName, BigInteger dpId, int portNo, int lportTag, String mac), vmPrefix)*/
         ELAN_INTERFACES.put(ELAN1 + ":" + DPN1MAC1 ,
-                new ImmutablePair(InterfaceHelper
+                ImmutablePair.of(InterfaceHelper
                         .buildVlanInterfaceInfo("23701c04-1118-4c65-9425-78a80d49a211",
                 DPN1_ID, 1, 10, DPN1MAC1), DPN1IP1));
 
         ELAN_INTERFACES.put(ELAN1 + ":" + DPN1MAC2 ,
-                new ImmutablePair(InterfaceHelper
+                ImmutablePair.of(InterfaceHelper
                         .buildVlanInterfaceInfo("23701c04-1218-4c65-9425-78a80d49a211",
                 DPN1_ID, 2, 11, DPN1MAC2), DPN1IP2));
 
         ELAN_INTERFACES.put(ELAN1 + ":" + DPN2MAC1 ,
-                new ImmutablePair(InterfaceHelper
+                ImmutablePair.of(InterfaceHelper
                         .buildVlanInterfaceInfo("23701c04-2118-4c65-9425-78a80d49a211",
                         DPN2_ID, 3, 12, DPN2MAC1), DPN2IP1));
 
         ELAN_INTERFACES.put(ELAN1 + ":" + DPN2MAC2 ,
-                new ImmutablePair(InterfaceHelper
+                ImmutablePair.of(InterfaceHelper
                         .buildVlanInterfaceInfo("23701c04-2218-4c65-9425-78a80d49a211",
                         DPN2_ID, 4, 13, DPN2MAC2), DPN2IP2));
 
         ELAN_INTERFACES.put(ELAN1 + ":" + DPN3MAC1 ,
-                new ImmutablePair(InterfaceHelper
+                ImmutablePair.of(InterfaceHelper
                         .buildVlanInterfaceInfo("23701c04-3118-4c65-9425-78a80d49a211",
                         DPN3_ID, 5, 14, DPN3MAC1), DPN3IP1));
 
         ELAN_INTERFACES.put(ELAN1 + ":" + DPN3MAC2 ,
-                new ImmutablePair(InterfaceHelper
+                ImmutablePair.of(InterfaceHelper
                         .buildVlanInterfaceInfo("23701c04-3218-4c65-9425-78a80d49a211",
                         DPN3_ID, 6, 15, DPN3MAC2), DPN3IP2));
 
@@ -291,7 +293,7 @@ public class ElanServiceTestBase {
         sortActions(org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.Instruction input) {
         if (input instanceof  ApplyActionsCase) {
             List<Action> action = new ArrayList<>(((ApplyActionsCase)input).getApplyActions().getAction());
-            Collections.sort(action, (o1, o2) -> o1.getOrder().compareTo(o2.getOrder()));
+            action.sort(Comparator.comparing(Ordered::getOrder));
 
             ApplyActions actions = new ApplyActionsBuilder().setAction(action).build();
             return new ApplyActionsCaseBuilder().setApplyActions(actions).build();

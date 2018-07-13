@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.elan.internal;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
@@ -116,10 +119,9 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         }
         elanInterfaceCache.getInterfaceNames(elanName).forEach(
             elanInterfaceName -> jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(elanInterfaceName),
-                () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+                () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                     LOG.info("Deleting the elanInterface present under ConfigDS:{}", elanInterfaceName);
-                    ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
-                            ElanUtils.getElanInterfaceConfigurationDataPathId(elanInterfaceName));
+                    tx.delete(ElanUtils.getElanInterfaceConfigurationDataPathId(elanInterfaceName));
                     elanInterfaceManager.unbindService(elanInterfaceName, tx);
                     LOG.info("unbind the Interface:{} service bounded to Elan:{}", elanInterfaceName, elanName);
                 })), ElanConstants.JOB_MAX_RETRIES));
@@ -147,9 +149,12 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         if (existingElanTag == null || !existingElanTag.equals(update.getElanTag())) {
             if (update.getElanTag() == null  || update.getElanTag() == 0L) {
                 // update the elan-Instance with new properties
-                ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                    tx -> ElanUtils.updateOperationalDataStore(idManager, update, new ArrayList<>(), tx)),
-                    LOG, "Error updating ELAN tag in ELAN instance");
+                ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
+                    operTx -> ListenableFutures.addErrorLogging(
+                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                            confTx -> ElanUtils.updateOperationalDataStore(idManager, update, new ArrayList<>(), confTx,
+                                operTx)), LOG, "Error updating ELAN tag in ELAN instance")), LOG,
+                    "Error updating ELAN tag in ELAN instance");
             } else {
                 jobCoordinator.enqueueJob(elanName, () -> elanInterfaceManager.handleunprocessedElanInterfaces(update),
                     ElanConstants.JOB_MAX_RETRIES);
@@ -159,11 +164,13 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     @Override
     protected void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance elanInstanceAdded) {
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
             String elanInstanceName  = elanInstanceAdded.getElanInstanceName();
-            Elan elanInfo = ElanUtils.getElanByName(tx, elanInstanceName);
+            Elan elanInfo = ElanUtils.getElanByName(operTx, elanInstanceName);
             if (elanInfo == null) {
-                ElanUtils.updateOperationalDataStore(idManager, elanInstanceAdded, new ArrayList<>(), tx);
+                ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                    confTx -> ElanUtils.updateOperationalDataStore(idManager, elanInstanceAdded, new ArrayList<>(),
+                        confTx, operTx)), LOG, "Error adding an ELAN instance");
             }
         }), LOG, "Error adding an ELAN instance");
     }
