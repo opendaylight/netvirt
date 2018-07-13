@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.natservice.internal;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
@@ -45,6 +46,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     private final IVpnFootprintService vpnFootprintService;
     private final IFibManager fibManager;
     private final NatDataUtil natDataUtil;
+    private final DataTreeEventCallbackRegistrar eventCallbacks;
 
     @Inject
     public SnatServiceImplFactory(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -59,7 +61,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
                                   final IInterfaceManager interfaceManager,
                                   final IVpnFootprintService vpnFootprintService,
                                   final IFibManager fibManager,
-                                  final NatDataUtil natDataUtil) {
+                                  final NatDataUtil natDataUtil,
+                                  final DataTreeEventCallbackRegistrar eventCallbacks) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
@@ -78,6 +81,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         this.vpnFootprintService = vpnFootprintService;
         this.fibManager = fibManager;
         this.natDataUtil = natDataUtil;
+        this.eventCallbacks = eventCallbacks;
     }
 
     @Override
@@ -94,7 +98,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
 
         if (natMode == NatMode.Conntrack) {
             return new FlatVlanConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService,
-                    idManager, naptSwitchSelector, interfaceManager, vpnFootprintService, fibManager,  natDataUtil);
+                    idManager, naptSwitchSelector, interfaceManager, vpnFootprintService, fibManager,  natDataUtil,
+                    eventCallbacks);
         }
         return null;
     }
@@ -106,7 +111,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
                     NatConstants.ODL_VNI_POOL_NAME);
             return new VxlanGreConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService,
                     idManager, naptSwitchSelector, externalRouterListener, elanManager, interfaceManager,
-                    vpnFootprintService, fibManager, natDataUtil);
+                    vpnFootprintService, fibManager, natDataUtil, eventCallbacks);
         }
         return null;
     }

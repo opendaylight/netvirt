@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
@@ -70,9 +71,10 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
                                              ExternalRoutersListener externalRouterListener, IElanService elanManager,
                                              IInterfaceManager interfaceManager,
                                              IVpnFootprintService vpnFootprintService,
-                                             IFibManager fibManager, NatDataUtil natDataUtil) {
+                                             IFibManager fibManager, NatDataUtil natDataUtil,
+                                             DataTreeEventCallbackRegistrar eventCallbacks) {
         super(dataBroker, mdsalManager, itmManager, idManager, naptSwitchSelector, odlInterfaceRpcService,
-                interfaceManager, vpnFootprintService, fibManager, natDataUtil);
+                interfaceManager, vpnFootprintService, fibManager, natDataUtil, eventCallbacks);
         this.externalRouterListener = externalRouterListener;
         this.elanManager = elanManager;
     }
