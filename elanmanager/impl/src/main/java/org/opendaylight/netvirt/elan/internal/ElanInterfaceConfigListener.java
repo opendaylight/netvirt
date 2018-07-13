@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import java.util.Collections;
 import javax.annotation.PostConstruct;
@@ -81,7 +83,7 @@ public class ElanInterfaceConfigListener
             return;
         }
         jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName),
-            () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 LOG.debug("unbinding elan service on interface {} for its config removal", interfaceName);
                 elanInterfaceManager.unbindService(interfaceName, tx);
             })), ElanConstants.JOB_MAX_RETRIES);

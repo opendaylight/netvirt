@@ -31,7 +31,6 @@ import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TransactionAdapter;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
@@ -158,7 +157,7 @@ public class ElanLearntVpnVipToPortListener extends
             interfaceTx.put(elanMacEntryId, macEntry);
             ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
             elanUtils.setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName), macTimeOut,
-                    macAddress, true, TransactionAdapter.toWriteTransaction(flowTx));
+                    macAddress, true, flowTx);
         }
     }
 
