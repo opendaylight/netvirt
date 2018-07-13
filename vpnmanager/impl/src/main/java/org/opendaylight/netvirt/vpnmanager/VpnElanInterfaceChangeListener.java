@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,9 +82,8 @@ public class VpnElanInterfaceChangeListener
         }
 
         InstanceIdentifier<VpnInterface> vpnInterfaceIdentifier = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
-            tx.delete(LogicalDatastoreType.CONFIGURATION, vpnInterfaceIdentifier)), LOG,
-                "Error removing VPN interface {}", vpnInterfaceIdentifier);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
+            tx.delete(vpnInterfaceIdentifier)), LOG, "Error removing VPN interface {}", vpnInterfaceIdentifier);
         LOG.info("remove: Removed VPN interface {}", interfaceName);
     }
 

@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -138,7 +138,7 @@ public class FibManagerImpl implements IFibManager {
     public void addOrUpdateFibEntry(String rd, String macAddress, String prefix,
             List<String> nextHopList, VrfEntry.EncapType encapType, long label,
             long l3vni, String gwMacAddress, String parentVpnRd, RouteOrigin origin,
-            WriteTransaction writeConfigTxn) {
+            TypedWriteTransaction<Configuration> writeConfigTxn) {
         fibUtil.addOrUpdateFibEntry(rd, macAddress, prefix, nextHopList , encapType, label, l3vni, gwMacAddress,
                 parentVpnRd, origin, writeConfigTxn);
     }
@@ -146,18 +146,18 @@ public class FibManagerImpl implements IFibManager {
     @Override
     public void addFibEntryForRouterInterface(String rd, String prefix,
             RouterInterface routerInterface, long label,
-            WriteTransaction writeConfigTxn) {
+            TypedWriteTransaction<Configuration> writeConfigTxn) {
         fibUtil.addFibEntryForRouterInterface(rd, prefix, routerInterface, label, writeConfigTxn);
     }
 
     @Override
     public void removeOrUpdateFibEntry(String rd, String prefix,
-            String nextHopToRemove, WriteTransaction writeConfigTxn) {
+            String nextHopToRemove, TypedWriteTransaction<Configuration> writeConfigTxn) {
         fibUtil.removeOrUpdateFibEntry(rd, prefix, nextHopToRemove, writeConfigTxn);
     }
 
     @Override
-    public void removeFibEntry(String rd, String prefix, WriteTransaction writeConfigTxn) {
+    public void removeFibEntry(String rd, String prefix, TypedWriteTransaction<Configuration> writeConfigTxn) {
         fibUtil.removeFibEntry(rd, prefix, writeConfigTxn);
     }
 
@@ -168,7 +168,7 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void removeVrfTable(String rd, TypedWriteTransaction<Datastore.Configuration> writeConfigTxn) {
+    public void removeVrfTable(String rd, TypedWriteTransaction<Configuration> writeConfigTxn) {
         fibUtil.removeVrfTable(rd, writeConfigTxn);
     }
 

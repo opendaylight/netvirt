@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -25,11 +24,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
-import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
@@ -51,7 +47,6 @@ public class VpnServiceElanDpnInterfacesListener
     private final IInterfaceManager interfaceManager;
     private final IFibManager fibManager;
     private final JobCoordinator jobCoordinator;
-    private final ManagedNewTransactionRunner txRunner;
     private final VpnUtil vpnUtil;
 
     @Inject
@@ -61,7 +56,6 @@ public class VpnServiceElanDpnInterfacesListener
         this.interfaceManager = interfaceManager;
         this.fibManager = fibManager;
         this.jobCoordinator = jobCoordinator;
-        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.vpnUtil = vpnUtil;
     }
 
@@ -95,39 +89,34 @@ public class VpnServiceElanDpnInterfacesListener
         String primaryRd = vpnUtil.getPrimaryRd(vpnName);
         if (elanInstance != null && !elanInstance.isExternal() && VpnUtil.isVlan(elanInstance)) {
             jobCoordinator.enqueueJob(elanInstance.getElanInstanceName(), () -> {
-                ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeConfigTxn -> {
-                    List<String> addedInterfaces = getUpdatedInterfaceList(update.getInterfaces(),
-                            original.getInterfaces());
-                    for (String addedInterface: addedInterfaces) {
-                        if (interfaceManager.isExternalInterface(addedInterface)) {
-                            InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(primaryRd,
-                                    dpnId);
-                            Optional<VpnToDpnList> dpnInVpn = SingleTransactionDataBroker.syncReadOptional(dataBroker,
-                                    LogicalDatastoreType.OPERATIONAL, id);
-                            if (!dpnInVpn.isPresent() || (dpnInVpn.get().getVpnInterfaces() != null
-                                    && dpnInVpn.get().getVpnInterfaces().size() != 1)) {
-                                return;
-                            }
-                            if (!vpnUtil.shouldPopulateFibForVlan(vpnName, elanInstanceName, dpnId)) {
-                                return;
-                            }
-                            long vpnId = vpnUtil.getVpnId(vpnName);
-                            fibManager.populateFibOnNewDpn(dpnId, vpnId, primaryRd, null);
-                            break;
+                List<String> addedInterfaces = getUpdatedInterfaceList(update.getInterfaces(),
+                    original.getInterfaces());
+                for (String addedInterface : addedInterfaces) {
+                    if (interfaceManager.isExternalInterface(addedInterface)) {
+                        InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
+                        Optional<VpnToDpnList> dpnInVpn = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                            LogicalDatastoreType.OPERATIONAL, id);
+                        if (!dpnInVpn.isPresent() || (dpnInVpn.get().getVpnInterfaces() != null
+                            && dpnInVpn.get().getVpnInterfaces().size() != 1)) {
+                            return Collections.emptyList();
                         }
-                    }
-                    List<String> deletedInterfaces = getUpdatedInterfaceList(original.getInterfaces(),
-                            update.getInterfaces());
-                    if (!deletedInterfaces.isEmpty()) {
-                        String routerPortUuid = vpnUtil.getRouterPordIdFromElanInstance(elanInstanceName);
-                        if (update.getInterfaces().size() == 2 && update.getInterfaces().contains(routerPortUuid)) {
-                            vpnUtil.removeRouterPortFromElanForVlanInDpn(vpnName, dpnId);
+                        if (!vpnUtil.shouldPopulateFibForVlan(vpnName, elanInstanceName, dpnId)) {
+                            return Collections.emptyList();
                         }
+                        long vpnId = vpnUtil.getVpnId(vpnName);
+                        fibManager.populateFibOnNewDpn(dpnId, vpnId, primaryRd, null);
+                        break;
                     }
-                });
-                ListenableFutures.addErrorLogging(future, LOG, "Failed to process DpnInterfaces update event for"
-                        + "dpn {} elan {} vpn {}", dpnId, elanInstanceName, vpnName);
-                return Collections.singletonList(future);
+                }
+                List<String> deletedInterfaces = getUpdatedInterfaceList(original.getInterfaces(),
+                    update.getInterfaces());
+                if (!deletedInterfaces.isEmpty()) {
+                    String routerPortUuid = vpnUtil.getRouterPordIdFromElanInstance(elanInstanceName);
+                    if (update.getInterfaces().size() == 2 && update.getInterfaces().contains(routerPortUuid)) {
+                        vpnUtil.removeRouterPortFromElanForVlanInDpn(vpnName, dpnId);
+                    }
+                }
+                return Collections.emptyList();
             });
         }
     }

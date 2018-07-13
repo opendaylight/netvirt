@@ -8,6 +8,8 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import static java.util.stream.Collectors.toList;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -36,7 +38,6 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
@@ -182,34 +183,32 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             LOG.trace("update: No vpnInstanceOpdata present");
             return;
         }
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx ->
-                vpnInstanceOpData.stream()
-                        .filter(opData -> opData.getVpnToDpnList() != null
-                                && opData.getVpnToDpnList().stream().anyMatch(
-                                    vpnToDpn -> vpnToDpn.getDpnId().equals(srcDpnId)))
-                        .forEach(opData -> {
-                            List<DestPrefixes> prefixes = VpnExtraRouteHelper.getExtraRouteDestPrefixes(dataBroker,
-                                    opData.getVpnId());
-                            prefixes.forEach(destPrefix -> {
-                                VrfEntry vrfEntry = vpnUtil.getVrfEntry(opData.getVrfId(),
-                                        destPrefix.getDestPrefix());
-                                if (vrfEntry == null || vrfEntry.getRoutePaths() == null) {
-                                    return;
+        vpnInstanceOpData.stream()
+                .filter(opData -> opData.getVpnToDpnList() != null
+                        && opData.getVpnToDpnList().stream().anyMatch(
+                            vpnToDpn -> vpnToDpn.getDpnId().equals(srcDpnId)))
+                .forEach(opData -> {
+                    List<DestPrefixes> prefixes = VpnExtraRouteHelper.getExtraRouteDestPrefixes(dataBroker,
+                            opData.getVpnId());
+                    prefixes.forEach(destPrefix -> {
+                        VrfEntry vrfEntry = vpnUtil.getVrfEntry(opData.getVrfId(),
+                                destPrefix.getDestPrefix());
+                        if (vrfEntry == null || vrfEntry.getRoutePaths() == null) {
+                            return;
+                        }
+                        List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
+                        routePaths.forEach(routePath -> {
+                            if (routePath.getNexthopAddress().equals(srcTepIp)) {
+                                String prefix = destPrefix.getDestPrefix();
+                                String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(opData.getVpnInstanceName(),
+                                        prefix);
+                                synchronized (vpnPrefixKey.intern()) {
+                                    fibManager.refreshVrfEntry(opData.getVrfId(), prefix);
                                 }
-                                List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
-                                routePaths.forEach(routePath -> {
-                                    if (routePath.getNexthopAddress().equals(srcTepIp)) {
-                                        String prefix = destPrefix.getDestPrefix();
-                                        String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(opData.getVpnInstanceName(),
-                                                prefix);
-                                        synchronized (vpnPrefixKey.intern()) {
-                                            fibManager.refreshVrfEntry(opData.getVrfId(), prefix);
-                                        }
-                                    }
-                                });
-                            });
-                        })
-        ), LOG, "Error updating route paths for FIB entries");
+                            }
+                        });
+                    });
+                });
     }
 
     @Override
@@ -530,18 +529,17 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         @Override
         public List<ListenableFuture<Void>> call() {
             List<ListenableFuture<Void>> futures = new ArrayList<>(2);
-            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx ->
-                    futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
-                        if (tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
-                            vpnInterfaceManager.updateVpnInterfaceOnTepAdd(vpnInterface, stateTunnelList, confTx,
-                                    operTx);
-                        }
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, confTx ->
+                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, operTx -> {
+                    if (tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
+                        vpnInterfaceManager.updateVpnInterfaceOnTepAdd(vpnInterface, stateTunnelList, confTx, operTx);
+                    }
 
-                        if (tunnelAction == TunnelAction.TUNNEL_EP_DELETE && isTepDeletedOnDpn) {
-                            vpnInterfaceManager.updateVpnInterfaceOnTepDelete(vpnInterface, stateTunnelList, confTx,
-                                    operTx);
-                        }
-                    }))));
+                    if (tunnelAction == TunnelAction.TUNNEL_EP_DELETE && isTepDeletedOnDpn) {
+                        vpnInterfaceManager.updateVpnInterfaceOnTepDelete(vpnInterface, stateTunnelList, confTx,
+                            operTx);
+                    }
+                }))));
             return futures;
         }
     }
@@ -580,7 +578,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         DcGatewayIpList dcGatewayIpListConfig =
                 MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, dcGatewayIpListid).orNull();
         if (dcGatewayIpListConfig == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         return dcGatewayIpListConfig.getDcGatewayIp()
                 .stream()
