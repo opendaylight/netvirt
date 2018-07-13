@@ -15,7 +15,8 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -51,7 +52,7 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
     }
 
     @Override
-    public void populateFib(L3vpnInput input, WriteTransaction writeConfigTxn) {
+    public void populateFib(L3vpnInput input, TypedWriteTransaction<Configuration> writeConfigTxn) {
         if (input.getRouteOrigin() == RouteOrigin.CONNECTED) {
             LOG.info("populateFib : Found SubnetRoute for subnet {} rd {}", input.getSubnetIp(), input.getPrimaryRd());
             addSubnetRouteFibEntry(input);

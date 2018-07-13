@@ -26,7 +26,6 @@ import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackReg
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TransactionAdapter;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -330,7 +329,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         removeFlow(confTx, dpnId, NwConstants.L3_FIB_TABLE, flowRef);
         String rd = NatUtil.getVpnRd(dataBroker, subNetId);
         String ipPrefix = externalIp + "/32";
-        fibManager.removeFibEntry(rd, ipPrefix, TransactionAdapter.toWriteTransaction(confTx));
+        fibManager.removeFibEntry(rd, ipPrefix, confTx);
         NatUtil.deletePrefixToInterface(dataBroker, NatUtil.getVpnId(dataBroker, subNetId), ipPrefix);
     }
 

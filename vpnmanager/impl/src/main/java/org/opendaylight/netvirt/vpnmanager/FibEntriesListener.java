@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -110,9 +112,8 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
                     routeIds.add(label);
                 }
             });
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
-                            tx.put(LogicalDatastoreType.OPERATIONAL,
-                                    VpnUtil.getVpnInstanceOpDataIdentifier(rd),
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx ->
+                            tx.put(VpnUtil.getVpnInstanceOpDataIdentifier(rd),
                                     new VpnInstanceOpDataEntryBuilder(vpnInstanceOpData).setRouteEntryId(routeIds)
                                             .build())),
                     LOG, "Error adding label to VPN instance");
@@ -132,9 +133,8 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
             } else {
                 LOG.debug("Removing label from vpn info - {}", labels);
                 routeIds.removeAll(labels);
-                ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
-                                tx.put(LogicalDatastoreType.OPERATIONAL,
-                                        VpnUtil.getVpnInstanceOpDataIdentifier(rd),
+                ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx ->
+                                tx.put(VpnUtil.getVpnInstanceOpDataIdentifier(rd),
                                         new VpnInstanceOpDataEntryBuilder(vpnInstanceOpData).setRouteEntryId(routeIds)
                                                 .build())),
                         LOG, "Error removing label from VPN instance");

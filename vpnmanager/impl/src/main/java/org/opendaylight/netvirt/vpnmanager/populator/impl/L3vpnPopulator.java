@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.vpnmanager.populator.impl;
 
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import static org.opendaylight.infrautils.utils.concurrent.ListenableFutures.addErrorLogging;
 
 import com.google.common.base.Optional;
@@ -15,10 +17,11 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
@@ -67,7 +70,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
     }
 
     @Override
-    public void populateFib(L3vpnInput input, WriteTransaction writeCfgTxn) {}
+    public void populateFib(L3vpnInput input, TypedWriteTransaction<Configuration> writeCfgTxn) {}
 
     public void addSubnetRouteFibEntry(L3vpnInput input) {
         String rd = input.getRd();
@@ -146,7 +149,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
             Preconditions.checkNotNull(nextHopIpList, "addToLabelMapper: nextHopIp cannot be null or empty!");
         }
         synchronized (label.toString().intern()) {
-            addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                 LOG.info("addToLabelMapper: label {} dpn {} prefix {} nexthoplist {} vpnid {} vpnIntfcName {} rd {}"
                         + " elanTag {}", label, dpnId, prefix, nextHopIpList, vpnId, vpnInterfaceName, rd, elanTag);
                 if (dpnId != null) {
@@ -175,7 +178,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                     LabelRouteInfo lri = lriBuilder.build();
                     InstanceIdentifier<LabelRouteInfo> lriIid = InstanceIdentifier.builder(LabelRouteMap.class)
                             .child(LabelRouteInfo.class, new LabelRouteInfoKey(label)).build();
-                    tx.merge(LogicalDatastoreType.OPERATIONAL, lriIid, lri, true);
+                    tx.merge(lriIid, lri, CREATE_MISSING_PARENTS);
                     LOG.info("addToLabelMapper: Added label route info to label {} prefix {} nextHopList {} vpnId {}"
                             + " interface {} rd {} elantag {}", label, prefix, nextHopIpList, vpnId, vpnInterfaceName,
                             rd, elanTag);
@@ -196,7 +199,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void addPrefixToBGP(String rd, String primaryRd, String macAddress, String prefix, String nextHopIp,
                                   VrfEntry.EncapType encapType, long label, long l3vni, String gatewayMac,
-                                  RouteOrigin origin, WriteTransaction writeConfigTxn) {
+                                  RouteOrigin origin, TypedWriteTransaction<Configuration> writeConfigTxn) {
         try {
             List<String> nextHopList = Collections.singletonList(nextHopIp);
             LOG.info("ADD: addPrefixToBGP: Adding Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,

@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
@@ -16,11 +18,12 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
@@ -80,9 +83,9 @@ public class CentralizedSwitchChangeListener
     @Override
     protected void remove(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
         LOG.debug("Removing {}", routerToNaptSwitch);
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
-                        setupRouterGwFlows(routerToNaptSwitch, tx, NwConstants.DEL_FLOW)), LOG,
-                "Error processing switch removal for {}", routerToNaptSwitch);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx ->
+                                            setupRouterGwFlows(routerToNaptSwitch, tx, NwConstants.DEL_FLOW)), LOG,
+                                                "Error processing switch removal for {}", routerToNaptSwitch);
     }
 
     @Override
@@ -91,7 +94,7 @@ public class CentralizedSwitchChangeListener
         LOG.debug("Updating old {} new {}", origRouterToNaptSwitch, updatedRouterToNaptSwitch);
         if (!Objects.equals(updatedRouterToNaptSwitch.getPrimarySwitchId(),
                 origRouterToNaptSwitch.getPrimarySwitchId())) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                 setupRouterGwFlows(origRouterToNaptSwitch, tx, NwConstants.DEL_FLOW);
                 setupRouterGwFlows(updatedRouterToNaptSwitch, tx, NwConstants.ADD_FLOW);
             }), LOG, "Error updating switch {} to {}", origRouterToNaptSwitch, updatedRouterToNaptSwitch);
@@ -101,7 +104,7 @@ public class CentralizedSwitchChangeListener
     @Override
     protected void add(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
         LOG.debug("Adding {}", routerToNaptSwitch);
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx ->
                         setupRouterGwFlows(routerToNaptSwitch, tx, NwConstants.ADD_FLOW)), LOG,
                 "Error processing switch addition for {}", routerToNaptSwitch);
     }
@@ -111,8 +114,9 @@ public class CentralizedSwitchChangeListener
         return this;
     }
 
-    private void setupRouterGwFlows(RouterToNaptSwitch routerToNaptSwitch, WriteTransaction writeTx, int addOrRemove)
-            throws ExecutionException, InterruptedException {
+    private void setupRouterGwFlows(RouterToNaptSwitch routerToNaptSwitch,
+            TypedReadWriteTransaction<Configuration> confTx, int addOrRemove)
+                                    throws ExecutionException, InterruptedException {
         Routers router = null;
         if (addOrRemove == NwConstants.ADD_FLOW) {
             router = vpnUtil.getExternalRouter(routerToNaptSwitch.getRouterName());
@@ -139,11 +143,11 @@ public class CentralizedSwitchChangeListener
             Uuid subnetVpnName = extIp.getSubnetId();
             if (addOrRemove == NwConstants.ADD_FLOW) {
                 vpnManager.addRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId,
-                        subnetVpnName.getValue(), writeTx);
+                        subnetVpnName.getValue(), confTx);
                 externalRouterDataUtil.addtoRouterMap(router);
             } else {
                 vpnManager.removeRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId,
-                        subnetVpnName.getValue(), writeTx);
+                        subnetVpnName.getValue(), confTx);
                 externalRouterDataUtil.removeFromRouterMap(router);
             }
         }
@@ -151,7 +155,7 @@ public class CentralizedSwitchChangeListener
         if (addOrRemove == NwConstants.ADD_FLOW) {
             vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName,
                     VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
-                    extGwMacAddress, primarySwitchId, extNetworkId, writeTx);
+                    extGwMacAddress, primarySwitchId, extNetworkId);
         } else {
             vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerName,
                     VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),

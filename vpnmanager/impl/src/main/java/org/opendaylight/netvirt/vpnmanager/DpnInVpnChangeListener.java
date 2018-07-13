@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.Collection;
@@ -15,12 +17,13 @@ import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddInterfaceToDpnOnVpnEvent;
@@ -77,8 +80,8 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                     }
                     if (flushDpnsOnVpn) {
                         try {
-                            txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> deleteDpn(vpnToDpnList, rd, tx))
-                                    .get();
+                            txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
+                                tx -> deleteDpn(vpnToDpnList, rd, tx)).get();
                         } catch (InterruptedException | ExecutionException e) {
                             LOG.error("Error removing dpnToVpnList for vpn {} ", vpnName);
                             throw new RuntimeException(e.getMessage(), e);
@@ -91,10 +94,10 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
         }
     }
 
-    protected void deleteDpn(Collection<VpnToDpnList> vpnToDpnList, String rd, WriteTransaction writeTxn) {
+    protected void deleteDpn(Collection<VpnToDpnList> vpnToDpnList, String rd, TypedWriteTransaction<Operational> tx) {
         for (final VpnToDpnList curDpn : vpnToDpnList) {
             InstanceIdentifier<VpnToDpnList> vpnToDpnId = VpnHelper.getVpnToDpnListIdentifier(rd, curDpn.getDpnId());
-            writeTxn.delete(LogicalDatastoreType.OPERATIONAL, vpnToDpnId);
+            tx.delete(vpnToDpnId);
         }
     }
 

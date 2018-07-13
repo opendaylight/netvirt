@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.math.BigInteger;
@@ -183,9 +185,8 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                               .child(VrfTables.class, new VrfTablesKey(dstVpnRd))
                               .child(VrfEntry.class, new VrfEntryKey(newVrfEntry.getDestPrefix()))
                               .build();
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
-            tx.put(LogicalDatastoreType.CONFIGURATION, newVrfEntryIid, newVrfEntry)),
-                LOG, "Error adding VRF entry {}", newVrfEntry);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
+            tx.put(newVrfEntryIid, newVrfEntry)), LOG, "Error adding VRF entry {}", newVrfEntry);
 
         // Finally, route is advertised it to the DC-GW. But while in the FibEntries the nexthop is the other
         // endpoint's IP, in the DC-GW the nexthop for those prefixes are the IPs of those DPNs where the target
