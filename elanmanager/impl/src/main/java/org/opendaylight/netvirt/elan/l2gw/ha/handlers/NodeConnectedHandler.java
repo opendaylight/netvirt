@@ -7,17 +7,20 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.Datastore.Operational;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAJobScheduler;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
@@ -44,11 +47,11 @@ public class NodeConnectedHandler {
     private final PSAugmentationMerger psAugmentationMerger = PSAugmentationMerger.getInstance();
     private final GlobalNodeMerger globalNodeMerger = GlobalNodeMerger.getInstance();
     private final PSNodeMerger psNodeMerger = PSNodeMerger.getInstance();
-    private final DataBroker db;
+    private final ManagedNewTransactionRunner txRunner;
     private final HwvtepNodeHACache hwvtepNodeHACache;
 
     public NodeConnectedHandler(final DataBroker db, final HwvtepNodeHACache hwvtepNodeHACache) {
-        this.db = db;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(db);
         this.hwvtepNodeHACache = hwvtepNodeHACache;
     }
 
@@ -65,20 +68,19 @@ public class NodeConnectedHandler {
      * @param haNodePath  Ha Iid
      * @param haGlobalCfg Ha Global Config Node
      * @param haPSCfg Ha Physical Config Node
-     * @param tx Transaction
-     * @throws ReadFailedException  Exception thrown if read fails
+     * @param operTx Transaction
      */
-    @SuppressWarnings("checkstyle:ForbidCertainMethod")
     public void handleNodeConnected(Node childNode,
                                     InstanceIdentifier<Node> childNodePath,
                                     InstanceIdentifier<Node> haNodePath,
                                     Optional<Node> haGlobalCfg,
                                     Optional<Node> haPSCfg,
-                                    ReadWriteTransaction tx)
-            throws ReadFailedException {
-        HwvtepHAUtil.buildGlobalConfigForHANode(tx, childNode, haNodePath, haGlobalCfg);
-        copyChildOpToHA(childNode, haNodePath, tx);
-        readAndCopyChildPSOpToHAPS(childNode, haNodePath, tx);
+                                    TypedReadWriteTransaction<Configuration> confTx,
+                                    TypedReadWriteTransaction<Operational> operTx)
+            throws ExecutionException, InterruptedException {
+        HwvtepHAUtil.buildGlobalConfigForHANode(confTx, childNode, haNodePath, haGlobalCfg);
+        copyChildOpToHA(childNode, haNodePath, operTx);
+        readAndCopyChildPSOpToHAPS(childNode, haNodePath, operTx);
         if (haGlobalCfg.isPresent()) {
             //copy ha config to newly connected child case of reconnected child
             if (haPSCfg.isPresent()) {
@@ -90,27 +92,25 @@ public class NodeConnectedHandler {
                  (created in the device)
                  */
                 HAJobScheduler.getInstance().submitJob(() -> {
-                    try {
-                        hwvtepNodeHACache.updateConnectedNodeStatus(childNodePath);
-                        LOG.info("HA child reconnected handleNodeReConnected {}",
+                    ListenableFutures.addErrorLogging(
+                        txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, jobTx -> {
+                            hwvtepNodeHACache.updateConnectedNodeStatus(childNodePath);
+                            LOG.info("HA child reconnected handleNodeReConnected {}",
                                 childNode.getNodeId().getValue());
-                        ReadWriteTransaction tx1 = db.newReadWriteTransaction();
-                        copyHAPSConfigToChildPS(haPSCfg.get(), childNodePath, tx1);
-                        tx1.submit().checkedGet();
-                    } catch (TransactionCommitFailedException e) {
-                        LOG.error("Failed to process ", e);
-                    }
+                            copyHAPSConfigToChildPS(haPSCfg.get(), childNodePath, jobTx);
+                        }), LOG, "Failed to process");
                 });
 
             }
-            copyHANodeConfigToChild(haGlobalCfg.get(), childNodePath, tx);
+            copyHANodeConfigToChild(haGlobalCfg.get(), childNodePath, confTx);
         }
-        deleteChildPSConfigIfHAPSConfigIsMissing(haGlobalCfg, childNode, tx);
+        deleteChildPSConfigIfHAPSConfigIsMissing(haGlobalCfg, childNode, operTx);
     }
 
     private void deleteChildPSConfigIfHAPSConfigIsMissing(Optional<Node> haPSCfg,
                                                           Node childNode,
-                                                          ReadWriteTransaction tx) throws ReadFailedException {
+                                                          TypedReadWriteTransaction<Operational> tx)
+            throws ExecutionException, InterruptedException {
         if (haPSCfg.isPresent()) {
             return;
         }
@@ -120,7 +120,7 @@ public class NodeConnectedHandler {
             List<Switches> switches = augmentation.getSwitches();
             if (switches != null) {
                 for (Switches ps : switches) {
-                    HwvtepHAUtil.deleteNodeIfPresent(tx, CONFIGURATION, ps.getSwitchRef().getValue());
+                    HwvtepHAUtil.deleteNodeIfPresent(tx, ps.getSwitchRef().getValue());
                 }
             }
         } else {
@@ -134,12 +134,11 @@ public class NodeConnectedHandler {
      * @param childGlobalNode Ha Global Child node
      * @param haNodePath Ha node path
      * @param tx  Transaction
-     * @throws ReadFailedException  Exception thrown if read fails
      */
     void readAndCopyChildPSOpToHAPS(Node childGlobalNode,
                                     InstanceIdentifier<Node> haNodePath,
-                                    ReadWriteTransaction tx)
-            throws ReadFailedException {
+                                    TypedReadWriteTransaction<Operational> tx)
+            throws ExecutionException, InterruptedException {
 
         if (childGlobalNode == null || childGlobalNode.augmentation(HwvtepGlobalAugmentation.class) == null) {
             return;
@@ -149,8 +148,7 @@ public class NodeConnectedHandler {
             return;
         }
         for (Switches ps : switches) {
-            Node childPsNode = HwvtepHAUtil.readNode(tx, OPERATIONAL,
-                    (InstanceIdentifier<Node>) ps.getSwitchRef().getValue());
+            Node childPsNode = tx.read((InstanceIdentifier<Node>) ps.getSwitchRef().getValue()).get().orNull();
             if (childPsNode != null) {
                 InstanceIdentifier<Node> haPsPath = HwvtepHAUtil.convertPsPath(childPsNode, haNodePath);
                 copyChildPSOpToHAPS(childPsNode, haNodePath, haPsPath, tx);
@@ -167,7 +165,7 @@ public class NodeConnectedHandler {
      */
     private void copyHANodeConfigToChild(Node srcNode,
                                          InstanceIdentifier<Node> childPath,
-                                         ReadWriteTransaction tx) {
+                                         TypedReadWriteTransaction<Configuration> tx) {
         if (srcNode == null) {
             return;
         }
@@ -182,7 +180,7 @@ public class NodeConnectedHandler {
         globalNodeMerger.mergeConfigData(nodeBuilder, srcNode, childPath);
         nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, dstBuilder.build());
         Node dstNode = nodeBuilder.build();
-        tx.put(CONFIGURATION, childPath, dstNode, WriteTransaction.CREATE_MISSING_PARENTS);
+        tx.put(childPath, dstNode, CREATE_MISSING_PARENTS);
     }
 
     /**
@@ -191,12 +189,11 @@ public class NodeConnectedHandler {
      * @param childNode HA Child Node
      * @param haNodePath HA node path
      * @param tx Transaction
-     * @throws ReadFailedException  Exception thrown if read fails
      */
     private void copyChildOpToHA(Node childNode,
                                  InstanceIdentifier<Node> haNodePath,
-                                 ReadWriteTransaction tx)
-            throws ReadFailedException {
+                                 TypedReadWriteTransaction<Operational> tx)
+            throws ExecutionException, InterruptedException {
         if (childNode == null) {
             return;
         }
@@ -207,7 +204,7 @@ public class NodeConnectedHandler {
         NodeBuilder haNodeBuilder = HwvtepHAUtil.getNodeBuilderForPath(haNodePath);
         HwvtepGlobalAugmentationBuilder haBuilder = new HwvtepGlobalAugmentationBuilder();
 
-        Optional<Node> existingHANodeOptional = tx.read(OPERATIONAL, haNodePath).checkedGet();
+        Optional<Node> existingHANodeOptional = tx.read(haNodePath).get();
         Node existingHANode = existingHANodeOptional.isPresent() ? existingHANodeOptional.get() : null;
         HwvtepGlobalAugmentation existingHAData = HwvtepHAUtil.getGlobalAugmentationOfNode(existingHANode);
 
@@ -219,7 +216,7 @@ public class NodeConnectedHandler {
         haBuilder.setDbVersion(childData.getDbVersion());
         haNodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, haBuilder.build());
         Node haNode = haNodeBuilder.build();
-        tx.merge(OPERATIONAL, haNodePath, haNode, true);
+        tx.merge(haNodePath, haNode, CREATE_MISSING_PARENTS);
     }
 
     /**
@@ -248,7 +245,7 @@ public class NodeConnectedHandler {
      */
     public void copyHAPSConfigToChildPS(Node haPsNode,
                                         InstanceIdentifier<Node> childPath,
-                                        ReadWriteTransaction tx) {
+                                        TypedReadWriteTransaction<Configuration> tx) {
         InstanceIdentifier<Node> childPsPath = HwvtepHAUtil.convertPsPath(haPsNode, childPath);
 
         NodeBuilder childPsBuilder = HwvtepHAUtil.getNodeBuilderForPath(childPsPath);
@@ -260,7 +257,7 @@ public class NodeConnectedHandler {
 
         childPsBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstBuilder.build());
         Node childPSNode = childPsBuilder.build();
-        tx.put(CONFIGURATION, childPsPath, childPSNode, WriteTransaction.CREATE_MISSING_PARENTS);
+        tx.put(childPsPath, childPSNode, CREATE_MISSING_PARENTS);
     }
 
     /**
@@ -270,20 +267,19 @@ public class NodeConnectedHandler {
      * @param haPath  HA node path
      * @param haPspath Ha Physical Switch Node path
      * @param tx Transaction
-     * @throws ReadFailedException  Exception thrown if read fails
      */
     public void copyChildPSOpToHAPS(Node childPsNode,
                                     InstanceIdentifier<Node> haPath,
                                     InstanceIdentifier<Node> haPspath,
-                                    ReadWriteTransaction tx)
-            throws ReadFailedException {
+                                    TypedReadWriteTransaction<Operational> tx)
+            throws ExecutionException, InterruptedException {
 
         NodeBuilder haPSNodeBuilder = HwvtepHAUtil.getNodeBuilderForPath(haPspath);
         PhysicalSwitchAugmentationBuilder dstBuilder = new PhysicalSwitchAugmentationBuilder();
 
         PhysicalSwitchAugmentation src = childPsNode.augmentation(PhysicalSwitchAugmentation.class);
 
-        Node existingHAPSNode = HwvtepHAUtil.readNode(tx, OPERATIONAL, haPspath);
+        Node existingHAPSNode = tx.read(haPspath).get().orNull();
         PhysicalSwitchAugmentation existingHAPSAugumentation =
                 HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(existingHAPSNode);
 
@@ -293,7 +289,7 @@ public class NodeConnectedHandler {
 
         haPSNodeBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstBuilder.build());
         Node haPsNode = haPSNodeBuilder.build();
-        tx.merge(OPERATIONAL, haPspath, haPsNode, true);
+        tx.merge(haPspath, haPsNode, CREATE_MISSING_PARENTS);
     }
 
 }

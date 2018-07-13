@@ -8,7 +8,8 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalNodeMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.PSAugmentationMerger;
@@ -33,7 +34,7 @@ public class ConfigNodeUpdatedHandler {
      */
     public void copyHAGlobalUpdateToChild(InstanceIdentifier<Node> haChildNodeId,
                                           DataObjectModification<Node> mod,
-                                          ReadWriteTransaction tx) {
+                                          TypedReadWriteTransaction<Configuration> tx) {
         globalAugmentationMerger.mergeConfigUpdate(haChildNodeId,
                 mod.getModifiedAugmentation(HwvtepGlobalAugmentation.class), tx);
         globalNodeMerger.mergeConfigUpdate(haChildNodeId, mod, tx);
@@ -48,7 +49,7 @@ public class ConfigNodeUpdatedHandler {
      */
     public void copyHAPSUpdateToChild(InstanceIdentifier<Node> haChildNodeId,
                                       DataObjectModification<Node> mod,
-                                      ReadWriteTransaction tx) {
+                                      TypedReadWriteTransaction<Configuration> tx) {
 
         psAugmentationMerger.mergeConfigUpdate(haChildNodeId,
                 mod.getModifiedAugmentation(PhysicalSwitchAugmentation.class), tx);

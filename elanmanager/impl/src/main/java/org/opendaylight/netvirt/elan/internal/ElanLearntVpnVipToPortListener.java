@@ -31,12 +31,12 @@ import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.infra.TransactionAdapter;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
@@ -142,7 +142,7 @@ public class ElanLearntVpnVipToPortListener extends
         }
 
         private void addMacEntryToDsAndSetupFlows(String elanName, TypedWriteTransaction<Operational> interfaceTx,
-                TypedWriteTransaction<Configuration> flowTx, int macTimeOut) {
+                TypedWriteTransaction<Configuration> flowTx, int macTimeOut) throws ElanException {
             LOG.trace("Adding mac address {} and interface name {} to ElanInterfaceForwardingEntries and "
                 + "ElanForwardingTables DS", macAddress, interfaceName);
             BigInteger timeStamp = new BigInteger(String.valueOf(System.currentTimeMillis()));
@@ -158,7 +158,7 @@ public class ElanLearntVpnVipToPortListener extends
             interfaceTx.put(elanMacEntryId, macEntry);
             ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
             elanUtils.setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName), macTimeOut,
-                    macAddress, true, TransactionAdapter.toWriteTransaction(flowTx));
+                    macAddress, true, flowTx);
         }
     }
 
