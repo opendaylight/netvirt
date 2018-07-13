@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
@@ -15,8 +18,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -112,10 +113,9 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
             new InterVpnLinkStateBuilder(interVpnLinkState).setState(InterVpnLinkState.State.Active)
                     .setFirstEndpointState(firstEndPointState).setSecondEndpointState(secondEndPointState)
                     .build();
-        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
-            tx.merge(LogicalDatastoreType.CONFIGURATION,
-                    InterVpnLinkUtil.getInterVpnLinkStateIid(interVpnLinkState.getInterVpnLinkName()),
-                    newInterVpnLinkState, WriteTransaction.CREATE_MISSING_PARENTS));
+        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx ->
+            tx.merge(InterVpnLinkUtil.getInterVpnLinkStateIid(interVpnLinkState.getInterVpnLinkName()),
+                    newInterVpnLinkState, CREATE_MISSING_PARENTS));
     }
 
     private void installLPortDispatcherTable(InterVpnLinkState interVpnLinkState, List<BigInteger> firstDpnList,
