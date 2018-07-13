@@ -807,7 +807,7 @@ public class ElanL2GatewayUtils {
             return Futures.immediateFailedFuture(new RuntimeException(errMsg));
         }
 
-        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
             for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712
                     .l2gateway.attributes.devices.Interfaces deviceInterface : hwVtepDevice.getInterfaces()) {
                 //Removed the check for checking terminationPoint present in OP or not
@@ -847,7 +847,7 @@ public class ElanL2GatewayUtils {
      */
     public ListenableFuture<Void> updateVlanBindingsInL2GatewayDevice(NodeId nodeId, String psName,
             String interfaceName, List<VlanBindings> vlanBindings) {
-        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
             HwvtepUtils.mergeVlanBindings(tx, nodeId, psName, interfaceName, vlanBindings);
             LOG.info("Updated Hwvtep VlanBindings in config DS. NodeID: {}", nodeId.getValue());
         });
@@ -873,7 +873,7 @@ public class ElanL2GatewayUtils {
         }
         NodeId physicalSwitchNodeId = HwvtepSouthboundUtils.createManagedNodeId(nodeId, hwVtepDevice.getDeviceName());
 
-        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
             for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712
                     .l2gateway.attributes.devices.Interfaces deviceInterface : hwVtepDevice.getInterfaces()) {
                 String phyPortName = deviceInterface.getInterfaceName();
