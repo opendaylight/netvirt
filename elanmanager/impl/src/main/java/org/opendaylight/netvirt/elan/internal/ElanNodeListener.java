@@ -22,6 +22,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -53,9 +54,11 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderConstant;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -85,10 +88,12 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
     private final int arpPuntTimeout;
     private final boolean puntLldpToController;
     private final JobCoordinator jobCoordinator;
+    private final DataTreeEventCallbackRegistrar eventCallbacks;
 
     @Inject
     public ElanNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanConfig elanConfig,
-            IdManagerService idManagerService, JobCoordinator jobCoordinator) {
+            IdManagerService idManagerService, JobCoordinator jobCoordinator,
+            DataTreeEventCallbackRegistrar eventCallbacks) {
         this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
@@ -97,6 +102,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         this.puntLldpToController = elanConfig.isPuntLldpToController();
         this.idManagerService = idManagerService;
         this.jobCoordinator = jobCoordinator;
+        this.eventCallbacks = eventCallbacks;
     }
 
     @Override
@@ -322,6 +328,19 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         ArpResponderUtil.installGroup(mdsalManager, dpId, arpRequestGroupId,
                 ArpResponderConstant.GROUP_FLOW_NAME.value(), buckets);
 
+        eventCallbacks.onAddOrUpdate(LogicalDatastoreType.OPERATIONAL,
+                ElanUtils.getOperationalGroupId(dpId, arpRequestGroupId), (unused, newGroupId) -> {
+                ListenableFutures.addErrorLogging(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                        innerConfTx -> createArpRequestMatchFlowsForGroup(dpId, arpRequestGroupId,innerConfTx)),
+                    LOG, "Error adding flow for the group {}",arpRequestGroupId);
+                return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
+            });
+
+    }
+
+    private void createArpRequestMatchFlowsForGroup(BigInteger dpId, long arpRequestGroupId,
+            TypedWriteTransaction<Configuration> tx) {
         FlowEntity arpReqArpCheckTbl = ArpResponderUtil.createArpDefaultFlow(dpId, NwConstants.ARP_CHECK_TABLE,
                 NwConstants.ARP_REQUEST, () -> Arrays.asList(MatchEthernetType.ARP, MatchArpOp.REQUEST), () ->
                         Arrays.asList(new ActionGroup(arpRequestGroupId),
