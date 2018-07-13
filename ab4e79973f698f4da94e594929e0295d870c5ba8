@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "86e16ed3_5f1c220f",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1999,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-07-13T00:31:47Z",
+      "side": 1,
+      "message": "good catch, I accidentally deleted the line 1992, will put it back",
+      "parentUuid": "26c46cd6_0d4a9263",
+      "revId": "ab4e79973f698f4da94e594929e0295d870c5ba8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d64c7b51_d26cf419",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 5
@@ -30,6 +48,30 @@
       "writtenOn": "2018-07-13T00:17:23Z",
       "side": 1,
       "message": "switchDpnId (sp.)",
+      "range": {
+        "startLine": 2070,
+        "startChar": 31,
+        "endLine": 2070,
+        "endChar": 42
+      },
+      "revId": "ab4e79973f698f4da94e594929e0295d870c5ba8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fd8c0dd3_480c6921",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2070,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-07-13T00:31:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d64c7b51_d26cf419",
       "range": {
         "startLine": 2070,
         "startChar": 31,
