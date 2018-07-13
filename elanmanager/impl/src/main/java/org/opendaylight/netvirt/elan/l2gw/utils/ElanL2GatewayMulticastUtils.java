@@ -113,14 +113,13 @@ public class ElanL2GatewayMulticastUtils {
      * Handle mcast for elan l2 gw device add.
      * @param elanName the elan name
      * @param device the device
-     * @return the listenable future
      */
-    public ListenableFuture<Void> handleMcastForElanL2GwDeviceAdd(String elanName, L2GatewayDevice device) {
+    public void handleMcastForElanL2GwDeviceAdd(String elanName, L2GatewayDevice device) {
         InstanceIdentifier<ExternalTeps> tepPath = buildExternalTepPath(elanName, device.getTunnelIp());
-        JdkFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
-            tx.put(tepPath, buildExternalTeps(device));
-        }), LOG, "Failed to write to config external tep {}", tepPath);
-        return updateMcastMacsForAllElanDevices(elanName, device, true/* updateThisDevice */);
+        JdkFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+            tx -> tx.put(tepPath, buildExternalTeps(device))), LOG, "Failed to write to config external tep {}",
+            tepPath);
+        updateMcastMacsForAllElanDevices(elanName, device, true/* updateThisDevice */);
     }
 
     public static InstanceIdentifier<ExternalTeps> buildExternalTepPath(String elan, IpAddress tepIp) {
@@ -139,15 +138,11 @@ public class ElanL2GatewayMulticastUtils {
      *
      * @param elanName
      *            the elan to be updated
-     * @return the listenable future
      */
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public ListenableFuture<Void> updateRemoteMcastMacOnElanL2GwDevices(String elanName) {
-        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-            for (L2GatewayDevice device : ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName).values()) {
-                prepareRemoteMcastMacUpdateOnDevice(elanName, device);
-            }
-        });
+    public void updateRemoteMcastMacOnElanL2GwDevices(String elanName) {
+        for (L2GatewayDevice device : ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName).values()) {
+            prepareRemoteMcastMacUpdateOnDevice(elanName, device);
+        }
     }
 
     public void scheduleMcastMacUpdateJob(String elanName, L2GatewayDevice device) {
@@ -162,11 +157,9 @@ public class ElanL2GatewayMulticastUtils {
      *            the elan name
      * @param device
      *            the device
-     * @return the listenable future
      */
-    public ListenableFuture<Void> updateRemoteMcastMacOnElanL2GwDevice(String elanName, L2GatewayDevice device) {
-        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-            tx -> prepareRemoteMcastMacUpdateOnDevice(elanName, device));
+    public void updateRemoteMcastMacOnElanL2GwDevice(String elanName, L2GatewayDevice device) {
+        prepareRemoteMcastMacUpdateOnDevice(elanName, device);
     }
 
     public void prepareRemoteMcastMacUpdateOnDevice(String elanName,
@@ -176,7 +169,7 @@ public class ElanL2GatewayMulticastUtils {
         List<DpnInterfaces> dpns = elanUtils.getElanDPNByName(elanName);
         List<IpAddress> dpnsTepIps = getAllTepIpsOfDpns(device, dpns);
         List<IpAddress> l2GwDevicesTepIps = getAllTepIpsOfL2GwDevices(elanL2gwDevices);
-        preapareRemoteMcastMacEntry(elanName, device, dpnsTepIps, l2GwDevicesTepIps);
+        prepareRemoteMcastMacEntry(elanName, device, dpnsTepIps, l2GwDevicesTepIps);
     }
 
     /**
@@ -190,9 +183,8 @@ public class ElanL2GatewayMulticastUtils {
      *            the device
      * @param updateThisDevice
      *            the update this device
-     * @return the listenable future
      */
-    private ListenableFuture<Void> updateMcastMacsForAllElanDevices(String elanName, L2GatewayDevice device,
+    private void updateMcastMacsForAllElanDevices(String elanName, L2GatewayDevice device,
                                                                     boolean updateThisDevice) {
 
         SettableFuture<Void> ft = SettableFuture.create();
@@ -210,20 +202,17 @@ public class ElanL2GatewayMulticastUtils {
         // return ft;
         // }
 
-        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-            if (updateThisDevice) {
-                preapareRemoteMcastMacEntry(elanName, device, dpnsTepIps, l2GwDevicesTepIps);
-            }
+        if (updateThisDevice) {
+            prepareRemoteMcastMacEntry(elanName, device, dpnsTepIps, l2GwDevicesTepIps);
+        }
 
-            // TODO: Need to revisit below logic as logical switches might not be
-            // present to configure RemoteMcastMac entry
-            for (L2GatewayDevice otherDevice : devices.values()) {
-                if (!otherDevice.getDeviceName().equals(device.getDeviceName())) {
-                    preapareRemoteMcastMacEntry(elanName, otherDevice, dpnsTepIps, l2GwDevicesTepIps);
-                }
+        // TODO: Need to revisit below logic as logical switches might not be
+        // present to configure RemoteMcastMac entry
+        for (L2GatewayDevice otherDevice : devices.values()) {
+            if (!otherDevice.getDeviceName().equals(device.getDeviceName())) {
+                prepareRemoteMcastMacEntry(elanName, otherDevice, dpnsTepIps, l2GwDevicesTepIps);
             }
-        });
-
+        }
     }
 
     public void updateRemoteBroadcastGroupForAllElanDpns(ElanInstance elanInfo) {
@@ -435,7 +424,7 @@ public class ElanL2GatewayMulticastUtils {
      *            the l2 gw devices tep ips
      * @return the write transaction
      */
-    private void preapareRemoteMcastMacEntry(String elanName,
+    private void prepareRemoteMcastMacEntry(String elanName,
                                              L2GatewayDevice device, List<IpAddress> dpnsTepIps,
                                              List<IpAddress> l2GwDevicesTepIps) {
         NodeId nodeId = new NodeId(device.getHwvtepNodeId());
@@ -559,15 +548,13 @@ public class ElanL2GatewayMulticastUtils {
      */
     public List<ListenableFuture<Void>> handleMcastForElanL2GwDeviceDelete(String elanName,
                                                                            L2GatewayDevice l2GatewayDevice) {
-        ListenableFuture<Void> deleteTepFuture = txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-            tx.delete(LogicalDatastoreType.CONFIGURATION,
-                    buildExternalTepPath(elanName, l2GatewayDevice.getTunnelIp()));
-        });
-        ListenableFuture<Void> updateMcastMacsFuture = updateMcastMacsForAllElanDevices(
-                elanName, l2GatewayDevice, false/* updateThisDevice */);
+        ListenableFuture<Void> deleteTepFuture =
+            txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                tx -> tx.delete(buildExternalTepPath(elanName, l2GatewayDevice.getTunnelIp())));
+        updateMcastMacsForAllElanDevices(elanName, l2GatewayDevice, false/* updateThisDevice */);
         ListenableFuture<Void> deleteRemoteMcastMacFuture = deleteRemoteMcastMac(
                 new NodeId(l2GatewayDevice.getHwvtepNodeId()), elanName);
-        return Arrays.asList(updateMcastMacsFuture, deleteRemoteMcastMacFuture, deleteTepFuture);
+        return Arrays.asList(deleteRemoteMcastMacFuture, deleteTepFuture);
     }
 
     /**
