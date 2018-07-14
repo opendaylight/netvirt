@@ -24,22 +24,31 @@ patches for production) that there was scope for improving
 robustness in L3VPN.
 
 There were specific cases that may (or) may not succeed most of the time in L3VPN.
+
 1. VM Migration
-    - Specifically when VM being migrated is a parent of multiple IPAddresses (more than 4) where some are V4 and some V6.
+
+ - Specifically when VM being migrated is a parent of multiple IPAddresses (more than 4) where some are V4 and some V6.
+
 2. VM Evacuation
-    - Mutliple VMs on a host, each evacuated VM being a parent of multiple IPAddresses, and the host made down.
+
+ - Mutliple VMs on a host, each evacuated VM being a parent of multiple IPAddresses, and the host made down.
+
 3. Speed up Router-association and Router-disassociation to a VPN lifecycle
+
 4. Graceful ECMP handling (i.e, ExtraRoute with multiple nexthops)
-    - Modify an existing extra-route with additional nexthops.
-    - Modify an existing extra-route by removing a nexthop from a list of configured nexthops.
-    - Boot a VM, which is a nexthop for a pre-configured extra-route
-    - Delete a VM, which is a nexthop for an extra-route
+
+ - Modify an existing extra-route with additional nexthops.
+ - Modify an existing extra-route by removing a nexthop from a list of configured nexthops.
+ - Boot a VM, which is a nexthop for a pre-configured extra-route
+ - Delete a VM, which is a nexthop for an extra-route
+
 5. Robust VIP/MIP Handling
-  - MIP movement across VMs on different computes with VRRP configuration.
-  - VM (holding MIP) migration.
-  - MIP traffic impact on ODL cluster reboot.
-  - MIP traffic impact on OVS disconnect/connect.
-  - MIP Aliveness monitoring sessions are not persistent.
+
+ - MIP movement across VMs on different computes with VRRP configuration.
+ - VM (holding MIP) migration.
+ - MIP traffic impact on ODL cluster reboot.
+ - MIP traffic impact on OVS disconnect/connect.
+ - MIP Aliveness monitoring sessions are not persistent.
 
 If we take a closer look, the first three points (points 1, 2 and 3) require
 vpn-interface-based serialization across the cluster for consistently driven
@@ -148,44 +157,49 @@ Section 1
 ---------
 This section talks about enforcing IP Serialization for extra-routes.
 The main goal of the proposed implementation in this section is two-fold:
+
 * To enforce IP Serialization for Extra-Route (or Static-Route) IP Addresses in a plain-router domain
   (or) a BGPVPN routing domain
 * To eliminate the Thread.sleep enforced for extra-route hanlding in NeutronRouterChangeListener and
   also to remove the clusterLocks introduced in NextHopManager.
 * The implementation enforces IP Serialization in the following way:
-    1. It introduces a new yang container, 'extra-route-adjacency' to hold all the configured extra-routes.
-       The container model is defined in the Yang Changes section.
-    2. All the extra-routes configured on a router will now be written to 'extra-route-adjacency' by Neutronvpn.
-       This will eliminate adding the extra-routes as adjacencies to their respective nexthop interfaces, i.e,
-       Extra-Routes will never be represented as vpn-interface adjacencies going forward. All information
-       about the configured extra-routes will only be present in 'extra-route-adjacency'.
-    3. A new 'extra-route-adjacency' listener will be responsible for creating FIB, and updating other ECMP
-       related datastores for the extra-routes. This listener will be a clustered one, that will use EOS to
-       execute only on the owner node for L3VPN Entity. Translation of FIB to flows remains unchanged.
-    4. This section will also handle configuring/unconfiguring pre-created extra-routes on VMs that are booted
-       at a later point in time. This is done by a new service for extra-route to port binding service, that will
-       be executed on every VM addition/deletion.
+
+ 1. It introduces a new yang container, 'extra-route-adjacency' to hold all the configured extra-routes.
+    The container model is defined in the Yang Changes section.
+ 2. All the extra-routes configured on a router will now be written to 'extra-route-adjacency' by
+    Neutronvpn. This will eliminate adding the extra-routes as adjacencies to their respective nexthop
+    interfaces, i.e, Extra-Routes will never be represented as vpn-interface adjacencies going forward.
+    All information about the configured extra-routes will only be present in 'extra-route-adjacency'.
+ 3. A new 'extra-route-adjacency' listener will be responsible for creating FIB, and updating other ECMP
+    related datastores for the extra-routes. This listener will be a clustered one, that will use EOS to
+    execute only on the owner node for L3VPN Entity. Translation of FIB to flows remains unchanged.
+ 4. This section will also handle configuring/unconfiguring pre-created extra-routes on VMs that are
+    booted at a later point in time. This is done by a new service for extra-route to port binding
+    service, that will be executed on every VM addition/deletion.
 
 Section 2
 ---------
 This section talks about enforcing IP Serialization for MIPs.
+
 * The implementation enforces IP Serialization in the following way:
-    1. A new MIP-Engine will be implemented which will listen on 'mip-route-adjacency' config container.
-       The container model is defined in the Yang Changes section.
-    2. When GARP/ARP Responses messages are punted to ODL controller, ArpNotificationHandler will write MIP info to
-       'mip-route-adjacency'.This listener will be a clustered one, that will use EOS to execute only on the
-       owner node for L3VPN Entity.
-    3. MIP-Engine will be responsible for creating/deleting the FIB entry. It will also trigger the Aliveness Manager
-       to start/stop the Monitoring session for each learnt IPs.
-    4. Upon ODL cluster reboot , MIP-Engine will trigger the Aliveness Manager to start the monitoring as Aliveness
-       Manager does not persist the Monitoring sessions.
+
+ 1. A new MIP-Engine will be implemented which will listen on 'mip-route-adjacency' config container.
+    The container model is defined in the Yang Changes section.
+ 2. When GARP/ARP Responses messages are punted to ODL controller, ArpNotificationHandler will write MIP info to
+    'mip-route-adjacency'.This listener will be a clustered one, that will use EOS to execute only on the
+    owner node for L3VPN Entity.
+ 3. MIP-Engine will be responsible for creating/deleting the FIB entry. It will also trigger the Aliveness Manager
+    to start/stop the Monitoring session for each learnt IPs.
+ 4. Upon ODL cluster reboot , MIP-Engine will trigger the Aliveness Manager to start the monitoring as Aliveness
+    Manager does not persist the Monitoring sessions.
 
 This section talks about making VPNEngine robust enough to handle following MIP related scenario:
-    1. Currently when OVS disconnects from ODL controller, AlivenessManager does not detect it. It tries to send
-       Arp Request message to OVS hosting MIP and fails. Eventually AlivenessManager thinks MIP is dead and forces
-       VPNEngine to withdraw the MIP route from DC-Gateway. It leads to MIP traffic loss eventhough MIP is active on OVS.
-    2. VPNEngine listens on 'Nodes' container to detect OVS disconnect/connect.VPNEngine will pause the Monitoring
-       session for MIP when OVS disconnects and will resume the Monitoring session for MIP when OVS connects.
+
+ 1. Currently when OVS disconnects from ODL controller, AlivenessManager does not detect it. It tries to send
+    Arp Request message to OVS hosting MIP and fails. Eventually AlivenessManager thinks MIP is dead and forces
+    VPNEngine to withdraw the MIP route from DC-Gateway. It leads to MIP traffic loss eventhough MIP is active on OVS.
+ 2. VPNEngine listens on 'Nodes' container to detect OVS disconnect/connect.VPNEngine will pause the Monitoring
+    session for MIP when OVS disconnects and will resume the Monitoring session for MIP when OVS connects.
 
 Section 3
 ---------
@@ -240,10 +254,12 @@ Details about the proposal is given below to facilitate implementors.
 10. The VpnInterface creation/deletion/updation handling will also be driven on whichever node is the leader
     for 'L3VPN' service as per VpnLeadershipTracker.  The following jobKeys for JobCoordinator will be applied
     for VpnInterfaceEvents:
+
     a. The jobKey of 'vpnid-dpnid' will be used for populateFibOnNewDpn and cleanupFibOnNewDpn (and its related methods)
        Here vpnid is dataplane representation of the VPN (and not the control plane vpnuuid).
 
     b. b1. The jobKey of 'VPN-<vpn-interface-name>' will continued to be used to serialize all events for a specific vpn-interface.
+
        b2. Within the 'VPN-<vpn-interface-name>' run, a nested job will be fired with key of 'VPN-rd-prefix' to serialize handler
            run for all IPAddresses within a given vpn (identified by rd). The 'prefix' here can be primary-ip, extra-route-prefix,
            or a discovered mip-prefix.

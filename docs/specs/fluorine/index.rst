@@ -11,6 +11,7 @@ Contents:
    EVPN and l2gw integration <evpn-l2gw-integration>
    EVPN Route Type 3 support <evpn-rt3-support>
    IGMPv3 Snooping <igmp-snooping>
+   L3VPN Robustness <l3vpn-robustness>
    Neutron Quality of Service <qos>
    OVS Based NA Responder for IPv6 default Gateway <ovs_based_na_responder_for_gw>
    Retain Earlier Elected Napt Switch After Upgrade for SNAT<retain-napt-switch-after-upgrade-for-snat>
