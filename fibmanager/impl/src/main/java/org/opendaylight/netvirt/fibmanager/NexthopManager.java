@@ -212,6 +212,14 @@ public class NexthopManager implements AutoCloseable {
         return "nexthop." + vpnId + ipAddress;
     }
 
+    String getRemoteSelectGroupKey(long vpnId, String ipAddress) {
+        return "remote.ecmp.nexthop." + vpnId + ipAddress;
+    }
+
+    String getLocalSelectGroupKey(long vpnId, String ipAddress) {
+        return "local.ecmp.nexthop." + vpnId + ipAddress;
+    }
+
     public ItmRpcService getItmManager() {
         return itmManager;
     }
@@ -356,6 +364,15 @@ public class NexthopManager implements AutoCloseable {
     public long getLocalNextHopGroup(long vpnId,
             String ipNextHopAddress) {
         long groupId = createNextHopPointer(getNextHopKey(vpnId, ipNextHopAddress));
+        if (groupId == FibConstants.INVALID_GROUP_ID) {
+            LOG.error("Unable to allocate groupId for vpnId {} , prefix {}", vpnId, ipNextHopAddress);
+        }
+        return groupId;
+    }
+
+    public long getLocalSelectGroup(long vpnId,
+            String ipNextHopAddress) {
+        long groupId = createNextHopPointer(getLocalSelectGroupKey(vpnId, ipNextHopAddress));
         if (groupId == FibConstants.INVALID_GROUP_ID) {
             LOG.error("Unable to allocate groupId for vpnId {} , prefix {}", vpnId, ipNextHopAddress);
         }
@@ -817,46 +834,78 @@ public class NexthopManager implements AutoCloseable {
     }
 
     protected long setupLoadBalancingNextHop(Long parentVpnId, BigInteger dpnId,
-            String destPrefix, List<BucketInfo> listBucketInfo, boolean addOrRemove) {
-        long groupId = createNextHopPointer(getNextHopKey(parentVpnId, destPrefix));
-        if (groupId == FibConstants.INVALID_GROUP_ID) {
-            LOG.error("Unable to allocate/retrieve groupId for vpnId {} , prefix {}", parentVpnId, destPrefix);
-            return groupId;
+            String destPrefix, List<BucketInfo> localBucketInfo, List<BucketInfo> remoteBucketInfo) {
+        long remoteGroupId = createNextHopPointer(getRemoteSelectGroupKey(parentVpnId, destPrefix));
+        if (remoteGroupId == FibConstants.INVALID_GROUP_ID) {
+            LOG.error("Unable to allocate/retrieve remote groupId for vpnId {} , prefix {}", parentVpnId, destPrefix);
+            return remoteGroupId;
         }
-        GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
-                dpnId, groupId, destPrefix, GroupTypes.GroupSelect, listBucketInfo);
+        long localGroupId = FibConstants.INVALID_GROUP_ID;
+        if (!localBucketInfo.isEmpty() && !remoteBucketInfo.isEmpty()) {
+            localGroupId = createNextHopPointer(getLocalSelectGroupKey(parentVpnId, destPrefix));
+            if (localGroupId == FibConstants.INVALID_GROUP_ID) {
+                LOG.error("Unable to allocate/retrieve local groupId for vpnId {} , prefix {}",
+                    parentVpnId, destPrefix);
+                return remoteGroupId;
+            }
+        }
+        List<BucketInfo> combinedBucketInfo = new ArrayList<>();
+        combinedBucketInfo.addAll(localBucketInfo);
+        combinedBucketInfo.addAll(remoteBucketInfo);
+        GroupEntity remoteGroupEntity = MDSALUtil.buildGroupEntity(
+                dpnId, remoteGroupId, destPrefix, GroupTypes.GroupSelect, combinedBucketInfo);
+        GroupEntity localGroupEntity = MDSALUtil.buildGroupEntity(
+                dpnId, localGroupId, destPrefix, GroupTypes.GroupSelect, localBucketInfo);
         String jobKey = FibUtil.getCreateLocalNextHopJobKey(parentVpnId, dpnId, destPrefix);
         jobCoordinator.enqueueJob(jobKey, () -> {
-            if (addOrRemove) {
-                mdsalApiManager.syncInstallGroup(groupEntity);
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Finished installing GroupEntity with jobCoordinator key {} groupEntity.groupId {}"
-                            + "  groupEntity.groupType {}", jobKey, groupEntity.getGroupId(),
-                            groupEntity.getGroupType());
-                }
-            } else {
-                mdsalApiManager.removeGroup(groupEntity);
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Finished removing GroupEntity with jobCoordinator key {} groupEntity.groupId {}"
-                            + "  groupEntity.groupType {}", jobKey, groupEntity.getGroupId(),
-                            groupEntity.getGroupType());
-                }
+            mdsalApiManager.syncInstallGroup(remoteGroupEntity);
+            if (!localBucketInfo.isEmpty() && !remoteBucketInfo.isEmpty()) {
+                mdsalApiManager.syncInstallGroup(localGroupEntity);
+            }
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Finished installing GroupEntity with jobCoordinator key {} remoteGroupEntity.groupId {}"
+                        + "localGroupEntity.groupId {}  groupEntity.groupType {}", jobKey,
+                        remoteGroupEntity.getGroupId(), localGroupEntity.getGroupId(),
+                        remoteGroupEntity.getGroupType());
             }
             return Collections.emptyList();
         });
-        return groupId;
+        return remoteGroupId;
+    }
+
+    protected void deleteLoadBalancingNextHop(Long parentVpnId, BigInteger dpnId, String destPrefix) {
+        long remoteGroupId = createNextHopPointer(getRemoteSelectGroupKey(parentVpnId, destPrefix));
+        if (remoteGroupId == FibConstants.INVALID_GROUP_ID) {
+            LOG.error("Unable to allocate/retrieve remote groupId for vpnId {} , prefix {}", parentVpnId, destPrefix);
+        }
+        long localGroupId = createNextHopPointer(getLocalSelectGroupKey(parentVpnId, destPrefix));
+        if (localGroupId == FibConstants.INVALID_GROUP_ID) {
+            LOG.error("Unable to allocate/retrieve local groupId for vpnId {} , prefix {}", parentVpnId, destPrefix);
+        }
+        String jobKey = FibUtil.getCreateLocalNextHopJobKey(parentVpnId, dpnId, destPrefix);
+        jobCoordinator.enqueueJob(jobKey, () -> {
+            mdsalApiManager.removeGroup(dpnId, remoteGroupId);
+            mdsalApiManager.removeGroup(dpnId, localGroupId);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Finished removing GroupEntity with jobCoordinator key {} remoteGroupEntity.groupId {}"
+                    + "localGroupEntity.groupId {}", jobKey, remoteGroupId, localGroupId);
+            }
+            return Collections.emptyList();
+        });
     }
 
     long createNextHopGroups(Long vpnId, String rd, BigInteger dpnId, VrfEntry vrfEntry,
             Routes routes, List<Routes> vpnExtraRoutes) {
-        List<BucketInfo> listBucketInfo = new ArrayList<>();
+        List<BucketInfo> localBucketInfo = new ArrayList<>();
         List<Routes> clonedVpnExtraRoutes  = new ArrayList<>(vpnExtraRoutes);
         if (clonedVpnExtraRoutes.contains(routes)) {
-            listBucketInfo.addAll(getBucketsForLocalNexthop(vpnId, dpnId, vrfEntry, routes));
+            localBucketInfo.addAll(getBucketsForLocalNexthop(vpnId, dpnId, vrfEntry, routes));
             clonedVpnExtraRoutes.remove(routes);
         }
-        listBucketInfo.addAll(getBucketsForRemoteNexthop(vpnId, dpnId, vrfEntry, rd, clonedVpnExtraRoutes));
-        return setupLoadBalancingNextHop(vpnId, dpnId, vrfEntry.getDestPrefix(), listBucketInfo,true);
+        List<BucketInfo> remoteBucketInfo = new ArrayList<>();
+        remoteBucketInfo.addAll(getBucketsForRemoteNexthop(vpnId, dpnId, vrfEntry, rd, clonedVpnExtraRoutes));
+        return setupLoadBalancingNextHop(vpnId, dpnId,
+            vrfEntry.getDestPrefix(), localBucketInfo, remoteBucketInfo);
     }
 
     private List<BucketInfo> getBucketsForLocalNexthop(Long vpnId, BigInteger dpnId,

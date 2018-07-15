@@ -13,7 +13,6 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -350,8 +349,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         if (localDpnId != null && localDpnId != BigInteger.ZERO) {
             // localDpnId is not known when clean up happens for last vm for a vpn on a dpn
             if (extraRouteOptional.isPresent()) {
-                nexthopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(),
-                        Collections.emptyList() /*listBucketInfo*/ , false);
+                nexthopManager.deleteLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix());
             }
             deleteFibEntryForBgpRoutes(remoteDpnId, vpnId, vrfEntry, rd, tx, subTxns);
             return;
@@ -360,8 +358,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         // below two reads are kept as is, until best way is found to identify dpnID
         VpnNexthop localNextHopInfo = nexthopManager.getVpnNexthop(vpnId, vrfEntry.getDestPrefix());
         if (extraRouteOptional.isPresent()) {
-            nexthopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(),
-                    Collections.emptyList()  /*listBucketInfo*/ , false);
+            nexthopManager.deleteLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix());
         } else {
             checkDpnDeleteFibEntry(localNextHopInfo, remoteDpnId, vpnId, vrfEntry, rd, tx, subTxns);
         }
