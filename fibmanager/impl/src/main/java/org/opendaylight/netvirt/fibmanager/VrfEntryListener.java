@@ -867,7 +867,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 }
                 if (vpnExtraRoutes.size() > 1) {
                     groupId = nextHopManager.createNextHopGroups(vpnId, rd, dpnId, vrfEntry, routes, vpnExtraRoutes);
-                    localGroupId = nextHopManager.getLocalNextHopGroup(vpnId, localNextHopIP);
+                    localGroupId = nextHopManager.getLocalSelectGroup(vpnId, vrfEntry.getDestPrefix());
                 } else if (routes.getNexthopIpList().size() > 1) {
                     groupId = nextHopManager.createNextHopGroups(vpnId, rd, dpnId, vrfEntry, routes, vpnExtraRoutes);
                     localGroupId = groupId;
@@ -891,7 +891,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             Collections.singletonList(new ActionGroup(groupId))));
             final List<InstructionInfo> lfibinstructions = Collections.singletonList(
                     new InstructionApplyActions(
-                            Arrays.asList(new ActionPopMpls(etherType), new ActionGroup(groupId))));
+                            Arrays.asList(new ActionPopMpls(etherType), new ActionGroup(localGroupId))));
             java.util.Optional<Long> optLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
             List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
             String jobKey = FibUtil.getCreateLocalNextHopJobKey(vpnId, dpnId, vrfEntry.getDestPrefix());
@@ -909,15 +909,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                         nextHopAddressList);
                                 makeLFibTableEntry(dpnId, label, lfibinstructions, DEFAULT_FIB_FLOW_PRIORITY,
                                         NwConstants.ADD_FLOW, tx);
-                                // If the extra-route is reachable from VMs attached to the same switch,
-                                // then the tunnel table can point to the load balancing group.
-                                // If it is reachable from VMs attached to different switches,
-                                // then it should be pointing to one of the local group in order to avoid looping.
-                                if (vrfEntry.getRoutePaths().size() == 1) {
-                                    makeTunnelTableEntry(dpnId, label, groupId, tx);
-                                } else {
-                                    makeTunnelTableEntry(dpnId, label, localGroupId, tx);
-                                }
+                                makeTunnelTableEntry(dpnId, label, localGroupId, tx);
                             } else {
                                 LOG.debug("Route with rd {} prefix {} label {} nexthop {} for vpn {} is an imported "
                                                 + "route. LFib and Terminating table entries will not be created.",
@@ -1082,9 +1074,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             vrfEntry, shouldUpdateNonEcmpLocalNextHop);
                     if (!dpnId.equals(BigInteger.ZERO)) {
                         LOG.trace("Deleting ECMP group for prefix {}, dpn {}", vrfEntry.getDestPrefix(), dpnId);
-                        nextHopManager.setupLoadBalancingNextHop(vpnId, dpnId,
-                                vrfEntry.getDestPrefix(), /*listBucketInfo*/ Collections.emptyList(),
-                                /*remove*/ false);
+                        nextHopManager.deleteLoadBalancingNextHop(vpnId, dpnId, vrfEntry.getDestPrefix());
                         returnLocalDpnId.add(dpnId);
                     }
                 } else {
@@ -1385,6 +1375,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                         vrfEntry.getDestPrefix()));
                         txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, configTx ->
                             configTx.delete(VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, vrfEntry.getDestPrefix())));
+                        nextHopManager.removeNextHopPointer(nextHopManager
+                                .getRemoteSelectGroupKey(vpnId, vrfEntry.getDestPrefix()));
+                        nextHopManager.removeNextHopPointer(nextHopManager
+                                .getLocalSelectGroupKey(vpnId, vrfEntry.getDestPrefix()));
                     }
                 }
                 handleAdjacencyAndVpnOpInterfaceDeletion(vrfEntry, ifName, vpnName, tx);
