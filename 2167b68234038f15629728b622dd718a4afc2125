@@ -22,6 +22,30 @@
       "revId": "2167b68234038f15629728b622dd718a4afc2125",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "abe20635_aeb68ae7",
+        "filename": "vpnmanager/impl/src/main/resources/initial/netvirt-vpnmanager-config.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5089
+      },
+      "writtenOn": "2018-07-16T20:05:33Z",
+      "side": 1,
+      "message": "It doesn\u0027t have any effect right now as we do not support configuring these values anyway in our deployment. However fwiw I don\u0027t think this is a good change. The rename doesn\u0027t make much sense. I get that the point is to try to use a common setting for both protocols, but I think the new name causes more confusion than the benefit of consolidating the variables. arp-timeout and ipv6-nd-timeout probably make more sense here. \n\nWhy is arp-cache-size renamed to migrate-ip-cache-size? I don\u0027t know what the word \u0027migrate\u0027 signifies. If you want to use a single setting for ipv4 and ipv6 for this and its just the amount of entries you can hold for the ARP or ND cache, then I would call it like l3-cache-size.",
+      "parentUuid": "0c71a04f_fdc94417",
+      "range": {
+        "startLine": 2,
+        "startChar": 2,
+        "endLine": 3,
+        "endChar": 43
+      },
+      "revId": "2167b68234038f15629728b622dd718a4afc2125",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
