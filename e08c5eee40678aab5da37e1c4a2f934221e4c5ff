@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b987ba38_3820c1ea",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-07-16T09:10:18Z",
+      "side": 1,
+      "message": "Using DataTreeEventCallbackRegistrar entails registering a DTCL so it is best to check first and avoid that if possible. I would suggest first checking for the group and if it is present calling createArpRequestMatchFlowsForGroup directly. It it is absent, register with eventCallbacks.\n\nAlso, there is a version of onAddOrUpdate that takes a timeout value and a function execute in the event that the group does not show up. It\u0027s important to use that for resource management reasons and so that we can log about the condition when the timeout occurs.",
+      "revId": "e08c5eee40678aab5da37e1c4a2f934221e4c5ff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
