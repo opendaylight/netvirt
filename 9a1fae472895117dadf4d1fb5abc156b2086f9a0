@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff88eae6_7683ae52",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-17T06:55:53Z",
+      "side": 1,
+      "message": "looks like this import is never used.",
+      "range": {
+        "startLine": 32,
+        "startChar": 37,
+        "endLine": 32,
+        "endChar": 65
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ee3bd75b_91495e80",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AlivenessMonitorUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-17T06:55:53Z",
+      "side": 1,
+      "message": "Instead of null, can you please return optional from allocateIpMonitorProfile() and check for isPresent?",
+      "range": {
+        "startLine": 98,
+        "startChar": 22,
+        "endLine": 98,
+        "endChar": 33
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b405143d_e2b82f38",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AlivenessMonitorUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-17T06:55:53Z",
+      "side": 1,
+      "message": "startIpMonitoring:",
+      "range": {
+        "startLine": 99,
+        "startChar": 26,
+        "endLine": 99,
+        "endChar": 29
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "156efda5_72edf31c",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AlivenessMonitorUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-17T06:55:53Z",
+      "side": 1,
+      "message": "allocateIpMonitorProfile:",
+      "range": {
+        "startLine": 156,
+        "startChar": 22,
+        "endLine": 156,
+        "endChar": 23
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "385ce8e5_1005e030",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/IpMonitoringHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-17T06:55:53Z",
+      "side": 1,
+      "message": "check for isPresent",
+      "range": {
+        "startLine": 148,
+        "startChar": 25,
+        "endLine": 148,
+        "endChar": 33
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "051fb5e7_82b9e522",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/IpMonitoringHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-17T06:55:53Z",
+      "side": 1,
+      "message": "you dont have to execute stop task for v6 currently right, since there is no v6 monitoring available",
+      "range": {
+        "startLine": 172,
+        "startChar": 39,
+        "endLine": 172,
+        "endChar": 56
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0f1137f8_ecb37589",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/IpMonitoringHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-17T06:55:53Z",
+      "side": 1,
+      "message": "return absent.",
+      "range": {
+        "startLine": 191,
+        "startChar": 14,
+        "endLine": 191,
+        "endChar": 23
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0668947_6356d350",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/LearntVpnVipToPortEventProcessor.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-17T06:55:53Z",
+      "side": 1,
+      "message": "Move this this util class if present",
+      "range": {
+        "startLine": 126,
+        "startChar": 70,
+        "endLine": 126,
+        "endChar": 90
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8f94d119_c41cda8e",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/ipv4/ArpNotificationHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-17T06:55:53Z",
+      "side": 1,
+      "message": "is this needed?",
+      "range": {
+        "startLine": 16,
+        "startChar": 51,
+        "endLine": 16,
+        "endChar": 75
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca002aa8_3a3c794c",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/ipv6/Ipv6NaNotificationHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-17T06:55:53Z",
+      "side": 1,
+      "message": "this needed?",
+      "range": {
+        "startLine": 17,
+        "startChar": 48,
+        "endLine": 17,
+        "endChar": 60
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
