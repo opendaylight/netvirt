@@ -46,6 +46,30 @@
       "revId": "2167b68234038f15629728b622dd718a4afc2125",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a9e9f9df_6f803194",
+        "filename": "vpnmanager/impl/src/main/resources/initial/netvirt-vpnmanager-config.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-07-17T07:00:15Z",
+      "side": 1,
+      "message": "@Tim,\nThe intention here is to keep single cache to store the IP\u0027s (both IPv4 and IPv6) to deal with IP migration scenarios during the process of learning the hidden IP\u0027s.\nSince it was used specifically for IP migration scenarios, it was named as \"migrate-ip-cache-size\". \n\nI don\u0027t think so \"l3-cache-size\" suites in this case as the name is very generic.\nAny other suggestions please?",
+      "parentUuid": "abe20635_aeb68ae7",
+      "range": {
+        "startLine": 2,
+        "startChar": 2,
+        "endLine": 3,
+        "endChar": 43
+      },
+      "revId": "2167b68234038f15629728b622dd718a4afc2125",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
