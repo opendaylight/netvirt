@@ -143,10 +143,14 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                     // currently only one router
                     router = input.getRouters().get(0);
                 }
+                List<Uuid> networkList = null;
+                if (input.getNetworks() != null && !input.getNetworks().isEmpty()) {
+                    networkList = input.getNetworks();
+                }
                 if (!rd.isEmpty()) {
                     try {
                         nvpnManager.createVpn(input.getUuid(), input.getName(), input.getTenantId(), rd,
-                                importRouteTargets, exportRouteTargets, router, input.getNetworks(),
+                                importRouteTargets, exportRouteTargets, router, networkList,
                                 vpnInstanceType, 0 /*l3vni*/);
                     } catch (Exception e) {
                         LOG.error("Creation of BGPVPN {} failed with error {} ", vpnName, e);
