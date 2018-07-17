@@ -148,10 +148,14 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                              + "routers is {}.", rd, NeutronConstants.MAX_ROUTERS_PER_BGPVPN);
                     return;
                 }
+                List<Uuid> networkList = null;
+                if (input.getNetworks() != null && !input.getNetworks().isEmpty()) {
+                    networkList = input.getNetworks();
+                }
                 if (!rd.isEmpty()) {
                     try {
                         nvpnManager.createVpn(input.getUuid(), input.getName(), input.getTenantId(), rd,
-                                importRouteTargets, exportRouteTargets, routersList, input.getNetworks(),
+                                importRouteTargets, exportRouteTargets, routersList, networkList,
                                 vpnInstanceType, 0 /*l3vni*/);
                     } catch (Exception e) {
                         LOG.error("Creation of BGPVPN {} failed", vpnName, e);
