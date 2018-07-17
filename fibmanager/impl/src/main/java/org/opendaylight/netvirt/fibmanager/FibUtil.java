@@ -33,6 +33,7 @@ import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
@@ -640,7 +641,7 @@ public class FibUtil {
     public static String getIpPrefix(String prefix) {
         String[] prefixValues = prefix.split(FibConstants.PREFIX_SEPARATOR);
         if (prefixValues.length == 1) {
-            prefix = prefix + NwConstants.IPV4PREFIX;
+            return NWUtil.toIpPrefix(prefix);
         }
         return prefix;
     }
