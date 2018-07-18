@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1f7ac75f_8803d805",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1207,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-07-18T12:54:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14f8c52c_e7c528c1",
+      "range": {
+        "startLine": 1207,
+        "startChar": 20,
+        "endLine": 1207,
+        "endChar": 31
+      },
+      "revId": "2167b68234038f15629728b622dd718a4afc2125",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b9de370_c06b2090",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 10
@@ -36,6 +60,30 @@
       "writtenOn": "2018-07-17T12:04:06Z",
       "side": 1,
       "message": "Interface and HiddenIp",
+      "range": {
+        "startLine": 1213,
+        "startChar": 24,
+        "endLine": 1213,
+        "endChar": 64
+      },
+      "revId": "2167b68234038f15629728b622dd718a4afc2125",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "174deb31_ed96c2b1",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1213,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-07-18T12:54:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8b9de370_c06b2090",
       "range": {
         "startLine": 1213,
         "startChar": 24,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "dd81c150_6f19c88b",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AlivenessMonitorUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-07-18T12:54:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7cd2f251_d72918c4",
+      "range": {
+        "startLine": 166,
+        "startChar": 11,
+        "endLine": 166,
+        "endChar": 27
+      },
+      "revId": "2167b68234038f15629728b622dd718a4afc2125",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c857212b_a0f2039d",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AlivenessMonitorUtils.java",
         "patchSetId": 10
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "62a18df9_9181d54e",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AlivenessMonitorUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-07-18T12:54:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c857212b_a0f2039d",
+      "range": {
+        "startLine": 174,
+        "startChar": 29,
+        "endLine": 174,
+        "endChar": 55
+      },
+      "revId": "2167b68234038f15629728b622dd718a4afc2125",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3d173594_ad9e6f7a",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AlivenessMonitorUtils.java",
         "patchSetId": 10
@@ -105,6 +201,30 @@
       "writtenOn": "2018-07-17T12:04:06Z",
       "side": 1,
       "message": "should you add a isV4 check until V6 monitoring is ready in genius? \nI saw that patch get merged today, so should be okay though",
+      "range": {
+        "startLine": 179,
+        "startChar": 30,
+        "endLine": 179,
+        "endChar": 63
+      },
+      "revId": "2167b68234038f15629728b622dd718a4afc2125",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f3804832_603da40a",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AlivenessMonitorUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-07-18T12:54:18Z",
+      "side": 1,
+      "message": "Yeah, dependent genius patch is merged. So this code is fine.",
+      "parentUuid": "3d173594_ad9e6f7a",
       "range": {
         "startLine": 179,
         "startChar": 30,
