@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -166,7 +165,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
     @Override
     public boolean removeSnatAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-        BigInteger primarySwitchId) {
+            BigInteger primarySwitchId) throws ExecutionException, InterruptedException {
         LOG.info("handleSnatAllSwitch : Handle Snat in all switches for router {}", routers.getRouterName());
         String routerName = routers.getRouterName();
         List<BigInteger> switches = naptSwitchSelector.getDpnsForVpn(routerName);
@@ -210,7 +209,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
     @Override
     public boolean removeSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-        BigInteger primarySwitchId, BigInteger dpnId) {
+            BigInteger primarySwitchId, BigInteger dpnId) throws ExecutionException, InterruptedException {
 
         // Handle non NAPT switches and NAPT switches separately
         if (!dpnId.equals(primarySwitchId)) {
@@ -247,7 +246,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     }
 
     protected void removeSnatCommonEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-        Routers routers, BigInteger dpnId) {
+            Routers routers, BigInteger dpnId) throws ExecutionException, InterruptedException {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(confTx, routerName);
         removeDefaultFibRouteForSNAT(confTx, dpnId, routerId);
@@ -273,7 +272,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     }
 
     protected void removeSnatCommonEntriesForNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-        Routers routers, BigInteger dpnId) {
+            Routers routers, BigInteger dpnId) throws ExecutionException, InterruptedException {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         removeDefaultFibRouteForSNAT(confTx, dpnId, routerId);
@@ -284,7 +283,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         Routers routers, BigInteger dpnId);
 
     protected abstract void removeSnatSpecificEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-        Routers routers, BigInteger dpnId);
+        Routers routers, BigInteger dpnId) throws ExecutionException, InterruptedException;
 
     protected abstract void addSnatSpecificEntriesForNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
         Routers routers, BigInteger dpnId);
@@ -326,8 +325,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     }
 
     protected void removeInboundFibEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-        String externalIp, Long routerId, String subNetId) {
-
+            String externalIp, Long routerId, String subNetId) throws ExecutionException, InterruptedException {
         String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, routerId);
         flowRef = flowRef + "inbound" + externalIp;
         removeFlow(confTx, dpnId, NwConstants.L3_FIB_TABLE, flowRef);
@@ -404,22 +402,14 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
-    // TODO skitt Fix the exception handling here
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     protected void removeSnatMissEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-        Long routerId, String routerName) {
+            Long routerId, String routerName) throws ExecutionException, InterruptedException {
         LOG.debug("installSnatMissEntry : Removing SNAT miss entry from switch {}", dpnId);
         // Install the select group
         long groupId = createGroupId(getGroupIdKey(routerName));
 
         LOG.debug("removing the PSNAT to NAPTSwitch on DPN {} with GroupId: {}", dpnId, groupId);
-        try {
-            mdsalManager.removeGroup(confTx, dpnId, groupId);
-        } catch (Exception e) {
-            LOG.error("Error removing flow", e);
-            throw new RuntimeException("Error removing flow", e);
-        }
+        mdsalManager.removeGroup(confTx, dpnId, groupId);
 
         // Install miss entry pointing to group
         LOG.debug("installSnatMissEntry : buildSnatFlowEntity is called for dpId {}, routerName {} and groupId {}",
@@ -455,8 +445,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     }
 
     protected void removeInboundTerminatingServiceTblEntry(TypedReadWriteTransaction<Configuration> confTx,
-        BigInteger dpnId, Long routerId) {
-
+            BigInteger dpnId, Long routerId) throws ExecutionException, InterruptedException {
         //Install the tunnel table entry in NAPT switch for inbound traffic to SNAP IP from a non a NAPT switch.
         LOG.info("installInboundTerminatingServiceTblEntry : creating entry for Terminating Service Table "
             + "for switch {}, routerId {}", dpnId, routerId);
@@ -481,25 +470,14 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     }
 
     protected void removeDefaultFibRouteForSNAT(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-        Long extNetId) {
-
+            Long extNetId) throws ExecutionException, InterruptedException {
         String flowRef = "DefaultFibRouteForSNAT" + getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, extNetId);
         removeFlow(confTx, dpnId, NwConstants.L3_FIB_TABLE, flowRef);
     }
 
     protected String getFlowRef(BigInteger dpnId, short tableId, long routerID) {
-        return new StringBuilder().append(NatConstants.NAPT_FLOWID_PREFIX).append(dpnId).append(NatConstants
-                .FLOWID_SEPARATOR).append(tableId).append(NatConstants.FLOWID_SEPARATOR).append(routerID).toString();
-    }
-
-    protected void syncFlow(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpId, short tableId,
-        String flowId, int priority, String flowName, BigInteger cookie, List<? extends MatchInfoBase> matches,
-        List<InstructionInfo> instructions, int addOrRemove) {
-        if (addOrRemove == NwConstants.DEL_FLOW) {
-            removeFlow(confTx, dpId, tableId, flowId);
-        } else {
-            addFlow(confTx, dpId, tableId, flowId, priority, flowName, cookie, matches, instructions);
-        }
+        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR
+            + tableId + NatConstants.FLOWID_SEPARATOR + routerID;
     }
 
     protected void addFlow(TypedWriteTransaction<Configuration> confTx, BigInteger dpId, short tableId,
@@ -512,18 +490,10 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         mdsalManager.addFlow(confTx, flowEntity);
     }
 
-    // TODO skitt Fix the exception handling here
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     protected void removeFlow(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpId, short tableId,
-        String flowId) {
+            String flowId) throws ExecutionException, InterruptedException {
         LOG.trace("syncFlow : Removing Acl Flow DpnId {}, flowId {}", dpId, flowId);
-        try {
-            mdsalManager.removeFlow(confTx, dpId, flowId, tableId);
-        } catch (Exception e) {
-            LOG.error("Error removing flow", e);
-            throw new RuntimeException("Error removing flow", e);
-        }
+        mdsalManager.removeFlow(confTx, dpId, flowId, tableId);
     }
 
     protected long createGroupId(String groupIdKey) {

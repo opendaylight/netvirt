@@ -316,9 +316,9 @@ public class NatTunnelInterfaceStateListener
                 //best effort to check IntExt model
                 naptSwitchHA.bestEffortDeletion(routerId, routerName, externalIpLabel, confTx);
             }
-        } catch (Exception ex) {
+        } catch (InterruptedException | ExecutionException e) {
             LOG.error("removeSNATFromDPN : SNAT->Exception while handling naptSwitch down for router {}",
-                routerName, ex);
+                routerName, e);
         }
     }
 
@@ -375,7 +375,8 @@ public class NatTunnelInterfaceStateListener
     }
 
     private boolean hndlTepAddForAllRtrs(BigInteger srcDpnId, String tunnelType, String tunnelName, String srcTepIp,
-                                         String destTepIp, TypedReadWriteTransaction<Configuration> writeFlowInvTx) {
+                                         String destTepIp, TypedReadWriteTransaction<Configuration> writeFlowInvTx)
+            throws ExecutionException, InterruptedException {
         LOG.trace("hndlTepAddForAllRtrs: TEP ADD ----- for EXTERNAL/HWVTEP ITM Tunnel, TYPE {} ,State is UP b/w SRC IP"
             + " : {} and DEST IP: {}", fibManager.getTransportTypeStr(tunnelType), srcTepIp, destTepIp);
 
@@ -426,7 +427,8 @@ public class NatTunnelInterfaceStateListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private boolean handleTepDelForAllRtrs(BigInteger srcDpnId, String tunnelType, String tunnelName, String srcTepIp,
-                                           String destTepIp, TypedReadWriteTransaction<Configuration> writeFlowInvTx) {
+                                           String destTepIp, TypedReadWriteTransaction<Configuration> writeFlowInvTx)
+            throws ExecutionException, InterruptedException {
 
         LOG.trace("handleTepDelForAllRtrs : TEP DEL ----- for EXTERNAL/HWVTEP ITM Tunnel,TYPE {},State is UP b/w SRC IP"
             + " : {} and DEST IP: {}", fibManager.getTransportTypeStr(tunnelType), srcTepIp, destTepIp);
@@ -495,7 +497,8 @@ public class NatTunnelInterfaceStateListener
 
     private void hndlTepAddForSnatInEachRtr(RoutersList router, long routerId, final BigInteger srcDpnId,
             String tunnelType, String srcTepIp, String destTepIp, String tunnelName, String nextHopIp,
-            ProviderTypes extNwProvType, TypedReadWriteTransaction<Configuration> writeFlowInvTx) {
+            ProviderTypes extNwProvType, TypedReadWriteTransaction<Configuration> writeFlowInvTx)
+            throws ExecutionException, InterruptedException {
 
         /*SNAT : Remove the old routes to the external IP having the old TEP IP as the next hop IP
                  Advertise to the BGP about the new route to the external IP having the new TEP IP
@@ -932,8 +935,8 @@ public class NatTunnelInterfaceStateListener
     }
 
     private void hndlTepDelForSnatInEachRtr(RoutersList router, long routerId, BigInteger dpnId, String tunnelType,
-        String srcTepIp, String destTepIp, String tunnelName, ProviderTypes extNwProvType,
-        TypedReadWriteTransaction<Configuration> confTx) {
+            String srcTepIp, String destTepIp, String tunnelName, ProviderTypes extNwProvType,
+            TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
        /*SNAT :
             1) Elect a new switch as the primary NAPT
             2) Advertise the new routes to BGP for the newly elected TEP IP as the DPN IP

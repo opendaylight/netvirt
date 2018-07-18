@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -93,7 +94,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
 
     @Override
     public boolean removeSnatAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-        BigInteger primarySwitchId) {
+            BigInteger primarySwitchId) throws ExecutionException, InterruptedException {
         ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(confTx, routers.getNetworkId());
         LOG.debug("VxlanGreConntrackBasedSnatService: handleSnatAllSwitch ProviderTypes {}", extNwProviderType);
         if (extNwProviderType == ProviderTypes.FLAT || extNwProviderType == ProviderTypes.VLAN) {
@@ -117,7 +118,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
 
     @Override
     public boolean removeSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-        BigInteger primarySwitchId, BigInteger dpnId) {
+            BigInteger primarySwitchId, BigInteger dpnId) throws ExecutionException, InterruptedException {
         ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(confTx, routers.getNetworkId());
         LOG.debug("VxlanGreConntrackBasedSnatService: handleSnat ProviderTypes {}", extNwProviderType);
         if (extNwProviderType == ProviderTypes.FLAT || extNwProviderType == ProviderTypes.VLAN) {
@@ -171,7 +172,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
 
     @Override
     protected void removeSnatSpecificEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-        Routers routers, BigInteger dpnId) {
+            Routers routers, BigInteger dpnId) throws ExecutionException, InterruptedException {
 
         LOG.info("installSnatSpecificEntriesForNaptSwitch for router {}",
             routers.getRouterName());
@@ -233,7 +234,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
     }
 
     protected void removeOutboundTblTrackEntryForVxlanGre(TypedReadWriteTransaction<Configuration> confTx,
-        BigInteger dpnId, Long routerId) {
+            BigInteger dpnId, Long routerId) throws ExecutionException, InterruptedException {
         LOG.info("createOutboundTblTrackEntryForVxlanGre: Install Outbound tracking table flow on dpId {} for "
             + "routerId {}", dpnId, routerId);
 
@@ -280,7 +281,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
     }
 
     protected void removeOutboundTblEntryForVxlanGre(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-        long routerId, List<ExternalIps> externalIps) {
+            long routerId, List<ExternalIps> externalIps) throws ExecutionException, InterruptedException {
         LOG.info("createOutboundTblEntryForVxlanGre: Install Outbound table flow on dpId {} for routerId {}", dpnId,
             routerId);
         if (externalIps.isEmpty()) {
@@ -312,7 +313,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
     }
 
     protected void removeNaptPfibFlowForVxlanGre(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-        BigInteger dpnId, Long extNetVpnId) {
+            BigInteger dpnId, Long extNetVpnId) throws ExecutionException, InterruptedException {
         LOG.info("installNaptPfibFlowForVxlanGre: Install Napt preFibFlow on dpId {} with matching extNetVpnId {} "
             + "for router {}", dpnId, extNetVpnId, routers.getRouterName());
         String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, extNetVpnId);
@@ -352,7 +353,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
     }
 
     protected void removeInboundEntryForVxlanGre(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-        long routerId, List<ExternalIps> externalIps) {
+            long routerId, List<ExternalIps> externalIps) throws ExecutionException, InterruptedException {
         LOG.info("removeInboundEntryForVxlanGre: remove Inbound table entry on dpId {} for routerId {}",
             dpnId, routerId);
         if (externalIps.isEmpty()) {
@@ -397,7 +398,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
     }
 
     protected void removeTerminatingServiceTblEntryForVxlanGre(TypedReadWriteTransaction<Configuration> confTx,
-        BigInteger dpnId, Long routerId) {
+            BigInteger dpnId, Long routerId) throws ExecutionException, InterruptedException {
         LOG.info("removeTerminatingServiceTblEntryForVxlanGre : removing entry for"
             + "Terminating Service Table for switch {}, routerId {}", dpnId, routerId);
 
@@ -454,7 +455,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
 
     @Override
     protected void removeSnatMissEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-        Long routerId, String routerName) {
+            Long routerId, String routerName) throws ExecutionException, InterruptedException {
         LOG.debug("installSnatMissEntry : Removing SNAT miss entry in switch {}", dpnId);
 
         String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);

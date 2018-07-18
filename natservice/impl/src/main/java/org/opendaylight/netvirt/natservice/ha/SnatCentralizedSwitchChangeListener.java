@@ -13,6 +13,7 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import java.math.BigInteger;
 
 import java.time.Duration;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -136,7 +137,8 @@ public class SnatCentralizedSwitchChangeListener
     }
 
     private void handleAdd(TypedReadWriteTransaction<Datastore.Configuration> confTx,
-        String routerName, Routers router, BigInteger primarySwitchId) {
+            String routerName, Routers router, BigInteger primarySwitchId)
+            throws ExecutionException, InterruptedException {
         if (router != null) {
             natDataUtil.addtoRouterMap(router);
             snatServiceManger.notify(confTx, router, primarySwitchId, null,

@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.vpnmanager;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -110,7 +111,8 @@ public class CentralizedSwitchChangeListener
         return this;
     }
 
-    private void setupRouterGwFlows(RouterToNaptSwitch routerToNaptSwitch, WriteTransaction writeTx, int addOrRemove) {
+    private void setupRouterGwFlows(RouterToNaptSwitch routerToNaptSwitch, WriteTransaction writeTx, int addOrRemove)
+            throws ExecutionException, InterruptedException {
         Routers router = null;
         if (addOrRemove == NwConstants.ADD_FLOW) {
             router = vpnUtil.getExternalRouter(routerToNaptSwitch.getRouterName());
