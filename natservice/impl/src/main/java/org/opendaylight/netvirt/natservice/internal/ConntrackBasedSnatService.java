@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
@@ -124,7 +125,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
 
     @Override
     protected void removeSnatSpecificEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-        Routers routers, BigInteger dpnId) {
+            Routers routers, BigInteger dpnId) throws ExecutionException, InterruptedException {
         LOG.info("installSnatSpecificEntriesForNaptSwitch: called for router {}",
             routers.getRouterName());
         String routerName = routers.getRouterName();
@@ -200,7 +201,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void removeSnatMissEntryForPrimrySwch(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-        Long routerId) {
+            Long routerId) throws ExecutionException, InterruptedException {
         LOG.info("installSnatSpecificEntriesForNaptSwitch : called for the primary NAPT switch dpnId {}", dpnId);
 
         String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
@@ -233,7 +234,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void removeTerminatingServiceTblEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-        Long routerId) {
+            Long routerId) throws ExecutionException, InterruptedException {
         LOG.info("installTerminatingServiceTblEntry : creating entry for Terminating Service Table "
             + "for switch {}, routerId {}", dpnId, routerId);
 
@@ -260,7 +261,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void removeOutboundTblTrackEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-        Long routerId) {
+            Long routerId) throws ExecutionException, InterruptedException {
         LOG.info("createOutboundTblTrackEntry : called for switch {}, routerId {}", dpnId, routerId);
 
         String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId) + "trkest";
@@ -294,7 +295,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void removeOutboundTblEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-        long routerId) {
+            long routerId) throws ExecutionException, InterruptedException {
         LOG.info("createOutboundTblEntry : dpId {} and routerId {}", dpnId, routerId);
         String flowRef = getFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId);
         removeFlow(confTx, dpnId, NwConstants.OUTBOUND_NAPT_TABLE, flowRef);
@@ -327,7 +328,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void removeNaptPfibFlow(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-        BigInteger dpnId, long routerId) {
+            BigInteger dpnId, long routerId) throws ExecutionException, InterruptedException {
         Long extNetId = NatUtil.getVpnId(confTx, routers.getNetworkId().getValue());
         LOG.info("installNaptPfibFlow : dpId {}, extNetId {}", dpnId, extNetId);
         String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId) + "OUTBOUND";
@@ -366,7 +367,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void removeInboundEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-        long routerId) {
+            long routerId) throws ExecutionException, InterruptedException {
         LOG.info("installInboundEntry : dpId {} and routerId {}", dpnId, routerId);
 
         String flowRef = getFlowRef(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId) + "OUTBOUND";
@@ -392,7 +393,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void removeNaptPfibEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-        long routerId) {
+            long routerId) throws ExecutionException, InterruptedException {
         LOG.info("installNaptPfibEntry : called for dpnId {} and routerId {} ", dpnId, routerId);
         String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId) + "INBOUND";
         removeFlow(confTx, dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef);

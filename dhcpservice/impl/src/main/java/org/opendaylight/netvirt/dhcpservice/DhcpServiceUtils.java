@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.dhcpservice;
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 
 import com.google.common.base.Optional;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -120,13 +119,11 @@ public final class DhcpServiceUtils {
 
     private DhcpServiceUtils() { }
 
-    // TODO skitt Fix the exception handling here
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     public static void setupDhcpFlowEntry(@Nullable BigInteger dpId, short tableId, @Nullable String vmMacAddress,
                                           int addOrRemove,
                                           IMdsalApiManager mdsalUtil, DhcpServiceCounters dhcpServiceCounters,
-                                          TypedReadWriteTransaction<Configuration> tx) {
+                                          TypedReadWriteTransaction<Configuration> tx)
+            throws ExecutionException, InterruptedException {
         if (dpId == null || dpId.equals(DhcpMConstants.INVALID_DPID) || vmMacAddress == null) {
             return;
         }
@@ -140,12 +137,7 @@ public final class DhcpServiceUtils {
         if (addOrRemove == NwConstants.DEL_FLOW) {
             LOG.trace("Removing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             dhcpServiceCounters.removeDhcpFlow();
-            try {
-                mdsalUtil.removeFlow(tx, dpId, getDhcpFlowRef(dpId, tableId, vmMacAddress), tableId);
-            } catch (Exception e) {
-                LOG.error("Error removing flow", e);
-                throw new RuntimeException("Error removing flow", e);
-            }
+            mdsalUtil.removeFlow(tx, dpId, getDhcpFlowRef(dpId, tableId, vmMacAddress), tableId);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress), DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY,
@@ -171,12 +163,10 @@ public final class DhcpServiceUtils {
                 .append(ipAddress).toString();
     }
 
-    // TODO skitt Fix the exception handling here
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     public static void setupDhcpDropAction(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove,
                                            IMdsalApiManager mdsalUtil, DhcpServiceCounters dhcpServiceCounters,
-                                           TypedReadWriteTransaction<Configuration> tx) {
+                                           TypedReadWriteTransaction<Configuration> tx)
+            throws ExecutionException, InterruptedException {
         if (dpId == null || dpId.equals(DhcpMConstants.INVALID_DPID) || vmMacAddress == null) {
             return;
         }
@@ -190,12 +180,7 @@ public final class DhcpServiceUtils {
         if (addOrRemove == NwConstants.DEL_FLOW) {
             LOG.trace("Removing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             dhcpServiceCounters.removeDhcpDropFlow();
-            try {
-                mdsalUtil.removeFlow(tx, dpId, getDhcpFlowRef(dpId, tableId, vmMacAddress), tableId);
-            } catch (Exception e) {
-                LOG.error("Error removing flow", e);
-                throw new RuntimeException("Error removing flow", e);
-            }
+            mdsalUtil.removeFlow(tx, dpId, getDhcpFlowRef(dpId, tableId, vmMacAddress), tableId);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress), DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY,
@@ -206,7 +191,6 @@ public final class DhcpServiceUtils {
         }
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
     public static void setupDhcpArpRequest(BigInteger dpId, short tableId, BigInteger vni, String dhcpIpAddress,
                                            int lportTag, Long elanTag, boolean add, IMdsalApiManager mdsalUtil) {
         List<MatchInfo> matches = getDhcpArpMatch(vni, dhcpIpAddress);

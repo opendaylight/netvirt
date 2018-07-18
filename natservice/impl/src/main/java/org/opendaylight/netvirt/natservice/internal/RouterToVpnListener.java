@@ -64,22 +64,22 @@ public class RouterToVpnListener implements NeutronvpnListener {
         //check router is associated to external network
         String extNetwork = NatUtil.getAssociatedExternalNetwork(dataBroker, routerName);
         if (extNetwork != null) {
-            LOG.debug("onRouterAssociatedToVpn : Router {} is associated with ext nw {}", routerName, extNetwork);
-            handleDNATConfigurationForRouterAssociation(routerName, vpnName, extNetwork);
-            Uuid extNetworkUuid = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
-            if (extNetworkUuid == null) {
-                LOG.error("onRouterAssociatedToVpn : Unable to retrieve external network Uuid for router {}",
-                        routerName);
-                return;
-            }
-            ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName,
-                    extNetworkUuid);
-            if (extNwProvType == null) {
-                LOG.error("onRouterAssociatedToVpn : External Network Provider Type missing");
-                return;
-            }
-            long routerId = NatUtil.getVpnId(dataBroker, routerName);
             try {
+                LOG.debug("onRouterAssociatedToVpn : Router {} is associated with ext nw {}", routerName, extNetwork);
+                handleDNATConfigurationForRouterAssociation(routerName, vpnName, extNetwork);
+                Uuid extNetworkUuid = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
+                if (extNetworkUuid == null) {
+                    LOG.error("onRouterAssociatedToVpn : Unable to retrieve external network Uuid for router {}",
+                        routerName);
+                    return;
+                }
+                ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName,
+                    extNetworkUuid);
+                if (extNwProvType == null) {
+                    LOG.error("onRouterAssociatedToVpn : External Network Provider Type missing");
+                    return;
+                }
+                long routerId = NatUtil.getVpnId(dataBroker, routerName);
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     tx -> externalRoutersListener.changeLocalVpnIdToBgpVpnId(routerName, routerId, vpnName, tx,
                             extNwProvType)).get();
@@ -102,22 +102,23 @@ public class RouterToVpnListener implements NeutronvpnListener {
         //check router is associated to external network
         String extNetwork = NatUtil.getAssociatedExternalNetwork(dataBroker, routerName);
         if (extNetwork != null) {
-            LOG.debug("onRouterDisassociatedFromVpn : Router {} is associated with ext nw {}", routerName, extNetwork);
-            handleDNATConfigurationForRouterDisassociation(routerName, vpnName, extNetwork);
-            Uuid extNetworkUuid = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
-            if (extNetworkUuid == null) {
-                LOG.error("onRouterDisassociatedFromVpn : Unable to retrieve external network Uuid for router {}",
-                        routerName);
-                return;
-            }
-            ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName,
-                    extNetworkUuid);
-            if (extNwProvType == null) {
-                LOG.error("onRouterDisassociatedFromVpn : External Network Provider Type missing");
-                return;
-            }
-            long routerId = NatUtil.getVpnId(dataBroker, routerName);
             try {
+                LOG.debug("onRouterDisassociatedFromVpn : Router {} is associated with ext nw {}", routerName,
+                    extNetwork);
+                handleDNATConfigurationForRouterDisassociation(routerName, vpnName, extNetwork);
+                Uuid extNetworkUuid = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
+                if (extNetworkUuid == null) {
+                    LOG.error("onRouterDisassociatedFromVpn : Unable to retrieve external network Uuid for router {}",
+                            routerName);
+                    return;
+                }
+                ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName,
+                        extNetworkUuid);
+                if (extNwProvType == null) {
+                    LOG.error("onRouterDisassociatedFromVpn : External Network Provider Type missing");
+                    return;
+                }
+                long routerId = NatUtil.getVpnId(dataBroker, routerName);
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     tx -> externalRoutersListener.changeBgpVpnIdToLocalVpnId(routerName, routerId, vpnName, tx,
                             extNwProvType)).get();
@@ -130,7 +131,8 @@ public class RouterToVpnListener implements NeutronvpnListener {
         }
     }
 
-    void handleDNATConfigurationForRouterAssociation(String routerName, String vpnName, String externalNetwork) {
+    void handleDNATConfigurationForRouterAssociation(String routerName, String vpnName, String externalNetwork)
+            throws ExecutionException, InterruptedException {
         InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerName);
         Optional<RouterPorts> optRouterPorts =
             MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsId);
@@ -164,7 +166,8 @@ public class RouterToVpnListener implements NeutronvpnListener {
         }
     }
 
-    void handleDNATConfigurationForRouterDisassociation(String routerName, String vpnName, String externalNetwork) {
+    void handleDNATConfigurationForRouterDisassociation(String routerName, String vpnName, String externalNetwork)
+            throws ExecutionException, InterruptedException {
         InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerName);
         Optional<RouterPorts> optRouterPorts =
             MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsId);

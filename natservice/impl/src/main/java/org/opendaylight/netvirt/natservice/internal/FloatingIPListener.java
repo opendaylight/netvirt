@@ -10,13 +10,13 @@ package org.opendaylight.netvirt.natservice.internal;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -302,22 +302,14 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
     }
 
-    // TODO skitt Fix the exception handling here
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void removeDNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long routerId,
-            TypedReadWriteTransaction<Configuration> confTx) {
-        try {
-            FlowEntity preFlowEntity = buildPreDNATDeleteFlowEntity(dpnId, externalIp, routerId);
-            mdsalManager.removeFlow(confTx, preFlowEntity);
+            TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
+        FlowEntity preFlowEntity = buildPreDNATDeleteFlowEntity(dpnId, externalIp, routerId);
+        mdsalManager.removeFlow(confTx, preFlowEntity);
 
-            FlowEntity flowEntity = buildDNATDeleteFlowEntity(dpnId, internalIp, routerId);
-            if (flowEntity != null) {
-                mdsalManager.removeFlow(confTx, flowEntity);
-            }
-        } catch (Exception e) {
-            LOG.error("Error removing flow", e);
-            throw new RuntimeException("Error removing flow", e);
+        FlowEntity flowEntity = buildDNATDeleteFlowEntity(dpnId, internalIp, routerId);
+        if (flowEntity != null) {
+            mdsalManager.removeFlow(confTx, flowEntity);
         }
     }
 
@@ -333,22 +325,15 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
     }
 
-    // TODO skitt Fix the exception handling here
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void removeSNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long routerId, long vpnId,
-                                    TypedReadWriteTransaction<Configuration> removeFlowInvTx) {
-        try {
-            FlowEntity preFlowEntity = buildPreSNATDeleteFlowEntity(dpnId, internalIp, routerId);
-            mdsalManager.removeFlow(removeFlowInvTx, preFlowEntity);
+                                    TypedReadWriteTransaction<Configuration> removeFlowInvTx)
+            throws ExecutionException, InterruptedException {
+        FlowEntity preFlowEntity = buildPreSNATDeleteFlowEntity(dpnId, internalIp, routerId);
+        mdsalManager.removeFlow(removeFlowInvTx, preFlowEntity);
 
-            FlowEntity flowEntity = buildSNATDeleteFlowEntity(dpnId, externalIp, vpnId);
-            if (flowEntity != null) {
-                mdsalManager.removeFlow(removeFlowInvTx, flowEntity);
-            }
-        } catch (Exception e) {
-            LOG.error("Error removing flow", e);
-            throw new RuntimeException("Error removing flow", e);
+        FlowEntity flowEntity = buildSNATDeleteFlowEntity(dpnId, externalIp, vpnId);
+        if (flowEntity != null) {
+            mdsalManager.removeFlow(removeFlowInvTx, flowEntity);
         }
     }
 
@@ -442,7 +427,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
     void createNATFlowEntries(String interfaceName, final InternalToExternalPortMap mapping,
                               final InstanceIdentifier<RouterPorts> portIid, final String routerName,
-        TypedReadWriteTransaction<Configuration> confTx) {
+            TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
         if (!validateIpMapping(mapping)) {
             LOG.error("createNATFlowEntries : Not a valid ip addresses in the mapping {}", mapping);
             return;
@@ -501,7 +486,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     }
 
     void createNATFlowEntries(BigInteger dpnId,  String interfaceName, String routerName, Uuid externalNetworkId,
-                              InternalToExternalPortMap mapping, TypedReadWriteTransaction<Configuration> confTx) {
+                              InternalToExternalPortMap mapping, TypedReadWriteTransaction<Configuration> confTx)
+            throws ExecutionException, InterruptedException {
         String internalIp = mapping.getInternalIp();
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
@@ -537,7 +523,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     }
 
     void createNATOnlyFlowEntries(BigInteger dpnId, String routerName, String associatedVPN,
-                                  Uuid externalNetworkId, InternalToExternalPortMap mapping) {
+                                  Uuid externalNetworkId, InternalToExternalPortMap mapping)
+            throws ExecutionException, InterruptedException {
         String internalIp = mapping.getInternalIp();
         //String segmentId = associatedVPN == null ? routerName : associatedVPN;
         LOG.debug("createNATOnlyFlowEntries : Retrieving vpn id for VPN {} to proceed with create NAT Flows",
@@ -580,7 +567,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
     void removeNATFlowEntries(String interfaceName, final InternalToExternalPortMap mapping,
                               InstanceIdentifier<RouterPorts> portIid, final String routerName, BigInteger dpnId,
-                              TypedReadWriteTransaction<Configuration> removeFlowInvTx) {
+                              TypedReadWriteTransaction<Configuration> removeFlowInvTx)
+            throws ExecutionException, InterruptedException {
         String internalIp = mapping.getInternalIp();
         String externalIp = mapping.getExternalIp();
         //Get the DPN on which this interface resides
@@ -644,7 +632,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     }
 
     void removeNATFlowEntries(BigInteger dpnId, String interfaceName, String vpnName, String routerName,
-                              InternalToExternalPortMap mapping, TypedReadWriteTransaction<Configuration> confTx) {
+                              InternalToExternalPortMap mapping, TypedReadWriteTransaction<Configuration> confTx)
+            throws ExecutionException, InterruptedException {
         String internalIp = mapping.getInternalIp();
         String externalIp = mapping.getExternalIp();
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
@@ -788,7 +777,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     }
 
     private void addOrDelDefaultFibRouteForDnat(BigInteger dpnId, String routerName, long routerId,
-        TypedReadWriteTransaction<Configuration> confTx, boolean create) {
+            TypedReadWriteTransaction<Configuration> confTx, boolean create)
+            throws ExecutionException, InterruptedException {
         if (confTx == null) {
             ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                 newTx -> addOrDelDefaultFibRouteForDnat(dpnId, routerName, routerId, newTx, create)), LOG,

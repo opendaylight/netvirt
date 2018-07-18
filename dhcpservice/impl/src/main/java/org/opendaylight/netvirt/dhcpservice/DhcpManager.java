@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -186,13 +187,13 @@ public class DhcpManager {
     }
 
     public void installDhcpEntries(@Nullable BigInteger dpnId, @Nullable String vmMacAddress,
-        TypedReadWriteTransaction<Configuration> tx) {
+            TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.ADD_FLOW,
                 mdsalUtil, dhcpServiceCounters, tx);
     }
 
     public void unInstallDhcpEntries(@Nullable BigInteger dpId, @Nullable String vmMacAddress,
-        TypedReadWriteTransaction<Configuration> tx) {
+            TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         DhcpServiceUtils.setupDhcpFlowEntry(dpId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.DEL_FLOW,
                 mdsalUtil, dhcpServiceCounters, tx);
     }

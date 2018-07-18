@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.natservice.internal;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.genius.infra.Datastore;
@@ -51,7 +52,8 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
 
     @Override
     public void notify(TypedReadWriteTransaction<Datastore.Configuration> confTx,
-        Routers router, BigInteger primarySwitchId, BigInteger dpnId, Action action) {
+            Routers router, BigInteger primarySwitchId, BigInteger dpnId, Action action)
+            throws ExecutionException, InterruptedException {
         for (SnatServiceListener snatServiceListener : snatServiceListeners) {
             boolean result = false;
             switch (action) {

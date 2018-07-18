@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -62,31 +63,34 @@ public interface IVpnManager {
 
     @Deprecated
     void addSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-            BigInteger dpnId, WriteTransaction tx);
+            BigInteger dpnId, WriteTransaction tx) throws ExecutionException, InterruptedException;
 
     void addSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-        BigInteger dpnId, TypedWriteTransaction<Configuration> confTx);
+        BigInteger dpnId, TypedWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException;
 
     @Deprecated
     void removeSubnetMacFromVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-            BigInteger dpnId, WriteTransaction tx);
+            BigInteger dpnId, WriteTransaction tx) throws ExecutionException, InterruptedException;
 
     void removeSubnetMacFromVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-        BigInteger dpnId, TypedReadWriteTransaction<Configuration> confTx);
+        BigInteger dpnId, TypedReadWriteTransaction<Configuration> confTx)
+        throws ExecutionException, InterruptedException;
 
     @Deprecated
     void addRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-            String subnetVpnName, WriteTransaction writeTx);
+            String subnetVpnName, WriteTransaction writeTx) throws ExecutionException, InterruptedException;
 
     void addRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-        String subnetVpnName, TypedWriteTransaction<Configuration> confTx);
+        String subnetVpnName, TypedWriteTransaction<Configuration> confTx)
+        throws ExecutionException, InterruptedException;
 
     @Deprecated
     void removeRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-            String subnetVpnName, WriteTransaction writeTx);
+            String subnetVpnName, WriteTransaction writeTx) throws ExecutionException, InterruptedException;
 
     void removeRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-        String subnetVpnName, TypedReadWriteTransaction<Configuration> confTx);
+        String subnetVpnName, TypedReadWriteTransaction<Configuration> confTx)
+        throws ExecutionException, InterruptedException;
 
     @Deprecated
     void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
