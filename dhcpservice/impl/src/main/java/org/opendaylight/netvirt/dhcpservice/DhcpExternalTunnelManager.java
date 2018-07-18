@@ -248,7 +248,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
     }
 
     public void installDhcpFlowsForVms(BigInteger designatedDpnId, Set<String> listVmMacAddress,
-        TypedReadWriteTransaction<Configuration> tx) {
+            TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         for (String vmMacAddress : listVmMacAddress) {
             installDhcpEntries(designatedDpnId, vmMacAddress, tx);
         }
@@ -428,7 +428,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
     }
 
     public void updateCacheAndInstallNewFlows(List<BigInteger> listOfDpns, Pair<IpAddress, String> pair,
-            TypedReadWriteTransaction<Configuration> tx) {
+            TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         BigInteger newDesignatedDpn = chooseDpn(pair.getLeft(), pair.getRight(), listOfDpns);
         if (newDesignatedDpn.equals(DhcpMConstants.INVALID_DPID)) {
             return;
@@ -446,7 +446,8 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
     }
 
     private void changeExistingFlowToDrop(Pair<IpAddress, String> tunnelIpElanNamePair, BigInteger dpnId,
-                                          TypedReadWriteTransaction<Configuration> tx) {
+                                          TypedReadWriteTransaction<Configuration> tx)
+            throws ExecutionException, InterruptedException {
         Set<String> setOfVmMacAddress = tunnelIpElanNameToVmMacCache.get(tunnelIpElanNamePair);
         if (setOfVmMacAddress == null || setOfVmMacAddress.isEmpty()) {
             return;
@@ -517,7 +518,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
     }
 
     private void installDhcpEntries(BigInteger dpnId, String vmMacAddress,
-        TypedReadWriteTransaction<Configuration> tx) {
+            TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL,
                 vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil, dhcpServiceCounters, tx);
     }
@@ -639,13 +640,13 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
 
 
     public void unInstallDhcpEntries(BigInteger dpnId, String vmMacAddress,
-        TypedReadWriteTransaction<Configuration> tx) {
+            TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL,
                 vmMacAddress, NwConstants.DEL_FLOW, mdsalUtil, dhcpServiceCounters, tx);
     }
 
     private void installDhcpDropAction(BigInteger dpn, String vmMacAddress,
-        TypedReadWriteTransaction<Configuration> tx) {
+            TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         DhcpServiceUtils.setupDhcpDropAction(dpn, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL,
                 vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil, dhcpServiceCounters, tx);
     }

@@ -15,11 +15,11 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -410,21 +410,13 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                 + NwConstants.FLOWID_SEPARATOR + ipAddress;
     }
 
-    // TODO skitt Fix the exception handling here
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void removeTunnelTableEntry(BigInteger dpnId, long serviceId,
-        TypedReadWriteTransaction<Configuration> confTx) {
+            TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
 
         LOG.debug("removeTunnelTableEntry : called with DpnId = {} and label = {}", dpnId, serviceId);
-        try {
-            mdsalManager.removeFlow(confTx, dpnId,
-                new FlowKey(new FlowId(getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""))),
-                NwConstants.INTERNAL_TUNNEL_TABLE);
-        } catch (Exception e) {
-            LOG.error("Error removing flow", e);
-            throw new RuntimeException("Error removing flow", e);
-        }
+        mdsalManager.removeFlow(confTx, dpnId,
+            new FlowKey(new FlowId(getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""))),
+            NwConstants.INTERNAL_TUNNEL_TABLE);
         LOG.debug("removeTunnelTableEntry : Terminating service Entry for dpID {} : label : {} removed successfully",
                 dpnId, serviceId);
     }
@@ -480,22 +472,14 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         LOG.debug("makeLFibTableEntry : LFIB Entry for dpID {} : label : {} modified successfully", dpId, serviceId);
     }
 
-    // TODO skitt Fix the exception handling here
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void removeLFibTableEntry(BigInteger dpnId, long serviceId,
-        TypedReadWriteTransaction<Configuration> confTx) {
+            TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
 
         String flowRef = getFlowRef(dpnId, NwConstants.L3_LFIB_TABLE, serviceId, "");
 
         LOG.debug("removeLFibTableEntry : removing LFib entry with flow ref {}", flowRef);
 
-        try {
-            mdsalManager.removeFlow(confTx, dpnId, new FlowKey(new FlowId(flowRef)), NwConstants.L3_LFIB_TABLE);
-        } catch (Exception e) {
-            LOG.error("Error removing flow", e);
-            throw new RuntimeException("Error removing flow", e);
-        }
+        mdsalManager.removeFlow(confTx, dpnId, new FlowKey(new FlowId(flowRef)), NwConstants.L3_LFIB_TABLE);
 
         LOG.debug("removeLFibTableEntry : LFIB Entry for dpID : {} label : {} removed successfully",
                 dpnId, serviceId);

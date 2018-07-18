@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.function.Consumer;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -45,6 +43,7 @@ import org.opendaylight.genius.mdsalutil.UpgradeState;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.function.InterruptibleCheckedConsumer;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput.ArpReponderInputBuilder;
@@ -374,39 +373,42 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void addSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-        BigInteger dpnId, TypedWriteTransaction<Configuration> confTx) {
+            BigInteger dpnId, TypedWriteTransaction<Configuration> confTx)
+            throws ExecutionException, InterruptedException {
         setupSubnetMacInVpnInstance(vpnName, subnetVpnName, srcMacAddress, dpnId,
             (vpnId, dpId, subnetVpnId) -> addGwMac(srcMacAddress, confTx, vpnId, dpId, subnetVpnId));
     }
 
     @Override
     public void addSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-            BigInteger dpnId, WriteTransaction tx) {
+            BigInteger dpnId, WriteTransaction tx) throws ExecutionException, InterruptedException {
         setupSubnetMacInVpnInstance(vpnName, subnetVpnName, srcMacAddress, dpnId,
             (vpnId, dpId, subnetVpnId) -> addGwMac(srcMacAddress, tx, vpnId, dpId, subnetVpnId));
     }
 
     @Override
     public void removeSubnetMacFromVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-        BigInteger dpnId, TypedReadWriteTransaction<Configuration> confTx) {
+            BigInteger dpnId, TypedReadWriteTransaction<Configuration> confTx)
+            throws ExecutionException, InterruptedException {
         setupSubnetMacInVpnInstance(vpnName, subnetVpnName, srcMacAddress, dpnId,
             (vpnId, dpId, subnetVpnId) -> removeGwMac(srcMacAddress, confTx, vpnId, dpId, subnetVpnId));
     }
 
     @Override
     public void removeSubnetMacFromVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-            BigInteger dpnId, WriteTransaction tx) {
+            BigInteger dpnId, WriteTransaction tx) throws ExecutionException, InterruptedException {
         setupSubnetMacInVpnInstance(vpnName, subnetVpnName, srcMacAddress, dpnId,
             (vpnId, dpId, subnetVpnId) -> removeGwMac(srcMacAddress, tx, vpnId, dpId, subnetVpnId));
     }
 
     @FunctionalInterface
     private interface VpnInstanceSubnetMacSetupMethod {
-        void process(long vpnId, BigInteger dpId, long subnetVpnId);
+        void process(long vpnId, BigInteger dpId, long subnetVpnId) throws InterruptedException, ExecutionException;
     }
 
     private void setupSubnetMacInVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-            BigInteger dpnId, VpnInstanceSubnetMacSetupMethod consumer) {
+            BigInteger dpnId, VpnInstanceSubnetMacSetupMethod consumer)
+            throws ExecutionException, InterruptedException {
         if (vpnName == null) {
             LOG.warn("Cannot setup subnet MAC {} on DPN {}, null vpnName", srcMacAddress, dpnId);
             return;
@@ -440,56 +442,51 @@ public class VpnManagerImpl implements IVpnManager {
         mdsalManager.removeFlowToTx(flowEntity, tx);
     }
 
-    // TODO skitt Fix the exception handling here
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void removeGwMac(String srcMacAddress, TypedReadWriteTransaction<Configuration> tx, long vpnId,
-        BigInteger dpId, long subnetVpnId) {
-        try {
-            mdsalManager.removeFlow(tx, dpId,
-                VpnUtil.getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, srcMacAddress, subnetVpnId),
-                NwConstants.L3_GW_MAC_TABLE);
-        } catch (Exception e) {
-            LOG.error("Error removing flow", e);
-            throw new RuntimeException("Error removing flow", e);
-        }
+            BigInteger dpId, long subnetVpnId) throws ExecutionException, InterruptedException {
+        mdsalManager.removeFlow(tx, dpId,
+            VpnUtil.getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, srcMacAddress, subnetVpnId),
+            NwConstants.L3_GW_MAC_TABLE);
     }
 
     @Override
     public void addRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-        String subnetVpnName, TypedWriteTransaction<Configuration> confTx) {
+            String subnetVpnName, TypedWriteTransaction<Configuration> confTx)
+            throws ExecutionException, InterruptedException {
         setupRouterGwMacFlow(routerName, routerGwMac, dpnId, extNetworkId,
             vpnId -> addSubnetMacIntoVpnInstance(vpnId, subnetVpnName, routerGwMac, dpnId, confTx), "Installing");
     }
 
     @Override
     public void addRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-            String subnetVpnName, WriteTransaction writeTx) {
+            String subnetVpnName, WriteTransaction writeTx) throws ExecutionException, InterruptedException {
         setupRouterGwMacFlow(routerName, routerGwMac, dpnId, extNetworkId, writeTx,
             (vpnId, tx) -> addSubnetMacIntoVpnInstance(vpnId, subnetVpnName, routerGwMac, dpnId, tx), "Installing");
     }
 
     @Override
     public void removeRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-        String subnetVpnName, TypedReadWriteTransaction<Configuration> confTx) {
+            String subnetVpnName, TypedReadWriteTransaction<Configuration> confTx)
+            throws ExecutionException, InterruptedException {
         setupRouterGwMacFlow(routerName, routerGwMac, dpnId, extNetworkId,
             vpnId -> removeSubnetMacFromVpnInstance(vpnId, subnetVpnName, routerGwMac, dpnId, confTx), "Removing");
     }
 
     @Override
     public void removeRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-            String subnetVpnName, WriteTransaction writeTx) {
+            String subnetVpnName, WriteTransaction writeTx) throws ExecutionException, InterruptedException {
         setupRouterGwMacFlow(routerName, routerGwMac, dpnId, extNetworkId, writeTx,
             (vpnId, tx) -> removeSubnetMacFromVpnInstance(vpnId, subnetVpnName, routerGwMac, dpnId, tx), "Removing");
     }
 
     @FunctionalInterface
     private interface RouterGwMacFlowSetupMethod {
-        void process(String vpnId, WriteTransaction tx);
+        void process(String vpnId, WriteTransaction tx) throws InterruptedException, ExecutionException;
     }
 
     private void setupRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-            WriteTransaction writeTx, RouterGwMacFlowSetupMethod consumer, String operation) {
+            WriteTransaction writeTx, RouterGwMacFlowSetupMethod consumer, String operation)
+            throws ExecutionException, InterruptedException {
         if (routerGwMac == null) {
             LOG.warn("Failed to handle router GW flow in GW-MAC table. MAC address is missing for router-id {}",
                     routerName);
@@ -518,7 +515,8 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     private void setupRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-        Consumer<String> consumer, String operation) {
+            InterruptibleCheckedConsumer<String, ExecutionException> consumer, String operation)
+            throws ExecutionException, InterruptedException {
         if (routerGwMac == null) {
             LOG.warn("Failed to handle router GW flow in GW-MAC table. MAC address is missing for router-id {}",
                 routerName);

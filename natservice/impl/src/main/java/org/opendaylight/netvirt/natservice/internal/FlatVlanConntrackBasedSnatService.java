@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import java.math.BigInteger;
 
+import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
@@ -51,7 +52,7 @@ public class FlatVlanConntrackBasedSnatService extends ConntrackBasedSnatService
 
     @Override
     public boolean removeSnatAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-        BigInteger primarySwitchId) {
+            BigInteger primarySwitchId) throws ExecutionException, InterruptedException {
         return !checkProviderType(confTx, routers) && super.removeSnatAllSwitch(confTx, routers, primarySwitchId);
     }
 
@@ -63,7 +64,7 @@ public class FlatVlanConntrackBasedSnatService extends ConntrackBasedSnatService
 
     @Override
     public boolean removeSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-        BigInteger primarySwitchId, BigInteger dpnId) {
+            BigInteger primarySwitchId, BigInteger dpnId) throws ExecutionException, InterruptedException {
         return !checkProviderType(confTx, routers) && super.removeSnat(confTx, routers, primarySwitchId, dpnId);
     }
 

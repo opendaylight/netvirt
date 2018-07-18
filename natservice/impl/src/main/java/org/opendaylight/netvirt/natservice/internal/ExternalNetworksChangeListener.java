@@ -155,7 +155,8 @@ public class ExternalNetworksChangeListener
         }
     }
 
-    private void associateExternalNetworkWithVPN(Networks network, TypedReadWriteTransaction<Configuration> confTx) {
+    private void associateExternalNetworkWithVPN(Networks network, TypedReadWriteTransaction<Configuration> confTx)
+            throws ExecutionException, InterruptedException {
         List<Uuid> routerIds = network.getRouterIds();
         for (Uuid routerId : routerIds) {
             //long router = NatUtil.getVpnId(dataBroker, routerId.getValue());

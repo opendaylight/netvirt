@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.natservice.api;
 
 import java.math.BigInteger;
 
+import java.util.concurrent.ExecutionException;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
@@ -47,7 +48,7 @@ public interface SnatServiceListener {
      * @return returns success/failure.
      */
     boolean removeSnatAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-        BigInteger primarySwitchId);
+        BigInteger primarySwitchId) throws ExecutionException, InterruptedException;
 
     /**
      * Removes snat flows for the dpnId.
@@ -59,6 +60,6 @@ public interface SnatServiceListener {
      * @return returns success/failure.
      */
     boolean removeSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers, BigInteger primarySwitchId,
-        BigInteger dpnId);
+        BigInteger dpnId) throws ExecutionException, InterruptedException;
 
 }

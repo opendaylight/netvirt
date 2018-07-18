@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -294,8 +295,6 @@ public class RouterDpnChangeListener
         LOG.trace("Update key: {}, original: {}, update: {}", update.key(), original, update);
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     void handleSNATForDPN(BigInteger dpnId, String routerName, long routerId, Long routerVpnId,
         TypedReadWriteTransaction<Configuration> confTx, ProviderTypes extNwProvType) {
        //Check if primary and secondary switch are selected, If not select the role
@@ -372,8 +371,8 @@ public class RouterDpnChangeListener
                 mdsalManager.addFlow(confTx, flowEntity);
             }
 
-        } catch (Exception ex) {
-            LOG.error("handleSNATForDPN : Exception in handleSNATForDPN", ex);
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("handleSNATForDPN : Exception in handleSNATForDPN", e);
         }
     }
 
@@ -471,8 +470,8 @@ public class RouterDpnChangeListener
                 //best effort to check IntExt model
                 naptSwitchHA.bestEffortDeletion(routerId, routerName, externalIpLabel, confTx);
             }
-        } catch (Exception ex) {
-            LOG.error("removeSNATFromDPN : Exception while handling naptSwitch down for router {}", routerName, ex);
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("removeSNATFromDPN : Exception while handling naptSwitch down for router {}", routerName, e);
         }
     }
 
