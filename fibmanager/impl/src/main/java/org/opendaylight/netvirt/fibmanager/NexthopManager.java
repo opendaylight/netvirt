@@ -56,8 +56,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
@@ -905,8 +903,8 @@ public class NexthopManager implements AutoCloseable {
                 return;
             }
             Class<? extends TunnelTypeBase> tunnelType = VpnExtraRouteHelper.getTunnelType(itmManager, egressInterface);
-            Interface ifState = fibUtil.getInterfaceStateFromOperDS(egressInterface);
-            if (ifState == null || ifState.getOperStatus() != OperStatus.Up) {
+            StateTunnelList ifState = fibUtil.getTunnelState(egressInterface);
+            if (ifState == null || ifState.getOperState() != TunnelOperStatus.Up) {
                 LOG.trace("Tunnel not up {}", egressInterface);
                 return;
             }

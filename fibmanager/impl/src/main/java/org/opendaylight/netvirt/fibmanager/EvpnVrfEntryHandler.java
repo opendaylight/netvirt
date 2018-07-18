@@ -9,10 +9,12 @@ package org.opendaylight.netvirt.fibmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -28,8 +30,8 @@ import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -231,8 +233,8 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             } else if (FibUtil.isVxlanNetwork(prefixInfo.getNetworkType())) {
                 tunnelId = BigInteger.valueOf(prefixInfo.getSegmentationId());
             } else {
-                Interface interfaceState = getFibUtil().getInterfaceStateFromOperDS(interfaceName);
-                tunnelId = BigInteger.valueOf(interfaceState.getIfIndex());
+                StateTunnelList tunnelState = getFibUtil().getTunnelState(interfaceName);
+                tunnelId = BigInteger.valueOf(tunnelState.getIfIndex());
             }
             LOG.debug("adding set tunnel id action for label {}", tunnelId);
             String macAddress = null;
