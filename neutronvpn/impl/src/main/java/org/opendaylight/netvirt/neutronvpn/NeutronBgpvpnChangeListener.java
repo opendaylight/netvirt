@@ -285,6 +285,12 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                                 vpnMap.getRouterId().getValue(), vpnId.getValue());
                     }
                 }
+            } else if (oldRouters == null || oldRouters.isEmpty()) {
+                /* If the first time BGP-VPN is getting associated with router, then no need
+                 * to validate if the router is already been associated with any other BGP-VPN.
+                 * This will avoid unnecessary MD-SAL data store read operations in VPN-MAPS.
+                 */
+                nvpnManager.associateRouterToVpn(vpnId, newRouters.get(0));
             } else if (validateRouteInfo(newRouters.get(0))) {
                 nvpnManager.associateRouterToVpn(vpnId, newRouters.get(0));
             }
