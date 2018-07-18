@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3d339d9_a6e14329",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-07-18T12:48:56Z",
+      "side": 1,
+      "message": "nit: there is already a lot of indentation in the else clause, why not just return here at the end of the if and save one level?\nAlso, the white space around \"} else {\" is wrong.",
+      "revId": "c1c03da93e569c813b717a31433884c6d8b3fe6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
