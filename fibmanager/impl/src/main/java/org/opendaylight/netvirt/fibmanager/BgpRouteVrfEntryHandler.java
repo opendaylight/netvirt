@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.fibmanager;
 import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -179,22 +178,27 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
     private void createFibEntries(WriteTransaction writeTx, final InstanceIdentifier<VrfEntry> vrfEntryIid,
                                   final VrfEntry vrfEntry, List<SubTransaction> subTxns) {
         final VrfTablesKey vrfTableKey = vrfEntryIid.firstKeyOf(VrfTables.class);
-
+        LOG.trace("Creating fib entry for vrfEntry with destPrefix{}, rd {}",
+            vrfEntry.getDestPrefix(), vrfTableKey.getRouteDistinguisher());
         final VpnInstanceOpDataEntry vpnInstance =
                 getFibUtil().getVpnInstance(vrfTableKey.getRouteDistinguisher());
-        Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + vrfTableKey.getRouteDistinguisher());
-        Preconditions.checkNotNull(vpnInstance.getVpnId(), "Vpn Instance with rd " + vpnInstance.getVrfId()
-                + " has null vpnId!");
-
+        if (vpnInstance == null || vpnInstance.getVpnId() == null) {
+            LOG.error("Vpn Instance not availabe {}", vrfTableKey.getRouteDistinguisher());
+            return;
+        }
         final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
         if (vpnToDpnList != null) {
             for (VpnToDpnList vpnDpn : vpnToDpnList) {
+                LOG.trace("Dpnstate is {} for dpn {} in vpn {}", vpnDpn.getDpnState(), vpnDpn.getDpnId(),
+                    vpnInstance.getVpnId());
                 if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                     createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey.getRouteDistinguisher(),
                             vrfEntry, writeTx, subTxns);
                 }
             }
         }
+        LOG.trace("Created fib entry for vrfEntry with destPrefix{}, rd {}",
+            vrfEntry.getDestPrefix(), vrfTableKey.getRouteDistinguisher());
     }
 
     /*
@@ -246,8 +250,12 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
                                              String rd,
                                              List<NexthopManager.AdjacencyResult> adjacencyResults,
                                              List<SubTransaction> subTxns) {
-        Preconditions.checkArgument(vrfEntry.getRoutePaths().size() <= 2);
-
+        if (vrfEntry.getRoutePaths().size() > 2) {
+            LOG.error("DC-GW can advertise only 2 bestPaths for prefix {}", vrfEntry.getDestPrefix());
+            return;
+        }
+        LOG.trace("Start programming remote fib for destPrefix {}, vpnId {}, dpnId {}",
+            vrfEntry.getDestPrefix(), vpnId, remoteDpnId);
         if (adjacencyResults.size() == 1) {
             programRemoteFib(remoteDpnId, vpnId, vrfEntry, tx, rd, adjacencyResults, subTxns);
             return;
@@ -277,6 +285,8 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         actionInfos.add(new ActionGroup(index, groupId));
         instructions.add(new InstructionApplyActions(actionInfos));
         makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx, subTxns);
+        LOG.trace("End programming remote fib for destPrefix {}, vpnId {}, dpnId {}",
+                vrfEntry.getDestPrefix(), vpnId, remoteDpnId);
     }
 
     public void createRemoteFibEntry(final BigInteger remoteDpnId,
