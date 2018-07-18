@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "68499c94_c280f290",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-07-18T12:54:13Z",
+      "side": 1,
+      "message": "It\u0027s used in line 273. Build itself will fail if the imports are unused.",
+      "parentUuid": "ff88eae6_7683ae52",
+      "range": {
+        "startLine": 32,
+        "startChar": 37,
+        "endLine": 32,
+        "endChar": 65
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ee3bd75b_91495e80",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AlivenessMonitorUtils.java",
         "patchSetId": 10
@@ -36,6 +60,30 @@
       "writtenOn": "2018-07-17T06:55:53Z",
       "side": 1,
       "message": "Instead of null, can you please return optional from allocateIpMonitorProfile() and check for isPresent?",
+      "range": {
+        "startLine": 98,
+        "startChar": 22,
+        "endLine": 98,
+        "endChar": 33
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a1b22aca_e8ae4352",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AlivenessMonitorUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-07-18T12:54:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee3bd75b_91495e80",
       "range": {
         "startLine": 98,
         "startChar": 22,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "62a38613_cde018b8",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AlivenessMonitorUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-07-18T12:54:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b405143d_e2b82f38",
+      "range": {
+        "startLine": 99,
+        "startChar": 26,
+        "endLine": 99,
+        "endChar": 29
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "156efda5_72edf31c",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AlivenessMonitorUtils.java",
         "patchSetId": 10
@@ -82,6 +154,30 @@
       "writtenOn": "2018-07-17T06:55:53Z",
       "side": 1,
       "message": "allocateIpMonitorProfile:",
+      "range": {
+        "startLine": 156,
+        "startChar": 22,
+        "endLine": 156,
+        "endChar": 23
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "af1c70ef_5ce6c7b5",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AlivenessMonitorUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-07-18T12:54:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "156efda5_72edf31c",
       "range": {
         "startLine": 156,
         "startChar": 22,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "f3173fec_52317b14",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/IpMonitoringHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-07-18T12:54:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "385ce8e5_1005e030",
+      "range": {
+        "startLine": 148,
+        "startChar": 25,
+        "endLine": 148,
+        "endChar": 33
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "051fb5e7_82b9e522",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/IpMonitoringHandler.java",
         "patchSetId": 10
@@ -128,6 +248,30 @@
       "writtenOn": "2018-07-17T06:55:53Z",
       "side": 1,
       "message": "you dont have to execute stop task for v6 currently right, since there is no v6 monitoring available",
+      "range": {
+        "startLine": 172,
+        "startChar": 39,
+        "endLine": 172,
+        "endChar": 56
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5445a523_7a8a4e9d",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/IpMonitoringHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-07-18T12:54:13Z",
+      "side": 1,
+      "message": "Here this code is made common for both IPv4 and IPv6. IpMonitorStopTask internally doesn\u0027t take any action for IPv6 as it will not find monitorId. This will make it ready for next patch [*] which will handle IPv6 ND based aliveness monitor.\n\n[*] https://git.opendaylight.org/gerrit/#/c/73598/",
+      "parentUuid": "051fb5e7_82b9e522",
       "range": {
         "startLine": 172,
         "startChar": 39,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "879ae0fd_10b8d208",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/IpMonitoringHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-07-18T12:54:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f1137f8_ecb37589",
+      "range": {
+        "startLine": 191,
+        "startChar": 14,
+        "endLine": 191,
+        "endChar": 23
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a0668947_6356d350",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/LearntVpnVipToPortEventProcessor.java",
         "patchSetId": 10
@@ -174,6 +342,30 @@
       "writtenOn": "2018-07-17T06:55:53Z",
       "side": 1,
       "message": "Move this this util class if present",
+      "range": {
+        "startLine": 126,
+        "startChar": 70,
+        "endLine": 126,
+        "endChar": 90
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9727354f_6c6b2fea",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/LearntVpnVipToPortEventProcessor.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-07-18T12:54:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0668947_6356d350",
       "range": {
         "startLine": 126,
         "startChar": 70,
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "daed8461_93f8229f",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/ipv4/ArpNotificationHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-07-18T12:54:13Z",
+      "side": 1,
+      "message": "Yes, this class extends AbstractIpLearnNotificationHandler.",
+      "parentUuid": "8f94d119_c41cda8e",
+      "range": {
+        "startLine": 16,
+        "startChar": 51,
+        "endLine": 16,
+        "endChar": 75
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ca002aa8_3a3c794c",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/ipv6/Ipv6NaNotificationHandler.java",
         "patchSetId": 10
@@ -220,6 +436,30 @@
       "writtenOn": "2018-07-17T06:55:53Z",
       "side": 1,
       "message": "this needed?",
+      "range": {
+        "startLine": 17,
+        "startChar": 48,
+        "endLine": 17,
+        "endChar": 60
+      },
+      "revId": "9a1fae472895117dadf4d1fb5abc156b2086f9a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f6062361_82997c28",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/ipv6/Ipv6NaNotificationHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-07-18T12:54:13Z",
+      "side": 1,
+      "message": "Yes, this class extends AbstractIpLearnNotificationHandler.",
+      "parentUuid": "ca002aa8_3a3c794c",
       "range": {
         "startLine": 17,
         "startChar": 48,
