@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -186,7 +187,8 @@ public class ElanLearntVpnVipToPortListener extends
         }
 
         private void deleteMacEntryFromDsAndRemoveFlows(String elanName,
-                TypedWriteTransaction<Operational> interfaceTx, TypedReadWriteTransaction<Configuration> flowTx) {
+                TypedWriteTransaction<Operational> interfaceTx, TypedReadWriteTransaction<Configuration> flowTx)
+                throws ExecutionException, InterruptedException {
             LOG.trace("Deleting mac address {} and interface name {} from ElanInterfaceForwardingEntries "
                     + "and ElanForwardingTables DS", macAddress, interfaceName);
             PhysAddress physAddress = new PhysAddress(macAddress);

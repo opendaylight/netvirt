@@ -20,7 +20,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1049,7 +1048,8 @@ public class ElanUtils {
     }
 
     public void deleteMacFlows(@Nullable ElanInstance elanInfo, @Nullable InterfaceInfo interfaceInfo,
-            MacEntry macEntry, TypedReadWriteTransaction<Configuration> flowTx) {
+            MacEntry macEntry, TypedReadWriteTransaction<Configuration> flowTx)
+            throws ExecutionException, InterruptedException {
         if (elanInfo == null || interfaceInfo == null) {
             return;
         }
@@ -1060,7 +1060,8 @@ public class ElanUtils {
     }
 
     public void deleteMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
-            boolean deleteSmac, TypedReadWriteTransaction<Configuration> flowTx) {
+            boolean deleteSmac, TypedReadWriteTransaction<Configuration> flowTx)
+            throws ExecutionException, InterruptedException {
         String elanInstanceName = elanInfo.getElanInstanceName();
         List<DpnInterfaces> remoteFEs = getInvolvedDpnsInElan(elanInstanceName);
         BigInteger srcdpId = interfaceInfo.getDpId();
@@ -1082,7 +1083,7 @@ public class ElanUtils {
 
     private void executeEtreeDeleteMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
             boolean deleteSmac, String elanInstanceName, BigInteger srcdpId, Long elanTag, BigInteger dstDpId,
-            TypedReadWriteTransaction<Configuration> flowTx) {
+            TypedReadWriteTransaction<Configuration> flowTx) throws ExecutionException, InterruptedException {
         EtreeLeafTagName etreeLeafTag = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag);
         if (etreeLeafTag != null) {
             executeDeleteMacFlows(elanInfo, interfaceInfo, macAddress, deleteSmac, elanInstanceName, srcdpId,
@@ -1090,55 +1091,40 @@ public class ElanUtils {
         }
     }
 
-    // TODO skitt Fix the exception handling here
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private boolean executeDeleteMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
             boolean deleteSmac, String elanInstanceName, BigInteger srcdpId, Long elanTag, BigInteger dstDpId,
-            TypedReadWriteTransaction<Configuration> flowTx) {
+            TypedReadWriteTransaction<Configuration> flowTx) throws ExecutionException, InterruptedException {
         boolean isFlowsRemovedInSrcDpn = false;
         if (dstDpId.equals(srcdpId)) {
             isFlowsRemovedInSrcDpn = true;
             deleteSmacAndDmacFlows(elanInfo, interfaceInfo, macAddress, deleteSmac, flowTx);
         } else if (isDpnPresent(dstDpId)) {
-            try {
-                mdsalManager
-                    .removeFlow(flowTx, dstDpId,
-                        MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE, getKnownDynamicmacFlowRef(
-                            NwConstants.ELAN_DMAC_TABLE, dstDpId, srcdpId, macAddress, elanTag)));
-            } catch (Exception e) {
-                LOG.error("Error removing flow", e);
-                throw new RuntimeException("Error removing flow", e);
-            }
+            mdsalManager
+                .removeFlow(flowTx, dstDpId,
+                    MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE, getKnownDynamicmacFlowRef(
+                        NwConstants.ELAN_DMAC_TABLE, dstDpId, srcdpId, macAddress, elanTag)));
             LOG.debug("Dmac flow entry deleted for elan:{}, logical interface port:{} and mac address:{} on dpn:{}",
                     elanInstanceName, interfaceInfo.getPortName(), macAddress, dstDpId);
         }
         return isFlowsRemovedInSrcDpn;
     }
 
-    // TODO skitt Fix the exception handling here
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
     private void deleteSmacAndDmacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
-            boolean deleteSmac, TypedReadWriteTransaction<Configuration> flowTx) {
+            boolean deleteSmac, TypedReadWriteTransaction<Configuration> flowTx)
+            throws ExecutionException, InterruptedException {
         String elanInstanceName = elanInfo.getElanInstanceName();
         long ifTag = interfaceInfo.getInterfaceTag();
         BigInteger srcdpId = interfaceInfo.getDpId();
         Long elanTag = elanInfo.getElanTag();
-        try {
-            if (deleteSmac) {
-                mdsalManager
-                        .removeFlow(flowTx, srcdpId,
-                                MDSALUtil.buildFlow(NwConstants.ELAN_SMAC_TABLE, getKnownDynamicmacFlowRef(
-                                        NwConstants.ELAN_SMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)));
-            }
-            mdsalManager.removeFlow(flowTx, srcdpId,
-                MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE,
-                    getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)));
-        } catch (Exception e) {
-            LOG.error("Error removing flow", e);
-            throw new RuntimeException("Error removing flow", e);
+        if (deleteSmac) {
+            mdsalManager
+                    .removeFlow(flowTx, srcdpId,
+                            MDSALUtil.buildFlow(NwConstants.ELAN_SMAC_TABLE, getKnownDynamicmacFlowRef(
+                                    NwConstants.ELAN_SMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)));
         }
+        mdsalManager.removeFlow(flowTx, srcdpId,
+            MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE,
+                getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)));
         LOG.debug("All the required flows deleted for elan:{}, logical Interface port:{} and MAC address:{} on dpn:{}",
                 elanInstanceName, interfaceInfo.getPortName(), macAddress, srcdpId);
     }
