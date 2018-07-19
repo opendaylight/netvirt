@@ -838,14 +838,11 @@ public class NexthopManager implements AutoCloseable {
             LOG.error("Unable to allocate/retrieve remote groupId for vpnId {} , prefix {}", parentVpnId, destPrefix);
             return remoteGroupId;
         }
-        long localGroupId = FibConstants.INVALID_GROUP_ID;
-        if (!localBucketInfo.isEmpty() && !remoteBucketInfo.isEmpty()) {
-            localGroupId = createNextHopPointer(getLocalSelectGroupKey(parentVpnId, destPrefix));
-            if (localGroupId == FibConstants.INVALID_GROUP_ID) {
-                LOG.error("Unable to allocate/retrieve local groupId for vpnId {} , prefix {}",
-                    parentVpnId, destPrefix);
-                return remoteGroupId;
-            }
+        long localGroupId =  createNextHopPointer(getLocalSelectGroupKey(parentVpnId, destPrefix));
+        if (localGroupId == FibConstants.INVALID_GROUP_ID) {
+            LOG.error("Unable to allocate/retrieve local groupId for vpnId {} , prefix {}",
+                parentVpnId, destPrefix);
+            return remoteGroupId;
         }
         List<BucketInfo> combinedBucketInfo = new ArrayList<>();
         combinedBucketInfo.addAll(localBucketInfo);
@@ -857,7 +854,7 @@ public class NexthopManager implements AutoCloseable {
         String jobKey = FibUtil.getCreateLocalNextHopJobKey(parentVpnId, dpnId, destPrefix);
         jobCoordinator.enqueueJob(jobKey, () -> {
             mdsalApiManager.syncInstallGroup(remoteGroupEntity);
-            if (!localBucketInfo.isEmpty() && !remoteBucketInfo.isEmpty()) {
+            if (!localBucketInfo.isEmpty()) {
                 mdsalApiManager.syncInstallGroup(localGroupEntity);
             }
             if (LOG.isDebugEnabled()) {
@@ -865,6 +862,14 @@ public class NexthopManager implements AutoCloseable {
                         + "localGroupEntity.groupId {}  groupEntity.groupType {}", jobKey,
                         remoteGroupEntity.getGroupId(), localGroupEntity.getGroupId(),
                         remoteGroupEntity.getGroupType());
+            }
+            // Delete local group(if exists) if there is no local info or no remote info.
+            // Local group has to be deleted if all VMs in a compute is deleted.
+            // Local group(=remote group) is not required if all next hops are present in the same compute.
+            if (localBucketInfo.isEmpty() ^ remoteBucketInfo.isEmpty()) {
+                LOG.debug("Deleting local group {} since no local nhs present for "
+                        + "prefix {}", localGroupEntity.getGroupId(), destPrefix);
+                mdsalApiManager.removeGroup(localGroupEntity);
             }
             return Collections.emptyList();
         });
