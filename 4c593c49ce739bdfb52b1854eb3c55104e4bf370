@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ff40217_92faf275",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1537,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-07-19T03:18:28Z",
+      "side": 1,
+      "message": "The corresponding stable/oxygen patch had this defined as \"final\". Lets keep the files consistent.",
+      "range": {
+        "startLine": 1537,
+        "startChar": 20,
+        "endLine": 1537,
+        "endChar": 56
+      },
+      "revId": "4c593c49ce739bdfb52b1854eb3c55104e4bf370",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
