@@ -1534,61 +1534,61 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             if (!VpnUtil.isVpnPendingDelete(dataBroker, primaryRd)) {
                 jobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName, () -> {
                     final List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-                    WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-                    InstanceIdentifier<VpnInterfaceOpDataEntry> vpnInterfaceOpIdentifier =
-                            VpnUtil.getVpnInterfaceOpDataEntryIdentifier(vpnInterfaceName, newVpnName);
-                    LOG.info("VPN Interface update event - intfName {} onto vpnName {} running config-driven",
-                            update.getName(), newVpnName);
-                    //handle both addition and removal of adjacencies
-                    //currently, new adjacency may be an extra route
-                    boolean isBgpVpnInternetVpn = VpnUtil.isBgpVpnInternet(dataBroker, newVpnName);
-                    if (!oldAdjs.equals(newAdjs)) {
-                        for (Adjacency adj : copyNewAdjs) {
-                            if (copyOldAdjs.contains(adj)) {
-                                copyOldAdjs.remove(adj);
-                            } else {
-                                // add new adjacency - right now only extra route will hit this path
-                                if (!isBgpVpnInternetVpn || VpnUtil.isAdjacencyEligibleToVpnInternet(dataBroker,
-                                        adj)) {
-                                    addNewAdjToVpnInterface(vpnInterfaceOpIdentifier, primaryRd, adj, dpnId,
-                                            writeOperTxn, writeConfigTxn);
-                                }
-                                LOG.info("update: new Adjacency {} with nextHop {} label {} subnet {} added to"
+                    futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                        confTx -> txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
+                            InstanceIdentifier<VpnInterfaceOpDataEntry> vpnInterfaceOpIdentifier =
+                                VpnUtil.getVpnInterfaceOpDataEntryIdentifier(vpnInterfaceName, newVpnName);
+                            LOG.info("VPN Interface update event - intfName {} onto vpnName {} running config-driven",
+                                update.getName(), newVpnName);
+                            //handle both addition and removal of adjacencies
+                            //currently, new adjacency may be an extra route
+                            boolean isBgpVpnInternetVpn = VpnUtil.isBgpVpnInternet(dataBroker, newVpnName);
+                            if (!oldAdjs.equals(newAdjs)) {
+                                for (Adjacency adj : copyNewAdjs) {
+                                    if (copyOldAdjs.contains(adj)) {
+                                        copyOldAdjs.remove(adj);
+                                    } else {
+                                        // add new adjacency - right now only extra route will hit this path
+                                        if (!isBgpVpnInternetVpn || VpnUtil.isAdjacencyEligibleToVpnInternet(dataBroker,
+                                            adj)) {
+                                            addNewAdjToVpnInterface(vpnInterfaceOpIdentifier, primaryRd, adj, dpnId,
+                                                operTx, confTx);
+                                        }
+                                        LOG.info("update: new Adjacency {} with nextHop {} label {} subnet {} added to"
                                                 + " vpn interface {} on vpn {} dpnId {}", adj.getIpAddress(),
-                                        adj.getNextHopIpList(), adj.getLabel(), adj.getSubnetId(),
-                                        update.getName(), newVpnName, dpnId);
-                            }
-                        }
-                        for (Adjacency adj : copyOldAdjs) {
-                            if (!isBgpVpnInternetVpn || VpnUtil.isAdjacencyEligibleToVpnInternet(dataBroker,
-                                    adj)) {
-                                if (adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency
-                                        && !adj.isPhysNetworkFunc()) {
-                                    delAdjFromVpnInterface(vpnInterfaceOpIdentifier, adj, dpnId,
-                                            writeOperTxn, writeConfigTxn);
-                                    //remove FIB entry
-                                    String vpnRd = VpnUtil.getVpnRd(dataBroker, newVpnName);
-                                    LOG.debug("update: remove prefix {} from the FIB and BGP entry "
-                                            + "for the Vpn-Rd {} ", adj.getIpAddress(), vpnRd);
-                                    //remove BGP entry
-                                    fibManager.removeFibEntry(vpnRd, adj.getIpAddress(), writeConfigTxn);
-                                    if (vpnRd != null && !vpnRd.equalsIgnoreCase(newVpnName)) {
-                                        bgpManager.withdrawPrefix(vpnRd, adj.getIpAddress());
+                                            adj.getNextHopIpList(), adj.getLabel(), adj.getSubnetId(),
+                                            update.getName(), newVpnName, dpnId);
                                     }
-                                } else {
-                                    delAdjFromVpnInterface(vpnInterfaceOpIdentifier, adj, dpnId,
-                                            writeOperTxn, writeConfigTxn);
+                                }
+                                for (Adjacency adj : copyOldAdjs) {
+                                    if (!isBgpVpnInternetVpn || VpnUtil.isAdjacencyEligibleToVpnInternet(dataBroker,
+                                        adj)) {
+                                        if (adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency
+                                            && !adj.isPhysNetworkFunc()) {
+                                            delAdjFromVpnInterface(vpnInterfaceOpIdentifier, adj, dpnId,
+                                                operTx, confTx);
+                                            //remove FIB entry
+                                            String vpnRd = VpnUtil.getVpnRd(dataBroker, newVpnName);
+                                            LOG.debug("update: remove prefix {} from the FIB and BGP entry "
+                                                + "for the Vpn-Rd {} ", adj.getIpAddress(), vpnRd);
+                                            //remove BGP entry
+                                            fibManager.removeFibEntry(vpnRd, adj.getIpAddress(), confTx);
+                                            if (vpnRd != null && !vpnRd.equalsIgnoreCase(newVpnName)) {
+                                                bgpManager.withdrawPrefix(vpnRd, adj.getIpAddress());
+                                            }
+                                        } else {
+                                            delAdjFromVpnInterface(vpnInterfaceOpIdentifier, adj, dpnId,
+                                                operTx, confTx);
+                                        }
+                                    }
+                                    LOG.info("update: Adjacency {} with nextHop {} label {} subnet {} removed from"
+                                            + " vpn interface {} on vpn {}", adj.getIpAddress(),
+                                        adj.getNextHopIpList(), adj.getLabel(), adj.getSubnetId(), update.getName(),
+                                        newVpnName);
                                 }
                             }
-                            LOG.info("update: Adjacency {} with nextHop {} label {} subnet {} removed from"
-                                            + " vpn interface {} on vpn {}", adj.getIpAddress(),
-                                    adj.getNextHopIpList(), adj.getLabel(), adj.getSubnetId(), update.getName(),
-                                    newVpnName);
-                        }
-                    }
-                    writeOperTxn.submit().get();
-                    futures.add(writeConfigTxn.submit());
+                        }).get()));
+
                     LOG.info("update: vpn interface updated for interface {} oldVpn(s) {} newVpn {} processed"
                             + " successfully", update.getName(), VpnHelper.getVpnInterfaceVpnInstanceNamesString(
                             original.getVpnInstanceNames()), newVpnName);
