@@ -52,19 +52,18 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     @SuppressFBWarnings("UC_USELESS_OBJECT")
     public void renderNode(NodeId nodeId) {
         List<Flow> flows = new ArrayList<>();
-        flows.add(this.openFlow13Provider.createIngressClassifierFilterTunnelNshFlow(nodeId));
+        flows.add(this.openFlow13Provider.createIngressClassifierFilterVxgpeNshFlow(nodeId));
         flows.add(this.openFlow13Provider.createIngressClassifierFilterEthNshFlow(nodeId));
-        flows.add(this.openFlow13Provider.createIngressClassifierFilterNshFlow(nodeId));
         flows.add(this.openFlow13Provider.createIngressClassifierFilterNoNshFlow(nodeId));
         flows.add(this.openFlow13Provider.createIngressClassifierAclNoMatchFlow(nodeId));
 
-        flows.add(this.openFlow13Provider.createIngressClassifierTunnelEthNshTrafficCaptureFlow(nodeId));
-        flows.add(this.openFlow13Provider.createIngressClassifierTunnelNshTrafficCaptureFlow(nodeId));
+        flows.add(this.openFlow13Provider.createIngressClassifierSfcTunnelTrafficCaptureFlow(nodeId));
 
-        flows.add(this.openFlow13Provider.createEgressClassifierFilterNoNshFlow(nodeId));
         flows.add(this.openFlow13Provider.createEgressClassifierFilterNshFlow(nodeId));
+        flows.add(this.openFlow13Provider.createEgressClassifierFilterNoNshFlow(nodeId));
 
-        flows.add(this.openFlow13Provider.createEgressClassifierNextHopFlow(nodeId));
+        flows.add(this.openFlow13Provider.createEgressClassifierNextHopC1C2Flow(nodeId));
+        flows.add(this.openFlow13Provider.createEgressClassifierNextHopNoC1C2Flow(nodeId));
 
         ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
             tx -> flows.forEach(flow -> this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx))), LOG,
@@ -85,8 +84,7 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
                 return;
             }
             Flow flow;
-            flow = openFlow13Provider.createEgressClassifierTransportEgressRemoteEthNshFlow(
-                    nodeId, nsp, port, firstHopIp);
+            flow = openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(nodeId, nsp, port, firstHopIp);
             flows.add(flow);
         } else {
             Flow flow;
@@ -125,19 +123,15 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     @SuppressFBWarnings("UC_USELESS_OBJECT")
     public void suppressNode(NodeId nodeId) {
         List<Flow> flows = new ArrayList<>();
-        flows.add(this.openFlow13Provider.createIngressClassifierFilterTunnelNshFlow(nodeId));
+        flows.add(this.openFlow13Provider.createIngressClassifierFilterVxgpeNshFlow(nodeId));
         flows.add(this.openFlow13Provider.createIngressClassifierFilterEthNshFlow(nodeId));
-        flows.add(this.openFlow13Provider.createIngressClassifierFilterNshFlow(nodeId));
         flows.add(this.openFlow13Provider.createIngressClassifierFilterNoNshFlow(nodeId));
-        flows.add(this.openFlow13Provider.createIngressClassifierAclNoMatchFlow(nodeId));
 
-        flows.add(this.openFlow13Provider.createIngressClassifierTunnelEthNshTrafficCaptureFlow(nodeId));
-        flows.add(this.openFlow13Provider.createIngressClassifierTunnelNshTrafficCaptureFlow(nodeId));
-
-        flows.add(this.openFlow13Provider.createEgressClassifierFilterNoNshFlow(nodeId));
         flows.add(this.openFlow13Provider.createEgressClassifierFilterNshFlow(nodeId));
+        flows.add(this.openFlow13Provider.createEgressClassifierFilterNoNshFlow(nodeId));
 
-        flows.add(this.openFlow13Provider.createEgressClassifierNextHopFlow(nodeId));
+        flows.add(this.openFlow13Provider.createEgressClassifierNextHopC1C2Flow(nodeId));
+        flows.add(this.openFlow13Provider.createEgressClassifierNextHopNoC1C2Flow(nodeId));
 
         ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
             tx -> flows.forEach(flow -> this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx))), LOG,
@@ -157,8 +151,7 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
                 return;
             }
             Flow flow;
-            flow = openFlow13Provider.createEgressClassifierTransportEgressRemoteEthNshFlow(
-                    nodeId, nsp, port, firstHopIp);
+            flow = openFlow13Provider.createEgressClassifierTransportEgressRemoteFlow(nodeId, nsp, port, firstHopIp);
             flows.add(flow);
         } else {
             Flow flow;
