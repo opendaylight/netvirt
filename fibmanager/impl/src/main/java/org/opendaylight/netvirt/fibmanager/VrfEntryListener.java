@@ -835,21 +835,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             //The loadbalancing group is created only if the extra route has multiple nexthops
             //to avoid loadbalancing the discovered routes
             if (vpnExtraRoutes != null && routes != null) {
-                if (isIpv4Address(routes.getNexthopIpList().get(0))) {
-                    localNextHopIP = routes.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX;
-                } else {
-                    localNextHopIP = routes.getNexthopIpList().get(0) + NwConstants.IPV6PREFIX;
-                }
                 if (vpnExtraRoutes.size() > 1) {
                     groupId = nextHopManager.createNextHopGroups(vpnId, rd, dpnId, vrfEntry, routes, vpnExtraRoutes);
                     localGroupId = nextHopManager.getLocalSelectGroup(vpnId, vrfEntry.getDestPrefix());
-                } else if (routes.getNexthopIpList().size() > 1) {
-                    groupId = nextHopManager.createNextHopGroups(vpnId, rd, dpnId, vrfEntry, routes,
-                            vpnExtraRoutes);
-                    localGroupId = groupId;
                 } else {
-                    groupId = nextHopManager.createLocalNextHop(vpnId, dpnId, interfaceName, localNextHopIP,
-                            prefix, gwMacAddress, jobKey);
+                    groupId = nextHopManager.createNextHopGroups(vpnId, rd, dpnId, vrfEntry, routes, vpnExtraRoutes);
                     localGroupId = groupId;
                 }
             } else {
@@ -1157,8 +1147,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 vpnName, usedRds, vrfEntry.getDestPrefix());
         // create loadbalancing groups for extra routes only when the extra route is present behind
         // multiple VMs
-        if (!vpnExtraRoutes.isEmpty() && (vpnExtraRoutes.size() > 1
-                || vpnExtraRoutes.get(0).getNexthopIpList().size() > 1)) {
+        if (!vpnExtraRoutes.isEmpty()) {
             List<InstructionInfo> instructions = new ArrayList<>();
             // Obtain the local routes for this particular dpn.
             java.util.Optional<Routes> routes = vpnExtraRoutes
