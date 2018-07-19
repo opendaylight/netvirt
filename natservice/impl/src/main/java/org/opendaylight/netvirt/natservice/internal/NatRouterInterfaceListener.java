@@ -15,7 +15,10 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterfaceBuilder;
@@ -33,12 +36,14 @@ public class NatRouterInterfaceListener
 
     private static final Logger LOG = LoggerFactory.getLogger(NatRouterInterfaceListener.class);
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final OdlInterfaceRpcService interfaceManager;
 
     @Inject
     public NatRouterInterfaceListener(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceManager) {
         super(Interfaces.class, NatRouterInterfaceListener.class);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.interfaceManager = interfaceManager;
     }
 
@@ -77,7 +82,6 @@ public class NatRouterInterfaceListener
 
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
             .state.Interface interfaceState = NatUtil.getInterfaceStateFromOperDS(dataBroker, interfaceName);
-        WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
         if (interfaceState != null) {
             BigInteger dpId = NatUtil.getDpnForInterface(interfaceManager, interfaceName);
             if (dpId.equals(BigInteger.ZERO)) {
@@ -85,14 +89,14 @@ public class NatRouterInterfaceListener
                         interfaceName, routerId);
                 return;
             }
-            NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerId, interfaceName, dpId, writeOperTxn);
-            NatUtil.addToDpnRoutersMap(dataBroker, routerId, interfaceName, dpId, writeOperTxn);
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
+                NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerId, interfaceName, dpId, operTx);
+                NatUtil.addToDpnRoutersMap(dataBroker, routerId, interfaceName, dpId, operTx);
+            }), LOG, "Error handling NAT router interface addition");
         } else {
             LOG.info("add : Interface {} not yet operational to handle router interface add event in router {}",
                     interfaceName, routerId);
         }
-
-        writeOperTxn.submit();
     }
 
     @Override
