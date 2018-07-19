@@ -74,7 +74,21 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.openflowplugin</groupId>
-            <artifactId>odl-openflowplugin-flow-services</artifactId>
+            <artifactId>odl-openflowplugin-app-config-pusher</artifactId>
+            <version>0.6.3-SNAPSHOT</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.openflowplugin</groupId>
+            <artifactId>odl-openflowplugin-app-forwardingrules-manager</artifactId>
+            <version>0.6.3-SNAPSHOT</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.openflowplugin</groupId>
+            <artifactId>odl-openflowplugin-app-reconciliation-framework</artifactId>
             <version>0.6.3-SNAPSHOT</version>
             <type>xml</type>
             <classifier>features</classifier>
