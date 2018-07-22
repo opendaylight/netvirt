@@ -178,7 +178,7 @@ public class PodListener implements DataTreeChangeListener<Pods> {
             String interfaceName = CoeUtils.buildInterfaceName(pods.getNetworkNS(), pods.getName());
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx ->  {
-                String nodeIp = String.valueOf(pods.getHostIpAddress().getValue());
+                String nodeIp = pods.getHostIpAddress().stringValue();
                 ElanInstance elanInstance = CoeUtils.createElanInstanceForTheFirstPodInTheNetwork(
                         pods.getNetworkNS(), nodeIp, podInterface, tx);
                 LOG.info("interface creation for pod {}", interfaceName);

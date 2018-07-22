@@ -156,8 +156,8 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
         return elanInterface.getElanInstanceName();
     }
 
-    private String getPoolKeyIdByAllocationPool(String networkId, AllocationPool pool) {
-        return "dhcpAllocationPool." + networkId + "." + String.valueOf(pool.getSubnet().getValue());
+    private static String getPoolKeyIdByAllocationPool(String networkId, AllocationPool pool) {
+        return "dhcpAllocationPool." + networkId + "." + pool.getSubnet().stringValue();
     }
 
     private long createIdAllocation(String groupIdKey, String idKey) {

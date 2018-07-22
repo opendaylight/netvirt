@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairsBuilder;
 
@@ -64,13 +64,13 @@ public class AclServiceUtilsTest {
         inputAAPs.clear();
     }
 
-    private void buildInputAAP(List<AllowedAddressPairs> inputAAPs, String addr) {
+    private static void buildInputAAP(List<AllowedAddressPairs> inputAAPs, String addr) {
         inputAAPs.add(buildAAp(addr));
     }
 
-    private AllowedAddressPairs buildAAp(String addr) {
+    private static AllowedAddressPairs buildAAp(String addr) {
         AllowedAddressPairsBuilder aapb = new AllowedAddressPairsBuilder();
-        aapb.setIpAddress(new IpPrefixOrAddress(addr.toCharArray()));
+        aapb.setIpAddress(IpPrefixOrAddressBuilder.getDefaultInstance(addr));
         aapb.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
         return aapb.build();
     }

@@ -324,8 +324,8 @@ public class NatTunnelInterfaceStateListener
 
     private void hndlTepEvntsForDpn(StateTunnelList stateTunnelList, TunnelAction tunnelAction) {
         final BigInteger srcDpnId = new BigInteger(stateTunnelList.getSrcInfo().getTepDeviceId());
-        final String srcTepIp = String.valueOf(stateTunnelList.getSrcInfo().getTepIp().getValue());
-        final String destTepIp = String.valueOf(stateTunnelList.getDstInfo().getTepIp().getValue());
+        final String srcTepIp = stateTunnelList.getSrcInfo().getTepIp().stringValue();
+        final String destTepIp = stateTunnelList.getDstInfo().getTepIp().stringValue();
         LOG.trace("hndlTepEvntsForDpn : Handle tunnel event for srcDpn {} SrcTepIp {} DestTepIp {} ",
                 srcDpnId, srcTepIp, destTepIp);
         int tunTypeVal = getTunnelType(stateTunnelList);

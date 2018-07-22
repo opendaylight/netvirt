@@ -14,7 +14,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -27,11 +26,9 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -288,7 +285,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 if (isVxlanNetworkOrVxlanSegment(elanInfo)) {
                     if (elanUtils.isOpenstackVniSemanticsEnforced()) {
                         elanUtils.removeTerminatingServiceAction(dpId,
-                                elanUtils.getVxlanSegmentationId(elanInfo).intValue());
+                                ElanUtils.getVxlanSegmentationId(elanInfo).intValue());
                     }
                     unsetExternalTunnelTable(dpId, elanInfo);
                 }
@@ -1027,7 +1024,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                                 List<Action> remoteListActionInfo = elanItmUtils.getInternalTunnelItmEgressAction(
                                         dpnInterface.getDpId(), otherFes.getDpId(),
                                         elanUtils.isOpenstackVniSemanticsEnforced()
-                                                ? elanUtils.getVxlanSegmentationId(elanInfo) : elanTag);
+                                                ? ElanUtils.getVxlanSegmentationId(elanInfo) : elanTag);
                                 if (!remoteListActionInfo.isEmpty()) {
                                     remoteListBucketInfo.add(MDSALUtil.buildBucket(remoteListActionInfo, MDSALUtil
                                             .GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
@@ -1331,7 +1328,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             listMatchInfoBase = ElanUtils.getTunnelMatchesForServiceId((int) elanTag);
             instructionInfos = getInstructionsForOutGroup(ElanUtils.getElanLocalBCGId(elanTag));
         } else {
-            serviceId = elanUtils.getVxlanSegmentationId(elanInfo);
+            serviceId = ElanUtils.getVxlanSegmentationId(elanInfo);
             listMatchInfoBase = buildMatchesForVni(serviceId);
             instructionInfos = getInstructionsIntOrExtTunnelTable(elanTag);
         }
@@ -1745,7 +1742,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 ElanL2GatewayUtils.checkIfPhyLocatorAlreadyExistsInRemoteMcastEntry(externalNodeId, remoteMcastMac,
                 dpnTepIp);
         LOG.debug("phyLocAlreadyExists = {} for locator [{}] in remote mcast entry for elan [{}], nodeId [{}]",
-                phyLocAlreadyExists, String.valueOf(dpnTepIp.getValue()), elanName, externalNodeId.getValue());
+                phyLocAlreadyExists, dpnTepIp.stringValue(), elanName, externalNodeId.getValue());
         List<PhysAddress> staticMacs = elanL2GatewayUtils.getElanDpnMacsFromInterfaces(lstElanInterfaceNames);
 
         if (phyLocAlreadyExists) {

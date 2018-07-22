@@ -117,7 +117,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
     public ListenableFuture<RpcResult<GetNatTranslationsForNetworkAndIpaddressOutput>>
             getNatTranslationsForNetworkAndIpaddress(GetNatTranslationsForNetworkAndIpaddressInput input) {
 
-        String ipAddress = String.valueOf(input.getIpAddress().getValue());
+        String ipAddress = input.getIpAddress().stringValue();
         RpcResultBuilder<GetNatTranslationsForNetworkAndIpaddressOutput> rpcResultBuilder = null;
         GetNatTranslationsForNetworkAndIpaddressOutputBuilder output = null;
 
@@ -136,8 +136,8 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
             subNet = nvpnManager.getNeutronSubnet(subnetUuid);
             for (AllocationPools allocationPool : subNet.getAllocationPools()) {
                 if (NatUtil.isIpInSubnet(ipAddress,
-                        String.valueOf(allocationPool.getStart().getValue()),
-                        String.valueOf(allocationPool.getEnd().getValue()))) {
+                        allocationPool.getStart().stringValue(),
+                        allocationPool.getEnd().stringValue())) {
                     LOG.debug("getNatTranslationsForNetworkAndIpaddress : IP Adderess {} falls within the Subnet {}",
                             ipAddress, subNet.getUuid().getValue());
                     isIpInSubnet = Boolean.TRUE;

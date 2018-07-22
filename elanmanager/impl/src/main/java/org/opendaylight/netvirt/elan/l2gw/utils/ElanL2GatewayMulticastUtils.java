@@ -325,7 +325,7 @@ public class ElanL2GatewayMulticastUtils {
         if (isVxlanNetworkOrVxlanSegment(elanInfo)) {
             listBucketInfo.addAll(getRemoteBCGroupTunnelBuckets(elanDpns, dpnId, bucketId,
                     elanUtils.isOpenstackVniSemanticsEnforced()
-                            ? elanUtils.getVxlanSegmentationId(elanInfo) : elanTag));
+                            ? ElanUtils.getVxlanSegmentationId(elanInfo) : elanTag));
         }
         listBucketInfo.addAll(getRemoteBCGroupExternalPortBuckets(elanDpns, dpnInterfaces, dpnId,
                 getNextAvailableBucketId(listBucketInfo.size())));
@@ -383,7 +383,7 @@ public class ElanL2GatewayMulticastUtils {
                 continue;
             }
             List<Action> listActionInfo = elanItmUtils.buildTunnelItmEgressActions(interfaceName,
-                    elanUtils.getVxlanSegmentationId(elanInfo), false);
+                    ElanUtils.getVxlanSegmentationId(elanInfo), false);
             listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
                     MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
             bucketId++;
@@ -451,7 +451,7 @@ public class ElanL2GatewayMulticastUtils {
                 remoteTepIps.add(dhcpDesignatedSwitchTepIp);
 
                 HwvtepPhysicalLocatorAugmentation phyLocatorAug = HwvtepSouthboundUtils
-                        .createHwvtepPhysicalLocatorAugmentation(String.valueOf(dhcpDesignatedSwitchTepIp.getValue()));
+                        .createHwvtepPhysicalLocatorAugmentation(dhcpDesignatedSwitchTepIp.stringValue());
                 InstanceIdentifier<TerminationPoint> iid =
                         HwvtepSouthboundUtils.createPhysicalLocatorInstanceIdentifier(nodeId, phyLocatorAug);
                 TerminationPoint terminationPoint = new TerminationPointBuilder()
@@ -461,7 +461,7 @@ public class ElanL2GatewayMulticastUtils {
                         iid, terminationPoint);
                 LOG.info("Adding PhysicalLocator for node: {} with Dhcp designated switch Tep Ip {} "
                         + "as physical locator, elan {}", device.getHwvtepNodeId(),
-                        String.valueOf(dhcpDesignatedSwitchTepIp.getValue()), elanName);
+                        dhcpDesignatedSwitchTepIp.stringValue(), elanName);
             } else {
                 LOG.warn("Dhcp designated switch Tep Ip not found for l2 gw node {} and elan {}",
                         device.getHwvtepNodeId(), elanName);
@@ -491,7 +491,7 @@ public class ElanL2GatewayMulticastUtils {
         List<LocatorSet> locators = new ArrayList<>();
         for (IpAddress tepIp : tepIps) {
             HwvtepPhysicalLocatorAugmentation phyLocatorAug = HwvtepSouthboundUtils
-                    .createHwvtepPhysicalLocatorAugmentation(String.valueOf(tepIp.getValue()));
+                    .createHwvtepPhysicalLocatorAugmentation(tepIp.stringValue());
             HwvtepPhysicalLocatorRef phyLocRef = new HwvtepPhysicalLocatorRef(
                     HwvtepSouthboundUtils.createPhysicalLocatorInstanceIdentifier(nodeId, phyLocatorAug));
             locators.add(new LocatorSetBuilder().setLocatorRef(phyLocRef).build());

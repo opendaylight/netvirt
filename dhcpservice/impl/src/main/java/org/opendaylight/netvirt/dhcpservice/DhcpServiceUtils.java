@@ -64,6 +64,7 @@ import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -438,7 +439,7 @@ public final class DhcpServiceUtils {
                 .map(x -> ipn >> x & 0xFF).boxed() //
                 .map(String::valueOf) //
                 .toArray(String[]::new);
-        return new IpAddress(String.join(".", array).toCharArray());
+        return IpAddressBuilder.getDefaultInstance(String.join(".", array));
     }
 
     static IpAddress convertLongToIp(long ip) {
@@ -446,11 +447,11 @@ public final class DhcpServiceUtils {
                 .map(x -> ip >> x & 0xFF).boxed() //
                 .map(String::valueOf) //
                 .toArray(String[]::new);
-        return new IpAddress(String.join(".", array).toCharArray());
+        return IpAddressBuilder.getDefaultInstance(String.join(".", array));
     }
 
     static long convertIpToLong(IpAddress ipa) {
-        String[] splitIp = String.valueOf(ipa.getValue()).split("\\.");
+        String[] splitIp = ipa.stringValue().split("\\.");
         long result = 0;
         for (String part : splitIp) {
             result <<= 8;
