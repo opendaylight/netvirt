@@ -271,7 +271,7 @@ public class L2GatewayDevice {
     public String toString() {
         List<String> lstTunnelIps = new ArrayList<>();
         for (IpAddress ip : this.tunnelIps) {
-            lstTunnelIps.add(String.valueOf(ip.getValue()));
+            lstTunnelIps.add(ip.stringValue());
         }
 
         List<String> lstMacs =

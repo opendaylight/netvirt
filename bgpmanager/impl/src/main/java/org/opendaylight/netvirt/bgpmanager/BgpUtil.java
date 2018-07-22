@@ -36,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfsKey;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfs.AddressFamiliesVrf;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
@@ -241,7 +242,7 @@ public class BgpUtil implements AutoCloseable {
     }
 
     private static InstanceIdentifier<ExternalTeps> getExternalTepsIdentifier(String elanInstanceName, String tepIp) {
-        IpAddress tepAdress = tepIp == null ? null : new IpAddress(tepIp.toCharArray());
+        IpAddress tepAdress = tepIp == null ? null : IpAddressBuilder.getDefaultInstance(tepIp);
         return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class,
                 new ElanInstanceKey(elanInstanceName)).child(ExternalTeps.class,
                 new ExternalTepsKey(tepAdress)).build();

@@ -122,6 +122,7 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.tcp.security.option.grouping.tcp.security.option.TcpMd5SignatureOption;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.tcp.security.option.grouping.tcp.security.option.TcpMd5SignatureOptionBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
@@ -2126,7 +2127,7 @@ public class BgpConfigurationManager {
         }
         long asNum = asId.getLocalAs();
         IpAddress routerId = asId.getRouterId();
-        String rid = routerId == null ? "" : new String(routerId.getValue());
+        String rid = routerId == null ? "" : routerId.stringValue();
         int stalepathTime = (int) getStalePathtime(RESTART_DEFAULT_GR, config.getAsId());
         boolean announceFbit = true;
         boolean replayDone = false;
@@ -2340,7 +2341,7 @@ public class BgpConfigurationManager {
     }
 
     public void startBgp(long as, String routerId, int spt, boolean fbit) {
-        IpAddress rid = routerId == null ? null : new IpAddress(routerId.toCharArray());
+        IpAddress rid = routerId == null ? null : IpAddressBuilder.getDefaultInstance(routerId);
         Long staleTime = (long) spt;
         InstanceIdentifier.InstanceIdentifierBuilder<AsId> iib =
                 InstanceIdentifier.builder(Bgp.class).child(AsId.class);
@@ -2593,9 +2594,10 @@ public class BgpConfigurationManager {
 
         InstanceIdentifier<Vrfs> iid = iib.build();
 
+        InstanceIdentifier.builder(Bgp.class).build()
+                .child(Multipath.class, new MultipathKey(adfBuilder.getAfi(), adfBuilder.getSafi()));
         @SuppressWarnings("static-access")
-        InstanceIdentifier<Bgp> iid6 =  iid.builder(Bgp.class).build()
-                .child(Multipath.class, new MultipathKey(adfBuilder.getAfi(), adfBuilder.getSafi())).create(Bgp.class);
+        InstanceIdentifier<Bgp> iid6 =  InstanceIdentifier.create(Bgp.class);
         InstanceIdentifierBuilder<Vrfs> iib3 = iid6.child(Vrfs.class, new VrfsKey(rd)).builder();
         InstanceIdentifier<Vrfs> iidFinal = iib3.build();
 
