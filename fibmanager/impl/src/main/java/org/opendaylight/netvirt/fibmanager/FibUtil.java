@@ -23,7 +23,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -629,7 +628,7 @@ public class FibUtil {
         if (tunnelInfo.isPresent()) {
             List<TunnelEndPoints> nexthopIpList = tunnelInfo.get().getTunnelEndPoints();
             if (nexthopIpList != null && !nexthopIpList.isEmpty()) {
-                nextHopIp = String.valueOf(nexthopIpList.get(0).getIpAddress().getValue());
+                nextHopIp = nexthopIpList.get(0).getIpAddress().stringValue();
             }
         }
         return nextHopIp;

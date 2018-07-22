@@ -28,6 +28,7 @@ import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
@@ -308,7 +309,7 @@ public class Ipv6PktHandlerTest {
         when(gwIpAddress.getIpv6Address()).thenReturn(new Ipv6Address("2001:db8::1"));
 
         VirtualSubnet v6Subnet = VirtualSubnet.builder().gatewayIp(gwIpAddress)
-                .subnetCidr(new IpPrefix("2001:db8::/64".toCharArray()))
+                .subnetCidr(new IpPrefix(new Ipv6Prefix("2001:db8::/64")))
                 .ipv6AddressMode(Ipv6ServiceConstants.IPV6_SLAAC).ipv6RAMode(Ipv6ServiceConstants.IPV6_SLAAC).build();
 
         VirtualRouter virtualRouter = VirtualRouter.builder().build();
@@ -399,19 +400,19 @@ public class Ipv6PktHandlerTest {
         when(gwIpAddress.getIpv6Address()).thenReturn(new Ipv6Address("2001:db8:1111::1"));
 
         VirtualSubnet v6Subnet1 = VirtualSubnet.builder().gatewayIp(gwIpAddress)
-                .subnetCidr(new IpPrefix("2001:db8:1111::/64".toCharArray()))
+                .subnetCidr(new IpPrefix(new Ipv6Prefix("2001:db8:1111::/64")))
                 .ipv6AddressMode(Ipv6ServiceConstants.IPV6_SLAAC).ipv6RAMode(Ipv6ServiceConstants.IPV6_SLAAC).build();
         VirtualRouter virtualRouter = VirtualRouter.builder().build();
         v6Subnet1.setRouter(virtualRouter);
 
         VirtualSubnet v6Subnet2 = VirtualSubnet.builder().gatewayIp(gwIpAddress)
-                .subnetCidr(new IpPrefix("2001:db8:2222::/64".toCharArray()))
+                .subnetCidr(new IpPrefix(new Ipv6Prefix("2001:db8:2222::/64")))
                 .ipv6AddressMode(Ipv6ServiceConstants.IPV6_DHCPV6_STATELESS)
                 .ipv6RAMode(Ipv6ServiceConstants.IPV6_DHCPV6_STATELESS).build();
         v6Subnet2.setRouter(virtualRouter);
 
         VirtualSubnet v6Subnet3 = VirtualSubnet.builder().gatewayIp(gwIpAddress)
-                .subnetCidr(new IpPrefix("2001:db8:3333::/64".toCharArray()))
+                .subnetCidr(new IpPrefix(new Ipv6Prefix("2001:db8:3333::/64")))
                 .ipv6AddressMode(Ipv6ServiceConstants.IPV6_DHCPV6_STATEFUL)
                 .ipv6RAMode(Ipv6ServiceConstants.IPV6_DHCPV6_STATEFUL).build();
         v6Subnet3.setRouter(virtualRouter);

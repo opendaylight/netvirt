@@ -23,6 +23,7 @@ import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventAction;
@@ -66,7 +67,7 @@ public abstract class AbstractIpLearnNotificationHandler {
         List<Adjacency> adjacencies = vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(srcInterface);
         if (adjacencies != null) {
             for (Adjacency adj : adjacencies) {
-                IpPrefix ipPrefix = new IpPrefix(adj.getIpAddress().toCharArray());
+                IpPrefix ipPrefix = IpPrefixBuilder.getDefaultInstance(adj.getIpAddress());
                 if (NWUtil.isIpAddressInRange(srcIP, ipPrefix)) {
                     return;
                 }
@@ -74,7 +75,7 @@ public abstract class AbstractIpLearnNotificationHandler {
         }
 
         LOG.trace("ARP/NA Notification Response Received from interface {} and IP {} having MAC {}, learning MAC",
-                srcInterface, String.valueOf(srcIP.getValue()), srcMac.getValue());
+                srcInterface, srcIP.stringValue(), srcMac.getValue());
         processIpLearning(srcInterface, srcIP, srcMac, metadata, targetIP);
     }
 
@@ -83,8 +84,8 @@ public abstract class AbstractIpLearnNotificationHandler {
         if (metadata != null && !Objects.equals(metadata, BigInteger.ZERO)) {
             Optional<List<String>> vpnList = vpnUtil.getVpnHandlingIpv4AssociatedWithInterface(srcInterface);
             if (vpnList.isPresent()) {
-                String srcIpToQuery = String.valueOf(srcIP.getValue());
-                String destIpToQuery = String.valueOf(dstIP.getValue());
+                String srcIpToQuery = srcIP.stringValue();
+                String destIpToQuery = dstIP.stringValue();
                 for (String vpnName : vpnList.get()) {
                     LOG.info("Received ARP/NA for sender MAC {} and sender IP {} via interface {}",
                               srcMac.getValue(), srcIpToQuery, srcInterface);
@@ -125,8 +126,8 @@ public abstract class AbstractIpLearnNotificationHandler {
 
     private void learnMacFromIncomingPacket(String vpnName, String srcInterface, IpAddress srcIP, MacAddress srcMac,
             IpAddress dstIP) {
-        String srcIpToQuery = String.valueOf(srcIP.getValue());
-        String destIpToQuery = String.valueOf(dstIP.getValue());
+        String srcIpToQuery = srcIP.stringValue();
+        String destIpToQuery = dstIP.stringValue();
         synchronized ((vpnName + srcIpToQuery).intern()) {
             vpnUtil.createLearntVpnVipToPortEvent(vpnName, srcIpToQuery, destIpToQuery, srcInterface,
                     srcMac.getValue(), LearntVpnVipToPortEventAction.Add, null);

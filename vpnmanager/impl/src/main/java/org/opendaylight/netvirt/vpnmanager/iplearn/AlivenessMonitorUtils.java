@@ -12,10 +12,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -23,6 +21,7 @@ import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
@@ -95,7 +94,7 @@ public final class AlivenessMonitorUtils {
             return;
         }
 
-        final IpAddress targetIp = new IpAddress(macEntry.getIpAddress().getHostAddress().toCharArray());
+        final IpAddress targetIp = IetfInetUtil.INSTANCE.ipAddressFor(macEntry.getIpAddress());
         if (ipMonitorProfileId == null || ipMonitorProfileId.equals(0L)) {
             Optional<Long> profileIdOptional = allocateIpMonitorProfile(targetIp);
             if (!profileIdOptional.isPresent()) {

@@ -49,7 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev140421.NxActionNatFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev140421.NxActionNatRangePresent;
 import org.slf4j.Logger;
@@ -280,8 +280,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         int rangePresent = NxActionNatRangePresent.NXNATRANGEIPV4MIN.getIntValue();
         int flags = NxActionNatFlags.NXNATFSRC.getIntValue();
         NxCtAction nxCtActionCommit = new ActionNxConntrack.NxNat(0, flags, rangePresent,
-            new IpPrefixOrAddress(externalIp.toCharArray()).getIpAddress(),
-            null,0, 0);
+            IpPrefixOrAddressBuilder.getDefaultInstance(externalIp).getIpAddress(), null,0, 0);
         ctActionsListCommit.add(nxCtActionCommit);
         int ctCommitFlag = 1;
         ActionNxConntrack actionNxConntrackSubmit = new ActionNxConntrack(ctCommitFlag, 0, elanId,

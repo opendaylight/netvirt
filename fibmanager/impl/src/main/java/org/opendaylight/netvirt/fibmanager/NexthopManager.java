@@ -54,7 +54,7 @@ import org.opendaylight.netvirt.fibmanager.api.L3VPNTransportTypes;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
@@ -334,7 +334,7 @@ public class NexthopManager implements AutoCloseable {
         Future<RpcResult<GetInternalOrExternalInterfaceNameOutput>> result;
         try {
             LOG.debug("Trying to fetch tunnel interface name for source dpn {} destIp {} tunType {}", srcDpId,
-                    dstIp.getValue(), tunnelType.getName());
+                    dstIp.stringValue(), tunnelType.getName());
             result = itmManager.getInternalOrExternalInterfaceName(new GetInternalOrExternalInterfaceNameInputBuilder()
                 .setSourceDpid(srcDpId)
                 .setDestinationIp(dstIp)
@@ -1128,7 +1128,8 @@ public class NexthopManager implements AutoCloseable {
         listAction.add(new ActionPushMpls().buildAction());
         listAction.add(new ActionRegMove(actionKey++, FibConstants.NXM_REG_MAPPING
                 .get(index), 0, 19).buildAction());
-        String tunnelInterfaceName = getTunnelInterfaceName(dpnId, new IpAddress(ipAddress.toCharArray()), tunnelType);
+        String tunnelInterfaceName = getTunnelInterfaceName(dpnId, IpAddressBuilder.getDefaultInstance(ipAddress),
+            tunnelType);
         List<Action> egressActions = getEgressActions(tunnelInterfaceName, actionKey++);
         if (!egressActions.isEmpty()) {
             listAction.addAll(getEgressActions(tunnelInterfaceName, actionKey++));

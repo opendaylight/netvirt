@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-
 import org.eclipse.xtext.xbase.lib.Pair;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,8 +41,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.MatchesBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4Builder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -53,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpVersionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpVersionV4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
@@ -620,15 +620,15 @@ public abstract class AclServiceTestBase {
 
     protected static AllowedAddressPairs buildAap(String ipAddress, String macAddress) {
         return new AllowedAddressPairsBuilder()
-                .setIpAddress(new IpPrefixOrAddress(new IpPrefix(ipAddress.toCharArray())))
+                .setIpAddress(new IpPrefixOrAddress(IpPrefixBuilder.getDefaultInstance(ipAddress)))
                 .setMacAddress(new MacAddress(macAddress)).build();
     }
 
     protected static SubnetInfo buildSubnetInfo(Uuid subnetId, String ipPrefix,
             Class<? extends IpVersionBase> ipVersion, String gwIp) {
         return new SubnetInfoBuilder().withKey(new SubnetInfoKey(subnetId)).setIpVersion(ipVersion)
-                .setIpPrefix(new IpPrefixOrAddress(ipPrefix.toCharArray()))
-                .setGatewayIp(new IpAddress(gwIp.toCharArray())).build();
+                .setIpPrefix(IpPrefixOrAddressBuilder.getDefaultInstance(ipPrefix))
+                .setGatewayIp(IpAddressBuilder.getDefaultInstance(gwIp)).build();
     }
 
     protected void setUpData() throws Exception {

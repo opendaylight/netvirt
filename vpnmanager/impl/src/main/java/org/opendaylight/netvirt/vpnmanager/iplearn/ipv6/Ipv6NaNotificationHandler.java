@@ -43,7 +43,7 @@ public class Ipv6NaNotificationHandler extends AbstractIpLearnNotificationHandle
         IpAddress targetIP = new IpAddress(naPacket.getTargetAddress());
         BigInteger metadata = naPacket.getMetadata();
         LOG.debug("NA notification received from interface {} and IP {} having MAC {}, targetIP={}", srcInterface,
-                String.valueOf(srcIP.getValue()), srcMac.getValue(), String.valueOf(targetIP.getValue()));
+                srcIP.stringValue(), srcMac.getValue(), targetIP.stringValue());
 
         validateAndProcessIpLearning(srcInterface, srcIP, srcMac, targetIP, metadata);
     }

@@ -17,6 +17,7 @@ import java.util.UUID;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentationBuilder;
@@ -77,7 +78,7 @@ public class NodeConnectedHandlerUtils {
         physicalSwitchAugmentationBuilder.setHwvtepNodeDescription("description");
 
         List<TunnelIps> tunnelIps = new ArrayList<>();
-        IpAddress ip = new IpAddress("192.168.122.30".toCharArray());
+        IpAddress ip = new IpAddress(new Ipv4Address("192.168.122.30"));
         tunnelIps.add(new TunnelIpsBuilder().withKey(new TunnelIpsKey(ip)).setTunnelIpsKey(ip).build());
         physicalSwitchAugmentationBuilder.setTunnelIps(tunnelIps);
 

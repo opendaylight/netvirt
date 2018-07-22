@@ -146,7 +146,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         List<Routes> otherRoutes = new ArrayList<>();
         HashMap<String, InterVpnLink> nexthopsXinterVpnLinks = new HashMap<>();
         for (Routes route : routes) {
-            String nextHop = String.valueOf(route.getNexthop().getValue());
+            String nextHop = route.getNexthop().stringValue();
             // Nexthop is another VPN?
             Optional<InterVpnLink> interVpnLink = neutronvpnUtils.getInterVpnLinkByEndpointIp(nextHop);
             if (interVpnLink.isPresent()) {
@@ -158,7 +158,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
                     nexthopsXinterVpnLinks.put(nextHop, interVpnLink.get());
                 } else {
                     LOG.error("Failed installing route to {}. Reason: InterVPNLink {} is not Active",
-                            String.valueOf(route.getDestination().getValue()), interVpnLink.get().getName());
+                            route.getDestination().stringValue(), interVpnLink.get().getName());
                 }
             } else {
                 otherRoutes.add(route);

@@ -32,11 +32,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -561,7 +559,7 @@ public class NeutronvpnUtils {
             org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddress ipAddress) {
         AllowedAddressPairsBuilder aclAllowedAdressPairBuilder = new AllowedAddressPairsBuilder();
         aclAllowedAdressPairBuilder.setMacAddress(macAddress);
-        if (ipAddress != null && ipAddress.getValue() != null) {
+        if (ipAddress != null && ipAddress.stringValue() != null) {
             if (ipAddress.getIpPrefix() != null) {
                 aclAllowedAdressPairBuilder.setIpAddress(new IpPrefixOrAddress(ipAddress.getIpPrefix()));
             } else {
@@ -583,8 +581,8 @@ public class NeutronvpnUtils {
         List<AllowedAddressPairs> aclAllowedAddressPairs = new ArrayList<>();
         for (FixedIps fixedIp : fixedIps) {
             aclAllowedAddressPairs.add(getAclAllowedAddressPairs(macAddress,
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddress(
-                            fixedIp.getIpAddress().getValue())));
+                    org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddressBuilder
+                    .getDefaultInstance(fixedIp.getIpAddress().stringValue())));
         }
         return aclAllowedAddressPairs;
     }
@@ -616,8 +614,9 @@ public class NeutronvpnUtils {
     protected static AllowedAddressPairs updateIPv6LinkLocalAddressForAclService(MacAddress macAddress) {
         IpAddress ipv6LinkLocalAddress = getIpv6LinkLocalAddressFromMac(macAddress);
         return getAclAllowedAddressPairs(macAddress,
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddress(
-                        ipv6LinkLocalAddress.getValue()));
+                org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddressBuilder
+                .getDefaultInstance(
+                        ipv6LinkLocalAddress.stringValue()));
     }
 
     /**
@@ -808,7 +807,7 @@ public class NeutronvpnUtils {
                     .class).child(Subnet.class, subnetkey);
             Optional<Subnet> subnet = read(LogicalDatastoreType.CONFIGURATION, subnetidentifier);
             if (subnet.isPresent()) {
-                String cidr = String.valueOf(subnet.get().getCidr().getValue());
+                String cidr = subnet.get().getCidr().stringValue();
                 // Extract the prefix length from cidr
                 String[] parts = cidr.split("/");
                 if (parts.length == 2) {
@@ -1238,7 +1237,7 @@ public class NeutronvpnUtils {
         interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[5]), 2, "0"));
 
         Ipv6Address ipv6LLA = new Ipv6Address("fe80:0:0:0:" + interfaceID.toString());
-        IpAddress ipAddress = new IpAddress(ipv6LLA.getValue().toCharArray());
+        IpAddress ipAddress = new IpAddress(ipv6LLA);
         return ipAddress;
     }
 
@@ -1635,7 +1634,7 @@ public class NeutronvpnUtils {
         }
         Long vpnId = vpnInstanceOpDataEntry.getVpnId();
         List<Uuid> routerIds = getRouterIdsfromVpnInstance(vpnInstanceOpDataEntry.getVrfId());
-        if ((routerIds == null) || (routerIds.isEmpty())) {
+        if (routerIds == null || routerIds.isEmpty()) {
             LOG.error("updateVpnInstanceWithFallback: router not found for vpn {}", vpnName);
             return;
         }

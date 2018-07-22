@@ -10,13 +10,11 @@ package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableList;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -71,7 +69,7 @@ public final class TestBuilders {
     public static LocalUcastMacs buildLocalUcastMacs(InstanceIdentifier<Node> nodeIid, String vmMac,
                                                      String vmip, String tepIp, String logicalSwitchName) {
         LocalUcastMacsBuilder ucmlBuilder = new LocalUcastMacsBuilder();
-        ucmlBuilder.setIpaddr(new IpAddress(vmip.toCharArray()));
+        ucmlBuilder.setIpaddr(IpAddressBuilder.getDefaultInstance(vmip));
         ucmlBuilder.setMacEntryKey(new MacAddress(vmMac));
         ucmlBuilder.setMacEntryUuid(getUUid(vmMac));
         ucmlBuilder.setLocatorRef(buildLocatorRef(nodeIid, tepIp));
@@ -82,7 +80,7 @@ public final class TestBuilders {
     public static RemoteUcastMacs buildRemoteUcastMacs(InstanceIdentifier<Node> nodeIid, String vmMac,
                                                        String vmip, String tepIp, String logicalSwitchName) {
         RemoteUcastMacsBuilder ucmlBuilder = new RemoteUcastMacsBuilder();
-        ucmlBuilder.setIpaddr(new IpAddress(vmip.toCharArray()));
+        ucmlBuilder.setIpaddr(IpAddressBuilder.getDefaultInstance(vmip));
         ucmlBuilder.setMacEntryKey(new MacAddress(vmMac));
         ucmlBuilder.setMacEntryUuid(getUUid(vmMac));
         ucmlBuilder.setLocatorRef(buildLocatorRef(nodeIid, tepIp));
@@ -102,7 +100,7 @@ public final class TestBuilders {
                     new HwvtepPhysicalLocatorAugmentationBuilder();
             tpAugmentationBuilder.setPhysicalLocatorUuid(getUUid(ip));
             tpAugmentationBuilder.setEncapsulationType(createEncapsulationType("vxlan_over_ipv4"));
-            tpAugmentationBuilder.setDstIp(new IpAddress(ip.toCharArray()));
+            tpAugmentationBuilder.setDstIp(IpAddressBuilder.getDefaultInstance(ip));
             tpBuilder.addAugmentation(HwvtepPhysicalLocatorAugmentation.class, tpAugmentationBuilder.build());
         }
         return tpBuilder.build();

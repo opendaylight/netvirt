@@ -84,9 +84,9 @@ public class Ipv6RouterAdvt {
         return true;
     }
 
-    private void updateRAResponse(Ipv6RouterAdvertisementType raType, RouterSolicitationPacket pdu,
-                                  RouterAdvertisementPacketBuilder raPacket,
-                                  VirtualPort routerPort) {
+    private static void updateRAResponse(Ipv6RouterAdvertisementType raType, RouterSolicitationPacket pdu,
+                                         RouterAdvertisementPacketBuilder raPacket,
+                                         VirtualPort routerPort) {
         short icmpv6RaFlags = 0;
         String gatewayMac = null;
         IpAddress gatewayIp;
@@ -102,11 +102,11 @@ public class Ipv6RouterAdvt {
 
             if (!subnet.getIpv6RAMode().isEmpty()) {
                 if (Ipv6ServiceConstants.IPV6_AUTO_ADDRESS_SUBNETS.contains(subnet.getIpv6RAMode())) {
-                    autoConfigPrefixList.add(String.valueOf(subnet.getSubnetCidr().getValue()));
+                    autoConfigPrefixList.add(subnet.getSubnetCidr().stringValue());
                 }
 
                 if (subnet.getIpv6RAMode().equalsIgnoreCase(Ipv6ServiceConstants.IPV6_DHCPV6_STATEFUL)) {
-                    statefulConfigPrefixList.add(String.valueOf(subnet.getSubnetCidr().getValue()));
+                    statefulConfigPrefixList.add(subnet.getSubnetCidr().stringValue());
                 }
             }
 

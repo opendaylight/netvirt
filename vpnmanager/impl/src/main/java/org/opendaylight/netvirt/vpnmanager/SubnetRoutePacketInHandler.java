@@ -38,8 +38,9 @@ import org.opendaylight.openflowplugin.libraries.liblldp.NetUtils;
 import org.opendaylight.openflowplugin.libraries.liblldp.Packet;
 import org.opendaylight.openflowplugin.libraries.liblldp.PacketException;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -413,8 +414,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                 SubnetOpDataEntry subOpEntry = optionalSubs.get();
                 if (subOpEntry.getNhDpnId() != null) {
                     LOG.trace("{} getTargetDpnForPacketOut: Viewing Subnet {}", LOGGING_PREFIX, subnetId.getValue());
-                    IpPrefix cidr = new IpPrefix(subOpEntry.getSubnetCidr().toCharArray());
-                    boolean match = NWUtil.isIpAddressInRange(new IpAddress(ipAddress.toCharArray()), cidr);
+                    IpPrefix cidr = IpPrefixBuilder.getDefaultInstance(subOpEntry.getSubnetCidr());
+                    boolean match = NWUtil.isIpAddressInRange(IpAddressBuilder.getDefaultInstance(ipAddress), cidr);
                     LOG.trace("{} getTargetDpnForPacketOut: Viewing Subnet {} matching {}", LOGGING_PREFIX,
                             subnetId.getValue(), match);
                     if (match) {

@@ -53,14 +53,13 @@ public class ArpNotificationHandler extends AbstractIpLearnNotificationHandler i
             LOG.info(
                     "ArpNotification Non-Gratuitous Request Received from "
                             + "interface {} and IP {} having MAC {} target destination {}, ignoring..",
-                    srcInterface, String.valueOf(srcIP.getValue()), srcMac.getValue(),
-                    String.valueOf(targetIP.getValue()));
+                    srcInterface, srcIP.stringValue(), srcMac.getValue(), targetIP.stringValue());
             return;
         }
         LOG.info(
                 "ArpNotification Gratuitous Request Received from interface {} and IP {} having MAC {} "
                         + "target destination {}, learning MAC",
-                srcInterface, String.valueOf(srcIP.getValue()), srcMac.getValue(), String.valueOf(targetIP.getValue()));
+                srcInterface, srcIP.stringValue(), srcMac.getValue(), targetIP.stringValue());
 
         processIpLearning(srcInterface, srcIP, srcMac, metadata, targetIP);
     }
@@ -73,7 +72,7 @@ public class ArpNotificationHandler extends AbstractIpLearnNotificationHandler i
         BigInteger metadata = notification.getMetadata();
         IpAddress targetIP = notification.getDstIpaddress();
         LOG.info("ArpNotification Response Received from interface {} and IP {} having MAC {}, learning MAC",
-                srcInterface, String.valueOf(srcIP.getValue()), srcMac.getValue());
+                srcInterface, srcIP.stringValue(), srcMac.getValue());
 
         validateAndProcessIpLearning(srcInterface, srcIP, srcMac, targetIP, metadata);
     }

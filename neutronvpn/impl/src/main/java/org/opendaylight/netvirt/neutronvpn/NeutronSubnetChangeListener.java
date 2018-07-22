@@ -105,7 +105,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                     subnetId.getValue(), network);
             return;
         }
-        handleNeutronSubnetDeleted(subnetId, networkId, String.valueOf(input.getCidr().getValue()));
+        handleNeutronSubnetDeleted(subnetId, networkId, input.getCidr().stringValue());
         externalSubnetHandler.handleExternalSubnetRemoved(network, subnetId);
         neutronvpnUtils.removeFromSubnetCache(input);
     }
@@ -121,8 +121,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         Uuid subnetId = subnet.getUuid();
         ProviderTypes providerType = NeutronvpnUtils.getProviderNetworkType(network);
         String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(network);
-        nvpnManager.createSubnetmapNode(subnetId, String.valueOf(subnet.getCidr().getValue()),
-                subnet.getTenantId(), networkId,
+        nvpnManager.createSubnetmapNode(subnetId, subnet.getCidr().stringValue(), subnet.getTenantId(), networkId,
                 providerType != null ? NetworkAttributes.NetworkType.valueOf(providerType.getName()) : null,
                 segmentationId != null ? Long.parseLong(segmentationId) : 0L);
         createSubnetToNetworkMapping(subnetId, networkId);
