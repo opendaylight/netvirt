@@ -37,7 +37,7 @@ import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
@@ -179,7 +179,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             gotoInstructions.add(new InstructionGotoTable(getAclConntrackClassifierTable()));
 
             String flowName = "Ingress_Fixed_Goto_Classifier_" + dpId + "_" + lportTag + "_" + mac.getValue() + "_"
-                    + String.valueOf(attachIp.getValue());
+                    + attachIp.stringValue();
             syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                     AclConstants.COOKIE_ACL_BASE, matches, gotoInstructions, addOrRemove);
         }
@@ -192,7 +192,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         flowMatches.addAll(AclServiceUtils.buildIpAndSrcServiceMatch(aclTag, aap));
 
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclCommitterTable());
-        String flowNameAdded = "Acl_Filter_Ingress_" + String.valueOf(aap.getIpAddress().getValue()) + "_" + aclTag;
+        String flowNameAdded = "Acl_Filter_Ingress_" + aap.getIpAddress().stringValue() + "_" + aclTag;
 
         syncFlow(dpId, getAclRemoteAclTable(), flowNameAdded, AclConstants.ACL_DEFAULT_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
@@ -283,7 +283,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                     AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_RA, 0,
                             port.getLPortTag(), serviceMode);
             matches.addAll(AclServiceUtils.buildIpMatches(
-                    new IpPrefixOrAddress(new IpPrefix(AclConstants.IPV6_LINK_LOCAL_PREFIX.toCharArray())),
+                    new IpPrefixOrAddress(IpPrefixBuilder.getDefaultInstance(AclConstants.IPV6_LINK_LOCAL_PREFIX)),
                     AclServiceManager.MatchCriteria.MATCH_SOURCE));
             String flowName = "Ingress_ICMPv6" + "_" + port.getDpId() + "_" + port.getLPortTag() + "_"
                     + AclConstants.ICMPV6_TYPE_RA + "_LinkLocal_Permit_";
