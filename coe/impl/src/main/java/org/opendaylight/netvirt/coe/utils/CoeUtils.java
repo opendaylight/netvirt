@@ -425,7 +425,7 @@ public final class CoeUtils {
         IpAddress ip = pod.getInterface().get(0).getIpAddress();
         String ipValue = ip.getIpv4Address() != null ? ip.getIpv4Address().getValue() : ip.getIpv6Address().getValue();
         String ipPrefix = ip.getIpv4Address() != null ? ipValue + "/32" : ipValue + "/128";
-        String hostIp = new String(pod.getHostIpAddress().getValue());
+        String hostIp = pod.getHostIpAddress().stringValue();
         UUID subnetId = UUID.nameUUIDFromBytes(hostIp.getBytes(StandardCharsets.UTF_8));
         String gatewayIP = ipValue.replaceFirst("\\d+$", "1");
         Adjacency vmAdj = new AdjacencyBuilder().withKey(new AdjacencyKey(ipPrefix)).setIpAddress(ipPrefix)

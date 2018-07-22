@@ -908,7 +908,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                            WriteTransaction writeConfigTxn,
                                            WriteTransaction writeOperTxn) {
 
-        String srcTepIp = String.valueOf(stateTunnelList.getSrcInfo().getTepIp().getValue());
+        String srcTepIp = stateTunnelList.getSrcInfo().getTepIp().stringValue();
         BigInteger srcDpnId = new BigInteger(stateTunnelList.getSrcInfo().getTepDeviceId());
         AdjacenciesOp adjacencies = vpnInterface.augmentation(AdjacenciesOp.class);
         List<Adjacency> adjList = adjacencies != null ? adjacencies.getAdjacency() : new ArrayList<>();
@@ -1023,7 +1023,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         String prefix = null;
         long label = 0;
         boolean isNextHopRemoveReqd = false;
-        String srcTepIp = String.valueOf(stateTunnelList.getSrcInfo().getTepIp().getValue());
+        String srcTepIp = stateTunnelList.getSrcInfo().getTepIp().stringValue();
         BigInteger srcDpnId = new BigInteger(stateTunnelList.getSrcInfo().getTepDeviceId());
         String vpnName = vpnInterface.getVpnInstanceName();
         long vpnId = vpnUtil.getVpnId(vpnName);

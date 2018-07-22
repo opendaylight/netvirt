@@ -352,7 +352,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             LOG.info("Could not retrieve VpnMaps object from Configurational DS");
             return new HashMap<>();
         }
-        Map<String,String> vmap = new HashMap<String,String>();
+        Map<String,String> vmap = new HashMap<>();
         final List<VpnMap> VpnMapList = optVpnMaps.get().getVpnMap();
         for (VpnMap map : VpnMapList) {
             if (map.getRouterIds() == null) {
@@ -420,7 +420,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         IpAddress nhIpAddr = route.getNexthop();
         String routeNextHop = nhIpAddr.getIpv4Address() != null ? nhIpAddr.getIpv4Address().getValue()
                                                                   : nhIpAddr.getIpv6Address().getValue();
-        String destination = String.valueOf(route.getDestination().getValue());
+        String destination = route.getDestination().stringValue();
 
         // is nexthop the other endpoint's IP
         String otherEndpoint = ivpnLink.getOtherEndpoint(vpnId);

@@ -39,7 +39,9 @@ import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeRefInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntryKey;
@@ -269,7 +271,7 @@ public class TransportZoneNotificationUtil {
 
             Set<String> zonePrefixes = new HashSet<>();
             Map<String, List<String>> tepTzMap = tunnelEndPoints.stream().collect(Collectors
-                    .toMap(tep -> String.valueOf(tep.getIpAddress().getValue()), this::getTepTransportZoneNames));
+                    .toMap(tep -> tep.getIpAddress().stringValue(), this::getTepTransportZoneNames));
             LOG.trace("Transport zone prefixes {}", tepTzMap);
 
             handleRemovedLocalIps(mapDiff.entriesOnlyOnLeft(), dpId, zonePrefixes, tepTzMap, tx);
@@ -351,7 +353,7 @@ public class TransportZoneNotificationUtil {
     private List<String> getTepTransportZoneNames(TunnelEndPoints tep) {
         List<TzMembership> tzMembershipList = tep.getTzMembership();
         if (tzMembershipList == null) {
-            LOG.debug("No TZ membership exist for TEP ip {}", tep.getIpAddress().getValue());
+            LOG.debug("No TZ membership exist for TEP ip {}", tep.getIpAddress().stringValue());
             return Collections.emptyList();
         }
 
@@ -389,7 +391,7 @@ public class TransportZoneNotificationUtil {
         }
 
         if (localIp != null) {
-            IpAddress nodeIp = new IpAddress(localIp.toCharArray());
+            IpAddress nodeIp = IpAddressBuilder.getDefaultInstance(localIp);
             VtepsBuilder vtepsBuilder = new VtepsBuilder().setDpnId(dpnId).setIpAddress(nodeIp)
                     .setPortname(TUNNEL_PORT).setOptionOfTunnel(elanConfig.isUseOfTunnels());
             subnets.getVteps().add(vtepsBuilder.build());
@@ -402,7 +404,7 @@ public class TransportZoneNotificationUtil {
     private void removeVtep(String zoneName, BigInteger dpId, @Nonnull WriteTransaction tx) {
         InstanceIdentifier<Vteps> path = InstanceIdentifier.builder(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zoneName))
-                .child(Subnets.class, new SubnetsKey(new IpPrefix(ALL_SUBNETS.toCharArray())))
+                .child(Subnets.class, new SubnetsKey(IpPrefixBuilder.getDefaultInstance(ALL_SUBNETS)))
                 .child(Vteps.class, new VtepsKey(dpId, TUNNEL_PORT)).build();
         tx.delete(LogicalDatastoreType.CONFIGURATION, path);
     }
@@ -410,7 +412,7 @@ public class TransportZoneNotificationUtil {
     // search for relevant subnets for the given subnetIP, add one if it is
     // necessary
     private Subnets getOrAddSubnet(@Nonnull List<Subnets> subnets, @Nonnull String subnetIp) {
-        IpPrefix subnetPrefix = new IpPrefix(subnetIp.toCharArray());
+        IpPrefix subnetPrefix = IpPrefixBuilder.getDefaultInstance(subnetIp);
 
         for (Subnets subnet : subnets) {
             if (subnet.getPrefix().equals(subnetPrefix)) {
@@ -426,8 +428,8 @@ public class TransportZoneNotificationUtil {
 
     private Subnets buildSubnets(String subnetIp) {
         SubnetsBuilder subnetsBuilder = new SubnetsBuilder().setDeviceVteps(new ArrayList<>())
-                .setGatewayIp(new IpAddress(ALL_SUBNETS_GW.toCharArray()))
-                .withKey(new SubnetsKey(new IpPrefix(subnetIp.toCharArray()))).setVlanId(0)
+                .setGatewayIp(IpAddressBuilder.getDefaultInstance(ALL_SUBNETS_GW))
+                .withKey(new SubnetsKey(IpPrefixBuilder.getDefaultInstance(subnetIp))).setVlanId(0)
                 .setVteps(new ArrayList<>());
         return subnetsBuilder.build();
     }

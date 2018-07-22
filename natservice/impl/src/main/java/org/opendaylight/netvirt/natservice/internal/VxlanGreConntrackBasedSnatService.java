@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -53,7 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.Group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev140421.NxActionNatFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev140421.NxActionNatRangePresent;
 import org.slf4j.Logger;
@@ -265,8 +264,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         int rangePresent = NxActionNatRangePresent.NXNATRANGEIPV4MIN.getIntValue();
         int flags = NxActionNatFlags.NXNATFSRC.getIntValue();
         ActionNxConntrack.NxCtAction nxCtActionCommit = new ActionNxConntrack.NxNat(0, flags, rangePresent,
-                new IpPrefixOrAddress(externalIp.toCharArray()).getIpAddress(),
-                null,0, 0);
+            IpPrefixOrAddressBuilder.getDefaultInstance(externalIp).getIpAddress(), null,0, 0);
         ctActionsListCommit.add(nxCtActionCommit);
         int ctCommitFlag = 1;
         ActionNxConntrack actionNxConntrackSubmit = new ActionNxConntrack(ctCommitFlag, 0, elanId,

@@ -32,7 +32,7 @@ public class ShowIpv6Command extends OsgiCommandSupport {
         this.elementCache = elementCache;
     }
 
-    private String getPortIpv6Addresses(IVirtualPort vport) {
+    private static String getPortIpv6Addresses(IVirtualPort vport) {
         List<Ipv6Address> ipv6Addresses = vport.getIpv6Addresses();
         return ipv6Addresses.stream().map(Ipv6Address::getValue).collect(Collectors.joining("  "));
     }
@@ -59,9 +59,8 @@ public class ShowIpv6Command extends OsgiCommandSupport {
                 int count = 1;
                 List<IVirtualSubnet> vsubnets = elementCache.getSubnetCache();
                 for (IVirtualSubnet vsubnet : vsubnets) {
-                    tp.addRow(count++,   String.valueOf(vsubnet.getSubnetUUID().getValue()),
-                            String.valueOf(vsubnet.getSubnetCidr().getValue()),
-                            vsubnet.getIpVersion());
+                    tp.addRow(count++, String.valueOf(vsubnet.getSubnetUUID().getValue()),
+                            vsubnet.getSubnetCidr().stringValue(), vsubnet.getIpVersion());
                 }
                 session.getConsole().print(tp.toString());
             } else if (listResource.equalsIgnoreCase("routers")

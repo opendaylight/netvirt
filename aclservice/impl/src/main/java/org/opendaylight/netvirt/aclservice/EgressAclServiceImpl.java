@@ -157,7 +157,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         flowMatches.addAll(AclServiceUtils.buildIpAndDstServiceMatch(aclTag, aap));
 
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclCommitterTable());
-        String flowNameAdded = "Acl_Filter_Egress_" + String.valueOf(aap.getIpAddress().getValue()) + "_" + aclTag;
+        String flowNameAdded = "Acl_Filter_Egress_" + aap.getIpAddress().stringValue() + "_" + aclTag;
 
         syncFlow(dpId, getAclRemoteAclTable(), flowNameAdded, AclConstants.ACL_DEFAULT_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
@@ -180,7 +180,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             gotoInstructions.add(new InstructionGotoTable(getAclConntrackClassifierTable()));
 
             String flowName = "Egress_Fixed_Goto_Classifier_" + dpId + "_" + lportTag + "_" + mac.getValue() + "_"
-                    + String.valueOf(attachIp.getValue());
+                    + attachIp.stringValue();
             syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                     AclConstants.COOKIE_ACL_BASE, matches, gotoInstructions, addOrRemove);
         }
@@ -296,7 +296,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             LOG.debug("{} ARP Rule on DPID {}, lportTag {}",
                     addOrRemove == NwConstants.DEL_FLOW ? "Deleting" : "Adding", dpId, lportTag);
             String flowName = "Egress_ARP_" + dpId + "_" + lportTag + "_" + allowedAddress.getMacAddress().getValue()
-                    + String.valueOf(allowedAddressIp.getValue());
+                    + allowedAddressIp.stringValue();
             syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0,
                     0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         }

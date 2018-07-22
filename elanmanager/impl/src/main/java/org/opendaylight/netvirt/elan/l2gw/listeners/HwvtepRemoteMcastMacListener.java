@@ -107,7 +107,7 @@ public class HwvtepRemoteMcastMacListener
                 boolean ipExists = ElanL2GatewayUtils.checkIfPhyLocatorAlreadyExistsInRemoteMcastEntry(this.nodeId,
                         remoteMcastMac, ip);
                 if (!ipExists) {
-                    LOG.trace("IP [{}] not found in RemoteMcastMacs for node [{}]", String.valueOf(ip.getValue()),
+                    LOG.trace("IP [{}] not found in RemoteMcastMacs for node [{}]", ip.stringValue(),
                             this.nodeId.getValue());
                     return false;
                 }

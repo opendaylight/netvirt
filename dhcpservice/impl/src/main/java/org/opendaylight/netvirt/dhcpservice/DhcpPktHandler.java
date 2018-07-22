@@ -340,26 +340,26 @@ public class DhcpPktHandler implements PacketProcessingListener {
             if (clientIp != null && serverIp != null) {
                 List<HostRoutes> subnetHostRoutes = new ArrayList<>(subnet.getHostRoutes().size());
                 for (HostRoutes hostRoute : subnet.getHostRoutes()) {
-                    if (!String.valueOf(hostRoute.getNexthop().getValue()).equals(clientIp)) {
+                    if (!hostRoute.getNexthop().stringValue().equals(clientIp)) {
                         subnetHostRoutes.add(hostRoute);
                     }
                 }
                 dhcpInfo.setClientIp(clientIp).setServerIp(serverIp)
-                        .setCidr(String.valueOf(subnet.getCidr().getValue())).setHostRoutes(subnetHostRoutes)
+                        .setCidr(subnet.getCidr().stringValue()).setHostRoutes(subnetHostRoutes)
                         .setDnsServersIpAddrs(dnsServers);
             }
         }
         return dhcpInfo;
     }
 
-    private DhcpInfo getApDhcpInfo(AllocationPool ap, IpAddress allocatedIp) {
+    private static DhcpInfo getApDhcpInfo(AllocationPool ap, IpAddress allocatedIp) {
         DhcpInfo dhcpInfo = null;
 
-        String clientIp = String.valueOf(allocatedIp.getValue());
-        String serverIp = String.valueOf(ap.getGateway().getValue());
+        String clientIp = allocatedIp.stringValue();
+        String serverIp = ap.getGateway().stringValue();
         List<IpAddress> dnsServers = ap.getDnsServers();
         dhcpInfo = new DhcpInfo();
-        dhcpInfo.setClientIp(clientIp).setServerIp(serverIp).setCidr(String.valueOf(ap.getSubnet().getValue()))
+        dhcpInfo.setClientIp(clientIp).setServerIp(serverIp).setCidr(ap.getSubnet().stringValue())
             .setHostRoutes(Collections.emptyList()).setDnsServersIpAddrs(dnsServers).setGatewayIp(serverIp);
 
         return dhcpInfo;
@@ -370,7 +370,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
      * Many other modules use/need similar methods. Should
      * be refactored to a common NeutronUtils module.     *
      */
-    private String getIpv4Address(Port port) {
+    private static String getIpv4Address(Port port) {
 
         for (FixedIps fixedIp : port.getFixedIps()) {
             if (isIpv4Address(fixedIp.getIpAddress())) {
@@ -381,7 +381,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         return null;
     }
 
-    private boolean isIpv4Address(IpAddress ip) {
+    private static boolean isIpv4Address(IpAddress ip) {
         return ip != null && ip.getIpv4Address() != null;
     }
 
@@ -393,7 +393,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         return dhcpMgr.getNeutronPort(interfaceName);
     }
 
-    private DHCP getDhcpPktIn(Ethernet actualEthernetPacket) {
+    private static DHCP getDhcpPktIn(Ethernet actualEthernetPacket) {
         Ethernet ethPkt = actualEthernetPacket;
         if (ethPkt.getEtherType() == (short)NwConstants.ETHTYPE_802_1Q) {
             ethPkt = (Ethernet)ethPkt.getPayload();
@@ -565,7 +565,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         return rawPkt;
     }
 
-    private byte[] getServerMacAddress(String phyAddress) {
+    private static byte[] getServerMacAddress(String phyAddress) {
         // Should we return ControllerMac instead?
         return DHCPUtils.strMacAddrtoByteArray(phyAddress);
     }

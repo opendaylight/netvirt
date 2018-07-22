@@ -203,7 +203,7 @@ public class ElanL2GatewayUtils {
             RemoteMcastMacs remoteMcastMac, IpAddress expectedPhyLocatorIp) {
         if (remoteMcastMac != null) {
             HwvtepPhysicalLocatorAugmentation expectedPhyLocatorAug = HwvtepSouthboundUtils
-                    .createHwvtepPhysicalLocatorAugmentation(String.valueOf(expectedPhyLocatorIp.getValue()));
+                    .createHwvtepPhysicalLocatorAugmentation(expectedPhyLocatorIp.stringValue());
             HwvtepPhysicalLocatorRef expectedPhyLocRef = new HwvtepPhysicalLocatorRef(
                     HwvtepSouthboundUtils.createPhysicalLocatorInstanceIdentifier(nodeId, expectedPhyLocatorAug));
             if (remoteMcastMac.getLocatorSet() != null) {
@@ -693,8 +693,7 @@ public class ElanL2GatewayUtils {
                 if (!areMLAGDevices(l2GatewayDeviceToBeConfigured, otherDevice)) {
                     for (LocalUcastMacs localUcastMac : otherDevice.getUcastLocalMacs()) {
                         HwvtepPhysicalLocatorAugmentation physLocatorAug = HwvtepSouthboundUtils
-                                .createHwvtepPhysicalLocatorAugmentation(
-                                        String.valueOf(otherDevice.getTunnelIp().getValue()));
+                                .createHwvtepPhysicalLocatorAugmentation(otherDevice.getTunnelIp().stringValue());
                         RemoteUcastMacs remoteUcastMac = HwvtepSouthboundUtils.createRemoteUcastMac(hwVtepNodeId,
                                 localUcastMac.getMacEntryKey().getValue().toLowerCase(Locale.getDefault()),
                                 localUcastMac.getIpaddr(), logicalSwitchName, physLocatorAug);
@@ -758,7 +757,7 @@ public class ElanL2GatewayUtils {
                 continue;
             }
             HwvtepPhysicalLocatorAugmentation physLocatorAug = HwvtepSouthboundUtils
-                    .createHwvtepPhysicalLocatorAugmentation(String.valueOf(dpnTepIp.getValue()));
+                    .createHwvtepPhysicalLocatorAugmentation(dpnTepIp.stringValue());
             // TODO: Query ARP cache to get IP address corresponding to the
             // MAC
             RemoteUcastMacs remoteUcastMac = HwvtepSouthboundUtils.createRemoteUcastMac(hwVtepNodeId,

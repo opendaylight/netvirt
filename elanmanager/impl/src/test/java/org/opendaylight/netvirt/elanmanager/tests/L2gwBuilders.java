@@ -12,13 +12,13 @@ import static org.opendaylight.netvirt.elan.l2gw.nodehandlertest.NodeConnectedHa
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.netvirt.elan.l2gw.nodehandlertest.GlobalAugmentationHelper;
 import org.opendaylight.netvirt.elan.l2gw.nodehandlertest.TestBuilders;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -56,7 +56,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class L2gwBuilders {
 
-    private SingleTransactionDataBroker singleTransactionDataBroker;
+    private final SingleTransactionDataBroker singleTransactionDataBroker;
 
     public L2gwBuilders(SingleTransactionDataBroker singleTransactionDataBroker) {
         this.singleTransactionDataBroker = singleTransactionDataBroker;
@@ -156,7 +156,7 @@ public class L2gwBuilders {
         physicalSwitchAugmentationBuilder.setHwvtepNodeName(new HwvtepNodeName(deviceName));
         physicalSwitchAugmentationBuilder.setHwvtepNodeDescription("torNode");
         List<TunnelIps> tunnelIps = new ArrayList<>();
-        IpAddress ip = new IpAddress(tepIp.toCharArray());
+        IpAddress ip = IpAddressBuilder.getDefaultInstance(tepIp);
         tunnelIps.add(new TunnelIpsBuilder().withKey(new TunnelIpsKey(ip)).setTunnelIpsKey(ip).build());
         physicalSwitchAugmentationBuilder.setTunnelIps(tunnelIps);
         nodeBuilder.addAugmentation(PhysicalSwitchAugmentation.class, physicalSwitchAugmentationBuilder.build());
@@ -179,7 +179,7 @@ public class L2gwBuilders {
         nodeBuilder.setNodeId(nodeId.firstKeyOf(Node.class).getNodeId());
         final List<LocalUcastMacs> localUcastMacses = new ArrayList<>();
         LocalUcastMacsBuilder localUcastMacsBuilder = new LocalUcastMacsBuilder();
-        localUcastMacsBuilder.setIpaddr(new IpAddress(ipAddr.toCharArray()));
+        localUcastMacsBuilder.setIpaddr(IpAddressBuilder.getDefaultInstance(ipAddr));
         localUcastMacsBuilder.setMacEntryKey(new MacAddress(mac));
         localUcastMacsBuilder.setMacEntryUuid(getUUid(mac));
         localUcastMacsBuilder.setLocatorRef(TestBuilders.buildLocatorRef(nodeId, tepIp));

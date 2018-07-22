@@ -798,7 +798,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         String infName = port.getUuid().getValue();
         LOG.trace("neutronVpnManager: create config adjacencies for Port: {}", infName);
         for (FixedIps ip : port.getFixedIps()) {
-            String ipValue = String.valueOf(ip.getIpAddress().getValue());
+            String ipValue = ip.getIpAddress().stringValue();
             String ipPrefix = ip.getIpAddress().getIpv4Address() != null ? ipValue + "/32" : ipValue + "/128";
             if (sn != null && !FibHelper.doesPrefixBelongToSubnet(ipPrefix, sn.getSubnetIp(), false)) {
                 continue;
@@ -1028,7 +1028,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
                 List<FixedIps> ips = port.getFixedIps();
                 for (FixedIps ip : ips) {
-                    String ipValue = String.valueOf(ip.getIpAddress().getValue());
+                    String ipValue = ip.getIpAddress().stringValue();
                     neutronvpnUtils.removeVpnPortFixedIpToPort(vpnId.getValue(),
                             ipValue, writeConfigTxn);
                 }
@@ -1106,7 +1106,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
                 List<FixedIps> ips = port.getFixedIps();
                 for (FixedIps ip : ips) {
-                    String ipValue = String.valueOf(ip.getIpAddress().getValue());
+                    String ipValue = ip.getIpAddress().stringValue();
                     if (oldVpnId != null) {
                         neutronvpnUtils.removeVpnPortFixedIpToPort(oldVpnId.getValue(),
                                 ipValue, writeConfigTxn);
@@ -1406,8 +1406,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 vpnIdentifier);
                 // eliminating implicitly created (router or VLAN provider external network specific) VPN from
                 // getL3VPN output
-                if (optionalVpn.isPresent() && (optionalVpn.get().getIpv4Family().getRouteDistinguisher() != null)
-                        || (optionalVpn.get().getIpv6Family().getRouteDistinguisher() != null)) {
+                if (optionalVpn.isPresent() && optionalVpn.get().getIpv4Family().getRouteDistinguisher() != null
+                        || optionalVpn.get().getIpv6Family().getRouteDistinguisher() != null) {
                     vpns.add(optionalVpn.get());
                 } else {
                     result.set(
@@ -1888,8 +1888,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     public void addInterVpnRoutes(Uuid vpnName, List<Routes> interVpnLinkRoutes,
                                   HashMap<String, InterVpnLink> nexthopsXinterVpnLinks) {
         for (Routes route : interVpnLinkRoutes) {
-            String nexthop = String.valueOf(route.getNexthop().getValue());
-            String destination = String.valueOf(route.getDestination().getValue());
+            String nexthop = route.getNexthop().stringValue();
+            String destination = route.getDestination().stringValue();
             InterVpnLink interVpnLink = nexthopsXinterVpnLinks.get(nexthop);
             if (isNexthopTheOtherVpnLinkEndpoint(nexthop, vpnName.getValue(), interVpnLink)) {
                 AddStaticRouteInput rpcInput =
@@ -1914,7 +1914,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             } else {
                 // Any other case is a fault.
                 LOG.warn("route with destination {} and nexthop {} does not apply to any InterVpnLink",
-                        String.valueOf(route.getDestination().getValue()), nexthop);
+                        route.getDestination().stringValue(), nexthop);
                 continue;
             }
         }
@@ -1931,8 +1931,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     public void removeInterVpnRoutes(Uuid vpnName, List<Routes> interVpnLinkRoutes,
                                      HashMap<String, InterVpnLink> nexthopsXinterVpnLinks) {
         for (Routes route : interVpnLinkRoutes) {
-            String nexthop = String.valueOf(route.getNexthop().getValue());
-            String destination = String.valueOf(route.getDestination().getValue());
+            String nexthop = route.getNexthop().stringValue();
+            String destination = route.getDestination().stringValue();
             InterVpnLink interVpnLink = nexthopsXinterVpnLinks.get(nexthop);
             if (isNexthopTheOtherVpnLinkEndpoint(nexthop, vpnName.getValue(), interVpnLink)) {
                 RemoveStaticRouteInput rpcInput =
@@ -1945,7 +1945,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             } else {
                 // Any other case is a fault.
                 LOG.warn("route with destination {} and nexthop {} does not apply to any InterVpnLink",
-                        String.valueOf(route.getDestination().getValue()), nexthop);
+                        route.getDestination().stringValue(), nexthop);
                 continue;
             }
         }
@@ -1972,8 +1972,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (route == null || route.getNexthop() == null || route.getDestination() == null) {
                 LOG.error("Incorrect input received for extra route. {}", route);
             } else {
-                String nextHop = String.valueOf(route.getNexthop().getValue());
-                String destination = String.valueOf(route.getDestination().getValue());
+                String nextHop = route.getNexthop().stringValue();
+                String destination = route.getDestination().stringValue();
                 if (!nextHop.equals(fixedIp)) {
                     LOG.trace("FixedIP {} is not extra route nexthop for destination {}", fixedIp, destination);
                     continue;
@@ -2005,8 +2005,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (route == null || route.getNexthop() == null || route.getDestination() == null) {
                 LOG.error("Incorrect input received for extra route. {}", route);
             } else {
-                String nextHop = String.valueOf(route.getNexthop().getValue());
-                String destination = String.valueOf(route.getDestination().getValue());
+                String nextHop = route.getNexthop().stringValue();
+                String destination = route.getDestination().stringValue();
                 String infName = neutronvpnUtils.getNeutronPortNameFromVpnPortFixedIp(vpnId.getValue(),
                         nextHop);
                 if (infName != null) {
@@ -2079,22 +2079,22 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
         for (Routes route : routeList) {
             // count  the number of nexthops for each same route.getDestingation().getValue()
-            String destination = String.valueOf(route.getDestination().getValue());
-            String nextHop = String.valueOf(route.getNexthop().getValue());
-            List<String> nextHopList = new ArrayList();
+            String destination = route.getDestination().stringValue();
+            String nextHop = route.getNexthop().stringValue();
+            List<String> nextHopList = new ArrayList<>();
             nextHopList.add(nextHop);
             int nbNextHops = 0;
             for (Routes routeTmp : routeList) {
-                String routeDest = String.valueOf(routeTmp.getDestination().getValue());
+                String routeDest = routeTmp.getDestination().stringValue();
                 if (!destination.equals(routeDest)) {
                     continue;
                 }
-                String routeNextH = String.valueOf(routeTmp.getNexthop().getValue());
+                String routeNextH = routeTmp.getNexthop().stringValue();
                 if (nextHop.equals(routeNextH)) {
                     continue;
                 }
                 nbNextHops++;
-                nextHopList.add(new String(routeTmp.getNexthop().getValue()));
+                nextHopList.add(routeTmp.getNexthop().stringValue());
             }
             final List<String> rdList = new ArrayList<>();
             if (vpnInstance.getIpv4Family() != null
@@ -2130,7 +2130,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
             // 4. Prefix in question
             detailsAlarm.append(" for prefix: ");
-            detailsAlarm.append(route.getDestination().getValue());
+            detailsAlarm.append(route.getDestination().stringValue());
 
             // 5. List of NHs for the prefix
             detailsAlarm.append(" for nextHops: ");
@@ -2153,8 +2153,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         for (Routes route : routeList) {
             if (route != null && route.getNexthop() != null && route.getDestination() != null) {
                 boolean isLockAcquired = false;
-                String nextHop = String.valueOf(route.getNexthop().getValue());
-                String destination = String.valueOf(route.getDestination().getValue());
+                String nextHop = route.getNexthop().stringValue();
+                String destination = route.getDestination().stringValue();
                 String infName = neutronvpnUtils.getNeutronPortNameFromVpnPortFixedIp(vpnId.getValue(),
                         nextHop);
                 if (infName == null) {
@@ -2383,7 +2383,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                                    + "another VPN %s", nw.getValue(), networkVpnId.getValue()));
                     continue;
                 }
-                if (neutronvpnUtils.getIsExternal(network) && !associateExtNetworkToVpn(vpnId, network)) {
+                if (NeutronvpnUtils.getIsExternal(network) && !associateExtNetworkToVpn(vpnId, network)) {
                     LOG.error("associateNetworksToVpn: Failed to associate Provider Network {} with VPN {}",
                             nw.getValue(), vpnId.getValue());
                     failedNwList.add(String.format("Failed to associate Provider Network %s with VPN %s",
@@ -2412,7 +2412,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(),
                                 NeutronvpnUtils.getIpVersionFromString(subnetmap.getSubnetIp()), true);
                     }
-                    if (!neutronvpnUtils.getIsExternal(network)) {
+                    if (!NeutronvpnUtils.getIsExternal(network)) {
                         LOG.debug("associateNetworksToVpn: Add subnet {} to VPN {}", subnetId.getValue(),
                                 vpnId.getValue());
                         addSubnetToVpn(vpnId, subnetId, null);
@@ -2525,7 +2525,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 Subnetmap subnetmap = neutronvpnUtils.getSubnetmap(subnet);
                 if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToRemove(subnetmap, vpnId)) {
                     IpVersionChoice ipVersionsToRemove = IpVersionChoice.UNDEFINED;
-                    IpVersionChoice ipVersion = neutronvpnUtils.getIpVersionFromString(subnetmap.getSubnetIp());
+                    IpVersionChoice ipVersion = NeutronvpnUtils.getIpVersionFromString(subnetmap.getSubnetIp());
                     neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(),
                         ipVersionsToRemove.addVersion(ipVersion), false);
                 }
@@ -2688,7 +2688,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (port != null) {
                 List<FixedIps> fixedIPs = port.getFixedIps();
                 for (FixedIps ip : fixedIPs) {
-                    fixedIPList.add(String.valueOf(ip.getIpAddress().getValue()));
+                    fixedIPList.add(ip.getIpAddress().stringValue());
                 }
             } else {
                 returnMsg.append("neutron port: ").append(portId.getValue()).append(" not found");

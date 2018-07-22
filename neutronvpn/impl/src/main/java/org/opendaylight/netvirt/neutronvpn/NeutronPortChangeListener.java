@@ -15,7 +15,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -302,7 +301,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                         && portIP.getIpAddress().getIpv6Address() != null) {
                         portIsIpv6 = true;
                     }
-                    String ipValue = String.valueOf(portIP.getIpAddress().getValue());
+                    String ipValue = portIP.getIpAddress().stringValue();
                     Uuid subnetId = portIP.getSubnetId();
                     nvpnManager.updateSubnetNodeWithFixedIp(subnetId, routerId,
                             routerPort.getUuid(), ipValue, routerPort.getMacAddress().getValue(), vpnId);
@@ -322,8 +321,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     nvpnManager.createVpnInterface(listVpnIds, routerPort, null);
                 }
                 for (FixedIps portIP : routerPort.getFixedIps()) {
-                    String ipValue = String.valueOf(portIP.getIpAddress().getValue());
-                    IpVersionChoice version = neutronvpnUtils.getIpVersionFromString(ipValue);
+                    String ipValue = portIP.getIpAddress().stringValue();
+                    IpVersionChoice version = NeutronvpnUtils.getIpVersionFromString(ipValue);
                     if (neutronvpnUtils.shouldVpnHandleIpVersionChoiceChangeToAdd(version, vpnId)) {
                         neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(),
                                version, true);
@@ -393,9 +392,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                         // router Port have either IPv4 or IPv6, never both
                         if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToRemove(sn, vpnId)) {
                             vpnInstanceIpVersionRemoved = true;
-                            vpnInstanceIpVersionToRemove = neutronvpnUtils.getIpVersionFromString(sn.getSubnetIp());
+                            vpnInstanceIpVersionToRemove = NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp());
                         }
-                        String ipValue = String.valueOf(portIP.getIpAddress().getValue());
+                        String ipValue = portIP.getIpAddress().stringValue();
                         neutronvpnUtils.removeVpnPortFixedIpToPort(vpnId.getValue(), ipValue, confTx);
                         // NOTE:  Please donot change the order of calls to removeSubnetFromVpn and
                         // and updateSubnetNodeWithFixedIP
@@ -428,7 +427,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         if (network == null) {
             return;
         }
-        boolean isExternal = neutronvpnUtils.getIsExternal(network);
+        boolean isExternal = NeutronvpnUtils.getIsExternal(network);
         if (isExternal) {
             Uuid vpnInternetId = neutronvpnUtils.getVpnForNetwork(networkId);
             if (vpnInternetId != null) {
@@ -437,7 +436,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     if (sn.getNetworkId() == networkId) {
                         continue;
                     }
-                    if (neutronvpnUtils.getIpVersionFromString(sn.getSubnetIp()) != IpVersionChoice.IPV6) {
+                    if (NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp()) != IpVersionChoice.IPV6) {
                         continue;
                     }
                     nvpnManager.addSubnetToVpn(null, sn.getId(), vpnInternetId);
@@ -588,8 +587,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         jobCoordinator.enqueueJob("PORT- " + portName, () -> {
             // add direct port to subnetMaps config DS
             if (!(NeutronUtils.isPortVnicTypeNormal(port)
-                || (isPortTypeSwitchdev(port)
-                && isSupportedVnicTypeByHost(port, NeutronConstants.VNIC_TYPE_DIRECT)))) {
+                || isPortTypeSwitchdev(port)
+                && isSupportedVnicTypeByHost(port, NeutronConstants.VNIC_TYPE_DIRECT))) {
                 for (FixedIps ip: portIpAddrsList) {
                     nvpnManager.updateSubnetmapNodeWithPorts(ip.getSubnetId(), null, portId);
                 }
@@ -674,7 +673,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
                     if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(port.getDeviceOwner())
                         || NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(port.getDeviceOwner())) {
-                        String ipAddress = String.valueOf(ip.getIpAddress().getValue());
+                        String ipAddress = ip.getIpAddress().stringValue();
                         if (vpnId != null) {
                             neutronvpnUtils.removeVpnPortFixedIpToPort(vpnId.getValue(), ipAddress, confTx);
                         }
@@ -741,7 +740,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                         }
                     }
                 }
-                Set<Uuid> newVpnIds = new HashSet();
+                Set<Uuid> newVpnIds = new HashSet<>();
                 Set<Uuid> newRouterIds = new HashSet<>();
                 for (Uuid snId: updateSnMapsIds) {
                     Subnetmap subnetMapNew = nvpnManager.updateSubnetmapNodeWithPorts(snId, portupdate.getUuid(), null);

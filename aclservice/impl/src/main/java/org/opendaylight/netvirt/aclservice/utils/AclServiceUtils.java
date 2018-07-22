@@ -35,7 +35,6 @@ import java.util.concurrent.Future;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -128,6 +127,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpVersionV6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.PortSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
@@ -408,7 +408,7 @@ public final class AclServiceUtils {
     public static List<MatchInfoBase> buildBroadcastIpV4Matches(String ipAddr) {
         List<MatchInfoBase> matches = new ArrayList<>(2);
         matches.add(new MatchEthernetDestination(new MacAddress(AclConstants.BROADCAST_MAC)));
-        matches.addAll(AclServiceUtils.buildIpMatches(new IpPrefixOrAddress(ipAddr.toCharArray()),
+        matches.addAll(AclServiceUtils.buildIpMatches(IpPrefixOrAddressBuilder.getDefaultInstance(ipAddr),
                 MatchCriteria.MATCH_DESTINATION));
         return matches;
     }
@@ -829,7 +829,7 @@ public final class AclServiceUtils {
     }
 
     private static String getAapFlowId(AllowedAddressPairs aap) {
-        return aap.getMacAddress().getValue() + "_" + String.valueOf(aap.getIpAddress().getValue());
+        return aap.getMacAddress().getValue() + "_" + aap.getIpAddress().stringValue();
     }
 
     public static Long getElanIdFromInterface(String elanInterfaceName,DataBroker broker) {
@@ -1490,14 +1490,14 @@ public final class AclServiceUtils {
 
         IpPrefix ipPrefix = ipPrefixOrAddress.getIpPrefix();
         if (ipPrefix != null) {
-            addr = String.valueOf(ipPrefix.getValue()).split("/")[0];
+            addr = ipPrefix.stringValue().split("/")[0];
         } else {
             IpAddress ipAddress = ipPrefixOrAddress.getIpAddress();
             if (ipAddress == null) {
                 LOG.error("Invalid address : {}", ipPrefixOrAddress);
                 return null;
             } else {
-                addr = String.valueOf(ipAddress.getValue());
+                addr = ipAddress.stringValue();
             }
         }
         try {

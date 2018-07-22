@@ -153,7 +153,7 @@ public class Cache extends OsgiCommandSupport {
             IpAddress routerId = asId.getRouterId();
             Long spt = asId.getStalepathTime();
             Boolean afb = asId.isAnnounceFbit();
-            String rid = routerId == null ? "<n/a>" : new String(routerId.getValue());
+            String rid = routerId == null ? "<n/a>" : routerId.stringValue();
             //F-bit is always set to ON (hardcoded), in SDN even though the controller is down
             //forwarding state shall be retained.
             String bit = "ON";
