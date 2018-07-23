@@ -451,7 +451,7 @@ public class ElanL2GatewayMulticastUtils {
                 remoteTepIps.add(dhcpDesignatedSwitchTepIp);
 
                 HwvtepPhysicalLocatorAugmentation phyLocatorAug = HwvtepSouthboundUtils
-                        .createHwvtepPhysicalLocatorAugmentation(dhcpDesignatedSwitchTepIp.stringValue());
+                        .createHwvtepPhysicalLocatorAugmentation(dhcpDesignatedSwitchTepIp);
                 InstanceIdentifier<TerminationPoint> iid =
                         HwvtepSouthboundUtils.createPhysicalLocatorInstanceIdentifier(nodeId, phyLocatorAug);
                 TerminationPoint terminationPoint = new TerminationPointBuilder()
@@ -491,7 +491,7 @@ public class ElanL2GatewayMulticastUtils {
         List<LocatorSet> locators = new ArrayList<>();
         for (IpAddress tepIp : tepIps) {
             HwvtepPhysicalLocatorAugmentation phyLocatorAug = HwvtepSouthboundUtils
-                    .createHwvtepPhysicalLocatorAugmentation(tepIp.stringValue());
+                    .createHwvtepPhysicalLocatorAugmentation(tepIp);
             HwvtepPhysicalLocatorRef phyLocRef = new HwvtepPhysicalLocatorRef(
                     HwvtepSouthboundUtils.createPhysicalLocatorInstanceIdentifier(nodeId, phyLocatorAug));
             locators.add(new LocatorSetBuilder().setLocatorRef(phyLocRef).build());
