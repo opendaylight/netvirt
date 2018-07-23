@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -69,6 +68,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.IetfYangUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
@@ -473,7 +473,8 @@ public class ElanL2GatewayUtils {
                     for (DpnInterfaces elanDpn : elanDpns) {
                         BigInteger dpnId = elanDpn.getDpId();
                         result.addAll(elanDmacUtils.deleteDmacFlowsToExternalMac(elan.getElanTag(), dpnId,
-                                l2GwDevice.getHwvtepNodeId(), mac.getValue().toLowerCase(Locale.getDefault())));
+                                l2GwDevice.getHwvtepNodeId(),
+                                IetfYangUtil.INSTANCE.canonizeMacAddress(mac).getValue()));
                     }
                     return result;
                 });
@@ -695,8 +696,8 @@ public class ElanL2GatewayUtils {
                         HwvtepPhysicalLocatorAugmentation physLocatorAug = HwvtepSouthboundUtils
                                 .createHwvtepPhysicalLocatorAugmentation(otherDevice.getTunnelIp());
                         RemoteUcastMacs remoteUcastMac = HwvtepSouthboundUtils.createRemoteUcastMac(hwVtepNodeId,
-                                localUcastMac.getMacEntryKey().getValue().toLowerCase(Locale.getDefault()),
-                                localUcastMac.getIpaddr(), logicalSwitchName, physLocatorAug);
+                            IetfYangUtil.INSTANCE.canonizeMacAddress(localUcastMac.getMacEntryKey()).getValue(),
+                            localUcastMac.getIpaddr(), logicalSwitchName, physLocatorAug);
                         lstRemoteUcastMacs.add(remoteUcastMac);
                     }
                 }
@@ -761,7 +762,7 @@ public class ElanL2GatewayUtils {
             // TODO: Query ARP cache to get IP address corresponding to the
             // MAC
             RemoteUcastMacs remoteUcastMac = HwvtepSouthboundUtils.createRemoteUcastMac(hwVtepNodeId,
-                    macEntry.getMacAddress().getValue().toLowerCase(Locale.getDefault()), null /*IpAddress*/,
+                IetfYangUtil.INSTANCE.canonizePhysAddress(macEntry.getMacAddress()).getValue(), null /*IpAddress*/,
                     logicalSwitchName, physLocatorAug);
             lstRemoteUcastMacs.add(remoteUcastMac);
         }
