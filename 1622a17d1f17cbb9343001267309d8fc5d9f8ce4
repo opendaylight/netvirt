@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b258247c_635ff908",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-07-23T15:17:17Z",
+      "side": 1,
+      "message": "I am still not so sure whether this will introduce any scale problem. Each listener is going to be an akka actor, and with this approach, for a short period of time during cluster reboot, we are going to have so many listeners registered. I am not saying that this has huge impact, but we do have to test and see what happens",
+      "revId": "1622a17d1f17cbb9343001267309d8fc5d9f8ce4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
