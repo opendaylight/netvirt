@@ -16,6 +16,24 @@
       "revId": "1622a17d1f17cbb9343001267309d8fc5d9f8ce4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "13e62d9e_e76b3050",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-07-23T15:23:48Z",
+      "side": 1,
+      "message": "Exactly; but with this approach, we can deal with scale issues in onAddOrUpdate (which has all the info needed). If we see that adding a listener causes issues, we can do\n\n    if (read...) {\n        run the handler immediately\n    } else {\n        add a listener\n    }\n\nwith appropriate error handling.\n\nIn the current code, if a read fails because of a cluster issue, the listener won’t even be registered!",
+      "parentUuid": "b258247c_635ff908",
+      "revId": "1622a17d1f17cbb9343001267309d8fc5d9f8ce4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
