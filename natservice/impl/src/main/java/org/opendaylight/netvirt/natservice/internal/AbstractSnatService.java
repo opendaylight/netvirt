@@ -360,27 +360,16 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         LOG.debug("installing the PSNAT to NAPTSwitch GroupEntity:{} with GroupId: {}", groupEntity, groupId);
         mdsalManager.addGroup(confTx, groupEntity);
 
-        //Add the flow to send the packet to the group only after group is available in Config datastore
-        InstanceIdentifier<Group> groupIid = NatUtil.getGroupInstanceId(dpnId, groupId);
-        try {
-            if (confTx.read(groupIid).get().isPresent()) {
-                LOG.info("group {} is present in the config hence adding the flow", groupId);
-                addSnatMissFlowForGroup(confTx, dpnId, routerId, groupId);
-                return;
-            }
-            eventCallbacks.onAddOrUpdate(LogicalDatastoreType.CONFIGURATION,
-                    NatUtil.getGroupInstanceId(dpnId, groupId), (unused, newGroupId) -> {
-                    LOG.info("group {} is created in the config", groupId);
-                    ListenableFutures.addErrorLogging(
-                            txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                                innerConfTx -> addSnatMissFlowForGroup(innerConfTx, dpnId, routerId, groupId)),
-                            LOG, "Error adding flow for the group {}",groupId);
-                    return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
-                }, Duration.ofSeconds(5), iid -> LOG.error("groupId {} not found in config datastore",
-                        groupId));
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error programming SNAT miss entryfor dpn {}", dpnId);
-        }
+        // Add the flow to send the packet to the group only after group is available in Config datastore
+        eventCallbacks.onAddOrUpdate(LogicalDatastoreType.CONFIGURATION,
+                NatUtil.getGroupInstanceId(dpnId, groupId), (unused, newGroupId) -> {
+                LOG.info("group {} is created in the config", groupId);
+                ListenableFutures.addErrorLogging(
+                        txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                            innerConfTx -> addSnatMissFlowForGroup(innerConfTx, dpnId, routerId, groupId)),
+                        LOG, "Error adding flow for the group {}",groupId);
+                return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
+            }, Duration.ofSeconds(5), iid -> LOG.error("groupId {} not found in config datastore", groupId));
     }
 
     private void addSnatMissFlowForGroup(TypedReadWriteTransaction<Configuration> confTx,
