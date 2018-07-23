@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.ipv6service;
 
+import static java.util.Objects.requireNonNull;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -90,8 +92,8 @@ public class Ipv6RouterAdvt {
         short icmpv6RaFlags = 0;
         String gatewayMac = null;
         IpAddress gatewayIp;
-        List<String> autoConfigPrefixList = new ArrayList<>();
-        List<String> statefulConfigPrefixList = new ArrayList<>();
+        List<Ipv6Prefix> autoConfigPrefixList = new ArrayList<>();
+        List<Ipv6Prefix> statefulConfigPrefixList = new ArrayList<>();
 
         for (VirtualSubnet subnet : routerPort.getSubnets()) {
             gatewayIp = subnet.getGatewayIp();
@@ -102,11 +104,11 @@ public class Ipv6RouterAdvt {
 
             if (!subnet.getIpv6RAMode().isEmpty()) {
                 if (Ipv6ServiceConstants.IPV6_AUTO_ADDRESS_SUBNETS.contains(subnet.getIpv6RAMode())) {
-                    autoConfigPrefixList.add(subnet.getSubnetCidr().stringValue());
+                    autoConfigPrefixList.add(requireNonNull(subnet.getSubnetCidr().getIpv6Prefix()));
                 }
 
                 if (subnet.getIpv6RAMode().equalsIgnoreCase(Ipv6ServiceConstants.IPV6_DHCPV6_STATEFUL)) {
-                    statefulConfigPrefixList.add(subnet.getSubnetCidr().stringValue());
+                    statefulConfigPrefixList.add(requireNonNull(subnet.getSubnetCidr().getIpv6Prefix()));
                 }
             }
 
@@ -174,17 +176,17 @@ public class Ipv6RouterAdvt {
         short autoConfPrefixFlags = 0;
         autoConfPrefixFlags = (short) (autoConfPrefixFlags | 1 << 7); // On-link flag
         autoConfPrefixFlags = (short) (autoConfPrefixFlags | 1 << 6); // Autonomous address-configuration flag.
-        for (String v6Prefix : autoConfigPrefixList) {
+        for (Ipv6Prefix v6Prefix : autoConfigPrefixList) {
             prefix.setFlags(autoConfPrefixFlags);
-            prefix.setPrefix(new Ipv6Prefix(v6Prefix));
+            prefix.setPrefix(v6Prefix);
             prefixList.add(prefix.build());
         }
 
         short statefulPrefixFlags = 0;
         statefulPrefixFlags = (short) (statefulPrefixFlags | 1 << 7); // On-link flag
-        for (String v6Prefix : statefulConfigPrefixList) {
+        for (Ipv6Prefix v6Prefix : statefulConfigPrefixList) {
             prefix.setFlags(statefulPrefixFlags);
-            prefix.setPrefix(new Ipv6Prefix(v6Prefix));
+            prefix.setPrefix(v6Prefix);
             prefixList.add(prefix.build());
         }
 
@@ -204,7 +206,7 @@ public class Ipv6RouterAdvt {
         return buf.array();
     }
 
-    private byte[] icmp6RAPayloadtoByte(RouterAdvertisementPacket pdu) {
+    private static byte[] icmp6RAPayloadtoByte(RouterAdvertisementPacket pdu) {
         byte[] data = new byte[pdu.getIpv6Length()];
         Arrays.fill(data, (byte)0);
 
