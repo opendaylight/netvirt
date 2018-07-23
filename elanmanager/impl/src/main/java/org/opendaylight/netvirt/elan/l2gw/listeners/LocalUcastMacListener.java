@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -38,6 +37,7 @@ import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.IetfYangUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
@@ -112,9 +112,9 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
 
     public void removed(final InstanceIdentifier<LocalUcastMacs> identifier, final LocalUcastMacs macRemoved) {
         String hwvtepNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
-        String macAddress = macRemoved.getMacEntryKey().getValue().toLowerCase(Locale.getDefault());
+        MacAddress macAddress = IetfYangUtil.INSTANCE.canonizeMacAddress(macRemoved.getMacEntryKey());
 
-        LOG.trace("LocalUcastMacs {} removed from {}", macAddress, hwvtepNodeId);
+        LOG.trace("LocalUcastMacs {} removed from {}", macAddress.getValue(), hwvtepNodeId);
 
         ResourceBatchingManager.getInstance().delete(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
                 identifier);
@@ -134,9 +134,9 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
                 elanL2GwDevice.removeUcastLocalMac(macRemoved);
                 ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
                 elanL2GatewayUtils.unInstallL2GwUcastMacFromL2gwDevices(elanName, elanL2GwDevice,
-                        Collections.singletonList(new MacAddress(macAddress.toLowerCase(Locale.getDefault()))));
+                        Collections.singletonList(macAddress));
                 elanL2GatewayUtils.unInstallL2GwUcastMacFromElanDpns(elanInstance, elanL2GwDevice,
-                        Collections.singletonList(new MacAddress(macAddress.toLowerCase(Locale.getDefault()))));
+                        Collections.singletonList(macAddress));
                 return null;
             });
     }
@@ -146,7 +146,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
                 identifier, macAdded);
 
         String hwvtepNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
-        String macAddress = macAdded.getMacEntryKey().getValue().toLowerCase(Locale.getDefault());
+        String macAddress = IetfYangUtil.INSTANCE.canonizeMacAddress(macAdded.getMacEntryKey()).getValue();
         String elanName = getElanName(macAdded);
 
         LOG.trace("LocalUcastMacs {} added to {}", macAddress, hwvtepNodeId);
@@ -167,8 +167,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
                 }
 
                 elanL2GwDevice.addUcastLocalMac(macAdded);
-                elanL2GatewayUtils.installL2GwUcastMacInElan(elan, elanL2GwDevice,
-                        macAddress.toLowerCase(), macAdded, null);
+                elanL2GatewayUtils.installL2GwUcastMacInElan(elan, elanL2GwDevice, macAddress, macAdded, null);
                 return null;
             });
     }
@@ -223,7 +222,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
                 .child(LocalUcastMacs.class, mac.key());
     }
 
-    private Set<LocalUcastMacs> getMacs(@Nullable Node node) {
+    private static Set<LocalUcastMacs> getMacs(@Nullable Node node) {
         if (node != null) {
             HwvtepGlobalAugmentation augmentation = node.augmentation(HwvtepGlobalAugmentation.class);
             if (augmentation != null && augmentation.getLocalUcastMacs() != null) {
