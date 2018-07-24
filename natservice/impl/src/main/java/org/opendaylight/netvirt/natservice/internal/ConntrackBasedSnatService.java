@@ -27,6 +27,7 @@ import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack.NxCtAction;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxCtClear;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadMetadata;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
@@ -316,9 +317,10 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
             .getVpnIdMetadata(extSubnetId), LOAD_START, LOAD_END);
         listActionInfo.add(actionLoadMeta);
-        ArrayList<InstructionInfo> instructions = new ArrayList<>();
         listActionInfo.add(new ActionNxLoadInPort(BigInteger.ZERO));
+        listActionInfo.add(new ActionNxCtClear());
         listActionInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
+        ArrayList<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(listActionInfo));
         String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId);
         flowRef = flowRef + "OUTBOUND";
