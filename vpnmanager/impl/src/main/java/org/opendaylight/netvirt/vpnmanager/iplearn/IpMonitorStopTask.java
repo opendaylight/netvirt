@@ -40,18 +40,19 @@ public class IpMonitorStopTask implements Callable<List<ListenableFuture<Void>>>
             alivenessMonitorUtils.stopIpMonitoring(monitorId);
         });
 
+        String learntIp = macEntry.getIpAddress().getHostAddress();
         if (this.isRemoveMipAdjAndLearntIp) {
             String vpnName =  macEntry.getVpnName();
-            String learntIp = macEntry.getIpAddress().getHostAddress();
             LearntVpnVipToPort vpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, learntIp);
             if (vpnVipToPort != null && !vpnVipToPort.getCreationTime().equals(macEntry.getCreatedTime())) {
                 LOG.warn("The MIP {} over vpn {} has been learnt again and processed. "
                         + "Ignoring this remove event.", learntIp, vpnName);
                 return futures;
             }
-
-            vpnUtil.removeMipAdjAndLearntIp(macEntry.getVpnName(), macEntry.getInterfaceName(),
-                    macEntry.getIpAddress().getHostAddress());
+            vpnUtil.removeMipAdjAndLearntIp(vpnName, macEntry.getInterfaceName(), learntIp);
+        } else {
+            // Delete only MIP adjacency
+            vpnUtil.removeMipAdjacency(macEntry.getInterfaceName(), learntIp);
         }
         return futures;
     }
