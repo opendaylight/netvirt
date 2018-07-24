@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.natservice.ha;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -204,22 +205,24 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         switchWeightsMap.put(dpnId, INITIAL_SWITCH_WEIGHT);
 
         if (scheduleRouters) {
-            ExtRouters routers;
+            Optional<ExtRouters> optRouters;
             try {
-                routers = SingleTransactionDataBroker.syncRead(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                        InstanceIdentifier.create(ExtRouters.class));
+                optRouters = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(ExtRouters.class));
             } catch (ReadFailedException e) {
                 LOG.error("addSwitch: Error reading external routers", e);
                 return false;
             }
 
-            // Get the list of routers and verify if any routers do not have primarySwitch allocated.
-            for (Routers router : routers.getRouters()) {
-                List<ExternalIps> externalIps = router.getExternalIps();
-                if (router.isEnableSnat() && externalIps != null && !externalIps.isEmpty()) {
-                    // Check if the primarySwitch is allocated for the router.
-                    if (!isPrimarySwitchAllocatedForRouter(router.getRouterName())) {
-                        scheduleCentralizedSwitch(router);
+            if (optRouters.isPresent()) {
+                // Get the list of routers and verify if any routers do not have primarySwitch allocated.
+                for (Routers router : optRouters.get().getRouters()) {
+                    List<ExternalIps> externalIps = router.getExternalIps();
+                    if (router.isEnableSnat() && externalIps != null && !externalIps.isEmpty()) {
+                        // Check if the primarySwitch is allocated for the router.
+                        if (!isPrimarySwitchAllocatedForRouter(router.getRouterName())) {
+                            scheduleCentralizedSwitch(router);
+                        }
                     }
                 }
             }
