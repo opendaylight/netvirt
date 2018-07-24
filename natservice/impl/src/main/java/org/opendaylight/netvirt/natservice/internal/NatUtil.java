@@ -1296,10 +1296,10 @@ public final class NatUtil {
             if (dpIdResult.isSuccessful()) {
                 nodeId = dpIdResult.getResult().getDpid();
             } else {
-                LOG.debug("removeFromDpnRoutersMap : Could not retrieve DPN Id for interface {}", ifName);
+                LOG.debug("getDpnForInterface : Could not retrieve DPN Id for interface {}", ifName);
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("removeFromDpnRoutersMap : Exception when getting dpn for interface {}", ifName, e);
+            LOG.error("getDpnForInterface : Exception when getting dpn for interface {}", ifName, e);
         }
         return nodeId;
     }
