@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -241,6 +240,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.data.api.schema.tree.ModifiedNodeDoesNotExistException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1015,6 +1015,20 @@ public final class VpnUtil {
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, adjacencyIdentifier);
                 LOG.info("removeMipAdjAndLearntIp: Successfully Deleted Adjacency {} from interface {} vpn {}", ip,
                         vpnInterface, vpnName);
+            }
+        }
+    }
+
+    public void removeMipAdjacency(String vpnInterface, String ipAddress) {
+        String prefix = VpnUtil.getIpPrefix(ipAddress);
+        InstanceIdentifier<Adjacency> adjacencyIdentifier = getAdjacencyIdentifier(vpnInterface, prefix);
+        try {
+            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, adjacencyIdentifier);
+        } catch (TransactionCommitFailedException e) {
+            if (e.getCause() instanceof ModifiedNodeDoesNotExistException) {
+                LOG.debug("vpnInterface {} is already deleted. prefix={}", vpnInterface, prefix);
+            } else {
+                LOG.error("Failed to delete adjacency for vpnInterface {}, prefix {}", vpnInterface, prefix, e);
             }
         }
     }
