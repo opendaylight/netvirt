@@ -34,6 +34,24 @@
       "revId": "1622a17d1f17cbb9343001267309d8fc5d9f8ce4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5edd5841_5f88f9e5",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-07-24T05:50:39Z",
+      "side": 1,
+      "message": "Yeah, but we don\u0027t know which one is more overhead, registering call back, or reading datastore ;)",
+      "parentUuid": "13e62d9e_e76b3050",
+      "revId": "1622a17d1f17cbb9343001267309d8fc5d9f8ce4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
