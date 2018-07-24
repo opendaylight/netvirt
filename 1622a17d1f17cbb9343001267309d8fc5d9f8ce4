@@ -70,6 +70,24 @@
       "revId": "1622a17d1f17cbb9343001267309d8fc5d9f8ce4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b404d2a_9e887e31",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-07-24T10:26:07Z",
+      "side": 1,
+      "message": "Yes, agree! +1 from my side. Even Muthu is suggesting callback will be better than the DS read.",
+      "parentUuid": "55d1e43e_93e8f888",
+      "revId": "1622a17d1f17cbb9343001267309d8fc5d9f8ce4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
