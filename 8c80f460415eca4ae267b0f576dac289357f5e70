@@ -16,6 +16,24 @@
       "revId": "8c80f460415eca4ae267b0f576dac289357f5e70",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81e4c9f7_912ec9e8",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-07-24T09:24:26Z",
+      "side": 0,
+      "message": "See the commit message. In addition to that, in a cluster reboot situation, the deleted code could fail: if the read fails, the error will cause the event callback to never be registered.",
+      "parentUuid": "b4dff4f4_5dadeb9a",
+      "revId": "8c80f460415eca4ae267b0f576dac289357f5e70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
