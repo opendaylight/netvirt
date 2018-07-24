@@ -170,7 +170,7 @@ public class IpMonitoringHandler
                         value.getCreationTime());
 
                 jobCoordinator.enqueueJob(VpnUtil.buildIpMonitorJobKey(srcInetAddr.toString(), vpnName),
-                        new IpMonitorStopTask(macEntry, Boolean.FALSE, vpnUtil, alivenessMonitorUtils));
+                        new IpMonitorStopTask(macEntry, Boolean.TRUE, vpnUtil, alivenessMonitorUtils));
             } catch (UnknownHostException e) {
                 LOG.error("Error in deserializing packet {} with exception", value, e);
             }
