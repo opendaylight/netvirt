@@ -164,33 +164,36 @@ public class OpenFlow13ProviderTest {
         MatchesBuilder matchesBuilder = new MatchesBuilder();
         matchesBuilder.setAceType(new AceIpBuilder().build());
         AclMatches aclMatches = new AclMatches(matchesBuilder.build());
-        MatchBuilder matchBuilder = aclMatches.buildMatch();
+        List<MatchBuilder> matchBuilds = aclMatches.buildMatch();
 
-        Flow flow = openflowProvider.createIngressClassifierAclFlow(
-                nodeId, matchBuilder, IN_PORT, NSP, NSI);
+        for (MatchBuilder matchBuilder : matchBuilds) {
+            Flow flow = openflowProvider.createIngressClassifierAclFlow(
+                    nodeId, matchBuilder, IN_PORT, NSP, NSI);
 
-        assertEquals(flow.getTableId().shortValue(), NwConstants.INGRESS_SFC_CLASSIFIER_ACL_TABLE);
-        assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_PRIORITY);
-        assertEquals(flow.getId().getValue(),
-                OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_FLOW_NAME + "_" + nodeId.getValue()
-                + matchBuilder.build().toString());
-        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_COOKIE);
+            assertEquals(flow.getTableId().shortValue(), NwConstants.INGRESS_SFC_CLASSIFIER_ACL_TABLE);
+            assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_PRIORITY);
+            assertEquals(flow.getId().getValue(),
+                    OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_FLOW_NAME + "_" + nodeId.getValue()
+                    + matchBuilder.build().toString());
+            assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_COOKIE);
 
-        // Only checking the inport match, since the rest is tested in AclMatchesTest
-        checkMatchInport(flow.getMatch(), nodeId.getValue() + ":" + IN_PORT);
+            // Only checking the inport match, since the rest is tested in AclMatchesTest
+            checkMatchInport(flow.getMatch(), nodeId.getValue() + ":" + IN_PORT);
 
-        assertEquals(1, flow.getInstructions().getInstruction().size());
-        Instruction curInstruction = flow.getInstructions().getInstruction().get(0).getInstruction();
-        List<Action> actionList = checkApplyActionSize(curInstruction, 8);
+            assertEquals(1, flow.getInstructions().getInstruction().size());
+            Instruction curInstruction = flow.getInstructions().getInstruction().get(0).getInstruction();
 
-        checkActionPushNsh(actionList.get(0));
-        checkActionLoadNshMdtype(actionList.get(1));
-        checkActionLoadNshNp(actionList.get(2));
-        checkActionLoadNsp(actionList.get(3));
-        checkActionLoadNsi(actionList.get(4));
-        checkActionLoadNshc1(actionList.get(5), OpenFlow13Provider.ACL_FLAG_CONTEXT_VALUE);
-        checkActionLoadNshc2(actionList.get(6), OpenFlow13Provider.DEFAULT_NSH_CONTEXT_VALUE);
-        checkActionResubmit(curInstruction, NwConstants.LPORT_DISPATCHER_TABLE);
+            List<Action> actionList = checkApplyActionSize(curInstruction, 8);
+
+            checkActionPushNsh(actionList.get(0));
+            checkActionLoadNshMdtype(actionList.get(1));
+            checkActionLoadNshNp(actionList.get(2));
+            checkActionLoadNsp(actionList.get(3));
+            checkActionLoadNsi(actionList.get(4));
+            checkActionLoadNshc1(actionList.get(5), OpenFlow13Provider.ACL_FLAG_CONTEXT_VALUE);
+            checkActionLoadNshc2(actionList.get(6), OpenFlow13Provider.DEFAULT_NSH_CONTEXT_VALUE);
+            checkActionResubmit(curInstruction, NwConstants.LPORT_DISPATCHER_TABLE);
+        }
     }
 
     @Test

@@ -131,6 +131,7 @@ public final class FlowClassifierTranslator {
         }
         if (flowClassifier.getDestinationPortRangeMax() != null) {
             destinationPortRange.setUpperPort(new PortNumber(flowClassifier.getDestinationPortRangeMax()));
+            aceIpBuilder.setDestinationPortRange(destinationPortRange.build());
         }
         if (flowClassifier.getLogicalSourcePort() != null) {
             neutronPortsBuilder.setSourcePortUuid(flowClassifier.getLogicalSourcePort().getValue());

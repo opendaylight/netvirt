@@ -23,6 +23,7 @@ import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierEntr
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,11 +102,13 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     @Override
     public void renderMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi) {
         Long port = OpenFlow13Provider.getPortNoFromNodeConnector(connector);
-        Flow flow = this.openFlow13Provider.createIngressClassifierAclFlow(
-                nodeId, this.openFlow13Provider.getMatchBuilderFromAceMatches(matches), port, nsp, nsi);
-
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-            tx -> this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx)), LOG, "Error rendering a match");
+        List<MatchBuilder> matchBuilds = this.openFlow13Provider.getMatchBuilderFromAceMatches(matches);
+        for (MatchBuilder match : matchBuilds) {
+            Flow flow = this.openFlow13Provider.createIngressClassifierAclFlow(
+                    nodeId, match, port, nsp, nsi);
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                tx -> this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx)), LOG, "Error rendering a match");
+        }
     }
 
     @Override
@@ -168,11 +171,13 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     @Override
     public void suppressMatch(NodeId nodeId, String connector, Matches matches, Long nsp, Short nsi) {
         Long port = OpenFlow13Provider.getPortNoFromNodeConnector(connector);
-        Flow flow = this.openFlow13Provider.createIngressClassifierAclFlow(
-                nodeId, this.openFlow13Provider.getMatchBuilderFromAceMatches(matches), port, nsp, nsi);
-
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-            tx -> this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx)), LOG, "Error deleting a match");
+        List<MatchBuilder> matchBuilds = this.openFlow13Provider.getMatchBuilderFromAceMatches(matches);
+        for (MatchBuilder match : matchBuilds) {
+            Flow flow = this.openFlow13Provider.createIngressClassifierAclFlow(
+                    nodeId, match, port, nsp, nsi);
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                tx -> this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx)), LOG, "Error deleting a match");
+        }
     }
 
     @Override

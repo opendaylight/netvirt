@@ -83,7 +83,7 @@ public class OpenFlow13Provider {
     public static final String OF_URI_SEPARATOR = ":";
     public static final Ipv4Address NULL_IP = new Ipv4Address("0.0.0.0");
 
-    public MatchBuilder getMatchBuilderFromAceMatches(Matches matches) {
+    public List<MatchBuilder> getMatchBuilderFromAceMatches(Matches matches) {
         if (matches == null) {
             return null;
         }

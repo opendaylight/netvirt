@@ -8,6 +8,10 @@
 
 package org.opendaylight.netvirt.sfc.classifier.utils;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
@@ -38,10 +42,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.EthernetMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.IpMatch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.IpMatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.Layer4Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._3.match.Ipv4Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._3.match.Ipv4MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._3.match.Ipv6Match;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._3.match.Ipv6MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._4.match.TcpMatch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._4.match.TcpMatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._4.match.UdpMatchBuilder;
 import org.slf4j.Logger;
@@ -50,12 +56,14 @@ import org.slf4j.LoggerFactory;
 public class AclMatches {
     private static final Logger LOG = LoggerFactory.getLogger(AclMatches.class);
     private final MatchBuilder matchBuilder;
+    private final Set<TcpMatch> tcpMatches;
     private final Matches matches;
     private boolean ipv4EtherTypeSet;
     private boolean ipv6EtherTypeSet;
 
     public AclMatches(Matches matches) {
         this.matchBuilder = new MatchBuilder();
+        this.tcpMatches = new HashSet<>();
         this.matches = matches;
         this.ipv4EtherTypeSet = false;
         this.ipv6EtherTypeSet = false;
@@ -65,16 +73,24 @@ public class AclMatches {
      * Convert the ACL into an OpenFlow {@link MatchBuilder}.
      * @return {@link MatchBuilder}
      */
-    public MatchBuilder buildMatch() {
+    public List<MatchBuilder> buildMatch() {
+        List<MatchBuilder> newMatches = new ArrayList<>();
         if (matches.getAceType() instanceof AceEth) {
             addEthMatch();
         } else if (matches.getAceType() instanceof AceIp) {
             addIpMatch();
         }
-
-        LOG.debug("buildMatch: {}", matchBuilder.build());
-
-        return matchBuilder;
+        if (tcpMatches.isEmpty()) {
+            MatchBuilder matchBuilds = matchBuilder;
+            LOG.debug("buildMatch: {}", newMatches.add(new MatchBuilder(matchBuilds.build())));
+        } else {
+            for (Layer4Match newL4Match : tcpMatches) {
+                MatchBuilder matchBuilds = matchBuilder.setLayer4Match(newL4Match);
+                LOG.debug("buildMatch: {}", newMatches.add(new MatchBuilder(matchBuilds.build())));
+            }
+        }
+        LOG.debug("returned matches: {}", newMatches);
+        return newMatches;
     }
 
     private void addEthMatch() {
@@ -148,16 +164,26 @@ public class AclMatches {
             dstPort = aceIp.getDestinationPortRange().getLowerPort().getValue();
         }
 
+        int dstPortMax = 0;
+        if (aceIp.getDestinationPortRange() != null && aceIp.getDestinationPortRange().getUpperPort() != null) {
+            LOG.debug("dest port");
+            dstPortMax = aceIp.getDestinationPortRange().getUpperPort().getValue();
+        }
         // Match on a TCP/UDP src/dst port
         if (aceIp.getProtocol() == IPProtocols.TCP.shortValue()) {
             TcpMatchBuilder tcpMatch = new TcpMatchBuilder();
             if (srcPort != 0) {
                 tcpMatch.setTcpSourcePort(new PortNumber(srcPort));
+                matchBuilder.setLayer4Match(tcpMatch.build());
             }
-            if (dstPort != 0) {
+            if (dstPort < dstPortMax) {
+                Set<Integer> destPorts = createSetFromRange(dstPort, dstPortMax);
+                for (Integer destPort : destPorts) {
+                    TcpMatchBuilder tpMatch = new TcpMatchBuilder();
+                    tcpMatches.add(tpMatch.setTcpDestinationPort(new PortNumber(destPort)).build());
+                }
+            } else if (dstPort != 0) {
                 tcpMatch.setTcpDestinationPort(new PortNumber(dstPort));
-            }
-            if (srcPort != 0 || dstPort != 0) {
                 matchBuilder.setLayer4Match(tcpMatch.build());
             }
         } else if (aceIp.getProtocol() == IPProtocols.UDP.shortValue()) {
@@ -172,6 +198,18 @@ public class AclMatches {
                 matchBuilder.setLayer4Match(udpMatch.build());
             }
         }
+    }
+
+    private Set<Integer> createSetFromRange(int minVal, int maxVal) {
+        Set<Integer> res = new HashSet<>();
+        if (minVal != 0 && maxVal != 0) {
+            final int min = minVal;
+            final int max = maxVal;
+            for (int val = min; val <= max; val++) {
+                res.add(val);
+            }
+        }
+        return res;
     }
 
     private void addIpV4Match(AceIp aceIp) {
