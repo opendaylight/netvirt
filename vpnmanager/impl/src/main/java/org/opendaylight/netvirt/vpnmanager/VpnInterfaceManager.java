@@ -1541,13 +1541,13 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         VpnHelper.getVpnInterfaceVpnInstanceNamesString(update.getVpnInstanceNames()));
                 return Collections.emptyList();
             }
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
             for (VpnInstanceNames vpnInterfaceVpnInstance : update.getVpnInstanceNames()) {
                 String newVpnName = vpnInterfaceVpnInstance.getVpnName();
                 List<Adjacency> copyNewAdjs = new ArrayList<>(newAdjs);
                 List<Adjacency> copyOldAdjs = new ArrayList<>(oldAdjs);
                 String primaryRd = VpnUtil.getPrimaryRd(dataBroker, newVpnName);
                 if (!VpnUtil.isVpnPendingDelete(dataBroker, primaryRd)) {
-                    final List<ListenableFuture<Void>> futures = new ArrayList<>();
                     futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                         confTx -> txRunner.callWithNewWriteOnlyTransactionAndSubmit(operTx -> {
                             InstanceIdentifier<VpnInterfaceOpDataEntry> vpnInterfaceOpIdentifier =
@@ -1606,13 +1606,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     LOG.info("update: vpn interface updated for interface {} oldVpn(s) {} newVpn {} processed"
                             + " successfully", update.getName(), VpnHelper.getVpnInterfaceVpnInstanceNamesString(
                             original.getVpnInstanceNames()), newVpnName);
-                    return futures;
                 } else {
                     LOG.error("update: Ignoring update of vpnInterface {}, as newVpnInstance {} with primaryRd {}"
                             + " is already marked for deletion", vpnInterfaceName, newVpnName, primaryRd);
                 }
             }
-            return Collections.emptyList();
+            return futures;
         });
     }
 
@@ -1651,7 +1650,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             final Adjacencies updateAdjs = update.getAugmentation(Adjacencies.class);
             final List<Adjacency> newAdjs = (updateAdjs != null && updateAdjs.getAdjacency() != null)
                     ? updateAdjs.getAdjacency() : new ArrayList<>();
-
             for (String newVpnName: newVpnList) {
                 String primaryRd = VpnUtil.getPrimaryRd(dataBroker, newVpnName);
                 isSwap = Boolean.TRUE;
