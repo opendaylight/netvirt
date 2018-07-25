@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.natservice.ha;
 
+import com.google.common.base.Optional;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -27,6 +31,9 @@ import org.opendaylight.netvirt.natservice.api.CentralizedSwitchScheduler;
 import org.opendaylight.netvirt.natservice.internal.NatUtil;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeRefInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
@@ -39,6 +46,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.OpenvswitchExternalIds;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +57,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchScheduler {
     private static final Logger LOG = LoggerFactory.getLogger(WeightedCentralizedSwitchScheduler.class);
-    private static final Integer INITIAL_SWITCH_WEIGHT = Integer.valueOf(0);
+    private static final String ODL_BASE_WEIGHT = "odl_base_weight";
 
     private final Map<BigInteger,Integer> switchWeightsMap = new ConcurrentHashMap<>();
     private final Map<String,String> subnetIdToRouterPortMap = new ConcurrentHashMap<>();
@@ -65,7 +76,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
 
     @Override
     public boolean scheduleCentralizedSwitch(Routers router) {
-        BigInteger nextSwitchId = getSwitchWithLowestWeight();
+        BigInteger nextSwitchId = getSwitchWithHighestWeight();
         if (nextSwitchId == BigInteger.valueOf(0)) {
             LOG.error("In scheduleCentralizedSwitch, unable to schedule the router {} as there is no available switch.",
                     router.getRouterName());
@@ -81,7 +92,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         try {
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     getNaptSwitchesIdentifier(routerName), id);
-            switchWeightsMap.put(nextSwitchId,switchWeightsMap.get(nextSwitchId) + 1);
+            switchWeightsMap.put(nextSwitchId,switchWeightsMap.get(nextSwitchId) - 1);
 
         } catch (TransactionCommitFailedException e) {
             LOG.error("ScheduleCentralizedSwitch failed for {}", routerName);
@@ -111,7 +122,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         try {
             SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     getNaptSwitchesIdentifier(routerName));
-            switchWeightsMap.put(primarySwitchId,switchWeightsMap.get(primarySwitchId) - 1);
+            switchWeightsMap.put(primarySwitchId,switchWeightsMap.get(primarySwitchId) + 1);
         } catch (TransactionCommitFailedException e) {
             return false;
         }
@@ -182,7 +193,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         /* Initialize the switch in the map with weight 0 */
         LOG.info("addSwitch: Adding {} dpnId to switchWeightsMap", dpnId);
         boolean scheduleRouters = (switchWeightsMap.size() == 0) ? true : false;
-        switchWeightsMap.put(dpnId, INITIAL_SWITCH_WEIGHT);
+        switchWeightsMap.put(dpnId, getDpnBaseWeight(dpnId));
 
         if (scheduleRouters) {
             ExtRouters routers;
@@ -228,20 +239,16 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     @Override
     public boolean removeSwitch(BigInteger dpnId) {
         LOG.info("removeSwitch: Removing {} dpnId to switchWeightsMap", dpnId);
-        if (!INITIAL_SWITCH_WEIGHT.equals(switchWeightsMap.get(dpnId))) {
-            NaptSwitches naptSwitches = getNaptSwitches(dataBroker);
-            for (RouterToNaptSwitch routerToNaptSwitch : naptSwitches.getRouterToNaptSwitch()) {
-                if (dpnId.equals(routerToNaptSwitch.getPrimarySwitchId())) {
-                    Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerToNaptSwitch.getRouterName());
-                    releaseCentralizedSwitch(router);
-                    switchWeightsMap.remove(dpnId);
-                    scheduleCentralizedSwitch(router);
-                    break;
-                }
+        NaptSwitches naptSwitches = getNaptSwitches(dataBroker);
+        for (RouterToNaptSwitch routerToNaptSwitch : naptSwitches.getRouterToNaptSwitch()) {
+            if (dpnId.equals(routerToNaptSwitch.getPrimarySwitchId())) {
+                Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerToNaptSwitch.getRouterName());
+                releaseCentralizedSwitch(router);
+                switchWeightsMap.remove(dpnId);
+                scheduleCentralizedSwitch(router);
             }
-        } else {
-            switchWeightsMap.remove(dpnId);
         }
+        switchWeightsMap.remove(dpnId);
         return true;
     }
 
@@ -251,18 +258,18 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 LogicalDatastoreType.CONFIGURATION, id).orNull();
     }
 
-    private BigInteger getSwitchWithLowestWeight() {
-        int lowestWeight = Integer.MAX_VALUE;
+    private BigInteger getSwitchWithHighestWeight() {
+        int highestWeight = Integer.MIN_VALUE;
         BigInteger nextSwitchId = BigInteger.valueOf(0);
         for (Entry<BigInteger, Integer> entry : switchWeightsMap.entrySet()) {
             BigInteger dpnId = entry.getKey();
             Integer weight = entry.getValue();
-            if (lowestWeight > weight) {
-                lowestWeight = weight;
+            if (highestWeight < weight) {
+                highestWeight = weight;
                 nextSwitchId =  dpnId;
             }
         }
-        LOG.info("getSwitchWithLowestWeight: switchWeightsMap {}, returning nextSwitchId {} ",
+        LOG.info("getSwitchWithHighestWeight: switchWeightsMap {}, returning nextSwitchId {} ",
                 switchWeightsMap, nextSwitchId);
         return nextSwitchId;
     }
@@ -304,5 +311,68 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             }
         }
         return newSubnetIds;
+    }
+
+    private Optional<Node> getPortsNode(BigInteger dpnId) {
+        InstanceIdentifier<BridgeRefEntry> bridgeRefInfoPath = InstanceIdentifier.create(BridgeRefInfo.class)
+                .child(BridgeRefEntry.class, new BridgeRefEntryKey(dpnId));
+
+        Optional<BridgeRefEntry> bridgeRefEntry =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, bridgeRefInfoPath);
+        if (!bridgeRefEntry.isPresent()) {
+            return Optional.absent();
+        }
+
+        InstanceIdentifier<Node> nodeId =
+                bridgeRefEntry.get().getBridgeReference().getValue().firstIdentifierOf(Node.class);
+
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                LogicalDatastoreType.OPERATIONAL, nodeId);
+    }
+
+    private Integer getDpnBaseWeight(BigInteger dpId) {
+        return getPortsNode(dpId).toJavaUtil().map(node -> getOpenvswitchExternalIds(node, ODL_BASE_WEIGHT))
+                .orElse(Integer.valueOf(0));
+    }
+
+    private Integer getOpenvswitchExternalIds(Node node, String key) {
+        OvsdbNodeAugmentation ovsdbNode = node.getAugmentation(OvsdbNodeAugmentation.class);
+        if (ovsdbNode == null) {
+            Optional<Node> nodeFromReadOvsdbNode = readOvsdbNode(node);
+            if (nodeFromReadOvsdbNode.isPresent()) {
+                ovsdbNode = nodeFromReadOvsdbNode.get().getAugmentation(OvsdbNodeAugmentation.class);
+            }
+        }
+
+        if (ovsdbNode != null && ovsdbNode.getOpenvswitchOtherConfigs() != null) {
+            for (OpenvswitchExternalIds openvswitchExternalIds : ovsdbNode.getOpenvswitchExternalIds()) {
+                if (openvswitchExternalIds.getExternalIdKey().equals(key)) {
+                    return Integer.valueOf(openvswitchExternalIds.getExternalIdValue());
+                }
+            }
+        }
+
+        return Integer.valueOf(0);
+    }
+
+    @Nonnull
+    private Optional<Node> readOvsdbNode(Node bridgeNode) {
+        OvsdbBridgeAugmentation bridgeAugmentation = extractBridgeAugmentation(bridgeNode);
+        if (bridgeAugmentation != null) {
+            InstanceIdentifier<Node> ovsdbNodeIid =
+                    (InstanceIdentifier<Node>) bridgeAugmentation.getManagedBy().getValue();
+            return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, ovsdbNodeIid);
+        }
+        return Optional.absent();
+
+    }
+
+    private OvsdbBridgeAugmentation extractBridgeAugmentation(Node node) {
+        if (node == null) {
+            return null;
+        }
+        return node.getAugmentation(OvsdbBridgeAugmentation.class);
     }
 }
