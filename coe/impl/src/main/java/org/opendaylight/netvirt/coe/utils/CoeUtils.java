@@ -22,7 +22,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
@@ -198,7 +197,7 @@ public final class CoeUtils {
     }
 
     public static InstanceIdentifier<Pods> getPodUUIDforPodName(String podName, DataBroker dataBroker)
-            throws ReadFailedException, ExecutionException, InterruptedException {
+            throws ExecutionException, InterruptedException {
         ReadTransaction readTransaction = dataBroker.newReadOnlyTransaction();
         InstanceIdentifier<PodIdentifier> id = InstanceIdentifier.builder(PodidentifierInfo.class)
                 .child(PodIdentifier.class, new PodIdentifierKey(podName)).build();
@@ -257,7 +256,7 @@ public final class CoeUtils {
                                                  org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod
                                                          .rev170611.pod_attributes.Interface podInterface,
                                                  TypedReadWriteTransaction<Datastore.Configuration> wrtConfigTxn)
-            throws ReadFailedException, ExecutionException, InterruptedException {
+            throws ExecutionException, InterruptedException {
         String elanInstanceName = buildElanInstanceName(nodeIp, networkNS);
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
         ElanInstance existingElanInstance = wrtConfigTxn.read(id).get().orNull();
@@ -310,8 +309,7 @@ public final class CoeUtils {
 
     public static void createVpnInstance(String vpnName, List<String> rd, List<String> irt, List<String> ert,
                                          VpnInstance.Type type, long l3vni, IpVersionChoice ipVersion,
-                                         TypedReadWriteTransaction<Datastore.Configuration> tx)
-            throws ReadFailedException {
+                                         TypedReadWriteTransaction<Datastore.Configuration> tx) {
         List<VpnTarget> vpnTargetList = new ArrayList<>();
         LOG.debug("Creating/Updating a new vpn-instance node: {} ", vpnName);
 

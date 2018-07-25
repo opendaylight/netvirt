@@ -22,7 +22,6 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
-import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -123,11 +122,10 @@ public class ElanDmacUtils {
      *            the interface name
      *
      * @return the dmac flows
-     * @throws ElanException in case of issues creating the flow objects
      */
     public List<ListenableFuture<Void>> installDmacFlowsToExternalRemoteMac(BigInteger dpnId,
             String extDeviceNodeId, Long elanTag, Long vni, String macAddress, String displayName,
-            String interfaceName) throws ElanException {
+            String interfaceName) {
         synchronized (ElanUtils.getElanMacDPNKey(elanTag, macAddress, dpnId)) {
             Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId, elanTag, vni, macAddress,
                     displayName);
@@ -164,12 +162,10 @@ public class ElanDmacUtils {
      *            Indicates if flows must be installed or removed.
      * @param interfaceName
      *            the interface name
-     * @throws ElanException in case of issues creating the flow objects
      * @see org.opendaylight.genius.mdsalutil.MDSALUtil.MdsalOp
      */
     public void setupDmacFlowsToExternalRemoteMac(BigInteger dpId, String extNodeId, Long elanTag, Long vni,
-            String macAddress, String elanInstanceName, MDSALUtil.MdsalOp addOrRemove, String interfaceName)
-            throws ElanException {
+            String macAddress, String elanInstanceName, MDSALUtil.MdsalOp addOrRemove, String interfaceName) {
         if (addOrRemove == MDSALUtil.MdsalOp.CREATION_OP) {
             installDmacFlowsToExternalRemoteMac(dpId, extNodeId, elanTag, vni, macAddress, elanInstanceName,
                     interfaceName);
@@ -234,7 +230,7 @@ public class ElanDmacUtils {
 
     private List<ListenableFuture<Void>> installEtreeDmacFlowsToExternalRemoteMac(
             BigInteger dpnId, String extDeviceNodeId, Long elanTag,
-            Long vni, String macAddress, String displayName, String interfaceName) throws ElanException {
+            Long vni, String macAddress, String displayName, String interfaceName) {
         EtreeLeafTagName etreeLeafTag = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag);
         if (etreeLeafTag != null) {
             return Lists.newArrayList(
@@ -341,7 +337,7 @@ public class ElanDmacUtils {
 
     public List<ListenableFuture<Void>> installDmacFlowsToExternalRemoteMacInBatch(
             BigInteger dpnId, String extDeviceNodeId, Long elanTag, Long vni, String macAddress, String displayName,
-            String interfaceName) throws ElanException {
+            String interfaceName) {
 
         Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId, elanTag, vni, macAddress,
                 displayName);
@@ -359,7 +355,7 @@ public class ElanDmacUtils {
 
     private List<ListenableFuture<Void>> installEtreeDmacFlowsToExternalRemoteMacInBatch(
             BigInteger dpnId, String extDeviceNodeId, Long elanTag, Long vni, String macAddress, String displayName,
-            String interfaceName) throws ElanException {
+            String interfaceName) {
 
         EtreeLeafTagName etreeLeafTag = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag);
         if (etreeLeafTag != null) {

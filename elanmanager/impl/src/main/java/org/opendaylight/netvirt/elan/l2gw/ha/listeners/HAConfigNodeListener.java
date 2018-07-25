@@ -13,7 +13,6 @@ import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -74,7 +73,7 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
     void onPsNodeUpdate(Node haPSUpdated,
             Node haPSOriginal,
             DataObjectModification<Node> mod,
-            ReadWriteTransaction tx) throws InterruptedException, ExecutionException, ReadFailedException {
+            ReadWriteTransaction tx) {
         //copy the ps node data to children
         String psId = haPSUpdated.getNodeId().getValue();
         Set<InstanceIdentifier<Node>> childSwitchIds = getPSChildrenIdsForHAPSNode(psId);
@@ -88,8 +87,7 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
                             Node haUpdated,
                             Node haOriginal,
                             DataObjectModification<Node> mod,
-                            ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+                            ReadWriteTransaction tx) {
         Set<InstanceIdentifier<Node>> childNodeIds = getHwvtepNodeHACache().getChildrenForHANode(key);
         for (InstanceIdentifier<Node> haChildNodeId : childNodeIds) {
             haEventHandler.copyHAGlobalUpdateToChild(haChildNodeId, mod, tx);

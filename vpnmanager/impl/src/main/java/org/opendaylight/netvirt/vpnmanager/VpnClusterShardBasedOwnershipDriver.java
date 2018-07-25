@@ -41,7 +41,7 @@ public class VpnClusterShardBasedOwnershipDriver extends VpnClusterOwnershipDriv
 
     @Override
     @PreDestroy
-    public void close() throws Exception {
+    public void close() {
         LOG.info("{} closed", getClass().getSimpleName());
     }
 }
