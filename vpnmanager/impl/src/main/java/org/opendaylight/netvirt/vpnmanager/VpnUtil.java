@@ -1249,8 +1249,8 @@ public final class VpnUtil {
             LOG.error("getGWMacAddressFromInterface: VPN {} not configured", vpnId);
             return gatewayMac;
         }
-        VpnPortipToPort vpnTargetIpToPort = getNeutronPortFromVpnPortFixedIp(macEntry.getVpnName(),
-                String.valueOf(gatewayIp.getValue()));
+        VpnPortipToPort vpnTargetIpToPort =
+                getNeutronPortFromVpnPortFixedIp(macEntry.getVpnName(), gatewayIp.stringValue());
         if (vpnTargetIpToPort != null && vpnTargetIpToPort.isSubnetIp()) {
             gatewayMac = Optional.of(vpnTargetIpToPort.getMacAddress());
         } else {
