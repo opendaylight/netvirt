@@ -75,17 +75,13 @@ public class ElanInterfaceStateClusteredListener extends
 
                 elanClusterUtils.runOnlyInOwnerNode("external tunnel update", () -> {
                     LOG.debug("running external tunnel update job for interface {} added", interfaceName);
-                    try {
-                        handleExternalTunnelUpdate(interfaceName, intrf);
-                    } catch (ElanException e) {
-                        LOG.error("Failed to add Interface {}", identifier.toString());
-                    }
+                    handleExternalTunnelUpdate(interfaceName, intrf);
                 });
             }
         }
     }
 
-    private void handleExternalTunnelUpdate(String interfaceName, Interface update) throws ElanException {
+    private void handleExternalTunnelUpdate(String interfaceName, Interface update) {
         ExternalTunnel externalTunnel = elanUtils.getExternalTunnel(interfaceName, LogicalDatastoreType.CONFIGURATION);
         if (externalTunnel != null) {
             LOG.debug("handling external tunnel update event for ext device dst {}  src {} ",

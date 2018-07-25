@@ -30,7 +30,7 @@ public class VpnClusterOwnershipDriverBase implements IVpnClusterOwnershipDriver
 
     @Override
     @PreDestroy
-    public void close() throws Exception {}
+    public void close() {}
 
     @Override
     public boolean amIOwner() {

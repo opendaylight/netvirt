@@ -154,14 +154,8 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                     tx -> ElanUtils.updateOperationalDataStore(idManager, update, new ArrayList<>(), tx)),
                     LOG, "Error updating ELAN tag in ELAN instance");
             } else {
-                jobCoordinator.enqueueJob(elanName, () -> {
-                    try {
-                        return elanInterfaceManager.handleunprocessedElanInterfaces(update);
-                    } catch (ElanException e) {
-                        LOG.error("update() failed for ElanInstance: {}", identifier.toString(), e);
-                        return emptyList();
-                    }
-                }, ElanConstants.JOB_MAX_RETRIES);
+                jobCoordinator.enqueueJob(elanName, () -> elanInterfaceManager.handleunprocessedElanInterfaces(update),
+                    ElanConstants.JOB_MAX_RETRIES);
             }
         }
     }

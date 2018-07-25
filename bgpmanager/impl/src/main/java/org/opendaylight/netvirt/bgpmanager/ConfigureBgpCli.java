@@ -113,7 +113,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         if (op == null) {
             session.getConsole().println("Please provide valid operation");
             usage();

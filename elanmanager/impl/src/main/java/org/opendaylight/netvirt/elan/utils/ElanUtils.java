@@ -624,7 +624,7 @@ public class ElanUtils {
      */
     public void setupMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
                               long macTimeout, String macAddress, boolean configureRemoteFlows,
-                              WriteTransaction writeFlowGroupTx) throws ElanException {
+                              WriteTransaction writeFlowGroupTx) {
         synchronized (getElanMacDPNKey(elanInfo.getElanTag(), macAddress, interfaceInfo.getDpId())) {
             setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalManager,
                 writeFlowGroupTx);
@@ -634,7 +634,7 @@ public class ElanUtils {
     }
 
     public void setupDMacFlowOnRemoteDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo, BigInteger dstDpId,
-                                         String macAddress, WriteTransaction writeFlowTx) throws ElanException {
+                                         String macAddress, WriteTransaction writeFlowTx) {
         String elanInstanceName = elanInfo.getElanInstanceName();
         setupRemoteDmacFlow(dstDpId, interfaceInfo.getDpId(), interfaceInfo.getInterfaceTag(), elanInfo.getElanTag(),
                 macAddress, elanInstanceName, writeFlowTx, interfaceInfo.getInterfaceName(), elanInfo);
@@ -811,8 +811,7 @@ public class ElanUtils {
 
     private void setupOrigDmacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
                                     boolean configureRemoteFlows, IMdsalApiManager mdsalApiManager,
-                                    WriteTransaction writeFlowGroupTx)
-                                    throws ElanException {
+                                    WriteTransaction writeFlowGroupTx) {
         BigInteger dpId = interfaceInfo.getDpId();
         String ifName = interfaceInfo.getInterfaceName();
         long ifTag = interfaceInfo.getInterfaceTag();
@@ -954,7 +953,7 @@ public class ElanUtils {
 
     public void setupRemoteDmacFlow(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag, String
             macAddress, String displayName, WriteTransaction writeFlowGroupTx, String interfaceName, ElanInstance
-            elanInstance) throws ElanException {
+            elanInstance) {
         if (interfaceManager.isExternalInterface(interfaceName)) {
             LOG.debug("Ignoring install remote DMAC {} flow on provider interface {} elan {}",
                     macAddress, interfaceName, elanInstance.getElanInstanceName());

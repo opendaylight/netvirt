@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
 import com.google.common.base.Optional;
-import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -36,7 +35,7 @@ public class HAEventHandler implements IHAEventHandler {
                                          InstanceIdentifier<Node> connectedNodePath,
                                          InstanceIdentifier<Node> haNodePath,
                                          ReadWriteTransaction tx)
-            throws ReadFailedException, ExecutionException, InterruptedException {
+            throws ReadFailedException {
         if (haNodePath == null) {
             return;
         }
@@ -51,7 +50,7 @@ public class HAEventHandler implements IHAEventHandler {
                                            Optional<Node> haGlobalCfg,
                                            Optional<Node> haPSCfg,
                                            ReadWriteTransaction tx)
-            throws ReadFailedException, ExecutionException, InterruptedException {
+            throws ReadFailedException {
         if (haNodePath == null) {
             return;
         }
