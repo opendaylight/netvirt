@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a80f3b6_7f17e964",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/SnatNodeEventListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-07-25T17:42:02Z",
+      "side": 1,
+      "message": "can we add the check here so that listener will not be initialized for controller mode?",
+      "revId": "4a919c2915947025f8738649b653b2f416c65bf8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
