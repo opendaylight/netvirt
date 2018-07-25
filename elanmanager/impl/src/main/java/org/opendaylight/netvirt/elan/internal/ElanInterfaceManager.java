@@ -615,7 +615,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }), LOG, "Error procedding added ELAN interface");
     }
 
-    List<ListenableFuture<Void>> handleunprocessedElanInterfaces(ElanInstance elanInstance) throws ElanException {
+    List<ListenableFuture<Void>> handleunprocessedElanInterfaces(ElanInstance elanInstance) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         Queue<ElanInterface> elanInterfaces = unProcessedElanInterfaces.get(elanInstance.getElanInstanceName());
         if (elanInterfaces == null || elanInterfaces.isEmpty()) {
@@ -631,7 +631,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     void programRemoteDmacFlow(ElanInstance elanInstance, InterfaceInfo interfaceInfo,
-            WriteTransaction writeFlowGroupTx) throws ElanException {
+            WriteTransaction writeFlowGroupTx) {
         ElanDpnInterfacesList elanDpnInterfacesList = elanUtils
                 .getElanDpnInterfacesList(elanInstance.getElanInstanceName());
         List<DpnInterfaces> dpnInterfaceLists = null;
@@ -670,7 +670,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     @SuppressWarnings("checkstyle:ForbidCertainMethod")
     List<ListenableFuture<Void>> addElanInterface(ElanInterface elanInterface,
-            InterfaceInfo interfaceInfo, ElanInstance elanInstance) throws ElanException {
+            InterfaceInfo interfaceInfo, ElanInstance elanInstance) {
         Preconditions.checkNotNull(elanInstance, "elanInstance cannot be null");
         Preconditions.checkNotNull(interfaceInfo, "interfaceInfo cannot be null");
         Preconditions.checkNotNull(elanInterface, "elanInterface cannot be null");
@@ -767,8 +767,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     @SuppressWarnings("checkstyle:ForbidCertainMethod")
     List<ListenableFuture<Void>> setupEntriesForElanInterface(ElanInstance elanInstance,
-            ElanInterface elanInterface, InterfaceInfo interfaceInfo, boolean isFirstInterfaceInDpn)
-            throws ElanException {
+            ElanInterface elanInterface, InterfaceInfo interfaceInfo, boolean isFirstInterfaceInDpn) {
         String elanInstanceName = elanInstance.getElanInstanceName();
         String interfaceName = elanInterface.getName();
         WriteTransaction tx = broker.newWriteOnlyTransaction();
@@ -881,7 +880,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private void installEntriesForElanInterface(ElanInstance elanInstance, ElanInterface elanInterface,
             InterfaceInfo interfaceInfo, boolean isFirstInterfaceInDpn, WriteTransaction tx,
-            WriteTransaction writeFlowGroupTx) throws ElanException {
+            WriteTransaction writeFlowGroupTx) {
         if (!isOperational(interfaceInfo)) {
             return;
         }
@@ -1111,7 +1110,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     // Install DMAC entry on dst DPN
     @SuppressWarnings("checkstyle:ForbidCertainMethod")
     public List<ListenableFuture<Void>> installDMacAddressTables(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
-            BigInteger dstDpId) throws ElanException {
+            BigInteger dstDpId) {
         String interfaceName = interfaceInfo.getInterfaceName();
         ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(interfaceName);
         if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null) {
@@ -1658,7 +1657,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
      *            the interface
      * @throws ElanException in case of issues creating the flow objects
      */
-    public void handleExternalTunnelStateEvent(ExternalTunnel externalTunnel, Interface intrf) throws ElanException {
+    public void handleExternalTunnelStateEvent(ExternalTunnel externalTunnel, Interface intrf) {
         if (!validateExternalTunnelStateEvent(externalTunnel, intrf)) {
             return;
         }

@@ -59,7 +59,7 @@ public class VpnClusterEosBasedOwnershipDriver extends VpnClusterOwnershipDriver
 
     @Override
     @PreDestroy
-    public void close() throws Exception {
+    public void close() {
         if (registeredVpnEosListener != null) {
             registeredVpnEosListener.close();
         }

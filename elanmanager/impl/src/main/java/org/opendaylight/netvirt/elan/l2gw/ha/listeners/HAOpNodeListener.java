@@ -95,7 +95,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
                             Node updatedChildNode,
                             Node originalChildNode,
                             DataObjectModification<Node> mod,
-                            ReadWriteTransaction tx) throws ReadFailedException {
+                            ReadWriteTransaction tx) {
 
         String oldHAId = HwvtepHAUtil.getHAIdFromManagerOtherConfig(originalChildNode);
         if (!Strings.isNullOrEmpty(oldHAId)) { //was already ha child
@@ -168,7 +168,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
     void onPsNodeUpdate(Node updatedChildPSNode,
             Node originalChildPSNode,
             DataObjectModification<Node> mod,
-            ReadWriteTransaction tx) throws ReadFailedException {
+            ReadWriteTransaction tx) {
         InstanceIdentifier<Node> childGlobalPath = HwvtepHAUtil.getGlobalNodePathFromPSNode(updatedChildPSNode);
         if (isNotHAChild(childGlobalPath)) {
             return;

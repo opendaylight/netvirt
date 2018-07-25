@@ -32,13 +32,11 @@ import java.util.Timer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
@@ -1679,36 +1677,32 @@ public class BgpConfigurationManager {
             cancelPreviousReplayJob();
         }
         Runnable task = () -> {
-            try {
-                LOG.info("running bgp replay task ");
-                if (get() == null) {
-                    String host = getConfigHost();
-                    int port = getConfigPort();
-                    LOG.info("connecting  to bgp host {} ", host);
-                    bgpRouter.connect(host, port);
-                    LOG.info("no config to push in bgp replay task ");
-                    return;
-                }
-                setStaleStartTime(System.currentTimeMillis());
-                LOG.info("started creating stale fibDSWriter  map ");
-                createStaleFibMap();
-                setStaleEndTime(System.currentTimeMillis());
-                LOG.info("took {} msecs for stale fibDSWriter map creation ", getStaleEndTime() - getStaleStartTime());
-                LOG.info("started bgp config replay ");
-                setCfgReplayStartTime(System.currentTimeMillis());
-                boolean replaySucceded = replay();
-                setCfgReplayEndTime(System.currentTimeMillis());
-                LOG.info("took {} msecs for bgp replay ", getCfgReplayEndTime() - getCfgReplayStartTime());
-                if (replaySucceded) {
-                    LOG.info("starting the stale cleanup timer");
-                    long routeSyncTime = getStalePathtime(BGP_RESTART_ROUTE_SYNC_SEC, config.getAsId());
-                    setStaleCleanupTime(routeSyncTime);
-                    routeCleanupFuture = executor.schedule(new RouteCleanup(), routeSyncTime, TimeUnit.SECONDS);
-                } else {
-                    staledFibEntriesMap.clear();
-                }
-            } catch (InterruptedException | TimeoutException | ExecutionException eCancel) {
-                LOG.error("Stale Cleanup Task Cancelled", eCancel);
+            LOG.info("running bgp replay task ");
+            if (get() == null) {
+                String host = getConfigHost();
+                int port = getConfigPort();
+                LOG.info("connecting  to bgp host {} ", host);
+                bgpRouter.connect(host, port);
+                LOG.info("no config to push in bgp replay task ");
+                return;
+            }
+            setStaleStartTime(System.currentTimeMillis());
+            LOG.info("started creating stale fibDSWriter  map ");
+            createStaleFibMap();
+            setStaleEndTime(System.currentTimeMillis());
+            LOG.info("took {} msecs for stale fibDSWriter map creation ", getStaleEndTime() - getStaleStartTime());
+            LOG.info("started bgp config replay ");
+            setCfgReplayStartTime(System.currentTimeMillis());
+            boolean replaySucceded = replay();
+            setCfgReplayEndTime(System.currentTimeMillis());
+            LOG.info("took {} msecs for bgp replay ", getCfgReplayEndTime() - getCfgReplayStartTime());
+            if (replaySucceded) {
+                LOG.info("starting the stale cleanup timer");
+                long routeSyncTime = getStalePathtime(BGP_RESTART_ROUTE_SYNC_SEC, config.getAsId());
+                setStaleCleanupTime(routeSyncTime);
+                routeCleanupFuture = executor.schedule(new RouteCleanup(), routeSyncTime, TimeUnit.SECONDS);
+            } else {
+                staledFibEntriesMap.clear();
             }
         };
         lastReplayJobFt = executor.submit(task);
@@ -2103,7 +2097,7 @@ public class BgpConfigurationManager {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public synchronized boolean replay() throws InterruptedException, TimeoutException, ExecutionException {
+    public synchronized boolean replay() {
         boolean replaySucceded = true;
         String host = getConfigHost();
         int port = getConfigPort();

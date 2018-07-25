@@ -24,7 +24,7 @@ public class DhcpCacheCli extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         session.getConsole().println("Printing Designated Dpns To TunnelIp and ElanName cache "
                 + "(DesignatedDpnsToTunnelIpElanNameCache)");
         dhcpExternalTunnelManager.getDesignatedDpnsToTunnelIpElanNameCache().forEach(

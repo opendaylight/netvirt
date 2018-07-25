@@ -13,7 +13,6 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
@@ -75,17 +74,13 @@ public class ElanInterfaceStateClusteredListener extends
 
                 elanClusterUtils.runOnlyInOwnerNode("external tunnel update", () -> {
                     LOG.debug("running external tunnel update job for interface {} added", interfaceName);
-                    try {
-                        handleExternalTunnelUpdate(interfaceName, intrf);
-                    } catch (ElanException e) {
-                        LOG.error("Failed to add Interface {}", identifier.toString());
-                    }
+                    handleExternalTunnelUpdate(interfaceName, intrf);
                 });
             }
         }
     }
 
-    private void handleExternalTunnelUpdate(String interfaceName, Interface update) throws ElanException {
+    private void handleExternalTunnelUpdate(String interfaceName, Interface update) {
         ExternalTunnel externalTunnel = elanUtils.getExternalTunnel(interfaceName, LogicalDatastoreType.CONFIGURATION);
         if (externalTunnel != null) {
             LOG.debug("handling external tunnel update event for ext device dst {}  src {} ",

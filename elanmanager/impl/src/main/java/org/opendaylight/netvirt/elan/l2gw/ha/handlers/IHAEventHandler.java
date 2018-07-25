@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
 import com.google.common.base.Optional;
-import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -23,7 +22,7 @@ public interface IHAEventHandler {
                                   InstanceIdentifier<Node> connectedNodePath,
                                   InstanceIdentifier<Node> haNodePath,
                                   ReadWriteTransaction tx)
-            throws ReadFailedException, ExecutionException, InterruptedException;
+            throws ReadFailedException;
 
     void handleChildNodeReConnected(Node connectedNode,
                                     InstanceIdentifier<Node> connectedNodePath,
@@ -31,7 +30,7 @@ public interface IHAEventHandler {
                                     Optional<Node> haGlobalCfg,
                                     Optional<Node> haPSCfg,
                                     ReadWriteTransaction tx)
-            throws ReadFailedException, ExecutionException, InterruptedException;
+            throws ReadFailedException;
 
 
     void copyChildGlobalOpUpdateToHAParent(InstanceIdentifier<Node> haPath,
