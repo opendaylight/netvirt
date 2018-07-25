@@ -44,7 +44,7 @@ public class InterfaceAddWorkerOnElanInterface implements Callable<List<Listenab
 
 
     @Override
-    public List<ListenableFuture<Void>> call() throws Exception {
+    public List<ListenableFuture<Void>> call() {
         LOG.info("Handling elan interface {} add for elan {} ", elanInterface.getName(),
                 elanInstance.getElanInstanceName());
         return dataChangeListener.setupEntriesForElanInterface(elanInstance, elanInterface, interfaceInfo,

@@ -311,7 +311,7 @@ public class LearntVpnVipToPortEventProcessor
         }
 
         @Override
-        public List<ListenableFuture<Void>> call() throws Exception {
+        public List<ListenableFuture<Void>> call() {
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             vpnUtil.removeMipAdjAndLearntIp(vpnName, interfaceName,  ipAddress);
             return futures;

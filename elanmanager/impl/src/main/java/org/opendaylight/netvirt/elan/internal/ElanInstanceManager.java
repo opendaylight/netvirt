@@ -8,8 +8,6 @@
 
 package org.opendaylight.netvirt.elan.internal;
 
-import static java.util.Collections.emptyList;
-
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
@@ -29,7 +27,6 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
-import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -154,14 +151,8 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                     tx -> ElanUtils.updateOperationalDataStore(idManager, update, new ArrayList<>(), tx)),
                     LOG, "Error updating ELAN tag in ELAN instance");
             } else {
-                jobCoordinator.enqueueJob(elanName, () -> {
-                    try {
-                        return elanInterfaceManager.handleunprocessedElanInterfaces(update);
-                    } catch (ElanException e) {
-                        LOG.error("update() failed for ElanInstance: {}", identifier.toString(), e);
-                        return emptyList();
-                    }
-                }, ElanConstants.JOB_MAX_RETRIES);
+                jobCoordinator.enqueueJob(elanName, () -> elanInterfaceManager.handleunprocessedElanInterfaces(update),
+                    ElanConstants.JOB_MAX_RETRIES);
             }
         }
     }

@@ -36,7 +36,6 @@ import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
@@ -127,7 +126,7 @@ public class ElanLearntVpnVipToPortListener extends
         }
 
         @Override
-        public List<ListenableFuture<Void>> call() throws Exception {
+        public List<ListenableFuture<Void>> call() {
             Optional<ElanInterface> elanInterface = elanInterfaceCache.get(interfaceName);
             if (!elanInterface.isPresent()) {
                 LOG.debug("ElanInterface Not present for interfaceName {} for add event", interfaceName);
@@ -142,7 +141,7 @@ public class ElanLearntVpnVipToPortListener extends
         }
 
         private void addMacEntryToDsAndSetupFlows(String elanName, TypedWriteTransaction<Operational> interfaceTx,
-                TypedWriteTransaction<Configuration> flowTx, int macTimeOut) throws ElanException {
+                TypedWriteTransaction<Configuration> flowTx, int macTimeOut) {
             LOG.trace("Adding mac address {} and interface name {} to ElanInterfaceForwardingEntries and "
                 + "ElanForwardingTables DS", macAddress, interfaceName);
             BigInteger timeStamp = new BigInteger(String.valueOf(System.currentTimeMillis()));
