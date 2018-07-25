@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6b36ef4f_20bcc56a",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1550,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-07-25T13:41:09Z",
+      "side": 1,
+      "message": "I will raise separate patch to address all these comments.",
+      "parentUuid": "fb31dabc_cf77e222",
+      "range": {
+        "startLine": 1550,
+        "startChar": 25,
+        "endLine": 1550,
+        "endChar": 83
+      },
+      "revId": "a754f2e77f9ecf3c532717f909e2bd99f60e541f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fe8573bc_49f74988",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 4
@@ -82,6 +106,30 @@
       "writtenOn": "2018-07-25T12:47:38Z",
       "side": 1,
       "message": "why is this moved?",
+      "range": {
+        "startLine": 1648,
+        "startChar": 12,
+        "endLine": 1653,
+        "endChar": 68
+      },
+      "revId": "a754f2e77f9ecf3c532717f909e2bd99f60e541f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df361819_5e554228",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1653,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-07-25T13:41:09Z",
+      "side": 1,
+      "message": "It is always holding same value for each VPN interface update right?.It is iterating every time in for loop with same value right? That\u0027s why moved to before the for loop iteration.",
+      "parentUuid": "a851c14c_0f6761b4",
       "range": {
         "startLine": 1648,
         "startChar": 12,
