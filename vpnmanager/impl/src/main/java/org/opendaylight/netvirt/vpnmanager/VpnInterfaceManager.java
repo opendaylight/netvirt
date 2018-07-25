@@ -1541,6 +1541,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         VpnHelper.getVpnInterfaceVpnInstanceNamesString(update.getVpnInstanceNames()));
                 return Collections.emptyList();
             }
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
             for (VpnInstanceNames vpnInterfaceVpnInstance : update.getVpnInstanceNames()) {
                 String newVpnName = vpnInterfaceVpnInstance.getVpnName();
                 List<Adjacency> copyNewAdjs = new ArrayList<>(newAdjs);
@@ -1548,7 +1549,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 String primaryRd = vpnUtil.getPrimaryRd(newVpnName);
                 if (!vpnUtil.isVpnPendingDelete(primaryRd)) {
                     // TODO Deal with sequencing — the config tx must only submitted if the oper tx goes in
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
                     futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx -> {
                         futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(operTx -> {
                             InstanceIdentifier<VpnInterfaceOpDataEntry> vpnInterfaceOpIdentifier =
@@ -1618,13 +1618,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         ListenableFutures.addErrorLogging(future, LOG, "update: failed for interface {} on vpn {}",
                                 update.getName(), update.getVpnInstanceNames());
                     }
-                    return futures;
                 } else {
                     LOG.error("update: Ignoring update of vpnInterface {}, as newVpnInstance {} with primaryRd {}"
                             + " is already marked for deletion", vpnInterfaceName, newVpnName, primaryRd);
                 }
             }
-            return Collections.emptyList();
+            return futures;
         });
     }
 
@@ -1657,19 +1656,18 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 //Ignore
             }
 
-            final Adjacencies origAdjs = original.augmentation(Adjacencies.class);
-            final List<Adjacency> oldAdjs = (origAdjs != null && origAdjs.getAdjacency() != null)
-                    ? origAdjs.getAdjacency() : new ArrayList<>();
-            final Adjacencies updateAdjs = update.augmentation(Adjacencies.class);
-            final List<Adjacency> newAdjs = (updateAdjs != null && updateAdjs.getAdjacency() != null)
-                    ? updateAdjs.getAdjacency() : new ArrayList<>();
-
             for (String newVpnName: newVpnList) {
                 String primaryRd = vpnUtil.getPrimaryRd(newVpnName);
                 isSwap = Boolean.TRUE;
                 if (!vpnUtil.isVpnPendingDelete(primaryRd)) {
                     LOG.info("handleVpnSwapForVpnInterface: VPN Interface update event - intfName {} onto vpnName {}"
                             + "running config-driven swap addition", interfaceName, newVpnName);
+                    final Adjacencies origAdjs = original.augmentation(Adjacencies.class);
+                    final List<Adjacency> oldAdjs = (origAdjs != null && origAdjs.getAdjacency() != null)
+                            ? origAdjs.getAdjacency() : new ArrayList<>();
+                    final Adjacencies updateAdjs = update.augmentation(Adjacencies.class);
+                    final List<Adjacency> newAdjs = (updateAdjs != null && updateAdjs.getAdjacency() != null)
+                            ? updateAdjs.getAdjacency() : new ArrayList<>();
                     addVpnInterfaceCall(identifier, update, oldAdjs, newAdjs, newVpnName);
                     LOG.info("handleVpnSwapForVpnInterface: Processed Add for update on VPNInterface {}"
                                     + "from oldVpn(s) {} to newVpn {} upon VPN swap",
