@@ -184,28 +184,31 @@ public class OpenFlow13ProviderTest {
         MatchesBuilder matchesBuilder = new MatchesBuilder();
         matchesBuilder.setAceType(new AceIpBuilder().build());
         AclMatches aclMatches = new AclMatches(matchesBuilder.build());
-        MatchBuilder matchBuilder = aclMatches.buildMatch();
 
-        Flow flow = openflowProvider.createIngressClassifierAclFlow(
-                nodeId, matchBuilder, IN_PORT, NSP, NSI);
+        List<MatchBuilder> matchBuilds = aclMatches.buildMatch();
 
-        assertEquals(flow.getTableId().shortValue(), NwConstants.INGRESS_SFC_CLASSIFIER_ACL_TABLE);
-        assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_MATCH_PRIORITY);
-        assertEquals(flow.getId().getValue(),
-                OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_FLOW_NAME + "_" + nodeId.getValue()
-                + matchBuilder.build().toString());
-        assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_COOKIE);
+        for (MatchBuilder matchBuilder : matchBuilds) {
+            Flow flow = openflowProvider.createIngressClassifierAclFlow(
+                    nodeId, matchBuilder, IN_PORT, NSP, NSI);
 
-        // Only checking the inport match, since the rest is tested in AclMatchesTest
-        checkMatchInport(flow.getMatch(), nodeId.getValue() + ":" + IN_PORT);
+            assertEquals(flow.getTableId().shortValue(), NwConstants.INGRESS_SFC_CLASSIFIER_ACL_TABLE);
+            assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_MATCH_PRIORITY);
+            assertEquals(flow.getId().getValue(),
+                    OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_FLOW_NAME + "_" + nodeId.getValue()
+                    + matchBuilder.build().toString());
+            assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_ACL_COOKIE);
 
-        assertEquals(1, flow.getInstructions().getInstruction().size());
-        Instruction curInstruction = flow.getInstructions().getInstruction().get(0).getInstruction();
-        List<Action> actionList = checkApplyActionSize(curInstruction, 3);
+            // Only checking the inport match, since the rest is tested in AclMatchesTest
+            checkMatchInport(flow.getMatch(), nodeId.getValue() + ":" + IN_PORT);
 
-        checkActionLoadReg(actionList.get(0), NxmNxReg2.class, 8, 31, NSP);
-        checkActionLoadReg(actionList.get(1), NxmNxReg2.class, 0, 7, NSI);
-        checkActionResubmit(curInstruction, NwConstants.LPORT_DISPATCHER_TABLE);
+            assertEquals(1, flow.getInstructions().getInstruction().size());
+            Instruction curInstruction = flow.getInstructions().getInstruction().get(0).getInstruction();
+            List<Action> actionList = checkApplyActionSize(curInstruction, 3);
+
+            checkActionLoadReg(actionList.get(0), NxmNxReg2.class, 8, 31, NSP);
+            checkActionLoadReg(actionList.get(1), NxmNxReg2.class, 0, 7, NSI);
+            checkActionResubmit(curInstruction, NwConstants.LPORT_DISPATCHER_TABLE);
+        }
     }
 
     @Test
