@@ -154,8 +154,7 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
     }
 
     private void processUpdatedNodes(Collection<DataTreeModification<Node>> changes,
-                                     ReadWriteTransaction tx)
-            throws ReadFailedException, ExecutionException, InterruptedException {
+                                     ReadWriteTransaction tx) {
         for (DataTreeModification<Node> change : changes) {
             final InstanceIdentifier<Node> key = change.getRootPath().getRootIdentifier();
             final DataObjectModification<Node> mod = change.getRootNode();
@@ -209,7 +208,7 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
 
     private void processDisconnectedNodes(Collection<DataTreeModification<Node>> changes,
                                           ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+            throws ReadFailedException {
         for (DataTreeModification<Node> change : changes) {
             final InstanceIdentifier<Node> key = change.getRootPath().getRootIdentifier();
             final DataObjectModification<Node> mod = change.getRootNode();
@@ -295,14 +294,12 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
     }
 
     void onGlobalNodeUpdate(InstanceIdentifier<Node> key, Node updated, Node original,
-                            DataObjectModification<Node> mod, ReadWriteTransaction tx)
-            throws ReadFailedException, InterruptedException, ExecutionException {
+                            DataObjectModification<Node> mod, ReadWriteTransaction tx) {
 
     }
 
     void onPsNodeUpdate(Node updated, Node original,
-                        DataObjectModification<Node> mod, ReadWriteTransaction tx)
-            throws ReadFailedException, InterruptedException, ExecutionException {
+                        DataObjectModification<Node> mod, ReadWriteTransaction tx) {
 
     }
 

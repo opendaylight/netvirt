@@ -45,7 +45,7 @@ public class InterfaceAddWorkerOnElan implements Callable<List<ListenableFuture<
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public List<ListenableFuture<Void>> call() throws Exception {
+    public List<ListenableFuture<Void>> call() {
         try {
             return dataChangeListener.addElanInterface(elanInterface, interfaceInfo, elanInstance);
         } catch (RuntimeException e) {

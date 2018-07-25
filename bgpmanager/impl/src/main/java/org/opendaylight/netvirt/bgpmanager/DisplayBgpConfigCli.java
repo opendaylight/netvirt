@@ -31,7 +31,7 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         PrintStream ps = session.getConsole();
 
         if (debug) {
