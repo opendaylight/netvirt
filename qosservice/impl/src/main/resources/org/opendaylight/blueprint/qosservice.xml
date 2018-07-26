@@ -11,8 +11,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            odl:use-default-for-reference-types="true">
 
-    <reference id="configurationAdmin"
-               interface="org.osgi.service.cm.ConfigurationAdmin" />
     <reference id="dataBroker"
                interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
                odl:type="default" />
@@ -61,11 +59,5 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         </command>
 
     </command-bundle>
-
-    <bean id="qosAlertGenerator" class="org.opendaylight.netvirt.qosservice.QosAlertGenerator">
-      <argument ref="configurationAdmin"/>
-      <cm:managed-properties persistent-id="org.opendaylight.netvirt.qosservice"
-                           update-strategy="component-managed" update-method="update"/>
-    </bean>
 
 </blueprint>
