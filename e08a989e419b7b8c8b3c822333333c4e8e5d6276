@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a8b85eaa_531f06e8",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1658,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-07-26T02:43:27Z",
+      "side": 1,
+      "message": "Its correct to move this outside, like you have mentioned in your older patch",
+      "range": {
+        "startLine": 1653,
+        "startChar": 20,
+        "endLine": 1658,
+        "endChar": 76
+      },
+      "revId": "e08a989e419b7b8c8b3c822333333c4e8e5d6276",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
