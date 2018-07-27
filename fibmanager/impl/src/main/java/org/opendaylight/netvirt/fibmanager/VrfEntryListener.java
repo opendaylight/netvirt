@@ -885,7 +885,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                     baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions,
                             NwConstants.ADD_FLOW, tx, null);
-                    if  (!FibUtil.isVxlanNetwork(localNextHopInfo.getNetworkType())) {
+                    if (FibUtil.isBgpVpn(vpnName, rd)) {
                         optLabel.ifPresent(label -> {
                             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
                                 LOG.debug(
@@ -1065,8 +1065,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 localNextHopInfo = fibUtil.getPrefixToInterface(vpnId, ipPrefix);
                 if (localNextHopInfo != null) {
                     String localNextHopIP = localNextHopInfo.getIpAddress();
-                    BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
-                            vpnId, rd, vrfEntry, shouldUpdateNonEcmpLocalNextHop);
+                    BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP, vpnName, vpnId, rd,
+                            vrfEntry, shouldUpdateNonEcmpLocalNextHop);
                     if (!dpnId.equals(BigInteger.ZERO)) {
                         LOG.trace("Deleting ECMP group for prefix {}, dpn {}", vrfEntry.getDestPrefix(), dpnId);
                         nextHopManager.setupLoadBalancingNextHop(vpnId, dpnId,
@@ -1091,7 +1091,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         PrefixesBuilder prefixBuilder = new PrefixesBuilder();
                         prefixBuilder.setDpnId(lri.getDpnId());
                         BigInteger dpnId = checkDeleteLocalFibEntry(prefixBuilder.build(), nextHopAddressList.get(0),
-                                vpnId, rd, vrfEntry, shouldUpdateNonEcmpLocalNextHop);
+                                vpnName, vpnId, rd, vrfEntry, shouldUpdateNonEcmpLocalNextHop);
                         if (!dpnId.equals(BigInteger.ZERO)) {
                             returnLocalDpnId.add(dpnId);
                         }
@@ -1102,8 +1102,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         } else {
             LOG.debug("Obtained prefix to interface for rd {} prefix {}", rd, vrfEntry.getDestPrefix());
             String localNextHopIP = localNextHopInfo.getIpAddress();
-            BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
-                vpnId, rd, vrfEntry, shouldUpdateNonEcmpLocalNextHop);
+            BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP, vpnName, vpnId, rd, vrfEntry,
+                    shouldUpdateNonEcmpLocalNextHop);
             if (!dpnId.equals(BigInteger.ZERO)) {
                 returnLocalDpnId.add(dpnId);
             }
@@ -1113,8 +1113,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     }
 
     private BigInteger checkDeleteLocalFibEntry(Prefixes localNextHopInfo, final String localNextHopIP,
-                                                final Long vpnId, final String rd, final VrfEntry vrfEntry,
-                                                boolean shouldUpdateNonEcmpLocalNextHop) {
+            final String vpnName, final Long vpnId, final String rd, final VrfEntry vrfEntry,
+            boolean shouldUpdateNonEcmpLocalNextHop) {
         if (localNextHopInfo != null) {
             final BigInteger dpnId = localNextHopInfo.getDpnId();
             if (Prefixes.PrefixCue.Nat.equals(localNextHopInfo.getPrefixCue())) {
@@ -1132,7 +1132,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                     baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null,
                             NwConstants.DEL_FLOW, tx, null);
-                    if  (!FibUtil.isVxlanNetwork(localNextHopInfo.getNetworkType())) {
+                    if (FibUtil.isBgpVpn(vpnName, rd)) {
                         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
                             FibUtil.getLabelFromRoutePaths(vrfEntry).ifPresent(label -> {
                                 makeLFibTableEntry(dpnId, label, null /* instructions */, DEFAULT_FIB_FLOW_PRIORITY,

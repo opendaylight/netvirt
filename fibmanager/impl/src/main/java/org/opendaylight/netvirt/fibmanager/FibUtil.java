@@ -743,6 +743,10 @@ public class FibUtil {
         return false;
     }
 
+    static boolean isBgpVpn(String vpnName, String rd) {
+        return vpnName != null && !vpnName.equals(rd);
+    }
+
     static NodeRef buildNodeRef(BigInteger dpId) {
         return new NodeRef(InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId("openflow:" + dpId))).build());
