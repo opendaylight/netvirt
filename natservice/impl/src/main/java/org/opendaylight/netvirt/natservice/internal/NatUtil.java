@@ -2156,12 +2156,11 @@ public final class NatUtil {
     public static void removeSNATFromDPN(DataBroker dataBroker, IMdsalApiManager mdsalManager,
             IdManagerService idManager, NaptSwitchHA naptSwitchHA, BigInteger dpnId,
             String routerName, long routerId, long routerVpnId,
-            ProviderTypes extNwProvType, TypedReadWriteTransaction<Configuration> confTx) {
+            ProviderTypes extNwProvType, TypedReadWriteTransaction<Configuration> confTx)
+                    throws ExecutionException, InterruptedException {
         //irrespective of naptswitch or non-naptswitch, SNAT default miss entry need to be removed
         //remove miss entry to NAPT switch
         //if naptswitch elect new switch and install Snat flows and remove those flows in oldnaptswitch
-
-        Collection<String> externalIpCache = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
         if (extNwProvType == null) {
             return;
         }
@@ -2177,77 +2176,74 @@ public final class NatUtil {
             LOG.error("removeSNATFromDPN : No naptSwitch is selected for router {}", routerName);
             return;
         }
-        try {
-            boolean naptStatus =
-                naptSwitchHA.isNaptSwitchDown(routerName, routerId, dpnId, naptSwitch, routerVpnId,
-                        externalIpCache, confTx);
-            if (!naptStatus) {
-                LOG.debug("removeSNATFromDPN: Switch with DpnId {} is not naptSwitch for router {}",
-                    dpnId, routerName);
-                long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(routerName), idManager);
-                FlowEntity flowEntity = null;
-                try {
-                    flowEntity = naptSwitchHA.buildSnatFlowEntity(dpnId, routerName, groupId, routerVpnId,
-                        NatConstants.DEL_FLOW);
-                    if (flowEntity == null) {
-                        LOG.error("removeSNATFromDPN : Failed to populate flowentity for router:{} "
-                                + "with dpnId:{} groupId:{}", routerName, dpnId, groupId);
-                        return;
-                    }
-                    LOG.debug("removeSNATFromDPN : Removing default SNAT miss entry flow entity {}", flowEntity);
-                    mdsalManager.removeFlow(confTx, flowEntity);
-
-                } catch (Exception ex) {
-                    LOG.error("removeSNATFromDPN : Failed to remove default SNAT miss entry flow entity {}",
-                        flowEntity, ex);
+        Collection<String> externalIpCache = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
+        boolean naptStatus =
+            naptSwitchHA.isNaptSwitchDown(routerName, routerId, dpnId, naptSwitch, routerVpnId,
+                    externalIpCache, confTx);
+        if (!naptStatus) {
+            LOG.debug("removeSNATFromDPN: Switch with DpnId {} is not naptSwitch for router {}",
+                dpnId, routerName);
+            long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(routerName), idManager);
+            FlowEntity flowEntity = null;
+            try {
+                flowEntity = naptSwitchHA.buildSnatFlowEntity(dpnId, routerName, groupId, routerVpnId,
+                    NatConstants.DEL_FLOW);
+                if (flowEntity == null) {
+                    LOG.error("removeSNATFromDPN : Failed to populate flowentity for router:{} "
+                            + "with dpnId:{} groupId:{}", routerName, dpnId, groupId);
                     return;
                 }
-                LOG.debug("removeSNATFromDPN : Removed default SNAT miss entry flow for dpnID {} with routername {}",
-                    dpnId, routerName);
+                LOG.debug("removeSNATFromDPN : Removing default SNAT miss entry flow entity {}", flowEntity);
+                mdsalManager.removeFlow(confTx, flowEntity);
 
-                //remove group
-                GroupEntity groupEntity = null;
-                try {
-                    groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName,
-                        GroupTypes.GroupAll, Collections.emptyList() /*listBucketInfo*/);
-                    LOG.info("removeSNATFromDPN : Removing NAPT GroupEntity:{}", groupEntity);
-                    mdsalManager.removeGroup(groupEntity);
-                } catch (Exception ex) {
-                    LOG.error("removeSNATFromDPN : Failed to remove group entity {}", groupEntity, ex);
-                    return;
-                }
-                LOG.debug("removeSNATFromDPN : Removed default SNAT miss entry flow for dpnID {} with routerName {}",
-                    dpnId, routerName);
-            } else {
-                naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, routerId, naptSwitch,
-                        externalIpLabel, confTx);
-                //remove table 26 flow ppointing to table46
-                FlowEntity flowEntity = null;
-                try {
-                    flowEntity = naptSwitchHA.buildSnatFlowEntityForNaptSwitch(dpnId, routerName, routerVpnId,
-                        NatConstants.DEL_FLOW);
-                    if (flowEntity == null) {
-                        LOG.error("removeSNATFromDPN : Failed to populate flowentity for router {} with dpnId {}",
-                                routerName, dpnId);
-                        return;
-                    }
-                    LOG.debug("removeSNATFromDPN : Removing default SNAT miss entry flow entity for router {} with "
-                        + "dpnId {} in napt switch {}", routerName, dpnId, naptSwitch);
-                    mdsalManager.removeFlow(confTx, flowEntity);
-
-                } catch (Exception ex) {
-                    LOG.error("removeSNATFromDPN : Failed to remove default SNAT miss entry flow entity {}",
-                        flowEntity, ex);
-                    return;
-                }
-                LOG.debug("removeSNATFromDPN : Removed default SNAT miss entry flow for dpnID {} with routername {}",
-                    dpnId, routerName);
-
-                //best effort to check IntExt model
-                naptSwitchHA.bestEffortDeletion(routerId, routerName, externalIpLabel, confTx);
+            } catch (Exception ex) {
+                LOG.error("removeSNATFromDPN : Failed to remove default SNAT miss entry flow entity {}",
+                    flowEntity, ex);
+                return;
             }
-        } catch (Exception ex) {
-            LOG.error("removeSNATFromDPN : Exception while handling naptSwitch down for router {}", routerName, ex);
+            LOG.debug("removeSNATFromDPN : Removed default SNAT miss entry flow for dpnID {} with routername {}",
+                dpnId, routerName);
+
+            //remove group
+            GroupEntity groupEntity = null;
+            try {
+                groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName,
+                    GroupTypes.GroupAll, Collections.emptyList() /*listBucketInfo*/);
+                LOG.info("removeSNATFromDPN : Removing NAPT GroupEntity:{}", groupEntity);
+                mdsalManager.removeGroup(groupEntity);
+            } catch (Exception ex) {
+                LOG.error("removeSNATFromDPN : Failed to remove group entity {}", groupEntity, ex);
+                return;
+            }
+            LOG.debug("removeSNATFromDPN : Removed default SNAT miss entry flow for dpnID {} with routerName {}",
+                dpnId, routerName);
+        } else {
+            naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, routerId, naptSwitch,
+                    externalIpLabel, confTx);
+            //remove table 26 flow ppointing to table46
+            FlowEntity flowEntity = null;
+            try {
+                flowEntity = naptSwitchHA.buildSnatFlowEntityForNaptSwitch(dpnId, routerName, routerVpnId,
+                    NatConstants.DEL_FLOW);
+                if (flowEntity == null) {
+                    LOG.error("removeSNATFromDPN : Failed to populate flowentity for router {} with dpnId {}",
+                            routerName, dpnId);
+                    return;
+                }
+                LOG.debug("removeSNATFromDPN : Removing default SNAT miss entry flow entity for router {} with "
+                    + "dpnId {} in napt switch {}", routerName, dpnId, naptSwitch);
+                mdsalManager.removeFlow(confTx, flowEntity);
+
+            } catch (Exception ex) {
+                LOG.error("removeSNATFromDPN : Failed to remove default SNAT miss entry flow entity {}",
+                    flowEntity, ex);
+                return;
+            }
+            LOG.debug("removeSNATFromDPN : Removed default SNAT miss entry flow for dpnID {} with routername {}",
+                dpnId, routerName);
+
+            //best effort to check IntExt model
+            naptSwitchHA.bestEffortDeletion(routerId, routerName, externalIpLabel, confTx);
         }
     }
 
