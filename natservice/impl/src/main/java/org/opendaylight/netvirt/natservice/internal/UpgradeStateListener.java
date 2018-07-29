@@ -15,6 +15,8 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -143,7 +145,7 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
     }
 
     private void reElectNewNaptSwitch(String routerName, BigInteger primaryNaptDpnId,
-            TypedReadWriteTransaction<Configuration> confTx) {
+            TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
         // Check if this is externalRouter else ignore
         InstanceIdentifier<Routers> extRoutersId = NatUtil.buildRouterIdentifier(routerName);
         Optional<Routers> routerData =
