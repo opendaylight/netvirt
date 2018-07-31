@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14955e69_ed00b5ad",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1086,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-07-31T11:41:46Z",
+      "side": 0,
+      "message": "I\u0027ve looked this over - this seems fine (does the same thing)",
+      "revId": "edb7cd61240ac437f21bc54a8403d87781e4d12b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c95586d4_9151953a",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1377,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-07-31T11:41:46Z",
+      "side": 0,
+      "message": "CAREFUL - this became a delete on OPERATIONAL with this change!  Probably not intended?",
+      "revId": "edb7cd61240ac437f21bc54a8403d87781e4d12b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
