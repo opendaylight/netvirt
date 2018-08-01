@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39c1f04e_d57634bf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-08-01T09:20:13Z",
+      "side": 1,
+      "message": "Any specific reason to leave out support for leaving out udp and tcp source port ranges? It\u0027s not a different problem, right?",
+      "range": {
+        "startLine": 9,
+        "startChar": 22,
+        "endLine": 10,
+        "endChar": 18
+      },
+      "revId": "9882852a0d454581a405d6ca556a965cfb371f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fda50197_e5bba13e",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-08-01T09:20:13Z",
+      "side": 1,
+      "message": "I would probably move the initialization of these to fields to buildMatch()",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 42
+      },
+      "revId": "9882852a0d454581a405d6ca556a965cfb371f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "17fb606d_aab13c3d",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-08-01T09:20:13Z",
+      "side": 1,
+      "message": "Put this statement on it\u0027s own line so it\u0027s more clear.",
+      "range": {
+        "startLine": 85,
+        "startChar": 40,
+        "endLine": 85,
+        "endChar": 93
+      },
+      "revId": "9882852a0d454581a405d6ca556a965cfb371f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a85f609d_dce3c9d2",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-08-01T09:20:13Z",
+      "side": 1,
+      "message": "New MatchBuilder not really needed here right, could use this.matchbuilder directly.",
+      "range": {
+        "startLine": 85,
+        "startChar": 55,
+        "endLine": 85,
+        "endChar": 92
+      },
+      "revId": "9882852a0d454581a405d6ca556a965cfb371f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6205f140_cd7bf736",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-08-01T09:20:13Z",
+      "side": 1,
+      "message": "Put this statement on it\u0027s own line so it\u0027s more clear.",
+      "range": {
+        "startLine": 89,
+        "startChar": 44,
+        "endLine": 89,
+        "endChar": 97
+      },
+      "revId": "9882852a0d454581a405d6ca556a965cfb371f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4c575ab6_44f6c325",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-08-01T09:20:13Z",
+      "side": 1,
+      "message": "At this point, It\u0027s probably better not to use  this.matchBuilder here. I would use this.tcpMatches in any case (either port range or not).",
+      "range": {
+        "startLine": 177,
+        "startChar": 16,
+        "endLine": 177,
+        "endChar": 62
+      },
+      "revId": "9882852a0d454581a405d6ca556a965cfb371f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "52d40f78_1c9074fb",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-08-01T09:20:13Z",
+      "side": 1,
+      "message": "You still need to match on the source port as well, so\n\nnew TcpMatchBuilder(tcpMatch)",
+      "range": {
+        "startLine": 182,
+        "startChar": 46,
+        "endLine": 182,
+        "endChar": 68
+      },
+      "revId": "9882852a0d454581a405d6ca556a965cfb371f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6f333e0a_7a56efff",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-08-01T09:20:13Z",
+      "side": 1,
+      "message": "At this point, It\u0027s probably better not to use  this.matchBuilder here. I would use this.tcpMatches in any case (either port range or not).",
+      "range": {
+        "startLine": 187,
+        "startChar": 16,
+        "endLine": 187,
+        "endChar": 62
+      },
+      "revId": "9882852a0d454581a405d6ca556a965cfb371f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "861712d7_4a730c8e",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-08-01T09:20:13Z",
+      "side": 1,
+      "message": "This is the main issue of this problem and why it was not implemented in the first place. It\u0027s not efficient to have one flow per port. Think how quadratic would this become if we put source port ranges into the mix, plus doing this per ACE.\nWe need to find sub-ranges within the original port range that we can match with a single mask. Lookup \u0027Range match\u0027 on ovs-fields(7) man page for an explanation of this.\nThis is already implemented in netvirt\u0027s ACL service AclServiceOFFlowBuilder::getLayer4MaskForRange so ideally we would extract an utility class from that (for this specific thing, or even better, for the whole match-\u003eflow mapping) that can used by both modules.",
+      "range": {
+        "startLine": 203,
+        "startChar": 0,
+        "endLine": 213,
+        "endChar": 5
+      },
+      "revId": "9882852a0d454581a405d6ca556a965cfb371f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
