@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import com.google.common.collect.Sets;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,7 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -181,8 +179,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
         DataObjectModification<HwvtepGlobalAugmentation> aug = mod.getModifiedAugmentation(
                 HwvtepGlobalAugmentation.class);
         if (aug != null && getModificationType(aug) != null) {
-            Collection<DataObjectModification<? extends DataObject>> children = aug.getModifiedChildren();
-            children.stream()
+            aug.getModifiedChildren().stream()
                 .filter(childMod -> getModificationType(childMod) != null)
                 .filter(childMod -> childMod.getDataType() == LocalUcastMacs.class)
                 .forEach(childMod -> {

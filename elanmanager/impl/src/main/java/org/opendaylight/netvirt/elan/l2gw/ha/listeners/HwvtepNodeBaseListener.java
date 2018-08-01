@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import javax.annotation.PreDestroy;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -184,13 +183,13 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
                 .apply(data);
     }
 
-    private String logicalSwitchNameFromIid(InstanceIdentifier input) {
+    private static String logicalSwitchNameFromIid(InstanceIdentifier<?> input) {
         InstanceIdentifier<LogicalSwitches> iid = (InstanceIdentifier<LogicalSwitches>)input;
         return iid.firstKeyOf(LogicalSwitches.class).getHwvtepNodeName().getValue();
     }
 
     private void updateCounters(String nodeId,
-                                Collection<DataObjectModification<? extends DataObject>> childModCollection) {
+                                Collection<? extends DataObjectModification<? extends DataObject>> childModCollection) {
         if (childModCollection == null || !updateMetrics) {
             return;
         }
