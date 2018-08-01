@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5347dd1b_0c6c631a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 7592
+      },
+      "writtenOn": "2018-08-01T13:31:59Z",
+      "side": 1,
+      "message": "I was thinking to push UDP source/destination in a seperate patch.",
+      "parentUuid": "39c1f04e_d57634bf",
+      "range": {
+        "startLine": 9,
+        "startChar": 22,
+        "endLine": 10,
+        "endChar": 18
+      },
+      "revId": "9882852a0d454581a405d6ca556a965cfb371f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fda50197_e5bba13e",
         "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-08-01T09:20:13Z",
       "side": 1,
       "message": "I would probably move the initialization of these to fields to buildMatch()",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 42
+      },
+      "revId": "9882852a0d454581a405d6ca556a965cfb371f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "27368f13_3f7a96a3",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 7592
+      },
+      "writtenOn": "2018-08-01T13:31:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fda50197_e5bba13e",
       "range": {
         "startLine": 65,
         "startChar": 0,
@@ -94,6 +142,54 @@
     },
     {
       "key": {
+        "uuid": "6ebf3171_68d4ea7a",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 7592
+      },
+      "writtenOn": "2018-08-01T13:31:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a85f609d_dce3c9d2",
+      "range": {
+        "startLine": 85,
+        "startChar": 55,
+        "endLine": 85,
+        "endChar": 92
+      },
+      "revId": "9882852a0d454581a405d6ca556a965cfb371f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "feaa5ae0_9d1db28a",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 7592
+      },
+      "writtenOn": "2018-08-01T13:31:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17fb606d_aab13c3d",
+      "range": {
+        "startLine": 85,
+        "startChar": 40,
+        "endLine": 85,
+        "endChar": 93
+      },
+      "revId": "9882852a0d454581a405d6ca556a965cfb371f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6205f140_cd7bf736",
         "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
         "patchSetId": 2
@@ -105,6 +201,30 @@
       "writtenOn": "2018-08-01T09:20:13Z",
       "side": 1,
       "message": "Put this statement on it\u0027s own line so it\u0027s more clear.",
+      "range": {
+        "startLine": 89,
+        "startChar": 44,
+        "endLine": 89,
+        "endChar": 97
+      },
+      "revId": "9882852a0d454581a405d6ca556a965cfb371f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8c8a9ad4_3d0deeba",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 7592
+      },
+      "writtenOn": "2018-08-01T13:31:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6205f140_cd7bf736",
       "range": {
         "startLine": 89,
         "startChar": 44,
@@ -197,6 +317,30 @@
       "writtenOn": "2018-08-01T09:20:13Z",
       "side": 1,
       "message": "This is the main issue of this problem and why it was not implemented in the first place. It\u0027s not efficient to have one flow per port. Think how quadratic would this become if we put source port ranges into the mix, plus doing this per ACE.\nWe need to find sub-ranges within the original port range that we can match with a single mask. Lookup \u0027Range match\u0027 on ovs-fields(7) man page for an explanation of this.\nThis is already implemented in netvirt\u0027s ACL service AclServiceOFFlowBuilder::getLayer4MaskForRange so ideally we would extract an utility class from that (for this specific thing, or even better, for the whole match-\u003eflow mapping) that can used by both modules.",
+      "range": {
+        "startLine": 203,
+        "startChar": 0,
+        "endLine": 213,
+        "endChar": 5
+      },
+      "revId": "9882852a0d454581a405d6ca556a965cfb371f87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d2099e22_c2521260",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 7592
+      },
+      "writtenOn": "2018-08-01T13:31:59Z",
+      "side": 1,
+      "message": "I will start working on this.",
+      "parentUuid": "861712d7_4a730c8e",
       "range": {
         "startLine": 203,
         "startChar": 0,
