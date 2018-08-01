@@ -881,7 +881,7 @@ public final class VpnUtil {
     public static String getIpPrefix(String prefix) {
         String[] prefixValues = prefix.split("/");
         if (prefixValues.length == 1) {
-            prefix = prefix + PREFIX_SEPARATOR + DEFAULT_PREFIX_LENGTH;
+            return NWUtil.toIpPrefix(prefix);
         }
         return prefix;
     }
