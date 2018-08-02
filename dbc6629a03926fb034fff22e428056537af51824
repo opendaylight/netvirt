@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e86d293_e33f5905",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-08-02T15:54:49Z",
+      "side": 1,
+      "message": "lot of sign offs here... ;-)",
+      "revId": "dbc6629a03926fb034fff22e428056537af51824",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b5eac7ae_2bb2818c",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-08-02T15:54:49Z",
+      "side": 1,
+      "message": "this is not a great approach.  How about instead of this simply reading it before you try to delete it?  Of course, sn the same ReadWrite transaction, so using a ManagedTransactionRunner instead of the SingleTransactionDataBroker.",
+      "revId": "dbc6629a03926fb034fff22e428056537af51824",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
