@@ -1292,7 +1292,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         final long finalBgpVpnId = bgpVpnId;
         coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.key(), () -> {
             List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, writeFlowInvTx -> {
+            futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, writeFlowInvTx -> {
                 futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, removeFlowInvTx -> {
                     Uuid networkId = original.getNetworkId();
                     if (originalSNATEnabled != updatedSNATEnabled) {
@@ -1305,6 +1305,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                     removeFlowInvTx);
                         } else {
                             LOG.info("update : SNAT enabled for Router {}", original.getRouterName());
+                            addOrDelDefFibRouteToSNAT(routerName, routerId, finalBgpVpnId, bgpVpnUuid,
+                                    true, writeFlowInvTx);
                             handleEnableSnat(original, routerId, dpnId, finalBgpVpnId, removeFlowInvTx);
                         }
                     }
