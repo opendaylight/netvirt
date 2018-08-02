@@ -1,0 +1,8 @@
+Code-Review+1: Somashekar B <somashekar.b@altencalsoftlabs.com>
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Sridhar Gaddam <sgaddam@redhat.com>
+Submitted-by: Thanh Ha <thanh.ha@linuxfoundation.org>
+Submitted-at: Thu, 02 Aug 2018 17:31:31 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/74740
+Project: netvirt
+Branch: refs/heads/stable/oxygen
