@@ -33,6 +33,24 @@
       "revId": "dbc6629a03926fb034fff22e428056537af51824",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "54a269a8_9da038ff",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-08-02T18:47:05Z",
+      "side": 1,
+      "message": "My intention here is to avoid extra read operation and also to avoid dealing with synchronization issues like below:\n1. Thread/Transaction tx1 read VpnInterface.\n2. Thread/Transaction tx2 delete VpnInterface.\n3. tx1 delete VpnInterface/Adjacency. This would again lead to ModifiedNodeDoesNotExistException.",
+      "parentUuid": "b5eac7ae_2bb2818c",
+      "revId": "dbc6629a03926fb034fff22e428056537af51824",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
