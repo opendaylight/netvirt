@@ -332,23 +332,29 @@ public class NaptManager {
                         String internalIpAddress = sourceAddress.getIpAddress();
                         int ipPort = sourceAddress.getPortNumber();
                         ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
-                        List<Integer> portList = new ArrayList<>(
-                                NatUtil.getInternalIpPortListInfo(dataBroker, segmentId, internalIpAddress,
-                                        protocolType));
-                        portList.add(ipPort);
+                        String lock = new StringBuilder(Long.toString(segmentId))
+                                .append(NatConstants.COLON_SEPARATOR)
+                                .append(internalIpAddress)
+                                .append(NatConstants.COLON_SEPARATOR)
+                                .append(protocolType.getName()).toString();
+                        synchronized (lock.intern()) {
+                            List<Integer> portList = new ArrayList<>(
+                                    NatUtil.getInternalIpPortListInfo(dataBroker, segmentId, internalIpAddress,
+                                            protocolType));
+                            portList.add(ipPort);
 
-                        IntIpProtoTypeBuilder builder = new IntIpProtoTypeBuilder();
-                        IntIpProtoType intIpProtocolType =
-                            builder.withKey(new IntIpProtoTypeKey(protocolType)).setPorts(portList).build();
-                        try {
-                            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                                NatUtil.buildSnatIntIpPortIdentifier(segmentId, internalIpAddress, protocolType),
-                                intIpProtocolType);
-                        } catch (Exception ex) {
-                            LOG.error("getExternalAddressMapping : Failed to write into snat-internal-ip-port-info "
-                                    + "with exception", ex);
+                            IntIpProtoTypeBuilder builder = new IntIpProtoTypeBuilder();
+                            IntIpProtoType intIpProtocolType =
+                                    builder.withKey(new IntIpProtoTypeKey(protocolType)).setPorts(portList).build();
+                            try {
+                                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                    NatUtil.buildSnatIntIpPortIdentifier(segmentId, internalIpAddress, protocolType),
+                                    intIpProtocolType);
+                            } catch (Exception ex) {
+                                LOG.error("getExternalAddressMapping : Failed to write into snat-internal-ip-port-info "
+                                        + "with exception", ex);
+                            }
                         }
-
                         SessionAddress externalIpPort = new SessionAddress(extIp, extPort);
                         LOG.debug("getExternalAddressMapping : successfully returning externalIP {} "
                             + "and port {}", externalIpPort.getIpAddress(), externalIpPort.getPortNumber());
@@ -449,11 +455,19 @@ public class NaptManager {
         }
 
         //delete the entry of port for InternalIp from snatIntIpportMappingDS
-        try {
-            removeSnatIntIpPortDS(segmentId, address, protocol);
-        } catch (Exception e) {
-            LOG.error("releaseSnatIpPortMapping : failed, Removal of snatipportmap {} for "
-                + "router {} failed",address.getIpAddress(), segmentId, e);
+        ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
+        String lock = new StringBuilder(Long.toString(segmentId))
+                .append(NatConstants.COLON_SEPARATOR)
+                .append(address.getIpAddress())
+                .append(NatConstants.COLON_SEPARATOR)
+                .append(protocolType.getName()).toString();
+        synchronized (lock.intern()) {
+            try {
+                removeSnatIntIpPortDS(segmentId, address, protocolType);
+            } catch (Exception e) {
+                LOG.error("releaseSnatIpPortMapping : failed, Removal of snatipportmap {} for "
+                        + "router {} failed", address.getIpAddress(), segmentId, e);
+            }
         }
     }
 
@@ -578,10 +592,9 @@ public class NaptManager {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void removeSnatIntIpPortDS(long segmentId, SessionAddress address, NAPTEntryEvent.Protocol protocol) {
+    protected void removeSnatIntIpPortDS(long segmentId, SessionAddress address, ProtocolTypes protocolType) {
         LOG.trace("removeSnatIntIpPortDS : method called for IntIpport {} of router {} ",
             address, segmentId);
-        ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
         List<Integer> portList =
             NatUtil.getInternalIpPortListInfo(dataBroker, segmentId, address.getIpAddress(), protocolType);
         if (portList.isEmpty() || !portList.contains(address.getPortNumber())) {
