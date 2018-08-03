@@ -14,6 +14,7 @@ Contents:
    :maxdepth: 1
 
    contributor-guide/index
+   csit/index
    developer-guide/index
    getting-started-guide/index
    openstack-guide/index
