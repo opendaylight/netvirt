@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cddef8da_6835cc8a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-08-03T06:03:26Z",
+      "side": 1,
+      "message": "Somehow it got added during rebase :)\nRemoved them now.",
+      "parentUuid": "3e86d293_e33f5905",
+      "revId": "dbc6629a03926fb034fff22e428056537af51824",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b5eac7ae_2bb2818c",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 12
