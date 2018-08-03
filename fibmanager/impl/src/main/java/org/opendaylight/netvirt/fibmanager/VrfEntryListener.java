@@ -751,30 +751,37 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         Prefixes localNextHopInfo = fibUtil.getPrefixToInterface(vpnId, localNextHopIP);
         String vpnName = fibUtil.getVpnNameFromId(vpnId);
         if (localNextHopInfo == null) {
-            List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, localNextHopIP);
-            List<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
-                    vpnName, usedRds, localNextHopIP);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Creating Local fib entry with vpnName {} usedRds {} localNextHopIP {} vpnExtraRoutes {}",
-                        vpnName, usedRds, localNextHopIP, vpnExtraRoutes);
-            }
             boolean localNextHopSeen = false;
-            //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
-            for (Routes vpnExtraRoute : vpnExtraRoutes) {
-                String ipPrefix;
-                if (isIpv4Address(vpnExtraRoute.getNexthopIpList().get(0))) {
-                    ipPrefix = vpnExtraRoute.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX;
-                } else {
-                    ipPrefix = vpnExtraRoute.getNexthopIpList().get(0) + NwConstants.IPV6PREFIX;
+            List<Routes> vpnExtraRoutes = null;
+            String rdPrefixKey = localNextHopIP + FibConstants.SEPARATOR + rd;
+            //Synchronized to prevent missing bucket action due to race condition between refreshFib and
+            // add/updateFib threads on missing nexthop in VpnToExtraroutes
+            synchronized (rdPrefixKey.intern()) {
+                List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, localNextHopIP);
+                vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
+                        vpnName, usedRds, localNextHopIP);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Creating Local fib entry with vpnName {} usedRds {} localNextHopIP {} vpnExtraRoutes {}",
+                            vpnName, usedRds, localNextHopIP, vpnExtraRoutes);
                 }
-                Prefixes localNextHopInfoLocal = fibUtil.getPrefixToInterface(vpnId,
-                    ipPrefix);
-                if (localNextHopInfoLocal != null) {
-                    localNextHopSeen = true;
-                    BigInteger dpnId =
-                            checkCreateLocalFibEntry(localNextHopInfoLocal, localNextHopInfoLocal.getIpAddress(),
-                                    vpnId, rd, vrfEntry, vpnExtraRoute, vpnExtraRoutes, etherType);
-                    returnLocalDpnId.add(dpnId);
+
+                //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
+                for (Routes vpnExtraRoute : vpnExtraRoutes) {
+                    String ipPrefix;
+                    if (isIpv4Address(vpnExtraRoute.getNexthopIpList().get(0))) {
+                        ipPrefix = vpnExtraRoute.getNexthopIpList().get(0) + NwConstants.IPV4PREFIX;
+                    } else {
+                        ipPrefix = vpnExtraRoute.getNexthopIpList().get(0) + NwConstants.IPV6PREFIX;
+                    }
+                    Prefixes localNextHopInfoLocal = fibUtil.getPrefixToInterface(vpnId,
+                            ipPrefix);
+                    if (localNextHopInfoLocal != null) {
+                        localNextHopSeen = true;
+                        BigInteger dpnId =
+                                checkCreateLocalFibEntry(localNextHopInfoLocal, localNextHopInfoLocal.getIpAddress(),
+                                        vpnId, rd, vrfEntry, vpnExtraRoute, vpnExtraRoutes, etherType);
+                        returnLocalDpnId.add(dpnId);
+                    }
                 }
             }
             if (!localNextHopSeen && RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.SELF_IMPORTED) {
