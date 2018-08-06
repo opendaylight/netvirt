@@ -123,6 +123,24 @@
       "revId": "dbc6629a03926fb034fff22e428056537af51824",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "55d0d6db_571a9c7a",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-08-06T11:49:59Z",
+      "side": 1,
+      "message": "I see both points but I lean towards avoiding the read - adds extra overhead in a clustered env. I think it\u0027s reasonable to issue a delete and check the response appropriately - that is a common pattern in programming. The bigger issue to me is the fact that there\u0027s multiple writers - that\u0027s what really should be addressed (longer term).",
+      "parentUuid": "3ce3bc9f_da7db82a",
+      "revId": "dbc6629a03926fb034fff22e428056537af51824",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
