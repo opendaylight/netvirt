@@ -16,6 +16,24 @@
       "revId": "7b37565966b9807a02e3eccb1cedcbab2329b714",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "19b7d349_96c6bc30",
+        "filename": "elanmanager/impl/src/test/java/org/opendaylight/netvirt/elan/l2gw/nodehandlertest/NodeConnectedHandlerTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-08-06T13:31:29Z",
+      "side": 1,
+      "message": "No, that would be scary.. I rather suspect we have a a mistake somewhere else in this change (like e.g. a CONFIGURATION vs OPERATIONAL mix up, or we forgot a get() somewhere and now something which used to be sync has become sync, or something else like that which makes it not behave as before).",
+      "parentUuid": "61c03081_f21df5d0",
+      "revId": "7b37565966b9807a02e3eccb1cedcbab2329b714",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
