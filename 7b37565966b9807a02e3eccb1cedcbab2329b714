@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61c03081_f21df5d0",
+        "filename": "elanmanager/impl/src/test/java/org/opendaylight/netvirt/elan/l2gw/nodehandlertest/NodeConnectedHandlerTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-08-06T06:25:18Z",
+      "side": 1,
+      "message": "This assert is failing, likely race condition. Do we need to assert differently?",
+      "revId": "7b37565966b9807a02e3eccb1cedcbab2329b714",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
