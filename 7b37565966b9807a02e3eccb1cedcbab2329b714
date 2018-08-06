@@ -34,6 +34,24 @@
       "revId": "7b37565966b9807a02e3eccb1cedcbab2329b714",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca461130_a7ba007c",
+        "filename": "elanmanager/impl/src/test/java/org/opendaylight/netvirt/elan/l2gw/nodehandlertest/NodeConnectedHandlerTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-08-06T13:56:36Z",
+      "side": 1,
+      "message": "So this test passed on Patch Sets 1 and 2, and then started failing in Patch Set 3, already *BEFORE* the rebase in PS 4... anything either in 2..3 -or- an interaction between changes made in 1/2 with 3 could thus be causing this.",
+      "parentUuid": "19b7d349_96c6bc30",
+      "revId": "7b37565966b9807a02e3eccb1cedcbab2329b714",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
