@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69e5651f_a0db2430",
+        "filename": "docs/csit/troubleshoot-netvirt-datapath.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-08-06T05:40:54Z",
+      "side": 1,
+      "message": "Ownership can be changed to NAT for Table 25,26,27,28",
+      "range": {
+        "startLine": 32,
+        "startChar": 11,
+        "endLine": 45,
+        "endChar": 90
+      },
+      "revId": "2774361ffee3a481c4ed8d44610d97f90a4e1844",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aa62a679_b93c7a7c",
+        "filename": "docs/csit/troubleshoot-netvirt-datapath.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-08-06T05:40:54Z",
+      "side": 1,
+      "message": "Additional section for Conntrack Based SNAT traffic flow needs to be added.",
+      "range": {
+        "startLine": 139,
+        "startChar": 1,
+        "endLine": 146,
+        "endChar": 56
+      },
+      "revId": "2774361ffee3a481c4ed8d44610d97f90a4e1844",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
