@@ -105,6 +105,24 @@
       "revId": "dbc6629a03926fb034fff22e428056537af51824",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3ce3bc9f_da7db82a",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-08-06T11:06:14Z",
+      "side": 1,
+      "message": "if you are suggesting a change to the delete API behaviour, you could raise that on controller-dev and mdsal-dev lists? Being as it is today, my view is that \"} catch (TransactionCommitFailedException e) { if (e.getCause() instanceof ModifiedNodeDoesNotExistException) {\" is not a pattern we should use.  But having now given my view on this, and not actually being a netvirt commiter, let me remove my -1 and let netvirt commiters judge if they really want to merge this.  BTW:  The CONTROLLER-1855 issue may interest you, in this context.",
+      "parentUuid": "29d17664_7cf84602",
+      "revId": "dbc6629a03926fb034fff22e428056537af51824",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
