@@ -87,6 +87,24 @@
       "revId": "dbc6629a03926fb034fff22e428056537af51824",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "29d17664_7cf84602",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-08-06T10:36:44Z",
+      "side": 1,
+      "message": "Thanks Michael for your suggestions.\nBut here the requirement is very simple. Just delete the object VpnInterface/Adjacencies/Adjacency.\nIf the parent VpnInterface itself is deleted, then I understand that Adjacency is also deleted, so no need to handle further.\n\nFor me, it makes more sense to use RetryingManagedNewTransactionRunnerImpl.java when it doesn\u0027t delete in the first attempt, so I need to do n retries.\nThis is not the case in this scenario.\nWhy should I do extra read and/or retries when I know that the object is already deleted via ModifiedNodeDoesNotExistException? My expectation is met.\n\nRegarding read and then delete approach, if this is the case then every delete operation should follow this approach. Right? \n\nSorry, I might be dragging a bit on this topic here as this approach is not convincing to me.\n\nIn general, if I just think about the delete API, it should do two things:\n- Delete the object if not already deleted.\n- If it\u0027s already deleted, inform the caller about the same.",
+      "parentUuid": "f9e293b8_d9040bea",
+      "revId": "dbc6629a03926fb034fff22e428056537af51824",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
