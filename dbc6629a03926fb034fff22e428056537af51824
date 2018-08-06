@@ -69,6 +69,24 @@
       "revId": "dbc6629a03926fb034fff22e428056537af51824",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9e293b8_d9040bea",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-08-06T09:13:45Z",
+      "side": 1,
+      "message": "Why avoid the extra read operation?  To me, the increasing general fear ;) of doing any reads seems to be exaggerated.. that is what we do to get a consistent view of the data store.\n\nRe. the synchronization issue, that would depend on exactly when tx2 would commit its delete.  If tx1 commited another delete after tx2, that should cause a OptimisticLockFailedException instead of a ModifiedNodeDoesNotExistException.. and if you use a RetryingManagedNewTransactionRunner here, then the https://github.com/opendaylight/genius/blob/master/mdsalutil/mdsalutil-api/src/main/java/org/opendaylight/genius/infra/RetryingManagedNewTransactionRunnerImpl.java would deal with it and upon retrying would re-read, see it\u0027s not there, and not delete it anymore - and all good.\n\nSo I still think this is not a great approach.",
+      "parentUuid": "54a269a8_9da038ff",
+      "revId": "dbc6629a03926fb034fff22e428056537af51824",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
