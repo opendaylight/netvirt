@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "51135013_7b8efa16",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-08-06T15:46:20Z",
+      "side": 1,
+      "message": "Vishal and I zoomed in here, as this change will make it behave subtly different than before... This additional callWithNewReadWriteTransactionAndSubmit() is now async - so at the time when the TypedReadWriteTransaction\u003cOperational\u003e tx arg is submitted, this confTx\u0027s submit() may still be ongoing. I wondered whether doing this instead may help for the failing NodeConnectedHandlerTest:\n\n    txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,\n                confTx -\u003e nodeCopier.copyGlobalNode(Optional.fromNullable(null), haNodePath, childGlobalPath,\n                    CONFIGURATION, confTx)).get();\n\nnote the, blocking get().  Unfortunately this alone did not help, nor did also doing the same in line 164 below, but perhaps it\u0027s worth to very carefully review this entire change for more like this?",
+      "revId": "7b37565966b9807a02e3eccb1cedcbab2329b714",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "61c03081_f21df5d0",
         "filename": "elanmanager/impl/src/test/java/org/opendaylight/netvirt/elan/l2gw/nodehandlertest/NodeConnectedHandlerTest.java",
         "patchSetId": 4
