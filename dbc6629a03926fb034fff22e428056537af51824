@@ -159,6 +159,24 @@
       "revId": "dbc6629a03926fb034fff22e428056537af51824",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff7068aa_0462b979",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-08-07T11:48:22Z",
+      "side": 1,
+      "message": "There was a whole discussion around that.  One argument is what you said. OTOH, not all apps/callers log such exceptions - I have seen many cases where a caller calls submit w/o handling the return future at all. Hence the logging in CDS. Robert was adamant about keeping it at least WARN - you can appeal to him.  \n\nThe other option is to try to figure out why something sometimes is attempted to be deleted when it doesn\u0027t exist or was already deleted.",
+      "parentUuid": "e973d92b_a8f0370f",
+      "revId": "dbc6629a03926fb034fff22e428056537af51824",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
