@@ -1,3 +1,7 @@
 <coe-config xmlns="urn:opendaylight:netvirt:coe:config">
+<<<<<<< HEAD
   <service-implementation-mode>kube-proxy</service-implementation-mode>
+=======
+  <service-implementation-mode>kubeproxy</service-implementation-mode>
+>>>>>>> Add COE service-implementation mode
 </coe-config>
