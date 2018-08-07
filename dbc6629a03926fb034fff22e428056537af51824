@@ -141,6 +141,24 @@
       "revId": "dbc6629a03926fb034fff22e428056537af51824",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e973d92b_a8f0370f",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-08-07T06:34:39Z",
+      "side": 1,
+      "message": "Thanks Michael and Tom for your inputs.\n\nAs part of CONTROLLER-1855, instead of changing ERROR to WARN, can we remove the log statement itself assuming applications/caller will be logging/handling these exceptions?\nBecause of these WARN log statement, one of testcase in CSIT is failing for this patch.",
+      "parentUuid": "55d0d6db_571a9c7a",
+      "revId": "dbc6629a03926fb034fff22e428056537af51824",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
