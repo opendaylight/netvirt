@@ -34,5 +34,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.immutables</groupId>
+            <artifactId>value</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.genius</groupId>
+            <artifactId>mdsalutil-api</artifactId>
+            <version>${genius.version}</version>
+        </dependency>
     </dependencies>
 </project>
