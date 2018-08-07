@@ -35,7 +35,7 @@ public interface IVpnManager {
     @Deprecated
     void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
             Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
-            VrfEntry.EncapType encapType, WriteTransaction writeConfigTxn);
+            VrfEntry.EncapType encapType, Set<String> prefixListForRefreshFib, WriteTransaction writeConfigTxn);
 
     void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
         Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,

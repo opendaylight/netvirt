@@ -8,11 +8,16 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -193,13 +198,15 @@ public class VpnManagerImpl implements IVpnManager {
         Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj, VrfEntry.EncapType encapType,
         TypedWriteTransaction<Configuration> confTx) {
         addExtraRoute(vpnName, destination, nextHop, rd, routerID, l3vni, origin, intfName, operationalAdj, encapType,
-            TransactionAdapter.toWriteTransaction(confTx));
+                new HashSet<>(), TransactionAdapter.toWriteTransaction(confTx));
     }
 
     @Override
     public void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-            Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
-            VrfEntry.EncapType encapType, WriteTransaction writeConfigTxn) {
+                              Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
+                              VrfEntry.EncapType encapType, Set<String> prefixListForRefreshFib,
+                              WriteTransaction writeConfigTxn) {
+        Boolean writeConfigTxnPresent = true;
         if (writeConfigTxn == null) {
             String finalNextHop = nextHop;
             ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx ->
@@ -258,7 +265,7 @@ public class VpnManagerImpl implements IVpnManager {
                 List<String> nhList = optVpnExtraRoutes.get().getNexthopIpList();
                 if (nhList != null && nhList.size() > 1) {
                     // If nhList is greater than one for vpnextraroute, a call to populatefib doesn't update vrfentry.
-                    fibManager.refreshVrfEntry(primaryRd, destination);
+                    prefixListForRefreshFib.add(destination);
                 } else {
                     L3vpnInput input = new L3vpnInput().setNextHop(operationalAdj).setNextHopIp(nextHop).setL3vni(l3vni)
                             .setPrimaryRd(primaryRd).setVpnName(vpnName).setDpnId(dpnId)
@@ -266,6 +273,22 @@ public class VpnManagerImpl implements IVpnManager {
                     L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(input, writeConfigTxn);
                 }
             }
+        }
+        if (!writeConfigTxnPresent) {
+            ListenableFuture<Void> writeTxConfigFuture = writeConfigTxn.submit();
+            Futures.addCallback(writeTxConfigFuture, new FutureCallback<Void>() {
+                @Override
+                public void onSuccess(Void voidObj) {
+                    prefixListForRefreshFib.forEach(prefix -> {
+                        fibManager.refreshVrfEntry(primaryRd, prefix);
+                    });
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    LOG.debug("addExtraRoute: write Tx config execution failed {}", throwable);
+                }
+            }, MoreExecutors.directExecutor());
         }
     }
 

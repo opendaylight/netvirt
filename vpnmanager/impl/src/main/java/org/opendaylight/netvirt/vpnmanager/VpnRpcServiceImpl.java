@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Consumer;
+import java.util.HashSet;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -186,7 +187,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         } else {
             vpnManager.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd, null /* routerId */,
                     vpnOpEntry.getL3vni(), RouteOrigin.STATIC, null /* intfName */,
-                            null /*Adjacency*/, encapType, (WriteTransaction) null);
+                            null /*Adjacency*/, encapType, new HashSet<>() /*prefixListForRefreshFib*/, null);
         }
 
         AddStaticRouteOutput labelOutput = new AddStaticRouteOutputBuilder().setLabel(label).build();
