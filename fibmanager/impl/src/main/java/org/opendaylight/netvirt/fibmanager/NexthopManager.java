@@ -873,7 +873,7 @@ public class NexthopManager implements AutoCloseable {
             if (localBucketInfo.isEmpty() ^ remoteBucketInfo.isEmpty()) {
                 LOG.debug("Deleting local group {} since no local nhs present for "
                         + "prefix {}", localGroupEntity.getGroupId(), destPrefix);
-                mdsalApiManager.removeGroup(localGroupEntity);
+                mdsalApiManager.syncRemoveGroup(localGroupEntity);
             }
             return Collections.emptyList();
         });
@@ -889,10 +889,14 @@ public class NexthopManager implements AutoCloseable {
         if (localGroupId == FibConstants.INVALID_GROUP_ID) {
             LOG.error("Unable to allocate/retrieve local groupId for vpnId {} , prefix {}", parentVpnId, destPrefix);
         }
+        GroupEntity remoteGroupEntity = MDSALUtil.buildGroupEntity(
+                dpnId, remoteGroupId, destPrefix, GroupTypes.GroupSelect, Collections.emptyList());
+        GroupEntity localGroupEntity = MDSALUtil.buildGroupEntity(
+                dpnId, localGroupId, destPrefix, GroupTypes.GroupSelect, Collections.emptyList());
         String jobKey = FibUtil.getCreateLocalNextHopJobKey(parentVpnId, dpnId, destPrefix);
         jobCoordinator.enqueueJob(jobKey, () -> {
-            mdsalApiManager.removeGroup(dpnId, remoteGroupId);
-            mdsalApiManager.removeGroup(dpnId, localGroupId);
+            mdsalApiManager.syncRemoveGroup(remoteGroupEntity);
+            mdsalApiManager.syncRemoveGroup(localGroupEntity);
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Finished removing GroupEntity with jobCoordinator key {} remoteGroupEntity.groupId {}"
                     + "localGroupEntity.groupId {}", jobKey, remoteGroupId, localGroupId);
