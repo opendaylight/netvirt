@@ -1365,10 +1365,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                         vrfEntry.getDestPrefix()));
                         txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, configTx ->
                             configTx.delete(VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, vrfEntry.getDestPrefix())));
-                        nextHopManager.removeNextHopPointer(nextHopManager
-                                .getRemoteSelectGroupKey(vpnId, vrfEntry.getDestPrefix()));
-                        nextHopManager.removeNextHopPointer(nextHopManager
-                                .getLocalSelectGroupKey(vpnId, vrfEntry.getDestPrefix()));
                     }
                 }
                 handleAdjacencyAndVpnOpInterfaceDeletion(vrfEntry, ifName, vpnName, tx);
@@ -1506,7 +1502,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             Optional<Routes> extraRouteOptional;
             //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
             if (usedRds != null && !usedRds.isEmpty()) {
-                jobKey = FibUtil.getJobKeyForRdPrefix(usedRds.get(0), vrfEntry.getDestPrefix());
                 if (usedRds.size() > 1) {
                     LOG.error("The extra route prefix is still present in some DPNs");
                     return ;
@@ -1517,11 +1512,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             .getVpnExtraroutes(dataBroker, vpnName, usedRds.get(0), vrfEntry.getDestPrefix());
                 }
             } else {
-                jobKey = FibUtil.getJobKeyForRdPrefix(rd, vrfEntry.getDestPrefix());
                 extraRouteOptional = Optional.absent();
             }
 
-            jobCoordinator.enqueueJob(jobKey,
+            jobCoordinator.enqueueJob(FibUtil.getJobKeyForRdPrefix(rd, vrfEntry.getDestPrefix()),
                 () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                     if (localDpnIdList.size() <= 0) {
                         for (VpnToDpnList curDpn : vpnToDpnList) {
@@ -1540,6 +1534,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             }
                         }
                     }
+                    nextHopManager.removeNextHopPointer(nextHopManager
+                            .getRemoteSelectGroupKey(vpnInstance.getVpnId(), vrfEntry.getDestPrefix()));
+                    nextHopManager.removeNextHopPointer(nextHopManager
+                            .getLocalSelectGroupKey(vpnInstance.getVpnId(), vrfEntry.getDestPrefix()));
                 })), MAX_RETRIES);
         }
 
