@@ -1,0 +1,12 @@
+diff --git a/vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java b/vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java
+index 9af5a7d..3820606 100644
+--- a/vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java
++++ b/vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java
+@@ -80,7 +80,6 @@ public class InterfaceStateChangeListener
+ 
+     @Inject
+     public InterfaceStateChangeListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager,
+-<<<<<<< HEAD
+             final VpnUtil vpnUtil, final JobCoordinator jobCoordinator, final IFibManager fibManager) {
+         super(Interface.class, InterfaceStateChangeListener.class);
+         this.dataBroker = dataBroker;
