@@ -16,8 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-
-import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -275,31 +273,39 @@ public final class CoeUtils {
         return elanInstance;
     }
 
-    public static Pair<String, String> getAttachedInterfaceAndMac(OvsdbTerminationPointAugmentation ovsdbTp) {
-        String interfaceName = null;
-        String macAddress = null;
+    public static SouthboundInterfaceInfo getSouthboundInterfaceDetails(OvsdbTerminationPointAugmentation ovsdbTp) {
+        SouthboundInterfaceInfoBuilder southboundInterfaceInfoBuilder = new SouthboundInterfaceInfoBuilder();
         if (ovsdbTp != null) {
             List<InterfaceExternalIds> ifaceExtIds = ovsdbTp.getInterfaceExternalIds();
             if (ifaceExtIds != null) {
                 Iterator var2 = ifaceExtIds.iterator();
                 while (var2.hasNext()) {
-                    if (interfaceName != null && macAddress != null) {
-                        break;
-                    }
                     InterfaceExternalIds entry = (InterfaceExternalIds)var2.next();
                     if (entry.getExternalIdKey().equals("iface-id")) {
-                        interfaceName = entry.getExternalIdValue();
+                        southboundInterfaceInfoBuilder.setInterfaceName(entry.getExternalIdValue());
                         continue;
                     }
                     if (entry.getExternalIdKey().equals("attached-mac")) {
-                        macAddress = entry.getExternalIdValue();
+                        southboundInterfaceInfoBuilder.setMacAddress(entry.getExternalIdValue());
+                        continue;
+                    }
+                    if (entry.getExternalIdKey().equals("ip-address")) {
+                        southboundInterfaceInfoBuilder.setNodeIp(entry.getExternalIdValue());
+                        continue;
+                    }
+                    if (entry.getExternalIdKey().equals("node-namespace")) {
+                        southboundInterfaceInfoBuilder.setNodeNamespace(entry.getExternalIdValue());
+                        continue;
+                    }
+                    if (entry.getExternalIdKey().equals("is-service-gateway")) {
+                        southboundInterfaceInfoBuilder.setIsServiceGateway(true);
                         continue;
                     }
                 }
             }
         }
 
-        return Pair.of(interfaceName, macAddress);
+        return southboundInterfaceInfoBuilder.build();
     }
 
     public static InstanceIdentifier<PodIdentifier> getPodMetaInstanceId(String externalInterfaceId) {

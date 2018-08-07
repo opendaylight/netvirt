@@ -16,7 +16,6 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
@@ -31,6 +30,7 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.coe.caches.PodsCache;
 import org.opendaylight.netvirt.coe.utils.CoeUtils;
+import org.opendaylight.netvirt.coe.utils.SouthboundInterfaceInfo;
 import org.opendaylight.serviceutils.tools.mdsal.listener.AbstractSyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.coe.Pods;
@@ -80,12 +80,12 @@ public class TerminationPointStateListener extends
     public void update(@Nullable OvsdbTerminationPointAugmentation tpOld, OvsdbTerminationPointAugmentation tpNew) {
         LOG.debug("Received Update DataChange Notification for ovsdb termination point {}", tpNew.getName());
 
-        Pair<String, String> tpNewDetails = CoeUtils.getAttachedInterfaceAndMac(tpNew);
-        Pair<String, String> tpOldDetails = CoeUtils.getAttachedInterfaceAndMac(tpOld);
+        SouthboundInterfaceInfo tpNewDetails = CoeUtils.getSouthboundInterfaceDetails(tpNew);
+        SouthboundInterfaceInfo tpOldDetails = CoeUtils.getSouthboundInterfaceDetails(tpOld);
 
         if (!Objects.equals(tpNewDetails, tpOldDetails)) {
-            String interfaceName = tpNewDetails.getLeft();
-            String macAddress = tpNewDetails.getRight();
+            String interfaceName = tpNewDetails.getInterfaceName();
+            String macAddress = tpNewDetails.getMacAddress();
             if (interfaceName != null && macAddress != null) {
                 LOG.debug("Detected external interface-id {} and attached mac address {} for {}", interfaceName,
                         macAddress, tpNew.getName());
@@ -100,12 +100,14 @@ public class TerminationPointStateListener extends
                                 Pods pods = podsCache.get(instanceIdentifier).get();
                                 if (pods != null) {
                                     IpAddress podIpAddress = pods.getInterface().get(0).getIpAddress();
-                                    CoeUtils.createVpnInterface(pods.getNetworkNS(), pods, interfaceName, macAddress,
-                                            false, tx);
                                     CoeUtils.updateElanInterfaceWithStaticMac(macAddress, podIpAddress,
                                             interfaceName, tx);
-                                    LOG.debug("Bind Kube Proxy Service for {}", interfaceName);
-                                    bindKubeProxyService(tx, interfaceName);
+                                    if (!tpNewDetails.isServiceGateway()) {
+                                        CoeUtils.createVpnInterface(pods.getNetworkNS(), pods, interfaceName,
+                                                macAddress,false, tx);
+                                        LOG.debug("Bind Kube Proxy Service for {}", interfaceName);
+                                        bindKubeProxyService(tx, interfaceName);
+                                    }
                                 }
                             }), LOG, "Error handling pod configuration for termination-point");
                         return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
