@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c712ee6_3a722a61",
+        "filename": "docs/csit/troubleshoot-netvirt-datapath.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-08-10T15:07:08Z",
+      "side": 1,
+      "message": "This path is valid for External Network GRE type where DNAT VM is reached via GRE tunnel.\n\nFor FLAT/VLAN case, The path will table 0 \u003d\u003e Table 17 \u003d\u003e Table 21 \u003d\u003e Table 25",
+      "range": {
+        "startLine": 190,
+        "startChar": 30,
+        "endLine": 190,
+        "endChar": 61
+      },
+      "revId": "1c5b98aa3911aff38af7bb03310847f70de69b5e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e4d8d298_ea8ea2ce",
+        "filename": "docs/csit/troubleshoot-netvirt-datapath.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-08-10T15:07:08Z",
+      "side": 1,
+      "message": "Valid for GRE Type. \n\nFor FLAT/VLAN case, Table 0 \u003d\u003e table 17 \u003d\u003e Table 21 \u003d\u003e Table 44",
+      "range": {
+        "startLine": 210,
+        "startChar": 30,
+        "endLine": 210,
+        "endChar": 61
+      },
+      "revId": "1c5b98aa3911aff38af7bb03310847f70de69b5e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b1a56bb_fdd9076f",
+        "filename": "docs/csit/troubleshoot-netvirt-datapath.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-08-10T15:07:08Z",
+      "side": 1,
+      "message": "As comment as above",
+      "range": {
+        "startLine": 235,
+        "startChar": 31,
+        "endLine": 235,
+        "endChar": 62
+      },
+      "revId": "1c5b98aa3911aff38af7bb03310847f70de69b5e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
