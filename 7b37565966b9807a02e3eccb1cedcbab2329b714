@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "82ac2894_9875a108",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/handlers/NodeCopier.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-08-13T09:11:19Z",
+      "side": 1,
+      "message": "This makes use of batched transaction which makes use of resource batch manager\nWhy do we want to replace it ?",
+      "range": {
+        "startLine": 67,
+        "startChar": 62,
+        "endLine": 67,
+        "endChar": 63
+      },
+      "revId": "7b37565966b9807a02e3eccb1cedcbab2329b714",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "51135013_7b8efa16",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
         "patchSetId": 4
@@ -66,6 +89,24 @@
       "side": 1,
       "message": "So this test passed on Patch Sets 1 and 2, and then started failing in Patch Set 3, already *BEFORE* the rebase in PS 4... anything either in 2..3 -or- an interaction between changes made in 1/2 with 3 could thus be causing this.",
       "parentUuid": "19b7d349_96c6bc30",
+      "revId": "7b37565966b9807a02e3eccb1cedcbab2329b714",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a2c13ee0_b24f1f95",
+        "filename": "elanmanager/impl/src/test/java/org/opendaylight/netvirt/elan/l2gw/nodehandlertest/NodeConnectedHandlerTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-08-13T09:11:19Z",
+      "side": 1,
+      "message": "This is dead code anyways let me raise a patch to remove the dead code",
+      "parentUuid": "61c03081_f21df5d0",
       "revId": "7b37565966b9807a02e3eccb1cedcbab2329b714",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
