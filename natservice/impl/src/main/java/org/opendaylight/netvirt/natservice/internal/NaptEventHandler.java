@@ -386,6 +386,7 @@ public class NaptEventHandler {
         } else {
             // This case will be hit for packets send from non-napt switch.
             LOG.info("prepareAndSendPacketOut : interfaceName is not available.Retrieve from packet received");
+            LOG.info("prepareAndSendPacketOut : Packet Input {}", naptEntryEvent.getPacketReceived());
             NodeConnectorId nodeId = naptEntryEvent.getPacketReceived().getMatch().getInPort();
             portNum = Integer.parseInt(nodeId.getValue());
             LOG.debug("prepareAndSendPacketOut : in_port portNum : {}", portNum);
