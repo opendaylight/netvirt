@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6b8c90d_0776009d",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-08-14T11:52:15Z",
+      "side": 1,
+      "message": "So I think source and destination port matches cannot be considered as separate tcp matches. For example, if the ACE is (tp_src\u003d8000,tp_dst\u003d80) then a packet to match has to both originate on port 8000 and terminate on port 80. Packets that originate on port 8000 and terminate on ports other than 80 should not match.\n\nIn our case, you need to generate tcp matches by combining all srcPortMaskMap with all dstPortMaskMap (cartesian product) generating n(srcPortMaskMap)*n(dstPortMaskMap) tcpMatches.",
+      "range": {
+        "startLine": 187,
+        "startChar": 0,
+        "endLine": 223,
+        "endChar": 17
+      },
+      "revId": "640654107e51b2e98eaee75b9c463822e74285d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "62d7a12b_6ffdb784",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-08-14T11:52:15Z",
+      "side": 1,
+      "message": "I guess this is a copy of  AclServiceOFFlowBuilder::getLayer4MaskForRange. Is it possible to extract an utility and share code? I will let Sam judge on this.",
+      "range": {
+        "startLine": 239,
+        "startChar": 40,
+        "endLine": 239,
+        "endChar": 61
+      },
+      "revId": "640654107e51b2e98eaee75b9c463822e74285d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
