@@ -20,16 +20,19 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.NWUtil;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,22 +68,29 @@ public abstract class AbstractIpLearnNotificationHandler {
     protected void validateAndProcessIpLearning(String srcInterface, IpAddress srcIP, MacAddress srcMac,
             IpAddress targetIP, BigInteger metadata) {
         List<Adjacency> adjacencies = vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(srcInterface);
+        IpVersionChoice srcIpVersion = vpnUtil.getIpVersionFromString(srcIP.stringValue());
+        Uuid srcIpSubnetId = null;
         if (adjacencies != null) {
             for (Adjacency adj : adjacencies) {
                 IpPrefix ipPrefix = IpPrefixBuilder.getDefaultInstance(adj.getIpAddress());
+                // If extra/static route is configured, we should ignore for learning process
                 if (NWUtil.isIpAddressInRange(srcIP, ipPrefix)) {
                     return;
+                }
+                IpVersionChoice currentAdjIpVersion = vpnUtil.getIpVersionFromString(adj.getIpAddress());
+                if (srcIpVersion.isIpVersionChosen(currentAdjIpVersion)) {
+                    srcIpSubnetId = adj.getSubnetId();
                 }
             }
         }
 
         LOG.trace("ARP/NA Notification Response Received from interface {} and IP {} having MAC {}, learning MAC",
                 srcInterface, srcIP.stringValue(), srcMac.getValue());
-        processIpLearning(srcInterface, srcIP, srcMac, metadata, targetIP);
+        processIpLearning(srcInterface, srcIP, srcMac, metadata, targetIP, srcIpSubnetId);
     }
 
     protected void processIpLearning(String srcInterface, IpAddress srcIP, MacAddress srcMac, BigInteger metadata,
-            IpAddress dstIP) {
+            IpAddress dstIP, Uuid srcIpSubnetId) {
         if (metadata != null && !Objects.equals(metadata, BigInteger.ZERO)) {
             Optional<List<String>> vpnList = vpnUtil.getVpnHandlingIpv4AssociatedWithInterface(srcInterface);
             if (vpnList.isPresent()) {
@@ -96,6 +106,16 @@ public abstract class AbstractIpLearnNotificationHandler {
                          * from being discovered
                          */
                         continue;
+                    }
+                    if (srcIpSubnetId != null) {
+                        Subnetmap snMap = vpnUtil.getSubnetmapFromItsUuid(srcIpSubnetId);
+                        if (snMap != null && snMap.getVpnId() == null) {
+                            /* If the subnet is not part of vpn then it should be ignored
+                             * from being discovered. This use case will come for dual stack
+                             * network. i.e V6 or V4 subnet only part of VPN.
+                             */
+                            continue;
+                        }
                     }
                     LearntVpnVipToPort learntVpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, srcIpToQuery);
                     if (learntVpnVipToPort != null) {
