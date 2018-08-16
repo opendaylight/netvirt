@@ -25,11 +25,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +67,10 @@ public abstract class AbstractIpLearnNotificationHandler {
     protected void validateAndProcessIpLearning(String srcInterface, IpAddress srcIP, MacAddress srcMac,
             IpAddress targetIP, BigInteger metadata) {
         List<Adjacency> adjacencies = vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(srcInterface);
+        Uuid subnetId = null;
         if (adjacencies != null) {
             for (Adjacency adj : adjacencies) {
+                subnetId = adj.getSubnetId();
                 IpPrefix ipPrefix = IpPrefixBuilder.getDefaultInstance(adj.getIpAddress());
                 if (NWUtil.isIpAddressInRange(srcIP, ipPrefix)) {
                     return;
@@ -76,11 +80,11 @@ public abstract class AbstractIpLearnNotificationHandler {
 
         LOG.trace("ARP/NA Notification Response Received from interface {} and IP {} having MAC {}, learning MAC",
                 srcInterface, srcIP.stringValue(), srcMac.getValue());
-        processIpLearning(srcInterface, srcIP, srcMac, metadata, targetIP);
+        processIpLearning(srcInterface, srcIP, srcMac, metadata, targetIP, subnetId);
     }
 
     protected void processIpLearning(String srcInterface, IpAddress srcIP, MacAddress srcMac, BigInteger metadata,
-            IpAddress dstIP) {
+            IpAddress dstIP, Uuid subnetId) {
         if (metadata != null && !Objects.equals(metadata, BigInteger.ZERO)) {
             Optional<List<String>> vpnList = vpnUtil.getVpnHandlingIpv4AssociatedWithInterface(srcInterface);
             if (vpnList.isPresent()) {
@@ -94,6 +98,13 @@ public abstract class AbstractIpLearnNotificationHandler {
                     if (vpnPortipToPort != null) {
                         /* This is a well known neutron port and so should be ignored
                          * from being discovered
+                         */
+                        continue;
+                    }
+                    Subnetmap snMap = vpnUtil.getSubnetmapFromItsUuid(subnetId);
+                    if (snMap != null && snMap.getVpnId() == null) {
+                        /* If the subnet is not part of vpn then it should be ignored
+                         * being discovered
                          */
                         continue;
                     }

@@ -1675,7 +1675,7 @@ public final class VpnUtil {
      * @param subnetUuid the subnet's Uuid
      * @return the Subnetmap of Uuid or null if it is not found
      */
-    Subnetmap getSubnetmapFromItsUuid(Uuid subnetUuid) {
+    public Subnetmap getSubnetmapFromItsUuid(Uuid subnetUuid) {
         Subnetmap sn = null;
         InstanceIdentifier<Subnetmap> id = buildSubnetmapIdentifier(subnetUuid);
         Optional<Subnetmap> optionalSn = read(LogicalDatastoreType.CONFIGURATION, id);
