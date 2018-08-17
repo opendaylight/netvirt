@@ -416,7 +416,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
         Integer remoteAclTag = this.aclServiceUtils.getAclTag(remoteAclId);
         if (remoteAclTag == null || remoteAclTag == AclConstants.INVALID_ACL_TAG) {
-            LOG.error("remoteAclTag=[] is null or invalid for remoteAclId={}", remoteAclTag, remoteAclId);
+            LOG.error("remoteAclTag={} is null or invalid for remoteAclId={}", remoteAclTag, remoteAclId);
             return;
         }
         List<MatchInfoBase> lportAndAclMatches =
