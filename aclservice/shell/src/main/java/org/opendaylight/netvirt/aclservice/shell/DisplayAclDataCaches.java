@@ -168,7 +168,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 uuid = Uuid.getDefaultInstance(uuidStr);
             } catch (IllegalArgumentException e) {
                 session.getConsole().println("Invalid uuid" + e.getMessage());
-                log.error("Invalid uuid", e);
+                LOG.error("Invalid uuid: {}", e);
                 return;
             }
             Collection<AclInterface> aclInterfaceList = aclDataCache.getInterfaceList(uuid);
@@ -219,7 +219,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 uuidRef = Uuid.getDefaultInstance(uuidStr);
             } catch (IllegalArgumentException e) {
                 session.getConsole().println("Invalid uuid" + e.getMessage());
-                log.error("Invalid uuid", e);
+                LOG.error("Invalid uuid: {}", e);
                 return;
             }
             Collection<Uuid> remoteUuidLst = aclDataCache.getRemoteAcl(uuidRef, direction);
