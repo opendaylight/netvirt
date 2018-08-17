@@ -1503,7 +1503,7 @@ public final class AclServiceUtils {
         try {
             inetAddress = InetAddress.getByName(addr);
         } catch (UnknownHostException e) {
-            LOG.error("Invalid address : {}", addr, e);
+            LOG.error("Invalid address : {}. Error : {} ", addr, e.getMessage());
             return null;
         }
         return inetAddress;
