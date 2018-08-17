@@ -69,4 +69,7 @@
   <service ref="natRpcServiceImpl"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rpc.rev170209.OdlNatRpcService"/>
 
+  <service ref="natArpNotificationHandler" odl:type="default"
+           interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilListener" />
+  <odl:notification-listener ref="natArpNotificationHandler" />
 </blueprint>

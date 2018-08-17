@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.AbstractIpLearnNotificationHandler;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -31,8 +32,9 @@ public class Ipv6NaNotificationHandler extends AbstractIpLearnNotificationHandle
 
     @Inject
     public Ipv6NaNotificationHandler(DataBroker dataBroker, IdManagerService idManager,
-                                     IInterfaceManager interfaceManager, VpnConfig vpnConfig, VpnUtil vpnUtil) {
-        super(dataBroker, idManager, interfaceManager, vpnConfig, vpnUtil);
+                                     IInterfaceManager interfaceManager, VpnConfig vpnConfig,
+                                     VpnUtil vpnUtil, INeutronVpnManager neutronVpnManager) {
+        super(dataBroker, idManager, interfaceManager, vpnConfig, vpnUtil, neutronVpnManager);
     }
 
     @Override
