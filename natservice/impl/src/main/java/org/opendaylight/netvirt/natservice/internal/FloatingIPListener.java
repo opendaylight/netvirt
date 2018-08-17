@@ -392,7 +392,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         InstanceIdentifier<RouterPorts> portIid = identifier.firstIdentifierOf(RouterPorts.class);
         coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + mapping.key(), () -> Collections.singletonList(
                 txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                    tx -> createNATFlowEntries(interfaceName, mapping, portIid, routerId, tx))),
+                    tx -> createNATFlowEntries(interfaceName, mapping, portIid, routerId, null, tx))),
                 NatConstants.NAT_DJC_MAX_RETRIES);
     }
 
@@ -426,7 +426,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     }
 
     void createNATFlowEntries(String interfaceName, final InternalToExternalPortMap mapping,
-                              final InstanceIdentifier<RouterPorts> portIid, final String routerName,
+                              final InstanceIdentifier<RouterPorts> portIid, final String routerName, BigInteger dpnId,
             TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
         if (!validateIpMapping(mapping)) {
             LOG.error("createNATFlowEntries : Not a valid ip addresses in the mapping {}", mapping);
@@ -434,7 +434,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
 
         //Get the DPN on which this interface resides
-        BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, interfaceName);
+        if (dpnId == null) {
+            dpnId = NatUtil.getDpnForInterface(interfaceManager, interfaceName);
+        }
 
         if (dpnId.equals(BigInteger.ZERO)) {
             LOG.warn("createNATFlowEntries : No DPN for interface {}. NAT flow entries for ip mapping {} will "
