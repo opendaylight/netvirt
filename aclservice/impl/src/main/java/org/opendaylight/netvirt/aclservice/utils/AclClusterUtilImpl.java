@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class AclClusterUtilImpl implements AclClusterUtil {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AclClusterUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AclClusterUtilImpl.class);
 
     private static final String ACL_ENTITY_TYPE_FOR_OWNERSHIP = "netvirt-acl";
     private static final String ACL_ENTITY_NAME = "netvirt-acl";
