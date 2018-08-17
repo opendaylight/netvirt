@@ -32,6 +32,8 @@
              interface="org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar"/>
   <reference id="metricProvider"
              interface="org.opendaylight.infrautils.metrics.MetricProvider" />
+  <reference id="cacheProvider"
+             interface="org.opendaylight.infrautils.caches.CacheProvider"/>
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
@@ -69,4 +71,7 @@
   <service ref="natRpcServiceImpl"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rpc.rev170209.OdlNatRpcService"/>
 
+  <service ref="natArpNotificationHandler" odl:type="default"
+           interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilListener" />
+  <odl:notification-listener ref="natArpNotificationHandler" />
 </blueprint>
