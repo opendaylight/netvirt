@@ -21,6 +21,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
@@ -32,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,14 +49,17 @@ public abstract class AbstractIpLearnNotificationHandler {
     protected final IInterfaceManager interfaceManager;
     protected final VpnConfig config;
     protected final VpnUtil vpnUtil;
+    protected final INeutronVpnManager neutronVpnManager;
 
     public AbstractIpLearnNotificationHandler(DataBroker dataBroker, IdManagerService idManager,
-            IInterfaceManager interfaceManager, VpnConfig vpnConfig, VpnUtil vpnUtil) {
+                                              IInterfaceManager interfaceManager, VpnConfig vpnConfig,
+                                              VpnUtil vpnUtil, INeutronVpnManager neutronVpnManager) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
         this.config = vpnConfig;
         this.vpnUtil = vpnUtil;
+        this.neutronVpnManager = neutronVpnManager;
 
         long duration = config.getIpLearnTimeout() * 10;
         long cacheSize = config.getMigrateIpCacheSize().longValue();
@@ -100,14 +105,26 @@ public abstract class AbstractIpLearnNotificationHandler {
                 String destIpToQuery = dstIP.stringValue();
                 for (String vpnName : vpnList.get()) {
                     LOG.info("Received ARP/NA for sender MAC {} and sender IP {} via interface {}",
-                              srcMac.getValue(), srcIpToQuery, srcInterface);
+                            srcMac.getValue(), srcIpToQuery, srcInterface);
                     VpnPortipToPort vpnPortipToPort =
                             vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, srcIpToQuery);
                     if (vpnPortipToPort != null) {
                         /* This is a well known neutron port and so should be ignored
-                         * from being discovered
+                         * from being discovered...unless it is an Octavia VIP
                          */
-                        continue;
+                        String portName = vpnPortipToPort.getPortName();
+                        Port neutronPort = neutronVpnManager.getNeutronPort(portName);
+
+                        if (neutronPort == null) {
+                            LOG.warn("{} should have been a neutron port but could not retrieve it. Abort processing",
+                                    portName);
+                            continue;
+                        }
+
+                        if (!"Octavia".equals(neutronPort.getDeviceOwner())) {
+                            LOG.debug("Neutron port {} is not an Octavia port, ignoring", portName);
+                            continue;
+                        }
                     }
                     LearntVpnVipToPort learntVpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, srcIpToQuery);
                     if (learntVpnVipToPort != null) {
