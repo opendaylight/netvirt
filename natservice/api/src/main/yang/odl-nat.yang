@@ -208,4 +208,20 @@ module odl-nat {
             }
         }
     }
+
+    container neutron-vip-states {
+        config false;
+        list vip-state {
+            key ip;
+            leaf ip {
+                type string;
+            }
+            leaf dpn-id {
+                type uint64;
+            }
+            leaf ifc-name {
+                type string;
+            }
+        }
+    }
 }
