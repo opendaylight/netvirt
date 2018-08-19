@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public class BgpSyncHandle {
     private static final Logger LOG = LoggerFactory.getLogger(BgpSyncHandle.class);
+    private int more = 1;
 
     public static final int INITED = 1;
     public static final int ITERATING = 2;
@@ -61,5 +62,10 @@ public class BgpSyncHandle {
 
     public int setState(int newState) {
         return this.state.getAndSet(newState);
+    }
+
+    public int setMore(int localMore) {
+        this.more = localMore;
+        return this.more;
     }
 }

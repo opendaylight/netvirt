@@ -149,7 +149,8 @@ public class BgpConfigurationManager {
     private static final String DEF_CHOST = "255.255.255.255"; // Invalid Host IP
     private static final String DEF_CPORT = "7644";
     private static final String DEF_BGP_SDNC_MIP = "127.0.0.1";
-    private static final String BGP_SDNC_MIP = "vpnservice.bgp.thrift.sdnc.mip";
+    //vpnservice.bgp.thrift.bgp.mip is the MIP present with ODL. Here we open 6644 port
+    private static final String BGP_SDNC_MIP = "vpnservice.bgp.thrift.bgp.mip";
     private static final int RESTART_DEFAULT_GR = 90;
     private static final int DS_RETRY_COUNT = 100; //100 retries, each after WAIT_TIME_BETWEEN_EACH_TRY_MILLIS seconds
     private static final long WAIT_TIME_BETWEEN_EACH_TRY_MILLIS = 1000L; //one second sleep after every retry
@@ -251,12 +252,17 @@ public class BgpConfigurationManager {
         ClearBgpCli.setHostAddr(hostStartup);
         bgpRouter = BgpRouter.newInstance(this::getConfig, this::isBGPEntityOwner);
         delayEorSeconds = Integer.parseInt(getProperty(BGP_EOR_DELAY, DEF_BGP_EOR_DELAY));
-        registerCallbacks();
 
         entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
 
         candidateRegistration = registerEntityCandidate(entityOwnershipService);
         entityListenerRegistration = registerEntityListener(entityOwnershipService);
+
+        /*register callbacks for reactors, shall be called after EoS registration.
+         * as listeners user EoS service to identify Owner node. Listener call-backs
+         * can get triggered immediately after registeration (before EoS register complete)
+        */
+        registerCallbacks();
 
         LOG.info("BGP Configuration manager initialized");
         initer.countDown();
@@ -438,6 +444,10 @@ public class BgpConfigurationManager {
     }
 
     public boolean isBGPEntityOwner() {
+        if (entityOwnershipUtils == null) {
+            LOG.error("entityOwnershipUtils is NULL when listener callbacks fired");
+            return false;
+        }
         return entityOwnershipUtils.isEntityOwner(new Entity(BGP_ENTITY_TYPE_FOR_OWNERSHIP, BGP_ENTITY_NAME), 0, 1);
     }
 
@@ -500,6 +510,24 @@ public class BgpConfigurationManager {
             bgpRouter.configServerUpdated();
 
             synchronized (BgpConfigurationManager.this) {
+                Bgp conf = getConfig();
+                if (conf != null) {
+                    AsId asId = conf.getAsId();
+                    if (asId != null) {
+                        long asNum = asId.getLocalAs();
+                        try {
+                            bgpRouter.stopBgp(asNum);
+                            stopBgpCountersTask();
+                            stopBgpAlarmsTask();
+                        } catch (TException | BgpRouterException e) {
+                            LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
+                        }
+                    } else {
+                        LOG.debug("bgp as-id is null while removing config-server");
+                    }
+                } else {
+                    LOG.error("Config Null while removing the config-server");
+                }
                 bgpRouter.disconnect();
             }
         }
