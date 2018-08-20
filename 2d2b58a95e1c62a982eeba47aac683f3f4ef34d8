@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd77c8e7_5d9a8237",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-08-20T12:33:09Z",
+      "side": 1,
+      "message": "indentation?",
+      "range": {
+        "startLine": 209,
+        "startChar": 24,
+        "endLine": 209,
+        "endChar": 41
+      },
+      "revId": "2d2b58a95e1c62a982eeba47aac683f3f4ef34d8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "85df19dc_3a58306c",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-08-20T12:33:09Z",
+      "side": 1,
+      "message": "indentation?",
+      "range": {
+        "startLine": 231,
+        "startChar": 20,
+        "endLine": 231,
+        "endChar": 37
+      },
+      "revId": "2d2b58a95e1c62a982eeba47aac683f3f4ef34d8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a8b97d7c_796781f7",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-08-20T12:33:09Z",
+      "side": 1,
+      "message": "indentation?",
+      "range": {
+        "startLine": 247,
+        "startChar": 20,
+        "endLine": 247,
+        "endChar": 37
+      },
+      "revId": "2d2b58a95e1c62a982eeba47aac683f3f4ef34d8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e6a21b07_c74ef702",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-08-20T12:33:09Z",
+      "side": 1,
+      "message": "Could you find a way to factorize the code in this three \u0027if\u0027 blocks? One suggestion would be to set src/dst MaskMaps (a default 0/0 map entry could be used if not filtering by those ports) and then leverage guava\u0027s Sets:cartesianProduct with the maps entryset to build a tcp match for each resulting list on a separate method. Otherwise it looks good.",
+      "range": {
+        "startLine": 190,
+        "startChar": 1,
+        "endLine": 252,
+        "endChar": 48
+      },
+      "revId": "2d2b58a95e1c62a982eeba47aac683f3f4ef34d8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
