@@ -22,6 +22,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -198,14 +199,14 @@ public class DhcpManager {
                 mdsalUtil, dhcpServiceCounters, tx);
     }
 
-    public void setupDefaultDhcpFlows(BigInteger dpId) {
-        setupTableMissForDhcpTable(dpId);
+    public void setupDefaultDhcpFlows(TypedWriteTransaction<Configuration> tx, BigInteger dpId) {
+        setupTableMissForDhcpTable(tx, dpId);
         if (config.isDhcpDynamicAllocationPoolEnabled()) {
-            setupDhcpAllocationPoolFlow(dpId);
+            setupDhcpAllocationPoolFlow(tx, dpId);
         }
     }
 
-    private void setupTableMissForDhcpTable(BigInteger dpId) {
+    private void setupTableMissForDhcpTable(TypedWriteTransaction<Configuration> tx, BigInteger dpId) {
         List<MatchInfo> matches = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -215,11 +216,11 @@ public class DhcpManager {
                 0, "DHCP Table Miss Flow", 0, 0,
                 DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
         dhcpServiceCounters.installDhcpTableMissFlow();
-        mdsalUtil.installFlow(flowEntity);
-        setupTableMissForHandlingExternalTunnel(dpId);
+        mdsalUtil.addFlow(tx, flowEntity);
+        setupTableMissForHandlingExternalTunnel(tx, dpId);
     }
 
-    private void setupDhcpAllocationPoolFlow(BigInteger dpId) {
+    private void setupDhcpAllocationPoolFlow(TypedWriteTransaction<Configuration> tx, BigInteger dpId) {
         List<MatchInfo> matches = DhcpServiceUtils.getDhcpMatch();
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -230,10 +231,10 @@ public class DhcpManager {
                 "Dhcp Allocation Pool Flow", 0, 0, DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
         LOG.trace("Installing DHCP Allocation Pool Flow DpId {}", dpId);
         dhcpServiceCounters.installDhcpFlow();
-        mdsalUtil.installFlow(flowEntity);
+        mdsalUtil.addFlow(tx, flowEntity);
     }
 
-    private void setupTableMissForHandlingExternalTunnel(BigInteger dpId) {
+    private void setupTableMissForHandlingExternalTunnel(TypedWriteTransaction<Configuration> tx, BigInteger dpId) {
         List<MatchInfo> matches = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionGotoTable(NwConstants.EXTERNAL_TUNNEL_TABLE));
@@ -243,6 +244,6 @@ public class DhcpManager {
                 0, "DHCP Table Miss Flow For External Tunnel", 0, 0,
                 DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
         dhcpServiceCounters.installDhcpTableMissFlowForExternalTable();
-        mdsalUtil.installFlow(flowEntity);
+        mdsalUtil.addFlow(tx, flowEntity);
     }
 }

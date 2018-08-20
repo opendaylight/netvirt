@@ -36,6 +36,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -572,23 +573,26 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
                     String strVni = DhcpServiceUtils.getSegmentationId(nwUuid, broker);
                     BigInteger vni = strVni != null ? new BigInteger(strVni) : BigInteger.ZERO;
                     if (!vni.equals(BigInteger.ZERO)) {
-                        if (addFlow) {
-                            LOG.trace("Installing the SR-IOV DHCP Arp flow for DPN {} Port Ip {}, Lport {}.",
-                                    dpnId, dhcpIpAddress, lportTag);
-                            installDhcpArpRequestFlows(dpnId, vni, dhcpIpAddress, lportTag,
-                                    optElan.get().getElanTag());
-                            installDhcpArpResponderFlows(dpnId, tunnelInterfaceName, lportTag, elanInstanceName,
-                                    dhcpIpAddress, dhcpMacAddress);
-                        } else {
-                            LOG.trace("Uninstalling the SR-IOV DHCP Arp flows for DPN {} Port Ip {}, Lport {}.",
-                                    dpnId, dhcpIpAddress, lportTag);
-                            uninstallDhcpArpRequestFlows(dpnId, vni, dhcpIpAddress, lportTag);
-                            uninstallDhcpArpResponderFlows(dpnId, tunnelInterfaceName, lportTag, dhcpIpAddress);
-                        }
+                        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(
+                            Datastore.CONFIGURATION, tx -> {
+                                if (addFlow) {
+                                    LOG.trace("Installing the SR-IOV DHCP Arp flow for DPN {} Port Ip {}, Lport {}.",
+                                        dpnId, dhcpIpAddress, lportTag);
+                                    installDhcpArpRequestFlows(tx, dpnId, vni, dhcpIpAddress, lportTag,
+                                        optElan.get().getElanTag());
+                                    installDhcpArpResponderFlows(dpnId, tunnelInterfaceName, lportTag, elanInstanceName,
+                                        dhcpIpAddress, dhcpMacAddress);
+                                } else {
+                                    LOG.trace("Uninstalling the SR-IOV DHCP Arp flows for DPN {} Port Ip {}, Lport {}.",
+                                        dpnId, dhcpIpAddress, lportTag);
+                                    uninstallDhcpArpRequestFlows(tx, dpnId, vni, dhcpIpAddress, lportTag);
+                                    uninstallDhcpArpResponderFlows(dpnId, tunnelInterfaceName, lportTag, dhcpIpAddress);
+                                }
+                            }));
                     }
                 }
             }
-            return null;
+            return Collections.emptyList();
         });
     }
 
@@ -605,10 +609,11 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         return optSubnetDhcp;
     }
 
-    private void installDhcpArpRequestFlows(BigInteger dpnId, BigInteger vni, String dhcpIpAddress,
-                                            int lportTag, Long elanTag) {
+    private void installDhcpArpRequestFlows(TypedReadWriteTransaction<Configuration> tx, BigInteger dpnId,
+                                            BigInteger vni, String dhcpIpAddress, int lportTag, Long elanTag)
+            throws ExecutionException, InterruptedException {
         DhcpServiceUtils.setupDhcpArpRequest(dpnId, NwConstants.EXTERNAL_TUNNEL_TABLE, vni, dhcpIpAddress,
-                lportTag, elanTag, true, mdsalUtil);
+                lportTag, elanTag, true, mdsalUtil, tx);
     }
 
     private void installDhcpArpResponderFlows(BigInteger dpnId, String interfaceName, int lportTag,
@@ -632,10 +637,11 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         elanService.removeArpResponderFlow(arpInput);
     }
 
-    private void uninstallDhcpArpRequestFlows(BigInteger dpnId, BigInteger vni, String dhcpIpAddress,
-                                              int lportTag) {
+    private void uninstallDhcpArpRequestFlows(TypedReadWriteTransaction<Configuration> tx, BigInteger dpnId,
+                                              BigInteger vni, String dhcpIpAddress, int lportTag)
+            throws ExecutionException, InterruptedException {
         DhcpServiceUtils.setupDhcpArpRequest(dpnId, NwConstants.EXTERNAL_TUNNEL_TABLE, vni, dhcpIpAddress,
-                lportTag, null, false, mdsalUtil);
+                lportTag, null, false, mdsalUtil, tx);
     }
 
 

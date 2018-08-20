@@ -16,6 +16,9 @@ import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -25,6 +28,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.serviceutils.tools.mdsal.listener.AbstractSyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
@@ -38,11 +42,13 @@ public class InventoryNodeListener extends AbstractSyncDataTreeChangeListener<No
 
     private static final Logger LOG = LoggerFactory.getLogger(InventoryNodeListener.class);
     private final IMdsalApiManager mdsalApiManager;
+    private final ManagedNewTransactionRunner txRunner;
 
     @Inject
     public InventoryNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalApiManager) {
         super(dataBroker, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(Nodes.class).child(Node.class));
         this.mdsalApiManager = mdsalApiManager;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
 
     }
 
@@ -79,6 +85,7 @@ public class InventoryNodeListener extends AbstractSyncDataTreeChangeListener<No
                 "COEKubeProxyTableMissFlow",0,
                 "COEKubeProxy Table Miss Flow", 0, 0,
                 NwConstants.COOKIE_COE_KUBE_PROXY_TABLE, matches, instructions);
-        mdsalApiManager.installFlow(flowEntity);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+            tx -> mdsalApiManager.addFlow(tx, flowEntity)), LOG, "Error adding flow {}", flowEntity);
     }
 }

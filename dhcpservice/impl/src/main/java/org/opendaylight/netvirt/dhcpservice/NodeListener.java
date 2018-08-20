@@ -16,7 +16,11 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
@@ -33,6 +37,7 @@ public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeList
     private final DataBroker broker;
     private final DhcpManager dhcpManager;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private final ManagedNewTransactionRunner txRunner;
 
     @Inject
     public NodeListener(final DataBroker db, final DhcpManager dhcpMgr,
@@ -41,6 +46,7 @@ public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeList
         this.broker = db;
         this.dhcpManager = dhcpMgr;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(db);
     }
 
     @Override
@@ -71,7 +77,8 @@ public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeList
             return;
         }
         BigInteger dpId = new BigInteger(node[1]);
-        dhcpManager.setupDefaultDhcpFlows(dpId);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+            tx -> dhcpManager.setupDefaultDhcpFlows(tx, dpId)), LOG, "Error handling node addition for {}", add);
         dhcpExternalTunnelManager.installDhcpDropActionOnDpn(dpId);
         List<BigInteger> listOfDpns = DhcpServiceUtils.getListOfDpns(broker);
         dhcpExternalTunnelManager.handleDesignatedDpnDown(DhcpMConstants.INVALID_DPID, listOfDpns);

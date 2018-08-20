@@ -1650,9 +1650,15 @@ public class NeutronvpnUtils {
             Long routerIdAsLong = vpnOpDataEntry.getVpnId();
             for (BigInteger dpnId : dpnIds) {
                 if (add) {
-                    ipV6InternetDefRt.installDefaultRoute(dpnId, vpnId, routerIdAsLong);
+                    ListenableFutures.addErrorLogging(
+                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+                            tx -> ipV6InternetDefRt.installDefaultRoute(tx, dpnId, vpnId, routerIdAsLong)), LOG,
+                        "Error adding default route");
                 } else {
-                    ipV6InternetDefRt.removeDefaultRoute(dpnId, vpnId, routerIdAsLong);
+                    ListenableFutures.addErrorLogging(
+                        txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
+                            tx -> ipV6InternetDefRt.removeDefaultRoute(tx, dpnId, vpnId, routerIdAsLong)), LOG,
+                        "Error removing default route");
                 }
             }
         }
