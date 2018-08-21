@@ -472,14 +472,19 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         }
     }
 
-    private void createExternalElanNetwork(ElanInstance elanInstance, String interfaceName) {
+    protected void createExternalElanNetwork(ElanInstance elanInstance, String interfaceName) {
         if (interfaceName == null) {
             LOG.trace("No physical interface is attached to {}", elanInstance.getPhysicalNetworkName());
             return;
         }
+        Interface memberIntf = interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
+        if (memberIntf == null) {
+            LOG.debug("creating vlan prv intf in elan {}, interfaceName {}", elanInstance.getElanInstanceName(),
+                    interfaceName);
+            String elanInterfaceName = createIetfInterfaces(elanInstance, interfaceName);
+            addElanInterface(elanInstance.getElanInstanceName(), elanInterfaceName, null, null);
+        }
 
-        String elanInterfaceName = createIetfInterfaces(elanInstance, interfaceName);
-        addElanInterface(elanInstance.getElanInstanceName(), elanInterfaceName, null, null);
     }
 
     @Override

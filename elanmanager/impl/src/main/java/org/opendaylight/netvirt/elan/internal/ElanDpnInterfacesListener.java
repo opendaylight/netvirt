@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -17,6 +18,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
@@ -34,21 +36,24 @@ public class ElanDpnInterfacesListener
         extends AsyncDataTreeChangeListenerBase<DpnInterfaces, ElanDpnInterfacesListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanDpnInterfacesListener.class);
+    private final List<String> elanExtenalInterfaceList = Collections.synchronizedList(new ArrayList<>());
     private final DataBroker dataBroker;
     private final IInterfaceManager interfaceManager;
     private final ElanServiceProvider elanService;
     private final JobCoordinator jobCoordinator;
     private final ElanInstanceCache elanInstanceCache;
+    private final ElanBridgeManager bridgeMgr;
 
     @Inject
     public ElanDpnInterfacesListener(final DataBroker dataBroker, final IInterfaceManager interfaceManager,
                                      final ElanServiceProvider elanService, final JobCoordinator jobCoordinator,
-                                     final ElanInstanceCache elanInstanceCache) {
+                                     final ElanInstanceCache elanInstanceCache, final ElanBridgeManager bridgeMgr) {
         this.dataBroker = dataBroker;
         this.interfaceManager = interfaceManager;
         this.elanService = elanService;
         this.jobCoordinator = jobCoordinator;
         this.elanInstanceCache = elanInstanceCache;
+        this.bridgeMgr = bridgeMgr;
     }
 
     @PostConstruct
@@ -78,7 +83,7 @@ public class ElanDpnInterfacesListener
         if (elanInstance != null && !elanInstance.isExternal() && ElanUtils.isVlan(elanInstance)) {
             List<String> interfaces = update.getInterfaces();
             // trigger deletion for vlan provider intf on the DPN for the vlan provider network
-            if (interfaces.size() == 1 && interfaceManager.isExternalInterface(interfaces.get(0))) {
+            if (interfaces.size() == 1 && elanExtenalInterfaceList.remove(interfaces.get(0))) {
                 LOG.debug("deleting vlan prv intf for elan {}, dpn {}", elanInstanceName, dpnId);
                 jobCoordinator.enqueueJob(dpnId.toString(), () -> {
                     elanService.deleteExternalElanNetwork(elanInstance, dpnId);
@@ -94,14 +99,17 @@ public class ElanDpnInterfacesListener
         BigInteger dpnId = dpnInterfaces.getDpId();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
         ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
-
         // trigger creation of vlan provider intf for the vlan provider network
         // on br-int patch port for this DPN
         if (elanInstance != null && !elanInstance.isExternal() && ElanUtils.isVlan(elanInstance)) {
             jobCoordinator.enqueueJob(dpnId.toString(), () -> {
+                String providerIntfName = bridgeMgr.getProviderInterfaceName(dpnId,
+                        elanInstance.getPhysicalNetworkName());
+                String intfName = providerIntfName + IfmConstants.OF_URI_SEPARATOR + elanInstance.getSegmentationId();
                 LOG.debug("creating vlan member intf for elan {}, dpn {}",
                         elanInstance.getPhysicalNetworkName(), dpnId);
-                elanService.createExternalElanNetwork(elanInstance, dpnId);
+                elanService.createExternalElanNetwork(elanInstance, intfName);
+                elanExtenalInterfaceList.add(intfName);
                 return Collections.emptyList();
             });
         }
