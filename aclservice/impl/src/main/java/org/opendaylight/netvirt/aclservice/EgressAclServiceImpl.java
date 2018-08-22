@@ -369,13 +369,11 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         return direction.equals(DirectionEgress.class);
     }
 
-    @Override
-    protected short getAclAntiSpoofingTable() {
+    private short getAclAntiSpoofingTable() {
         return NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE;
     }
 
-    @Override
-    protected short getAclConntrackClassifierTable() {
+    private short getAclConntrackClassifierTable() {
         return NwConstants.INGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE;
     }
 
