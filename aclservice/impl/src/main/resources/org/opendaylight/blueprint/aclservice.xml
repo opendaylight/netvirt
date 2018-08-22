@@ -28,9 +28,6 @@
 
   <odl:rpc-implementation ref="aclLiveStatisticsRpcServiceImpl" />
 
-  <service ref="aclServiceUtilFacade"
-        interface="org.opendaylight.netvirt.aclservice.api.utils.IAclServiceUtil" />
-
   <service ref="aclDataUtil"
            interface="org.opendaylight.netvirt.aclservice.api.utils.AclDataCache" />
 

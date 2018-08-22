@@ -71,7 +71,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractAclServiceImpl.class);
 
     protected final IMdsalApiManager mdsalManager;
-    protected final DataBroker dataBroker;
     protected final ManagedNewTransactionRunner txRunner;
     protected final Class<? extends ServiceModeBase> serviceMode;
     protected final AclDataUtil aclDataUtil;
@@ -96,7 +95,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     public AbstractAclServiceImpl(Class<? extends ServiceModeBase> serviceMode, DataBroker dataBroker,
             IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil, AclServiceUtils aclServiceUtils,
             JobCoordinator jobCoordinator, AclInterfaceCache aclInterfaceCache) {
-        this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
         this.serviceMode = serviceMode;
@@ -769,24 +767,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     protected abstract void programRemoteAclTableFlow(BigInteger dpId, Integer aclTag, AllowedAddressPairs aap,
             int addOrRemove);
 
-    protected String getOperAsString(int flowOper) {
-        String oper;
-        switch (flowOper) {
-            case NwConstants.ADD_FLOW:
-                oper = "Add";
-                break;
-            case NwConstants.DEL_FLOW:
-                oper = "Del";
-                break;
-            case NwConstants.MOD_FLOW:
-                oper = "Mod";
-                break;
-            default:
-                oper = "UNKNOWN";
-        }
-        return oper;
-    }
-
     protected Set<BigInteger> collectDpns(Map<String, Set<AclInterface>> mapAclWithPortSet) {
         Set<BigInteger> dpns = new HashSet<>();
         if (mapAclWithPortSet == null) {
@@ -998,10 +978,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     }
 
     protected abstract boolean isValidDirection(Class<? extends DirectionBase> direction);
-
-    protected abstract short getAclAntiSpoofingTable();
-
-    protected abstract short getAclConntrackClassifierTable();
 
     protected abstract short getAclConntrackSenderTable();
 
