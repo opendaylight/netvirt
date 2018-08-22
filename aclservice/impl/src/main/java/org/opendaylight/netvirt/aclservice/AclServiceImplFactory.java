@@ -17,7 +17,6 @@ import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,11 +45,6 @@ public class AclServiceImplFactory extends AbstractLifecycle {
         this.aclInterfaceCache = aclInterfaceCache;
 
         LOG.info("AclserviceConfig: {}", config);
-    }
-
-    protected InstanceIdentifier<AclserviceConfig> getWildCardPath() {
-        return InstanceIdentifier
-                .create(AclserviceConfig.class);
     }
 
     @Override
