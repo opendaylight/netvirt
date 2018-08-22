@@ -100,13 +100,6 @@ public interface AclConstants {
     int ICMPV6_TYPE_NA = 136;
     int ICMPV6_TYPE_MLD2_REPORT = 143;
 
-    String SECURITY_GROUP_TCP_IDLE_TO_KEY = "security-group-tcp-idle-timeout";
-    String SECURITY_GROUP_TCP_HARD_TO_KEY = "security-group-tcp-hard-timeout";
-    String SECURITY_GROUP_TCP_FIN_IDLE_TO_KEY = "security-group-tcp-fin-idle-timeout";
-    String SECURITY_GROUP_TCP_FIN_HARD_TO_KEY = "security-group-tcp-fin-hard-timeout";
-    String SECURITY_GROUP_UDP_IDLE_TO_KEY = "security-group-udp-idle-timeout";
-    String SECURITY_GROUP_UDP_HARD_TO_KEY = "security-group-udp-hard-timeout";
-
     int SECURITY_GROUP_ICMP_IDLE_TIME_OUT = 30;
 
     String ACL_TAG_POOL_NAME = "ACL-TAG-POOL";
@@ -132,11 +125,6 @@ public interface AclConstants {
 
     List<IPProtocols> PROTOCOLS_SUPPORTED_BY_CONNTRACK =
             ImmutableList.of(IPProtocols.TCP, IPProtocols.UDP, IPProtocols.ICMP, IPProtocols.IPV6ICMP);
-
-    enum PacketHandlingType {
-        PERMIT,
-        DENY
-    }
 
     static List<Integer> allowedIcmpv6NdList() {
         List<Integer> icmpv6NdList = new ArrayList<>();

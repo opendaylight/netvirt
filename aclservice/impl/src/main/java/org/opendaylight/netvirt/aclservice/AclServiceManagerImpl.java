@@ -38,14 +38,8 @@ public class AclServiceManagerImpl implements AclServiceManager {
         LOG.info("Just a test");
     }
 
-    @Override
-    public void addAclServiceListner(AclServiceListener aclServiceListner) {
+    private void addAclServiceListner(AclServiceListener aclServiceListner) {
         aclServiceListeners.add(aclServiceListner);
-    }
-
-    @Override
-    public void removeAclServiceListner(AclServiceListener aclServiceListner) {
-        aclServiceListeners.remove(aclServiceListner);
     }
 
     @Override
