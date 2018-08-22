@@ -27,10 +27,6 @@ public interface AclServiceManager {
         MATCH_DESTINATION
     }
 
-    void addAclServiceListner(AclServiceListener aclServiceListner);
-
-    void removeAclServiceListner(AclServiceListener aclServiceListner);
-
     void notify(AclInterface port, AclInterface oldPort, Action action);
 
     void notifyAce(AclInterface port, Action action, String aclName, Ace ace);

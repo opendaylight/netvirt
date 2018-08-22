@@ -21,12 +21,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -43,14 +40,12 @@ import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
-import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack.NxCtAction;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
@@ -74,10 +69,7 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
@@ -88,7 +80,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -106,10 +97,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
@@ -125,7 +112,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.AclPortsLookup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpVersionV6;
@@ -161,8 +147,6 @@ import org.slf4j.LoggerFactory;
 public final class AclServiceUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceUtils.class);
-    public static final AclserviceConfig.DefaultBehavior DEFAULT_DENY = AclserviceConfig.DefaultBehavior.Deny;
-    public static final AclserviceConfig.DefaultBehavior DEFAULT_ALLOW = AclserviceConfig.DefaultBehavior.Allow;
 
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -225,52 +209,6 @@ public final class AclServiceUtils {
     }
 
     /**
-     * Retrieves the acl matching the key from the data store.
-     *
-     * @param broker the data broker
-     * @param aclKey the acl key
-     * @return the acl
-     */
-    public static Acl getAcl(DataBroker broker, String aclKey) {
-        return read(broker, LogicalDatastoreType.CONFIGURATION, getAclInstanceIdentifier(aclKey)).orNull();
-    }
-
-    /** Creates the Acl instance identifier.
-     *
-     * @param aclKey the acl key
-     * @return the instance identifier
-     */
-    public static InstanceIdentifier<Acl> getAclInstanceIdentifier(String aclKey) {
-        return InstanceIdentifier.builder(AccessLists.class).child(Acl.class, new AclKey(aclKey, Ipv4Acl.class))
-                .build();
-    }
-
-    /**
-     * Get the data path number for the interface.
-     * @param interfaceManagerRpcService interfaceManagerRpcService instance.
-     * @param ifName the interface name.
-     * @return the dpn.
-     */
-    public static BigInteger getDpnForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
-        BigInteger nodeId = BigInteger.ZERO;
-        try {
-            GetDpidFromInterfaceInput dpIdInput =
-                    new GetDpidFromInterfaceInputBuilder().setIntfName(ifName).build();
-            Future<RpcResult<GetDpidFromInterfaceOutput>> dpIdOutput =
-                    interfaceManagerRpcService.getDpidFromInterface(dpIdInput);
-            RpcResult<GetDpidFromInterfaceOutput> dpIdResult = dpIdOutput.get();
-            if (dpIdResult.isSuccessful()) {
-                nodeId = dpIdResult.getResult().getDpid();
-            } else {
-                LOG.error("Could not retrieve DPN Id for interface {}", ifName);
-            }
-        } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("Exception when getting dpn for interface {}", ifName,  e);
-        }
-        return nodeId;
-    }
-
-    /**
      * Retrieves the interface state.
      * @param dataBroker the data broker.
      * @param interfaceName the interface name.
@@ -296,34 +234,6 @@ public final class AclServiceUtils {
             .state.Interface.class, new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
             .rev140508.interfaces.state.InterfaceKey(interfaceName));
         return idBuilder.build();
-    }
-
-    /**
-     * Checks whether port security is enabled for the port.
-     * @param port the port.
-     * @return the port security is enabled/not.
-     */
-    public static boolean isPortSecurityEnabled(AclInterface port) {
-        return port.isPortSecurityEnabled();
-    }
-
-    /**
-     * Checks whether port security is enabled for the port.
-     * @param port the port.
-     * @return the list of security groups.
-     */
-    public static List<Uuid> getInterfaceAcls(Interface port) {
-        if (port == null) {
-            LOG.error("Port is Null");
-            return null;
-        }
-        InterfaceAcl aclInPort = port.augmentation(InterfaceAcl.class);
-        if (aclInPort == null) {
-            LOG.error("getSecurityGroupInPortList: no security group associated with port {}",
-                port.getName());
-            return null;
-        }
-        return aclInPort.getSecurityGroups();
     }
 
     /**
@@ -494,19 +404,6 @@ public final class AclServiceUtils {
             }
         }
         return newAllowedAddressPairs;
-    }
-
-    public static List<AllowedAddressPairs> getPortAllowedAddresses(Interface port) {
-        if (port == null) {
-            LOG.error("Port is Null");
-            return null;
-        }
-        InterfaceAcl aclInPort = port.augmentation(InterfaceAcl.class);
-        if (aclInPort == null) {
-            LOG.error("getSecurityGroupInPortList: no security group associated to Interface port: {}", port.getName());
-            return null;
-        }
-        return aclInPort.getAllowedAddressPairs();
     }
 
     public static BigInteger getDpIdFromIterfaceState(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
@@ -776,36 +673,6 @@ public final class AclServiceUtils {
         return false;
     }
 
-    public static Map<String, List<MatchInfoBase>> getFlowForAllowedAddresses(
-            List<AllowedAddressPairs> syncAllowedAddresses, Map<String, List<MatchInfoBase>> flowMatchesMap,
-            boolean isSourceIpMacMatch) {
-        if (flowMatchesMap == null) {
-            return null;
-        }
-        Map<String, List<MatchInfoBase>> updatedFlowMatchesMap = new HashMap<>();
-        MatchInfoBase ipv4Match = MatchEthernetType.IPV4;
-        MatchInfoBase ipv6Match = MatchEthernetType.IPV6;
-        for (Entry<String, List<MatchInfoBase>> entry : flowMatchesMap.entrySet()) {
-            String flowName = entry.getKey();
-            List<MatchInfoBase> flows = entry.getValue();
-            // iterate over allow address pair and update match type
-            for (AllowedAddressPairs aap : syncAllowedAddresses) {
-                List<MatchInfoBase> matchInfoBaseList;
-                String flowId;
-                if (flows.contains(ipv4Match) && isIPv4Address(aap) && isNotIpv4AllNetwork(aap)) {
-                    matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
-                    flowId = flowName + "_ipv4_remoteACL_interface_aap_" + getAapFlowId(aap);
-                    updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
-                } else if (flows.contains(ipv6Match) && !isIPv4Address(aap) && isNotIpv6AllNetwork(aap)) {
-                    matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
-                    flowId = flowName + "_ipv6_remoteACL_interface_aap_" + getAapFlowId(aap);
-                    updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
-                }
-            }
-        }
-        return updatedFlowMatchesMap;
-    }
-
     public static boolean isNotIpv4AllNetwork(AllowedAddressPairs aap) {
         IpPrefix ipPrefix = aap.getIpAddress().getIpPrefix();
         if (ipPrefix != null && ipPrefix.getIpv4Prefix() != null
@@ -826,10 +693,6 @@ public final class AclServiceUtils {
 
     public static boolean isNotIpAllNetwork(AllowedAddressPairs aap) {
         return isNotIpv4AllNetwork(aap) && isNotIpv6AllNetwork(aap);
-    }
-
-    private static String getAapFlowId(AllowedAddressPairs aap) {
-        return aap.getMacAddress().getValue() + "_" + aap.getIpAddress().stringValue();
     }
 
     public static Long getElanIdFromInterface(String elanInterfaceName,DataBroker broker) {
@@ -878,39 +741,6 @@ public final class AclServiceUtils {
                 .child(PortSubnet.class, new PortSubnetKey(portId)).build();
         ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 OPERATIONAL, tx -> tx.delete(id)), LOG, "Failed to delete subnet info for port: " + portId);
-    }
-
-    private static List<MatchInfoBase> updateAAPMatches(boolean isSourceIpMacMatch, List<MatchInfoBase> flows,
-                                                        AllowedAddressPairs aap) {
-        List<MatchInfoBase> matchInfoBaseList;
-        if (isSourceIpMacMatch) {
-            matchInfoBaseList = AclServiceUtils.buildIpMatches(aap.getIpAddress(), MatchCriteria.MATCH_SOURCE);
-        } else {
-            matchInfoBaseList = AclServiceUtils.buildIpMatches(aap.getIpAddress(), MatchCriteria.MATCH_DESTINATION);
-        }
-        matchInfoBaseList.addAll(flows);
-        return matchInfoBaseList;
-    }
-
-    public static MatchInfoBase getMatchInfoByType(List<MatchInfoBase> flows, Class<? extends NxMatchInfo> type) {
-        for (MatchInfoBase mib : flows) {
-            if (type.isAssignableFrom(mib.getClass())) {
-                return mib;
-            }
-        }
-        return null;
-    }
-
-    public static boolean containsMatchFieldType(List<MatchInfoBase> flows, Class<? extends NxMatchInfo> type) {
-        return getMatchInfoByType(flows, type) != null;
-    }
-
-    public static boolean containsTcpMatchField(List<MatchInfoBase> flows) {
-        return flows.contains(MatchIpProtocol.TCP);
-    }
-
-    public static boolean containsUdpMatchField(List<MatchInfoBase> flows) {
-        return flows.contains(MatchIpProtocol.UDP);
     }
 
     public static Integer allocateId(IdManagerService idManager, String poolName, String idKey, Integer defaultId) {
@@ -1126,22 +956,6 @@ public final class AclServiceUtils {
             }
         }
         return false;
-    }
-
-    public static void addLportTagMetadataMatch(int lportTag, List<MatchInfoBase> flowMatches,
-            Class<? extends ServiceModeBase> serviceMode) {
-        MatchInfoBase lportMatch = buildLPortTagMatch(lportTag, serviceMode);
-        InterfaceServiceUtil.mergeMetadataMatchsOrAdd(flowMatches, lportMatch);
-    }
-
-    /**
-     * Returns ACL specific key for synchronization.
-     *
-     * @param key the generic key
-     * @return ACL key that can be used with synchronization
-     */
-    public static String getAclKeyForSynchronization(String key) {
-        return key + AclConstants.ACL_SYNC_KEY_EXT;
     }
 
     /**
