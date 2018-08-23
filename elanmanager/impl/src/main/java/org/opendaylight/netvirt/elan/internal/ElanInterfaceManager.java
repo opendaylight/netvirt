@@ -778,10 +778,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         BigInteger dpId = interfaceInfo.getDpId();
         boolean isInterfaceOperational = isOperational(interfaceInfo);
-        futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
-            futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
+        futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+            confTx -> futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
                 installEntriesForElanInterface(elanInstance, elanInterface, interfaceInfo,
-                    isFirstInterfaceInDpn, confTx, operTx);
+                    isFirstInterfaceInDpn, confTx);
 
                 List<StaticMacEntries> staticMacEntriesList = elanInterface.getStaticMacEntries();
                 List<PhysAddress> staticMacAddresses = Lists.newArrayList();
@@ -824,8 +824,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             staticMacAddresses);
                     }
                 }
-            }));
-        }));
+            }))));
         futures.forEach(ElanUtils::waitForTransactionToComplete);
         if (isInterfaceOperational && !interfaceManager.isExternalInterface(interfaceName)) {
             //At this point, the interface is operational and D/SMAC flows have been configured, mark the port active
@@ -884,8 +883,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     private void installEntriesForElanInterface(ElanInstance elanInstance, ElanInterface elanInterface,
-            InterfaceInfo interfaceInfo, boolean isFirstInterfaceInDpn, TypedWriteTransaction<Configuration> confTx,
-            TypedWriteTransaction<Operational> operTx) {
+        InterfaceInfo interfaceInfo, boolean isFirstInterfaceInDpn, TypedWriteTransaction<Configuration> confTx) {
         if (!isOperational(interfaceInfo)) {
             return;
         }

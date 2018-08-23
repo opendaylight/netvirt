@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
 public final class HAJobScheduler implements Thread.UncaughtExceptionHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(HAJobScheduler.class);
-    ExecutorService executorService;
+    private final ExecutorService executorService;
 
-    static HAJobScheduler instance = new HAJobScheduler();
+    private static final HAJobScheduler INSTANCE = new HAJobScheduler();
 
     private HAJobScheduler() {
         ThreadFactory threadFact = new ThreadFactoryBuilder()
@@ -30,11 +30,7 @@ public final class HAJobScheduler implements Thread.UncaughtExceptionHandler {
     }
 
     public static HAJobScheduler getInstance() {
-        return instance;
-    }
-
-    public void setThreadPool(ExecutorService service) {
-        executorService = service;
+        return INSTANCE;
     }
 
     public void submitJob(Runnable runnable) {

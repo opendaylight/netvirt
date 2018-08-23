@@ -490,7 +490,6 @@ public class L2GwValidateCli extends OsgiCommandSupport {
                                        String logicalSwitchName,
                                        Devices hwVtepDevice,
                                        Integer defaultVlanId) {
-        boolean valid = true;
         NodeId nodeId = nodeIid.firstKeyOf(Node.class).getNodeId();
         if (hwVtepDevice.getInterfaces() == null) {
             return false;
@@ -506,7 +505,6 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             TerminationPoint operationalTerminationPoint = (TerminationPoint) getData(operationalNodesData,
                     physicalSwitchNodeIid, terminationPointIid);
             if (operationalTerminationPoint == null) {
-                valid = false;
                 pw.println("Failed to find the operational port " + deviceInterface.getInterfaceName()
                         + " for node " + hwVtepDevice.getDeviceName() + " nodeid " + nodeId.getValue());
                 continue;
@@ -514,7 +512,6 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             TerminationPoint configTerminationPoint = (TerminationPoint) getData(configNodesData,
                     physicalSwitchNodeIid, terminationPointIid);
             if (configTerminationPoint == null) {
-                valid = false;
                 pw.println("Failed to find the configurational port " + deviceInterface.getInterfaceName()
                         + " for node " + hwVtepDevice.getDeviceName() +  " for logical switch " + logicalSwitchName
                         + " nodeid " + nodeId.getValue());
@@ -536,7 +533,6 @@ public class L2GwValidateCli extends OsgiCommandSupport {
                 pw.println("Failed to find the config vlan bindings for port " + deviceInterface.getInterfaceName()
                         + " for node " + hwVtepDevice.getDeviceName() +  " for logical switch " + logicalSwitchName
                         + " nodeid " + nodeId.getValue());
-                valid = false;
                 continue;
             }
             portAugmentation = operationalTerminationPoint.augmentation(HwvtepPhysicalPortAugmentation.class);
@@ -544,7 +540,6 @@ public class L2GwValidateCli extends OsgiCommandSupport {
                 pw.println("Failed to find the operational vlan bindings for port " + deviceInterface.getInterfaceName()
                         + " for node " + hwVtepDevice.getDeviceName() +  " for logical switch " + logicalSwitchName
                         + " nodeid " + nodeId.getValue());
-                valid = false;
                 continue;
             }
             VlanBindings expectedBindings = !expectedVlans.isEmpty() ? expectedVlans.get(0) : null;
@@ -566,7 +561,6 @@ public class L2GwValidateCli extends OsgiCommandSupport {
                 for (VlanBindings actual : vlanBindingses) {
                     pw.println(actual.toString());
                 }
-                valid = false;
             }
         }
         return true;

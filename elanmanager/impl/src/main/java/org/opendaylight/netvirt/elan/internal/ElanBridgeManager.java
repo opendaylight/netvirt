@@ -25,7 +25,6 @@ import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.netvirt.elanmanager.api.IElanBridgeManager;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
@@ -54,7 +53,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 // Checkstyle expects the first sentence to end with a period, question marks don’t count
 @SuppressWarnings("checkstyle:SummaryJavadoc")
-public class ElanBridgeManager implements IElanBridgeManager {
+public class ElanBridgeManager {
     private static final Logger LOG = LoggerFactory.getLogger(ElanBridgeManager.class);
 
     public static final String PROVIDER_MAPPINGS_KEY = "provider_mappings";
@@ -384,9 +383,14 @@ public class ElanBridgeManager implements IElanBridgeManager {
     }
 
     /**
-     * {@inheritDoc}.
+     * Extract OpenvSwitch other-config to key value map.
+     *
+     * @param node
+     *            OVSDB node
+     * @param key
+     *            key to extract from other-config
+     * @return key-value Map or empty map if key was not found
      */
-    @Override
     public Map<String, String> getOpenvswitchOtherConfigMap(Node node, String key) {
         String otherConfigVal = southboundUtils.getOpenvswitchOtherConfig(node, key);
         return getMultiValueMap(otherConfigVal);
@@ -505,7 +509,13 @@ public class ElanBridgeManager implements IElanBridgeManager {
         return rv;
     }
 
-    @Override
+    /**
+     * Get the integration bridge DPN id from the manager node UUID.
+     *
+     * @param managerNodeId
+     *            node-id of the OVSDB node managing br-int
+     * @return Optional containing the dp-id or empty Optional if not found
+     */
     public Optional<BigInteger> getDpIdFromManagerNodeId(String managerNodeId) {
         InstanceIdentifier<Node> identifier = getIntegrationBridgeIdentifier(managerNodeId);
         OvsdbBridgeAugmentation integrationBridgeAugmentation = interfaceManager.getOvsdbBridgeForNodeIid(identifier);
@@ -545,8 +555,16 @@ public class ElanBridgeManager implements IElanBridgeManager {
         return stringBuilder.toString();
     }
 
-    @Override
-    public Map<String, String> getMultiValueMap(String multiKeyValueStr) {
+    /**
+     * Extract multi key-value into Map.
+     *
+     * @param multiKeyValueStr
+     *            multi key-value formatted using colon key-value
+     *            separator and comma multi-value separator
+     * @return Map containing key value pairs or empty map if no key value pairs
+     *         where found
+     */
+    private Map<String, String> getMultiValueMap(String multiKeyValueStr) {
         if (Strings.isNullOrEmpty(multiKeyValueStr)) {
             return Collections.emptyMap();
         }
@@ -564,10 +582,13 @@ public class ElanBridgeManager implements IElanBridgeManager {
     }
 
     /**
-     * {@inheritDoc}.
+     * Get integration bridge node with dpId.
+     *
+     * @param dpId
+     *            datapath id
+     * @return integration bridge {@code Node} or null if not found
      */
-    @Override
-    public Node getBridgeNode(BigInteger dpId) {
+    private Node getBridgeNode(BigInteger dpId) {
         List<Node> ovsdbNodes = southboundUtils.getOvsdbNodes();
         if (null == ovsdbNodes) {
             LOG.debug("Could not find any (?) ovsdb nodes");

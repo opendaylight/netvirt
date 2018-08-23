@@ -22,15 +22,12 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
@@ -152,13 +149,4 @@ public class ElanForwardingEntriesHandler {
             ListenableFutures.addErrorLogging(future, LOG, "Error deleting ELAN interface forwarding entries");
         }
     }
-
-    public void deleteElanInterfaceMacForwardingEntries(String interfaceName, PhysAddress physAddress,
-            WriteTransaction tx) {
-        InstanceIdentifier<MacEntry> macEntryId = ElanUtils
-                .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
-        tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryId);
-    }
-
-
 }

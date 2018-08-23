@@ -13,7 +13,7 @@ import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public interface IMergeCommand<T extends DataObject, Y extends Builder, Z extends DataObject> {
+public interface IMergeCommand<Y extends Builder, Z extends DataObject> {
 
     /**
      * Abstract function to merge data from src to dst in Operational Topology.
@@ -27,31 +27,6 @@ public interface IMergeCommand<T extends DataObject, Y extends Builder, Z extend
                               Z existingData,
                               Z src,
                               InstanceIdentifier<Node> nodePath);
-
-    /**
-     * Abstract function to merge data from src to dst in Config Topology.
-     * @param dst builder which will be used to build concrete object
-     * @param src builder which are to be merged in destination
-     * @param nodePath nodePath of dest
-     */
-    void mergeConfigData(Y dst,
-                         Z src,
-                         InstanceIdentifier<Node> nodePath);
-
-    /**
-     * Abstract function to update data from src to dst in Config Topology.
-     * while existing data helps in keeping track of data only updated
-     * @param existingData dataObject which are already exisitng
-     * @param updated updated data
-     * @param orig original data
-     * @param nodePath nodePath of dest
-     * @param tx ReadWriteTransaction
-     */
-    void mergeConfigUpdate(Z existingData,
-                           Z updated,
-                           Z orig,
-                           InstanceIdentifier<Node> nodePath,
-                           ReadWriteTransaction tx);
 
     /**
      * Abstract function to update data from src to dst in Operational Topology.

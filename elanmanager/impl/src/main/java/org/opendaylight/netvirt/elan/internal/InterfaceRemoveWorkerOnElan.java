@@ -14,12 +14,8 @@ import java.util.concurrent.Callable;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class InterfaceRemoveWorkerOnElan implements Callable<List<ListenableFuture<Void>>> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(InterfaceRemoveWorkerOnElan.class);
 
     private final String key;
     private final ElanInstance elanInfo;

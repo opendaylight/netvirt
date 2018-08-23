@@ -16,8 +16,6 @@ import org.opendaylight.infrautils.diagstatus.ServiceState;
 import org.opendaylight.infrautils.diagstatus.ServiceStatusProvider;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.ops4j.pax.cdi.api.OsgiServiceProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * ElanDiagStatusProvider which lets ELAN register/unregister for infrautils status and diagnostics related services.
@@ -25,8 +23,6 @@ import org.slf4j.LoggerFactory;
 @Singleton
 @OsgiServiceProvider(classes = ServiceStatusProvider.class)
 public class ElanDiagStatusProvider implements ServiceStatusProvider {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ElanDiagStatusProvider.class);
 
     private final DiagStatusService diagStatusService;
     private volatile ServiceDescriptor serviceDescriptor;

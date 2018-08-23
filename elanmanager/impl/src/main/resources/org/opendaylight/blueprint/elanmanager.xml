@@ -75,9 +75,6 @@
   <service ref="elanServiceProvider" odl:type="default"
     interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
 
-  <service ref="elanBridgeManager" odl:type="default"
-    interface="org.opendaylight.netvirt.elanmanager.api.IElanBridgeManager" />
-
   <!--<bean id="hwvtepLocalUcastMacListener"
     class="org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLocalUcastMacListener"
     init-method="init" destroy-method="close">

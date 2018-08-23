@@ -149,7 +149,7 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
 
     private void processUpdatedNodes(Collection<DataTreeModification<Node>> changes,
                                      TypedReadWriteTransaction<D> tx)
-            throws ReadFailedException, ExecutionException, InterruptedException {
+            throws ReadFailedException {
         for (DataTreeModification<Node> change : changes) {
             final InstanceIdentifier<Node> key = change.getRootPath().getRootIdentifier();
             final DataObjectModification<Node> mod = change.getRootNode();
@@ -163,7 +163,7 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
                     onGlobalNodeUpdate(key, updated, original, mod, tx);
                     subMod = change.getRootNode().getModifiedAugmentation(HwvtepGlobalAugmentation.class);
                 } else {
-                    onPsNodeUpdate(updated, original, mod, tx);
+                    onPsNodeUpdate(updated, mod, tx);
                     subMod = change.getRootNode().getModifiedAugmentation(PhysicalSwitchAugmentation.class);
                 }
                 if (subMod != null) {
@@ -203,7 +203,7 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
 
     private void processDisconnectedNodes(Collection<DataTreeModification<Node>> changes,
                                           TypedReadWriteTransaction<D> tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+            throws InterruptedException, ExecutionException {
         for (DataTreeModification<Node> change : changes) {
             final InstanceIdentifier<Node> key = change.getRootPath().getRootIdentifier();
             final DataObjectModification<Node> mod = change.getRootNode();
@@ -267,11 +267,11 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
 
     //default methods
     void onGlobalNodeDelete(InstanceIdentifier<Node> key, Node added, TypedReadWriteTransaction<D> tx)
-        throws ReadFailedException, ExecutionException, InterruptedException {
+        throws ExecutionException, InterruptedException {
     }
 
     void onPsNodeDelete(InstanceIdentifier<Node> key, Node addedPSNode, TypedReadWriteTransaction<D> tx)
-        throws ReadFailedException, ExecutionException, InterruptedException {
+        throws ExecutionException, InterruptedException {
 
     }
 
@@ -285,14 +285,12 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
     }
 
     void onGlobalNodeUpdate(InstanceIdentifier<Node> key, Node updated, Node original,
-                            DataObjectModification<Node> mod, TypedReadWriteTransaction<D> tx)
-            throws ReadFailedException, InterruptedException, ExecutionException {
+                            DataObjectModification<Node> mod, TypedReadWriteTransaction<D> tx) {
 
     }
 
-    void onPsNodeUpdate(Node updated, Node original,
-                        DataObjectModification<Node> mod, TypedReadWriteTransaction<D> tx)
-            throws ReadFailedException, InterruptedException, ExecutionException {
+    void onPsNodeUpdate(Node updated,
+                        DataObjectModification<Node> mod, TypedReadWriteTransaction<D> tx) {
 
     }
 

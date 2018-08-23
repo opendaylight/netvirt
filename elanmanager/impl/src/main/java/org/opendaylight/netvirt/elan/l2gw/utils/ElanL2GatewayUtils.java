@@ -274,18 +274,6 @@ public class ElanL2GatewayUtils {
         return HwvtepUtils.deleteRemoteUcastMacs(broker, nodeId, logicalSwitchName, lstMac);
     }
 
-    public ElanInstance getElanInstanceForUcastLocalMac(LocalUcastMacs localUcastMac) {
-        Optional<LogicalSwitches> lsOpc = ElanUtils.read(broker, LogicalDatastoreType.OPERATIONAL,
-                (InstanceIdentifier<LogicalSwitches>) localUcastMac.getLogicalSwitchRef().getValue());
-        if (lsOpc.isPresent()) {
-            LogicalSwitches ls = lsOpc.get();
-            // Logical switch name is Elan name
-            String elanName = getElanFromLogicalSwitch(ls.getHwvtepNodeName().getValue());
-            return elanInstanceCache.get(elanName).orNull();
-        }
-        return null;
-    }
-
     /**
      * Install external device local macs in dpn.
      *
@@ -893,19 +881,6 @@ public class ElanL2GatewayUtils {
     }
 
     /**
-     * Gets the elan name from logical switch name.
-     *
-     * @param logicalSwitchName
-     *            the logical switch name
-     * @return the elan name from logical switch name
-     */
-    public static String getElanFromLogicalSwitch(String logicalSwitchName) {
-        // Assuming elan name is same as logical switch name
-        String elanName = logicalSwitchName;
-        return elanName;
-    }
-
-    /**
      * Gets the logical switch name from elan name.
      *
      * @param elanName
@@ -1060,10 +1035,6 @@ public class ElanL2GatewayUtils {
         } catch (ReadFailedException | InterruptedException e) {
             LOG.error("Failed to delete stale l2gw tep {}", deviceVteps, e);
         }
-    }
-
-    public static String getNodeIdFromDpnId(BigInteger dpnId) {
-        return MDSALUtil.NODE_PREFIX + MDSALUtil.SEPARATOR + dpnId.toString();
     }
 
     public void scheduleAddDpnMacInExtDevices(String elanName, BigInteger dpId,

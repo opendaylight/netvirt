@@ -72,9 +72,8 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener<Configuration> 
 
     @Override
     void onPsNodeUpdate(Node haPSUpdated,
-            Node haPSOriginal,
-            DataObjectModification<Node> mod,
-            TypedReadWriteTransaction<Configuration> tx) {
+        DataObjectModification<Node> mod,
+        TypedReadWriteTransaction<Configuration> tx) {
         //copy the ps node data to children
         String psId = haPSUpdated.getNodeId().getValue();
         Set<InstanceIdentifier<Node>> childSwitchIds = getPSChildrenIdsForHAPSNode(psId);
