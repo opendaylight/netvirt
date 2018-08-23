@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -229,7 +230,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
 
         for (NexthopManager.AdjacencyResult adjacencyResult : tunnelInterfaceList) {
             List<ActionInfo> actionInfos = new ArrayList<>();
-            BigInteger tunnelId;
+            BigInteger tunnelId = BigInteger.ZERO;
             String prefix = adjacencyResult.getPrefix();
             Prefixes prefixInfo = getFibUtil().getPrefixToInterface(vpnId, prefix);
             String interfaceName = prefixInfo.getVpnInterfaceName();
@@ -238,8 +239,11 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             } else if (FibUtil.isVxlanNetwork(prefixInfo.getNetworkType())) {
                 tunnelId = BigInteger.valueOf(prefixInfo.getSegmentationId());
             } else {
-                StateTunnelList tunnelState = getFibUtil().getTunnelState(interfaceName);
-                tunnelId = BigInteger.valueOf(tunnelState.getIfIndex());
+                try {
+                    tunnelId = BigInteger.valueOf(getFibUtil().getTunnelState(interfaceName).getIfIndex());
+                } catch (ReadFailedException e) {
+                    LOG.error("error in fetching tunnel state for interface {}", interfaceName, e);
+                }
             }
             LOG.debug("adding set tunnel id action for label {}", tunnelId);
             String macAddress = null;
