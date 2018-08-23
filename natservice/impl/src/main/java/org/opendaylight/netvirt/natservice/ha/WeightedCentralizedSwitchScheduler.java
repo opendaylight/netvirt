@@ -300,12 +300,6 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 new SubnetmapKey(subnetId)).build();
     }
 
-    @Override
-    public boolean getCentralizedSwitch(String routerName) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
     public static List<Uuid> getUpdatedSubnetIds(
             List<Uuid> updatedSubnetIds,
             List<Uuid> currentSubnetIds) {

@@ -37,12 +37,6 @@ public final class ArpUtils {
         return createArpRequestInput(dpnId, groupId, abySenderMAC, abySenderIpAddress, abyTargetIpAddress, null);
     }
 
-    public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, byte[] abySenderMAC,
-        byte[] abySenderIpAddress, byte[] abyTargetIpAddress, NodeConnectorRef ingress) {
-        return createArpRequestInput(dpnId, null, abySenderMAC, (byte[]) null, abySenderIpAddress, abyTargetIpAddress,
-            ingress, new ArrayList<>());
-    }
-
     public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, Long groupId, byte[] abySenderMAC,
         byte[] abySenderIpAddress, byte[] abyTargetIpAddress, NodeConnectorRef ingress) {
         List<ActionInfo> lstActionInfo = new ArrayList<>();
@@ -77,19 +71,6 @@ public final class ArpUtils {
             LOG.info("SubnetRoutePacketInHandler: Unable to send ARP request because client port has no IP  ");
             return null;
         }
-    }
-
-    public static byte[] getMacInBytes(String macAddress) {
-        String[] macAddressParts = macAddress.split(":");
-
-        // convert hex string to byte values
-        byte[] macAddressBytes = new byte[6];
-        for (int i = 0; i < 6; i++) {
-            Integer hex = Integer.parseInt(macAddressParts[i], 16);
-            macAddressBytes[i] = hex.byteValue();
-        }
-
-        return macAddressBytes;
     }
 
     private static byte[] createEthernetPacket(byte[] sourceMAC, byte[] targetMAC, byte[] arp) {

@@ -168,14 +168,12 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     @Override
-    protected void addSnatSpecificEntriesForNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-        Routers routers, BigInteger dpnId) {
+    protected void addSnatSpecificEntriesForNonNaptSwitch() {
         // Nothing to to do here
     }
 
     @Override
-    protected void removeSnatSpecificEntriesForNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-        Routers routers, BigInteger dpnId) {
+    protected void removeSnatSpecificEntriesForNonNaptSwitch() {
         // Nothing to to do here
     }
 

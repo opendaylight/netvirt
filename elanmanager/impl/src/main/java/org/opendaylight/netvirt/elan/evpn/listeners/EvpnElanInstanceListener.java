@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class EvpnElanInstanceListener extends AsyncDataTreeChangeListenerBase<ElanInstance, EvpnElanInstanceListener> {
-    private static final Logger LOG = LoggerFactory.getLogger(EvpnElanInstanceListener.class);
     private final DataBroker broker;
     private final EvpnUtils evpnUtils;
     private final EvpnMacVrfUtils evpnMacVrfUtils;

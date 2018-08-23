@@ -17,7 +17,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.infrautils.utils.concurrent.Executors;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
@@ -50,7 +49,7 @@ public class DhcpMcastMacListener
 
     @Inject
     public DhcpMcastMacListener(DhcpExternalTunnelManager dhcpManager, DhcpL2GwUtil dhcpL2GwUtil, DataBroker dataBroker,
-                                final DhcpserviceConfig config, HwvtepNodeHACache hwvtepNodeHACache) {
+            final DhcpserviceConfig config) {
         super(dataBroker, LogicalDatastoreType.CONFIGURATION,
               InstanceIdentifier.create(NetworkTopology.class).child(Topology.class,
                                      new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class)

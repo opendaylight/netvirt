@@ -46,19 +46,9 @@ public final class ChangeUtils {
         return input -> input != null && input.getDataAfter() != null && filter.test(input);
     }
 
-    private static <T extends DataObject> Predicate<DataObjectModification<T>> matchesEverything() {
-        return input -> true;
-    }
-
     private static <T extends DataObject> Predicate<DataObjectModification<T>> modificationIsDeletion() {
         return input -> input != null && input.getModificationType() == DataObjectModification
                 .ModificationType.DELETE;
-    }
-
-    private static <T extends DataObject> Predicate<DataObjectModification<T>>
-            modificationIsDeletionAndHasDataBefore() {
-        return input -> input != null && input.getModificationType() == DataObjectModification
-                .ModificationType.DELETE && input.getDataBefore() != null;
     }
 
     /**
@@ -100,7 +90,7 @@ public final class ChangeUtils {
      * @param <U> The type of changes to process.
      * @return The created or updated instances which satisfy the filter, mapped by instance identifier.
      */
-    public static <T extends DataObject, U extends DataObject> Map<InstanceIdentifier<T>, T> extractCreatedOrUpdated(
+    private static <T extends DataObject, U extends DataObject> Map<InstanceIdentifier<T>, T> extractCreatedOrUpdated(
             Collection<DataTreeModification<U>> changes, Class<T> clazz,
             Predicate<DataObjectModification<T>> filter) {
         Map<InstanceIdentifier<T>, T> result = new HashMap<>();
@@ -108,38 +98,6 @@ public final class ChangeUtils {
                 clazz, hasDataAfterAndMatchesFilter(filter)).entrySet()) {
             result.put(entry.getKey(), entry.getValue().getDataAfter());
         }
-        return result;
-    }
-
-    /**
-     * Extract all the instances of {@code clazz} which were created or updated in the given set of modifications.
-     *
-     * @param changes The changes to process.
-     * @param clazz The class we're interested in.
-     * @param <T> The type of changes we're interested in.
-     * @param <U> The type of changes to process.
-     * @return The created or updated instances, mapped by instance identifier.
-     */
-    public static <T extends DataObject, U extends DataObject> Map<InstanceIdentifier<T>, T> extractCreatedOrUpdated(
-            Collection<DataTreeModification<U>> changes, Class<T> clazz) {
-        return extractCreatedOrUpdated(changes, clazz, matchesEverything());
-    }
-
-    /**
-     * Extract all the instances of {@code clazz} which were created, updated, or removed in the given set of
-     * modifications. For instances which were created or updated, the new instances are returned; for instances
-     * which were removed, the old instances are returned.
-     *
-     * @param changes The changes to process.
-     * @param clazz The class we're interested in.
-     * @param <T> The type of changes we're interested in.
-     * @param <U> The type of changes to process.
-     * @return The created, updated or removed instances, mapped by instance identifier.
-     */
-    public static <T extends DataObject, U extends DataObject> Map<InstanceIdentifier<T>, T>
-           extractCreatedOrUpdatedOrRemoved(Collection<DataTreeModification<U>> changes, Class<T> clazz) {
-        Map<InstanceIdentifier<T>, T> result = extractCreatedOrUpdated(changes, clazz);
-        result.putAll(extractRemovedObjects(changes, clazz));
         return result;
     }
 
@@ -257,25 +215,6 @@ public final class ChangeUtils {
             InstanceIdentifier<N> extendedPath = path.child(item);
             return extendedPath;
         }
-    }
-
-    /**
-     * Extract the removed instances of {@code clazz} from the given set of modifications.
-     *
-     * @param changes The changes to process.
-     * @param clazz The class we're interested in.
-     * @param <T> The type of changes we're interested in.
-     * @param <U> The type of changes to process.
-     * @return The removed instances, keyed by instance identifier.
-     */
-    public static <T extends DataObject, U extends DataObject> Map<InstanceIdentifier<T>, T> extractRemovedObjects(
-            Collection<DataTreeModification<U>> changes, Class<T> clazz) {
-        Map<InstanceIdentifier<T>, T> result = new HashMap<>();
-        for (Entry<InstanceIdentifier<T>, DataObjectModification<T>> entry :
-                extractDataObjectModifications(changes, clazz, modificationIsDeletionAndHasDataBefore()).entrySet()) {
-            result.put(entry.getKey(), entry.getValue().getDataBefore());
-        }
-        return result;
     }
 
     public static <T extends DataObject> Map<InstanceIdentifier<T>,T> extract(

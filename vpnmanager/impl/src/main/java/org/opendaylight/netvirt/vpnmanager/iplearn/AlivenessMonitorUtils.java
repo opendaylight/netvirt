@@ -14,11 +14,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
@@ -56,19 +54,15 @@ public final class AlivenessMonitorUtils {
     private static final Logger LOG = LoggerFactory.getLogger(AlivenessMonitorUtils.class);
     private static Map<Long, MacEntry> alivenessCache = new ConcurrentHashMap<>();
 
-    private final DataBroker dataBroker;
-    private final INeutronVpnManager neutronvpnService;
     private final AlivenessMonitorService alivenessManager;
     private final IInterfaceManager interfaceManager;
     private final VpnUtil vpnUtil;
     private final VpnConfig vpnConfig;
 
     @Inject
-    public AlivenessMonitorUtils(DataBroker dataBroker, VpnUtil vpnUtil, INeutronVpnManager neutronvpnService,
-            AlivenessMonitorService alivenessManager, IInterfaceManager interfaceManager, VpnConfig vpnConfig) {
-        this.dataBroker = dataBroker;
+    public AlivenessMonitorUtils(VpnUtil vpnUtil, AlivenessMonitorService alivenessManager,
+            IInterfaceManager interfaceManager, VpnConfig vpnConfig) {
         this.vpnUtil = vpnUtil;
-        this.neutronvpnService = neutronvpnService;
         this.alivenessManager = alivenessManager;
         this.interfaceManager = interfaceManager;
         this.vpnConfig = vpnConfig;

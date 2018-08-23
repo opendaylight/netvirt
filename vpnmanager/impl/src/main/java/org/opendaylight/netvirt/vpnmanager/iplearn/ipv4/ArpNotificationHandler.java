@@ -10,8 +10,6 @@ package org.opendaylight.netvirt.vpnmanager.iplearn.ipv4;
 import java.math.BigInteger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.AbstractIpLearnNotificationHandler;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -20,7 +18,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Ar
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.ArpResponseReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.MacChanged;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +28,8 @@ public class ArpNotificationHandler extends AbstractIpLearnNotificationHandler i
     private static final Logger LOG = LoggerFactory.getLogger(ArpNotificationHandler.class);
 
     @Inject
-    public ArpNotificationHandler(DataBroker dataBroker, IdManagerService idManager,
-                                  IInterfaceManager interfaceManager, VpnConfig vpnConfig, VpnUtil vpnUtil) {
-        super(dataBroker, idManager, interfaceManager, vpnConfig, vpnUtil);
+    public ArpNotificationHandler(VpnConfig vpnConfig, VpnUtil vpnUtil) {
+        super(vpnConfig, vpnUtil);
     }
 
     @Override

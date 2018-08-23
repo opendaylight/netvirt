@@ -11,13 +11,10 @@ package org.opendaylight.netvirt.vpnmanager.iplearn.ipv6;
 import java.math.BigInteger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.AbstractIpLearnNotificationHandler;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.Ipv6NdUtilListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.NaReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
@@ -30,9 +27,8 @@ public class Ipv6NaNotificationHandler extends AbstractIpLearnNotificationHandle
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6NaNotificationHandler.class);
 
     @Inject
-    public Ipv6NaNotificationHandler(DataBroker dataBroker, IdManagerService idManager,
-                                     IInterfaceManager interfaceManager, VpnConfig vpnConfig, VpnUtil vpnUtil) {
-        super(dataBroker, idManager, interfaceManager, vpnConfig, vpnUtil);
+    public Ipv6NaNotificationHandler(VpnConfig vpnConfig, VpnUtil vpnUtil) {
+        super(vpnConfig, vpnUtil);
     }
 
     @Override

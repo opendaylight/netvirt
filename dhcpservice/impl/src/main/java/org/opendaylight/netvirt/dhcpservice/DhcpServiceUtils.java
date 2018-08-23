@@ -24,12 +24,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -95,7 +93,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
@@ -257,12 +254,6 @@ public final class DhcpServiceUtils {
     }
 
     @Nonnull
-    public static List<BigInteger> getListOfDpns(ReadTransaction tx) throws ReadFailedException {
-        return extractDpnsFromNodes(tx.read(LogicalDatastoreType.OPERATIONAL,
-                InstanceIdentifier.builder(Nodes.class).build()).checkedGet());
-    }
-
-    @Nonnull
     private static List<BigInteger> extractDpnsFromNodes(Optional<Nodes> optionalNodes) {
         return optionalNodes.toJavaUtil().map(
             nodes -> nodes.getNode().stream().map(Node::getId).filter(Objects::nonNull).map(
@@ -311,22 +302,6 @@ public final class DhcpServiceUtils {
         Network network = optionalNetwork.get();
         String segmentationId = NeutronUtils.getSegmentationIdFromNeutronNetwork(network, NetworkTypeVxlan.class);
         return segmentationId;
-    }
-
-    public static String getNodeIdFromDpnId(BigInteger dpnId) {
-        return MDSALUtil.NODE_PREFIX + MDSALUtil.SEPARATOR + dpnId.toString();
-    }
-
-    public static String getTrunkPortMacAddress(String parentRefName,
-            DataBroker broker) {
-        InstanceIdentifier<Port> portInstanceIdentifier =
-                InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class);
-        Optional<Port> trunkPort = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, portInstanceIdentifier);
-        if (!trunkPort.isPresent()) {
-            LOG.warn("Trunk port {} not available for sub-port", parentRefName);
-            return null;
-        }
-        return trunkPort.get().getMacAddress().getValue();
     }
 
     public static String getJobKey(String interfaceName) {
@@ -418,14 +393,6 @@ public final class DhcpServiceUtils {
         return java.util.Optional.empty();
     }
 
-    static IpAddress convertIntToIp(int ipn) {
-        String[] array = IntStream.of(24, 16, 8, 0) //
-                .map(x -> ipn >> x & 0xFF).boxed() //
-                .map(String::valueOf) //
-                .toArray(String[]::new);
-        return IpAddressBuilder.getDefaultInstance(String.join(".", array));
-    }
-
     static IpAddress convertLongToIp(long ip) {
         String[] array = LongStream.of(24, 16, 8, 0) //
                 .map(x -> ip >> x & 0xFF).boxed() //
@@ -454,10 +421,6 @@ public final class DhcpServiceUtils {
 
     static InterfaceInfo getInterfaceInfo(IInterfaceManager interfaceManager, String interfaceName) {
         return interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
-    }
-
-    static BigInteger getDpIdFromInterface(IInterfaceManager interfaceManager, String interfaceName) {
-        return interfaceManager.getDpnForInterface(interfaceName);
     }
 
     public static java.util.Optional<String> getIpV4Address(Port port) {

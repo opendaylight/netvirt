@@ -112,11 +112,6 @@ public class DHCP extends Packet {
         this.dhcpOptions = new DHCPOptions();
     }
 
-    //Getters
-    public byte getOp() {
-        return (BitBufferHelper.getByte(fieldValues.get(OP)));
-    }
-
     public byte getHtype() {
         return (BitBufferHelper.getByte(fieldValues.get(HTYPE)));
     }
@@ -125,16 +120,8 @@ public class DHCP extends Packet {
         return (BitBufferHelper.getByte(fieldValues.get(HLEN)));
     }
 
-    public byte getHops() {
-        return (BitBufferHelper.getByte(fieldValues.get(HOPS)));
-    }
-
     public int getXid() {
         return (BitBufferHelper.getInt(fieldValues.get(XID)));
-    }
-
-    public short getSecs() {
-        return (BitBufferHelper.getShort(fieldValues.get(SECS)));
     }
 
     public short getFlags() {
@@ -145,18 +132,6 @@ public class DHCP extends Packet {
         return fieldValues.get(CIADDR);
     }
 
-    public byte[] getYiaddr() {
-        return fieldValues.get(YIADDR);
-    }
-
-
-    public byte[] getSiaddr() {
-        return fieldValues.get(SIADDR);
-    }
-
-    public InetAddress getSiaddrAsInetAddr() {
-        return DHCPUtils.byteArrayToInetAddr(fieldValues.get(SIADDR));
-    }
 
     public byte[] getGiaddr() {
         return fieldValues.get(GIADDR);
@@ -164,18 +139,6 @@ public class DHCP extends Packet {
 
     public byte[] getChaddr() {
         return fieldValues.get(CHADDR);
-    }
-
-    public byte[] getSname() {
-        return fieldValues.get(SNAME);
-    }
-
-    public byte[] getFile() {
-        return fieldValues.get(FILE);
-    }
-
-    public int getMCookie() {
-        return (BitBufferHelper.getInt(fieldValues.get(MCOOKIE)));
     }
 
     public byte[] getOptions() {
@@ -250,31 +213,8 @@ public class DHCP extends Packet {
         return this;
     }
 
-    public DHCP setCiaddr(InetAddress dhcpCiaddr) {
-        byte[] ciaddr = dhcpCiaddr.getAddress();
-        fieldValues.put(CIADDR, ciaddr);
-        return this;
-    }
-
-    public DHCP setCiaddr(String dhcpCiaddr) {
-        byte[] ciaddr = NetUtils.parseInetAddress(dhcpCiaddr).getAddress();
-        fieldValues.put(CIADDR, ciaddr);
-        return this;
-    }
-
-    public DHCP setYiaddr(byte[] yiaddr) {
-        fieldValues.put(YIADDR, yiaddr);
-        return this;
-    }
-
     public DHCP setYiaddr(int dhcpYiaddr) {
         byte[] yiaddr = BitBufferHelper.toByteArray(dhcpYiaddr);
-        fieldValues.put(YIADDR, yiaddr);
-        return this;
-    }
-
-    public DHCP setYiaddr(InetAddress dhcpYiaddr) {
-        byte[] yiaddr = dhcpYiaddr.getAddress();
         fieldValues.put(YIADDR, yiaddr);
         return this;
     }
@@ -285,19 +225,8 @@ public class DHCP extends Packet {
         return this;
     }
 
-    public DHCP setSiaddr(byte[] siaddr) {
-        fieldValues.put(SIADDR, siaddr);
-        return this;
-    }
-
     public DHCP setSiaddr(int dhcpSiaddr) {
         byte[] siaddr = BitBufferHelper.toByteArray(dhcpSiaddr);
-        fieldValues.put(SIADDR, siaddr);
-        return this;
-    }
-
-    public DHCP setSiaddr(InetAddress dhcpSiaddr) {
-        byte[] siaddr = dhcpSiaddr.getAddress();
         fieldValues.put(SIADDR, siaddr);
         return this;
     }
@@ -315,18 +244,6 @@ public class DHCP extends Packet {
 
     public DHCP setGiaddr(int dhcpGiaddr) {
         byte[] giaddr = BitBufferHelper.toByteArray(dhcpGiaddr);
-        fieldValues.put(GIADDR, giaddr);
-        return this;
-    }
-
-    public DHCP setGiaddr(InetAddress dhcpGiaddr) {
-        byte[] giaddr = dhcpGiaddr.getAddress();
-        fieldValues.put(GIADDR, giaddr);
-        return this;
-    }
-
-    public DHCP setGiaddr(String dhcpGiaddr) {
-        byte[] giaddr = NetUtils.parseInetAddress(dhcpGiaddr).getAddress();
         fieldValues.put(GIADDR, giaddr);
         return this;
     }
@@ -513,14 +430,6 @@ public class DHCP extends Packet {
         return dhcpOptions.getOptionByte(OPT_MESSAGE_TYPE);
     }
 
-    public void setOptionByte(byte code, byte opt) {
-        dhcpOptions.setOptionByte(code, opt);
-    }
-
-    public byte getOptionByte(byte code) {
-        return dhcpOptions.getOptionByte(code);
-    }
-
     public void setOptionBytes(byte code, byte[] opt) {
         dhcpOptions.setOption(code, opt);
     }
@@ -529,36 +438,16 @@ public class DHCP extends Packet {
         return dhcpOptions.getOptionBytes(code);
     }
 
-    public void setOptionShort(byte code, short opt) {
-        dhcpOptions.setOptionShort(code, opt);
-    }
-
-    public short getOptionShort(byte code) {
-        return dhcpOptions.getOptionShort(code);
-    }
-
     public void setOptionInt(byte code, int opt) {
         dhcpOptions.setOptionInt(code, opt);
-    }
-
-    public int getOptionInt(byte code) {
-        return dhcpOptions.getOptionInt(code);
     }
 
     public InetAddress getOptionInetAddr(byte code) {
         return dhcpOptions.getOptionInetAddr(code);
     }
 
-    public void setOptionInetAddr(byte code, InetAddress addr) {
-        dhcpOptions.setOptionInetAddr(code, addr);
-    }
-
     public void setOptionInetAddr(byte code, String addr) throws UnknownHostException {
         dhcpOptions.setOptionStrAddr(code, addr);
-    }
-
-    public String getOptionStrAddr(byte code) {
-        return dhcpOptions.getOptionStrAddr(code);
     }
 
     public void setOptionStrAddrs(byte code, List<String> opt) throws UnknownHostException {

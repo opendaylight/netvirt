@@ -37,13 +37,6 @@ public interface CentralizedSwitchScheduler {
     boolean releaseCentralizedSwitch(Routers router);
 
     /**
-     * Retrieves the centralized switch scheduled for the router.
-     * @param routerName the router name.
-     * @return success/failure
-     */
-    boolean getCentralizedSwitch(String routerName);
-
-    /**
      * Adds a switch to the scheduler pool.
      * @param dpnId the switch id.
      * @return success/failure

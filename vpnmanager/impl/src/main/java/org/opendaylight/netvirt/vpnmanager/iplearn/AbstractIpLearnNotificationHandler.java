@@ -17,15 +17,12 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
@@ -41,17 +38,10 @@ public abstract class AbstractIpLearnNotificationHandler {
     // temp where Key is VPNInstance+IP and value is timestamp
     private final Cache<Pair<String, String>, BigInteger> migrateIpCache;
 
-    protected final DataBroker dataBroker;
-    protected final IdManagerService idManager;
-    protected final IInterfaceManager interfaceManager;
     protected final VpnConfig config;
     protected final VpnUtil vpnUtil;
 
-    public AbstractIpLearnNotificationHandler(DataBroker dataBroker, IdManagerService idManager,
-            IInterfaceManager interfaceManager, VpnConfig vpnConfig, VpnUtil vpnUtil) {
-        this.dataBroker = dataBroker;
-        this.idManager = idManager;
-        this.interfaceManager = interfaceManager;
+    public AbstractIpLearnNotificationHandler(VpnConfig vpnConfig, VpnUtil vpnUtil) {
         this.config = vpnConfig;
         this.vpnUtil = vpnUtil;
 

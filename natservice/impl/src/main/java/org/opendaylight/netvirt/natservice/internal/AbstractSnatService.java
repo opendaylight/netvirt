@@ -131,18 +131,6 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         this.eventCallbacks = eventCallbacks;
     }
 
-    protected DataBroker getDataBroker() {
-        return dataBroker;
-    }
-
-    public void init() {
-        LOG.info("{} init", getClass().getSimpleName());
-    }
-
-    public void close() {
-        LOG.debug("AbstractSnatService Closed");
-    }
-
     @Override
     public boolean addSnatAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
         BigInteger primarySwitchId) {
@@ -197,7 +185,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         if (!dpnId.equals(primarySwitchId)) {
             LOG.info("handleSnat : Handle non NAPT switch {} for router {}", dpnId, routers.getRouterName());
             addSnatCommonEntriesForNonNaptSwitch(confTx, routers, primarySwitchId, dpnId);
-            addSnatSpecificEntriesForNonNaptSwitch(confTx, routers, dpnId);
+            addSnatSpecificEntriesForNonNaptSwitch();
         } else {
             LOG.info("handleSnat : Handle NAPT switch {} for router {}", dpnId, routers.getRouterName());
             addSnatCommonEntriesForNaptSwitch(confTx, routers, dpnId);
@@ -214,7 +202,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         if (!dpnId.equals(primarySwitchId)) {
             LOG.info("handleSnat : Handle non NAPT switch {} for router {}", dpnId, routers.getRouterName());
             removeSnatCommonEntriesForNonNaptSwitch(confTx, routers, dpnId);
-            removeSnatSpecificEntriesForNonNaptSwitch(confTx, routers, dpnId);
+            removeSnatSpecificEntriesForNonNaptSwitch();
         } else {
             LOG.info("handleSnat : Handle NAPT switch {} for router {}", dpnId, routers.getRouterName());
             removeSnatCommonEntriesForNaptSwitch(confTx, routers, dpnId);
@@ -284,11 +272,9 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected abstract void removeSnatSpecificEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
         Routers routers, BigInteger dpnId) throws ExecutionException, InterruptedException;
 
-    protected abstract void addSnatSpecificEntriesForNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-        Routers routers, BigInteger dpnId);
+    protected abstract void addSnatSpecificEntriesForNonNaptSwitch();
 
-    protected abstract void removeSnatSpecificEntriesForNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-        Routers routers, BigInteger dpnId);
+    protected abstract void removeSnatSpecificEntriesForNonNaptSwitch();
 
     protected void addInboundFibEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId, String externalIp,
         Long routerId, long extSubnetId, String externalNetId, String subNetId, String routerMac) {

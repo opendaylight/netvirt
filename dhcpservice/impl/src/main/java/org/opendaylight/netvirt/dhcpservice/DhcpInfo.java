@@ -21,10 +21,6 @@ public class DhcpInfo  {
     private List<String> dnsServers;
     private List<HostRoutes> hostRoutes;
 
-    public DhcpInfo() {
-        //Empty constructor
-    }
-
     protected DhcpInfo setClientIp(String clientIp) {
         this.clientIp = clientIp;
         return this;
@@ -47,11 +43,6 @@ public class DhcpInfo  {
 
     protected DhcpInfo setHostRoutes(List<HostRoutes> hostRoutes) {
         this.hostRoutes = hostRoutes;
-        return this;
-    }
-
-    protected DhcpInfo setDnsServers(List<String> dnsServers) {
-        this.dnsServers = dnsServers;
         return this;
     }
 
