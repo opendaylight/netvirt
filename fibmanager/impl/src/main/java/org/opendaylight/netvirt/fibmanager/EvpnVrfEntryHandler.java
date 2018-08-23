@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -31,6 +32,7 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelOperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
@@ -224,7 +226,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
 
         for (NexthopManager.AdjacencyResult adjacencyResult : tunnelInterfaceList) {
             List<ActionInfo> actionInfos = new ArrayList<>();
-            BigInteger tunnelId;
+            BigInteger tunnelId = BigInteger.ZERO;
             String prefix = adjacencyResult.getPrefix();
             Prefixes prefixInfo = getFibUtil().getPrefixToInterface(vpnId, prefix);
             String interfaceName = prefixInfo.getVpnInterfaceName();
@@ -233,8 +235,16 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             } else if (FibUtil.isVxlanNetwork(prefixInfo.getNetworkType())) {
                 tunnelId = BigInteger.valueOf(prefixInfo.getSegmentationId());
             } else {
-                StateTunnelList tunnelState = getFibUtil().getTunnelState(interfaceName);
-                tunnelId = BigInteger.valueOf(tunnelState.getIfIndex());
+                try {
+                    StateTunnelList stateTunnelList = getFibUtil().getTunnelState(interfaceName);
+                    if (stateTunnelList == null || stateTunnelList.getOperState() != TunnelOperStatus.Up) {
+                        LOG.trace("Tunnel is not up for interface {}", interfaceName);
+                        return;
+                    }
+                    tunnelId = BigInteger.valueOf(stateTunnelList.getIfIndex());
+                } catch (ReadFailedException e) {
+                    LOG.error("error in fetching tunnel state for interface {}", interfaceName, e);
+                }
             }
             LOG.debug("adding set tunnel id action for label {}", tunnelId);
             String macAddress = null;
