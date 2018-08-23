@@ -78,8 +78,6 @@ public interface IElanService extends IEtreeService {
 
     void removeKnownL3DmacAddress(String macAddress, String elanInstanceName);
 
-    List<MatchInfoBase> getEgressMatchesForElanInstance(String elanInstanceName);
-
     Boolean isOpenStackVniSemanticsEnforced();
 
     /**

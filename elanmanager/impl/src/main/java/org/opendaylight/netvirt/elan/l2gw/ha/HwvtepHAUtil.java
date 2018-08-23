@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.l2gw.ha;
 
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -22,11 +21,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.Datastore.Configuration;
-import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
@@ -68,9 +64,6 @@ public final class HwvtepHAUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepHAUtil.class);
 
-    //TODO reuse HWvtepSouthboundConstants
-    public static final String HA_ENABLED = "ha_enabled";
-    public static final String HWVTEP_ENTITY_TYPE = "hwvtep";
     public static final String TEP_PREFIX = "vxlan_over_ipv4:";
     public static final String HA_ID = "ha_id";
     public static final String HA_CHILDREN = "ha_children";
@@ -106,21 +99,6 @@ public final class HwvtepHAUtil {
     public static String getTepIpVal(HwvtepPhysicalLocatorRef locatorRef) {
         InstanceIdentifier<TerminationPoint> tpId = (InstanceIdentifier<TerminationPoint>) locatorRef.getValue();
         return tpId.firstKeyOf(TerminationPoint.class).getTpId().getValue().substring("vxlan_over_ipv4:".length());
-    }
-
-    public static String getLogicalSwitchSwitchName(HwvtepLogicalSwitchRef logicalSwitchRef) {
-        InstanceIdentifier<LogicalSwitches> id = (InstanceIdentifier<LogicalSwitches>) logicalSwitchRef.getValue();
-        return id.firstKeyOf(LogicalSwitches.class).getHwvtepNodeName().getValue();
-    }
-
-    public static String getNodeIdFromLocatorRef(HwvtepPhysicalLocatorRef locatorRef) {
-        InstanceIdentifier<TerminationPoint> tpId = (InstanceIdentifier<TerminationPoint>) locatorRef.getValue();
-        return tpId.firstKeyOf(Node.class).getNodeId().getValue();
-    }
-
-    public static String getNodeIdFromLogicalSwitches(HwvtepLogicalSwitchRef logicalSwitchRef) {
-        InstanceIdentifier<LogicalSwitches> id = (InstanceIdentifier<LogicalSwitches>) logicalSwitchRef.getValue();
-        return id.firstKeyOf(Node.class).getNodeId().getValue();
     }
 
     public static InstanceIdentifier<Node> createInstanceIdentifierFromHAId(String haUUidVal) {
@@ -257,14 +235,6 @@ public final class HwvtepHAUtil {
     public static Node getRemoved(DataObjectModification<Node> mod) {
         if (mod.getModificationType() == DataObjectModification.ModificationType.DELETE) {
             return mod.getDataBefore();
-        }
-        return null;
-    }
-
-    public static String getPsName(Node psNode) {
-        String psNodeId = psNode.getNodeId().getValue();
-        if (psNodeId.contains(PHYSICALSWITCH)) {
-            return psNodeId.substring(psNodeId.indexOf(PHYSICALSWITCH) + PHYSICALSWITCH.length());
         }
         return null;
     }
@@ -518,51 +488,6 @@ public final class HwvtepHAUtil {
                 }
             }
         }
-    }
-
-    /**
-     * Delete switches from Node in Operational Data Tree .
-     *
-     * @param haPath HA node path from whih switches will be deleted
-     * @param tx  Transaction object
-     */
-    public static void deleteSwitchesManagedByNode(InstanceIdentifier<Node> haPath,
-            TypedReadWriteTransaction<Operational> tx) throws ExecutionException, InterruptedException {
-
-        Optional<Node> nodeOptional = tx.read(haPath).get();
-        if (!nodeOptional.isPresent()) {
-            return;
-        }
-        Node node = nodeOptional.get();
-        HwvtepGlobalAugmentation globalAugmentation = node.augmentation(HwvtepGlobalAugmentation.class);
-        if (globalAugmentation == null) {
-            return;
-        }
-        List<Switches> switches = globalAugmentation.getSwitches();
-        if (switches != null) {
-            for (Switches switche : switches) {
-                InstanceIdentifier<Node> id = (InstanceIdentifier<Node>)switche.getSwitchRef().getValue();
-                deleteNodeIfPresent(tx, id);
-            }
-        }
-    }
-
-    /**
-     * Returns true/false if all the childrens are deleted from Operational Data store.
-     *
-     * @param children IID for the child node to read from OP data tree
-     * @param tx Transaction
-     * @return true/false boolean
-     * @throws ReadFailedException Exception thrown if read fails
-     */
-    public static boolean areAllChildDeleted(Set<InstanceIdentifier<Node>> children,
-                                             ReadWriteTransaction tx) throws ReadFailedException {
-        for (InstanceIdentifier<Node> childId : children) {
-            if (tx.read(OPERATIONAL, childId).checkedGet().isPresent()) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public static void addToCacheIfHAChildNode(InstanceIdentifier<Node> childPath, Node childNode,
