@@ -36,6 +36,7 @@ import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.TypedReadTransaction;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
+import org.opendaylight.genius.itm.api.IITMProvider;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
@@ -54,12 +55,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelsState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TimeUnits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInput;
@@ -119,7 +118,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes.NetworkType;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,12 +130,15 @@ public class FibUtil {
     private final DataBroker dataBroker;
     private final IElanService elanManager;
     private final IdManagerService idManager;
+    private final IITMProvider iitmProvider;
 
     @Inject
-    public FibUtil(DataBroker dataBroker, IElanService elanManager, IdManagerService idManager) {
+    public FibUtil(DataBroker dataBroker, IElanService elanManager, IdManagerService idManager,
+           IITMProvider iitmProvider) {
         this.dataBroker = dataBroker;
         this.elanManager = elanManager;
         this.idManager = idManager;
+        this.iitmProvider = iitmProvider;
     }
 
     static InstanceIdentifier<Adjacency> getAdjacencyIdentifier(String vpnInterfaceName, String ipAddress) {
@@ -566,17 +567,8 @@ public class FibUtil {
                 .map(RoutePaths::getLabel);
     }
 
-    public static InstanceIdentifier<StateTunnelList> buildTunnelStateId(String interfaceName) {
-        InstanceIdentifierBuilder<StateTunnelList> tunnelStateIdBuilder = InstanceIdentifier
-                .builder(TunnelsState.class).child(StateTunnelList.class, new StateTunnelListKey(interfaceName));
-        InstanceIdentifier<StateTunnelList> tunnelStateId = tunnelStateIdBuilder.build();
-        return tunnelStateId;
-    }
-
-    public StateTunnelList getTunnelState(String interfaceName) {
-        InstanceIdentifier<StateTunnelList> tunnelStateId = buildTunnelStateId(interfaceName);
-        Optional<StateTunnelList> tunnelStateOptional = MDSALUtil.read(
-                dataBroker, LogicalDatastoreType.OPERATIONAL, tunnelStateId);
+    public StateTunnelList getTunnelState(String interfaceName) throws ReadFailedException {
+        Optional<StateTunnelList> tunnelStateOptional = iitmProvider.getTunnelState(interfaceName);
         if (tunnelStateOptional.isPresent()) {
             return tunnelStateOptional.get();
         }
