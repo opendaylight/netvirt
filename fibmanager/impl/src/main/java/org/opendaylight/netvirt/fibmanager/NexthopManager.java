@@ -28,6 +28,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -58,8 +59,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
@@ -922,10 +921,15 @@ public class NexthopManager implements AutoCloseable {
                 return;
             }
             Class<? extends TunnelTypeBase> tunnelType = VpnExtraRouteHelper.getTunnelType(itmManager, egressInterface);
-            Interface ifState = fibUtil.getInterfaceStateFromOperDS(egressInterface);
-            if (ifState == null || ifState.getOperStatus() != OperStatus.Up) {
-                LOG.trace("Tunnel not up {}", egressInterface);
-                return;
+            StateTunnelList ifState = null;
+            try {
+                ifState = fibUtil.getTunnelState(egressInterface);
+                if (ifState == null || ifState.getOperState() != TunnelOperStatus.Up) {
+                    LOG.trace("Tunnel is not up for interface {}", egressInterface);
+                    return;
+                }
+            } catch (ReadFailedException e) {
+                LOG.error("error in fetching tunnel state for interface {}", egressInterface, e);
             }
             if (!TunnelTypeVxlan.class.equals(tunnelType)) {
                 return;
