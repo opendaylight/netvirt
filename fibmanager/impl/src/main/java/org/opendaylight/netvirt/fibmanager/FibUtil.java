@@ -33,6 +33,7 @@ import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.TypedReadTransaction;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
+import org.opendaylight.genius.itm.api.IITMProvider;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
@@ -54,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Dpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TimeUnits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInput;
@@ -125,12 +127,15 @@ public class FibUtil {
     private final DataBroker dataBroker;
     private final IElanService elanManager;
     private final IdManagerService idManager;
+    private final IITMProvider iitmProvider;
 
     @Inject
-    public FibUtil(DataBroker dataBroker, IElanService elanManager, IdManagerService idManager) {
+    public FibUtil(DataBroker dataBroker, IElanService elanManager, IdManagerService idManager,
+           IITMProvider iitmProvider) {
         this.dataBroker = dataBroker;
         this.elanManager = elanManager;
         this.idManager = idManager;
+        this.iitmProvider = iitmProvider;
     }
 
     static InstanceIdentifier<Adjacency> getAdjacencyIdentifier(String vpnInterfaceName, String ipAddress) {
@@ -557,6 +562,14 @@ public class FibUtil {
                 .filter(routePath -> routePath.getNexthopAddress().equals(nextHopIp))
                 .findFirst()
                 .map(RoutePaths::getLabel);
+    }
+
+    public StateTunnelList getTunnelState(String interfaceName) throws ReadFailedException {
+        Optional<StateTunnelList> tunnelStateOptional = iitmProvider.getTunnelState(interfaceName);
+        if (tunnelStateOptional.isPresent()) {
+            return tunnelStateOptional.get();
+        }
+        return null;
     }
 
     public static InstanceIdentifier<Interface> buildStateInterfaceId(String interfaceName) {
