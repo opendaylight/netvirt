@@ -2260,13 +2260,26 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected void associateRouterToVpn(Uuid vpnId, Uuid routerId) {
         updateVpnMaps(vpnId, null, routerId, null, null);
         LOG.debug("Updating association of subnets to external vpn {}", vpnId.getValue());
+        boolean isIPv4Configured = false;
+        boolean isIPv6Configured = false;
+        IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
         List<Uuid> routerSubnets = neutronvpnUtils.getNeutronRouterSubnetIds(routerId);
         for (Uuid subnetId : routerSubnets) {
             Subnetmap sn = updateVpnForSubnet(routerId, vpnId, subnetId, true);
-            if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToAdd(sn, vpnId)) {
-                neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(),
-                          NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp()), true);
+            ipVersion = neutronvpnUtils.getIpVersionFromString(sn.getSubnetIp());
+            if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
+                isIPv4Configured = true;
+            } else if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+                isIPv6Configured = true;
             }
+        }
+        if (isIPv4Configured && isIPv6Configured) {
+            ipVersion = IpVersionChoice.IPV4AND6;
+        }
+        if (!ipVersion.isIpVersionChosen(IpVersionChoice.UNDEFINED)) {
+            LOG.debug("vpnInstanceOpDataEntry is getting update with ip address family {} for VPN {} ", ipVersion,
+                    vpnId);
+            neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion, true);
         }
 
         try {
@@ -2299,21 +2312,29 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected void dissociateRouterFromVpn(Uuid vpnId, Uuid routerId) {
 
         List<Uuid> routerSubnets = neutronvpnUtils.getNeutronRouterSubnetIds(routerId);
-        boolean vpnInstanceIpVersionsRemoved = false;
-        IpVersionChoice vpnInstanceIpVersionsToRemove = IpVersionChoice.UNDEFINED;
+        boolean isIPv4Configured = false;
+        boolean isIPv6Configured = false;
+        IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
         for (Uuid subnetId : routerSubnets) {
             Subnetmap sn = neutronvpnUtils.getSubnetmap(subnetId);
-            if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToRemove(sn, vpnId)) {
-                vpnInstanceIpVersionsToRemove = vpnInstanceIpVersionsToRemove.addVersion(NeutronvpnUtils
-                        .getIpVersionFromString(sn.getSubnetIp()));
-                vpnInstanceIpVersionsRemoved = true;
+            ipVersion = neutronvpnUtils.getIpVersionFromString(sn.getSubnetIp());
+            if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
+                isIPv4Configured = true;
+            }
+            if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+                isIPv6Configured = true;
             }
             LOG.debug("Updating association of subnets to internal vpn {}", routerId.getValue());
             updateVpnForSubnet(vpnId, routerId, subnetId, false);
         }
-
-        if (vpnInstanceIpVersionsRemoved) {
-            neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), vpnInstanceIpVersionsToRemove, false);
+        if (isIPv4Configured && isIPv6Configured) {
+            ipVersion = IpVersionChoice.IPV4AND6;
+        }
+        if (!ipVersion.isIpVersionChosen(IpVersionChoice.UNDEFINED)) {
+            LOG.debug("vpnInstanceOpDataEntry is getting update with ip address family {} for VPN {} ",
+                    ipVersion, vpnId);
+            neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion,
+                    false);
         }
         clearFromVpnMaps(vpnId, routerId, null);
         try {
@@ -2398,6 +2419,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 if (vpnManager.checkForOverlappingSubnets(nw, subnetmapList, vpnId, routeTargets, failedNwList)) {
                     continue;
                 }
+                boolean isIPv4Configured = false;
+                boolean isIPv6Configured = false;
+                IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
                 for (Subnetmap subnetmap : subnetmapList) {
                     Uuid subnetId = subnetmap.getId();
                     Uuid subnetVpnId = neutronvpnUtils.getVpnForSubnet(subnetId);
@@ -2408,9 +2432,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 + " as it is already associated", subnetId.getValue(), vpnId.getValue()));
                         continue;
                     }
-                    if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToAdd(subnetmap, vpnId)) {
-                        neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(),
-                                NeutronvpnUtils.getIpVersionFromString(subnetmap.getSubnetIp()), true);
+                    ipVersion = neutronvpnUtils.getIpVersionFromString(subnetmap.getSubnetIp());
+                    if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
+                        isIPv4Configured = true;
+                    }
+                    if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+                        isIPv6Configured = true;
                     }
                     if (!NeutronvpnUtils.getIsExternal(network)) {
                         LOG.debug("associateNetworksToVpn: Add subnet {} to VPN {}", subnetId.getValue(),
@@ -2420,6 +2447,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 vpnId.getValue());
                         passedNwList.add(nw);
                     }
+                }
+                if (isIPv4Configured && isIPv6Configured) {
+                    ipVersion = IpVersionChoice.IPV4AND6;
+                }
+                if (!ipVersion.isIpVersionChosen(IpVersionChoice.UNDEFINED)) {
+                    LOG.debug("vpnInstanceOpDataEntry is getting update with ip address family {} for VPN {} ",
+                            ipVersion, vpnId);
+                    neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion, true);
                 }
                 passedNwList.add(nw);
             }
@@ -2521,13 +2556,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             }
             Set<VpnTarget> routeTargets = vpnManager.getRtListForVpn(vpnId.getValue());
+            boolean isIPv4Configured = false;
+            boolean isIPv6Configured = false;
+            IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
             for (Uuid subnet : networkSubnets) {
                 Subnetmap subnetmap = neutronvpnUtils.getSubnetmap(subnet);
-                if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToRemove(subnetmap, vpnId)) {
-                    IpVersionChoice ipVersionsToRemove = IpVersionChoice.UNDEFINED;
-                    IpVersionChoice ipVersion = NeutronvpnUtils.getIpVersionFromString(subnetmap.getSubnetIp());
-                    neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(),
-                        ipVersionsToRemove.addVersion(ipVersion), false);
+                ipVersion = neutronvpnUtils.getIpVersionFromString(subnetmap.getSubnetIp());
+                if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
+                    isIPv4Configured = true;
+                }
+                if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+                    isIPv6Configured = true;
                 }
                 LOG.debug("dissociateNetworksFromVpn: Withdraw subnet {} from VPN {}", subnet.getValue(),
                           vpnId.getValue());
@@ -2535,6 +2574,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 vpnManager.removeRouteTargetsToSubnetAssociation(routeTargets, subnetmap.getSubnetIp(),
                         vpnId.getValue());
                 passedNwList.add(nw);
+            }
+            if (isIPv4Configured && isIPv6Configured) {
+                ipVersion = IpVersionChoice.IPV4AND6;
+            }
+            if (!ipVersion.isIpVersionChosen(IpVersionChoice.UNDEFINED)) {
+                LOG.debug("vpnInstanceOpDataEntry is getting update with ip address family {} for VPN {}",
+                        ipVersion, vpnId);
+                neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion, false);
             }
         }
         clearFromVpnMaps(vpnId, null, new ArrayList<>(passedNwList));
