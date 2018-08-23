@@ -1104,7 +1104,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     Adjacencies adjacencies = new AdjacenciesBuilder().setAdjacency(adjacencyList).build();
                     vpnIfBuilder.addAugmentation(Adjacencies.class, adjacencies);
                 }
+
+
                 List<FixedIps> ips = port.getFixedIps();
+                if (NeutronConstants.IS_ODL_DHCP_PORT.test(port)) {
+                    return;
+                }
                 for (FixedIps ip : ips) {
                     String ipValue = ip.getIpAddress().stringValue();
                     if (oldVpnId != null) {
