@@ -32,6 +32,8 @@ import org.opendaylight.genius.ipv6util.api.Ipv6Constants.Ipv6RouterAdvertisemen
 import org.opendaylight.genius.ipv6util.api.Ipv6Util;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.utils.SystemPropertyReader;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.ipv6service.api.ElementCache;
 import org.opendaylight.netvirt.ipv6service.api.IVirtualNetwork;
@@ -88,17 +90,19 @@ public class IfMgr implements ElementCache, AutoCloseable {
     private final PacketProcessingService packetService;
     private final Ipv6PeriodicTrQueue ipv6Queue = new Ipv6PeriodicTrQueue(this::transmitUnsolicitedRA);
     private final Ipv6TimerWheel timer = new Ipv6TimerWheel();
+    private final JobCoordinator jobCoordinator;
 
     @Inject
     public IfMgr(DataBroker dataBroker, IElanService elanProvider, OdlInterfaceRpcService interfaceManagerRpc,
                  PacketProcessingService packetService, Ipv6ServiceUtils ipv6ServiceUtils,
-                 Ipv6ServiceEosHandler ipv6ServiceEosHandler) {
+                 Ipv6ServiceEosHandler ipv6ServiceEosHandler, JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
         this.elanProvider = elanProvider;
         this.interfaceManagerRpc = interfaceManagerRpc;
         this.packetService = packetService;
         this.ipv6ServiceUtils = ipv6ServiceUtils;
         this.ipv6ServiceEosHandler = ipv6ServiceEosHandler;
+        this.jobCoordinator = jobCoordinator;
         LOG.info("IfMgr is enabled");
     }
 
@@ -365,12 +369,16 @@ public class IfMgr implements ElementCache, AutoCloseable {
         VirtualPort prevIntf = vintfs.putIfAbsent(portId, intf);
         if (prevIntf == null) {
             Long elanTag = getNetworkElanTag(networkId);
-            // Do service binding for the port and set the serviceBindingStatus to true.
-            ipv6ServiceUtils.bindIpv6Service(portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
-            intf.setServiceBindingStatus(true);
+            VirtualPort virtIntf = intf;
+            jobCoordinator.enqueueJob("IPv6-" + String.valueOf(portId), () -> {
+                // Do service binding for the port and set the serviceBindingStatus to true.
+                ipv6ServiceUtils.bindIpv6Service(portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
+                virtIntf.setServiceBindingStatus(true);
 
-            /* Update the intf dpnId/ofPort from the Operational Store */
-            updateInterfaceDpidOfPortInfo(portId);
+                /* Update the intf dpnId/ofPort from the Operational Store */
+                updateInterfaceDpidOfPortInfo(portId);
+                return Collections.emptyList();
+            }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
 
         } else {
             intf = prevIntf;
@@ -412,13 +420,19 @@ public class IfMgr implements ElementCache, AutoCloseable {
             if (!intf.getServiceBindingStatus()) {
                 Long elanTag = getNetworkElanTag(intf.getNetworkID());
                 LOG.info("In updateHostIntf, service binding for portId {}", portId);
-                ipv6ServiceUtils.bindIpv6Service(portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
-                intf.setServiceBindingStatus(true);
+                jobCoordinator.enqueueJob("IPv6-" + String.valueOf(portId), () -> {
+                    ipv6ServiceUtils.bindIpv6Service(portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
+                    intf.setServiceBindingStatus(true);
+                    return Collections.emptyList();
+                }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
             }
         } else {
             LOG.info("In updateHostIntf, removing service binding for portId {}", portId);
-            ipv6ServiceUtils.unbindIpv6Service(portId.getValue());
-            intf.setServiceBindingStatus(false);
+            jobCoordinator.enqueueJob("IPv6-" + String.valueOf(portId), () -> {
+                ipv6ServiceUtils.unbindIpv6Service(portId.getValue());
+                intf.setServiceBindingStatus(false);
+                return Collections.emptyList();
+            }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         }
     }
 
@@ -493,14 +507,17 @@ public class IfMgr implements ElementCache, AutoCloseable {
                 LOG.debug("Reset the periodic RA Timer for intf {}", intf.getIntfUUID());
             } else {
                 LOG.info("In removePort for host interface, portId {}", portId);
-                // Remove the serviceBinding entry for the port.
-                ipv6ServiceUtils.unbindIpv6Service(portId.getValue());
-                // Remove the portId from the (network <--> List[dpnIds, List <ports>]) cache.
-                VirtualNetwork vnet = getNetwork(networkID);
-                if (null != vnet) {
-                    BigInteger dpId = intf.getDpId();
-                    vnet.updateDpnPortInfo(dpId, intf.getOfPort(), Ipv6ServiceConstants.DEL_ENTRY);
-                }
+                jobCoordinator.enqueueJob("IPv6-" + String.valueOf(portId), () -> {
+                    // Remove the serviceBinding entry for the port.
+                    ipv6ServiceUtils.unbindIpv6Service(portId.getValue());
+                    // Remove the portId from the (network <--> List[dpnIds, List <ports>]) cache.
+                    VirtualNetwork vnet = getNetwork(networkID);
+                    if (null != vnet) {
+                        BigInteger dpId = intf.getDpId();
+                        vnet.updateDpnPortInfo(dpId, intf.getOfPort(), Ipv6ServiceConstants.DEL_ENTRY);
+                    }
+                    return Collections.emptyList();
+                }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
             }
         }
     }
