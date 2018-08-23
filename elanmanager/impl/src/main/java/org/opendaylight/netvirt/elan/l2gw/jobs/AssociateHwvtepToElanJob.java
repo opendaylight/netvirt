@@ -89,8 +89,8 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
 
             LogicalSwitchAddedJob logicalSwitchAddedJob =
                     new LogicalSwitchAddedJob(elanL2GatewayUtils, elanL2GatewayMulticastUtils,
-                        logicalSwitchName, l2Device, l2GatewayDevice, defaultVlan,
-                        () -> elanInstanceCache.get(logicalSwitchName).orNull());
+                        logicalSwitchName, l2Device, l2GatewayDevice, defaultVlan
+                    );
             return logicalSwitchAddedJob.call();
         }
     }

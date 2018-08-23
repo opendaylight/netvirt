@@ -266,8 +266,8 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
 
             DisAssociateHwvtepFromElanJob disAssociateHwvtepToElanJob =
                     new DisAssociateHwvtepFromElanJob(elanL2GatewayUtils, elanL2GatewayMulticastUtils,
-                            elanL2GwDevice, elanName, () -> elanInstanceCache.get(elanName).orNull(),
-                            l2Device, defaultVlan, hwvtepNodeId, isLastL2GwConnDeleted);
+                            elanL2GwDevice, elanName,
+                        l2Device, defaultVlan, hwvtepNodeId, isLastL2GwConnDeleted);
             elanClusterUtils.runOnlyInOwnerNode(disAssociateHwvtepToElanJob.getJobKey(), "remove l2gw connection job",
                     disAssociateHwvtepToElanJob);
         }
@@ -307,7 +307,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                         hwvtepNodeId, elanName);
                 if (logicalSwitch == null) {
                     HwvtepLogicalSwitchListener hwVTEPLogicalSwitchListener = new HwvtepLogicalSwitchListener(
-                            elanInstanceCache, elanL2GatewayUtils, elanClusterUtils, elanL2GatewayMulticastUtils,
+                        elanL2GatewayUtils, elanClusterUtils, elanL2GatewayMulticastUtils,
                             this, l2GatewayDevice, elanName, l2Device, defaultVlan, l2GwConnId, hwvtepNodeHACache);
                     hwVTEPLogicalSwitchListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
                     closeables.add(hwVTEPLogicalSwitchListener);
