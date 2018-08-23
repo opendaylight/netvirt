@@ -780,6 +780,21 @@ public class NeutronvpnUtils {
         return subnet;
     }
 
+    protected List<Subnetmap> getNeutronRouterSubnetMapList(Uuid routerId) {
+        List<Subnetmap> subnetMapList = new ArrayList<>();
+        Optional<Subnetmaps> subnetMaps = read(LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.builder(Subnetmaps.class).build());
+        if (subnetMaps.isPresent() && subnetMaps.get().getSubnetmap() != null) {
+            for (Subnetmap subnetmap : subnetMaps.get().getSubnetmap()) {
+                if (routerId.equals(subnetmap.getRouterId())) {
+                    subnetMapList.add(subnetmap);
+                }
+            }
+        }
+        LOG.debug("getNeutronRouterSubnetMapList returns {}", subnetMapList);
+        return subnetMapList;
+    }
+
     @Nonnull
     protected List<Uuid> getNeutronRouterSubnetIds(Uuid routerId) {
         LOG.debug("getNeutronRouterSubnetIds for {}", routerId.getValue());
@@ -1438,40 +1453,31 @@ public class NeutronvpnUtils {
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
     }
 
-    public boolean shouldVpnHandleIpVersionChangeToAdd(Subnetmap sm, Uuid vpnId) {
-        if (sm == null) {
-            return false;
+    public boolean shouldVpnHandleIpVersionChoiceChange(IpVersionChoice ipVersion, Uuid routerId, boolean add) {
+        int ipv4SubnetCount = -1;
+        int ipv6SubnetCount = -1;
+        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
+            ipv4SubnetCount = getSubnetCountFromRouter(routerId, ipVersion);
         }
-        IpVersionChoice ipVersion = getIpVersionFromString(sm.getSubnetIp());
-        return shouldVpnHandleIpVersionChoiceChangeToAdd(ipVersion, vpnId);
-    }
-
-    public boolean shouldVpnHandleIpVersionChoiceChangeToAdd(IpVersionChoice ipVersion, Uuid vpnId) {
-        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnId.getValue());
-        if (vpnInstanceOpDataEntry == null) {
-            return false;
+        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+            ipv6SubnetCount = getSubnetCountFromRouter(routerId, ipVersion);
         }
-        if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
-            LOG.error("shouldVpnHandleIpVersionChangeToAdd: {} "
-                    + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnId.getValue());
-            return false;
+        if (add) {
+            /* Update vpnInstanceOpDataEntry with address family update only on first IPv4/IPv6 address family
+             * for the particular VPN Instance.
+             */
+            if (ipv4SubnetCount == 1 || ipv6SubnetCount == 1) {
+                return true;
+            }
+        } else {
+            /* Update vpnInstanceOpDataEntry with address family update only on last IPv4/IPv6 address family
+             * for the particular VPN Instance.
+             */
+            if (ipv4SubnetCount == 0 || ipv6SubnetCount == 0) {
+                return true;
+            }
         }
-        boolean isIpv4Configured = vpnInstanceOpDataEntry.isIpv4Configured();
-        boolean isVpnInstanceIpv4Changed = false;
-        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) && !isIpv4Configured) {
-            isVpnInstanceIpv4Changed = true;
-        }
-        boolean isIpv6Configured = vpnInstanceOpDataEntry.isIpv6Configured();
-        boolean isVpnInstanceIpv6Changed = false;
-        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) && !isIpv6Configured) {
-            isVpnInstanceIpv6Changed = true;
-        }
-        if (!isVpnInstanceIpv4Changed && !isVpnInstanceIpv6Changed) {
-            LOG.debug("shouldVpnHandleIpVersionChangeToAdd: VPN {} did not change with IpFamily {}",
-                  vpnId.getValue(), ipVersion.toString());
-            return false;
-        }
-        return true;
+        return false;
     }
 
     public boolean shouldVpnHandleIpVersionChangeToRemove(Subnetmap sm, Uuid vpnId) {
@@ -1500,7 +1506,23 @@ public class NeutronvpnUtils {
         return false;
     }
 
-    public void updateVpnInstanceWithIpFamily(String vpnName, IpVersionChoice ipVersion, boolean add) {
+    public int getSubnetCountFromRouter(Uuid routerId, IpVersionChoice ipVer) {
+        List<Subnetmap> subnetMapList = getNeutronRouterSubnetMapList(routerId);
+        int subnetCount = 0;
+        for (Subnetmap subMap : subnetMapList) {
+            IpVersionChoice ipVersion = getIpVersionFromString(subMap.getSubnetIp());
+            if (ipVersion.isIpVersionChosen(ipVer)) {
+                subnetCount++;
+            }
+            if (subnetCount > 1) {
+                break;
+            }
+        }
+        return subnetCount;
+    }
+
+    public void updateVpnInstanceWithIpFamily(String vpnName, boolean isIPv4Configured, boolean isIPv6Configured,
+                                              boolean add) {
         VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName);
         if (vpnInstanceOpDataEntry == null) {
             return;
@@ -1508,22 +1530,25 @@ public class NeutronvpnUtils {
         if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
             LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}."
                             + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnName,
-                    ipVersion.toString());
+                    isIPv4Configured && isIPv6Configured == true ? "IPv4 and IPv6 " : isIPv4Configured == true
+                            ? "IPv4" : "IPv6");
             return;
         }
-        final boolean isFinalVpnInstanceIpv6Changed = ipVersion
-                .isIpVersionChosen(IpVersionChoice.IPV6) ? true : false;
-        final boolean isFinalVpnInstanceIpv4Changed = ipVersion
-                .isIpVersionChosen(IpVersionChoice.IPV4) ? true : false;
-        final boolean finalIsIpv4Configured = ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) ? add : false;
-        final boolean finalIsIpv6Configured = ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) ? add : false;
         jobCoordinator.enqueueJob("VPN-" + vpnName, () -> {
             VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
-            if (isFinalVpnInstanceIpv4Changed) {
-                builder.setIpv4Configured(finalIsIpv4Configured);
-            }
-            if (isFinalVpnInstanceIpv6Changed) {
-                builder.setIpv6Configured(finalIsIpv6Configured);
+            if (isIPv4Configured || isIPv6Configured) {
+                if (add && isIPv4Configured) {
+                    builder.setIpv4Configured(true);
+                }
+                if (add && isIPv6Configured) {
+                    builder.setIpv6Configured(true);
+                }
+                if (!add && isIPv4Configured) {
+                    builder.setIpv4Configured(false);
+                }
+                if (!add && isIPv6Configured) {
+                    builder.setIpv6Configured(false);
+                }
             }
             return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 OPERATIONAL, tx -> {
@@ -1532,8 +1557,8 @@ public class NeutronvpnUtils {
                                 new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
                     tx.merge(id, builder.build(), false);
                     LOG.info("updateVpnInstanceWithIpFamily: Successfully {} {} to Vpn {}",
-                            add ? "added" : "removed",
-                            ipVersion.toString(), vpnName);
+                            add == true ? "added" : "removed", isIPv4Configured && isIPv6Configured == true
+                                    ? "IPv4 and IPv6 " : isIPv4Configured == true ? "IPv4" : "IPv6", vpnName);
                 }));
         });
     }
