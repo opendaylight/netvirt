@@ -1054,6 +1054,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         if (vpnId == null || port == null) {
             return;
         }
+
         boolean isLockAcquired = false;
         String infName = port.getUuid().getValue();
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);

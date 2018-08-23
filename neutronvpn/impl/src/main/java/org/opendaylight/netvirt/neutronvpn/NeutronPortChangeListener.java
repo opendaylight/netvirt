@@ -235,6 +235,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             Set<FixedIps> oldIPs = getFixedIpSet(original.getFixedIps());
             Set<FixedIps> newIPs = getFixedIpSet(update.getFixedIps());
             if (!oldIPs.equals(newIPs)) {
+                if (NeutronConstants.IS_ODL_DHCP_PORT.test(update)) {
+                    return;
+                }
                 handleNeutronPortUpdated(original, update);
             }
         }
