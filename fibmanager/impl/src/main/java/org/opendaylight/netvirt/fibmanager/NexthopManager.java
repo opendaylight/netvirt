@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -903,7 +904,12 @@ public class NexthopManager implements AutoCloseable {
                 return;
             }
             Class<? extends TunnelTypeBase> tunnelType = VpnExtraRouteHelper.getTunnelType(itmManager, egressInterface);
-            StateTunnelList ifState = fibUtil.getTunnelState(egressInterface);
+            StateTunnelList ifState = null;
+            try {
+                ifState = fibUtil.getTunnelState(egressInterface);
+            } catch (ReadFailedException e) {
+                LOG.error("error in fetching tunnel state for interface {}", egressInterface, e);
+            }
             if (ifState == null || ifState.getOperState() != TunnelOperStatus.Up) {
                 LOG.trace("Tunnel not up {}", egressInterface);
                 return;
