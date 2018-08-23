@@ -18,7 +18,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 
 import org.opendaylight.genius.infra.Datastore;
@@ -377,13 +376,6 @@ public final class CoeUtils {
         tx.put(vpnIdentifier, newVpn);
     }
 
-    static void deleteVpnInstance(String vpnName, WriteTransaction wrtConfigTxn) {
-        LOG.debug("Deleting vpn-instance for {} ", vpnName);
-        InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
-                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
-        wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vpnIdentifier);
-    }
-
     static InstanceIdentifier<VpnInterface> buildVpnInterfaceIdentifier(String ifName) {
         InstanceIdentifier<VpnInterface> id = InstanceIdentifier.builder(VpnInterfaces.class).child(VpnInterface
                 .class, new VpnInterfaceKey(ifName)).build();
@@ -402,7 +394,7 @@ public final class CoeUtils {
                 .setName(interfaceName)
                 .setVpnInstanceNames(listVpn)
                 .setRouterInterface(isRouterInterface);
-        Adjacencies adjs = createPortIpAdjacencies(pod, interfaceName, macAddress, isRouterInterface);
+        Adjacencies adjs = createPortIpAdjacencies(pod, interfaceName, macAddress);
         if (adjs != null) {
             vpnb.addAugmentation(Adjacencies.class, adjs);
         }
@@ -420,8 +412,7 @@ public final class CoeUtils {
         wrtConfigTxn.delete(vpnIfIdentifier);
     }
 
-    static Adjacencies createPortIpAdjacencies(Pods pod, String interfaceName, String macAddress,
-                                                  Boolean isRouterInterface) {
+    static Adjacencies createPortIpAdjacencies(Pods pod, String interfaceName, String macAddress) {
         List<Adjacency> adjList = new ArrayList<>();
         LOG.trace("create config adjacencies for Port: {}", interfaceName);
         IpAddress ip = pod.getInterface().get(0).getIpAddress();

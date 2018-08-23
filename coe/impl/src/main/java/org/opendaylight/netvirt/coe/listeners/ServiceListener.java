@@ -31,12 +31,10 @@ public class ServiceListener implements DataTreeChangeListener<Services> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServiceListener.class);
     private ListenerRegistration<ServiceListener> listenerRegistration;
-    private final DataBroker dataBroker;
 
     @Inject
     public ServiceListener(final DataBroker dataBroker) {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-        this.dataBroker = dataBroker;
     }
 
     protected InstanceIdentifier<Services> getWildCardPath() {

@@ -27,7 +27,6 @@ import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.ServiceIndex;
-import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.coe.api.SouthboundInterfaceInfo;
 import org.opendaylight.netvirt.coe.caches.PodsCache;
@@ -55,18 +54,16 @@ import org.slf4j.LoggerFactory;
 public class TerminationPointStateListener extends
         AbstractSyncDataTreeChangeListener<OvsdbTerminationPointAugmentation> {
     private static final Logger LOG = LoggerFactory.getLogger(TerminationPointStateListener.class);
-    private final JobCoordinator coordinator;
     private final PodsCache  podsCache;
     private final DataTreeEventCallbackRegistrar eventCallbacks;
     private final ManagedNewTransactionRunner txRunner;
 
     @Inject
-    public TerminationPointStateListener(DataBroker dataBroker, final JobCoordinator coordinator,
-                                         PodsCache podsCache, DataTreeEventCallbackRegistrar eventCallbacks) {
+    public TerminationPointStateListener(DataBroker dataBroker,
+        PodsCache podsCache, DataTreeEventCallbackRegistrar eventCallbacks) {
         super(dataBroker, LogicalDatastoreType.OPERATIONAL,
                 InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(Node.class)
                         .child(TerminationPoint.class).augmentation(OvsdbTerminationPointAugmentation.class).build());
-        this.coordinator = coordinator;
         this.podsCache = podsCache;
         this.eventCallbacks = eventCallbacks;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);

@@ -37,7 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.Coe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.coe.Pods;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.pod_attributes.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.config.rev180703.CoeConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -51,15 +50,12 @@ public class PodListener implements DataTreeChangeListener<Pods> {
     private ListenerRegistration<PodListener> listenerRegistration;
     private final JobCoordinator jobCoordinator;
     private final ManagedNewTransactionRunner txRunner;
-    private final CoeConfig coeConfig;
 
     @Inject
-    public PodListener(final DataBroker dataBroker, JobCoordinator jobCoordinator,
-                       CoeConfig coeConfig) {
+    public PodListener(final DataBroker dataBroker, JobCoordinator jobCoordinator) {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.jobCoordinator = jobCoordinator;
-        this.coeConfig = coeConfig;
     }
 
     protected InstanceIdentifier<Pods> getWildCardPath() {
