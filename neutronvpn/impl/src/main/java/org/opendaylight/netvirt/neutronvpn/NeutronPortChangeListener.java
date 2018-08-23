@@ -725,6 +725,11 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                       + "during subnet deletion event.", portupdate.getUuid().getValue());
             return;
         }
+
+        if (NeutronConstants.IS_ODL_DHCP_PORT.test(portupdate)) {
+            return;
+        }
+
         jobCoordinator.enqueueJob("PORT- " + portupdate.getUuid().getValue(),
             () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx -> {
                 final List<Uuid> originalSnMapsIds = portoriginalIps.stream().map(FixedIps::getSubnetId)
