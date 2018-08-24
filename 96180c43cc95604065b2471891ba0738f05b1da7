@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e14c67ae_4e26ce0e",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 2282,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-08-24T08:44:10Z",
+      "side": 1,
+      "message": "Will the function calls \"associateRouterToVPN\" and \"handleRouterInterfaceAdded\" execute in parallel? The question is: If we are adding ports to subnets and at the same time adding router to BGP VPN, will it work correctly?\n\nAlso, what happens when we delete subnet to a router while the above function call is getting executed? Will the assignment of the address family be serialized across the two calls (associateRouterToVPN and addSubnetToRouter)?",
+      "range": {
+        "startLine": 2260,
+        "startChar": 3,
+        "endLine": 2282,
+        "endChar": 9
+      },
+      "revId": "96180c43cc95604065b2471891ba0738f05b1da7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
