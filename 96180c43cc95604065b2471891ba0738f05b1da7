@@ -22,6 +22,30 @@
       "revId": "96180c43cc95604065b2471891ba0738f05b1da7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e2a24e27_44f9aab7",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 2282,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-08-27T06:59:33Z",
+      "side": 1,
+      "message": "@Ashvin,\n   \"associateRouterToVPN\" and \"handleRouterInterfaceAdded\"(If it is first IPv4/IPv6 subnet to router) methods can execute in parallel for the same VPN Instance with the help of JC with VPN Instance name as a key. Which ever the events gets invoked first it will be placed in the VPN Instance queue then it will process one by one based on the sequence of the events received.\n\nThe same logic also applicable for when subnet is removed from the router(last IPv4/IPv6 subnet only).\n\nThanks,\nKarthikeyan.",
+      "parentUuid": "e14c67ae_4e26ce0e",
+      "range": {
+        "startLine": 2260,
+        "startChar": 3,
+        "endLine": 2282,
+        "endChar": 9
+      },
+      "revId": "96180c43cc95604065b2471891ba0738f05b1da7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
