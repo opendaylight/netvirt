@@ -274,12 +274,17 @@ public class AclNodeDefaultFlowsTxBuilder {
     }
 
     private void addIngressConntrackStateRules() {
-        addConntrackStateRules(NwConstants.LPORT_DISPATCHER_TABLE, NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE);
+        addConntrackStateRules(NwConstants.LPORT_DISPATCHER_TABLE,
+                NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE);
+        addConntrackUntrackedRule(NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE,
+                NwConstants.INGRESS_ACL_CONNTRACK_SENDER_TABLE);
     }
 
     private void addEgressConntrackStateRules() {
         addConntrackStateRules(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE,
                 NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE);
+        addConntrackUntrackedRule(NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE,
+                NwConstants.EGRESS_ACL_CONNTRACK_SENDER_TABLE);
     }
 
     private void addIngressConntrackClassifierFlows() {
@@ -352,9 +357,27 @@ public class AclNodeDefaultFlowsTxBuilder {
         programConntrackForwardRule(AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY, "Tracked_Related",
                 AclConstants.TRACKED_REL_CT_STATE, AclConstants.TRACKED_REL_CT_STATE_MASK,
                 dispatcherTableId, tableId, true);
-        programConntrackForwardRule(AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY, "Untracked_Related",
-                AclConstants.UNTRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK,
-                NwConstants.EGRESS_ACL_CONNTRACK_SENDER_TABLE, tableId, false);
+    }
+
+    private void addConntrackUntrackedRule(short tableId, short gotoTableId) {
+        programConntrackUntrackedRule(AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY, "Untracked_Related",
+                AclConstants.UNTRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK, tableId, gotoTableId);
+    }
+
+    private void programConntrackUntrackedRule(Integer priority, String flowId, int conntrackState, int conntrackMask,
+            short tableId, short gotoTableId) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(new NxMatchCtState(conntrackState, conntrackMask));
+        matches.add(AclServiceUtils.buildAclConntrackClassifierTypeMatch(
+                AclConntrackClassifierType.CONNTRACK_SUPPORTED));
+
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionNxCtClear());
+        actionsInfos.add(new ActionNxResubmit(gotoTableId));
+        List<InstructionInfo> instructions = new ArrayList<>();
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        flowId = "Fixed_Conntrk_Trk_" + dpId + "_" + flowId + gotoTableId;
+        addFlowToTx(tableId, flowId, priority, matches, instructions);
     }
 
     /**
