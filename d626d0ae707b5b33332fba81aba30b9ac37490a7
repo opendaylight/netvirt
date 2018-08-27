@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8474bd06_f66da12b",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-27T15:26:42Z",
+      "side": 1,
+      "message": "use your new check here as well.",
+      "range": {
+        "startLine": 313,
+        "startChar": 40,
+        "endLine": 314,
+        "endChar": 59
+      },
+      "revId": "d626d0ae707b5b33332fba81aba30b9ac37490a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "322ecffc_49d24d2b",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-27T15:26:42Z",
+      "side": 1,
+      "message": "isV4Subnet/isV6Subnet.",
+      "range": {
+        "startLine": 323,
+        "startChar": 29,
+        "endLine": 324,
+        "endChar": 35
+      },
+      "revId": "d626d0ae707b5b33332fba81aba30b9ac37490a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9bb22fb_3f7f33d6",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-27T15:26:42Z",
+      "side": 1,
+      "message": "Move the entire new logic of checking if addressFamily needs to be updated, into the existing shouldVpnHandleIpVersionChoiceChangeToAdd() methods, and then call the method as on the original code.\nTHat is, modify the shouldVpnHandleIpVersionChoiceChangeToAdd() methods to have the new logic.",
+      "range": {
+        "startLine": 344,
+        "startChar": 16,
+        "endLine": 355,
+        "endChar": 67
+      },
+      "revId": "d626d0ae707b5b33332fba81aba30b9ac37490a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "59aae4d5_da6df026",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-27T15:26:42Z",
+      "side": 1,
+      "message": "isV4Subnet/ isV6Subnet",
+      "range": {
+        "startLine": 413,
+        "startChar": 29,
+        "endLine": 414,
+        "endChar": 43
+      },
+      "revId": "d626d0ae707b5b33332fba81aba30b9ac37490a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4c84eb92_e92781d6",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-27T15:26:42Z",
+      "side": 1,
+      "message": "Pelase check my previous comments",
+      "range": {
+        "startLine": 440,
+        "startChar": 20,
+        "endLine": 456,
+        "endChar": 44
+      },
+      "revId": "d626d0ae707b5b33332fba81aba30b9ac37490a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "65a25056_5619c514",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 2261,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-27T15:26:42Z",
+      "side": 1,
+      "message": "I\u0027m assuming the chages here are similar to those in NeutronPortChangeListener. Please check my comments there and address them within this file as well.",
+      "range": {
+        "startLine": 2261,
+        "startChar": 17,
+        "endLine": 2261,
+        "endChar": 34
+      },
+      "revId": "d626d0ae707b5b33332fba81aba30b9ac37490a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "72b0a3db_2406f680",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1506,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-27T15:26:42Z",
+      "side": 1,
+      "message": "Add a new method that returns a list of subnetMaps, instead of subnetIds, since SubnetMaps is already read in getNeutronRouterSubnetIds().",
+      "range": {
+        "startLine": 1504,
+        "startChar": 34,
+        "endLine": 1506,
+        "endChar": 45
+      },
+      "revId": "d626d0ae707b5b33332fba81aba30b9ac37490a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "755859c8_e8da3c0a",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1510,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-27T15:26:42Z",
+      "side": 1,
+      "message": "if subnetCount \u003e 1, dont process the remaining subnets in the list, i.e, return boolean based on whether the count is 1 or mre than 1",
+      "range": {
+        "startLine": 1510,
+        "startChar": 23,
+        "endLine": 1510,
+        "endChar": 30
+      },
+      "revId": "d626d0ae707b5b33332fba81aba30b9ac37490a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
