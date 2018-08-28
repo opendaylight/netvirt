@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1253e1e6_9c313893",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-28T06:00:19Z",
+      "side": 1,
+      "message": "This does not clearly state what the issue was and what the fix is. Please update this with the exact nature of the fix.\nSorry for the delayed comment:)",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 44
+      },
+      "revId": "2e6896905247898988f25d672412d50ae19d0b67",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
