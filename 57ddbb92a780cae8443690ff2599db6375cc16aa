@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0a6aeea_18db1eed",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2264,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-29T09:33:06Z",
+      "side": 1,
+      "message": "Like y previous comments, no need of boolean. Use IPVersionChoice.addVersion() instead",
+      "range": {
+        "startLine": 2263,
+        "startChar": 8,
+        "endLine": 2264,
+        "endChar": 39
+      },
+      "revId": "57ddbb92a780cae8443690ff2599db6375cc16aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a398aac_3ddca45e",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2277,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-29T09:33:06Z",
+      "side": 1,
+      "message": "not required if my comments above are addressed.",
+      "range": {
+        "startLine": 2276,
+        "startChar": 9,
+        "endLine": 2277,
+        "endChar": 49
+      },
+      "revId": "57ddbb92a780cae8443690ff2599db6375cc16aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "08b5baf8_ef92c86e",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2317,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-29T09:33:06Z",
+      "side": 1,
+      "message": "check my comments in associateRouterToVpn() method",
+      "range": {
+        "startLine": 2315,
+        "startChar": 28,
+        "endLine": 2317,
+        "endChar": 33
+      },
+      "revId": "57ddbb92a780cae8443690ff2599db6375cc16aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6ff3436b_ac578208",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2424,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-29T09:33:06Z",
+      "side": 1,
+      "message": "check my comments in associateRouterToVpn() method",
+      "range": {
+        "startLine": 2422,
+        "startChar": 28,
+        "endLine": 2424,
+        "endChar": 37
+      },
+      "revId": "57ddbb92a780cae8443690ff2599db6375cc16aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ac4b174e_1846e853",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2562,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-29T09:33:06Z",
+      "side": 1,
+      "message": "check my comments in associateRouterToVpn() method",
+      "range": {
+        "startLine": 2559,
+        "startChar": 19,
+        "endLine": 2562,
+        "endChar": 28
+      },
+      "revId": "57ddbb92a780cae8443690ff2599db6375cc16aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8658127e_b33255c1",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1460,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-29T09:33:06Z",
+      "side": 1,
+      "message": "move this to else {}  in line 1467.\nAlso add a comment that the possible values of ipversionchoice when shouldVpnHandleIpVersionChoiceChange() will either be v4 or v6, but not v4\u0026v6",
+      "range": {
+        "startLine": 1458,
+        "startChar": 8,
+        "endLine": 1460,
+        "endChar": 9
+      },
+      "revId": "57ddbb92a780cae8443690ff2599db6375cc16aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "78a3ae93_bfa8559a",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1464,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-29T09:33:06Z",
+      "side": 1,
+      "message": "else if",
+      "range": {
+        "startLine": 1463,
+        "startChar": 8,
+        "endLine": 1464,
+        "endChar": 10
+      },
+      "revId": "57ddbb92a780cae8443690ff2599db6375cc16aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bffd9cb0_cf20a4f8",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1467,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-29T09:33:06Z",
+      "side": 1,
+      "message": "subnet",
+      "range": {
+        "startLine": 1467,
+        "startChar": 90,
+        "endLine": 1467,
+        "endChar": 104
+      },
+      "revId": "57ddbb92a780cae8443690ff2599db6375cc16aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d22fe76_80edc44e",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1470,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-29T09:33:06Z",
+      "side": 1,
+      "message": "subnet",
+      "range": {
+        "startLine": 1470,
+        "startChar": 92,
+        "endLine": 1470,
+        "endChar": 106
+      },
+      "revId": "57ddbb92a780cae8443690ff2599db6375cc16aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
