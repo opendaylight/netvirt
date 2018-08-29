@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7d9f68c3_11e24e1c",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 2268,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-08-29T12:30:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "820b9d77_a727782a",
+      "range": {
+        "startLine": 2268,
+        "startChar": 12,
+        "endLine": 2268,
+        "endChar": 52
+      },
+      "revId": "129856e4a22870c523e76adc966ff4eaeca61da9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8279da92_a0d6c677",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 11
@@ -36,6 +60,30 @@
       "writtenOn": "2018-08-29T12:00:33Z",
       "side": 1,
       "message": "same comments as in :2268",
+      "range": {
+        "startLine": 2311,
+        "startChar": 17,
+        "endLine": 2311,
+        "endChar": 52
+      },
+      "revId": "129856e4a22870c523e76adc966ff4eaeca61da9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae7c3efa_59f6b7a3",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 2311,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-08-29T12:30:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8279da92_a0d6c677",
       "range": {
         "startLine": 2311,
         "startChar": 17,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "cf29bb25_8e7db1f2",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 2418,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-08-29T12:30:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae55d8b7_918b37a9",
+      "range": {
+        "startLine": 2418,
+        "startChar": 21,
+        "endLine": 2418,
+        "endChar": 58
+      },
+      "revId": "129856e4a22870c523e76adc966ff4eaeca61da9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "74b6c539_6328adef",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 11
@@ -82,6 +154,30 @@
       "writtenOn": "2018-08-29T12:00:33Z",
       "side": 1,
       "message": "same comments as in :2268",
+      "range": {
+        "startLine": 2539,
+        "startChar": 21,
+        "endLine": 2539,
+        "endChar": 55
+      },
+      "revId": "129856e4a22870c523e76adc966ff4eaeca61da9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa9d1be_db27d864",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 2539,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-08-29T12:30:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "74b6c539_6328adef",
       "range": {
         "startLine": 2539,
         "startChar": 21,
