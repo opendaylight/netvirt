@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46d4266e_6f5b2aa9",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1060,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-29T10:16:09Z",
+      "side": 1,
+      "message": "Can you please clarify the below for me please:\n1) When using q-dhcp (neutron-dhcp), the dhcp port is treated as a regular neutron port, and is added to the subnetMaps portList. On a router-interface-add and a bgpvpn-router-assoc the neutronvpn-port-ip ds is properly updated, and even on a disassoc case everything is cleared properly. IS this statement correct?\n\n2) Now, when using ODL based DHCP service, what is being observed is that on a router-interface-add, the dhcp port is not added to the neutronvpn-portip d.s, but on a bgpvpn-router-assoc its added but disassociate does not clear it. IS this correct?\n\nIf I have got point (2) correct, then I think this is not the right way to fix this issue. The reason is, that if you notice, in NeutronPortCHangeListener, in handleNeutronPortCreated() itself there is a is_ODL_DHCP check, so it does not proceed further from there. So it does not get populated into the subnetMaps DS. Let us mark this a (a).\nNow, if you notice for UpdateVpnInterface(), the Port that is supplied is obtained from the list of ports from subnetMaps. Let us mark this as (b)\n If in (a) the dhcp port was not added to the subnetMaps portList in the first place, why did it come in (b) that lead to it being added to neutronvpn-port-ip-port?\n\nI think we will have to further analyze in the above lines and put the right fix for this issue.\nPlease correct me if I have missed any point of reasoning here:)",
+      "range": {
+        "startLine": 1058,
+        "startChar": 8,
+        "endLine": 1060,
+        "endChar": 9
+      },
+      "revId": "337d43065d212521d20351dc1984185252e93b59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
