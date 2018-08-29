@@ -284,6 +284,30 @@
     },
     {
       "key": {
+        "uuid": "869ed0d5_c5862fc5",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2264,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-29T09:33:06Z",
+      "side": 1,
+      "message": "Boolean value is not required for assoc/dissoc use-cases Karthikeyan.\nyou are using the boolean to convert ipversionchoice.v4/v6 to ipversionchoice.v4\u0026v6.\nThe above functionality is already provided by the method IpVersionChoice.addVersion().",
+      "parentUuid": "6c202acc_16258780",
+      "range": {
+        "startLine": 2263,
+        "startChar": 14,
+        "endLine": 2264,
+        "endChar": 34
+      },
+      "revId": "1ee6e49d553feef568f601361a7e570d390d6467",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "066b3e0d_21c6d65b",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 9
@@ -331,6 +355,53 @@
     },
     {
       "key": {
+        "uuid": "112a4ab6_66ce9e20",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2266,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-29T09:33:06Z",
+      "side": 1,
+      "message": "Yes, you can get subnetId directly from subnetMap.\nUse your new method to fetch a list of subnetMaps, iterate on each subnetMap, get the subnetId like subnetmap.getId().",
+      "parentUuid": "eac21626_5687f4ae",
+      "range": {
+        "startLine": 2265,
+        "startChar": 10,
+        "endLine": 2266,
+        "endChar": 45
+      },
+      "revId": "1ee6e49d553feef568f601361a7e570d390d6467",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e9959022_58b01202",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2276,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-29T09:33:06Z",
+      "side": 1,
+      "message": "once my comments on :2264 are addressed , this condition becomes, if ipverionChoice !\u003d UNDEFINED.",
+      "range": {
+        "startLine": 2276,
+        "startChar": 12,
+        "endLine": 2276,
+        "endChar": 63
+      },
+      "revId": "1ee6e49d553feef568f601361a7e570d390d6467",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "efa7105d_a8b2d0ec",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 9
@@ -371,6 +442,52 @@
         "startChar": 8,
         "endLine": 2282,
         "endChar": 9
+      },
+      "revId": "1ee6e49d553feef568f601361a7e570d390d6467",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2b9dab3_cf4d80d9",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2315,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-29T09:33:06Z",
+      "side": 1,
+      "message": "please check my comments at the very beginning.",
+      "range": {
+        "startLine": 2315,
+        "startChar": 19,
+        "endLine": 2315,
+        "endChar": 27
+      },
+      "revId": "1ee6e49d553feef568f601361a7e570d390d6467",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "862e609f_af8c1d6f",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2420,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-08-29T09:33:06Z",
+      "side": 1,
+      "message": "same comments here.",
+      "range": {
+        "startLine": 2420,
+        "startChar": 31,
+        "endLine": 2420,
+        "endChar": 38
       },
       "revId": "1ee6e49d553feef568f601361a7e570d390d6467",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
