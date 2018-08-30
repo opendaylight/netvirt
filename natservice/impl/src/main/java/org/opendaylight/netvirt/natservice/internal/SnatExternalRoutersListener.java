@@ -7,8 +7,6 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import java.util.List;
-import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -24,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.r
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,12 +91,8 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
             // Router associated to BGPVPN, ignoring it.
             return;
         }
-
-        List<ExternalIps> externalIps = routers.getExternalIps();
         // Allocate Primary NAPTSwitch for this router
-        if (routers.isEnableSnat() && externalIps != null && !externalIps.isEmpty()) {
-            centralizedSwitchScheduler.scheduleCentralizedSwitch(routers);
-        }
+        centralizedSwitchScheduler.scheduleCentralizedSwitch(routers);
     }
 
     @Override
@@ -117,26 +110,7 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
         LOG.info("update :called for router {} with originalSNATStatus {} and updatedSNATStatus {}",
                 routerName, originalSNATEnabled, updatedSNATEnabled);
         if (!upgradeState.isUpgradeInProgress()) {
-            if (originalSNATEnabled != updatedSNATEnabled) {
-                if (originalSNATEnabled) {
-                    //SNAT is disabled for the router
-                    LOG.debug("update : SNAT disabled on router {}, release NAPT Switch", routerName);
-                    centralizedSwitchScheduler.releaseCentralizedSwitch(update);
-                } else {
-                    LOG.debug("update : SNAT enabled on router {}, schedule NAPT Switch", routerName);
-                    centralizedSwitchScheduler.scheduleCentralizedSwitch(update);
-                }
-            } else if (updatedSNATEnabled) {
-                centralizedSwitchScheduler.updateCentralizedSwitch(original, update);
-            }
-
-            List<ExternalIps> originalExternalIps = original.getExternalIps();
-            List<ExternalIps> updateExternalIps = update.getExternalIps();
-            if (!Objects.equals(originalExternalIps, updateExternalIps)) {
-                if (originalExternalIps == null || originalExternalIps.isEmpty()) {
-                    centralizedSwitchScheduler.scheduleCentralizedSwitch(update);
-                }
-            }
+            centralizedSwitchScheduler.scheduleCentralizedSwitch(update);
         }
     }
 
@@ -148,9 +122,7 @@ public class SnatExternalRoutersListener extends AsyncDataTreeChangeListenerBase
         }
 
         LOG.info("remove : external router event for {}", router.getRouterName());
-        if (router.isEnableSnat()) {
-            centralizedSwitchScheduler.releaseCentralizedSwitch(router);
-        }
+        centralizedSwitchScheduler.releaseCentralizedSwitch(router);
     }
 
     @Override
