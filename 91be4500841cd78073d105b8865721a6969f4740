@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f90e1563_339d43c8",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 7592
+      },
+      "writtenOn": "2018-08-30T12:18:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd0b684e_116d7acc",
+      "range": {
+        "startLine": 197,
+        "startChar": 54,
+        "endLine": 197,
+        "endChar": 57
+      },
+      "revId": "91be4500841cd78073d105b8865721a6969f4740",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "edd74287_3e6dab1b",
         "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2018-08-24T13:36:56Z",
       "side": 1,
       "message": "Might be personal taste but I see this more complicated that need be. You dont really need 3 if/else blocks. Just init ExtensionListBuilder and then add to it the TcpSrc or TcpDst extensions as needed. GeneralAugMatchNodesNodeTableFlow build can be done outside the blocks.\nIt might be that the indentation is all over the place and it is difficult to read. Could you please make it a bit more readable with different indentation levels?",
+      "range": {
+        "startLine": 222,
+        "startChar": 0,
+        "endLine": 246,
+        "endChar": 9
+      },
+      "revId": "91be4500841cd78073d105b8865721a6969f4740",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "37afe866_fad09792",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 7592
+      },
+      "writtenOn": "2018-08-30T12:18:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "edd74287_3e6dab1b",
       "range": {
         "startLine": 222,
         "startChar": 0,
