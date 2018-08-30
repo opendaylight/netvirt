@@ -49,7 +49,7 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
     }
 
     @Override
-    public void notify(Routers router, BigInteger primarySwitchId, BigInteger dpnId, Action action) {
+    public void notify(Routers router, Routers oldRouter, BigInteger primarySwitchId, BigInteger dpnId, Action action) {
         for (SnatServiceListener snatServiceListener : snatServiceListeners) {
             boolean result = false;
             switch (action) {
@@ -67,6 +67,26 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
 
                 case SNAT_ROUTER_DISBL:
                     result = snatServiceListener.handleSnat(router, primarySwitchId, dpnId, NwConstants.DEL_FLOW);
+                    break;
+
+                case CNT_ROUTER_ALL_SWITCH_ENBL:
+                    result = snatServiceListener.handleCentralizedRouterAllSwitch(router, primarySwitchId,
+                            NwConstants.ADD_FLOW);
+                    break;
+
+                case CNT_ROUTER_ALL_SWITCH_DISBL:
+                    result = snatServiceListener.handleCentralizedRouterAllSwitch(router, primarySwitchId,
+                            NwConstants.DEL_FLOW);
+                    break;
+
+                case CNT_ROUTER_ENBL:
+                    result = snatServiceListener.handleCentralizedRouter(router, primarySwitchId, dpnId,
+                            NwConstants.ADD_FLOW);
+                    break;
+
+                case CNT_ROUTER_DISBL:
+                    result = snatServiceListener.handleCentralizedRouter(router, primarySwitchId, dpnId,
+                            NwConstants.DEL_FLOW);
                     break;
 
                 default:

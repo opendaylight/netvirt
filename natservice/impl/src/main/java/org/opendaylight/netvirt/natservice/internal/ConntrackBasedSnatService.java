@@ -158,15 +158,10 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
 
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        List<NxCtAction> ctActionsList = new ArrayList<>();
-        NxCtAction nxCtAction = new ActionNxConntrack.NxNat(0, 0, 0,null, null,0, 0);
-        ctActionsList.add(nxCtAction);
-        ActionNxConntrack actionNxConntrack = new ActionNxConntrack(0, 0, elanId, NwConstants
-                .OUTBOUND_NAPT_TABLE,ctActionsList);
         ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
                 .getVpnIdMetadata(routerId.longValue()), LOAD_START, LOAD_END);
         actionsInfos.add(actionLoadMeta);
-        actionsInfos.add(actionNxConntrack);
+        actionsInfos.add(new ActionNxResubmit(NwConstants.PSNAT_TABLE));
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
         String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
