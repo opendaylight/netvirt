@@ -2182,4 +2182,14 @@ public final class NatUtil {
             LOG.error("createGroupIdPool : Failed to create PortPool for NAPT Service", e);
         }
     }
+
+    public static String getElanInstancePhysicalNetwok(String elanInstanceName, DataBroker broker) {
+
+        ElanInstance elanInstance =  getElanInstanceByName(elanInstanceName, broker);
+        if (null != elanInstance) {
+            return elanInstance.getPhysicalNetworkName();
+        }
+        return null;
+
+    }
 }

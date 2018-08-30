@@ -32,4 +32,14 @@ public interface SnatServiceListener {
      */
     boolean handleSnat(Routers routers, BigInteger primarySwitchId, BigInteger dpnId,  int addOrRemove);
 
+    /**
+     * Handles changes to external router.
+     * @param origRouter the Orignal router.
+     * @param updatedRouter the Updated router.
+     * @return returns success/failure.
+     */
+    boolean handleCentralizedRouterAllSwitch(Routers routers, BigInteger primarySwitchId,  int addOrRemove);
+
+    boolean handleCentralizedRouter(Routers routers, BigInteger primarySwitchId, BigInteger dpnId,  int addOrRemove);
+
 }
