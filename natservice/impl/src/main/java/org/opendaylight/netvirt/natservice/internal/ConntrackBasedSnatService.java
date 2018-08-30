@@ -38,7 +38,6 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
-import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.natservice.ha.NatDataUtil;
@@ -93,7 +92,6 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         /* Install Outbound NAT entries */
 
         addSnatMissEntryForPrimrySwch(confTx, dpnId, routerId, elanId);
-        addTerminatingServiceTblEntry(confTx, dpnId, routerId, elanId);
 
         String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterName(confTx, routerName);
         addOutboundTblTrackEntry(confTx, dpnId, routerId, extGwMacAddress);
@@ -138,7 +136,6 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         /* Remove Outbound NAT entries */
 
         removeSnatMissEntryForPrimrySwch(confTx, dpnId, routerId);
-        removeTerminatingServiceTblEntry(confTx, dpnId, routerId);
 
         removeOutboundTblTrackEntry(confTx, dpnId, routerId);
         for (ExternalIps externalIp : routers.getExternalIps()) {
@@ -207,40 +204,6 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
 
         String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
         removeFlow(confTx, dpnId, NwConstants.PSNAT_TABLE, flowRef);
-    }
-
-    protected void addTerminatingServiceTblEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId,
-        Long routerId, int elanId) {
-        LOG.info("installTerminatingServiceTblEntry : creating entry for Terminating Service Table "
-                + "for switch {}, routerId {}", dpnId, routerId);
-        List<MatchInfo> matches = new ArrayList<>();
-        matches.add(MatchEthernetType.IPV4);
-        matches.add(new MatchTunnelId(BigInteger.valueOf(routerId)));
-
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        List<NxCtAction> ctActionsList = new ArrayList<>();
-        NxCtAction nxCtAction = new ActionNxConntrack.NxNat(0, 0, 0,null, null,0, 0);
-        ctActionsList.add(nxCtAction);
-        ActionNxConntrack actionNxConntrack = new ActionNxConntrack(0, 0, elanId, NwConstants
-                .OUTBOUND_NAPT_TABLE,ctActionsList);
-        ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
-                .getVpnIdMetadata(routerId), LOAD_START, LOAD_END);
-        actionsInfos.add(actionLoadMeta);
-        actionsInfos.add(actionNxConntrack);
-        List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionApplyActions(actionsInfos));
-        String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId);
-        addFlow(confTx, dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef, NatConstants.DEFAULT_TS_FLOW_PRIORITY,
-            flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
-    }
-
-    protected void removeTerminatingServiceTblEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-            Long routerId) throws ExecutionException, InterruptedException {
-        LOG.info("installTerminatingServiceTblEntry : creating entry for Terminating Service Table "
-            + "for switch {}, routerId {}", dpnId, routerId);
-
-        String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId);
-        removeFlow(confTx, dpnId,  NwConstants.INTERNAL_TUNNEL_TABLE, flowRef);
     }
 
     protected void addOutboundTblTrackEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId,
