@@ -406,9 +406,18 @@ public class NaptSwitchHA {
         naptSwitch = naptSwitchSelector.selectNewNAPTSwitch(routerName);
         if (natMode == NatMode.Conntrack) {
             Routers extRouters = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
-            natServiceManager.notify(confTx, extRouters, dpnId, dpnId, SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
-            natServiceManager.notify(confTx, extRouters, naptSwitch, naptSwitch,
-                    SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+            natServiceManager.notify(confTx, extRouters, null, dpnId, dpnId,
+                    SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_DISBL);
+            if (extRouters.isEnableSnat()) {
+                natServiceManager.notify(confTx, extRouters, null, dpnId, dpnId,
+                        SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+            }
+            natServiceManager.notify(confTx, extRouters, null, naptSwitch, naptSwitch,
+                    SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_ENBL);
+            if (extRouters.isEnableSnat()) {
+                natServiceManager.notify(confTx, extRouters, null, naptSwitch, naptSwitch,
+                        SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+            }
         } else {
             if (naptSwitch.equals(BigInteger.ZERO)) {
                 LOG.warn("isNaptSwitchDown : No napt switch is elected since all the switches for router {}"
