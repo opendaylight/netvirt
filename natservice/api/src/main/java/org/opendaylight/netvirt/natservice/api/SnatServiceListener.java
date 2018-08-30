@@ -32,4 +32,23 @@ public interface SnatServiceListener {
      */
     boolean handleSnat(Routers routers, BigInteger primarySwitchId, BigInteger dpnId,  int addOrRemove);
 
+    /**
+     * Adds/removes flows for centralized switch for all dpns having ports on the router subnet.
+     * @param routers the router.
+     * @param primarySwitchId the primaryswitchId.
+     * @param addOrRemove add or remove the flow.
+     * @return returns success/failure.
+     */
+    boolean handleCentralizedRouterAllSwitch(Routers routers, BigInteger primarySwitchId,  int addOrRemove);
+
+    /**
+     * Adds/removes flows for centralized switch for the dpnId.
+     * @param routers routers the router.
+     * @param primarySwitchId the primaryswitchId.
+     * @param dpnId the dpnId for which the flows needs to be added/removed.
+     * @param addOrRemove add or remove the flow.
+     * @return returns success/failure.
+     */
+    boolean handleCentralizedRouter(Routers routers, BigInteger primarySwitchId, BigInteger dpnId,  int addOrRemove);
+
 }

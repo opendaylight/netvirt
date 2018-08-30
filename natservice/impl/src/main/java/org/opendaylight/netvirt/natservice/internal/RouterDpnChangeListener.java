@@ -135,8 +135,12 @@ public class RouterDpnChangeListener
                         LOG.debug("Skipping the notification recived for NAPT switch {}", routerUuid);
                         return;
                     }
-                    natServiceManager.notify(router, naptSwitch, dpnId,
-                            SnatServiceManager.Action.SNAT_ROUTER_ENBL);
+                    natServiceManager.notify(router, null, naptSwitch, dpnId,
+                            SnatServiceManager.Action.CNT_ROUTER_ENBL);
+                    if (router.isEnableSnat()) {
+                        natServiceManager.notify(router, null, naptSwitch, naptSwitch,
+                                SnatServiceManager.Action.SNAT_ROUTER_ENBL);
+                    }
                 } else {
                     Long routerId = NatUtil.getVpnId(dataBroker, routerUuid);
                     if (routerId == NatConstants.INVALID_ID) {
@@ -245,8 +249,12 @@ public class RouterDpnChangeListener
                         LOG.debug("Skipping the notification recived for NAPT switch {}", routerUuid);
                         return;
                     }
-                    natServiceManager.notify(router, naptSwitch, dpnId,
-                            SnatServiceManager.Action.SNAT_ROUTER_DISBL);
+                    natServiceManager.notify(router, null, naptSwitch, dpnId,
+                            SnatServiceManager.Action.CNT_ROUTER_DISBL);
+                    if (router.isEnableSnat()) {
+                        natServiceManager.notify(router, null, naptSwitch, naptSwitch,
+                                SnatServiceManager.Action.SNAT_ROUTER_DISBL);
+                    }
                 } else {
                     coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routerUuid,
                         () -> Collections.singletonList(NatUtil.waitForTransactionToComplete(
