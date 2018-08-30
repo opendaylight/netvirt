@@ -20,7 +20,11 @@ public interface SnatServiceManager {
         SNAT_ALL_SWITCH_ENBL,
         SNAT_ALL_SWITCH_DISBL,
         SNAT_ROUTER_ENBL,
-        SNAT_ROUTER_DISBL
+        SNAT_ROUTER_DISBL,
+        CNT_ROUTER_ALL_SWITCH_ENBL,
+        CNT_ROUTER_ALL_SWITCH_DISBL,
+        CNT_ROUTER_ENBL,
+        CNT_ROUTER_DISBL
     }
 
     void addNatServiceListener(SnatServiceListener aclServiceListner);
@@ -28,7 +32,7 @@ public interface SnatServiceManager {
     void removeNatServiceListener(SnatServiceListener aclServiceListner);
 
     void notify(TypedReadWriteTransaction<Configuration> confTx,
-        Routers router, BigInteger primarySwitchId, BigInteger dpnId, Action action)
+        Routers router, Routers oldRouter, BigInteger primarySwitchId, BigInteger dpnId, Action action)
         throws ExecutionException, InterruptedException;
 
 }
