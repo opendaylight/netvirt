@@ -2400,4 +2400,15 @@ public final class NatUtil {
         LOG.debug("getSwitchStatus : Switch {} is down", nodeId);
         return false;
     }
+
+
+    public static String getElanInstancePhysicalNetwok(String elanInstanceName, DataBroker broker) {
+
+        ElanInstance elanInstance =  getElanInstanceByName(elanInstanceName, broker);
+        if (null != elanInstance) {
+            return elanInstance.getPhysicalNetworkName();
+        }
+        return null;
+
+    }
 }
