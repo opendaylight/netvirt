@@ -52,11 +52,12 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
 
     @Override
     public void notify(TypedReadWriteTransaction<Datastore.Configuration> confTx,
-            Routers router, BigInteger primarySwitchId, BigInteger dpnId, Action action)
+            Routers router,  Routers oldRouter, BigInteger primarySwitchId, BigInteger dpnId, Action action)
             throws ExecutionException, InterruptedException {
         for (SnatServiceListener snatServiceListener : snatServiceListeners) {
             boolean result = false;
             switch (action) {
+                //Enables or disables SNAT specific flows in the NAPT and NON-NAPT switches
                 case SNAT_ALL_SWITCH_ENBL:
                     result = snatServiceListener.addSnatAllSwitch(confTx, router, primarySwitchId);
                     break;
@@ -72,6 +73,25 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
                 case SNAT_ROUTER_DISBL:
                     result = snatServiceListener.removeSnat(confTx, router, primarySwitchId, dpnId);
                     break;
+
+                //Enables or disables flows to send the traffic to the NAT tables in NAPT switch and
+                //the flows to send the traffic to the NAPT switch from a NON-NAPT switch.
+                case CNT_ROUTER_ALL_SWITCH_ENBL:
+                    result = snatServiceListener.addCentralizedRouterAllSwitch(confTx, router, primarySwitchId);
+                    break;
+
+                case CNT_ROUTER_ALL_SWITCH_DISBL:
+                    result = snatServiceListener.removeCentralizedRouterAllSwitch(confTx, router, primarySwitchId);
+                    break;
+
+                case CNT_ROUTER_ENBL:
+                    result = snatServiceListener.addCentralizedRouter(confTx, router, primarySwitchId, dpnId);
+                    break;
+
+                case CNT_ROUTER_DISBL:
+                    result = snatServiceListener.removeCentralizedRouter(confTx, router, primarySwitchId, dpnId);
+                    break;
+
 
                 default:
                     break;

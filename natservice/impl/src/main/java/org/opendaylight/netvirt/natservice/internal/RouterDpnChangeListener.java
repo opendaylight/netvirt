@@ -143,8 +143,14 @@ public class RouterDpnChangeListener
                         return;
                     }
                     ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                        confTx -> natServiceManager.notify(confTx, router, naptSwitch, dpnId,
-                            SnatServiceManager.Action.SNAT_ROUTER_ENBL)), LOG, "Error notifying NAT service manager");
+                        confTx -> {
+                            natServiceManager.notify(confTx, router, null, naptSwitch, dpnId,
+                                    SnatServiceManager.Action.CNT_ROUTER_ENBL);
+                            if (router.isEnableSnat()) {
+                                natServiceManager.notify(confTx, router, null, naptSwitch, naptSwitch,
+                                        SnatServiceManager.Action.SNAT_ROUTER_ENBL);
+                            }
+                        }), LOG, "Error notifying NAT service manager");
                 } else {
                     Long routerId = NatUtil.getVpnId(dataBroker, routerUuid);
                     if (routerId == NatConstants.INVALID_ID) {
@@ -244,8 +250,14 @@ public class RouterDpnChangeListener
                         return;
                     }
                     ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                        confTx -> natServiceManager.notify(confTx, router, naptSwitch, dpnId,
-                            SnatServiceManager.Action.SNAT_ROUTER_DISBL)), LOG, "Error notifying NAT service manager");
+                        confTx -> {
+                            natServiceManager.notify(confTx, router, null, naptSwitch, dpnId,
+                                    SnatServiceManager.Action.CNT_ROUTER_DISBL);
+                            if (router.isEnableSnat()) {
+                                natServiceManager.notify(confTx, router, null, naptSwitch, naptSwitch,
+                                        SnatServiceManager.Action.SNAT_ROUTER_DISBL);
+                            }
+                        }), LOG, "Error notifying NAT service manager");
                 } else {
                     coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routerUuid, () -> {
                         LOG.debug("remove : Router {} is associated with ext nw {}", routerUuid, networkId);
