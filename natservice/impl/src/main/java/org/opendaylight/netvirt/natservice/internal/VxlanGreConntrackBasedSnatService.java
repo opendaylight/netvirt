@@ -103,6 +103,28 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         return super.handleSnat(routers, primarySwitchId, dpnId, addOrRemove);
     }
 
+    public boolean handleCentralizedRouterAllSwitch(Routers routers, BigInteger primarySwitchId,  int addOrRemove) {
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, routers.getNetworkId());
+        LOG.debug("VxlanGreConntrackBasedSnatService: handleCentralizedRouterAllSwitch ProviderTypes {}",
+                extNwProviderType);
+        if (extNwProviderType == ProviderTypes.FLAT || extNwProviderType == ProviderTypes.VLAN) {
+            LOG.debug("handleCentralizedRouterAllSwitch : Skip FLAT/VLAN provider networks.");
+            return true;
+        }
+        return super.handleCentralizedRouterAllSwitch(routers, primarySwitchId, addOrRemove);
+    }
+
+    public boolean handleCentralizedRouter(Routers routers, BigInteger primarySwitchId, BigInteger dpnId,
+            int addOrRemove) {
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, routers.getNetworkId());
+        LOG.debug("VxlanGreConntrackBasedSnatService: handleCentralizedRouter ProviderTypes {}", extNwProviderType);
+        if (extNwProviderType == ProviderTypes.FLAT || extNwProviderType == ProviderTypes.VLAN) {
+            LOG.debug("handleCentralizedRouter : Skip FLAT/VLAN provider networks.");
+            return true;
+        }
+        return super.handleCentralizedRouter(routers, primarySwitchId, dpnId, addOrRemove);
+    }
+
     @Override
     protected void installSnatSpecificEntriesForNaptSwitch(Routers routers, BigInteger dpnId, int addOrRemove) {
         LOG.info("installSnatSpecificEntriesForNaptSwitch for router {}",
