@@ -531,8 +531,13 @@ public class NatTunnelInterfaceStateListener
             return;
         }
         if (natMode == NatMode.Conntrack) {
-            natServiceManager.notify(routerData.get(), naptId, srcDpnId,
-                    SnatServiceManager.Action.SNAT_ROUTER_ENBL);
+            Routers extRouter = routerData.get();
+            natServiceManager.notify(extRouter, null, naptId, srcDpnId,
+                    SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_ENBL);
+            if (extRouter.isEnableSnat()) {
+                natServiceManager.notify(extRouter, null, naptId, srcDpnId,
+                        SnatServiceManager.Action.SNAT_ROUTER_ENBL);
+            }
         } else {
             Uuid bgpVpnUuId = NatUtil.getVpnForRouter(dataBroker, routerName);
             //Check if the DPN having the router is the NAPT switch
@@ -970,7 +975,13 @@ public class NatTunnelInterfaceStateListener
             return;
         }
         if (natMode == NatMode.Conntrack) {
-            natServiceManager.notify(routerData.get(), naptId, dpnId, SnatServiceManager.Action.SNAT_ROUTER_DISBL);
+            Routers extRouter = routerData.get();
+            natServiceManager.notify(extRouter, null, naptId, dpnId,
+                    SnatServiceManager.Action.CNT_ROUTER_DISBL);
+            if (extRouter.isEnableSnat()) {
+                natServiceManager.notify(extRouter, null, naptId, dpnId,
+                        SnatServiceManager.Action.SNAT_ROUTER_DISBL);
+            }
         } else {
 
 

@@ -9,6 +9,8 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -90,6 +92,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeRefInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
@@ -109,7 +114,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
@@ -233,6 +237,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev14
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionRegLoadNodesNodeTableFlowApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.load.grouping.NxRegLoad;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.OpenvswitchOtherConfigs;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -243,6 +251,9 @@ public final class NatUtil {
 
     private static String OF_URI_SEPARATOR = ":";
     private static final Logger LOG = LoggerFactory.getLogger(NatUtil.class);
+    private static final String OTHER_CONFIG_PARAMETERS_DELIMITER = ",";
+    private static final String OTHER_CONFIG_KEY_VALUE_DELIMITER = ":";
+    private static final String PROVIDER_MAPPINGS = "provider_mappings";
 
     private NatUtil() { }
 
@@ -2161,7 +2172,8 @@ public final class NatUtil {
     }
 
     public static InstanceIdentifier<Group> getGroupInstanceId(BigInteger dpnId, long groupId) {
-        return InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:" + dpnId)))
+        return InstanceIdentifier.builder(Nodes.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight
+                .inventory.rev130819.nodes.Node.class, new NodeKey(new NodeId("openflow:" + dpnId)))
                 .augmentation(FlowCapableNode.class).child(Group.class, new GroupKey(new GroupId(groupId))).build();
     }
 
@@ -2181,5 +2193,101 @@ public final class NatUtil {
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("createGroupIdPool : Failed to create PortPool for NAPT Service", e);
         }
+    }
+
+    public static String getElanInstancePhysicalNetwok(String elanInstanceName, DataBroker broker) {
+
+        ElanInstance elanInstance =  getElanInstanceByName(elanInstanceName, broker);
+        if (null != elanInstance) {
+            return elanInstance.getPhysicalNetworkName();
+        }
+        return null;
+
+    }
+
+    public static Map<String, String> getOpenvswitchOtherConfigMap(BigInteger dpnId, DataBroker dataBroker) {
+        String otherConfigVal = getProviderMappings(dpnId, dataBroker);
+        return getMultiValueMap(otherConfigVal);
+    }
+
+    public static Map<String, String> getMultiValueMap(String multiKeyValueStr) {
+        if (Strings.isNullOrEmpty(multiKeyValueStr)) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, String> valueMap = new HashMap<>();
+        Splitter splitter = Splitter.on(OTHER_CONFIG_PARAMETERS_DELIMITER);
+        for (String keyValue : splitter.split(multiKeyValueStr)) {
+            String[] split = keyValue.split(OTHER_CONFIG_KEY_VALUE_DELIMITER, 2);
+            if (split.length == 2) {
+                valueMap.put(split[0], split[1]);
+            }
+        }
+
+        return valueMap;
+    }
+
+    public static Optional<Node> getBridgeRefInfo(BigInteger dpnId, DataBroker dataBroker) {
+        InstanceIdentifier<BridgeRefEntry> bridgeRefInfoPath = InstanceIdentifier.create(BridgeRefInfo.class)
+                .child(BridgeRefEntry.class, new BridgeRefEntryKey(dpnId));
+
+        Optional<BridgeRefEntry> bridgeRefEntry =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, bridgeRefInfoPath);
+        if (!bridgeRefEntry.isPresent()) {
+            LOG.info("getBridgeRefInfo : bridgeRefEntry is not present for {}", dpnId);
+            return Optional.absent();
+        }
+
+        InstanceIdentifier<Node> nodeId =
+                bridgeRefEntry.get().getBridgeReference().getValue().firstIdentifierOf(Node.class);
+
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                LogicalDatastoreType.OPERATIONAL, nodeId);
+    }
+
+    public static String getProviderMappings(BigInteger dpId, DataBroker dataBroker) {
+        return getBridgeRefInfo(dpId, dataBroker).toJavaUtil().map(node -> getOpenvswitchOtherConfigs(node,
+                PROVIDER_MAPPINGS, dataBroker)).orElse(null);
+    }
+
+    public static String getOpenvswitchOtherConfigs(Node node, String key, DataBroker dataBroker) {
+        OvsdbNodeAugmentation ovsdbNode = node.getAugmentation(OvsdbNodeAugmentation.class);
+        if (ovsdbNode == null) {
+            Optional<Node> nodeFromReadOvsdbNode = readOvsdbNode(node, dataBroker);
+            if (nodeFromReadOvsdbNode.isPresent()) {
+                ovsdbNode = nodeFromReadOvsdbNode.get().getAugmentation(OvsdbNodeAugmentation.class);
+            }
+        }
+
+        if (ovsdbNode != null && ovsdbNode.getOpenvswitchOtherConfigs() != null) {
+            for (OpenvswitchOtherConfigs openvswitchOtherConfigs : ovsdbNode.getOpenvswitchOtherConfigs()) {
+                if (openvswitchOtherConfigs.getOtherConfigKey().equals(key)) {
+                    return openvswitchOtherConfigs.getOtherConfigValue();
+                }
+            }
+        }
+        LOG.info("getOpenvswitchOtherConfigs : ovsdbNode is not present for {}", node.getNodeId());
+        return null;
+    }
+
+    @Nonnull
+    public static Optional<Node> readOvsdbNode(Node bridgeNode, DataBroker dataBroker) {
+        OvsdbBridgeAugmentation bridgeAugmentation = extractBridgeAugmentation(bridgeNode);
+        if (bridgeAugmentation != null) {
+            InstanceIdentifier<Node> ovsdbNodeIid =
+                    (InstanceIdentifier<Node>) bridgeAugmentation.getManagedBy().getValue();
+            return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, ovsdbNodeIid);
+        }
+        return Optional.absent();
+
+    }
+
+    public static OvsdbBridgeAugmentation extractBridgeAugmentation(Node node) {
+        if (node == null) {
+            return null;
+        }
+        return node.getAugmentation(OvsdbBridgeAugmentation.class);
     }
 }
