@@ -87,6 +87,7 @@ module odl-nat {
             key router-name;
             leaf router-name { type string; }
             leaf primary-switch-id { type uint64; }
+            leaf enable-snat { type boolean; }
         }
     }
 

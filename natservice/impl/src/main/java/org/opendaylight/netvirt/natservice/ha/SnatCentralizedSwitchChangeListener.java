@@ -82,7 +82,7 @@ public class SnatCentralizedSwitchChangeListener
         Routers router = natDataUtil.getRouter(routerToNaptSwitch.getRouterName());
         if (router != null) {
             ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                confTx -> snatServiceManger.notify(confTx, router, primarySwitchId, null,
+                confTx -> snatServiceManger.notify(confTx, router, null, primarySwitchId, null,
                     SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL)), LOG,
                 "error handling SNAT centralized switch removal");
             natDataUtil.removeFromRouterMap(router);
@@ -94,19 +94,47 @@ public class SnatCentralizedSwitchChangeListener
             RouterToNaptSwitch updatedRouterToNaptSwitch) {
         LOG.debug("Updating old {} new {}", origRouterToNaptSwitch, updatedRouterToNaptSwitch);
         BigInteger origPrimarySwitchId = origRouterToNaptSwitch.getPrimarySwitchId();
+        BigInteger updatedPrimarySwitchId = updatedRouterToNaptSwitch.getPrimarySwitchId();
         ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
             Routers origRouter = NatUtil.getRoutersFromConfigDS(confTx, origRouterToNaptSwitch.getRouterName());
-            if (origRouter != null) {
-                snatServiceManger.notify(confTx, origRouter, origPrimarySwitchId, null,
-                    SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
-                natDataUtil.removeFromRouterMap(origRouter);
-            }
-            BigInteger updatedPrimarySwitchId = updatedRouterToNaptSwitch.getPrimarySwitchId();
             Routers updatedRouter = NatUtil.getRoutersFromConfigDS(confTx, updatedRouterToNaptSwitch.getRouterName());
-            if (updatedRouter != null) {
-                natDataUtil.updateRouterMap(updatedRouter);
-                snatServiceManger.notify(confTx, updatedRouter, updatedPrimarySwitchId, null,
-                    SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+            if (origPrimarySwitchId != updatedPrimarySwitchId) {
+                if (origRouter != null) {
+                    snatServiceManger.notify(confTx, origRouter, null, origPrimarySwitchId, null,
+                            SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_DISBL);
+                    if (origRouterToNaptSwitch.isEnableSnat()) {
+                        snatServiceManger.notify(confTx, origRouter, null, origPrimarySwitchId, null,
+                                SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+                    }
+                    natDataUtil.removeFromRouterMap(origRouter);
+                }
+                if (updatedRouter != null) {
+                    natDataUtil.updateRouterMap(updatedRouter);
+                    snatServiceManger.notify(confTx, updatedRouter, null, updatedPrimarySwitchId, null,
+                            SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_ENBL);
+                    if (updatedRouterToNaptSwitch.isEnableSnat()) {
+                        snatServiceManger.notify(confTx, updatedRouter, null, updatedPrimarySwitchId, null,
+                                SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+                    }
+                }
+            } else {
+                boolean origIsSnatEnabled = false;
+                boolean updatedIsSnatEnabled = false;
+                if (origRouterToNaptSwitch.isEnableSnat() != null) {
+                    origIsSnatEnabled = origRouterToNaptSwitch.isEnableSnat();
+                }
+                if (updatedRouterToNaptSwitch.isEnableSnat() != null) {
+                    updatedIsSnatEnabled = updatedRouterToNaptSwitch.isEnableSnat();
+                }
+                if (origIsSnatEnabled != updatedIsSnatEnabled) {
+                    if (updatedRouterToNaptSwitch.isEnableSnat()) {
+                        snatServiceManger.notify(confTx, updatedRouter, null, updatedPrimarySwitchId, null,
+                                SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+                    } else {
+                        snatServiceManger.notify(confTx, origRouter, null, origPrimarySwitchId, null,
+                                SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+                    }
+                }
             }
         }), LOG, "Error handling SNAT centralized switch update");
     }
@@ -117,6 +145,12 @@ public class SnatCentralizedSwitchChangeListener
         BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
         String routerName = routerToNaptSwitch.getRouterName();
         Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
+        final boolean isEnableSnat;
+        if (routerToNaptSwitch.isEnableSnat() != null) {
+            isEnableSnat = routerToNaptSwitch.isEnableSnat();
+        } else {
+            isEnableSnat = false;
+        }
         long vpnId = NatUtil.getVpnId(dataBroker, routerName);
         if (vpnId == NatConstants.INVALID_ID) {
             LOG.warn("VpnId not unavailable for router {} yet", routerName);
@@ -124,7 +158,8 @@ public class SnatCentralizedSwitchChangeListener
                 NatUtil.getVpnInstanceToVpnIdIdentifier(routerName), (unused, newVpnId) -> {
                     ListenableFutures.addErrorLogging(
                         txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                            innerConfTx -> handleAdd(innerConfTx, routerName, router, primarySwitchId)), LOG,
+                            innerConfTx -> handleAdd(innerConfTx, routerName, router, primarySwitchId,
+                                    isEnableSnat)), LOG,
                         "Error handling router addition");
                     return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
                 }, Duration.ofSeconds(5), iid -> LOG.error("VpnId not found for router {}", routerName));
@@ -132,17 +167,21 @@ public class SnatCentralizedSwitchChangeListener
         }
         ListenableFutures.addErrorLogging(
             txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                confTx -> handleAdd(confTx, routerName, router, primarySwitchId)), LOG,
-            "Error handling router addition");
+                confTx -> handleAdd(confTx, routerName, router, primarySwitchId,
+                        isEnableSnat)), LOG, "Error handling router addition");
     }
 
     private void handleAdd(TypedReadWriteTransaction<Datastore.Configuration> confTx,
-            String routerName, Routers router, BigInteger primarySwitchId)
+            String routerName, Routers router, BigInteger primarySwitchId, boolean isSnatEnabled)
             throws ExecutionException, InterruptedException {
         if (router != null) {
             natDataUtil.addtoRouterMap(router);
-            snatServiceManger.notify(confTx, router, primarySwitchId, null,
-                SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+            snatServiceManger.notify(confTx, router, null, primarySwitchId, null,
+                    SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_ENBL);
+            if (isSnatEnabled) {
+                snatServiceManger.notify(confTx, router, null, primarySwitchId, null,
+                        SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+            }
         } else {
             LOG.error("Router {} not found for primarySwitch {}", routerName, primarySwitchId);
         }

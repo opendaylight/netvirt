@@ -103,6 +103,52 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         return super.removeSnatAllSwitch(confTx, routers, primarySwitchId);
     }
 
+    public boolean addCentralizedRouterAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+            BigInteger primarySwitchId) {
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, routers.getNetworkId());
+        LOG.debug("VxlanGreConntrackBasedSnatService: handleCentralizedRouterAllSwitch ProviderTypes {}",
+                extNwProviderType);
+        if (extNwProviderType == ProviderTypes.FLAT || extNwProviderType == ProviderTypes.VLAN) {
+            LOG.debug("handleCentralizedRouterAllSwitch : Skip FLAT/VLAN provider networks.");
+            return true;
+        }
+        return super.addCentralizedRouterAllSwitch(confTx, routers, primarySwitchId);
+    }
+
+    public boolean removeCentralizedRouterAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+            BigInteger primarySwitchId)  throws ExecutionException, InterruptedException {
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, routers.getNetworkId());
+        LOG.debug("VxlanGreConntrackBasedSnatService: handleCentralizedRouterAllSwitch ProviderTypes {}",
+                extNwProviderType);
+        if (extNwProviderType == ProviderTypes.FLAT || extNwProviderType == ProviderTypes.VLAN) {
+            LOG.debug("handleCentralizedRouterAllSwitch : Skip FLAT/VLAN provider networks.");
+            return true;
+        }
+        return super.removeCentralizedRouterAllSwitch(confTx, routers, primarySwitchId);
+    }
+
+    public boolean addCentralizedRouter(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+            BigInteger primarySwitchId, BigInteger dpnId) {
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, routers.getNetworkId());
+        LOG.debug("VxlanGreConntrackBasedSnatService: handleCentralizedRouter ProviderTypes {}", extNwProviderType);
+        if (extNwProviderType == ProviderTypes.FLAT || extNwProviderType == ProviderTypes.VLAN) {
+            LOG.debug("handleCentralizedRouter : Skip FLAT/VLAN provider networks.");
+            return true;
+        }
+        return super.addCentralizedRouter(confTx, routers, primarySwitchId, dpnId);
+    }
+
+    public boolean removeCentralizedRouter(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+            BigInteger primarySwitchId, BigInteger dpnId)  throws ExecutionException, InterruptedException {
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, routers.getNetworkId());
+        LOG.debug("VxlanGreConntrackBasedSnatService: handleCentralizedRouter ProviderTypes {}", extNwProviderType);
+        if (extNwProviderType == ProviderTypes.FLAT || extNwProviderType == ProviderTypes.VLAN) {
+            LOG.debug("handleCentralizedRouter : Skip FLAT/VLAN provider networks.");
+            return true;
+        }
+        return super.removeCentralizedRouter(confTx, routers, primarySwitchId, dpnId);
+    }
+
     @Override
     public boolean addSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
         BigInteger primarySwitchId, BigInteger dpnId) {
