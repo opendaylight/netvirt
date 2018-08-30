@@ -34,7 +34,6 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
-import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.natservice.ha.NatDataUtil;
@@ -88,7 +87,6 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         /* Install Outbound NAT entries */
 
         installSnatMissEntryForPrimrySwch(dpnId, routerId, elanId, addOrRemove);
-        installTerminatingServiceTblEntry(dpnId, routerId, elanId, addOrRemove);
 
         String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterName(getDataBroker(), routerName);
         createOutboundTblTrackEntry(dpnId, routerId, extGwMacAddress, addOrRemove);
@@ -147,32 +145,6 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
         syncFlow(dpnId, NwConstants.PSNAT_TABLE, flowRef, NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
                 NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
-    }
-
-    protected void installTerminatingServiceTblEntry(BigInteger dpnId, Long  routerId, int elanId, int addOrRemove) {
-        LOG.info("installTerminatingServiceTblEntry : creating entry for Terminating Service Table "
-                + "for switch {}, routerId {}", dpnId, routerId);
-        List<MatchInfo> matches = new ArrayList<>();
-        matches.add(MatchEthernetType.IPV4);
-        matches.add(new MatchTunnelId(BigInteger.valueOf(routerId)));
-
-
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        List<NxCtAction> ctActionsList = new ArrayList<>();
-        NxCtAction nxCtAction = new ActionNxConntrack.NxNat(0, 0, 0,null, null,0, 0);
-        ctActionsList.add(nxCtAction);
-        ActionNxConntrack actionNxConntrack = new ActionNxConntrack(0, 0, elanId, NwConstants
-                .OUTBOUND_NAPT_TABLE,ctActionsList);
-        ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
-                .getVpnIdMetadata(routerId.longValue()), LOAD_START, LOAD_END);
-        actionsInfos.add(actionLoadMeta);
-        actionsInfos.add(actionNxConntrack);
-        List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionApplyActions(actionsInfos));
-        String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
-        syncFlow(dpnId,  NwConstants.INTERNAL_TUNNEL_TABLE, flowRef, NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef,
-                 NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
-
     }
 
     protected void createOutboundTblTrackEntry(BigInteger dpnId, Long routerId, String extGwMacAddress,
