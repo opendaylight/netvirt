@@ -424,7 +424,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
                 .getVpnIdMetadata(extSubnetId), LOAD_START, LOAD_END);
         actionsInfos.add(actionLoadMeta);
-        actionsInfos.add(new ActionNxResubmit(NwConstants.INBOUND_NAPT_TABLE));
+        actionsInfos.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
         String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue()) + "INBOUND";
