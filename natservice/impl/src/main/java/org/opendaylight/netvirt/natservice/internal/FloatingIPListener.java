@@ -50,6 +50,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.netvirt.natservice.api.CentralizedSwitchScheduler;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -79,13 +80,15 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     private final FloatingIPHandler floatingIPHandler;
     private final SNATDefaultRouteProgrammer defaultRouteProgrammer;
     private final JobCoordinator coordinator;
+    private final CentralizedSwitchScheduler centralizedSwitchScheduler;
 
     @Inject
     public FloatingIPListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                               final OdlInterfaceRpcService interfaceManager,
                               final FloatingIPHandler floatingIPHandler,
                               final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
-                              final JobCoordinator coordinator) {
+                              final JobCoordinator coordinator,
+                              final CentralizedSwitchScheduler centralizedSwitchScheduler) {
         super(InternalToExternalPortMap.class, FloatingIPListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -94,6 +97,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         this.floatingIPHandler = floatingIPHandler;
         this.defaultRouteProgrammer = snatDefaultRouteProgrammer;
         this.coordinator = coordinator;
+        this.centralizedSwitchScheduler = centralizedSwitchScheduler;
     }
 
     @Override
@@ -425,6 +429,30 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         return getInetAddress(mapping.getInternalIp()) != null && getInetAddress(mapping.getExternalIp()) != null;
     }
 
+    private BigInteger getAssociatedDpnWithExternalInterface(final String routerName, Uuid extNwId, BigInteger dpnId) {
+        BigInteger updatedDpnId = dpnId;
+
+        ProviderTypes providerType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName, extNwId);
+        if (providerType == null) {
+            LOG.warn("getAssociatedDpnWithExternalInterface : Provider Network Type for router {} and"
+                    + " externalNetwork {} is missing.", routerName, extNwId);
+            return updatedDpnId;
+        }
+
+        // For FLAT and VLAN provider networks, we have to ensure that dpn hosting the VM has connectivity
+        // to External Network via provider_mappings. In case the dpn does not have the provider mappings,
+        // traffic from the VM has to be forwarded to the NAPT Switch (which is scheduled based on the provider
+        // mappings) and then sent out on the external Network.
+        if (providerType == ProviderTypes.FLAT || providerType == ProviderTypes.VLAN) {
+            String providerNet = NatUtil.getElanInstancePhysicalNetwok(extNwId.getValue(), dataBroker);
+            boolean isDpnConnected = centralizedSwitchScheduler.isSwitchConnectedToExternal(dpnId, providerNet);
+            if (!isDpnConnected) {
+                updatedDpnId = centralizedSwitchScheduler.getCentralizedSwitch(routerName);
+            }
+        }
+        return updatedDpnId;
+    }
+
     void createNATFlowEntries(String interfaceName, final InternalToExternalPortMap mapping,
                               final InstanceIdentifier<RouterPorts> portIid, final String routerName,
             TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
@@ -433,12 +461,20 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
 
-        //Get the DPN on which this interface resides
-        BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, interfaceName);
+        Uuid extNwId = getExtNetworkId(portIid, LogicalDatastoreType.CONFIGURATION);
+        if (extNwId == null) {
+            LOG.error("createNATFlowEntries : External network associated with interface {} could not be retrieved",
+                    interfaceName);
+            return;
+        }
 
-        if (dpnId.equals(BigInteger.ZERO)) {
+        // For Overlay Networks, get the DPN on which this interface resides.
+        // For FLAT/VLAN Networks, get the DPN with provider_mappings for external network.
+        BigInteger dpnId = getAssociatedDpnWithExternalInterface(routerName, extNwId,
+                NatUtil.getDpnForInterface(interfaceManager, interfaceName));
+        if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
             LOG.warn("createNATFlowEntries : No DPN for interface {}. NAT flow entries for ip mapping {} will "
-                + "not be installed", interfaceName, mapping);
+                    + "not be installed", interfaceName, mapping);
             return;
         }
 
@@ -462,12 +498,6 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             //routerId = associatedVpnId;
         }
 
-        Uuid extNwId = getExtNetworkId(portIid, LogicalDatastoreType.CONFIGURATION);
-        if (extNwId == null) {
-            LOG.error("createNATFlowEntries : External network associated with interface {} could not be retrieved",
-                interfaceName);
-            return;
-        }
         long vpnId = getVpnId(extNwId, mapping.getExternalId());
         if (vpnId < 0) {
             LOG.error("createNATFlowEntries : No VPN associated with Ext nw {}. Unable to create SNAT table entry "
@@ -569,12 +599,19 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                               InstanceIdentifier<RouterPorts> portIid, final String routerName, BigInteger dpnId,
                               TypedReadWriteTransaction<Configuration> removeFlowInvTx)
             throws ExecutionException, InterruptedException {
-        String internalIp = mapping.getInternalIp();
-        String externalIp = mapping.getExternalIp();
-        //Get the DPN on which this interface resides
+        Uuid extNwId = getExtNetworkId(portIid, LogicalDatastoreType.OPERATIONAL);
+        if (extNwId == null) {
+            LOG.error("removeNATFlowEntries : External network associated with interface {} could not be retrieved",
+                    interfaceName);
+            return;
+        }
+
+        // For Overlay Networks, get the DPN on which this interface resides.
+        // For FLAT/VLAN Networks, get the DPN with provider_mappings for external network.
         if (dpnId == null) {
-            dpnId = NatUtil.getDpnForInterface(interfaceManager, interfaceName);
-            if (dpnId.equals(BigInteger.ZERO)) {
+            dpnId = getAssociatedDpnWithExternalInterface(routerName, extNwId,
+                    NatUtil.getDpnForInterface(interfaceManager, interfaceName));
+            if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
                 LOG.warn("removeNATFlowEntries: Abort processing Floating ip configuration. No DPN for port: {}",
                         interfaceName);
                 return;
@@ -588,15 +625,11 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
 
+        String internalIp = mapping.getInternalIp();
+        String externalIp = mapping.getExternalIp();
         //Delete the DNAT and SNAT table entries
         removeDNATTblEntry(dpnId, internalIp, externalIp, routerId, removeFlowInvTx);
 
-        Uuid extNwId = getExtNetworkId(portIid, LogicalDatastoreType.OPERATIONAL);
-        if (extNwId == null) {
-            LOG.error("removeNATFlowEntries : External network associated with interface {} could not be retrieved",
-                interfaceName);
-            return;
-        }
         long vpnId = getVpnId(extNwId, mapping.getExternalId());
         if (vpnId < 0) {
             LOG.error("removeNATFlowEntries : No VPN associated with ext nw {}. Unable to delete SNAT table "
