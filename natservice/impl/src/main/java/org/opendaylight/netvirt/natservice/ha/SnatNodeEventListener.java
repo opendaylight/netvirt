@@ -35,32 +35,23 @@ import org.slf4j.LoggerFactory;
 public class SnatNodeEventListener  extends AbstractClusteredAsyncDataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(SnatNodeEventListener.class);
     private final CentralizedSwitchScheduler  centralizedSwitchScheduler;
-    private final NatserviceConfig.NatMode natMode;
 
     @Inject
     public SnatNodeEventListener(final DataBroker dataBroker,
-            final CentralizedSwitchScheduler centralizedSwitchScheduler,
-            final NatserviceConfig config) {
+            final CentralizedSwitchScheduler centralizedSwitchScheduler) {
 
         super(dataBroker,new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier
                 .create(Nodes.class).child(Node.class)),
                 Executors.newSingleThreadExecutor());
         this.centralizedSwitchScheduler = centralizedSwitchScheduler;
-        if (config != null) {
-            this.natMode = config.getNatMode();
-        } else {
-            this.natMode = NatserviceConfig.NatMode.Controller;
-        }
     }
 
     @Override
     public void remove(Node dataObjectModification) {
-        if (natMode == NatserviceConfig.NatMode.Conntrack) {
-            NodeKey nodeKey = dataObjectModification.key();
-            BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
-            LOG.info("Dpn removed {}", dpnId);
-            centralizedSwitchScheduler.removeSwitch(dpnId);
-        }
+        NodeKey nodeKey = dataObjectModification.key();
+        BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
+        LOG.info("Dpn removed {}", dpnId);
+        centralizedSwitchScheduler.removeSwitch(dpnId);
     }
 
     @Override
@@ -71,11 +62,9 @@ public class SnatNodeEventListener  extends AbstractClusteredAsyncDataTreeChange
 
     @Override
     public void add(Node dataObjectModification) {
-        if (natMode == NatserviceConfig.NatMode.Conntrack) {
-            NodeKey nodeKey = dataObjectModification.key();
-            BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
-            LOG.info("Dpn added {}", dpnId);
-            centralizedSwitchScheduler.addSwitch(dpnId);
-        }
+        NodeKey nodeKey = dataObjectModification.key();
+        BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
+        LOG.info("Dpn added {}", dpnId);
+        centralizedSwitchScheduler.addSwitch(dpnId);
     }
 }
