@@ -71,7 +71,12 @@ public class SnatCentralizedSwitchChangeListener
         BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
         Routers router = natDataUtil.getRouter(routerToNaptSwitch.getRouterName());
         if (router != null) {
-            snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+            snatServiceManger.notify(router, null, primarySwitchId, null,
+                    SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_DISBL);
+            if (routerToNaptSwitch.isEnableSnat()) {
+                snatServiceManger.notify(router, null, primarySwitchId, null,
+                        SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+            }
             natDataUtil.removeFromRouterMap(router);
         }
     }
@@ -82,17 +87,39 @@ public class SnatCentralizedSwitchChangeListener
         LOG.debug("Updating old {} new {}", origRouterToNaptSwitch, updatedRouterToNaptSwitch);
         BigInteger origPrimarySwitchId = origRouterToNaptSwitch.getPrimarySwitchId();
         Routers origRouter = NatUtil.getRoutersFromConfigDS(dataBroker, origRouterToNaptSwitch.getRouterName());
-        if (origRouter != null) {
-            snatServiceManger.notify(origRouter, origPrimarySwitchId, null,
-                    SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
-            natDataUtil.removeFromRouterMap(origRouter);
-        }
         BigInteger updatedPrimarySwitchId = updatedRouterToNaptSwitch.getPrimarySwitchId();
         Routers updatedRouter = NatUtil.getRoutersFromConfigDS(dataBroker, updatedRouterToNaptSwitch.getRouterName());
-        if (updatedRouter != null) {
-            natDataUtil.updateRouterMap(updatedRouter);
-            snatServiceManger.notify(updatedRouter, updatedPrimarySwitchId, null,
-                    SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+        if (origPrimarySwitchId != updatedPrimarySwitchId) {
+            if (origRouter != null) {
+                snatServiceManger.notify(origRouter, null, origPrimarySwitchId, null,
+                        SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_DISBL);
+                if (origRouterToNaptSwitch.isEnableSnat()) {
+                    snatServiceManger.notify(origRouter, null, origPrimarySwitchId, null,
+                            SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+                }
+                natDataUtil.removeFromRouterMap(origRouter);
+            }
+            if (updatedRouter != null) {
+                natDataUtil.updateRouterMap(updatedRouter);
+                snatServiceManger.notify(updatedRouter, null, updatedPrimarySwitchId, null,
+                        SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_ENBL);
+                if (updatedRouterToNaptSwitch.isEnableSnat()) {
+                    snatServiceManger.notify(updatedRouter, null, updatedPrimarySwitchId, null,
+                            SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+                }
+            }
+        } else {
+            boolean origIsSnatEnabled = origRouterToNaptSwitch.isEnableSnat();
+            boolean updatedIsSnatEnabled  = updatedRouterToNaptSwitch.isEnableSnat();
+            if (origIsSnatEnabled != updatedIsSnatEnabled) {
+                if (updatedRouterToNaptSwitch.isEnableSnat()) {
+                    snatServiceManger.notify(updatedRouter, null, updatedPrimarySwitchId, null,
+                            SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+                } else {
+                    snatServiceManger.notify(origRouter, null, origPrimarySwitchId, null,
+                            SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
+                }
+            }
         }
     }
 
@@ -107,20 +134,25 @@ public class SnatCentralizedSwitchChangeListener
             LOG.warn("VpnId not unavailable for router {} yet", routerName);
             eventCallbacks.onAddOrUpdate(LogicalDatastoreType.CONFIGURATION,
                 NatUtil.getVpnInstanceToVpnIdIdentifier(routerName), (unused, newVpnId) -> {
-                    handleAdd(routerName, router, primarySwitchId);
+                    handleAdd(routerName, router, primarySwitchId,routerToNaptSwitch.isEnableSnat());
                     return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
                 }, Duration.ofSeconds(5), iid -> {
                     LOG.error("VpnId not found for router {}", routerName);
                 });
             return;
         }
-        handleAdd(routerName, router, primarySwitchId);
+        handleAdd(routerName, router, primarySwitchId, routerToNaptSwitch.isEnableSnat());
     }
 
-    private void handleAdd(String routerName, Routers router, BigInteger primarySwitchId) {
+    private void handleAdd(String routerName, Routers router, BigInteger primarySwitchId, boolean isSnatEnabled) {
         if (router != null) {
             natDataUtil.addtoRouterMap(router);
-            snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+            snatServiceManger.notify(router, null, primarySwitchId, null,
+                    SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_ENBL);
+            if (isSnatEnabled) {
+                snatServiceManger.notify(router, null, primarySwitchId, null,
+                        SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
+            }
         } else {
             LOG.error("Router {} not found for primarySwitch {}", routerName, primarySwitchId);
         }
