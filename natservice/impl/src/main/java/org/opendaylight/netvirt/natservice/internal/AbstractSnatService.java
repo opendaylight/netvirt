@@ -140,22 +140,49 @@ public abstract class AbstractSnatService implements SnatServiceListener {
          * Primary switch handled separately since the pseudo port created may
          * not be present in the switch list on delete.
          */
-        boolean isLastRouterDelete = false;
-        if (addOrRemove == NwConstants.DEL_FLOW) {
-            isLastRouterDelete = NatUtil.isLastExternalRouter(routers.getNetworkId()
-                .getValue(), routers.getRouterName(), natDataUtil);
-            LOG.info("handleSnatAllSwitch : action is delete for router {} and isLastRouterDelete is {}",
-                    routers.getRouterName(), isLastRouterDelete);
-        }
         handleSnat(routers, primarySwitchId, primarySwitchId, addOrRemove);
         for (BigInteger dpnId : switches) {
             if (primarySwitchId != dpnId) {
                 handleSnat(routers, primarySwitchId, dpnId, addOrRemove);
             }
         }
+        return true;
+    }
+
+    public boolean handleCentralizedRouterAllSwitch(Routers routers, BigInteger primarySwitchId,  int addOrRemove) {
+        LOG.info("handleCentralizedRouterAllSwitch : Handle Snat in all switches for router {}",
+                routers.getRouterName());
+        String routerName = routers.getRouterName();
+        List<BigInteger> switches = naptSwitchSelector.getDpnsForVpn(routerName);
+        boolean isLastRouterDelete = false;
+        if (addOrRemove == NwConstants.DEL_FLOW) {
+            isLastRouterDelete = NatUtil.isLastExternalRouter(routers.getNetworkId()
+                .getValue(), routers.getRouterName(), natDataUtil);
+            LOG.info("handleCentralizedRouterAllSwitch : action is delete for router {} and isLastRouterDelete is {}",
+                    routers.getRouterName(), isLastRouterDelete);
+        }
+        handleCentralizedRouter(routers, primarySwitchId, primarySwitchId, addOrRemove);
+        for (BigInteger dpnId : switches) {
+            if (primarySwitchId != dpnId) {
+                handleCentralizedRouter(routers, primarySwitchId, dpnId, addOrRemove);
+            }
+        }
         if (isLastRouterDelete) {
             removeLearntIpPorts(routers);
             removeMipAdjacencies(routers);
+        }
+        return true;
+    }
+
+    public boolean handleCentralizedRouter(Routers routers, BigInteger primarySwitchId, BigInteger dpnId,
+            int addOrRemove) {
+        if (!dpnId.equals(primarySwitchId)) {
+            LOG.info("handleCentralizedRouter : Handle non NAPT switch {} for router {}",
+                    dpnId, routers.getRouterName());
+            installCommonEntriesForNonNaptSwitch(routers, primarySwitchId, dpnId, addOrRemove);
+        } else {
+            LOG.info("handleCentralizedRouter : Handle NAPT switch {} for router {}", dpnId, routers.getRouterName());
+            installCommonEntriesForNaptSwitch(routers, dpnId, addOrRemove);
         }
         return true;
     }
@@ -177,10 +204,31 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         return true;
     }
 
-    protected void installSnatCommonEntriesForNaptSwitch(Routers routers, BigInteger dpnId,  int addOrRemove) {
+    protected void installCommonEntriesForNaptSwitch(Routers routers, BigInteger dpnId,  int addOrRemove) {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         installDefaultFibRouteForSNAT(dpnId, routerId, addOrRemove);
+        int elanId = NatUtil.getElanInstanceByName(routers.getNetworkId().getValue(), getDataBroker())
+                .getElanTag().intValue();
+        for (ExternalIps externalIp : routers.getExternalIps()) {
+            if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
+                // In this class we handle only IPv4 use-cases.
+                continue;
+            }
+            //The logic now handle only one external IP per router, others if present will be ignored.
+            long extSubnetId = NatConstants.INVALID_ID;
+            if (addOrRemove == NwConstants.ADD_FLOW) {
+                extSubnetId = NatUtil.getExternalSubnetVpnId(dataBroker, externalIp.getSubnetId());
+            }
+            installInboundTerminatingServiceTblEntry(dpnId, routerId, extSubnetId, addOrRemove);
+            installTerminatingServiceTblEntry(dpnId, routerId, elanId, addOrRemove);
+            break;
+        }
+    }
+
+    protected void installSnatCommonEntriesForNaptSwitch(Routers routers, BigInteger dpnId,  int addOrRemove) {
+        String routerName = routers.getRouterName();
+        Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         String externalGwMac = routers.getExtGwMacAddress();
         for (ExternalIps externalIp : routers.getExternalIps()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
@@ -194,17 +242,21 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             }
             installInboundFibEntry(dpnId, externalIp.getIpAddress(), routerId, extSubnetId,
                 routers.getNetworkId().getValue(), externalIp.getSubnetId().getValue(), externalGwMac, addOrRemove);
-            installInboundTerminatingServiceTblEntry(dpnId, routerId, extSubnetId, addOrRemove);
             break;
         }
     }
 
-    protected void installSnatCommonEntriesForNonNaptSwitch(Routers routers, BigInteger primarySwitchId,
+    protected void installCommonEntriesForNonNaptSwitch(Routers routers, BigInteger primarySwitchId,
             BigInteger dpnId, int addOrRemove) {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
-        installDefaultFibRouteForSNAT(dpnId, routerId, addOrRemove);
         installSnatMissEntry(dpnId, routerId, routerName, primarySwitchId, addOrRemove);
+        installDefaultFibRouteForSNAT(dpnId, routerId, addOrRemove);
+    }
+
+    protected void installSnatCommonEntriesForNonNaptSwitch(Routers routers, BigInteger primarySwitchId,
+            BigInteger dpnId, int addOrRemove) {
+            /* Nothing to do here*/
     }
 
     protected abstract void installSnatSpecificEntriesForNaptSwitch(Routers routers, BigInteger dpnId,
@@ -337,12 +389,33 @@ public abstract class AbstractSnatService implements SnatServiceListener {
                     .getVpnIdMetadata(extSubnetId), LOAD_START, LOAD_END);
             actionsInfos.add(actionLoadMeta);
         }
-        actionsInfos.add(new ActionNxResubmit(NwConstants.INBOUND_NAPT_TABLE));
+        actionsInfos.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
         String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
         flowRef = flowRef + "INBOUND";
         syncFlow(dpnId,  NwConstants.INTERNAL_TUNNEL_TABLE, flowRef, NatConstants.SNAT_FIB_FLOW_PRIORITY, flowRef,
+                 NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
+
+    }
+
+    protected void installTerminatingServiceTblEntry(BigInteger dpnId, Long  routerId, int elanId, int addOrRemove) {
+        LOG.info("installTerminatingServiceTblEntry : creating entry for Terminating Service Table "
+                + "for switch {}, routerId {}", dpnId, routerId);
+        List<MatchInfo> matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchTunnelId(BigInteger.valueOf(routerId)));
+
+
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
+                .getVpnIdMetadata(routerId.longValue()), LOAD_START, LOAD_END);
+        actionsInfos.add(actionLoadMeta);
+        actionsInfos.add(new ActionNxResubmit(NwConstants.PSNAT_TABLE));
+        List<InstructionInfo> instructions = new ArrayList<>();
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
+        syncFlow(dpnId,  NwConstants.INTERNAL_TUNNEL_TABLE, flowRef, NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef,
                  NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
 
     }
