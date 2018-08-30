@@ -12,6 +12,7 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Optional;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,8 +22,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -36,6 +39,7 @@ import org.opendaylight.netvirt.natservice.internal.NatUtil;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
@@ -56,26 +60,33 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     private static final Logger LOG = LoggerFactory.getLogger(WeightedCentralizedSwitchScheduler.class);
     private static final Integer INITIAL_SWITCH_WEIGHT = Integer.valueOf(0);
 
-    private final Map<BigInteger,Integer> switchWeightsMap = new ConcurrentHashMap<>();
+    private final Map<String, Map<BigInteger,Integer>> providerSwitchWeightsMap = new ConcurrentHashMap<>();
     private final Map<String,String> subnetIdToRouterPortMap = new ConcurrentHashMap<>();
     private final Map<String,String> subnetIdToElanInstanceMap = new ConcurrentHashMap<>();
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
     private final OdlInterfaceRpcService interfaceManager;
     private final IVpnFootprintService vpnFootprintService;
+    private final NatserviceConfig.NatMode natMode;
 
     @Inject
     public WeightedCentralizedSwitchScheduler(DataBroker dataBroker, OdlInterfaceRpcService interfaceManager,
-            IVpnFootprintService vpnFootprintService) {
+            IVpnFootprintService vpnFootprintService, final NatserviceConfig config) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.interfaceManager = interfaceManager;
         this.vpnFootprintService = vpnFootprintService;
+        if (config != null) {
+            this.natMode = config.getNatMode();
+        } else {
+            this.natMode = NatserviceConfig.NatMode.Controller;
+        }
     }
 
     @Override
     public boolean scheduleCentralizedSwitch(Routers router) {
-        BigInteger nextSwitchId = getSwitchWithLowestWeight();
+        String providerNet = NatUtil.getElanInstancePhysicalNetwok(router.getNetworkId().getValue(),dataBroker);
+        BigInteger nextSwitchId = getSwitchWithLowestWeight(providerNet);
         if (nextSwitchId == BigInteger.valueOf(0)) {
             LOG.error("In scheduleCentralizedSwitch, unable to schedule the router {} as there is no available switch.",
                     router.getRouterName());
@@ -86,12 +97,14 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         String routerName = router.getRouterName();
         RouterToNaptSwitchBuilder routerToNaptSwitchBuilder =
                 new RouterToNaptSwitchBuilder().setRouterName(routerName);
-        RouterToNaptSwitch id = routerToNaptSwitchBuilder.setPrimarySwitchId(nextSwitchId).build();
+        RouterToNaptSwitch id = routerToNaptSwitchBuilder.setPrimarySwitchId(nextSwitchId)
+                .setEnableSnat(router.isEnableSnat()).build();
         addToDpnMaps(routerName, router.getSubnetIds(), nextSwitchId);
         try {
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     getNaptSwitchesIdentifier(routerName), id);
-            switchWeightsMap.put(nextSwitchId,switchWeightsMap.get(nextSwitchId) + 1);
+            Map<BigInteger,Integer> switchWeightMap = providerSwitchWeightsMap.get(providerNet);
+            switchWeightMap.put(nextSwitchId,switchWeightMap.get(nextSwitchId) + 1);
 
         } catch (TransactionCommitFailedException e) {
             LOG.error("ScheduleCentralizedSwitch failed for {}", routerName);
@@ -109,19 +122,47 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, newRouter.getRouterName());
         addToDpnMaps(routerName, addedSubnetIds, primarySwitchId);
         deleteFromDpnMaps(routerName, deletedSubnetIds, primarySwitchId);
+        try {
+            InstanceIdentifier<RouterToNaptSwitch> id  = NatUtil.buildNaptSwitchIdentifier(routerName);
+            RouterToNaptSwitch routerToNaptSwitch = SingleTransactionDataBroker.syncRead(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, id);
+            boolean isSnatEnabled = newRouter.isEnableSnat();
+            List<ExternalIps> updateExternalIps = newRouter.getExternalIps();
+            if (updateExternalIps == null || updateExternalIps.isEmpty()) {
+                isSnatEnabled = false;
+            }
+            if (isSnatEnabled != routerToNaptSwitch.isEnableSnat()) {
+                RouterToNaptSwitchBuilder routerToNaptSwitchBuilder =
+                        new RouterToNaptSwitchBuilder(routerToNaptSwitch);
+                routerToNaptSwitchBuilder.setEnableSnat(isSnatEnabled);
+                SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        getNaptSwitchesIdentifier(routerName), routerToNaptSwitchBuilder.build());
+            }
+        } catch (ReadFailedException e) {
+            LOG.error("updateCentralizedSwitch ReadFailedException for {}", routerName);
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("updateCentralizedSwitch TransactionCommitFailedException for {}", routerName);
+        }
         return true;
     }
 
     @Override
     public boolean releaseCentralizedSwitch(Routers router) {
+        String providerNet = NatUtil.getElanInstancePhysicalNetwok(router.getNetworkId().getValue(),dataBroker);
         String routerName = router.getRouterName();
         BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
+        if (primarySwitchId == null || primarySwitchId == BigInteger.valueOf(0)) {
+            LOG.info("releaseCentralizedSwitch: NAPT Switch is not allocated for router {}", router.getRouterName());
+            return false;
+        }
+
         LOG.info("releaseCentralizedSwitch for router {} from switch {}", router.getRouterName(), primarySwitchId);
         deleteFromDpnMaps(routerName, router.getSubnetIds(), primarySwitchId);
         try {
             SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     getNaptSwitchesIdentifier(routerName));
-            switchWeightsMap.put(primarySwitchId,switchWeightsMap.get(primarySwitchId) - 1);
+            Map<BigInteger,Integer> switchWeightMap = providerSwitchWeightsMap.get(providerNet);
+            switchWeightMap.put(primarySwitchId, switchWeightMap.get(primarySwitchId) - 1);
         } catch (TransactionCommitFailedException e) {
             return false;
         }
@@ -201,11 +242,19 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     @Override
     public boolean addSwitch(BigInteger dpnId) {
         /* Initialize the switch in the map with weight 0 */
-        LOG.info("addSwitch: Adding {} dpnId to switchWeightsMap", dpnId);
-        boolean scheduleRouters = (switchWeightsMap.size() == 0) ? true : false;
-        switchWeightsMap.put(dpnId, INITIAL_SWITCH_WEIGHT);
-
-        if (scheduleRouters) {
+        LOG.info("addSwitch: Retrieving the provider config for {}", dpnId);
+        boolean scheduleRouters = (providerSwitchWeightsMap.size() == 0) ? true : false;
+        Map<String, String> providerMappingsMap = NatUtil.getOpenvswitchOtherConfigMap(dpnId, dataBroker);
+        for (String providerNet : providerMappingsMap.keySet()) {
+            Map<BigInteger,Integer> switchWeightMap = providerSwitchWeightsMap.get(providerNet);
+            if (providerSwitchWeightsMap.get(providerNet) == null) {
+                switchWeightMap = new ConcurrentHashMap<>();
+                providerSwitchWeightsMap.put(providerNet, switchWeightMap);
+            }
+            LOG.info("addSwitch: Adding {} dpnId with provider mapping {} to switchWeightsMap", dpnId, providerNet);
+            switchWeightMap.put(dpnId, INITIAL_SWITCH_WEIGHT);
+        }
+        if (natMode == NatserviceConfig.NatMode.Conntrack && scheduleRouters) {
             Optional<ExtRouters> optRouters;
             try {
                 optRouters = SingleTransactionDataBroker.syncReadOptional(dataBroker,
@@ -251,33 +300,40 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     @Override
     public boolean removeSwitch(BigInteger dpnId) {
         LOG.info("removeSwitch: Removing {} dpnId to switchWeightsMap", dpnId);
-        if (!INITIAL_SWITCH_WEIGHT.equals(switchWeightsMap.get(dpnId))) {
-            NaptSwitches naptSwitches = getNaptSwitches(dataBroker);
-            for (RouterToNaptSwitch routerToNaptSwitch : naptSwitches.getRouterToNaptSwitch()) {
-                if (dpnId.equals(routerToNaptSwitch.getPrimarySwitchId())) {
-                    Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerToNaptSwitch.getRouterName());
-                    releaseCentralizedSwitch(router);
-                    switchWeightsMap.remove(dpnId);
-                    scheduleCentralizedSwitch(router);
-                    break;
+        for (Map.Entry<String,Map<BigInteger,Integer>> providerNet : providerSwitchWeightsMap.entrySet()) {
+            Map<BigInteger,Integer> switchWeightMap = providerNet.getValue();
+            if (natMode == NatserviceConfig.NatMode.Conntrack
+                    && !INITIAL_SWITCH_WEIGHT.equals(switchWeightMap.get(dpnId))) {
+                NaptSwitches naptSwitches = getNaptSwitches();
+                for (RouterToNaptSwitch routerToNaptSwitch : naptSwitches.getRouterToNaptSwitch()) {
+                    if (dpnId.equals(routerToNaptSwitch.getPrimarySwitchId())) {
+                        Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerToNaptSwitch.getRouterName());
+                        releaseCentralizedSwitch(router);
+                        scheduleCentralizedSwitch(router);
+                        break;
+                    }
                 }
             }
-        } else {
-            switchWeightsMap.remove(dpnId);
+            switchWeightMap.remove(dpnId);
         }
         return true;
     }
 
-    public static NaptSwitches getNaptSwitches(DataBroker dataBroker) {
+    private NaptSwitches getNaptSwitches() {
         InstanceIdentifier<NaptSwitches> id = InstanceIdentifier.builder(NaptSwitches.class).build();
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION, id).orNull();
     }
 
-    private BigInteger getSwitchWithLowestWeight() {
+    private BigInteger getSwitchWithLowestWeight(String providerNet) {
         int lowestWeight = Integer.MAX_VALUE;
         BigInteger nextSwitchId = BigInteger.valueOf(0);
-        for (Entry<BigInteger, Integer> entry : switchWeightsMap.entrySet()) {
+        Map<BigInteger,Integer> switchWeightMap = providerSwitchWeightsMap.get(providerNet);
+        if (null == switchWeightMap) {
+            LOG.error("No switch have the provider mapping {}", providerNet);
+            return nextSwitchId;
+        }
+        for (Entry<BigInteger, Integer> entry : switchWeightMap.entrySet()) {
             BigInteger dpnId = entry.getKey();
             Integer weight = entry.getValue();
             if (lowestWeight > weight) {
@@ -286,7 +342,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             }
         }
         LOG.info("getSwitchWithLowestWeight: switchWeightsMap {}, returning nextSwitchId {} ",
-                switchWeightsMap, nextSwitchId);
+                providerSwitchWeightsMap, nextSwitchId);
         return nextSwitchId;
     }
 
@@ -300,9 +356,28 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 new SubnetmapKey(subnetId)).build();
     }
 
+    public BigInteger getCentralizedSwitch(String routerName) {
+        try {
+            Optional<RouterToNaptSwitch> naptSwitches = SingleTransactionDataBroker
+                    .syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            getNaptSwitchesIdentifier(routerName));
+            if (!naptSwitches.isPresent()) {
+                LOG.info("No Napt switch is scheduled for {}", routerName);
+                return null;
+            }
+            return naptSwitches.get().getPrimarySwitchId();
+        } catch (ReadFailedException e) {
+            LOG.error("Error reading RouterToNaptSwitch model", e);
+            return null;
+        }
+    }
+
     @Override
-    public boolean getCentralizedSwitch(String routerName) {
-        // TODO Auto-generated method stub
+    public boolean isSwitchConnectedToExternal(BigInteger dpnId, String providerNet) {
+        Map<BigInteger,Integer> switchWeightMap = providerSwitchWeightsMap.get(providerNet);
+        if (switchWeightMap != null) {
+            return switchWeightMap.containsKey(dpnId);
+        }
         return false;
     }
 

@@ -33,7 +33,7 @@ public interface SnatServiceListener {
      * @param confTx The transaction to use.
      * @param routers the router.
      * @param primarySwitchId the primaryswitchId.
-     * @param dpnId the dpnId for which the flows needs to be added/removed.
+     * @param dpnId the dpnId for which the flows needs to be added.
      * @return returns success/failure.
      */
     boolean addSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers, BigInteger primarySwitchId,
@@ -56,10 +56,52 @@ public interface SnatServiceListener {
      * @param confTx The transaction to use.
      * @param routers the router.
      * @param primarySwitchId the primaryswitchId.
-     * @param dpnId the dpnId for which the flows needs to be added/removed.
+     * @param dpnId the dpnId for which the flows needs to be removed.
      * @return returns success/failure.
      */
     boolean removeSnat(TypedReadWriteTransaction<Configuration> confTx, Routers routers, BigInteger primarySwitchId,
         BigInteger dpnId) throws ExecutionException, InterruptedException;
+
+    /**
+     * Adds flows for centralized switch for all dpns having ports on the router subnet.
+     * @param confTx The transaction to use.
+     * @param routers the router.
+     * @param primarySwitchId the primaryswitchId.
+     * @return returns success/failure.
+     */
+    boolean addCentralizedRouterAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+            BigInteger primarySwitchId);
+
+    /**
+     * Adds flows for centralized switch for the dpnId.
+     * @param confTx The transaction to use.
+     * @param routers the router.
+     * @param primarySwitchId the primaryswitchId.
+     * @param dpnId the dpnId for which the flows needs to be added.
+     * @return returns success/failure.
+     */
+    boolean addCentralizedRouter(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+            BigInteger primarySwitchId, BigInteger dpnId);
+
+    /**
+     * Removes flows for centralized switch for all dpns having ports on the router subnet.
+     * @param confTx The transaction to use.
+     * @param routers the router.
+     * @param primarySwitchId the primaryswitchId.
+     * @return returns success/failure.
+     */
+    boolean removeCentralizedRouterAllSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+            BigInteger primarySwitchId)  throws ExecutionException, InterruptedException ;
+
+    /**
+     * Removes flows for centralized switch for the dpnId.
+     * @param confTx The transaction to use.
+     * @param routers the router.
+     * @param primarySwitchId the primaryswitchId.
+     * @param dpnId the dpnId for which the flows needs to be removed.
+     * @return returns success/failure.
+     */
+    boolean removeCentralizedRouter(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+            BigInteger primarySwitchId, BigInteger dpnId) throws ExecutionException, InterruptedException;
 
 }
