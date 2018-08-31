@@ -109,6 +109,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         nvpnManager.handleNeutronRouterDeleted(routerId, routerSubnetIds);
 
         neutronvpnUtils.removeFromRouterCache(input);
+        nvpnNatManager.removeNeutronRouterDpns(input);
     }
 
     @Override
