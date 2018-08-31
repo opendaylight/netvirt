@@ -284,6 +284,10 @@ public class NeutronvpnUtils {
                 if (routerIdsList == null || routerIdsList.isEmpty()) {
                     continue;
                 }
+                //Skip if current VPN is already associated with network
+                if (vpnMap.getNetworkIds() != null) {
+                    continue;
+                }
                 List<Uuid> rtrIdsList = routerIdsList.stream().map(routerIds -> routerIds.getRouterId())
                         .collect(Collectors.toList());
                 if (rtrIdsList.contains(routerId)) {
@@ -1601,13 +1605,19 @@ public class NeutronvpnUtils {
      * @param extNet Provider Network, which has a port attached as external network gateway to router
      * @return a list of Private Subnetmap Ids of the router with external network gateway
      */
-    public @Nonnull List<Uuid> getPrivateSubnetsToExport(@Nonnull Network extNet) {
+    public @Nonnull List<Uuid> getPrivateSubnetsToExport(@Nonnull Network extNet, Uuid internetVpnId) {
         List<Uuid> subList = new ArrayList<>();
-        Uuid extNetVpnId = getVpnForNetwork(extNet.getUuid());
-        if (extNetVpnId == null) {
+        List<Uuid> rtrList = new ArrayList<>();
+        Uuid extNwVpnId = getVpnForNetwork(extNet.getUuid());
+        if (extNwVpnId != null) {
+            rtrList.addAll(getRouterIdListforVpn(extNwVpnId));
+        } else if (internetVpnId != null) {
+            rtrList.addAll(getRouterIdListforVpn(internetVpnId));
+        }
+        if (rtrList == null || rtrList.isEmpty()) {
             return subList;
         }
-        for (Uuid rtrId: getRouterIdListforVpn(extNetVpnId)) {
+        for (Uuid rtrId: rtrList) {
             Router router = getNeutronRouter(rtrId);
             ExternalGatewayInfo info = router.getExternalGatewayInfo();
             if (info == null) {
@@ -1626,14 +1636,14 @@ public class NeutronvpnUtils {
         return subList;
     }
 
-    public void updateVpnInstanceWithFallback(String vpnName, boolean add) {
-        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName);
+    public void updateVpnInstanceWithFallback(Uuid vpnName, boolean add) {
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName.getValue());
         if (vpnInstanceOpDataEntry == null) {
             LOG.error("updateVpnInstanceWithFallback: vpnInstanceOpDataEntry not found for vpn {}", vpnName);
             return;
         }
         Long vpnId = vpnInstanceOpDataEntry.getVpnId();
-        List<Uuid> routerIds = getRouterIdsfromVpnInstance(vpnInstanceOpDataEntry.getVrfId());
+        List<Uuid> routerIds = getRouterIdListforVpn(vpnName);
         if (routerIds == null || routerIds.isEmpty()) {
             LOG.error("updateVpnInstanceWithFallback: router not found for vpn {}", vpnName);
             return;

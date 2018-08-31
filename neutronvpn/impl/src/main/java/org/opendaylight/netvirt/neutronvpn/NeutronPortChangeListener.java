@@ -151,7 +151,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 return;
             }
             if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(input.getDeviceOwner())) {
-                handleRouterGatewayUpdated(input);
+                handleRouterGatewayUpdated(input, false);
                 portStatus = NeutronUtils.PORT_STATUS_ACTIVE;
             } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(input.getDeviceOwner())) {
                 handleFloatingIpPortUpdated(null, input);
@@ -191,6 +191,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 return;
             } else if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(input.getDeviceOwner())
                     || NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(input.getDeviceOwner())) {
+                handleRouterGatewayUpdated(input, true);
                 elanService.removeKnownL3DmacAddress(input.getMacAddress().getValue(), input.getNetworkId().getValue());
             }
         }
@@ -227,7 +228,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 return;
             }
             if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(update.getDeviceOwner())) {
-                handleRouterGatewayUpdated(update);
+                handleRouterGatewayUpdated(update, false);
             } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(update.getDeviceOwner())) {
                 handleFloatingIpPortUpdated(original, update);
             }
@@ -314,7 +315,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                                      IpVersionChoice.IPV6, internetVpnId)) {
                         neutronvpnUtils.updateVpnInstanceWithIpFamily(internetVpnId.getValue(),
                                                                      IpVersionChoice.IPV6, true);
-                        neutronvpnUtils.updateVpnInstanceWithFallback(internetVpnId.getValue(), true);
+                        neutronvpnUtils.updateVpnInstanceWithFallback(internetVpnId, true);
                     }
                 }
                 if (! subnetMapList.isEmpty()) {
@@ -360,7 +361,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             Uuid routerId = new Uuid(routerPort.getDeviceId());
             Uuid infNetworkId = routerPort.getNetworkId();
             elanService.removeKnownL3DmacAddress(routerPort.getMacAddress().getValue(), infNetworkId.getValue());
-            Uuid vpnId = ObjectUtils.defaultIfNull(neutronvpnUtils.getVpnForRouter(routerId, true), routerId);
+            Uuid vpnId = ObjectUtils.defaultIfNull(neutronvpnUtils.getVpnForRouter(routerId, true),
+                    routerId);
             List<FixedIps> portIps = routerPort.getFixedIps();
             boolean vpnInstanceInternetIpVersionRemoved = false;
             Uuid vpnInstanceInternetUuid = null;
@@ -385,6 +387,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
              *  cleanup of router interface flows*/
             nvpnManager.deleteVpnInterface(routerPort.getUuid().getValue(),
                                            null /* vpn-id */, null /* wrtConfigTxn*/);
+            final Uuid internetVpnId = vpnInstanceInternetUuid;
             // update RouterInterfaces map
             ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 confTx -> {
@@ -401,8 +404,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                         neutronvpnUtils.removeVpnPortFixedIpToPort(vpnId.getValue(), ipValue, confTx);
                         // NOTE:  Please donot change the order of calls to removeSubnetFromVpn and
                         // and updateSubnetNodeWithFixedIP
-                        nvpnManager.removeSubnetFromVpn(vpnId, portIP.getSubnetId(),
-                                sn != null ? sn.getInternetVpnId() : null);
+                        nvpnManager.removeSubnetFromVpn(vpnId, portIP.getSubnetId(), internetVpnId);
                         nvpnManager.updateSubnetNodeWithFixedIp(portIP.getSubnetId(), null, null,
                             null, null, null);
                     }
@@ -421,12 +423,12 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             if (vpnInstanceInternetIpVersionRemoved) {
                 neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnInstanceInternetUuid.getValue(),
                         IpVersionChoice.IPV6, false);
-                neutronvpnUtils.updateVpnInstanceWithFallback(vpnInstanceInternetUuid.getValue(), false);
+                neutronvpnUtils.updateVpnInstanceWithFallback(vpnInstanceInternetUuid, false);
             }
         }
     }
 
-    private void handleRouterGatewayUpdated(Port routerGwPort) {
+    private void handleRouterGatewayUpdated(Port routerGwPort, boolean isRtrGwRemoved) {
         Uuid routerId = new Uuid(routerGwPort.getDeviceId());
         Uuid networkId = routerGwPort.getNetworkId();
         Network network = neutronvpnUtils.getNeutronNetwork(networkId);
@@ -445,7 +447,17 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     if (NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp()) != IpVersionChoice.IPV6) {
                         continue;
                     }
-                    nvpnManager.addSubnetToVpn(null, sn.getId(), vpnInternetId);
+                    if (isRtrGwRemoved) {
+                        nvpnManager.removeV6RoutesFromExtNetwork(vpnInternetId, sn);
+                    } else {
+                        nvpnManager.addSubnetToVpn(null, sn.getId(), vpnInternetId);
+                    }
+                }
+                //update VPN Maps with extRouterId in InternetBgpVpn
+                if (isRtrGwRemoved) {
+                    nvpnManager.updateVpnMaps(vpnInternetId, null, null, null, null);
+                } else {
+                    nvpnManager.updateVpnMaps(vpnInternetId, null, routerId, null, null);
                 }
             }
         }
