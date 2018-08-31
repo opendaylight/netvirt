@@ -1694,13 +1694,13 @@ public final class VpnUtil {
             }
             return false;
         } else if (adjacency.getSubnetId() == null) {
-            return adjacencyEligible;
+            return false;
         }
         Subnetmap sn = getSubnetmapFromItsUuid(adjacency.getSubnetId());
         if (sn != null && sn.getInternetVpnId() != null) {
-            adjacencyEligible = false;
+            return adjacencyEligible;
         }
-        return adjacencyEligible;
+        return false;
     }
 
     boolean isAdjacencyEligibleToVpn(Adjacency adjacency, String vpnName) {
@@ -2211,5 +2211,45 @@ public final class VpnUtil {
 
     public static String buildIpMonitorJobKey(String ip, String vpnName) {
         return VpnConstants.IP_MONITOR_JOB_PREFIX_KEY + "-" + vpnName + "-" + ip;
+    }
+
+    public VpnInstanceOpDataEntry.BgpvpnType getBgpVpnTypeFromVpnName(String vpnName) {
+        String primaryRd = getVpnRd(vpnName);
+        if (primaryRd == null) {
+            LOG.error("getBgpVpnTypeFromVpnName VPN {} Primary RD not found", vpnName);
+            return null;
+        }
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+                .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
+
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional = read(LogicalDatastoreType.OPERATIONAL, id);
+        if (!vpnInstanceOpDataEntryOptional.isPresent()) {
+            LOG.error("getBgpVpnTypeFromVpnName VPN {} VpnInstanceOpDataEntry not found", vpnName);
+            return null;
+        }
+        return vpnInstanceOpDataEntryOptional.get().getBgpvpnType();
+    }
+
+    public boolean isVpnInstanceUpdate(List<String> newVpnList, List<String> originalVpnList,
+                                         List<String> updateVpnList) {
+        if (originalVpnList.size() != updateVpnList.size() && !newVpnList.isEmpty()) {
+            //DualRouterVPNInstanceUpdate check
+            if (!VpnInstanceOpDataEntry.BgpvpnType.BGPVPNInternet.equals(getBgpVpnTypeFromVpnName(
+                    newVpnList.get(0)))) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (originalVpnList.size() == updateVpnList.size() && !newVpnList.isEmpty()) {
+            //ExternalVpnInstanceUpdate check
+            if (!VpnInstanceOpDataEntry.BgpvpnType.BGPVPNInternet.equals(getBgpVpnTypeFromVpnName(
+                    newVpnList.get(0)))) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 }

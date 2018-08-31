@@ -1626,14 +1626,14 @@ public class NeutronvpnUtils {
         return subList;
     }
 
-    public void updateVpnInstanceWithFallback(String vpnName, boolean add) {
-        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName);
+    public void updateVpnInstanceWithFallback(Uuid vpnName, boolean add) {
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName.getValue());
         if (vpnInstanceOpDataEntry == null) {
             LOG.error("updateVpnInstanceWithFallback: vpnInstanceOpDataEntry not found for vpn {}", vpnName);
             return;
         }
         Long vpnId = vpnInstanceOpDataEntry.getVpnId();
-        List<Uuid> routerIds = getRouterIdsfromVpnInstance(vpnInstanceOpDataEntry.getVrfId());
+        List<Uuid> routerIds = getRouterIdListforVpn(vpnName);
         if (routerIds == null || routerIds.isEmpty()) {
             LOG.error("updateVpnInstanceWithFallback: router not found for vpn {}", vpnName);
             return;

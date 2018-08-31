@@ -1533,9 +1533,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         LOG.info("VPN Interface update event - intfName {}", vpnInterfaceName);
         //handles switching between <internal VPN - external VPN>
         jobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName, () -> {
-            if (handleVpnSwapForVpnInterface(identifier, original, update)) {
-                LOG.info("update: handled VPNInterface {} on dpn {} update"
-                                + "upon VPN swap from oldVpn(s) {} to newVpn(s) {}",
+            if (handleVpnInstanceUpdateForVpnInterface(identifier, original, update)) {
+                LOG.info("update: handled VPN Instance Update for VPNInterface {} on dpn {} from oldVpn(s) {} "
+                                + "to newVpn(s) {}",
                         original.getName(), dpnId,
                         VpnHelper.getVpnInterfaceVpnInstanceNamesString(original.getVpnInstanceNames()),
                         VpnHelper.getVpnInterfaceVpnInstanceNamesString(update.getVpnInstanceNames()));
@@ -1558,12 +1558,33 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             //handle both addition and removal of adjacencies
                             //currently, new adjacency may be an extra route
                             boolean isBgpVpnInternetVpn = vpnUtil.isBgpVpnInternet(newVpnName);
+                            //If VPN Instance is BGP-VPN Internet type then Created VPN Interface Adj for IPv6 Prefixes
+                            if (isBgpVpnInternetVpn) {
+                                List<Adjacency> oldV6Adjacency = new ArrayList<>();
+                                for (Adjacency oldV6Adj: oldAdjs) {
+                                    if (FibHelper.isIpv6Prefix(oldV6Adj.getIpAddress())) {
+                                        oldV6Adjacency.add(oldV6Adj);
+                                    }
+                                }
+                                List<Adjacency> newV6Adjacency = new ArrayList<>();
+                                for (Adjacency newV6Adj: newAdjs) {
+                                    if (FibHelper.isIpv6Prefix(newV6Adj.getIpAddress())) {
+                                        newV6Adjacency.add(newV6Adj);
+                                    }
+                                }
+                                addVpnInterfaceCall(identifier, update, oldV6Adjacency, newV6Adjacency, newVpnName);
+                                LOG.info("VPN Interface update event for interface {} onto Internet VPN {} from old "
+                                                + "V6Adj {} to new V6Adj {}", update.getName(), newVpnName,
+                                        oldV6Adjacency, newV6Adjacency);
+                            }
                             if (!oldAdjs.equals(newAdjs)) {
                                 for (Adjacency adj : copyNewAdjs) {
                                     if (copyOldAdjs.contains(adj)) {
                                         copyOldAdjs.remove(adj);
                                     } else {
-                                        // add new adjacency - right now only extra route will hit this path
+                                        /* add new adjacency - Extra Route, Second Primary adjacency for dual stack
+                                         * network, Internet adjacency for IPv6
+                                         */
                                         if (!isBgpVpnInternetVpn || vpnUtil.isAdjacencyEligibleToVpnInternet(adj)) {
                                             addNewAdjToVpnInterface(vpnInterfaceOpIdentifier, primaryRd, adj,
                                                     dpnId, operTx, confTx);
@@ -1616,34 +1637,24 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         });
     }
 
-    private boolean handleVpnSwapForVpnInterface(InstanceIdentifier<VpnInterface> identifier,
+    private boolean handleVpnInstanceUpdateForVpnInterface(InstanceIdentifier<VpnInterface> identifier,
                                                  VpnInterface original, VpnInterface update) {
-        boolean isSwap = Boolean.FALSE;
+        boolean isVpnInstanceUpdate = Boolean.FALSE;
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
         final String interfaceName = key.getName();
         List<String> oldVpnList = original.getVpnInstanceNames().stream()
-            .map(VpnInstanceNames::getVpnName).collect(Collectors.toList());
+                .map(VpnInstanceNames::getVpnName).collect(Collectors.toList());
         List<String> oldVpnListCopy = new ArrayList<>();
         oldVpnListCopy.addAll(oldVpnList);
         List<String> newVpnList = update.getVpnInstanceNames().stream()
-            .map(VpnInstanceNames::getVpnName).collect(Collectors.toList());
+                .map(VpnInstanceNames::getVpnName).collect(Collectors.toList());
+        List<String> newVpnListCopy = new ArrayList<>();
+        newVpnListCopy.addAll(newVpnList);
+
         oldVpnList.removeAll(newVpnList);
         newVpnList.removeAll(oldVpnListCopy);
+
         if (!oldVpnList.isEmpty() || !newVpnList.isEmpty()) {
-            for (String oldVpnName: oldVpnList) {
-                isSwap = Boolean.TRUE;
-                LOG.info("handleVpnSwapForVpnInterface: VPN Interface update event - intfName {} remove vpnName {}"
-                        + " running config-driven swap removal", interfaceName, oldVpnName);
-                removeVpnInterfaceCall(identifier, original, oldVpnName, interfaceName);
-                LOG.info("handleVpnSwapForVpnInterface: Processed Remove for update on VPNInterface {} upon VPN swap"
-                        + "from old vpn {} to newVpn(s) {}", interfaceName, oldVpnName, newVpnList);
-            }
-            //Wait for previous interface bindings to be removed
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                //Ignore
-            }
 
             final Adjacencies origAdjs = original.augmentation(Adjacencies.class);
             final List<Adjacency> oldAdjs = (origAdjs != null && origAdjs.getAdjacency() != null)
@@ -1651,20 +1662,42 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             final Adjacencies updateAdjs = update.augmentation(Adjacencies.class);
             final List<Adjacency> newAdjs = (updateAdjs != null && updateAdjs.getAdjacency() != null)
                     ? updateAdjs.getAdjacency() : new ArrayList<>();
-            for (String newVpnName: newVpnList) {
-                String primaryRd = vpnUtil.getPrimaryRd(newVpnName);
-                isSwap = Boolean.TRUE;
-                if (!vpnUtil.isVpnPendingDelete(primaryRd)) {
-                    LOG.info("handleVpnSwapForVpnInterface: VPN Interface update event - intfName {} onto vpnName {}"
-                            + "running config-driven swap addition", interfaceName, newVpnName);
-                    addVpnInterfaceCall(identifier, update, oldAdjs, newAdjs, newVpnName);
-                    LOG.info("handleVpnSwapForVpnInterface: Processed Add for update on VPNInterface {}"
-                                    + "from oldVpn(s) {} to newVpn {} upon VPN swap",
-                            interfaceName, oldVpnListCopy, newVpnName);
+
+            if (vpnUtil.isVpnInstanceUpdate(newVpnList, oldVpnListCopy, newVpnListCopy)) {
+                boolean isOldVpnRemoveExecuted = false;
+                for (String oldVpnName : oldVpnList) {
+                    isVpnInstanceUpdate = Boolean.TRUE;
+                    LOG.info("handleVpnInstanceUpdateForVpnInterface: VPN Interface update event - intfName {} "
+                            + "remove vpnName {} ", interfaceName, oldVpnName);
+                    removeVpnInterfaceCall(identifier, original, oldVpnName, interfaceName);
+                    LOG.info("handleVpnInstanceUpdateForVpnInterface: Processed Remove for update on VPNInterface"
+                                    + " {} upon VPN update from old vpn {} to newVpn(s) {}", interfaceName, oldVpnName,
+                            newVpnList);
+                    isOldVpnRemoveExecuted = true;
+                }
+                //Wait for previous interface bindings to be removed
+                if (isOldVpnRemoveExecuted) {
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        //Ignore
+                    }
+                }
+                for (String newVpnName : newVpnList) {
+                    String primaryRd = vpnUtil.getPrimaryRd(newVpnName);
+                    isVpnInstanceUpdate = Boolean.TRUE;
+                    if (!vpnUtil.isVpnPendingDelete(primaryRd)) {
+                        LOG.info("handleVpnInstanceUpdateForVpnInterface: VPN Interface update event - intfName {} "
+                                + "onto vpnName {} ", interfaceName, newVpnName);
+                        addVpnInterfaceCall(identifier, update, oldAdjs, newAdjs, newVpnName);
+                        LOG.info("handleVpnInstanceUpdateForVpnInterface: Processed Add for update on VPNInterface {}"
+                                        + "from oldVpn(s) {} to newVpn {} ",
+                                interfaceName, oldVpnListCopy, newVpnName);
+                    }
                 }
             }
         }
-        return isSwap;
+        return isVpnInstanceUpdate;
     }
 
     private void updateLabelMapper(Long label, List<String> nextHopIpList) {
