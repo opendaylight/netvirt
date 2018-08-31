@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c105456a_ea0e6340",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AbstractIpLearnNotificationHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-08-31T14:29:42Z",
+      "side": 1,
+      "message": "This logic doesn\u0027t give the right subnetId corresponding to the hidden IP to process further.\nWith this logic, there could be a scenario where hidden IP is of IPv4 type but subnetId might correspond to IPv6.\nIn this for loop, subnetId will correspond to the last adjacency which doesn\u0027t guarantee that hidden IP belongs to this subnet.",
+      "range": {
+        "startLine": 73,
+        "startChar": 16,
+        "endLine": 73,
+        "endChar": 45
+      },
+      "revId": "05f97925a0912cb9a3ffc4fc4527b7ebc84459f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
