@@ -267,6 +267,27 @@ public class NeutronvpnUtils {
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
             List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
             for (VpnMap vpnMap : allMaps) {
+                if (vpnMap.getRouterId() == null) {
+                    continue;
+                }
+                boolean isInternetBgpVpn = false;
+                //Skip router vpnId fetching from internet BGP-VPN
+                if (vpnMap.getNetworkIds() != null && !vpnMap.getNetworkIds().isEmpty()) {
+                    for (Uuid netId: vpnMap.getNetworkIds()) {
+                        Network network = getNeutronNetwork(netId);
+                        if (getIsExternal(network)) {
+                            isInternetBgpVpn = true;
+                        }
+                        /* If first network is not a external network then no need iterate
+                         * whole network list from the VPN
+                         */
+                        break;
+                    }
+                }
+                if (isInternetBgpVpn) {
+                    //skip further processing
+                    continue;
+                }
                 if (routerId.equals(vpnMap.getRouterId())) {
                     if (externalVpn) {
                         if (!routerId.equals(vpnMap.getVpnId())) {
@@ -1600,53 +1621,73 @@ public class NeutronvpnUtils {
      * @param extNet Provider Network, which has a port attached as external network gateway to router
      * @return a list of Private Subnetmap Ids of the router with external network gateway
      */
-    public @Nonnull List<Uuid> getPrivateSubnetsToExport(@Nonnull Network extNet) {
+    public @Nonnull List<Uuid> getPrivateSubnetsToExport(@Nonnull Network extNet, Uuid internetVpnId) {
         List<Uuid> subList = new ArrayList<>();
-        Uuid extNetVpnId = getVpnForNetwork(extNet.getUuid());
-        if (extNetVpnId == null) {
+        Uuid routerId = null;
+        if (internetVpnId != null) {
+            routerId = getRouterforVpn(internetVpnId);
+        } else {
+            Uuid extNwVpnId = getVpnForNetwork(extNet.getUuid());
+            routerId = getRouterforVpn(extNwVpnId);
+        }
+        if (routerId == null) {
             return subList;
         }
-        Router router = getNeutronRouter(getRouterforVpn(extNetVpnId));
+        Router router = getNeutronRouter(routerId);
         ExternalGatewayInfo info = router.getExternalGatewayInfo();
         if (info == null) {
             LOG.error("getPrivateSubnetsToExport: can not get info about external gateway for router {}",
-                      router.getUuid().getValue());
+                    router.getUuid().getValue());
             return subList;
         }
         // check that router really has given provider network as its external gateway port
         if (!extNet.getUuid().equals(info.getExternalNetworkId())) {
             LOG.error("getPrivateSubnetsToExport: router {} is not attached to given provider network {}",
-                      router.getUuid().getValue(), extNet.getUuid().getValue());
+                    router.getUuid().getValue(), extNet.getUuid().getValue());
             return subList;
         }
         return getSubnetsforVpn(router.getUuid());
     }
 
-    public void updateVpnInstanceWithFallback(String vpnName, boolean add) {
-        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName);
+    public void updateVpnInstanceWithFallback(Uuid vpnName, boolean add) {
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName.getValue());
         if (vpnInstanceOpDataEntry == null) {
             // BGPVPN context not found
             return;
         }
-        String routerIdUuid = getRouterIdfromVpnInstance(vpnInstanceOpDataEntry.getVrfId());
+        Uuid routerIdUuid = getRouterforVpn(vpnName);
         if (routerIdUuid != null) {
-            List<BigInteger> dpnIds = getDpnsForRouter(routerIdUuid);
+            List<BigInteger> dpnIds = getDpnsForRouter(routerIdUuid.getValue());
             if (!dpnIds.isEmpty()) {
-                Long vpnId = vpnInstanceOpDataEntry.getVpnId();
-                VpnInstanceOpDataEntry vpnOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(routerIdUuid);
+                Long internetBgpVpnId = vpnInstanceOpDataEntry.getVpnId();
+                VpnInstanceOpDataEntry vpnOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(routerIdUuid.getValue());
                 Long routerIdAsLong = vpnOpDataEntry.getVpnId();
-                if (routerIdAsLong == null) {
-                    return;
+                long vpnId;
+                Uuid rtrVpnId = getVpnForRouter(routerIdUuid, true);
+                if (rtrVpnId == null) {
+                    //If external BGP-VPN is not associated with router then routerId is same as routerVpnId
+                    vpnId = routerIdAsLong;
+                } else {
+                    vpnId = getVpnId(rtrVpnId.getValue());
                 }
                 for (BigInteger dpnId : dpnIds) {
                     if (add) {
-                        ipV6InternetDefRt.installDefaultRoute(dpnId, vpnId, routerIdAsLong);
+                        ipV6InternetDefRt.installDefaultRoute(dpnId, internetBgpVpnId, vpnId);
                     } else {
-                        ipV6InternetDefRt.removeDefaultRoute(dpnId, vpnId, routerIdAsLong);
+                        ipV6InternetDefRt.removeDefaultRoute(dpnId, internetBgpVpnId, vpnId);
                     }
                 }
             }
         }
+    }
+
+    public long getVpnId(String vpnName) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
+                .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                        .VpnInstance::getVpnId).orElse(null);
     }
 
     public void updateVpnInstanceOpWithType(VpnInstanceOpDataEntry.BgpvpnType choice, @Nonnull Uuid vpn) {

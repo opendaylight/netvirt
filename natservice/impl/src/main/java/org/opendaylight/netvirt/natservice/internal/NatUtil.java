@@ -610,9 +610,29 @@ public final class NatUtil {
             List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
             if (routerId != null) {
                 for (VpnMap vpnMap : allMaps) {
+                    if (vpnMap.getRouterId() == null) {
+                        continue;
+                    }
+                    //Skip router vpnId fetching from internet BGP-VPN
+                    boolean isInternetBgpVpn = false;
+                    if (vpnMap.getNetworkIds() != null && !vpnMap.getNetworkIds().isEmpty()) {
+                        for (Uuid netId: vpnMap.getNetworkIds()) {
+                            if (isExternalNetwork(broker, netId)) {
+                                isInternetBgpVpn = true;
+                            }
+                            /* If first network is not a external network then no need iterate
+                             * whole network list from the VPN
+                             */
+                            break;
+                        }
+                    }
+                    if (isInternetBgpVpn) {
+                        //skip further processing
+                        continue;
+                    }
                     if (vpnMap.getRouterId() != null
-                        && routerId.equals(vpnMap.getRouterId().getValue())
-                        && !routerId.equals(vpnMap.getVpnId().getValue())) {
+                            && routerId.equals(vpnMap.getRouterId().getValue())
+                            && !routerId.equals(vpnMap.getVpnId().getValue())) {
                         return vpnMap.getVpnId();
                     }
                 }
@@ -2181,5 +2201,16 @@ public final class NatUtil {
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("createGroupIdPool : Failed to create PortPool for NAPT Service", e);
         }
+    }
+
+    public static boolean isExternalNetwork(DataBroker broker, Uuid networkId) {
+        InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
+        Optional<Networks> networkData =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
+                        broker, LogicalDatastoreType.CONFIGURATION, id);
+        if (networkData.isPresent()) {
+            return true;
+        }
+        return false;
     }
 }
