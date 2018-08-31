@@ -31,9 +31,12 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
@@ -519,6 +522,23 @@ public class NeutronvpnNatManager implements AutoCloseable {
             }
         } catch (TransactionCommitFailedException | ReadFailedException ex) {
             LOG.error("Removing extrouter {} from extrouters failed", routerId.getValue(), ex);
+        }
+    }
+
+    public void removeNeutronRouterDpns(Router router) {
+        Uuid routerId = router.getUuid();
+        InstanceIdentifier.InstanceIdentifierBuilder<RouterDpnList> idBuilder = InstanceIdentifier
+                .builder(NeutronRouterDpns.class).child(RouterDpnList.class, new RouterDpnListKey(routerId.getValue()));
+        try {
+        Optional<RouterDpnList> routerDpnListData =
+                SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                        idBuilder.build());
+                if (routerDpnListData.isPresent()) {
+                    SingleTransactionDataBroker.syncDelete(dataBroker,
+                            LogicalDatastoreType.OPERATIONAL, idBuilder.build());
+                }
+        } catch (ReadFailedException | TransactionCommitFailedException e) {
+            LOG.error("Failed to read from FloatingIpInfo DS for routerid {}", routerId, e);
         }
     }
 
