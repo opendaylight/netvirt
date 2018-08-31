@@ -698,6 +698,10 @@ public final class NatUtil {
                 if (routerIdsList == null || routerIdsList.isEmpty()) {
                     return null;
                 }
+                //Skip if current VPN is already associated with network
+                if (vpnMap.getNetworkIds() != null) {
+                    continue;
+                }
                 if (routerIdsList.contains(new Uuid(routerId))) {
                     return vpnMap.getVpnId();
                 }
