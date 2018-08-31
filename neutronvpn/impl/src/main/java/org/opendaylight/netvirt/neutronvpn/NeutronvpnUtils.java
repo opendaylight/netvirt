@@ -10,9 +10,15 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.SettableFuture;
+
 import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -35,8 +41,10 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -197,6 +205,7 @@ public class NeutronvpnUtils {
     private final IdManagerService idManager;
     private final JobCoordinator jobCoordinator;
     private final IPV6InternetDefaultRouteProgrammer ipV6InternetDefRt;
+    private static final int JOB_MAX_RETRIES = 3;
 
     @Inject
     public NeutronvpnUtils(final DataBroker dataBroker, final IdManagerService idManager,
@@ -1868,5 +1877,46 @@ public class NeutronvpnUtils {
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
                         .VpnInstance::getVpnId).orElse(null);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public <T extends DataObject> void asyncReadAndExecute(final LogicalDatastoreType datastoreType,
+                                                           final InstanceIdentifier<T> iid, final String jobKey,
+                                                           final Function<Optional<T>, Void> function) {
+        jobCoordinator.enqueueJob(jobKey, () -> {
+            SettableFuture<Optional<T>> settableFuture = SettableFuture.create();
+            List futures = Collections.singletonList(settableFuture);
+            try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+                Futures.addCallback(tx.read(datastoreType, iid),
+                        new SettableFutureCallback<Optional<T>>(settableFuture) {
+                            @Override
+                            public void onSuccess(Optional<T> data) {
+                                function.apply(data);
+                                super.onSuccess(data);
+                            }
+                        }, MoreExecutors.directExecutor());
+
+                return futures;
+            }
+        }, JOB_MAX_RETRIES);
+    }
+
+    private class SettableFutureCallback<T> implements FutureCallback<T> {
+
+        private final SettableFuture<T> settableFuture;
+
+        SettableFutureCallback(SettableFuture<T> settableFuture) {
+            this.settableFuture = settableFuture;
+        }
+
+        @Override
+        public void onSuccess(T objT) {
+            settableFuture.set(objT);
+        }
+
+        @Override
+        public void onFailure(Throwable throwable) {
+            settableFuture.setException(throwable);
+        }
     }
 }

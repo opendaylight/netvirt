@@ -31,9 +31,12 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
@@ -522,6 +525,29 @@ public class NeutronvpnNatManager implements AutoCloseable {
         }
     }
 
+    public void removeNeutronRouterDpns(Router router) {
+        Uuid routerId = router.getUuid();
+        InstanceIdentifier<RouterDpnList> iid = InstanceIdentifier.builder(NeutronRouterDpns.class)
+                .child(RouterDpnList.class, new RouterDpnListKey(routerId.getValue())).build();
+        neutronvpnUtils.asyncReadAndExecute(LogicalDatastoreType.OPERATIONAL, iid, router.getUuid().toString(),
+            (routerDpnListOptional) -> {
+                if (routerDpnListOptional.isPresent()) {
+                    routerDpnListOptional.get().getDpnVpninterfacesList().stream()
+                            .filter((dpnList) -> (dpnList != null))
+                            .forEach((dpnList) -> {
+                                LOG.warn("DPN {} presence exists while deleting router instance {}",
+                                        dpnList.getDpnId(), routerId);
+                            });
+                    try {
+                        SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, iid);
+                    } catch (TransactionCommitFailedException e) {
+                        LOG.warn("Failed to read from NeutronRouterDpn DS for routerid {}", routerId, e);
+                    }
+                }
+                return null;
+            });
+    }
+
     private void removeRouterFromFloatingIpInfo(Router update, DataBroker broker) {
         Uuid routerId = update.getUuid();
         InstanceIdentifier.InstanceIdentifierBuilder<RouterPorts> routerPortsIdentifierBuilder = InstanceIdentifier
@@ -825,4 +851,6 @@ public class NeutronvpnNatManager implements AutoCloseable {
             }
         }
     }
+
+
 }
