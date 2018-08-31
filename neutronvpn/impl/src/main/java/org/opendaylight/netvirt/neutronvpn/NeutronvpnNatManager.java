@@ -420,7 +420,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
 
         // Remove the vpnInternetId fromSubnetmap
         Network net = neutronvpnUtils.getNeutronNetwork(nets.getId());
-        List<Uuid> submapIds = neutronvpnUtils.getPrivateSubnetsToExport(net);
+        List<Uuid> submapIds = neutronvpnUtils.getPrivateSubnetsToExport(net, null);
         for (Uuid snId : submapIds) {
             Subnetmap subnetMap = neutronvpnUtils.getSubnetmap(snId);
             if (subnetMap == null || subnetMap.getInternetVpnId() == null) {
