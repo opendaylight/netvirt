@@ -1563,7 +1563,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     if (copyOldAdjs.contains(adj)) {
                                         copyOldAdjs.remove(adj);
                                     } else {
-                                        // add new adjacency - right now only extra route will hit this path
+                                        /* add new adjacency - Extra Route, Second Primary adjacency for dual stack
+                                         * network
+                                         */
                                         if (!isBgpVpnInternetVpn || vpnUtil.isAdjacencyEligibleToVpnInternet(adj)) {
                                             addNewAdjToVpnInterface(vpnInterfaceOpIdentifier, primaryRd, adj,
                                                     dpnId, operTx, confTx);
