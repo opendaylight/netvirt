@@ -2212,4 +2212,37 @@ public final class VpnUtil {
     public static String buildIpMonitorJobKey(String ip, String vpnName) {
         return VpnConstants.IP_MONITOR_JOB_PREFIX_KEY + "-" + vpnName + "-" + ip;
     }
+
+    public boolean isSecondVpnInstanceAddedOrRemoved(List<String> originalVpnList, List<String> updateVpnList) {
+        /* Single VPN Interface will be part of maximum 2 VPN Instance only.
+         * Internet BGP-VPN Case:
+         *     First VPN Instance type will be either internal router VPN or external BGP-VPN.
+         *     Second VPN Instance type will be Internet BGP-VPN for public network access.
+         * Dual Router Case:
+         *     First VPN Instance type will be either internal router VPN or external BGP-VPN.
+         *     Second VPN Instance type will be either internal router VPN or external BGP-VPN.
+         *
+         * Update VPN Instance for ADD: originalVpnList = 1 and updateVpnList = 2 (any VPN type)
+         * Update VPN Instance for REMOVE: originalVpnList = 2 and updateVpnList = 1 (any VPN type)
+         */
+        if (originalVpnList.size() == 2 || updateVpnList.size() == 2) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isSingleVpnInstanceSwap(List<String> originalVpnList, List<String> updateVpnList) {
+        /* Single VPN Instance update will be always either internal router VPN to
+         * external BGP-VPN or external BGP-VPN to internal router VPN swap.
+         *
+         * Update VPN Instance for ADD: originalVpnList = 1 and updateVpnList = 1 (internal VPN to Ext-BGPVPN)
+         * Update VPN Instance for REMOVE: originalVpnList = 1 and updateVpnList = 1 (Ext-BGPVPN to internal VPN)
+         */
+        if (originalVpnList.size() == 1 && updateVpnList.size() == 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

@@ -1533,9 +1533,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         LOG.info("VPN Interface update event - intfName {}", vpnInterfaceName);
         //handles switching between <internal VPN - external VPN>
         jobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName, () -> {
-            if (handleVpnSwapForVpnInterface(identifier, original, update)) {
-                LOG.info("update: handled VPNInterface {} on dpn {} update"
-                                + "upon VPN swap from oldVpn(s) {} to newVpn(s) {}",
+            if (handleVpnInstanceUpdateForVpnInterface(identifier, original, update)) {
+                LOG.info("update: handled Instance update for VPNInterface {} on dpn {} from oldVpn(s) {} "
+                                + "to newVpn(s) {}",
                         original.getName(), dpnId,
                         VpnHelper.getVpnInterfaceVpnInstanceNamesString(original.getVpnInstanceNames()),
                         VpnHelper.getVpnInterfaceVpnInstanceNamesString(update.getVpnInstanceNames()));
@@ -1616,9 +1616,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         });
     }
 
-    private boolean handleVpnSwapForVpnInterface(InstanceIdentifier<VpnInterface> identifier,
+    private boolean handleVpnInstanceUpdateForVpnInterface(InstanceIdentifier<VpnInterface> identifier,
                                                  VpnInterface original, VpnInterface update) {
-        boolean isSwap = Boolean.FALSE;
+        boolean isVpnInstanceUpdate = Boolean.FALSE;
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
         final String interfaceName = key.getName();
         List<String> oldVpnList = original.getVpnInstanceNames().stream()
@@ -1627,44 +1627,72 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         oldVpnListCopy.addAll(oldVpnList);
         List<String> newVpnList = update.getVpnInstanceNames().stream()
             .map(VpnInstanceNames::getVpnName).collect(Collectors.toList());
+        List<String> newVpnListCopy = new ArrayList<>();
+        newVpnListCopy.addAll(newVpnList);
+
         oldVpnList.removeAll(newVpnList);
         newVpnList.removeAll(oldVpnListCopy);
+        //This block will execute only on if there is a change in the VPN Instance.
         if (!oldVpnList.isEmpty() || !newVpnList.isEmpty()) {
-            for (String oldVpnName: oldVpnList) {
-                isSwap = Boolean.TRUE;
-                LOG.info("handleVpnSwapForVpnInterface: VPN Interface update event - intfName {} remove vpnName {}"
-                        + " running config-driven swap removal", interfaceName, oldVpnName);
-                removeVpnInterfaceCall(identifier, original, oldVpnName, interfaceName);
-                LOG.info("handleVpnSwapForVpnInterface: Processed Remove for update on VPNInterface {} upon VPN swap"
-                        + "from old vpn {} to newVpn(s) {}", interfaceName, oldVpnName, newVpnList);
+            if (vpnUtil.isSecondVpnInstanceAddedOrRemoved(oldVpnListCopy, newVpnListCopy)) {
+                LOG.info("handleVpnInstanceUpdateForVpnInterface: VPN Interface {} is update with new VPN {}",
+                        interfaceName, newVpnList);
+                updateVpnInstanceChange(identifier, interfaceName, original, update, oldVpnList, newVpnList,
+                        oldVpnListCopy);
+                /* Second VPN Instance is required further VPN Adjacency Processing.
+                 * Hence update flag is set to false
+                 */
+                isVpnInstanceUpdate = Boolean.FALSE;
+            } else if (vpnUtil.isSingleVpnInstanceSwap(oldVpnListCopy, newVpnListCopy)) {
+                LOG.info("handleVpnInstanceUpdateForVpnInterface: VPN Interface {} is update with new VPN {}",
+                        interfaceName, newVpnList);
+                updateVpnInstanceChange(identifier, interfaceName, original, update, oldVpnList, newVpnList,
+                        oldVpnListCopy);
+                isVpnInstanceUpdate = Boolean.TRUE;
             }
-            //Wait for previous interface bindings to be removed
+        }
+        return isVpnInstanceUpdate;
+    }
+
+    private void updateVpnInstanceChange(InstanceIdentifier<VpnInterface> identifier, String interfaceName,
+                                         VpnInterface original, VpnInterface update, List<String> oldVpnList,
+                                         List<String> newVpnList, List<String> oldVpnListCopy) {
+        final Adjacencies origAdjs = original.augmentation(Adjacencies.class);
+        final List<Adjacency> oldAdjs = (origAdjs != null && origAdjs.getAdjacency() != null)
+                ? origAdjs.getAdjacency() : new ArrayList<>();
+        final Adjacencies updateAdjs = update.augmentation(Adjacencies.class);
+        final List<Adjacency> newAdjs = (updateAdjs != null && updateAdjs.getAdjacency() != null)
+                ? updateAdjs.getAdjacency() : new ArrayList<>();
+
+        boolean isOldVpnRemoveCallExecuted = Boolean.FALSE;
+        for (String oldVpnName : oldVpnList) {
+            LOG.info("updateVpnInstanceChange: VPN Interface update event - intfName {} "
+                    + "remove from vpnName {} ", interfaceName, oldVpnName);
+            removeVpnInterfaceCall(identifier, original, oldVpnName, interfaceName);
+            LOG.info("updateVpnInstanceChange: Processed Remove for update on VPNInterface"
+                            + " {} upon VPN update from old vpn {} to newVpn(s) {}", interfaceName, oldVpnName,
+                    newVpnList);
+            isOldVpnRemoveCallExecuted = Boolean.TRUE;
+        }
+        //Wait for previous interface bindings to be removed
+        if (isOldVpnRemoveCallExecuted && !newVpnList.isEmpty()) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 //Ignore
             }
-
-            final Adjacencies origAdjs = original.augmentation(Adjacencies.class);
-            final List<Adjacency> oldAdjs = (origAdjs != null && origAdjs.getAdjacency() != null)
-                    ? origAdjs.getAdjacency() : new ArrayList<>();
-            final Adjacencies updateAdjs = update.augmentation(Adjacencies.class);
-            final List<Adjacency> newAdjs = (updateAdjs != null && updateAdjs.getAdjacency() != null)
-                    ? updateAdjs.getAdjacency() : new ArrayList<>();
-            for (String newVpnName: newVpnList) {
-                String primaryRd = vpnUtil.getPrimaryRd(newVpnName);
-                isSwap = Boolean.TRUE;
-                if (!vpnUtil.isVpnPendingDelete(primaryRd)) {
-                    LOG.info("handleVpnSwapForVpnInterface: VPN Interface update event - intfName {} onto vpnName {}"
-                            + "running config-driven swap addition", interfaceName, newVpnName);
-                    addVpnInterfaceCall(identifier, update, oldAdjs, newAdjs, newVpnName);
-                    LOG.info("handleVpnSwapForVpnInterface: Processed Add for update on VPNInterface {}"
-                                    + "from oldVpn(s) {} to newVpn {} upon VPN swap",
-                            interfaceName, oldVpnListCopy, newVpnName);
-                }
+        }
+        for (String newVpnName : newVpnList) {
+            String primaryRd = vpnUtil.getPrimaryRd(newVpnName);
+            if (!vpnUtil.isVpnPendingDelete(primaryRd)) {
+                LOG.info("updateVpnInstanceChange: VPN Interface update event - intfName {} "
+                        + "onto vpnName {} ", interfaceName, newVpnName);
+                addVpnInterfaceCall(identifier, update, oldAdjs, newAdjs, newVpnName);
+                LOG.info("updateVpnInstanceChange: Processed Add for update on VPNInterface {}"
+                                + "from oldVpn(s) {} to newVpn {} ",
+                        interfaceName, oldVpnListCopy, newVpnName);
             }
         }
-        return isSwap;
     }
 
     private void updateLabelMapper(Long label, List<String> nextHopIpList) {
