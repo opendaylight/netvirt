@@ -193,6 +193,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnTargets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -2227,5 +2228,27 @@ public final class VpnUtil {
     public List<String> getVpnListForVpnInterface(VpnInterface vpnInter) {
         return vpnInter.getVpnInstanceNames().stream()
                 .map(VpnInstanceNames::getVpnName).collect(Collectors.toList());
+    }
+
+    public void updateVpnInstanceWithRdList(String vpnName, List<String> updatedRdList) {
+        String primaryRd = getVpnRd(vpnName);
+        if (primaryRd == null) {
+            LOG.warn("updateVpnInstanceWithRdList: Unable to retrieve primary RD for the VPN {}. Skip to process "
+                    + "the updated RD list {} ", vpnName, updatedRdList);
+            return;
+        }
+        jobCoordinator.enqueueJob("VPN-" + vpnName, () -> {
+            VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder();
+            builder.setRd(updatedRdList);
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    OPERATIONAL, tx -> {
+                    InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier
+                            .builder(VpnInstanceOpData.class).child(VpnInstanceOpDataEntry.class,
+                                    new VpnInstanceOpDataEntryKey(primaryRd)).build();
+                    tx.merge(id, builder.build(), false);
+                    LOG.debug("updateVpnInstanceWithRdList: Successfully updated the VPN {} with list of RDs {}",
+                            vpnName, updatedRdList);
+                }));
+        });
     }
 }
