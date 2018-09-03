@@ -22,6 +22,30 @@
       "revId": "337d43065d212521d20351dc1984185252e93b59",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "32bcebb5_a9b54ac4",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1060,
+      "author": {
+        "id": 8011
+      },
+      "writtenOn": "2018-09-03T05:00:22Z",
+      "side": 1,
+      "message": "The issue observed is ODL generated dhcp port(device_id \u003d ODL) is not getting deleted from vpn_port_ip d.s\nafter associating to BGP-VPN in both cases qdhcp and ODL based dhcp.\n                   On router-interface-add, the ODL generted dhcpport is not added to vpn_port_ip d.s but\non associating to BGP-VPN it get\u0027s added to vpn_port_ip d.s in updateVpnInterface(). \n                    Port-list is obtained from subnetmap which has ODL generated dhcp port for ipv6 subnet map, \nit is not available in ipv4 subnet map. While associating to router , it is getting blocked.  \nAs you pointed out ODL generated dhcp port should not be added into ipv6 subnet map, this issue is not observed\nwhen tested with single stack ipv4 case, only observed when tested with dual-stack.",
+      "parentUuid": "46d4266e_6f5b2aa9",
+      "range": {
+        "startLine": 1058,
+        "startChar": 8,
+        "endLine": 1060,
+        "endChar": 9
+      },
+      "revId": "337d43065d212521d20351dc1984185252e93b59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
