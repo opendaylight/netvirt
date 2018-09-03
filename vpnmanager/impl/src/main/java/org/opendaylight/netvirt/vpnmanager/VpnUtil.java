@@ -2212,4 +2212,54 @@ public final class VpnUtil {
     public static String buildIpMonitorJobKey(String ip, String vpnName) {
         return VpnConstants.IP_MONITOR_JOB_PREFIX_KEY + "-" + vpnName + "-" + ip;
     }
+
+    public VpnInstanceOpDataEntry.BgpvpnType getBgpVpnTypeFromVpnName(String vpnName) {
+        String primaryRd = getVpnRd(vpnName);
+        if (primaryRd == null) {
+            LOG.error("getBgpVpnTypeFromVpnName VPN {} Primary RD not found", vpnName);
+            return null;
+        }
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+                .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
+
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional = read(LogicalDatastoreType.OPERATIONAL, id);
+        if (!vpnInstanceOpDataEntryOptional.isPresent()) {
+            LOG.error("getBgpVpnTypeFromVpnName VPN {} VpnInstanceOpDataEntry not found", vpnName);
+            return null;
+        }
+        return vpnInstanceOpDataEntryOptional.get().getBgpvpnType();
+    }
+
+    public boolean isVpnInstanceUpdateIsNeeded(List<String> oldVpnList, List<String> newVpnList,
+                                               List<String> originalVpnList, List<String> updateVpnList) {
+        /*
+         * ADD-> Always comes with new VpnList entry; REMOVE-> Always comes with new VpnList empty.
+ut       * REMOVE-> Always comes with new VpnList empty but old VpnList should have data.
+         * Dual Router Case:
+         * Internet BGP-VPN Update Case:
+         * Router to External BGP-VPN Update Case:
+         */
+        if (originalVpnList.size() != updateVpnList.size()) {
+            //DualRouterVPNInstanceUpdate check
+            if (!oldVpnList.isEmpty() && newVpnList.isEmpty()) {
+                return true;
+            } else if (!newVpnList.isEmpty()) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (originalVpnList.size() == updateVpnList.size()) {
+            //ExternalVpnInstanceUpdate check
+            if (!oldVpnList.isEmpty() && newVpnList.isEmpty()) {
+                return true;
+            } else if (!VpnInstanceOpDataEntry.BgpvpnType.BGPVPNInternet.equals(getBgpVpnTypeFromVpnName(
+                    newVpnList.get(0)))) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 }
