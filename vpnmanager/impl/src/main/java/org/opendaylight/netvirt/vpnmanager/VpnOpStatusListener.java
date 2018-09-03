@@ -204,7 +204,6 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
             }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         } else if (update.getVpnState() == VpnInstanceOpDataEntry.VpnState.Created) {
             final String vpnName = update.getVpnInstanceName();
-            final List<String> rds = update.getRd();
             String primaryRd = update.getVrfId();
             if (!VpnUtil.isBgpVpn(vpnName, primaryRd)) {
                 return;
@@ -240,6 +239,13 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                       + " VPN {} RD {}", vpnName, primaryRd);
                 return;
             }
+            List<String> newRds = update.getRd();
+            //RD update case get only updated RD list
+            if (original.getRd().size() != update.getRd().size()) {
+                List<String> oldRds = original.getRd();
+                newRds.removeAll(oldRds);
+            }
+            final List<String> rds = newRds;
             jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
                 rds.parallelStream().forEach(rd -> {
                     try {
@@ -259,6 +265,17 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                             bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.IPV6);
                         } else if (original.isIpv6Configured() && !update.isIpv6Configured()) {
                             bgpManager.deleteVrf(rd, false, AddressFamily.IPV6);
+                        }
+                        /* Update vrf entry with newly added RD list. VPN does not support for
+                         * deleting existing RDs
+                         */
+                        if (original.getRd().size() != update.getRd().size()) {
+                            if (update.isIpv4Configured()) {
+                                bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.IPV4);
+                            }
+                            if (update.isIpv6Configured()) {
+                                bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.IPV6);
+                            }
                         }
                     } catch (Exception e) {
                         LOG.error("VpnOpStatusListener.update: Exception when updating VRF to BGP"
