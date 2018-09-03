@@ -60,6 +60,7 @@ import org.opendaylight.netvirt.vpnmanager.populator.input.L3vpnInput;
 import org.opendaylight.netvirt.vpnmanager.populator.intfc.VpnPopulator;
 import org.opendaylight.netvirt.vpnmanager.populator.registry.L3vpnRegistry;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames;
@@ -2181,11 +2182,19 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    public void updateVpnInterfacesForUnProcessAdjancencies(String vpnName) {
+    public void updateVpnInterfacesForUnProcessAdjancencies(String vpnName, VpnInstance original, VpnInstance update) {
         String primaryRd = VpnUtil.getVpnRd(dataBroker, vpnName);
         VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, primaryRd);
         if (vpnInstanceOpData == null) {
             return;
+        }
+        if (original.getIpv4Family().getRouteDistinguisher().size()
+                !=  update.getIpv4Family().getRouteDistinguisher().size()) {
+            LOG.debug("VPN-UPDATE: update the VpnInstance:{} with the List of RDs: {}", vpnName,
+                    update.getIpv4Family().getRouteDistinguisher());
+            List<String> updatedRdList = update.getIpv4Family().getRouteDistinguisher();
+            VpnUtil.updateVpnInstanceWithRdList(jobCoordinator, dataBroker, vpnInstanceOpData, primaryRd, vpnName,
+                    updatedRdList);
         }
         List<VpnToDpnList> vpnToDpnLists = vpnInstanceOpData.getVpnToDpnList();
         if (vpnToDpnLists == null || vpnToDpnLists.isEmpty()) {
