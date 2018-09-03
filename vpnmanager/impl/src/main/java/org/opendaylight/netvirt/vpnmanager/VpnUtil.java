@@ -72,7 +72,6 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
-import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
@@ -166,7 +165,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInterfaceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency.AdjacencyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortBuilder;
@@ -1702,19 +1700,14 @@ public final class VpnUtil {
     boolean isAdjacencyEligibleToVpnInternet(Adjacency adjacency) {
         // returns true if BGPVPN Internet and adjacency is IPv6, false otherwise
         boolean adjacencyEligible = true;
-        if (adjacency.getAdjacencyType() == AdjacencyType.ExtraRoute) {
-            if (FibHelper.isIpv6Prefix(adjacency.getIpAddress())) {
+        IpVersionChoice ipVerChoice = getIpVersionFromString(adjacency.getIpAddress());
+        if (ipVerChoice.isIpVersionChosen(IpVersionChoice.IPV6)) {
+            Subnetmap sn = getSubnetmapFromItsUuid(adjacency.getSubnetId());
+            if (sn != null && sn.getInternetVpnId() != null) {
                 return adjacencyEligible;
             }
-            return false;
-        } else if (adjacency.getSubnetId() == null) {
-            return adjacencyEligible;
         }
-        Subnetmap sn = getSubnetmapFromItsUuid(adjacency.getSubnetId());
-        if (sn != null && sn.getInternetVpnId() != null) {
-            adjacencyEligible = false;
-        }
-        return adjacencyEligible;
+        return false;
     }
 
     boolean isAdjacencyEligibleToVpn(Adjacency adjacency, String vpnName) {
@@ -2225,5 +2218,10 @@ public final class VpnUtil {
 
     public static String buildIpMonitorJobKey(String ip, String vpnName) {
         return VpnConstants.IP_MONITOR_JOB_PREFIX_KEY + "-" + vpnName + "-" + ip;
+    }
+
+    public List<String> getVpnListForVpnInterface(VpnInterface vpnInter) {
+        return vpnInter.getVpnInstanceNames().stream()
+                .map(VpnInstanceNames::getVpnName).collect(Collectors.toList());
     }
 }
