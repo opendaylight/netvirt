@@ -157,8 +157,15 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     @Override
     protected void update(InstanceIdentifier<VpnInstance> identifier,
         VpnInstance original, VpnInstance update) {
-        LOG.trace("VPN-UPDATE: update: VPN event key: {}, value: {}. Ignoring", identifier, update);
+        LOG.trace("VPN-UPDATE: update: VPN event key: {}, value: {}.", identifier, update);
         String vpnName = update.getVpnInstanceName();
+        if ((original.getIpv4Family() != null && update.getIpv4Family() != null)
+                && original.getIpv4Family().getRouteDistinguisher().size()
+                !=  update.getIpv4Family().getRouteDistinguisher().size()) {
+            LOG.debug("VPN-UPDATE: update the VpnInstance:{} with the List of RDs: {}", vpnName,
+                    update.getIpv4Family().getRouteDistinguisher());
+            vpnUtil.updateVpnInstanceWithRdList(vpnName, update.getIpv4Family().getRouteDistinguisher());
+        }
         vpnInterfaceManager.updateVpnInterfacesForUnProcessAdjancencies(vpnName);
     }
 
