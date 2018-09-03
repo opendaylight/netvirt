@@ -25,7 +25,7 @@
   <reference id="dataTreeEventCallbackRegistrar"
              interface="org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar"/>
   <reference id="upgradeState"
-             interface="org.opendaylight.genius.mdsalutil.UpgradeState"/>
+             interface="org.opendaylight.serviceutils.upgrade.UpgradeState"/>
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService"/>

@@ -96,6 +96,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>ipv6util-api</artifactId>
             <version>${genius.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.serviceutils</groupId>
+            <artifactId>upgrade</artifactId>
+            <version>0.3.0-SNAPSHOT</version>
+        </dependency>
 
         <!-- Testing dependencies -->
         <dependency>

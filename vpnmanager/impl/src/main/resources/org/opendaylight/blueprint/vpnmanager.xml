@@ -28,7 +28,7 @@
   <reference id="dataTreeEventCallbackRegistrar"
              interface="org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar"/>
   <reference id="upgradeState"
-             interface="org.opendaylight.genius.mdsalutil.UpgradeState"/>
+             interface="org.opendaylight.serviceutils.upgrade.UpgradeState"/>
   <reference id="cacheProvider"
              interface="org.opendaylight.infrautils.caches.CacheProvider"/>
   <reference id="metricProvider"
