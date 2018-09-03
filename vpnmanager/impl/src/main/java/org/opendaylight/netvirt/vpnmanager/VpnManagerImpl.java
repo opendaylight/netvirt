@@ -39,7 +39,6 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.UpgradeState;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
@@ -60,6 +59,7 @@ import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.netvirt.vpnmanager.populator.input.L3vpnInput;
 import org.opendaylight.netvirt.vpnmanager.populator.registry.L3vpnRegistry;
+import org.opendaylight.serviceutils.upgrade.UpgradeState;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -545,6 +545,7 @@ public class VpnManagerImpl implements IVpnManager {
         addArpResponderFlowsToExternalNetworkIps(id, fixedIps, macAddress, dpnId, extNetworkId);
     }
 
+    @Override
     public void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
             BigInteger dpnId, Uuid extNetworkId) {
 
@@ -925,7 +926,7 @@ public class VpnManagerImpl implements IVpnManager {
                     deleteParent = true;
                 } else {
                     for (Iterator<AssociatedVpn> iterator = associatedVpns.iterator(); iterator.hasNext();) {
-                        AssociatedVpn associatedVpn = (AssociatedVpn) iterator.next();
+                        AssociatedVpn associatedVpn = iterator.next();
                         if (associatedVpn.getName().equals(vpnName)) {
                             iterator.remove();
                             break;

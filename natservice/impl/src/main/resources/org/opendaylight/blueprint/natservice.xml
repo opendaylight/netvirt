@@ -27,7 +27,7 @@
   <reference id="jobCoordinator"
              interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator"/>
   <reference id="upgradeState"
-             interface="org.opendaylight.genius.mdsalutil.UpgradeState"/>
+             interface="org.opendaylight.serviceutils.upgrade.UpgradeState"/>
   <reference id="dataTreeEventCallbackRegistrar"
              interface="org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar"/>
   <reference id="metricProvider"
