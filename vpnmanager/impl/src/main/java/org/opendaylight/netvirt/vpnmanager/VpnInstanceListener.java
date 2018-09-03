@@ -123,7 +123,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         LOG.trace("{} remove: VPN event key: {}, value: {}", LOGGING_PREFIX_DELETE, identifier, del);
         final String vpnName = del.getVpnInstanceName();
         Optional<VpnInstanceOpDataEntry> vpnOpValue;
-        String primaryRd = VpnUtil.getPrimaryRd(del);
+        String primaryRd = vpnUtil.getVpnRd(vpnName);
 
         //TODO(vpnteam): Entire code would need refactoring to listen only on the parent object - VPNInstance
         try {
@@ -159,7 +159,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         VpnInstance original, VpnInstance update) {
         LOG.trace("VPN-UPDATE: update: VPN event key: {}, value: {}. Ignoring", identifier, update);
         String vpnName = update.getVpnInstanceName();
-        vpnInterfaceManager.updateVpnInterfacesForUnProcessAdjancencies(vpnName);
+        vpnInterfaceManager.updateVpnInterfacesForUnProcessAdjancencies(vpnName, original, update);
     }
 
     @Override
