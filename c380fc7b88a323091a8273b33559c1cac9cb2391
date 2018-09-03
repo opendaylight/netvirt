@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c8da737_5f9eae76",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-09-03T10:43:46Z",
+      "side": 1,
+      "message": "Any reason to keep these separate? Maybe have a single portMatches list and append to it.",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 63
+      },
+      "revId": "c380fc7b88a323091a8273b33559c1cac9cb2391",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f79cf849_c7c57986",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-09-03T10:43:46Z",
+      "side": 1,
+      "message": "Move this inside the corresponding if blocks.",
+      "range": {
+        "startLine": 219,
+        "startChar": 0,
+        "endLine": 228,
+        "endChar": 93
+      },
+      "revId": "c380fc7b88a323091a8273b33559c1cac9cb2391",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ed11d4b_6554cd5f",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-09-03T10:43:46Z",
+      "side": 1,
+      "message": "I feel more comfortable using getValue (OF match field mask) instead of getKey (OF match field value) in these checks.",
+      "range": {
+        "startLine": 230,
+        "startChar": 21,
+        "endLine": 230,
+        "endChar": 27
+      },
+      "revId": "c380fc7b88a323091a8273b33559c1cac9cb2391",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7a28eac_c0b003e6",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-09-03T10:43:46Z",
+      "side": 1,
+      "message": "Move this to the corresponding if blocks",
+      "range": {
+        "startLine": 250,
+        "startChar": 0,
+        "endLine": 260,
+        "endChar": 93
+      },
+      "revId": "c380fc7b88a323091a8273b33559c1cac9cb2391",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc27e883_a4b9a2a3",
+        "filename": "sfc/classifier/impl/src/test/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatchesTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-09-03T10:43:46Z",
+      "side": 1,
+      "message": "One of the downsides if we end up copying getLayer4MaskForRange, is that we would probably have to consider copying over its tests also?",
+      "range": {
+        "startLine": 54,
+        "startChar": 13,
+        "endLine": 54,
+        "endChar": 27
+      },
+      "revId": "c380fc7b88a323091a8273b33559c1cac9cb2391",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e19d5ca0_d878dd08",
+        "filename": "sfc/classifier/impl/src/test/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatchesTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-09-03T10:43:46Z",
+      "side": 1,
+      "message": "Can we have alternate tests where either src/dst ports are not specified on the ACE? Also for UDP.",
+      "range": {
+        "startLine": 140,
+        "startChar": 0,
+        "endLine": 148,
+        "endChar": 67
+      },
+      "revId": "c380fc7b88a323091a8273b33559c1cac9cb2391",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
