@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "145f9dc2_bd22d149",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2216,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-04T16:38:49Z",
+      "side": 1,
+      "message": "getTypeForVpn",
+      "range": {
+        "startLine": 2216,
+        "startChar": 45,
+        "endLine": 2216,
+        "endChar": 69
+      },
+      "revId": "36bdbed0a86b6d3621251fb9ee191cb0253634ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6eca1ffe_8a64d12b",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2216,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-04T16:38:49Z",
+      "side": 1,
+      "message": "USe java.util.Optional constructs instead of null returns",
+      "range": {
+        "startLine": 2216,
+        "startChar": 12,
+        "endLine": 2216,
+        "endChar": 43
+      },
+      "revId": "36bdbed0a86b6d3621251fb9ee191cb0253634ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "506440a9_8d03940d",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2216,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-04T16:38:49Z",
+      "side": 1,
+      "message": "default",
+      "range": {
+        "startLine": 2216,
+        "startChar": 3,
+        "endLine": 2216,
+        "endChar": 10
+      },
+      "revId": "36bdbed0a86b6d3621251fb9ee191cb0253634ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89cac29c_547381f5",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2219,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-04T16:38:49Z",
+      "side": 1,
+      "message": "warn",
+      "range": {
+        "startLine": 2219,
+        "startChar": 16,
+        "endLine": 2219,
+        "endChar": 21
+      },
+      "revId": "36bdbed0a86b6d3621251fb9ee191cb0253634ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d9be69c9_54e0f4a5",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2225,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-04T16:38:49Z",
+      "side": 1,
+      "message": "I think there is already a method to fetch vpninstanceopdata. Please use that",
+      "range": {
+        "startLine": 2222,
+        "startChar": 36,
+        "endLine": 2225,
+        "endChar": 46
+      },
+      "revId": "36bdbed0a86b6d3621251fb9ee191cb0253634ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca7560ab_ebf2b559",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2227,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-04T16:38:49Z",
+      "side": 1,
+      "message": "warn",
+      "range": {
+        "startLine": 2227,
+        "startChar": 16,
+        "endLine": 2227,
+        "endChar": 21
+      },
+      "revId": "36bdbed0a86b6d3621251fb9ee191cb0253634ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d9d1b6d2_d21afe0c",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2241,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-04T16:38:49Z",
+      "side": 1,
+      "message": "Please specify what u mean by ADD, REMOVE and UPDATE.\nThis comment looks half written:), Please rewrite properly.\nalso, For add, remove there wont be any oldVpnList, only one vpnList withe the list of vpnInstances will be there. So, for add, the vpnInstanceList will contain one vpn instance.\nFor remove, there might be multiple instances, depending on how many routers the interface is connected, to and whether the interface is part of internetVpn",
+      "range": {
+        "startLine": 2235,
+        "startChar": 8,
+        "endLine": 2241,
+        "endChar": 11
+      },
+      "revId": "36bdbed0a86b6d3621251fb9ee191cb0253634ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "afb66591_90c47e22",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2243,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-04T16:38:49Z",
+      "side": 1,
+      "message": "more details here",
+      "range": {
+        "startLine": 2243,
+        "startChar": 25,
+        "endLine": 2243,
+        "endChar": 47
+      },
+      "revId": "36bdbed0a86b6d3621251fb9ee191cb0253634ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6abd35ba_6854195b",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2244,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-04T16:38:49Z",
+      "side": 1,
+      "message": "when will this happen?\nIn two router case, the follwing will happen in order,\nold 1 new 2, when one router becomes 2\nold 2 new 2 when two routers become one router one bgpvpn\nold 2 new 1 when one bgpvpn one router becomes one bgpvpn\nAll the above for associate.\nIf you take the complement of the above for dissociate, there also old and new will never be empty.\nSo, this condition and the its else..if, else looks wrong to me",
+      "range": {
+        "startLine": 2244,
+        "startChar": 16,
+        "endLine": 2244,
+        "endChar": 61
+      },
+      "revId": "36bdbed0a86b6d3621251fb9ee191cb0253634ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "86b642d2_8ee28471",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2252,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-04T16:38:49Z",
+      "side": 1,
+      "message": "This again is not correct for a internet vpn use case right?\nWhen you add an internet bgpvpn, the newVpnList will always be equal to oldVpnList + 1",
+      "range": {
+        "startLine": 2251,
+        "startChar": 12,
+        "endLine": 2252,
+        "endChar": 45
+      },
+      "revId": "36bdbed0a86b6d3621251fb9ee191cb0253634ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
