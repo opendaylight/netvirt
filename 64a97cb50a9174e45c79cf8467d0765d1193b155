@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df23a003_00d20593",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-04T09:46:37Z",
+      "side": 1,
+      "message": "Can you please explain little bit more on the description for neutron port is getting updated with IPv6 fixed address when V6 subnet is created from existing V4 network.",
+      "revId": "64a97cb50a9174e45c79cf8467d0765d1193b155",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
