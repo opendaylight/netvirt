@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "3897f6f7_df3b86a9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-09-05T10:12:06Z",
+      "side": 1,
+      "message": "No longer specific to TCP",
+      "range": {
+        "startLine": 12,
+        "startChar": 29,
+        "endLine": 12,
+        "endChar": 32
+      },
+      "revId": "15755f5c6f215ff43ef1252b7634291d6e082924",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "11385fc4_e006809f",
         "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
         "patchSetId": 8
