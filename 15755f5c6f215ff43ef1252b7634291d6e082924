@@ -68,6 +68,30 @@
       "revId": "15755f5c6f215ff43ef1252b7634291d6e082924",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "718f80ca_5644b693",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-09-05T10:10:23Z",
+      "side": 1,
+      "message": "\u003e This initialization of the MaskMap confused me. Why not something\n \u003e like\n \u003e srcPortMaskMap \u003d srcPort \u003d\u003d null\n \u003e ? Collections.singletonMap(0,0)\n \u003e : getLayer4MaskForRange(srcPort, srcPortMax);\n\nBetter\n\nMap\u003cInteger,Integer\u003e srcPortMaskMap \u003d srcPort \u003d\u003d null\n    ? Collections.singletonMap(0,0)\n    : getLayer4MaskForRange(srcPort, srcPortMax);\n\nSame for dstPortMaskMap.",
+      "parentUuid": "04dc7667_d74d561a",
+      "range": {
+        "startLine": 194,
+        "startChar": 0,
+        "endLine": 195,
+        "endChar": 52
+      },
+      "revId": "15755f5c6f215ff43ef1252b7634291d6e082924",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
