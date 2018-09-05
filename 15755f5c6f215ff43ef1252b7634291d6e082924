@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11385fc4_e006809f",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-09-05T10:06:04Z",
+      "side": 1,
+      "message": "nit: I think it\u0027s better here to use non primitive null as default initialization instead of primitive 0. Just as caution about not relying on 0 as invalid values, although they should indeed be invalid.\nSame for dstPort.",
+      "range": {
+        "startLine": 170,
+        "startChar": 8,
+        "endLine": 170,
+        "endChar": 24
+      },
+      "revId": "15755f5c6f215ff43ef1252b7634291d6e082924",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6d4695a2_b111fe90",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-09-05T10:06:04Z",
+      "side": 1,
+      "message": "Would like to consider and include a test when upper ports are not provided but lower ports are. \nThe way I see it, srcPortMax should default to srcPort, and not null/0.\nSame for dstPortMax.",
+      "range": {
+        "startLine": 175,
+        "startChar": 8,
+        "endLine": 175,
+        "endChar": 27
+      },
+      "revId": "15755f5c6f215ff43ef1252b7634291d6e082924",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "04dc7667_d74d561a",
+        "filename": "sfc/classifier/impl/src/main/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatches.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-09-05T10:06:04Z",
+      "side": 1,
+      "message": "This initialization of the MaskMap confused me. Why not something like\nsrcPortMaskMap \u003d srcPort \u003d\u003d null\n    ? Collections.singletonMap(0,0)\n    : getLayer4MaskForRange(srcPort, srcPortMax);",
+      "range": {
+        "startLine": 194,
+        "startChar": 0,
+        "endLine": 195,
+        "endChar": 52
+      },
+      "revId": "15755f5c6f215ff43ef1252b7634291d6e082924",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
