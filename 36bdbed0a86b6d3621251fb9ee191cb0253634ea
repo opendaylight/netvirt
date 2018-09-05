@@ -71,6 +71,78 @@
     },
     {
       "key": {
+        "uuid": "788003a2_bb171f98",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2216,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-05T00:05:11Z",
+      "side": 1,
+      "message": "please review the new design of change",
+      "parentUuid": "145f9dc2_bd22d149",
+      "range": {
+        "startLine": 2216,
+        "startChar": 45,
+        "endLine": 2216,
+        "endChar": 69
+      },
+      "revId": "36bdbed0a86b6d3621251fb9ee191cb0253634ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4240bdb1_2f87d89b",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2216,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-05T00:05:11Z",
+      "side": 1,
+      "message": "I have re-modified the design to handle properly for all the use cases like dual-router/internet bgp-vpn/vpn-swap case. Request to review the new design and provide your comments if any.",
+      "parentUuid": "506440a9_8d03940d",
+      "range": {
+        "startLine": 2216,
+        "startChar": 3,
+        "endLine": 2216,
+        "endChar": 10
+      },
+      "revId": "36bdbed0a86b6d3621251fb9ee191cb0253634ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d0474e40_186b38e2",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2216,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-05T00:05:11Z",
+      "side": 1,
+      "message": "please review the new design of change",
+      "parentUuid": "6eca1ffe_8a64d12b",
+      "range": {
+        "startLine": 2216,
+        "startChar": 12,
+        "endLine": 2216,
+        "endChar": 43
+      },
+      "revId": "36bdbed0a86b6d3621251fb9ee191cb0253634ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "89cac29c_547381f5",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 1
