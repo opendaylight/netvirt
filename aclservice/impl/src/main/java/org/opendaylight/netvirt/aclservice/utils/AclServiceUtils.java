@@ -1355,6 +1355,7 @@ public final class AclServiceUtils {
         }
         boolean deleteEntireAcl;
         List<AclIpPrefixes> ipPrefixes = aclPortsByIp.getAclIpPrefixes();
+        LOG.trace("Clean Acl ports lookup for acl {}", aclName);
         if (ipPrefixes == null || ipPrefixes.isEmpty()) {
             deleteEntireAcl = true;
         } else {

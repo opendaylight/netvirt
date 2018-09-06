@@ -72,7 +72,7 @@ public final class AclLiveStatisticsHelper {
      */
     public static List<AclPortStats> getAclPortStats(Direction direction, List<String> interfaceNames,
             OpendaylightDirectStatisticsService odlDirectStatsService, DataBroker dataBroker) {
-        LOG.trace("Get ACL port stats for direction {} and interfaces {}", direction, interfaceNames);
+        LOG.debug("Get ACL port stats for direction {} and interfaces {}", direction, interfaceNames);
         List<AclPortStats> lstAclPortStats = new ArrayList<>();
 
         FlowCookie aclDropFlowCookieMask = new FlowCookie(COOKIE_ACL_DROP_FLOW_MASK);

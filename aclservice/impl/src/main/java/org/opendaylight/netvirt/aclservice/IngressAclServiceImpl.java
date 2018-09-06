@@ -88,6 +88,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     @Override
     public void bindService(AclInterface aclInterface) {
         String interfaceName = aclInterface.getInterfaceId();
+        LOG.info("Binding Acl for interface: {}", interfaceName);
         jobCoordinator.enqueueJob(interfaceName, () -> {
             int instructionKey = 0;
             List<Instruction> instructions = new ArrayList<>();
@@ -121,7 +122,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                 ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME, NwConstants.EGRESS_ACL_SERVICE_INDEX),
                 serviceMode);
 
-        LOG.debug("UnBinding ACL service for interface {}", interfaceName);
+        LOG.info("UnBinding ACL service for interface {}", interfaceName);
         jobCoordinator.enqueueJob(interfaceName, () -> Collections.singletonList(txRunner
                 .callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> tx.delete(path))));
     }
@@ -148,7 +149,9 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
 
     private void programCommitterDropFlow(BigInteger dpId, int lportTag, int addOrRemove) {
         List<MatchInfoBase> matches = new ArrayList<>();
-        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        final List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        LOG.trace("Program committer drop flow operation {} DpnId {} lPortTag {} ",
+                addOrRemove == NwConstants.DEL_FLOW ? "Delete" : "Add", dpId, lportTag);
 
         BigInteger metaData = MetaDataUtil.METADATA_MASK_ACL_DROP
                 .and(AclConstants.METADATA_DROP_FLAG.shiftLeft(2));
@@ -166,6 +169,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     @Override
     protected void programGotoClassifierTableRules(BigInteger dpId, List<AllowedAddressPairs> aaps, int lportTag,
             int addOrRemove) {
+        LOG.trace("Program goto classifier rules operation {} DpnId {} lportTag {} ",
+                addOrRemove == NwConstants.DEL_FLOW ? "Delete" : "Add", dpId, lportTag);
         for (AllowedAddressPairs aap : aaps) {
             IpPrefixOrAddress attachIp = aap.getIpAddress();
             MacAddress mac = aap.getMacAddress();
@@ -210,6 +215,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
                 AclConstants.DHCP_CLIENT_PORT_IPV4, lportTag, serviceMode);
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
+        LOG.trace("Program ingress Dhcp allow rule operation {} DpnId {} lportTag {} ",
+                addOrRemove == NwConstants.DEL_FLOW ? "Delete" : "Add", dpId, lportTag);
 
         String flowName = "Ingress_DHCP_Server_v4" + dpId + "_" + lportTag + "_Permit_";
         syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_DHCP_SERVER_MATCH_PRIORITY, "ACL", 0, 0,
@@ -228,6 +235,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_SERVER_PORT_IPV6,
                 AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag, serviceMode);
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
+        LOG.trace("Program ingress Dhcpv6 allow rule operation {} DpnId {} lportTag {} ",
+                addOrRemove == NwConstants.DEL_FLOW ? "Delete" : "Add", dpId, lportTag);
 
         String flowName = "Ingress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_Permit_";
         syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_DHCP_SERVER_MATCH_PRIORITY, "ACL", 0, 0,
@@ -245,6 +254,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         BigInteger dpId = port.getDpId();
         int lportTag = port.getLPortTag();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
+        LOG.trace("Program ingress Icmp IPv6 allowed traffic operation {} DpnId {} lPortTag {} ",
+                addOrRemove == NwConstants.DEL_FLOW ? "Delete" : "Add", dpId, lportTag);
 
         // Allow ICMPv6 Multicast Listener Query packets.
         List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_MLD_QUERY, 0,
@@ -278,6 +289,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
              * if subnet is configured with IPv6 version
              * Allow ICMPv6 Router Advertisement packets if originating from any LinkLocal Address.
              */
+            LOG.debug("Program Icmp IPv6 RA Rule {} for port {}",
+                    addOrRemove == NwConstants.DEL_FLOW ? "Delete" : "Add", port.getInterfaceId());
             List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
             List<MatchInfoBase> matches =
                     AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_RA, 0,
@@ -333,6 +346,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     private void programIpv4BroadcastRule(AclInterface port, int addOrRemove) {
         BigInteger dpId = port.getDpId();
         int lportTag = port.getLPortTag();
+        LOG.debug("Program IPv4 broadcast rule operation {} DpnId {} lPortTag {} ",
+                addOrRemove == NwConstants.DEL_FLOW ? "Delete" : "Add", dpId, lportTag);
         MatchInfoBase lportMatchInfo = AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode);
         List<SubnetInfo> subnetInfoList = port.getSubnetInfo();
         if (subnetInfoList != null) {

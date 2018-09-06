@@ -95,7 +95,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
             return;
         }
 
-        LOG.trace("On remove event, remove ACL: {}", acl);
+        LOG.info("On remove event, remove ACL: {}", aclName);
         this.aclDataUtil.removeAcl(aclName);
         Integer aclTag = this.aclDataUtil.getAclTag(aclName);
         if (aclTag != null) {
@@ -113,6 +113,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
             return;
         }
         String aclName = aclAfter.getAclName();
+        LOG.info("On update event, update Acl {}", aclName);
         Collection<AclInterface> interfacesBefore =
                 ImmutableSet.copyOf(aclDataUtil.getInterfaceList(new Uuid(aclName)));
         // Find and update added ace rules in acl
@@ -155,7 +156,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
             return;
         }
 
-        LOG.trace("On add event, add ACL: {}", acl);
+        LOG.info("On add event, add ACL: {}", aclName);
         this.aclDataUtil.addAcl(acl);
 
         Integer aclTag = this.aclServiceUtils.allocateAclTag(aclName);
@@ -177,6 +178,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         if (null == aceList) {
             return;
         }
+        LOG.trace("update remove acl cache for acl {} aceList {} operation {}", aclName, aceList, action);
         for (Ace ace : aceList) {
             SecurityRuleAttr aceAttributes = ace.augmentation(SecurityRuleAttr.class);
             if (AclServiceUtils.doesAceHaveRemoteGroupId(aceAttributes)) {
@@ -227,6 +229,8 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         if (remoteAclsDeleted.isEmpty() && remoteAclsAdded.isEmpty()) {
             return;
         }
+        LOG.trace("updating Acl caches for acl with uuid {} remoteAclAdded {} remoteAclDeleted {} ", aclId,
+                remoteAclsAdded, remoteAclsDeleted);
 
         if (aclInterfaces != null) {
             for (AclInterface aclInterface : aclInterfaces) {

@@ -80,6 +80,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     @Override
     public void bindService(AclInterface aclInterface) {
         String interfaceName = aclInterface.getInterfaceId();
+        LOG.info("Binding Acl for interface: {}", interfaceName);
         jobCoordinator.enqueueJob(interfaceName, () -> {
             int instructionKey = 0;
             List<Instruction> instructions = new ArrayList<>();
@@ -110,7 +111,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         InstanceIdentifier<BoundServices> path = AclServiceUtils.buildServiceId(interfaceName,
                 ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME, NwConstants.ACL_SERVICE_INDEX), serviceMode);
 
-        LOG.debug("UnBinding ACL service for interface {}", interfaceName);
+        LOG.info("UnBinding ACL service for interface {}", interfaceName);
         jobCoordinator.enqueueJob(interfaceName, () -> Collections.singletonList(txRunner
                 .callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> tx.delete(path))));
     }
@@ -138,6 +139,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     private void programCommitterDropFlow(BigInteger dpId, int lportTag, int addOrRemove) {
         List<MatchInfoBase> matches = new ArrayList<>();
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        LOG.trace("Program committer drop flow operation {} DpnId {} lPortTag {} ",
+            addOrRemove == NwConstants.DEL_FLOW ? "Delete" : "Add", dpId, lportTag);
 
         BigInteger metaData = MetaDataUtil.getLportTagMetaData(lportTag)
                 .or(MetaDataUtil.getAclDropMetaData(AclConstants.METADATA_DROP_FLAG));
@@ -167,6 +170,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     protected void programGotoClassifierTableRules(BigInteger dpId, List<AllowedAddressPairs> aaps, int lportTag,
             int addOrRemove) {
         List<AllowedAddressPairs> filteredAAPs = AclServiceUtils.excludeMulticastAAPs(aaps);
+        LOG.trace("Program goto classifier rules operation {} DpnId {} lportTag {} ",
+            addOrRemove == NwConstants.DEL_FLOW ? "Delete" : "Add", dpId, lportTag);
         for (AllowedAddressPairs aap : filteredAAPs) {
             IpPrefixOrAddress attachIp = aap.getIpAddress();
             MacAddress mac = aap.getMacAddress();
@@ -195,6 +200,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void egressAclIcmpv6AllowedList(BigInteger dpId, int lportTag, int addOrRemove) {
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
+        LOG.trace("Program egress Icmp IPv6 allowed list operation {} DpnId {} lPortTag {} ",
+            addOrRemove == NwConstants.DEL_FLOW ? "Delete" : "Add", dpId, lportTag);
 
         for (Integer icmpv6Type: AclConstants.allowedIcmpv6NdList()) {
             List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(icmpv6Type, 0, lportTag, serviceMode);
@@ -218,6 +225,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             return;
         }
         BigInteger dpId = port.getDpId();
+        LOG.trace("Program egress Dhcp allow rule operation {} DpnId {} port {} ",
+            addOrRemove == NwConstants.DEL_FLOW ? "Delete" : "Add", dpId, port.getInterfaceId());
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
         for (AllowedAddressPairs aap : allowedAddresses) {
             if (!AclServiceUtils.isIPv4Address(aap)) {
@@ -250,6 +259,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             return;
         }
         BigInteger dpId = port.getDpId();
+        LOG.trace("Program egress Dhcpv6 allow rule operation {} DpnId {} port {} ",
+            addOrRemove == NwConstants.DEL_FLOW ? "Delete" : "Add", dpId, port.getInterfaceId());
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
         for (AllowedAddressPairs aap : allowedAddresses) {
             if (AclServiceUtils.isIPv4Address(aap)) {
@@ -333,6 +344,9 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         }
         BigInteger dpId = port.getDpId();
         int lportTag = port.getLPortTag();
+        LOG.trace("Program L2 broadcast allow rule operation {} DpnId {} port {} ",
+            addOrRemove == NwConstants.DEL_FLOW ? "Delete" : "Add", dpId, port.getInterfaceId());
+
         Set<MacAddress> macs = filteredAAPs.stream().map(AllowedAddressPairs::getMacAddress)
                 .collect(Collectors.toSet());
         for (MacAddress mac : macs) {

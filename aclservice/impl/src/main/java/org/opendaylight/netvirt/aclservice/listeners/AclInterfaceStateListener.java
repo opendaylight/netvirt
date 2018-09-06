@@ -93,6 +93,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         }
         String interfaceId = deleted.getName();
         AclInterface aclInterface = aclInterfaceCache.remove(interfaceId);
+        LOG.info("On Add event, adding Acl interface {}", aclInterface.getInterfaceId());
         if (AclServiceUtils.isOfInterest(aclInterface)) {
             List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclClusterUtil.isEntityOwner()) {
@@ -119,6 +120,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
          * We're only interested in update in cases where IfType got filled after creation.
          */
         if (before.getType() == null && L2vlan.class.equals(after.getType())) {
+            LOG.info("On Update event, updating interface {}", after.getName());
             add(key, after);
         } else {
             LOG.trace("Update event for AclInterfaceStateListener is not of interest.");
@@ -148,6 +150,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                 builder.ingressRemoteAclTags(ingressRemoteAclTags).egressRemoteAclTags(egressRemoteAclTags);
             }
         });
+        LOG.info("On Add event, adding Acl interface {}", aclInterface.getInterfaceId());
 
         List<Uuid> aclList = aclInterface.getSecurityGroups();
         if (aclList == null) {

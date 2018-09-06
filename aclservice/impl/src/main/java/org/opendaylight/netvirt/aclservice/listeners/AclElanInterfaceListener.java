@@ -82,6 +82,7 @@ public class AclElanInterfaceListener extends AsyncDataTreeChangeListenerBase<El
     @Override
     protected void add(InstanceIdentifier<ElanInterface> key, ElanInterface elanInterface) {
         String interfaceId = elanInterface.getName();
+        LOG.info("Processing Add event for elanInterface {}", elanInterface.getElanInstanceName());
         AclInterface aclInterface = aclInterfaceCache.updateIfPresent(interfaceId, (prevAclInterface, builder) -> {
             if (prevAclInterface.getElanId() == null) {
                 ElanInstance elanInfo = AclServiceUtils.getElanInstanceByName(elanInterface.getElanInstanceName(),

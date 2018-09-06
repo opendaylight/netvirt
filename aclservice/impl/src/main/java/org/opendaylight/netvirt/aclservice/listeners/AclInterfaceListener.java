@@ -82,7 +82,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
 
     @Override
     public void remove(InstanceIdentifier<Interface> key, Interface port) {
-        LOG.trace("Received AclInterface remove event, port={}", port);
+        LOG.info("Received AclInterface remove event, port={}", port);
         String interfaceId = port.getName();
         AclInterface aclInterface = aclInterfaceCache.remove(interfaceId);
         if (AclServiceUtils.isOfInterest(aclInterface)) {
@@ -109,6 +109,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         InterfaceAcl aclInPortBefore = portBefore.augmentation(InterfaceAcl.class);
 
         String interfaceId = portAfter.getName();
+        LOG.info("On update event, update AclInterface {}", interfaceId);
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
             .Interface interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, interfaceId);
 
@@ -166,6 +167,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                 aclInterfaceBefore.getSecurityGroups());
         List<Uuid> deletedAcls = AclServiceUtils.getUpdatedAclList(aclInterfaceBefore.getSecurityGroups(),
                 aclInterfaceAfter.getSecurityGroups());
+        LOG.trace("updating cache with Acl change AddedAcls {}, DeletedAcls {}", addedAcls, deletedAcls);
         if (deletedAcls != null && !deletedAcls.isEmpty()) {
             aclDataUtil.removeAclInterfaceMap(deletedAcls, aclInterfaceAfter);
         }
@@ -199,6 +201,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     private AclInterface addOrUpdateAclInterfaceCache(String interfaceId, InterfaceAcl aclInPort, boolean isSgChanged,
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
                     .Interface interfaceState) {
+        LOG.trace("Add or Update acl interface cache for aclInterface {}", interfaceId);
         AclInterface aclInterface = aclInterfaceCache.addOrUpdate(interfaceId, (prevAclInterface, builder) -> {
             List<Uuid> sgs = new ArrayList<>();
             if (aclInPort != null) {
@@ -227,7 +230,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
 
     @Override
     public void add(InstanceIdentifier<Interface> key, Interface port) {
-        LOG.trace("Received AclInterface add event, port={}", port);
+        LOG.info("Received AclInterface add event, port={}", port);
         InterfaceAcl aclInPort = port.augmentation(InterfaceAcl.class);
         if (aclInPort != null && aclInPort.isPortSecurityEnabled()) {
             String interfaceId = port.getName();

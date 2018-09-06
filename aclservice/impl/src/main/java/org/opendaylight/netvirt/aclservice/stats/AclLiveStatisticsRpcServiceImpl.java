@@ -62,7 +62,7 @@ public class AclLiveStatisticsRpcServiceImpl implements AclLiveStatisticsService
     @Override
     public ListenableFuture<RpcResult<GetAclPortStatisticsOutput>> getAclPortStatistics(
             GetAclPortStatisticsInput input) {
-        LOG.trace("Get ACL port statistics for input: {}", input);
+        LOG.info("Get ACL port statistics for input: {}", input);
         RpcResultBuilder<GetAclPortStatisticsOutput> rpcResultBuilder;
 
         if (this.securityGroupMode != SecurityGroupMode.Stateful) {
