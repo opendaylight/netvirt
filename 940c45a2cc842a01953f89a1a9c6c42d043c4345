@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "418c277e_462ac103",
+        "filename": "sfc/classifier/impl/src/test/java/org/opendaylight/netvirt/sfc/classifier/utils/AclMatchesTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-09-06T08:36:39Z",
+      "side": 1,
+      "message": "I would like to tight down the verification of the this and other similar tests a bit more. At the very least:\n\n- Assert on the expected length of matchBuilds\n- Assert on the expected length of srcTcpMatches\n\nIdeally though, you would build on the test the List\u003cMatchBuilder\u003e that you expect, and just compare that with the one you get. \n\nWhen I can, I usually like to setup my test data in class static arrays. For example, one array A for lower port, array B for upper port (you can have more arrays if you want to account for both src and dst ports combinations), array C for the expected List\u003cMatchBuilder\u003e. Then you can do something like assertEquals(C[i], sut(A[i],B[i])). \n\nThat can then be moved onto a parameterized test easily, should the number of samples we want to test increase.",
+      "range": {
+        "startLine": 153,
+        "startChar": 0,
+        "endLine": 179,
+        "endChar": 50
+      },
+      "revId": "940c45a2cc842a01953f89a1a9c6c42d043c4345",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
