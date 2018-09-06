@@ -43,22 +43,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.mdsalutil.rev170830.Config;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.serviceutils.upgrade.rev180702.UpgradeConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeListener<Config> {
+public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeListener<UpgradeConfig> {
     private static final Logger LOG = LoggerFactory.getLogger(UpgradeStateListener.class);
 
     private final DataBroker dataBroker;
     private final CentralizedSwitchScheduler centralizedSwitchScheduler;
     private final NatserviceConfig.NatMode natMode;
-    private SNATDefaultRouteProgrammer defaultRouteProgrammer;
+    private final SNATDefaultRouteProgrammer defaultRouteProgrammer;
     private IMdsalApiManager mdsalManager;
     private IdManagerService idManager;
-    private NaptSwitchHA naptSwitchHA;
+    private final NaptSwitchHA naptSwitchHA;
     private final JobCoordinator coordinator;
     private final ManagedNewTransactionRunner txRunner;
 
@@ -71,7 +71,7 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
                                 final NaptSwitchHA naptSwitchHA,
                                 final NatserviceConfig config, final JobCoordinator coordinator) {
         super(dataBroker, new DataTreeIdentifier<>(
-                LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Config.class)));
+                LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(UpgradeConfig.class)));
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.centralizedSwitchScheduler = centralizedSwitchScheduler;
@@ -87,11 +87,11 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
     }
 
     @Override
-    public void add(@Nonnull Config newDataObject) {
+    public void add(@Nonnull UpgradeConfig newDataObject) {
     }
 
     @Override
-    public void remove(@Nonnull Config removedDataObject) {
+    public void remove(@Nonnull UpgradeConfig removedDataObject) {
         if (natMode == NatserviceConfig.NatMode.Conntrack) {
             return;
         }
@@ -99,7 +99,7 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
     }
 
     @Override
-    public void update(@Nonnull Config original, Config updated) {
+    public void update(@Nonnull UpgradeConfig original, UpgradeConfig updated) {
         if (natMode == NatserviceConfig.NatMode.Controller) {
             if (original.isUpgradeInProgress() && !updated.isUpgradeInProgress()) {
                 Optional<NaptSwitches> npatSwitches = NatUtil.getAllPrimaryNaptSwitches(dataBroker);
@@ -108,7 +108,7 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
                         BigInteger primaryNaptDpnId = routerToNaptSwitch.getPrimarySwitchId();
                         if (!NatUtil.getSwitchStatus(dataBroker, routerToNaptSwitch.getPrimarySwitchId())) {
                             String routerUuid = routerToNaptSwitch.getRouterName();
-                            coordinator.enqueueJob((NatConstants.NAT_DJC_PREFIX + routerUuid),
+                            coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routerUuid,
                                 () -> Collections.singletonList(
                                     txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
                                         reElectNewNaptSwitch(routerUuid, primaryNaptDpnId, confTx);
