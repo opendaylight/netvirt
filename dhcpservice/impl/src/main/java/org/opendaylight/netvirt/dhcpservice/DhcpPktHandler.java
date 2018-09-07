@@ -192,6 +192,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 if (interfaceName == null) {
                     pktDropCounter.label(macAddress).label(UNKNOWN_LABEL).label(
                             PktDropReason.INTERFACE_NAME_NOT_FOUND.name()).increment();
+                    return;
                 }
                 InterfaceInfo interfaceInfo =
                         interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
@@ -332,16 +333,21 @@ public class DhcpPktHandler implements PacketProcessingListener {
         DhcpInfo dhcpInfo = null;
         if (port != null && subnet != null) {
             String clientIp = getIpv4Address(port);
-            List<IpAddress> dnsServers = subnet.getDnsNameservers();
+            List<IpAddress> dnsServers = new ArrayList<>();
+            if (subnet.getDnsNameservers() != null && !subnet.getDnsNameservers().isEmpty()) {
+                dnsServers = subnet.getDnsNameservers();
+            }
             dhcpInfo = new DhcpInfo();
             if (isIpv4Address(subnet.getGatewayIp())) {
                 dhcpInfo.setGatewayIp(subnet.getGatewayIp().getIpv4Address().getValue());
             }
             if (clientIp != null && serverIp != null) {
-                List<HostRoutes> subnetHostRoutes = new ArrayList<>(subnet.getHostRoutes().size());
-                for (HostRoutes hostRoute : subnet.getHostRoutes()) {
-                    if (!hostRoute.getNexthop().stringValue().equals(clientIp)) {
-                        subnetHostRoutes.add(hostRoute);
+                List<HostRoutes> subnetHostRoutes = new ArrayList<>();
+                if (subnet.getHostRoutes() != null & !subnet.getHostRoutes().isEmpty()) {
+                    for (HostRoutes hostRoute : subnet.getHostRoutes()) {
+                        if (!hostRoute.getNexthop().stringValue().equals(clientIp)) {
+                            subnetHostRoutes.add(hostRoute);
+                        }
                     }
                 }
                 dhcpInfo.setClientIp(clientIp).setServerIp(serverIp)
@@ -777,6 +783,10 @@ public class DhcpPktHandler implements PacketProcessingListener {
         Future<RpcResult<GetInterfaceFromIfIndexOutput>> futureOutput =
                 interfaceManagerRpc.getInterfaceFromIfIndex(input);
         try {
+            if (!futureOutput.get().isSuccessful()) {
+                LOG.error("Failed to get the interface name from tag {} using getInterfaceFromIfIndex RPC", portTag);
+                return null;
+            }
             GetInterfaceFromIfIndexOutput output = futureOutput.get().getResult();
             interfaceName = output.getInterfaceName();
         } catch (InterruptedException | ExecutionException e) {
