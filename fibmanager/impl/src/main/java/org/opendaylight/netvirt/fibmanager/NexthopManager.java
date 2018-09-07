@@ -379,7 +379,7 @@ public class NexthopManager implements AutoCloseable {
 
     public long createLocalNextHop(long vpnId, BigInteger dpnId, String ifName,
                                    String primaryIpAddress, String currDestIpPrefix,
-                                   String gwMacAddress, String jobKey) {
+                                   String gwMacAddress) {
         String vpnName = fibUtil.getVpnNameFromId(vpnId);
         if (vpnName == null) {
             return 0;
@@ -393,6 +393,7 @@ public class NexthopManager implements AutoCloseable {
             return groupId;
         }
         String nextHopLockStr = vpnId + primaryIpAddress;
+        String jobKey = FibUtil.getCreateLocalNextHopJobKey(vpnId, dpnId, currDestIpPrefix);
         jobCoordinator.enqueueJob(jobKey, () -> {
             try {
                 if (FibUtil.lockCluster(lockManager, nextHopLockStr, WAIT_TIME_TO_ACQUIRE_LOCK)) {
@@ -912,6 +913,11 @@ public class NexthopManager implements AutoCloseable {
 
     private List<BucketInfo> getBucketsForLocalNexthop(Long vpnId, BigInteger dpnId,
             VrfEntry vrfEntry, Routes routes) {
+    	if (LOG.isDebugEnabled()) {
+            LOG.debug("NexthopManager.getBucketsForLocalNexthop invoked with vpnId {} dpnId {} "
+                            + " vrfEntry.routePaths {}, routes.nexthopList {}", vpnId, dpnId, vrfEntry.getRoutePaths(),
+                    routes.getNexthopIpList());
+        }
         List<BucketInfo> listBucketInfo = new CopyOnWriteArrayList<>();
         routes.getNexthopIpList().parallelStream().forEach(nextHopIp -> {
             String localNextHopIP;
