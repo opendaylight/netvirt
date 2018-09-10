@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "766ac142_85146477",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1637,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-10T07:33:20Z",
+      "side": 1,
+      "message": "please see if it will be easier to identify swap by sending oldVPnList and newVPnList instead of theit copies.",
+      "range": {
+        "startLine": 1637,
+        "startChar": 62,
+        "endLine": 1637,
+        "endChar": 87
+      },
+      "revId": "02a962d6d2d48e9c9850083767f1efe0c298e7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7e9a6bf9_0d851196",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1638,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-10T07:33:20Z",
+      "side": 1,
+      "message": "updated",
+      "range": {
+        "startLine": 1638,
+        "startChar": 86,
+        "endLine": 1638,
+        "endChar": 92
+      },
+      "revId": "02a962d6d2d48e9c9850083767f1efe0c298e7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6e79b4a_fcc32ffa",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1642,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-10T07:33:20Z",
+      "side": 1,
+      "message": "for further.\nI did not understand this.\nIf there is a new vpn instance added as update, that update event will not cater to adjacency processing. A new adjacency added will come as a new update event and will\u003cshould\u003e not enter this block.",
+      "range": {
+        "startLine": 1642,
+        "startChar": 51,
+        "endLine": 1642,
+        "endChar": 58
+      },
+      "revId": "02a962d6d2d48e9c9850083767f1efe0c298e7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d494e1a6_a6b5e7da",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1646,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-10T07:33:20Z",
+      "side": 1,
+      "message": "please see if it will be easier to identify swap by sending oldVPnList and newVPnList instead of theit copies.",
+      "range": {
+        "startLine": 1646,
+        "startChar": 59,
+        "endLine": 1646,
+        "endChar": 83
+      },
+      "revId": "02a962d6d2d48e9c9850083767f1efe0c298e7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b2efe969_d064372d",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1659,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-10T07:33:20Z",
+      "side": 1,
+      "message": "please tell what are these oldVPnListCopy, oldVpnList and newVpnList.\nAlso, why is oldVPnListCopy required here? Remove if not required.",
+      "range": {
+        "startLine": 1658,
+        "startChar": 85,
+        "endLine": 1659,
+        "endChar": 93
+      },
+      "revId": "02a962d6d2d48e9c9850083767f1efe0c298e7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9d990a97_0ea6a51f",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2224,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-10T07:33:20Z",
+      "side": 1,
+      "message": "What about the case of dual router + Internet?\nFor the case where there are 2 routers, 0 bgpvpn, 1 internet AND the case where there is 1 router, 1 bgpbpn, 1 internet, the number of vpn instances will be 3.",
+      "range": {
+        "startLine": 2224,
+        "startChar": 9,
+        "endLine": 2224,
+        "endChar": 10
+      },
+      "revId": "02a962d6d2d48e9c9850083767f1efe0c298e7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "92283863_762bf95f",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2228,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-10T07:33:20Z",
+      "side": 1,
+      "message": "This check is not entirely true.\nConsider the case where orig \u003d\u003d2, update\u003d2, and the VPnInterfaceManager.update() was called because a new adjacency(extra-route/mip) was added. In this case, this method will return true, when it should have returned false.\n\nIf you add the extra  || condition in VpnInterfaceManager (I have given a comment, then this looks okay, except you need to check for number \u003d\u003d 3 also)",
+      "range": {
+        "startLine": 2228,
+        "startChar": 12,
+        "endLine": 2228,
+        "endChar": 69
+      },
+      "revId": "02a962d6d2d48e9c9850083767f1efe0c298e7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c88aac50_b700e9de",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2242,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-10T07:33:20Z",
+      "side": 1,
+      "message": "this is correct",
+      "range": {
+        "startLine": 2242,
+        "startChar": 18,
+        "endLine": 2242,
+        "endChar": 46
+      },
+      "revId": "02a962d6d2d48e9c9850083767f1efe0c298e7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
