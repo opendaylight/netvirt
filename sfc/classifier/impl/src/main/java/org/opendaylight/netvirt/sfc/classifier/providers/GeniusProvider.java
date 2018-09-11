@@ -69,8 +69,8 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class GeniusProvider {
     private static final Logger LOG = LoggerFactory.getLogger(GeniusProvider.class);
-    public static final String OPTION_KEY_EXTS = "exts";
-    public static final String OPTION_VALUE_EXTS_GPE = "gpe";
+    public static final String OPTION_KEY_REMOTE_IP = "remote_ip";
+    public static final String OPTION_VALUE_FLOW = "flow";
 
     private final DataBroker dataBroker;
     private final IInterfaceManager interfaceMgr;
@@ -275,8 +275,8 @@ public class GeniusProvider {
                 List<Options> tpOptions = tp.getOptions();
                 for (Options tpOption : tpOptions) {
                     // From the VXLAN Tunnels, we want the one with the GPE option set
-                    if (tpOption.key().getOption().equals(OPTION_KEY_EXTS)) {
-                        if (tpOption.getValue().equals(OPTION_VALUE_EXTS_GPE) && tp.getOfport() != null) {
+                    if (tpOption.key().getOption().equals(OPTION_KEY_REMOTE_IP)) {
+                        if (tpOption.getValue().equals(OPTION_VALUE_FLOW) && tp.getOfport() != null) {
                             return Optional.ofNullable(tp.getOfport());
                         }
                     }
