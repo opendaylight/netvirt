@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42d900a0_8fa54192",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1525,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-11T06:45:02Z",
+      "side": 1,
+      "message": "why change this? Please call the method from InterfaceUtils directly",
+      "range": {
+        "startLine": 1525,
+        "startChar": 33,
+        "endLine": 1525,
+        "endChar": 63
+      },
+      "revId": "23ff095c06b7fe7c630e276bcbf18fe78628745f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7d11d6d0_1e7e5f8a",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1563,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-11T06:45:02Z",
+      "side": 1,
+      "message": "it can be:\n1st VpnInstance : router or external bgpvpn\n2nd vpn instance : router, external bgpvpn or internet bgpvpn(in case both the routers are attached to external bgpvn)\n3rd vpn instance : if present, will always be internet bgpvpn",
+      "range": {
+        "startLine": 1561,
+        "startChar": 19,
+        "endLine": 1563,
+        "endChar": 94
+      },
+      "revId": "23ff095c06b7fe7c630e276bcbf18fe78628745f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "82440763_032c6af3",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1566,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-11T06:45:02Z",
+      "side": 1,
+      "message": "This is a bit confusing... what do these statements mean? We are handling UPDATE event. why use ADD and REMOVE keywords here?\nAnd what is any VPN type.\nyou can just tell For Internet BGPVPN Update case, oldVPnList will be 0 and newList will be 1 for router-gateway-update, and vice-versa for gateway delete.",
+      "range": {
+        "startLine": 1565,
+        "startChar": 13,
+        "endLine": 1566,
+        "endChar": 95
+      },
+      "revId": "23ff095c06b7fe7c630e276bcbf18fe78628745f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "94496438_6b810958",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1575,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-11T06:45:02Z",
+      "side": 1,
+      "message": "please see comments above",
+      "range": {
+        "startLine": 1574,
+        "startChar": 13,
+        "endLine": 1575,
+        "endChar": 98
+      },
+      "revId": "23ff095c06b7fe7c630e276bcbf18fe78628745f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6540d0f2_b5a3213c",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1582,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-11T06:45:02Z",
+      "side": 1,
+      "message": "I think we missed one more use case in yesterdays discussion.\nWhat about the two router case where:\n1) you add one router to external bgpvpn. so you will get oldList\u003d1, newList\u003d1;\n2) add the second router to the same external bgpvpn.. old\u003d1, new\u003d0... in this case, we need to call removeVpnInterfaceCall() followed by addVpnInterfaceCall().., but since the newList is 0, we might not call the add..Call(). Please check this situation as well.",
+      "range": {
+        "startLine": 1582,
+        "startChar": 59,
+        "endLine": 1582,
+        "endChar": 80
+      },
+      "revId": "23ff095c06b7fe7c630e276bcbf18fe78628745f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "abda1bf1_cc89f18f",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1585,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-11T06:45:02Z",
+      "side": 1,
+      "message": "Please update this appropriately.",
+      "range": {
+        "startLine": 1584,
+        "startChar": 12,
+        "endLine": 1585,
+        "endChar": 24
+      },
+      "revId": "23ff095c06b7fe7c630e276bcbf18fe78628745f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bba3d7d4_5b78c7b2",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1586,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-11T06:45:02Z",
+      "side": 1,
+      "message": "Please add one more use case for two router. which is:\n1) Update use-case, where rotuer2 is also added to the vpnInstanceList. in this case oldList\u003d0, and newList\u003d1.",
+      "range": {
+        "startLine": 1586,
+        "startChar": 13,
+        "endLine": 1586,
+        "endChar": 15
+      },
+      "revId": "23ff095c06b7fe7c630e276bcbf18fe78628745f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
