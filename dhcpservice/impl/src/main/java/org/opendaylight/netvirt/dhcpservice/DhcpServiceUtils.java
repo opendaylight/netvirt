@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -116,6 +117,7 @@ import org.slf4j.LoggerFactory;
 public final class DhcpServiceUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpServiceUtils.class);
+    private static List<BigInteger> connectedDpnIds = new CopyOnWriteArrayList<>();
 
     private DhcpServiceUtils() { }
 
@@ -254,12 +256,18 @@ public final class DhcpServiceUtils {
     }
 
     public static List<BigInteger> getListOfDpns(DataBroker broker) {
+        if (!connectedDpnIds.isEmpty()) {
+            return connectedDpnIds;
+        }
         return extractDpnsFromNodes(MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
                 InstanceIdentifier.builder(Nodes.class).build()));
     }
 
     @Nonnull
     public static List<BigInteger> getListOfDpns(ReadTransaction tx) throws ReadFailedException {
+        if (!connectedDpnIds.isEmpty()) {
+            return connectedDpnIds;
+        }
         return extractDpnsFromNodes(tx.read(LogicalDatastoreType.OPERATIONAL,
                 InstanceIdentifier.builder(Nodes.class).build()).checkedGet());
     }
@@ -542,6 +550,16 @@ public final class DhcpServiceUtils {
             }
         }
         return false;
+    }
+
+    public static void addToDpnIdCache(BigInteger dpnId) {
+        if (!connectedDpnIds.contains(dpnId)) {
+            connectedDpnIds.add(dpnId);
+        }
+    }
+
+    public static void removeFromDpnIdCache(BigInteger dpnId) {
+        connectedDpnIds.remove(dpnId);
     }
 
 }
