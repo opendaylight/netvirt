@@ -16,6 +16,24 @@
       "revId": "92a7033a09fd20da4eb9f6ed5b51c4683a89ba8e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "79de0b64_3f7ef5e5",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ExtraRouteAdjacencyListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-12T07:43:07Z",
+      "side": 1,
+      "message": "Yes, I think its better to add that check.\nActually the interfaceName (line 149) will be filled only if there is a VM booted on the nextHop. Else, it will be null. If an extra-route is added without a VM for its nexthop, then the interfaceName attribute will be filled on a interface state up event and the update() method will be called.\n\nSo, for the case where VM is booted but for some reasone interface state is not present, I guess we can add that additional check as well. Please let me knoe your thoughts.",
+      "parentUuid": "b645538a_7fe03959",
+      "revId": "92a7033a09fd20da4eb9f6ed5b51c4683a89ba8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
