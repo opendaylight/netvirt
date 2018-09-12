@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b645538a_7fe03959",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ExtraRouteAdjacencyListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2018-09-12T06:56:57Z",
+      "side": 1,
+      "message": "Now we have extra-routes stored in separate container , but not in VpnInterface adj. When add() for an extra-route entry is triggered , you are not checking whether south-bound state for the parent interface is available. In the earlier code , since extra-route was part of VpnInterace Adj , we used to check for the south-bound state. If south-bound state for parent interface is received later , you are not handling the extra-route FIB creation in new code.",
+      "revId": "92a7033a09fd20da4eb9f6ed5b51c4683a89ba8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
