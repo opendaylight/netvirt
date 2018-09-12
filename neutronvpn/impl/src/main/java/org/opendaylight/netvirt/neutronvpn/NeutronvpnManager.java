@@ -2238,17 +2238,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         // read VPNMaps
         VpnMap vpnMap = neutronvpnUtils.getVpnMap(vpnId);
         List<RouterIds> routerIdsList = vpnMap != null ? vpnMap.getRouterIds() : null;
+        List<Uuid> rtrIdsList = new ArrayList<Uuid>();
         // dissociate router
         if (routerIdsList != null && !routerIdsList.isEmpty()) {
-            for (RouterIds routerId : routerIdsList) {
-                dissociateRouterFromVpn(vpnId, routerId.getRouterId());
+            for (RouterIds router : routerIdsList) {
+                Uuid routerId = router.getRouterId();
+                dissociateRouterFromVpn(vpnId, routerId);
+                rtrIdsList.add(routerId);
             }
-            List<Uuid> rtrIdsList = routerIdsList.stream().map(routerId -> routerId.getRouterId())
-                    .collect(Collectors.toList());
-            if (rtrIdsList.contains(vpnId) && vpnMap.getNetworkIds() != null) {
-                // dissociate networks
-                dissociateNetworksFromVpn(vpnId, vpnMap.getNetworkIds());
-            }
+        }
+        if (!rtrIdsList.contains(vpnId) && vpnMap.getNetworkIds() != null) {
+            dissociateNetworksFromVpn(vpnId, vpnMap.getNetworkIds());
         }
         // remove entire vpnMaps node
         deleteVpnMapsNode(vpnId);

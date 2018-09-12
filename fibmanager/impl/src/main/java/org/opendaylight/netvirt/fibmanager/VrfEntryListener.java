@@ -1796,10 +1796,16 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         futures.add(retryingTxRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                             String vpnName = fibUtil.getVpnNameFromId(vpnInstance.getVpnId());
                             for (final VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
+                                /* parentRd is only filled for external PNF cases where the interface on the external
+                                 * network VPN are used to cleanup the flows. For all other cases, use "rd" for
+                                 * #fibUtil.isInterfacePresentInDpn().
+                                * */
+                                String parentRd = vrfEntry.getParentVpnRd() != null ? vrfEntry.getParentVpnRd()
+                                        : rd;
                                 /* Handle subnet routes here */
                                 SubnetRoute subnetRoute = vrfEntry.augmentation(SubnetRoute.class);
                                 if (subnetRoute != null && !fibUtil
-                                        .isInterfacePresentInDpn(vrfEntry.getParentVpnRd(), dpnId)) {
+                                        .isInterfacePresentInDpn(parentRd, dpnId)) {
                                     LOG.trace("SUBNETROUTE: cleanUpDpnForVpn: Cleaning subnetroute {} on dpn {}"
                                             + " for vpn {}", vrfEntry.getDestPrefix(), dpnId, rd);
                                     baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null,
@@ -1869,7 +1875,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                         TransactionAdapter.toWriteTransaction(tx), txnObjects);
                                 } else {
                                     if (subnetRoute == null || !fibUtil
-                                            .isInterfacePresentInDpn(vrfEntry.getParentVpnRd(), dpnId)) {
+                                            .isInterfacePresentInDpn(parentRd, dpnId)) {
                                         baseVrfEntryHandler.deleteRemoteRoute(null, dpnId, vpnId,
                                             vrfTable.get().key(), vrfEntry, extraRouteOptional,
                                             TransactionAdapter.toWriteTransaction(tx));
