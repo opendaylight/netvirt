@@ -2243,6 +2243,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 // dissociate networks
                 dissociateNetworksFromVpn(vpnId, vpnMap.getNetworkIds());
             }
+        } else {
+           if (vpnMap.getNetworkIds() != null) {
+               dissociateNetworksFromVpn(vpnId, vpnMap.getNetworkIds());
+           }
         }
         // remove entire vpnMaps node
         deleteVpnMapsNode(vpnId);
