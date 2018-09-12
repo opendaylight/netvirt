@@ -34,6 +34,24 @@
       "revId": "92a7033a09fd20da4eb9f6ed5b51c4683a89ba8e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f78549d_2d6a3867",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ExtraRouteAdjacencyListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2018-09-12T08:14:19Z",
+      "side": 1,
+      "message": "Even if VM is booted and interfaceName is populated , its possible that , VpnEngine has not received the interface-state in time. This can most likely to happen during reboots.\n\nAs you said , its better to handle update() call and still check for the interface-state. Ravi said , extra-route can be added without nexthop being present. Once VM is booted , from noth-bound if you add the interace-name , update() gets tiggered. But still south-bound interface-state might still not be available. When south-bound interface-state comes , if you update the interface-name again in this extra-route entry , update wont be triggered.\n\nSo we have to think of foolproof idea.",
+      "parentUuid": "79de0b64_3f7ef5e5",
+      "revId": "92a7033a09fd20da4eb9f6ed5b51c4683a89ba8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
