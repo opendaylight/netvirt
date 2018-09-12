@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3365546_47535010",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-12T06:08:58Z",
+      "side": 1,
+      "message": "an you please remove this fix from here, and include it as part of your new review that aims to fix two router use-cases?\nThat will clearly partition the fixes, and will be more readable in the future.",
+      "range": {
+        "startLine": 768,
+        "startChar": 11,
+        "endLine": 776,
+        "endChar": 15
+      },
+      "revId": "d79fb4e1bb5fb12d6d6e98b2c1d10d0945f89628",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ace92f39_8ce35496",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1541,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-12T06:08:58Z",
+      "side": 1,
+      "message": "futures not required to pass here.  Please see my comments in handleVpnInstanceUpdate..() method. I dont have to handle adj update within that method",
+      "range": {
+        "startLine": 1541,
+        "startChar": 85,
+        "endLine": 1541,
+        "endChar": 92
+      },
+      "revId": "d79fb4e1bb5fb12d6d6e98b2c1d10d0945f89628",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b480ec54_d65990df",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1588,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-12T06:08:58Z",
+      "side": 1,
+      "message": "Please add a TODO for two router cases, and then remove it when its handled in your other review",
+      "range": {
+        "startLine": 1588,
+        "startChar": 29,
+        "endLine": 1588,
+        "endChar": 38
+      },
+      "revId": "d79fb4e1bb5fb12d6d6e98b2c1d10d0945f89628",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ee218af_c1101bef",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1588,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-12T06:08:58Z",
+      "side": 1,
+      "message": "even here, its 0 to 1 or 1 to 0 right, like the above case?",
+      "range": {
+        "startLine": 1587,
+        "startChar": 15,
+        "endLine": 1588,
+        "endChar": 49
+      },
+      "revId": "d79fb4e1bb5fb12d6d6e98b2c1d10d0945f89628",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4804e831_97931fe2",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1592,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-12T06:08:58Z",
+      "side": 1,
+      "message": "move this before calling updateVpnInstanceChange().\nIrrespective of whether the updateVPnInstanceChange() executes successfully or not, it will always be a VPnINstanceChange case.",
+      "range": {
+        "startLine": 1592,
+        "startChar": 17,
+        "endLine": 1592,
+        "endChar": 47
+      },
+      "revId": "d79fb4e1bb5fb12d6d6e98b2c1d10d0945f89628",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e207ca83_88256506",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1608,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-12T06:08:58Z",
+      "side": 1,
+      "message": "use primitive boolean. YOu dont need the object here.",
+      "range": {
+        "startLine": 1608,
+        "startChar": 29,
+        "endLine": 1608,
+        "endChar": 57
+      },
+      "revId": "d79fb4e1bb5fb12d6d6e98b2c1d10d0945f89628",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a86c28fe_a376ad17",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1641,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-12T06:08:58Z",
+      "side": 1,
+      "message": "Why is this required here?\nFor the case where v6 subnet is added to the router and then router-gateway is set, tha addVpnInterfaceCall() in line 1631 will add the routes to the internet bgpvpn right?\n\nFor the other case where, rotuer-gateway is set first, and then the v6 subnet is added to the router, the v6 primary adjacency will have to be copied to the internet  bgpvpn. For this case, the newVpnList will never contain the internet bgpvpn, since it will get filtered, and hence this block will never get executed. Please handle this case directly within updateVPnInstaneAdjChange() when its called by update() method. Here if its a new v6 primary adj addition, if the vpnInstanceList in the update object has internet bgpvpn, please replicate the route there as well.",
+      "range": {
+        "startLine": 1636,
+        "startChar": 16,
+        "endLine": 1641,
+        "endChar": 17
+      },
+      "revId": "d79fb4e1bb5fb12d6d6e98b2c1d10d0945f89628",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "735749e0_8cba2374",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1646,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-12T06:08:58Z",
+      "side": 1,
+      "message": "please handle the case where v6 subnet is added to the router after the router-gateway is set, here.\nSpecifically, the part where you add the second primary adjacency(v6) fib and vpn-interface-op-data, there you will have to replicate it to the internet bgpvpn if required.",
+      "range": {
+        "startLine": 1646,
+        "startChar": 51,
+        "endLine": 1646,
+        "endChar": 61
+      },
+      "revId": "d79fb4e1bb5fb12d6d6e98b2c1d10d0945f89628",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
