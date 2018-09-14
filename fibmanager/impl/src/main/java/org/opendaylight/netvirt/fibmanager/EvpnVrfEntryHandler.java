@@ -248,7 +248,9 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                     }
                     tunnelId = BigInteger.valueOf(stateTunnelList.getIfIndex());
                 } catch (ReadFailedException e) {
-                    LOG.error("error in fetching tunnel state for interface {}", interfaceName, e);
+                    LOG.error("createRemoteFibEntry: error in fetching tunnel state for interface {}",
+                            interfaceName, e);
+                    continue;
                 }
             }
             LOG.debug("adding set tunnel id action for label {}", tunnelId);
