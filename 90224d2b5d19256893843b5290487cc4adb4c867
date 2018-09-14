@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42576e08_7ae42330",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatArpNotificationHandler.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-09-14T02:46:11Z",
+      "side": 1,
+      "message": "Request to provide more inputs on this condition check",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 9
+      },
+      "revId": "90224d2b5d19256893843b5290487cc4adb4c867",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cbf5bc20_4eee59f1",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatSouthboundEventHandlers.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-09-14T02:46:11Z",
+      "side": 1,
+      "message": "Please Reformat this statement",
+      "range": {
+        "startLine": 300,
+        "startChar": 11,
+        "endLine": 300,
+        "endChar": 51
+      },
+      "revId": "90224d2b5d19256893843b5290487cc4adb4c867",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
