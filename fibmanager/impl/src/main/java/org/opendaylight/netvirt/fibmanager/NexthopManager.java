@@ -983,7 +983,9 @@ public class NexthopManager implements AutoCloseable {
                     return;
                 }
             } catch (ReadFailedException e) {
-                LOG.error("error in fetching tunnel state for interface {}", egressInterface, e);
+                LOG.error("getBucketsForRemoteNexthop: error in fetching tunnel state for interface {}",
+                        egressInterface, e);
+                return;
             }
             if (!TunnelTypeVxlan.class.equals(tunnelType)) {
                 return;
