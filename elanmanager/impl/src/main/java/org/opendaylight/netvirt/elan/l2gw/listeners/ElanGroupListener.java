@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
@@ -15,6 +17,9 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -37,6 +42,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanGroupListener.class);
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final ElanClusterUtils elanClusterUtils;
     private final ElanUtils elanUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
@@ -47,6 +53,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
             ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils, ElanInstanceCache elanInstanceCache) {
         super(Group.class, ElanGroupListener.class);
         broker = db;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(db);
         this.elanClusterUtils = elanClusterUtils;
         this.elanUtils = elanUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
@@ -143,7 +150,9 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
             LOG.trace("no of buckets mismatched {} {}", elanInstance.getElanInstanceName(),
                     update.key().getGroupId());
             elanClusterUtils.runOnlyInOwnerNode(elanInstance.getElanInstanceName(), "updating broadcast group", () -> {
-                elanL2GatewayMulticastUtils.setupElanBroadcastGroups(elanInstance, dpnId);
+                ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                    confTx -> elanL2GatewayMulticastUtils.setupElanBroadcastGroups(elanInstance, dpnId, confTx)),
+                    LOG, "Error setting up ELAN BGs");
                 return null;
             });
         } else {

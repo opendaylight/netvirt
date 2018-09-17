@@ -55,7 +55,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.I
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfigBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.ops4j.pax.cdi.api.OsgiService;
 
 
@@ -80,8 +79,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         bind(ServiceRecoveryRegistry.class).toInstance(Mockito.mock(ServiceRecoveryRegistry.class));
         bind(INeutronVpnManager.class).toInstance(Mockito.mock(NeutronvpnManagerImpl.class));
         IVpnManager ivpnManager = Mockito.mock(VpnManagerTestImpl.class, CALLS_REAL_METHODS);
-        bind(IMdsalApiManager.class).toInstance(new MDSALManager(dataBroker,
-                Mockito.mock(PacketProcessingService.class)));
+        bind(IMdsalApiManager.class).toInstance(new MDSALManager(dataBroker));
 
         // Bindings for external services to "real" implementations
         bind(LockManagerService.class).to(LockManagerServiceImpl.class);
@@ -115,7 +113,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
 
         InterfaceManagerCommonUtils interfaceManagerCommonUtils = new InterfaceManagerCommonUtils(
                 dataBroker,
-                new MDSALManager(dataBroker, Mockito.mock(PacketProcessingService.class)),
+                new MDSALManager(dataBroker),
                 Mockito.mock(IdHelper.class,  CALLS_REAL_METHODS),
                 interfaceMetaUtils,
                 Mockito.mock(BatchingUtils.class));
