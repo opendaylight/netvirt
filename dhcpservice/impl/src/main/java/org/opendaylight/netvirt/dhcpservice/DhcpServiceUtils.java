@@ -192,21 +192,23 @@ public final class DhcpServiceUtils {
     }
 
     public static void setupDhcpArpRequest(BigInteger dpId, short tableId, BigInteger vni, String dhcpIpAddress,
-                                           int lportTag, Long elanTag, boolean add, IMdsalApiManager mdsalUtil) {
+                                           int lportTag, Long elanTag, boolean add, IMdsalApiManager mdsalUtil,
+                                           TypedReadWriteTransaction<Configuration> tx)
+            throws ExecutionException, InterruptedException {
         List<MatchInfo> matches = getDhcpArpMatch(vni, dhcpIpAddress);
         if (add) {
             Flow flow = MDSALUtil.buildFlowNew(tableId, getDhcpArpFlowRef(dpId, tableId, lportTag, dhcpIpAddress),
                     DhcpMConstants.DEFAULT_DHCP_ARP_FLOW_PRIORITY, "DHCPArp", 0, 0,
                     generateDhcpArpCookie(lportTag, dhcpIpAddress), matches, null);
             LOG.trace("Removing DHCP ARP Flow DpId {}, DHCP Port IpAddress {}", dpId, dhcpIpAddress);
-            mdsalUtil.removeFlow(dpId, flow);
+            mdsalUtil.removeFlow(tx, dpId, flow);
         } else {
             Flow flow = MDSALUtil.buildFlowNew(tableId, getDhcpArpFlowRef(dpId, tableId, lportTag, dhcpIpAddress),
                     DhcpMConstants.DEFAULT_DHCP_ARP_FLOW_PRIORITY, "DHCPArp", 0, 0,
                     generateDhcpArpCookie(lportTag, dhcpIpAddress), matches,
                     getDhcpArpInstructions(elanTag, lportTag));
             LOG.trace("Adding DHCP ARP Flow DpId {}, DHCPPort IpAddress {}", dpId, dhcpIpAddress);
-            mdsalUtil.installFlow(dpId, flow);
+            mdsalUtil.addFlow(tx, dpId, flow);
         }
     }
 
