@@ -10,10 +10,12 @@ package org.opendaylight.netvirt.neutronvpn;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -78,16 +80,18 @@ public class IPV6InternetDefaultRouteProgrammer {
      * @param internetBgpVpnId internetVpn id as long
      * @param vpnId id of router associated to internet bgpvpn as long
      */
-    public void installDefaultRoute(BigInteger dpnId, String routerId, long internetBgpVpnId, long vpnId) {
+    public void installDefaultRoute(TypedWriteTransaction<Configuration> tx, BigInteger dpnId, String routerId,
+            long internetBgpVpnId, long vpnId) {
         FlowEntity flowEntity = buildIPv6FallbacktoExternalVpn(dpnId, routerId, internetBgpVpnId, vpnId, true);
         LOG.trace("installDefaultRoute: flowEntity: {} ", flowEntity);
-        mdsalManager.installFlow(flowEntity);
+        mdsalManager.addFlow(tx, flowEntity);
     }
 
-    public void removeDefaultRoute(BigInteger dpnId, String routerId, long internetBgpVpnId, long vpnId) {
+    public void removeDefaultRoute(TypedReadWriteTransaction<Configuration> tx, BigInteger dpnId, String routerId,
+            long internetBgpVpnId, long vpnId) throws ExecutionException, InterruptedException {
         FlowEntity flowEntity = buildIPv6FallbacktoExternalVpn(dpnId, routerId, internetBgpVpnId, vpnId, false);
         LOG.trace("removeDefaultRoute: flowEntity: {} ", flowEntity);
-        mdsalManager.removeFlow(flowEntity);
+        mdsalManager.removeFlow(tx, flowEntity);
     }
 
     public String getIPv6FlowRefL3(BigInteger dpnId, short tableId, String destPrefix, String routerId) {
