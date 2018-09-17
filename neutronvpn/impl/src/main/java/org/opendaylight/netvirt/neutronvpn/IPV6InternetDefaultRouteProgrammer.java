@@ -11,9 +11,13 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -66,16 +70,17 @@ public class IPV6InternetDefaultRouteProgrammer {
      * @param bgpVpnId internetVpn id as long
      * @param routerId id of router associated to internet bgpvpn as long
      */
-    public void installDefaultRoute(BigInteger dpnId, long bgpVpnId, long routerId) {
+    void installDefaultRoute(TypedWriteTransaction<Configuration> tx, BigInteger dpnId, long bgpVpnId, long routerId) {
         FlowEntity flowEntity = buildIPv6FallbacktoExternalVpn(dpnId, bgpVpnId, routerId);
         LOG.trace("installDefaultRoute: flowEntity: {} ", flowEntity);
-        mdsalManager.installFlow(flowEntity);
+        mdsalManager.addFlow(tx, flowEntity);
     }
 
-    public void removeDefaultRoute(BigInteger dpnId, long bgpVpnId, long routerId) {
+    void removeDefaultRoute(TypedReadWriteTransaction<Configuration> tx, BigInteger dpnId, long bgpVpnId, long routerId)
+            throws ExecutionException, InterruptedException {
         FlowEntity flowEntity = buildIPv6FallbacktoExternalVpn(dpnId, bgpVpnId, routerId);
         LOG.trace("removeDefaultRoute: flowEntity: {} ", flowEntity);
-        mdsalManager.removeFlow(flowEntity);
+        mdsalManager.removeFlow(tx, flowEntity);
     }
 
     public String getIPv6FlowRefL3(BigInteger dpnId, short tableId, String destPrefix, long vpnId) {
