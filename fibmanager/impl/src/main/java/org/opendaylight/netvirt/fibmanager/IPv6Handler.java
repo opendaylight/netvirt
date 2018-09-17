@@ -10,8 +10,12 @@ package org.opendaylight.netvirt.fibmanager;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.opendaylight.genius.infra.Datastore.Configuration;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -45,8 +49,8 @@ public class IPv6Handler {
         this.mdsalManager = mdsalManager;
     }
 
-    public void installPing6ResponderFlowEntry(BigInteger dpnId, long vpnId, String routerInternalIp,
-            MacAddress routerMac, long label, int addOrRemove) {
+    void installPing6ResponderFlowEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId, long vpnId,
+            String routerInternalIp, MacAddress routerMac, long label) {
 
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchIpProtocol.ICMPV6);
@@ -77,10 +81,14 @@ public class IPv6Handler {
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef,
                 0, 0, NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
 
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            mdsalManager.syncInstallFlow(flowEntity);
-        } else {
-            mdsalManager.syncRemoveFlow(flowEntity);
-        }
+        mdsalManager.addFlow(confTx, flowEntity);
+    }
+
+    public void removePing6ResponderFlowEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+            long label) throws ExecutionException, InterruptedException {
+        int priority = FibConstants.DEFAULT_FIB_FLOW_PRIORITY + FibConstants.DEFAULT_IPV6_PREFIX_LENGTH;
+        String flowRef = FibUtil.getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, label, priority);
+
+        mdsalManager.removeFlow(confTx, dpnId, flowRef, NwConstants.L3_FIB_TABLE);
     }
 }
