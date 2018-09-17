@@ -20,6 +20,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
@@ -28,8 +29,11 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -558,8 +562,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                 flowId, 20, flowId, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, mkMatches, mkInstructions);
     }
 
-    public void installPingResponderFlowEntry(BigInteger dpnId, long vpnId, String routerInternalIp,
-                                              MacAddress routerMac, long label, int addOrRemove) {
+    void installPingResponderFlowEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId, long vpnId,
+            String routerInternalIp, MacAddress routerMac, long label) {
 
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchIpProtocol.ICMP);
@@ -595,10 +599,14 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef,
                 0, 0, NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
 
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            mdsalManager.syncInstallFlow(flowEntity);
-        } else {
-            mdsalManager.syncRemoveFlow(flowEntity);
-        }
+        mdsalManager.addFlow(confTx, flowEntity);
+    }
+
+    void removePingResponderFlowEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId, long label)
+        throws ExecutionException, InterruptedException {
+        int priority = FibConstants.DEFAULT_FIB_FLOW_PRIORITY + FibConstants.DEFAULT_PREFIX_LENGTH;
+        String flowRef = FibUtil.getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, label, priority);
+
+        mdsalManager.removeFlow(confTx, dpnId, flowRef, NwConstants.L3_FIB_TABLE);
     }
 }

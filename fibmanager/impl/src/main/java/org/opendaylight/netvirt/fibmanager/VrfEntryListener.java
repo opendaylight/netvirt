@@ -1706,9 +1706,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             if (routerInt != null) {
                                 LOG.trace("Router augmented vrfentry found rd:{}, uuid:{}, ip:{}, mac:{}",
                                         rd, routerInt.getUuid(), routerInt.getIpAddress(), routerInt.getMacAddress());
-                                routerInterfaceVrfEntryHandler.installRouterFibEntry(vrfEntry, dpnId, vpnId,
-                                        routerInt.getIpAddress(), new MacAddress(routerInt.getMacAddress()),
-                                        NwConstants.ADD_FLOW);
+                                routerInterfaceVrfEntryHandler.installRouterFibEntry(tx, vrfEntry, dpnId, vpnId,
+                                        routerInt.getIpAddress(), new MacAddress(routerInt.getMacAddress()));
                                 continue;
                             }
                             //Handle local flow creation for imports
@@ -1864,7 +1863,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     final ReentrantLock lock = lockFor(vpnInstance);
                     lock.lock();
                     try {
-                        futures.add(retryingTxRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
+                        futures.add(retryingTxRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                             String vpnName = fibUtil.getVpnNameFromId(vpnInstance.getVpnId());
                             for (final VrfEntry vrfEntry : vrfTable.get().nonnullVrfEntry()) {
                                 /* parentRd is only filled for external PNF cases where the interface on the external
@@ -1902,9 +1901,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                     LOG.trace("Router augmented vrfentry found for rd:{}, uuid:{}, ip:{}, mac:{}",
                                             rd, routerInt.getUuid(), routerInt.getIpAddress(),
                                             routerInt.getMacAddress());
-                                    routerInterfaceVrfEntryHandler.installRouterFibEntry(vrfEntry, dpnId, vpnId,
-                                            routerInt.getIpAddress(), new MacAddress(routerInt.getMacAddress()),
-                                            NwConstants.DEL_FLOW);
+                                    routerInterfaceVrfEntryHandler.removeRouterFibEntry(tx, vrfEntry, dpnId, vpnId,
+                                            routerInt.getIpAddress(), new MacAddress(routerInt.getMacAddress()));
                                     continue;
                                 }
 
