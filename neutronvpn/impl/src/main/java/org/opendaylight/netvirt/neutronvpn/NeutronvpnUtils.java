@@ -18,7 +18,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
-
 import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -43,7 +42,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -58,6 +56,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -1709,9 +1708,16 @@ public class NeutronvpnUtils {
             }
             for (BigInteger dpnId : dpnIds) {
                 if (add) {
-                    ipV6InternetDefRt.installDefaultRoute(dpnId, rtrId.getValue(), internetBgpVpnId, vpnId);
+                    LoggingFutures.addErrorLogging(
+                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+                            tx -> ipV6InternetDefRt.installDefaultRoute(tx, dpnId, rtrId.getValue(), internetBgpVpnId,
+                                vpnId)), LOG, "Error adding default route");
                 } else {
-                    ipV6InternetDefRt.removeDefaultRoute(dpnId, rtrId.getValue(), internetBgpVpnId, vpnId);
+                    LoggingFutures.addErrorLogging(
+                        txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
+                            tx -> ipV6InternetDefRt.removeDefaultRoute(tx, dpnId, rtrId.getValue(), internetBgpVpnId,
+                                vpnId)), LOG,
+                        "Error removing default route");
                 }
             }
         }
