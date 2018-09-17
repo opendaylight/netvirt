@@ -7,14 +7,17 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.SettableFuture;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
+import java.util.Collections;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
@@ -32,6 +35,7 @@ public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<Externa
     private static final Logger LOG = LoggerFactory.getLogger(ElanExtnTepListener.class);
 
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final JobCoordinator jobCoordinator;
     private final ElanInstanceCache elanInstanceCache;
@@ -41,6 +45,7 @@ public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<Externa
             JobCoordinator jobCoordinator, ElanInstanceCache elanInstanceCache) {
         super(ExternalTeps.class, ElanExtnTepListener.class);
         this.broker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.jobCoordinator = jobCoordinator;
         this.elanInstanceCache = elanInstanceCache;
@@ -81,19 +86,10 @@ public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<Externa
             return;
         }
 
-        jobCoordinator.enqueueJob(elanName, () -> {
-            SettableFuture<Void> ft = SettableFuture.create();
-            try {
-                //TODO make the following method return ft
-                elanL2GatewayMulticastUtils.updateRemoteBroadcastGroupForAllElanDpns(elanInfo);
-                ft.set(null);
-            } catch (Exception e) {
-                //since the above method does a sync write , if it fails there was no retry
-                //by setting the above mdsal exception in ft, and returning the ft makes sures that job is retried
-                ft.setException(e);
-            }
-            return Lists.newArrayList(ft);
-        }, ElanConstants.JOB_MAX_RETRIES);
+        jobCoordinator.enqueueJob(elanName,
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                confTx -> elanL2GatewayMulticastUtils.updateRemoteBroadcastGroupForAllElanDpns(elanInfo, confTx))),
+            ElanConstants.JOB_MAX_RETRIES);
     }
 
     @Override

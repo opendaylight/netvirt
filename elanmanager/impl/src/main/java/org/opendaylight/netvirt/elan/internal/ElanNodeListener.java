@@ -25,13 +25,16 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
+import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -63,6 +66,7 @@ import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
@@ -135,10 +139,13 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
             LOG.warn("Unexpected nodeId {}", nodeId.getValue());
             return;
         }
-        BigInteger dpId = new BigInteger(node[1]);
-        createTableMissEntry(dpId);
-        createMulticastFlows(dpId);
-        createArpDefaultFlowsForArpCheckTable(dpId);
+        ListenableFutures.addErrorLogging(
+            txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION, tx -> {
+                BigInteger dpId = new BigInteger(node[1]);
+                createTableMissEntry(tx, dpId);
+                createMulticastFlows(tx, dpId);
+                createArpDefaultFlowsForArpCheckTable(dpId);
+            }), LOG, "Error handling ELAN node addition for {}", add);
     }
 
     private void createArpDefaultFlowsForArpCheckTable(BigInteger dpId) {
@@ -158,32 +165,33 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
             })));
     }
 
-    public void createTableMissEntry(BigInteger dpnId) {
-        setupTableMissSmacFlow(dpnId);
-        setupTableMissDmacFlow(dpnId);
-        setupTableMissArpCheckFlow(dpnId);
-        setupTableMissApResponderFlow(dpnId);
-        setupExternalL2vniTableMissFlow(dpnId);
+    public void createTableMissEntry(TypedWriteTransaction<Configuration> tx, BigInteger dpnId) {
+        setupTableMissSmacFlow(tx, dpnId);
+        setupTableMissDmacFlow(tx, dpnId);
+        setupTableMissArpCheckFlow(tx, dpnId);
+        setupTableMissApResponderFlow(tx, dpnId);
+        setupExternalL2vniTableMissFlow(tx, dpnId);
     }
 
-    private void createMulticastFlows(BigInteger dpId) {
-        createL2ControlProtocolDropFlows(dpId);
-        createMulticastPuntFlows(dpId);
+    private void createMulticastFlows(TypedWriteTransaction<Configuration> tx, BigInteger dpId) {
+        createL2ControlProtocolDropFlows(tx, dpId);
+        createMulticastPuntFlows(tx, dpId);
     }
 
-    private void createMulticastPuntFlows(BigInteger dpId) {
+    private void createMulticastPuntFlows(TypedWriteTransaction<Configuration> tx, BigInteger dpId) {
         if (puntLldpToController) {
-            createLldpFlows(dpId);
+            createLldpFlows(tx, dpId);
         }
     }
 
-    private void createLldpFlows(BigInteger dpId) {
-        createLldpFlow(dpId, ElanConstants.LLDP_DST_1, "LLDP dMac Table Flow 1");
-        createLldpFlow(dpId, ElanConstants.LLDP_DST_2, "LLDP dMac Table Flow 2");
-        createLldpFlow(dpId, ElanConstants.LLDP_DST_3, "LLDP dMac Table Flow 3");
+    private void createLldpFlows(TypedWriteTransaction<Configuration> tx, BigInteger dpId) {
+        createLldpFlow(tx, dpId, ElanConstants.LLDP_DST_1, "LLDP dMac Table Flow 1");
+        createLldpFlow(tx, dpId, ElanConstants.LLDP_DST_2, "LLDP dMac Table Flow 2");
+        createLldpFlow(tx, dpId, ElanConstants.LLDP_DST_3, "LLDP dMac Table Flow 3");
     }
 
-    private void createLldpFlow(BigInteger dpId, String dstMac, String flowName) {
+    private void createLldpFlow(TypedWriteTransaction<Configuration> tx, BigInteger dpId, String dstMac,
+            String flowName) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchEthernetType(ElanConstants.LLDP_ETH_TYPE));
         mkMatches.add(new MatchEthernetDestination(new MacAddress(dstMac)));
@@ -198,10 +206,10 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         FlowEntity lldpFlow = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE, flowId, 16, flowName, 0, 0,
                 ElanConstants.COOKIE_ELAN_KNOWN_DMAC, mkMatches, mkInstructions);
 
-        mdsalManager.installFlow(lldpFlow);
+        mdsalManager.addFlow(tx, lldpFlow);
     }
 
-    private void setupTableMissSmacFlow(BigInteger dpId) {
+    private void setupTableMissSmacFlow(TypedWriteTransaction<Configuration> tx, BigInteger dpId) {
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionPuntToController());
         actionsInfos.add(new ActionLearn(0, tempSmacLearnTimeout, 0, ElanConstants.COOKIE_ELAN_LEARNED_SMAC, 0,
@@ -223,13 +231,13 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_SMAC_TABLE,
                 getTableMissFlowRef(NwConstants.ELAN_SMAC_TABLE), 0, "ELAN sMac Table Miss Flow", 0, 0,
                 ElanConstants.COOKIE_ELAN_KNOWN_SMAC, mkMatches, mkInstructions);
-        mdsalManager.installFlow(flowEntity);
+        mdsalManager.addFlow(tx, flowEntity);
 
-        addSmacBaseTableFlow(dpId);
-        addSmacLearnedTableFlow(dpId);
+        addSmacBaseTableFlow(tx, dpId);
+        addSmacLearnedTableFlow(tx, dpId);
     }
 
-    private void addSmacBaseTableFlow(BigInteger dpId) {
+    private void addSmacBaseTableFlow(TypedWriteTransaction<Configuration> tx, BigInteger dpId) {
         // T48 - resubmit to T49 & T50
         List<ActionInfo> actionsInfo = new ArrayList<>();
         actionsInfo.add(new ActionNxResubmit(NwConstants.ELAN_SMAC_LEARNED_TABLE));
@@ -240,10 +248,10 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         FlowEntity doubleResubmitTable = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_BASE_TABLE,
                 getTableMissFlowRef(NwConstants.ELAN_BASE_TABLE), 0, "Elan sMac resubmit table", 0, 0,
                 ElanConstants.COOKIE_ELAN_BASE_SMAC, mkMatch, mkInstruct);
-        mdsalManager.installFlow(doubleResubmitTable);
+        mdsalManager.addFlow(tx, doubleResubmitTable);
     }
 
-    private void addSmacLearnedTableFlow(BigInteger dpId) {
+    private void addSmacLearnedTableFlow(TypedWriteTransaction<Configuration> tx, BigInteger dpId) {
         // T50 - match on Reg4 and goto T51
         List<MatchInfoBase> mkMatches = new ArrayList<>();
         mkMatches.add(new NxMatchRegister(NxmNxReg4.class, LEARN_MATCH_REG4_VALUE));
@@ -255,10 +263,10 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
                 MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_SMAC_TABLE, flowRef, 10, "ELAN sMac Table Reg4 Flow",
                         0, 0, ElanConstants.COOKIE_ELAN_KNOWN_SMAC.add(BigInteger.valueOf(LEARN_MATCH_REG4_VALUE)),
                         mkMatches, mkInstructions);
-        mdsalManager.installFlow(flowEntity);
+        mdsalManager.addFlow(tx, flowEntity);
     }
 
-    private void setupTableMissDmacFlow(BigInteger dpId) {
+    private void setupTableMissDmacFlow(TypedWriteTransaction<Configuration> tx, BigInteger dpId) {
         List<MatchInfo> mkMatches = new ArrayList<>();
 
         List<InstructionInfo> mkInstructions = new ArrayList<>();
@@ -268,10 +276,10 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
                 getTableMissFlowRef(NwConstants.ELAN_DMAC_TABLE), 0, "ELAN dMac Table Miss Flow", 0, 0,
                 ElanConstants.COOKIE_ELAN_KNOWN_DMAC, mkMatches, mkInstructions);
 
-        mdsalManager.installFlow(flowEntity);
+        mdsalManager.addFlow(tx, flowEntity);
     }
 
-    private void setupExternalL2vniTableMissFlow(BigInteger dpnId) {
+    private void setupExternalL2vniTableMissFlow(TypedWriteTransaction<Configuration> tx, BigInteger dpnId) {
         List<MatchInfo> matches = new ArrayList<>();
         List<ActionInfo> actionsInfos = Collections.singletonList(new ActionNxResubmit(NwConstants
                         .LPORT_DISPATCHER_TABLE));
@@ -280,11 +288,11 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
                         getTableMissFlowRef(NwConstants.L2VNI_EXTERNAL_TUNNEL_DEMUX_TABLE), 0,
                         "External L2VNI Table Miss Flow", 0, 0,
                          ElanConstants.COOKIE_L2VNI_DEMUX, matches, instructions);
-        mdsalManager.installFlow(flowEntity);
+        mdsalManager.addFlow(tx, flowEntity);
     }
 
 
-    private void createL2ControlProtocolDropFlows(BigInteger dpId) {
+    private void createL2ControlProtocolDropFlows(TypedWriteTransaction<Configuration> tx, BigInteger dpId) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         MatchEthernetDestination matchEthDst =
                 new MatchEthernetDestination(new MacAddress(ElanConstants.L2_CONTROL_PACKETS_DMAC),
@@ -304,11 +312,11 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
                 "L2 control packets dMac Table Flow", 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC, mkMatches,
                 mkInstructions);
 
-        mdsalManager.installFlow(flow);
+        mdsalManager.addFlow(tx, flow);
     }
 
     private String getTableMissFlowRef(long tableId) {
-        return new StringBuffer().append(tableId).toString();
+        return String.valueOf(tableId);
     }
 
     @Override
@@ -316,12 +324,12 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         return ElanNodeListener.this;
     }
 
-    private void setupTableMissApResponderFlow(final BigInteger dpnId) {
-        mdsalManager.installFlow(dpnId, ArpResponderUtil.getArpResponderTableMissFlow(dpnId));
+    private void setupTableMissApResponderFlow(TypedWriteTransaction<Configuration> tx, final BigInteger dpnId) {
+        mdsalManager.addFlow(tx, ArpResponderUtil.getArpResponderTableMissFlow(dpnId));
     }
 
-    private void setupTableMissArpCheckFlow(BigInteger dpnId) {
-        mdsalManager.installFlow(dpnId,
+    private void setupTableMissArpCheckFlow(TypedWriteTransaction<Configuration> tx, BigInteger dpnId) {
+        mdsalManager.addFlow(tx,
                 MDSALUtil.buildFlowEntity(dpnId, NwConstants.ARP_CHECK_TABLE,
                         String.valueOf("L2.ELAN." + NwConstants.ARP_CHECK_TABLE), NwConstants.TABLE_MISS_PRIORITY,
                         ArpResponderConstant.DROP_FLOW_NAME.value(), 0, 0, NwConstants.COOKIE_ARP_RESPONDER,
@@ -333,8 +341,11 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
             throws ExecutionException, InterruptedException {
         long arpRequestGroupId = ArpResponderUtil.retrieveStandardArpResponderGroupId(idManagerService);
         List<BucketInfo> buckets = ArpResponderUtil.getDefaultBucketInfos(NwConstants.ARP_RESPONDER_TABLE);
-        ArpResponderUtil.installGroup(mdsalManager, dpId, arpRequestGroupId,
-                ArpResponderConstant.GROUP_FLOW_NAME.value(), buckets);
+        LOG.trace("Installing group flow on dpn {}", dpId);
+        GroupEntity groupEntity =
+            MDSALUtil.buildGroupEntity(dpId, arpRequestGroupId, ArpResponderConstant.GROUP_FLOW_NAME.value(),
+                GroupTypes.GroupAll, buckets);
+        mdsalManager.addGroup(tx, groupEntity);
         InstanceIdentifier<Group> groupIid = ElanUtils.getGroupInstanceid(dpId, arpRequestGroupId);
         if (tx.read(groupIid).get().isPresent()) {
             LOG.info("group {} is present in the config hence adding the flow", arpRequestGroupId);

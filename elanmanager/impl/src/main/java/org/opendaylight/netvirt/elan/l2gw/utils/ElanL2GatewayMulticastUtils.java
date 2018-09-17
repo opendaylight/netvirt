@@ -26,8 +26,10 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
@@ -215,23 +217,27 @@ public class ElanL2GatewayMulticastUtils {
         }
     }
 
-    public void updateRemoteBroadcastGroupForAllElanDpns(ElanInstance elanInfo) {
+    public void updateRemoteBroadcastGroupForAllElanDpns(ElanInstance elanInfo,
+            TypedWriteTransaction<Datastore.Configuration> confTx) {
         List<DpnInterfaces> dpns = elanUtils.getInvolvedDpnsInElan(elanInfo.getElanInstanceName());
         for (DpnInterfaces dpn : dpns) {
-            setupElanBroadcastGroups(elanInfo, dpn.getDpId());
+            setupElanBroadcastGroups(elanInfo, dpn.getDpId(), confTx);
         }
     }
 
-    public void setupElanBroadcastGroups(ElanInstance elanInfo, BigInteger dpnId) {
-        setupElanBroadcastGroups(elanInfo, null, dpnId);
+    public void setupElanBroadcastGroups(ElanInstance elanInfo, BigInteger dpnId,
+            TypedWriteTransaction<Datastore.Configuration> confTx) {
+        setupElanBroadcastGroups(elanInfo, null, dpnId, confTx);
     }
 
-    public void setupElanBroadcastGroups(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId) {
-        setupStandardElanBroadcastGroups(elanInfo, dpnInterfaces, dpnId);
-        setupLeavesEtreeBroadcastGroups(elanInfo, dpnInterfaces, dpnId);
+    public void setupElanBroadcastGroups(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId,
+            TypedWriteTransaction<Datastore.Configuration> confTx) {
+        setupStandardElanBroadcastGroups(elanInfo, dpnInterfaces, dpnId, confTx);
+        setupLeavesEtreeBroadcastGroups(elanInfo, dpnInterfaces, dpnId, confTx);
     }
 
-    public void setupStandardElanBroadcastGroups(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId) {
+    public void setupStandardElanBroadcastGroups(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId,
+            TypedWriteTransaction<Datastore.Configuration> confTx) {
         List<Bucket> listBucket = new ArrayList<>();
         int bucketId = 0;
         int actionKey = 0;
@@ -247,10 +253,11 @@ public class ElanL2GatewayMulticastUtils {
         Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                 MDSALUtil.buildBucketLists(listBucket));
         LOG.trace("Installing the remote BroadCast Group:{}", group);
-        mdsalManager.syncInstallGroup(dpnId, group);
+        mdsalManager.addGroup(confTx, dpnId, group);
     }
 
-    public void setupLeavesEtreeBroadcastGroups(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId) {
+    public void setupLeavesEtreeBroadcastGroups(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId,
+            TypedWriteTransaction<Datastore.Configuration> confTx) {
         EtreeInstance etreeInstance = elanInfo.augmentation(EtreeInstance.class);
         if (etreeInstance != null) {
             long etreeLeafTag = etreeInstance.getEtreeLeafTagVal().getValue();
@@ -269,7 +276,7 @@ public class ElanL2GatewayMulticastUtils {
             Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                     MDSALUtil.buildBucketLists(listBucket));
             LOG.trace("Installing the remote BroadCast Group:{}", group);
-            mdsalManager.syncInstallGroup(dpnId, group);
+            mdsalManager.addGroup(confTx, dpnId, group);
         }
     }
 

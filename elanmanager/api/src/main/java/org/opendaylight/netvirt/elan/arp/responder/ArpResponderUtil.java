@@ -23,7 +23,6 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -41,7 +40,6 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetArpOp;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpOp;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpTpa;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
@@ -49,7 +47,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
@@ -58,7 +55,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -76,28 +72,6 @@ public final class ArpResponderUtil {
      * A Utility class.
      */
     private ArpResponderUtil() {
-    }
-
-    /**
-     * Install Group flow on the DPN.
-     *
-     * @param mdSalManager
-     *            Reference of MDSAL API RPC that provides API for installing
-     *            group flow
-     * @param dpnId
-     *            DPN on which group flow to be installed
-     * @param groupdId
-     *            Uniquely identifiable Group Id for the group flow
-     * @param groupName
-     *            Name of the group flow
-     * @param buckets
-     *            List of the bucket actions for the group flow
-     */
-    public static void installGroup(IMdsalApiManager mdSalManager, BigInteger dpnId, long groupdId, String groupName,
-            List<BucketInfo> buckets) {
-        LOG.trace("Installing group flow on dpn {}", dpnId);
-        GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupdId, groupName, GroupTypes.GroupAll, buckets);
-        mdSalManager.syncInstallGroup(groupEntity);
     }
 
     /**
@@ -130,8 +104,8 @@ public final class ArpResponderUtil {
      * @return List of bucket actions
      */
     public static List<BucketInfo> getDefaultBucketInfos(short resubmitTableId) {
-        return Arrays.asList(
-                new BucketInfo(Collections.singletonList(new ActionNxResubmit(resubmitTableId))));
+        return Collections.singletonList(
+            new BucketInfo(Collections.singletonList(new ActionNxResubmit(resubmitTableId))));
     }
 
     /**
@@ -181,9 +155,9 @@ public final class ArpResponderUtil {
      *            MacAddress for which ARP Response packet is to be generated
      * @return List of ARP Responder Actions actions
      */
-    public static List<Action> getActions(IInterfaceManager ifaceMgrRpcService, ItmRpcService itmRpcService,
-                                          String ifName, String ipAddress, String macAddress,
-                                          boolean isTunnelInterface) {
+    private static List<Action> getActions(IInterfaceManager ifaceMgrRpcService, ItmRpcService itmRpcService,
+                                           String ifName, String ipAddress, String macAddress,
+                                           boolean isTunnelInterface) {
 
         AtomicInteger actionCounter = new AtomicInteger();
         List<Action> actions = arpActions.apply(actionCounter, macAddress, ipAddress);
@@ -292,51 +266,6 @@ public final class ArpResponderUtil {
         }
 
         return instructions;
-    }
-
-    /**
-     * Install ARP Responder FLOW.
-     *
-     * @param mdSalManager
-     *            Reference of MDSAL API RPC that provides API for installing
-     *            flow
-     * @param dpnId
-     *            DPN on which flow to be installed
-     * @param flowId
-     *            Uniquely Identifiable Arp Responder Table flow Id
-     * @param flowName
-     *            Readable flow name
-     * @param priority
-     *            Flow Priority
-     * @param cookie
-     *            Flow Cookie
-     * @param matches
-     *            List of Match Criteria for the flow
-     * @param instructions
-     *            List of Instructions for the flow
-     */
-    public static void installFlow(IMdsalApiManager mdSalManager, BigInteger dpnId, String flowId, String flowName,
-            int priority, BigInteger cookie, List<MatchInfo> matches, List<Instruction> instructions) {
-        Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.ARP_RESPONDER_TABLE, flowId, priority, flowName, 0, 0,
-                cookie, matches, instructions);
-        mdSalManager.installFlow(dpnId, flowEntity);
-    }
-
-    /**
-     * Remove flow form DPN.
-     *
-     * @param mdSalManager
-     *            Reference of MDSAL API RPC that provides API for installing
-     *            flow
-     * @param dpnId
-     *            DPN form which flow to be removed
-     * @param flowId
-     *            Uniquely Identifiable Arp Responder Table flow Id that is to
-     *            be removed
-     */
-    public static void removeFlow(IMdsalApiManager mdSalManager, BigInteger dpnId, String flowId) {
-        Flow flowEntity = MDSALUtil.buildFlow(NwConstants.ARP_RESPONDER_TABLE, flowId);
-        mdSalManager.removeFlow(dpnId, flowEntity);
     }
 
     /**

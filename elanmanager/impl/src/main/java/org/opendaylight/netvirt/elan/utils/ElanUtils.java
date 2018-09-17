@@ -42,6 +42,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -1498,10 +1499,13 @@ public class ElanUtils {
     }
 
     public void removeDmacRedirectToDispatcherFlows(Long elanTag, String macAddress, List<BigInteger> dpnIds) {
-        for (BigInteger dpId : dpnIds) {
-            String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, macAddress, elanTag);
-            mdsalManager.removeFlow(dpId, MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE, flowId));
-        }
+        ListenableFutures.addErrorLogging(
+            txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION, tx -> {
+                for (BigInteger dpId : dpnIds) {
+                    String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, macAddress, elanTag);
+                    mdsalManager.removeFlow(tx, dpId, MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE, flowId));
+                }
+            }), LOG, "Error removing DMAC redirect to dispatcher flows");
     }
 
     public static FlowEntity buildDmacRedirectToDispatcherFlow(BigInteger dpId, String dstMacAddress,
@@ -1695,7 +1699,9 @@ public class ElanUtils {
             int lportTag) {
         LOG.info("Removing the ARP responder flow on DPN {} of Interface {} with IP {}", dpnId, ingressInterfaceName,
                 ipAddress);
-        ArpResponderUtil.removeFlow(mdsalManager, dpnId, ArpResponderUtil.getFlowId(lportTag, ipAddress));
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
+            tx -> mdsalManager.removeFlow(tx, dpnId, ArpResponderUtil.getFlowId(lportTag, ipAddress),
+                NwConstants.ARP_RESPONDER_TABLE)), LOG, "Error removing ARP responder flow");
     }
 
     public static String getRouterPordIdFromElanInstance(DataBroker dataBroker, String elanInstanceName) {
