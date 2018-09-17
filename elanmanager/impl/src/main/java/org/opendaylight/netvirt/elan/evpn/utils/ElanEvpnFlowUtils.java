@@ -15,6 +15,10 @@ import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -36,13 +40,15 @@ public class ElanEvpnFlowUtils {
     private final IMdsalApiManager mdsalManager;
     private final ElanItmUtils elanItmUtils;
     private final ElanEtreeUtils elanEtreeUtils;
+    private final ManagedNewTransactionRunner txRunner;
 
     @Inject
     public ElanEvpnFlowUtils(final IMdsalApiManager mdsalManager, final ElanItmUtils elanItmUtils,
-            final ElanEtreeUtils elanEtreeUtils) {
+            final ElanEtreeUtils elanEtreeUtils, final DataBroker dataBroker) {
         this.mdsalManager = mdsalManager;
         this.elanItmUtils = elanItmUtils;
         this.elanEtreeUtils = elanEtreeUtils;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
     public Flow evpnBuildDmacFlowForExternalRemoteMac(EvpnDmacFlow evpnDmacFlow) {
@@ -99,7 +105,8 @@ public class ElanEvpnFlowUtils {
         String flowId = ElanEvpnFlowUtils.evpnGetKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, nexthopIp,
                 macToRemove, elanTag, true);
         Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
-        return Collections.singletonList(mdsalManager.removeFlow(dpId, flowToRemove));
+        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
+            tx -> mdsalManager.removeFlow(tx, dpId, flowToRemove)));
     }
 
     private List<ListenableFuture<Void>> evpnRemoveFlowThatSendsThePacketOnAnExternalTunnel(long elanTag,
@@ -107,7 +114,8 @@ public class ElanEvpnFlowUtils {
         String flowId = ElanEvpnFlowUtils.evpnGetKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, nexthopIp,
                 macToRemove, elanTag, false);
         Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
-        return Collections.singletonList(mdsalManager.removeFlow(dpId, flowToRemove));
+        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
+            tx -> mdsalManager.removeFlow(tx, dpId, flowToRemove)));
     }
 
     public static class EvpnDmacFlowBuilder {
