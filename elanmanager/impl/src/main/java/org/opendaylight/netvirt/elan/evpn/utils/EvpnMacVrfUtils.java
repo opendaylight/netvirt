@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -19,6 +20,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
@@ -46,6 +50,7 @@ public class EvpnMacVrfUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(EvpnMacVrfUtils.class);
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IdManagerService idManager;
     private final ElanEvpnFlowUtils elanEvpnFlowUtils;
     private final IMdsalApiManager mdsalManager;
@@ -59,6 +64,7 @@ public class EvpnMacVrfUtils {
             final ElanEvpnFlowUtils elanEvpnFlowUtils, final IMdsalApiManager mdsalManager, final EvpnUtils evpnUtils,
             final JobCoordinator jobCoordinator, final ElanUtils elanUtils, final ElanInstanceCache elanInstanceCache) {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = idManager;
         this.elanEvpnFlowUtils = elanEvpnFlowUtils;
         this.mdsalManager = mdsalManager;
@@ -169,22 +175,23 @@ public class EvpnMacVrfUtils {
 
             String dstMacAddress = macVrfEntry.getMac();
             long vni = macVrfEntry.getL2vni();
-            jobCoordinator.enqueueJob(dstMacAddress, () -> {
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                dpnInterfaceLists.forEach(dpnInterfaces -> {
-                    BigInteger dpId = dpnInterfaces.getDpId();
-                    LOG.info("ADD: Build DMAC flow with dpId {}, nexthopIP {}, elanTag {},"
-                                    + "vni {}, dstMacAddress {}, elanName {} ",
+            jobCoordinator.enqueueJob(dstMacAddress, () -> Collections.singletonList(
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+                    tx -> dpnInterfaceLists.forEach(dpnInterfaces -> {
+                        BigInteger dpId = dpnInterfaces.getDpId();
+                        LOG.info("ADD: Build DMAC flow with dpId {}, nexthopIP {}, elanTag {},"
+                                + "vni {}, dstMacAddress {}, elanName {} ",
                             dpId, nexthopIP, elanTag, vni, dstMacAddress, elanName);
-                    ElanEvpnFlowUtils.EvpnDmacFlowBuilder dmacFlowBuilder = new ElanEvpnFlowUtils.EvpnDmacFlowBuilder();
-                    dmacFlowBuilder.setDpId(dpId).setNexthopIP(ipAddress.toString()).setElanTag(elanTag).setVni(vni)
+                        ElanEvpnFlowUtils.EvpnDmacFlowBuilder dmacFlowBuilder =
+                            new ElanEvpnFlowUtils.EvpnDmacFlowBuilder();
+                        dmacFlowBuilder.setDpId(dpId).setNexthopIP(ipAddress.toString()).setElanTag(elanTag).setVni(
+                            vni)
                             .setDstMacAddress(dstMacAddress).setElanName(elanName);
-                    Flow flow = elanEvpnFlowUtils.evpnBuildDmacFlowForExternalRemoteMac(dmacFlowBuilder.build());
+                        Flow flow =
+                            elanEvpnFlowUtils.evpnBuildDmacFlowForExternalRemoteMac(dmacFlowBuilder.build());
 
-                    futures.add(mdsalManager.installFlow(dpId, flow));
-                });
-                return futures;
-            }, ElanConstants.JOB_MAX_RETRIES);
+                        mdsalManager.addFlow(tx, dpId, flow);
+                    }))), ElanConstants.JOB_MAX_RETRIES);
         }
     }
 
@@ -242,21 +249,20 @@ public class EvpnMacVrfUtils {
             Long elanTag = elanInstance.getElanTag();
             String dstMacAddress = macVrfEntry.getMac();
             long vni = macVrfEntry.getL2vni();
-            jobCoordinator.enqueueJob(dstMacAddress, () -> {
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                dpnInterfaceLists.forEach(dpnInterfaces -> {
-                    BigInteger dpId = dpnInterfaces.getDpId();
-                    LOG.info("ADD: Build DMAC flow with dpId {}, nexthopIP {}, elanTag {},"
-                                    + "vni {}, dstMacAddress {}, elanName {} ",
+            jobCoordinator.enqueueJob(dstMacAddress, () -> Collections.singletonList(
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+                    tx -> dpnInterfaceLists.forEach(dpnInterfaces -> {
+                        BigInteger dpId = dpnInterfaces.getDpId();
+                        LOG.info("ADD: Build DMAC flow with dpId {}, nexthopIP {}, elanTag {},"
+                                + "vni {}, dstMacAddress {}, elanName {} ",
                             dpId, nexthopIP, elanTag, vni, dstMacAddress, elanName);
-                    ElanEvpnFlowUtils.EvpnDmacFlowBuilder dmacFlowBuilder = new ElanEvpnFlowUtils.EvpnDmacFlowBuilder();
-                    dmacFlowBuilder.setDpId(dpId).setNexthopIP(ipAddress.toString()).setElanTag(elanTag).setVni(vni)
+                        ElanEvpnFlowUtils.EvpnDmacFlowBuilder dmacFlowBuilder =
+                            new ElanEvpnFlowUtils.EvpnDmacFlowBuilder();
+                        dmacFlowBuilder.setDpId(dpId).setNexthopIP(ipAddress.toString()).setElanTag(elanTag).setVni(vni)
                             .setDstMacAddress(dstMacAddress).setElanName(elanName);
-                    Flow flow = elanEvpnFlowUtils.evpnBuildDmacFlowForExternalRemoteMac(dmacFlowBuilder.build());
-                    futures.add(mdsalManager.installFlow(dpId, flow));
-                });
-                return futures;
-            }, ElanConstants.JOB_MAX_RETRIES);
+                        Flow flow = elanEvpnFlowUtils.evpnBuildDmacFlowForExternalRemoteMac(dmacFlowBuilder.build());
+                        mdsalManager.addFlow(tx, dpId, flow);
+                    }))), ElanConstants.JOB_MAX_RETRIES);
         }
     }
 

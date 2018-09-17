@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elanmanager.tests;
 
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mock;
 
 import com.google.common.base.Optional;
 import org.mockito.Mockito;
@@ -70,18 +71,18 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
     @Override
     protected void configureBindings() {
         DataBroker dataBroker = DataBrokerTestModule.dataBroker();
-        EntityOwnershipService mockedEntityOwnershipService = Mockito.mock(EntityOwnershipService.class);
+        EntityOwnershipService mockedEntityOwnershipService = mock(EntityOwnershipService.class);
         EntityOwnershipState mockedEntityOwnershipState = EntityOwnershipState.IS_OWNER;
         Mockito.when(mockedEntityOwnershipService.getOwnershipState(Mockito.any()))
                 .thenReturn(Optional.of(mockedEntityOwnershipState));
         bind(EntityOwnershipService.class).toInstance(mockedEntityOwnershipService);
         bind(L2GatewayCache.class).to(L2GatewayCacheImpl.class);
         bind(HwvtepNodeHACache.class).to(HwvtepNodeHACacheImpl.class);
-        bind(ServiceRecoveryRegistry.class).toInstance(Mockito.mock(ServiceRecoveryRegistry.class));
-        bind(INeutronVpnManager.class).toInstance(Mockito.mock(NeutronvpnManagerImpl.class));
-        IVpnManager ivpnManager = Mockito.mock(VpnManagerTestImpl.class, CALLS_REAL_METHODS);
-        bind(IMdsalApiManager.class).toInstance(new MDSALManager(dataBroker,
-                Mockito.mock(PacketProcessingService.class)));
+        bind(ServiceRecoveryRegistry.class).toInstance(mock(ServiceRecoveryRegistry.class));
+        bind(INeutronVpnManager.class).toInstance(mock(NeutronvpnManagerImpl.class));
+        IVpnManager ivpnManager = mock(VpnManagerTestImpl.class, CALLS_REAL_METHODS);
+        MDSALManager mockedMdsalManager = new MDSALManager(dataBroker, mock(PacketProcessingService.class));
+        bind(IMdsalApiManager.class).toInstance(mockedMdsalManager);
 
         // Bindings for external services to "real" implementations
         bind(LockManagerService.class).to(LockManagerServiceImpl.class);
@@ -105,20 +106,20 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
 
         bind(DataBroker.class).toInstance(dataBroker);
         bind(DataBroker.class).annotatedWith(OsgiService.class).toInstance(dataBroker);
-        bind(IdManagerService.class).toInstance(Mockito.mock(IdHelper.class,  CALLS_REAL_METHODS));
+        bind(IdManagerService.class).toInstance(mock(IdHelper.class,  CALLS_REAL_METHODS));
         bind(IInterfaceManager.class).toInstance(testInterfaceManager);
         bind(TestInterfaceManager.class).toInstance(testInterfaceManager);
         bind(IITMProvider.class).toInstance(testItmProvider);
         InterfaceMetaUtils interfaceMetaUtils = new InterfaceMetaUtils(dataBroker,
-                Mockito.mock(IdHelper.class,  CALLS_REAL_METHODS),
-                Mockito.mock(BatchingUtils.class));
+                mock(IdHelper.class,  CALLS_REAL_METHODS),
+                mock(BatchingUtils.class));
 
         InterfaceManagerCommonUtils interfaceManagerCommonUtils = new InterfaceManagerCommonUtils(
                 dataBroker,
-                new MDSALManager(dataBroker, Mockito.mock(PacketProcessingService.class)),
-                Mockito.mock(IdHelper.class,  CALLS_REAL_METHODS),
+                mockedMdsalManager,
+                mock(IdHelper.class,  CALLS_REAL_METHODS),
                 interfaceMetaUtils,
-                Mockito.mock(BatchingUtils.class));
+                mock(BatchingUtils.class));
 
 
         bind(OdlInterfaceRpcService.class).toInstance(ElanEgressActionsHelper.newInstance(interfaceManagerCommonUtils,
@@ -129,7 +130,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         bind(ItmRpcService.class).toInstance(itmRpcService);
         bind(ItmRpcTestImpl.class).toInstance((ItmRpcTestImpl)itmRpcService);
         bind(DataImportBootReady.class).annotatedWith(OsgiService.class).toInstance(new DataImportBootReady() {});
-        bind(DiagStatusService.class).toInstance(Mockito.mock(DiagStatusService.class));
+        bind(DiagStatusService.class).toInstance(mock(DiagStatusService.class));
         bind(IVpnManager.class).toInstance(ivpnManager);
         bind(IBgpManager.class).toInstance(ibgpManager);
         bind(DataImportBootReady.class).toInstance(new DataImportBootReady() {});

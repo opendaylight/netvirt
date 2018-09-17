@@ -25,6 +25,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.exceptions.InterfaceAlreadyExistsException;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -37,6 +40,7 @@ import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.mdsal.eos.binding.api.Entity;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistration;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
@@ -54,6 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
@@ -93,6 +98,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     private final IInterfaceManager interfaceManager;
     private final ElanBridgeManager bridgeMgr;
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final ElanUtils elanUtils;
     private final SouthboundUtils southboundUtils;
     private final IMdsalApiManager mdsalManager;
@@ -114,6 +120,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         this.interfaceManager = interfaceManager;
         this.bridgeMgr = bridgeMgr;
         this.broker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.elanUtils = elanUtils;
         this.southboundUtils = southboundUtils;
         this.elanInstanceCache = elanInstanceCache;
@@ -867,10 +874,14 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             return;
         }
         String flowId = ArpResponderUtil.getFlowId(lportTag, ipAddress);
-        ArpResponderUtil.installFlow(mdsalManager, dpnId, flowId, flowId, NwConstants.DEFAULT_ARP_FLOW_PRIORITY,
+        Flow flowEntity =
+            MDSALUtil.buildFlowNew(NwConstants.ARP_RESPONDER_TABLE, flowId, NwConstants.DEFAULT_ARP_FLOW_PRIORITY,
+                flowId, 0, 0,
                 ArpResponderUtil.generateCookie(lportTag, ipAddress),
                 ArpResponderUtil.getMatchCriteria(lportTag, elanInstance, ipAddress),
                 arpResponderInput.getInstructions());
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+            tx -> mdsalManager.addFlow(tx, dpnId, flowEntity)), LOG, "Error adding flow {}", flowEntity);
         LOG.info("Installed the ARP Responder flow for Interface {}", ingressInterfaceName);
     }
 
@@ -891,9 +902,14 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
         int lportTag = arpResponderInput.getLportTag();
         String flowId = ArpResponderUtil.getFlowId(lportTag, ipAddress);
-        ArpResponderUtil.installFlow(mdsalManager, dpnId, flowId, flowId, NwConstants.DEFAULT_ARP_FLOW_PRIORITY,
-                ArpResponderUtil.generateCookie(lportTag, ipAddress), ArpResponderUtil.getMatchCriteria(lportTag,
-                        elanInstance, ipAddress), arpResponderInput.getInstructions());
+        Flow flowEntity =
+            MDSALUtil.buildFlowNew(NwConstants.ARP_RESPONDER_TABLE, flowId, NwConstants.DEFAULT_ARP_FLOW_PRIORITY,
+                flowId, 0, 0,
+                ArpResponderUtil.generateCookie(lportTag, ipAddress),
+                ArpResponderUtil.getMatchCriteria(lportTag, elanInstance, ipAddress),
+                arpResponderInput.getInstructions());
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+            tx -> mdsalManager.addFlow(tx, dpnId, flowEntity)), LOG, "Error adding flow {}", flowEntity);
         LOG.trace("Installed the ExternalTunnel ARP Responder flow for ElanInstance {}", elanInstanceName);
     }
 
