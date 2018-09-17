@@ -12,5 +12,6 @@ Contents:
    IGMPv3 Snooping <igmp-snooping>
    L3VPN Robustness <l3vpn-robustness>
    Neutron Quality of Service <qos>
+   Octavia Floating IP support <octavia-fip-support>
    Support Neutron BGPVPN API on OpenDaylight L3VPN Service <neutron-bgpvpn-api-support>
    Tap as a Service <Tap-as-a-Service>
