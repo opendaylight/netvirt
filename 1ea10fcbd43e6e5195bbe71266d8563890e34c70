@@ -586,6 +586,30 @@
       "revId": "1ea10fcbd43e6e5195bbe71266d8563890e34c70",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "78e4de36_c4e36bde",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1630,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T15:39:07Z",
+      "side": 1,
+      "message": "Got it.Please swap if and else if conditions and call getVpnForNetwork() in the else part.\nif (internetVPnId !\u003d null) {}\nelse { Uuid extNwId \u003d ...}",
+      "parentUuid": "39e2d78c_2d283744",
+      "range": {
+        "startLine": 1630,
+        "startChar": 18,
+        "endLine": 1630,
+        "endChar": 42
+      },
+      "revId": "1ea10fcbd43e6e5195bbe71266d8563890e34c70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
