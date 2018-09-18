@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d5422cc_6eaf7c01",
+        "filename": "docs/specs/neon/octavia-fip-support.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-09-18T12:39:51Z",
+      "side": 1,
+      "message": "there should be a gerrit filter block to reference the topic. All gerrits should have that topic.",
+      "revId": "6e8fe1c5bd85b8b11b2cf71c356b061b27b451e0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
