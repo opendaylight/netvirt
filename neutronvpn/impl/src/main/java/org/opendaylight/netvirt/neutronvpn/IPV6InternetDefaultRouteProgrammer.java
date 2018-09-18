@@ -27,6 +27,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,29 +36,41 @@ public class IPV6InternetDefaultRouteProgrammer {
 
     private static final Logger LOG = LoggerFactory.getLogger(IPV6InternetDefaultRouteProgrammer.class);
     private final IMdsalApiManager mdsalManager;
+    private final NeutronvpnUtils neutronvpnUtils;
 
     @Inject
-    public IPV6InternetDefaultRouteProgrammer(final IMdsalApiManager mdsalManager) {
+    public IPV6InternetDefaultRouteProgrammer(final IMdsalApiManager mdsalManager,
+                                              final NeutronvpnUtils neutronvpnUtils) {
         this.mdsalManager = mdsalManager;
+        this.neutronvpnUtils = neutronvpnUtils;
     }
 
-    private FlowEntity buildIPv6FallbacktoExternalVpn(BigInteger dpId, long bgpVpnId, long routerId, boolean add) {
+    private FlowEntity buildIPv6FallbacktoExternalVpn(BigInteger dpId, long internetBgpVpnId, Uuid routerName,
+                                                      long routerId, boolean add) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
-
+        long routerVpnId;
+        Uuid rtrVpnId = neutronvpnUtils.getVpnForRouter(routerName, true);
+        if (rtrVpnId == null) {
+            //If external BGP-VPN is not associated with router then routerId is same as routerVpnId
+            routerVpnId = routerId;
+        } else {
+            routerVpnId = neutronvpnUtils.getVpnId(rtrVpnId.getValue());
+        }
         //add match for router vpnId
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerVpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
         if (add) {
-            ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil.getVpnIdMetadata(bgpVpnId));
+            ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(
+                    MetaDataUtil.getVpnIdMetadata(internetBgpVpnId));
             listActionInfo.add(actionSetFieldMeta);
             listActionInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
             instructionInfo.add(new InstructionApplyActions(listActionInfo));
         }
         String defaultIPv6 = "0:0:0:0:0:0:0:0";
-        String flowRef = getIPv6FlowRefL3(dpId, NwConstants.L3_FIB_TABLE, defaultIPv6, routerId);
+        String flowRef = getIPv6FlowRefL3(dpId, NwConstants.L3_FIB_TABLE, defaultIPv6, routerVpnId);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef,
                 NwConstants.TABLE_MISS_PRIORITY, flowRef/* "L3 ipv6 internet default route",*/, 0, 0,
@@ -70,17 +83,18 @@ public class IPV6InternetDefaultRouteProgrammer {
      * This method installs in the FIB table the default route for IPv6.
      *
      * @param dpnId of the compute node
-     * @param bgpVpnId internetVpn id as long
+     * @param internetBgpVpnId internetVpn id as long
+     * @param routerName name of the router
      * @param routerId id of router associated to internet bgpvpn as long
      */
-    public void installDefaultRoute(BigInteger dpnId, long bgpVpnId, long routerId) {
-        FlowEntity flowEntity = buildIPv6FallbacktoExternalVpn(dpnId, bgpVpnId, routerId, true);
+    public void installDefaultRoute(BigInteger dpnId, long internetBgpVpnId, Uuid routerName, long routerId) {
+        FlowEntity flowEntity = buildIPv6FallbacktoExternalVpn(dpnId, internetBgpVpnId, routerName, routerId, true);
         LOG.trace("installDefaultRoute: flowEntity: {} ", flowEntity);
         mdsalManager.installFlow(flowEntity);
     }
 
-    public void removeDefaultRoute(BigInteger dpnId, long bgpVpnId, long routerId) {
-        FlowEntity flowEntity = buildIPv6FallbacktoExternalVpn(dpnId, bgpVpnId, routerId, false);
+    public void removeDefaultRoute(BigInteger dpnId, long internetBgpVpnId, Uuid routerName, long routerId) {
+        FlowEntity flowEntity = buildIPv6FallbacktoExternalVpn(dpnId, internetBgpVpnId, routerName, routerId, false);
         LOG.trace("removeDefaultRoute: flowEntity: {} ", flowEntity);
         mdsalManager.removeFlow(flowEntity);
     }
