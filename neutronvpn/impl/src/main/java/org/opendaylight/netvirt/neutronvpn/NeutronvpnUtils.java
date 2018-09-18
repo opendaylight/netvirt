@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -1661,7 +1662,7 @@ public class NeutronvpnUtils {
             LOG.error("updateVpnInstanceWithFallback: vpnInstanceOpDataEntry not found for vpn {}", vpnName);
             return;
         }
-        Long vpnId = vpnInstanceOpDataEntry.getVpnId();
+        Long internetBgpVpnId = vpnInstanceOpDataEntry.getVpnId();
         List<Uuid> routerIds = getRouterIdListforVpn(vpnName);
         if (routerIds == null || routerIds.isEmpty()) {
             LOG.error("updateVpnInstanceWithFallback: router not found for vpn {}", vpnName);
@@ -1675,13 +1676,11 @@ public class NeutronvpnUtils {
             if (dpnIds.isEmpty()) {
                 continue;
             }
-            VpnInstanceOpDataEntry vpnOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(rtrId.getValue());
-            Long routerIdAsLong = vpnOpDataEntry.getVpnId();
             for (BigInteger dpnId : dpnIds) {
                 if (add) {
-                    ipV6InternetDefRt.installDefaultRoute(dpnId, vpnId, routerIdAsLong);
+                    ipV6InternetDefRt.installDefaultRoute(dpnId, internetBgpVpnId, rtrId);
                 } else {
-                    ipV6InternetDefRt.removeDefaultRoute(dpnId, vpnId, routerIdAsLong);
+                    ipV6InternetDefRt.removeDefaultRoute(dpnId, internetBgpVpnId, rtrId);
                 }
             }
         }
@@ -1837,5 +1836,14 @@ public class NeutronvpnUtils {
         LOG.error("getSubnetmapListFromNetworkId: Failed as subnetIdList is null for network {}",
                 networkId.getValue());
         return null;
+    }
+
+    public long getVpnId(String vpnName) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
+                .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                        .VpnInstance::getVpnId).orElse(null);
     }
 }
