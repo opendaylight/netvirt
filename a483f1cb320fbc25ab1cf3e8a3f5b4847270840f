@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74a1ee6b_f1d53beb",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T09:19:54Z",
+      "side": 1,
+      "message": "whys this assignment required?\nEither use vpnInstanceInternetUuid or change it to internetVPnId",
+      "range": {
+        "startLine": 390,
+        "startChar": 33,
+        "endLine": 390,
+        "endChar": 56
+      },
+      "revId": "a483f1cb320fbc25ab1cf3e8a3f5b4847270840f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
