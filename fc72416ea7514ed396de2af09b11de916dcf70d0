@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb53e3bc_1e0c3029",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatSouthboundEventHandlers.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-09-18T06:38:05Z",
+      "side": 1,
+      "message": "remove does not require VIP state?",
+      "revId": "fc72416ea7514ed396de2af09b11de916dcf70d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "27b7fd2e_c7924f66",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VipStateTracker.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-09-18T06:38:05Z",
+      "side": 1,
+      "message": "Do we clean up the vip state at some place?",
+      "revId": "fc72416ea7514ed396de2af09b11de916dcf70d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
