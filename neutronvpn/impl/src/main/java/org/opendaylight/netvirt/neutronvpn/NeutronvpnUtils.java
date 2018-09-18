@@ -284,8 +284,22 @@ public class NeutronvpnUtils {
                 if (routerIdsList == null || routerIdsList.isEmpty()) {
                     continue;
                 }
-                //Skip if current VPN is already associated with network
-                if (vpnMap.getNetworkIds() != null) {
+                boolean isInternetBgpVpn = false;
+                //Skip router vpnId fetching from internet BGP-VPN
+                if (vpnMap.getNetworkIds() != null || !vpnMap.getNetworkIds().isEmpty()) {
+                    for (Uuid netId: vpnMap.getNetworkIds()) {
+                        Network network = getNeutronNetwork(netId);
+                        if (getIsExternal(network)) {
+                            isInternetBgpVpn = true;
+                        }
+                        /* If first network is not a external network then no need iterate
+                         * whole network list from the VPN
+                         */
+                        break;
+                    }
+                }
+                if (isInternetBgpVpn) {
+                    //skip further processing
                     continue;
                 }
                 List<Uuid> rtrIdsList = routerIdsList.stream().map(routerIds -> routerIds.getRouterId())
@@ -1627,11 +1641,11 @@ public class NeutronvpnUtils {
     public @Nonnull List<Uuid> getPrivateSubnetsToExport(@Nonnull Network extNet, Uuid internetVpnId) {
         List<Uuid> subList = new ArrayList<>();
         List<Uuid> rtrList = new ArrayList<>();
-        Uuid extNwVpnId = getVpnForNetwork(extNet.getUuid());
-        if (extNwVpnId != null) {
-            rtrList.addAll(getRouterIdListforVpn(extNwVpnId));
-        } else if (internetVpnId != null) {
+        if (internetVpnId != null) {
             rtrList.addAll(getRouterIdListforVpn(internetVpnId));
+        } else {
+            Uuid extNwVpnId = getVpnForNetwork(extNet.getUuid());
+            rtrList.addAll(getRouterIdListforVpn(extNwVpnId));
         }
         if (rtrList == null || rtrList.isEmpty()) {
             return subList;
@@ -1661,7 +1675,7 @@ public class NeutronvpnUtils {
             LOG.error("updateVpnInstanceWithFallback: vpnInstanceOpDataEntry not found for vpn {}", vpnName);
             return;
         }
-        Long vpnId = vpnInstanceOpDataEntry.getVpnId();
+        Long internetBgpVpnId = vpnInstanceOpDataEntry.getVpnId();
         List<Uuid> routerIds = getRouterIdListforVpn(vpnName);
         if (routerIds == null || routerIds.isEmpty()) {
             LOG.error("updateVpnInstanceWithFallback: router not found for vpn {}", vpnName);
@@ -1679,9 +1693,9 @@ public class NeutronvpnUtils {
             Long routerIdAsLong = vpnOpDataEntry.getVpnId();
             for (BigInteger dpnId : dpnIds) {
                 if (add) {
-                    ipV6InternetDefRt.installDefaultRoute(dpnId, vpnId, routerIdAsLong);
+                    ipV6InternetDefRt.installDefaultRoute(dpnId, internetBgpVpnId, rtrId, routerIdAsLong);
                 } else {
-                    ipV6InternetDefRt.removeDefaultRoute(dpnId, vpnId, routerIdAsLong);
+                    ipV6InternetDefRt.removeDefaultRoute(dpnId, internetBgpVpnId, rtrId, routerIdAsLong);
                 }
             }
         }
@@ -1837,5 +1851,14 @@ public class NeutronvpnUtils {
         LOG.error("getSubnetmapListFromNetworkId: Failed as subnetIdList is null for network {}",
                 networkId.getValue());
         return null;
+    }
+
+    public long getVpnId(String vpnName) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
+                .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                        .VpnInstance::getVpnId).orElse(null);
     }
 }
