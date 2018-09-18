@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba1ea925_8f85abec",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 923,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-18T12:47:22Z",
+      "side": 0,
+      "message": "Not Needed here. Since this is config VPN interface DS write operation. What ever the adjacency list we populated here, it is call with two times which is causing the problem for DS write. Since both the case DS key is only interface name.",
+      "parentUuid": "226d5fa2_8f660da9",
+      "range": {
+        "startLine": 921,
+        "startChar": 8,
+        "endLine": 923,
+        "endChar": 9
+      },
+      "revId": "5ea51d4cca42a6902a6438838ba545f878d01cf0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7e9be4c2_d3b69af3",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2018-09-18T09:19:54Z",
       "side": 0,
       "message": "Please delete this method now that its unused.",
+      "range": {
+        "startLine": 1655,
+        "startChar": 31,
+        "endLine": 1655,
+        "endChar": 58
+      },
+      "revId": "5ea51d4cca42a6902a6438838ba545f878d01cf0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "12f93d5c_e9e7a236",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1655,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-18T12:47:22Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "7e9be4c2_d3b69af3",
       "range": {
         "startLine": 1655,
         "startChar": 31,
