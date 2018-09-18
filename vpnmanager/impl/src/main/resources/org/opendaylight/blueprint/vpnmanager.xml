@@ -74,9 +74,8 @@
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilListener" />
   <odl:notification-listener ref="arpNotificationHandler" />
 
-  <service ref="ipv6NaNotificationHandler" odl:type="default"
-           interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.Ipv6NdUtilListener" />
-  <odl:notification-listener ref="ipv6NaNotificationHandler" />
+  <service ref="ipv6NaPacketListener"
+           interface="org.opendaylight.netvirt.ipv6service.api.IIpv6PacketListener" />
 
   <service ref="vpnManagerImpl"
            interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
