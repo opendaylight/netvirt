@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73c68ce0_37fe133a",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 835,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-09-18T11:53:26Z",
+      "side": 1,
+      "message": "why do we need this seperate transactionhistory/?",
+      "revId": "dcebeecf660952a82081e88d72fb4bf7ba1b4acc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87c91b2c_aa76707b",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-09-18T11:53:26Z",
+      "side": 1,
+      "message": "this is already taken care in dispath() right?",
+      "revId": "dcebeecf660952a82081e88d72fb4bf7ba1b4acc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "edb16f61_208bfb7e",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/ConfigureBgpCli.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-09-18T11:53:26Z",
+      "side": 1,
+      "message": "remove this change. no change in this file",
+      "revId": "dcebeecf660952a82081e88d72fb4bf7ba1b4acc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4f9a95b4_a47b71f4",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-09-18T11:53:26Z",
+      "side": 1,
+      "message": "is this required?",
+      "revId": "dcebeecf660952a82081e88d72fb4bf7ba1b4acc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
