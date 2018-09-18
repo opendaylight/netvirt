@@ -9,12 +9,14 @@
 package org.opendaylight.netvirt.bgpmanager;
 
 import java.io.PrintStream;
+import java.security.Timestamp;
 import java.util.Date;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.thrift.transport.TTransport;
 import org.opendaylight.netvirt.bgpmanager.commands.Cache;
+import org.opendaylight.ovsdb.utils.mdsal.utils.TransactionHistory;
 
 
 @Command(scope = "odl", name = "display-bgp-config", description = "")
@@ -23,6 +25,10 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
     @Option(name = "--debug", description = "print debug time stamps",
             required = false, multiValued = false)
     Boolean debug = false;
+
+    @Option(name = "--history", description = "print bgp updates",
+            required = false, multiValued = false)
+    Boolean showHistory = false;
 
     private final BgpManager bgpManager;
 
@@ -66,6 +72,19 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
             ps.printf("Total stale entries created %d %n", bgpManager.getBgpConfigurationManager()
                     .getTotalStaledCount());
             ps.printf("Total stale entries cleared %d %n", bgpManager.getBgpConfigurationManager().getTotalCleared());
+        }
+
+        if(showHistory) {
+            TransactionHistory bgpUpdatesHistory = bgpManager.getBgpConfigurationManager().getBgpUpdatesHistory();
+            ps.println("Size of history " + bgpUpdatesHistory.getElements().size());
+            bgpUpdatesHistory.getElements().forEach(update -> {
+               ps.println(update.getData());
+               ps.println();
+               Date date = new Date(update.getDate());
+               ps.println(date);
+            });
+
+
         }
         Cache cache = new Cache(bgpManager);
         return cache.show(session);
