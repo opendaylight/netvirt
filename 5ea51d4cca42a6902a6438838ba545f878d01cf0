@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "226d5fa2_8f660da9",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 923,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T09:19:54Z",
+      "side": 0,
+      "message": "is this not required for cases where gateway is already set, and then a new internet capable VM is booted?",
+      "range": {
+        "startLine": 921,
+        "startChar": 8,
+        "endLine": 923,
+        "endChar": 9
+      },
+      "revId": "5ea51d4cca42a6902a6438838ba545f878d01cf0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7e9be4c2_d3b69af3",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1655,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T09:19:54Z",
+      "side": 0,
+      "message": "Please delete this method now that its unused.",
+      "range": {
+        "startLine": 1655,
+        "startChar": 31,
+        "endLine": 1655,
+        "endChar": 58
+      },
+      "revId": "5ea51d4cca42a6902a6438838ba545f878d01cf0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

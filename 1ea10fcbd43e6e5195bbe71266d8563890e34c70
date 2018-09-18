@@ -1,0 +1,303 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b56d866e_db8f0268",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/IPV6InternetDefaultRouteProgrammer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T09:19:54Z",
+      "side": 1,
+      "message": "Can this only be routerId? A case where a router has gateway set to an external network, and also the same router is associated to an external bgpvpn, this ID will have to then be the external bgpvpnId right?",
+      "range": {
+        "startLine": 49,
+        "startChar": 68,
+        "endLine": 49,
+        "endChar": 76
+      },
+      "revId": "1ea10fcbd43e6e5195bbe71266d8563890e34c70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "72ea1040_6f7f0e94",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/IPV6InternetDefaultRouteProgrammer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T09:19:54Z",
+      "side": 1,
+      "message": "this is the internetVPnId right?",
+      "range": {
+        "startLine": 54,
+        "startChar": 105,
+        "endLine": 54,
+        "endChar": 113
+      },
+      "revId": "1ea10fcbd43e6e5195bbe71266d8563890e34c70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b739feed_9839877b",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T09:19:54Z",
+      "side": 1,
+      "message": "how was NAT handling router-gateway-deleted before?",
+      "range": {
+        "startLine": 194,
+        "startChar": 36,
+        "endLine": 194,
+        "endChar": 55
+      },
+      "revId": "1ea10fcbd43e6e5195bbe71266d8563890e34c70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "383b8ca6_75f0e8ad",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T09:19:54Z",
+      "side": 1,
+      "message": "Why is this required? VpnMaps is read in some v6 use cases? Is it OKAY to be updated for v4 NAT cases?",
+      "range": {
+        "startLine": 457,
+        "startChar": 33,
+        "endLine": 459,
+        "endChar": 40
+      },
+      "revId": "1ea10fcbd43e6e5195bbe71266d8563890e34c70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cbf1a7cc_8aaacfe7",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 980,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T09:19:54Z",
+      "side": 1,
+      "message": "Rename to removeInternetVpnFromInterface or something similar, since this method is not used to do anything else but that.",
+      "range": {
+        "startLine": 980,
+        "startChar": 24,
+        "endLine": 980,
+        "endChar": 43
+      },
+      "revId": "1ea10fcbd43e6e5195bbe71266d8563890e34c70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "abd6d7bb_c1751442",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2477,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T09:19:54Z",
+      "side": 1,
+      "message": "use isVersionChosen(). You wont need to use two conditions here.",
+      "range": {
+        "startLine": 2477,
+        "startChar": 62,
+        "endLine": 2477,
+        "endChar": 69
+      },
+      "revId": "1ea10fcbd43e6e5195bbe71266d8563890e34c70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "009af8cb_7404ac11",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2605,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T09:19:54Z",
+      "side": 1,
+      "message": "same comment as above",
+      "range": {
+        "startLine": 2605,
+        "startChar": 32,
+        "endLine": 2605,
+        "endChar": 71
+      },
+      "revId": "1ea10fcbd43e6e5195bbe71266d8563890e34c70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a55ca30c_df9f2f7c",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 3326,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T09:19:54Z",
+      "side": 1,
+      "message": "Is the type not set to BGPVPNInternet as soon as an external network is added to a bgpvpn?\nIf not, then that would be the right thing to do I think. because, you can have n private subnets attached to the router, and for all the subnets, you will be calling thsi update which is not necessary.\nWhenever an external network is associatd to a bgppvn, set the type as bgpvpninternet",
+      "range": {
+        "startLine": 3326,
+        "startChar": 44,
+        "endLine": 3326,
+        "endChar": 71
+      },
+      "revId": "1ea10fcbd43e6e5195bbe71266d8563890e34c70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67fc2d1b_180f0897",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 3329,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T09:19:54Z",
+      "side": 1,
+      "message": "call this only if neutronvpnUtils.shouldVpnHandleIpVersionChoiceChange()",
+      "range": {
+        "startLine": 3329,
+        "startChar": 20,
+        "endLine": 3329,
+        "endChar": 47
+      },
+      "revId": "1ea10fcbd43e6e5195bbe71266d8563890e34c70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e69e51d_5c416503",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 3335,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T09:19:54Z",
+      "side": 1,
+      "message": "please check comments for addV6Private...()",
+      "range": {
+        "startLine": 3335,
+        "startChar": 25,
+        "endLine": 3335,
+        "endChar": 39
+      },
+      "revId": "1ea10fcbd43e6e5195bbe71266d8563890e34c70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "15fd0d6f_50f7afba",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T09:19:54Z",
+      "side": 1,
+      "message": "please add a comment as to what this parameter is. Please do so at all places where you pass null for internetVpnId",
+      "range": {
+        "startLine": 423,
+        "startChar": 81,
+        "endLine": 423,
+        "endChar": 83
+      },
+      "revId": "1ea10fcbd43e6e5195bbe71266d8563890e34c70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1e845415_b2f1a4a6",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T09:19:54Z",
+      "side": 1,
+      "message": "Why is this check added? A vpn can have both network and router associations. In such case, we should not continue, but take the routerIdList and check for the required routerID.",
+      "range": {
+        "startLine": 287,
+        "startChar": 16,
+        "endLine": 290,
+        "endChar": 17
+      },
+      "revId": "1ea10fcbd43e6e5195bbe71266d8563890e34c70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b5153a6a_38c27d6b",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1630,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-18T09:19:54Z",
+      "side": 1,
+      "message": "wont internetVpnId be the same as extNeVpnId?\nCan you get the rtrList for internetVpnId if its not null?",
+      "range": {
+        "startLine": 1630,
+        "startChar": 18,
+        "endLine": 1630,
+        "endChar": 42
+      },
+      "revId": "1ea10fcbd43e6e5195bbe71266d8563890e34c70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
