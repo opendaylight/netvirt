@@ -16,6 +16,8 @@ public interface BgpConstants {
     String DEFAULT_BGP_HOST_NAME = "localhost";
     int DEFAULT_BGP_THRIFT_PORT = 7644;
     int BGP_NOTIFY_CEASE_CODE = 6;
+    int HISTORY_LIMIT = 10000;
+    int HISTORY_THRESHOLD = 7500;
     String QBGP_VTY_PASSWORD = "sdncbgpc";
     String BGP_COUNTER_NBR_PKTS_RX = "BgpNeighborPacketsReceived";
     String BGP_COUNTER_NBR_PKTS_TX = "BgpNeighborPacketsSent";
@@ -24,4 +26,5 @@ public interface BgpConstants {
     String BGP_DEF_LOG_LEVEL = "debugging";
     String BGP_DEF_LOG_FILE = "/opt/quagga/var/log/quagga/zrpc.init.log";
     long DEFAULT_ETH_TAG = 0L;
+
 }

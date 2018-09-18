@@ -7,6 +7,10 @@
  */
 package org.opendaylight.netvirt.bgpmanager;
 
+import static org.opendaylight.netvirt.bgpmanager.oam.BgpConstants.HISTORY_LIMIT;
+import static org.opendaylight.netvirt.bgpmanager.oam.BgpConstants.HISTORY_THRESHOLD;
+import static org.opendaylight.ovsdb.utils.mdsal.utils.TransactionType.ADD;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
@@ -79,6 +83,7 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 import org.opendaylight.netvirt.bgpmanager.thrift.server.BgpThriftService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
+import org.opendaylight.ovsdb.utils.mdsal.utils.TransactionHistory;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
@@ -135,6 +140,8 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+
 @Singleton
 public class BgpConfigurationManager {
     private static final Logger LOG = LoggerFactory.getLogger(BgpConfigurationManager.class);
@@ -158,6 +165,7 @@ public class BgpConfigurationManager {
     private static final String BGP_EOR_DELAY = "vpnservice.bgp.eordelay";
     private static final String DEF_BGP_EOR_DELAY = "1800";
     private static final String BGP_ENTITY_NAME = "bgp";
+
     private static final String ADD_WARN = "Config store updated; undo with Delete if needed.";
     private static final String DEL_WARN = "Config store updated; undo with Add if needed.";
     private static final String UPD_WARN = "Update operation not supported; Config store updated;"
@@ -229,6 +237,8 @@ public class BgpConfigurationManager {
     private final EntityOwnershipCandidateRegistration candidateRegistration;
     private final EntityOwnershipListenerRegistration entityListenerRegistration;
     private final MetricProvider metricProvider;
+    private final TransactionHistory bgpUpdatesHistory;
+
 
     @Inject
     public BgpConfigurationManager(final DataBroker dataBroker,
@@ -243,6 +253,7 @@ public class BgpConfigurationManager {
         this.vpnLinkService = vpnLinkSrvce;
         this.bundleContext = bundleContext;
         this.bgpUtil = bgpUtil;
+        bgpUpdatesHistory = new TransactionHistory(HISTORY_LIMIT, HISTORY_THRESHOLD);
         this.metricProvider = metricProvider;
         String updatePort = getProperty(UPDATE_PORT, DEF_UPORT);
         hostStartup = getProperty(CONFIG_HOST, DEF_CHOST);
@@ -250,7 +261,7 @@ public class BgpConfigurationManager {
         LOG.info("ConfigServer at {}:{}", hostStartup, portStartup);
         VtyshCli.setHostAddr(hostStartup);
         ClearBgpCli.setHostAddr(hostStartup);
-        bgpRouter = BgpRouter.newInstance(this::getConfig, this::isBGPEntityOwner);
+        bgpRouter = BgpRouter.newInstance(this::getConfig, this::isBGPEntityOwner, bgpUpdatesHistory);
         delayEorSeconds = Integer.parseInt(getProperty(BGP_EOR_DELAY, DEF_BGP_EOR_DELAY));
 
         entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
@@ -309,6 +320,10 @@ public class BgpConfigurationManager {
 
     public void setStaleCleanupTime(long staleCleanupTime) {
         this.staleCleanupTime = staleCleanupTime;
+    }
+
+    public TransactionHistory getBgpUpdatesHistory() {
+        return bgpUpdatesHistory;
     }
 
     public long getCfgReplayEndTime() {
@@ -818,6 +833,8 @@ public class BgpConfigurationManager {
 
         private static final String YANG_OBJ = "neighbors ";
 
+
+
         public NeighborsReactor() {
             super(Neighbors.class, NeighborsReactor.class);
         }
@@ -839,9 +856,7 @@ public class BgpConfigurationManager {
                     return;
                 }
                 try {
-                    //itmProvider.buildTunnelsToDCGW(new IpAddress(peerIp.toCharArray()));
                     br.addNeighbor(peerIp, as, md5Secret);
-
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
@@ -1847,6 +1862,9 @@ public class BgpConfigurationManager {
 
     public void onUpdatePushRoute(protocol_type protocolType, String rd, String prefix, int plen, String nextHop,
                                   String macaddress, int label, int l2label, String routermac, af_afi afi) {
+        PrefixUpdateEvent prefixUpdateEvent = new PrefixUpdateEvent(protocolType,rd,prefix,plen,nextHop,
+             macaddress,label,l2label,routermac,afi);
+        bgpUpdatesHistory.addToHistory(ADD, prefixUpdateEvent);
         boolean addroute = false;
         boolean macupdate = false;
         long l3vni = 0L;
@@ -1917,6 +1935,9 @@ public class BgpConfigurationManager {
 
     public void onUpdateWithdrawRoute(protocol_type protocolType, String rd, String prefix, int plen, String nextHop,
             String macaddress) {
+        PrefixWithdrawEvent prefixWithdrawEvent = new PrefixWithdrawEvent(protocolType,rd,prefix,plen,
+              nextHop,macaddress);
+        bgpUpdatesHistory.addToHistory(ADD, prefixWithdrawEvent);
         long vni = 0L;
         boolean macupdate = false;
         if (protocolType.equals(protocol_type.PROTOCOL_EVPN)) {
