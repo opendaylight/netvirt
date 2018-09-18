@@ -392,8 +392,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
     }
 
     protected void deleteRoute() {
-        bgpConfigurationManager.onUpdateWithdrawRoute(protocol_type.PROTOCOL_EVPN, rd, prefix,
-                0, nexthop, mac);
+        bgpConfigurationManager.onUpdateWithdrawRoute(protocol_type.PROTOCOL_EVPN, rd, prefix, 0, nexthop, mac);
     }
 
     private boolean validateIp(String inputIp) {
