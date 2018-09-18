@@ -11,37 +11,38 @@ package org.opendaylight.netvirt.vpnmanager.iplearn.ipv6;
 import java.math.BigInteger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.netvirt.ipv6service.api.IIpv6PacketListener;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.AbstractIpLearnNotificationHandler;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.Ipv6NdUtilListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.NaReceived;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.NeighborAdvertisePacket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.PacketMetadata;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class Ipv6NaNotificationHandler extends AbstractIpLearnNotificationHandler implements Ipv6NdUtilListener {
+public class Ipv6NaPacketListener extends AbstractIpLearnNotificationHandler implements IIpv6PacketListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Ipv6NaNotificationHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Ipv6NaPacketListener.class);
 
     @Inject
-    public Ipv6NaNotificationHandler(DataBroker dataBroker, IdManagerService idManager,
-                                     IInterfaceManager interfaceManager, VpnConfig vpnConfig, VpnUtil vpnUtil) {
-        super(dataBroker, idManager, interfaceManager, vpnConfig, vpnUtil);
+    public Ipv6NaPacketListener(VpnConfig vpnConfig, VpnUtil vpnUtil) {
+        super(vpnConfig, vpnUtil);
     }
 
     @Override
-    public void onNaReceived(NaReceived naPacket) {
-        String srcInterface = naPacket.getInterface();
+    public void onNaReceived(NeighborAdvertisePacket naPacket) {
+        PacketMetadata pktMetadata = naPacket.augmentation(PacketMetadata.class);
+        if (pktMetadata == null) {
+            return;
+        }
+        String srcInterface = pktMetadata.getInterface();
         IpAddress srcIP = new IpAddress(naPacket.getSourceIpv6());
         MacAddress srcMac = naPacket.getSourceMac();
         IpAddress targetIP = new IpAddress(naPacket.getTargetAddress());
-        BigInteger metadata = naPacket.getMetadata();
+        BigInteger metadata = pktMetadata.getMetadata();
         LOG.debug("NA notification received from interface {} and IP {} having MAC {}, targetIP={}", srcInterface,
                 srcIP.stringValue(), srcMac.getValue(), targetIP.stringValue());
 
