@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.ipv6service;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -19,15 +18,16 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.genius.ipv6util.api.Icmpv6Type;
 import org.opendaylight.genius.ipv6util.api.Ipv6Constants;
 import org.opendaylight.genius.ipv6util.api.Ipv6Constants.Ipv6RouterAdvertisementType;
 import org.opendaylight.genius.ipv6util.api.Ipv6Util;
+import org.opendaylight.genius.ipv6util.api.decoders.Ipv6NaDecoder;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.netvirt.ipv6service.api.IIpv6PacketListener;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.openflowplugin.libraries.liblldp.BitBufferHelper;
 import org.opendaylight.openflowplugin.libraries.liblldp.BufferException;
@@ -41,7 +41,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev16
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.NeighborSolicitationPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.RouterSolicitationPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.RouterSolicitationPacketBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.NaReceivedBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.PacketMetadata;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.util.rev170210.PacketMetadataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
@@ -50,7 +51,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,16 +60,15 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
     private final AtomicLong pktProccessedCounter = new AtomicLong(0);
     private final PacketProcessingService pktService;
     private final IfMgr ifMgr;
-    private final NotificationPublishService notificationPublishService;
+    private final IIpv6PacketListener ipv6PktListener;
 
     private final ExecutorService packetProcessor = Executors.newCachedThreadPool();
 
     @Inject
-    public Ipv6PktHandler(PacketProcessingService pktService, IfMgr ifMgr,
-            NotificationPublishService notificationPublishService) {
+    public Ipv6PktHandler(PacketProcessingService pktService, IfMgr ifMgr, IIpv6PacketListener ipv6PktListener) {
         this.pktService = pktService;
         this.ifMgr = ifMgr;
-        this.notificationPublishService = notificationPublishService;
+        this.ipv6PktListener = ipv6PktListener;
     }
 
     @Override
@@ -406,7 +405,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             byte[] data = packet.getPayload();
             NeighborAdvertisePacket naPdu;
             try {
-                naPdu = deserializeNAPacket(data);
+                naPdu = new Ipv6NaDecoder(data).decode();
             } catch (UnknownHostException | BufferException e) {
                 LOG.warn("Exception occured during deserializing NA packet", e);
                 return;
@@ -424,75 +423,16 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
             String interfaceName = ifMgr.getInterfaceNameFromTag(portTag);
 
-            NaReceivedBuilder naReceivedBuilder = new NaReceivedBuilder().setSourceMac(naPdu.getSourceMac())
-                    .setDestinationMac(naPdu.getDestinationMac()).setSourceIpv6(naPdu.getSourceIpv6())
-                    .setDestinationIpv6(naPdu.getDestinationIpv6()).setTargetAddress(naPdu.getTargetAddress())
-                    .setTargetLlAddress(naPdu.getTargetLlAddress()).setOfTableId((long) tableId).setMetadata(metadata)
-                    .setInterface(interfaceName);
-            fireNotification(naReceivedBuilder.build());
-        }
-
-        private NeighborAdvertisePacket deserializeNAPacket(byte[] data) throws BufferException, UnknownHostException {
-            NeighborAdvertisePacketBuilder naPdu = new NeighborAdvertisePacketBuilder();
-            int bitOffset = 0;
-
-            naPdu.setDestinationMac(
-                    new MacAddress(Ipv6Util.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
-            bitOffset = bitOffset + 48;
-            naPdu.setSourceMac(
-                    new MacAddress(Ipv6Util.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
-            bitOffset = bitOffset + 48;
-            naPdu.setEthertype(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-
-            bitOffset = Ipv6Constants.IP_V6_HDR_START;
-            naPdu.setVersion(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 4)));
-            bitOffset = bitOffset + 4;
-            naPdu.setFlowLabel(BitBufferHelper.getLong(BitBufferHelper.getBits(data, bitOffset, 28)));
-            bitOffset = bitOffset + 28;
-            naPdu.setIpv6Length(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-            bitOffset = bitOffset + 16;
-            naPdu.setNextHeader(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-            bitOffset = bitOffset + 8;
-            naPdu.setHopLimit(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-            bitOffset = bitOffset + 8;
-            naPdu.setSourceIpv6(Ipv6Address.getDefaultInstance(
-                    InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset, 128)).getHostAddress()));
-            bitOffset = bitOffset + 128;
-            naPdu.setDestinationIpv6(Ipv6Address.getDefaultInstance(
-                    InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset, 128)).getHostAddress()));
-            bitOffset = bitOffset + 128;
-
-            naPdu.setIcmp6Type(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-            bitOffset = bitOffset + 8;
-            naPdu.setIcmp6Code(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-            bitOffset = bitOffset + 8;
-            naPdu.setIcmp6Chksum(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
-            bitOffset = bitOffset + 16;
-            naPdu.setFlags(BitBufferHelper.getLong(BitBufferHelper.getBits(data, bitOffset, 32)));
-            bitOffset = bitOffset + 32;
-            naPdu.setTargetAddress(Ipv6Address.getDefaultInstance(
-                    InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset, 128)).getHostAddress()));
-
-            if (naPdu.getIpv6Length() > Ipv6Constants.ICMPV6_NA_LENGTH_WO_OPTIONS) {
-                bitOffset = bitOffset + 128;
-                naPdu.setOptionType(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-                bitOffset = bitOffset + 8;
-                naPdu.setTargetAddrLength(BitBufferHelper.getShort(BitBufferHelper.getBits(data, bitOffset, 8)));
-                bitOffset = bitOffset + 8;
-                if (naPdu.getOptionType() == Ipv6Constants.ICMP_V6_OPTION_TARGET_LLA) {
-                    naPdu.setTargetLlAddress(new MacAddress(
-                            Ipv6Util.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
-                }
-            }
-            return naPdu.build();
+            NeighborAdvertisePacket naPacket = new NeighborAdvertisePacketBuilder(naPdu)
+                    .addAugmentation(PacketMetadata.class, new PacketMetadataBuilder().setOfTableId((long) tableId)
+                            .setMetadata(metadata).setInterface(interfaceName).build())
+                    .build();
+            fireNaNotification(naPacket);
         }
     }
 
-    private void fireNotification(Notification notification) {
-        ListenableFuture<?> offerNotification = notificationPublishService.offerNotification(notification);
-        if (offerNotification != null && offerNotification.equals(NotificationPublishService.REJECTED)) {
-            LOG.warn("Offered Notification was rejected: {}", notification);
-        }
+    private void fireNaNotification(NeighborAdvertisePacket naPacket) {
+        ipv6PktListener.onNaReceived(naPacket);
     }
 
     @Override
