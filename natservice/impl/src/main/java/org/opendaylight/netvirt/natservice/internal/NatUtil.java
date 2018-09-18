@@ -698,8 +698,23 @@ public final class NatUtil {
                 if (routerIdsList == null || routerIdsList.isEmpty()) {
                     return null;
                 }
-                //Skip if current VPN is already associated with network
+                //Skip router vpnId fetching from internet BGP-VPN
+                boolean isInternetBgpVpn = false;
                 if (vpnMap.getNetworkIds() != null) {
+                    for (Uuid netId: vpnMap.getNetworkIds()) {
+                        if (isExternalNetwork(broker, netId)) {
+                            isInternetBgpVpn = true;
+                            break;
+                        } else {
+                            /* If first network is not a external network then no need iterate
+                             * whole network list from the VPN
+                             */
+                            break;
+                        }
+                    }
+                }
+                if (isInternetBgpVpn) {
+                    //skip further processing
                     continue;
                 }
                 if (routerIdsList.contains(new Uuid(routerId))) {
@@ -2402,6 +2417,17 @@ public final class NatUtil {
             return true;
         }
         LOG.debug("getSwitchStatus : Switch {} is down", nodeId);
+        return false;
+    }
+
+    public static boolean isExternalNetwork(DataBroker broker, Uuid networkId) {
+        InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
+        Optional<Networks> networkData =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
+                        broker, LogicalDatastoreType.CONFIGURATION, id);
+        if (networkData.isPresent()) {
+            return true;
+        }
         return false;
     }
 }
