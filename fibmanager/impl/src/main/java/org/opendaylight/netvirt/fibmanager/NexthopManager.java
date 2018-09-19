@@ -866,10 +866,9 @@ public class NexthopManager implements AutoCloseable {
                         remoteGroupEntity.getGroupId(), localGroupEntity.getGroupId(),
                         remoteGroupEntity.getGroupType());
             }
-            // Delete local group(if exists) if there is no local info or no remote info.
+            // Delete local group(if exists) if there is no local info.
             // Local group has to be deleted if all VMs in a compute is deleted.
-            // Local group(=remote group) is not required if all next hops are present in the same compute.
-            if (localBucketInfo.isEmpty() ^ remoteBucketInfo.isEmpty()) {
+            if (localBucketInfo.isEmpty()) {
                 LOG.debug("Deleting local group {} since no local nhs present for "
                         + "prefix {}", localGroupEntity.getGroupId(), destPrefix);
                 mdsalApiManager.syncRemoveGroup(localGroupEntity);
