@@ -66,7 +66,7 @@ public class VtyshCli extends OsgiCommandSupport {
         cmd = cmd.trim();
         if (cmd.equals("") || cmd.equals("help") || cmd.equals("-help") || cmd.equals("--help")) {
             for (String help : validCommands) {
-                session.getConsole().println(help);
+                System.out.println(help);
             }
             return null;
         }
@@ -76,7 +76,7 @@ public class VtyshCli extends OsgiCommandSupport {
         }
         String firstArg = args[0];
         if (firstArg == null || firstArg.trim().equals("")) {
-            session.getConsole().println("Please provide a valid input.");
+            System.out.println("Please provide a valid input.");
             return null;
         }
         switch (firstArg) {
@@ -89,7 +89,7 @@ public class VtyshCli extends OsgiCommandSupport {
                 handlerModule = BGPD;
                 break;
             default:
-                session.getConsole().println("Unknown command");
+                System.out.println("Unknown command");
                 return null;
         }
 
@@ -98,7 +98,7 @@ public class VtyshCli extends OsgiCommandSupport {
                 try {
                     handleCommand(cmd);
                 } catch (IOException ioe) {
-                    session.getConsole().println("IOException thrown.");
+                    System.out.println("IOException thrown.");
                 }
                 break;
             default:
@@ -115,6 +115,7 @@ public class VtyshCli extends OsgiCommandSupport {
         return serverName;
     }
 
+    @SuppressWarnings("checkstyle:RegexpSinglelineJava")
     public void handleCommand(String command) throws IOException {
         char[] cbuf = new char[10];
         Socket socket;
@@ -133,10 +134,10 @@ public class VtyshCli extends OsgiCommandSupport {
             socket = new Socket(serverName, SERVER_PORT);
 
         } catch (UnknownHostException ioe) {
-            session.getConsole().println("No host exists: " + ioe.getMessage());
+            System.out.println("No host exists: " + ioe.getMessage());
             return;
         } catch (IOException ioe) {
-            session.getConsole().println("I/O error occured " + ioe.getMessage());
+            System.out.println("I/O error occured " + ioe.getMessage());
             return;
         }
         try {
@@ -145,7 +146,7 @@ public class VtyshCli extends OsgiCommandSupport {
             inFromSocket = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         } catch (IOException ioe) {
-            session.getConsole().println("IOException thrown.");
+            System.out.println("IOException thrown.");
             socket.close();
             return;
         }
@@ -154,12 +155,12 @@ public class VtyshCli extends OsgiCommandSupport {
                 ret = inFromSocket.read(cbuf);
 
             } catch (SocketTimeoutException ste) {
-                session.getConsole().println("Read from Socket timed Out while asking for password.");
+                System.out.println("Read from Socket timed Out while asking for password.");
                 socket.close();
                 return;
             }
             if (ret == -1) {
-                session.getConsole().println("Connection closed by BGPd.");
+                System.out.println("Connection closed by BGPd.");
                 socket.close();
                 return;
             } else {
@@ -178,8 +179,8 @@ public class VtyshCli extends OsgiCommandSupport {
             try {
                 ip = inFromSocket.read();
             } catch (SocketTimeoutException ste) {
-                session.getConsole().println(sb.toString());
-                session.getConsole().println("Read from Socket timed Out while verifying the password.");
+                System.out.println(sb.toString());
+                System.out.println("Read from Socket timed Out while verifying the password.");
                 socket.close();
                 return;
             }
@@ -191,8 +192,8 @@ public class VtyshCli extends OsgiCommandSupport {
                 }
                 break;
             } else if (ip == -1) {
-                session.getConsole().println(sb.toString());
-                session.getConsole().println("Connection closed by BGPd.");
+                System.out.println(sb.toString());
+                System.out.println("Connection closed by BGPd.");
                 socket.close();
                 return;
             } else {
@@ -209,16 +210,16 @@ public class VtyshCli extends OsgiCommandSupport {
             try {
                 ip = inFromSocket.read();
             } catch (SocketTimeoutException ste) {
-                session.getConsole().println(sb.toString());
-                session.getConsole().println("Read from Socket timed Out while sending the term len command..");
+                System.out.println(sb.toString());
+                System.out.println("Read from Socket timed Out while sending the term len command..");
                 socket.close();
                 return;
             }
             if (ip == gt || ip == hashChar) {
                 break;
             } else if (ip == -1) {
-                session.getConsole().println(sb.toString());
-                session.getConsole().println("Connection closed by BGPd.");
+                System.out.println(sb.toString());
+                System.out.println("Connection closed by BGPd.");
                 socket.close();
                 return;
             } else {
@@ -272,9 +273,9 @@ public class VtyshCli extends OsgiCommandSupport {
             }
             temp.setLength(0);
         }
-        session.getConsole().println(output.toString().trim());
+        System.out.println(output.toString().trim());
         if (errorMsg.length() > 0) {
-            session.getConsole().println(errorMsg);
+            System.out.println(errorMsg);
         }
         socket.close();
     }
