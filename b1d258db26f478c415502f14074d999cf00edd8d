@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8d374695_bd78891e",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 703,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-19T09:17:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "60b94d0b_936c0b42",
+      "range": {
+        "startLine": 703,
+        "startChar": 48,
+        "endLine": 703,
+        "endChar": 52
+      },
+      "revId": "b1d258db26f478c415502f14074d999cf00edd8d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae92195c_4ca9f2bc",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "79a8e6f9_b79a0723",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 712,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-19T09:17:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae92195c_4ca9f2bc",
+      "range": {
+        "startLine": 707,
+        "startChar": 28,
+        "endLine": 712,
+        "endChar": 34
+      },
+      "revId": "b1d258db26f478c415502f14074d999cf00edd8d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8381837a_bd3a0ac3",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/IPV6InternetDefaultRouteProgrammer.java",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2018-09-19T08:52:06Z",
       "side": 1,
       "message": "Please try to avoid the additional read. dont default it. if the value returned by getVpnForRouter .equals(routerId), use the routerVpnId directly(pass it from caller as before.)\nElse, try to get the vpnId.",
+      "range": {
+        "startLine": 56,
+        "startChar": 21,
+        "endLine": 57,
+        "endChar": 30
+      },
+      "revId": "b1d258db26f478c415502f14074d999cf00edd8d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b4489741_09fd840e",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/IPV6InternetDefaultRouteProgrammer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-19T09:17:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8381837a_bd3a0ac3",
       "range": {
         "startLine": 56,
         "startChar": 21,
