@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "21705a74_4cc73f72",
+        "filename": "natservice/api/src/main/java/org/opendaylight/netvirt/natservice/api/SnatServiceListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-09-19T06:58:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "497eda74_1e487819",
+      "range": {
+        "startLine": 18,
+        "startChar": 22,
+        "endLine": 18,
+        "endChar": 45
+      },
+      "revId": "07575c0ba7848883c3c795ad7fda8ef598541fe6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f4b5cf1b_0c65c98a",
         "filename": "natservice/api/src/main/java/org/opendaylight/netvirt/natservice/api/SnatServiceListener.java",
         "patchSetId": 10
@@ -36,6 +60,30 @@
       "writtenOn": "2018-09-19T06:22:33Z",
       "side": 1,
       "message": "ditto",
+      "range": {
+        "startLine": 38,
+        "startChar": 22,
+        "endLine": 38,
+        "endChar": 45
+      },
+      "revId": "07575c0ba7848883c3c795ad7fda8ef598541fe6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2a96c5a9_b55e185a",
+        "filename": "natservice/api/src/main/java/org/opendaylight/netvirt/natservice/api/SnatServiceListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-09-19T06:58:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f4b5cf1b_0c65c98a",
       "range": {
         "startLine": 38,
         "startChar": 22,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "dcbf0eab_9841a65c",
+        "filename": "natservice/api/src/main/java/org/opendaylight/netvirt/natservice/api/SnatServiceListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-09-19T06:58:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e1373422_60a4d316",
+      "range": {
+        "startLine": 43,
+        "startChar": 89,
+        "endLine": 43,
+        "endChar": 91
+      },
+      "revId": "07575c0ba7848883c3c795ad7fda8ef598541fe6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ea89ad3_2e6b973c",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
         "patchSetId": 10
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "ceed96f7_eeedd2e8",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-09-19T06:58:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ea89ad3_2e6b973c",
+      "range": {
+        "startLine": 129,
+        "startChar": 23,
+        "endLine": 129,
+        "endChar": 59
+      },
+      "revId": "07575c0ba7848883c3c795ad7fda8ef598541fe6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "135aa353_0b4a3703",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SnatServiceManagerImpl.java",
         "patchSetId": 10
@@ -105,6 +201,24 @@
       "writtenOn": "2018-09-19T06:22:33Z",
       "side": 1,
       "message": "A small comment here on the difference between CNT_ROUTER_ALL_SWITCH_ENBL and SNAT_ALL_SWITCH_ENBL would help.",
+      "revId": "07575c0ba7848883c3c795ad7fda8ef598541fe6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f6fc8a52_d8f8a915",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SnatServiceManagerImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-09-19T06:58:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "135aa353_0b4a3703",
       "revId": "07575c0ba7848883c3c795ad7fda8ef598541fe6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
