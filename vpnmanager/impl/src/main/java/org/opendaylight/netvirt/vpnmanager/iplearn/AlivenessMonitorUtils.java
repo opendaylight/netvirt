@@ -25,13 +25,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.EtherTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorProfileCreateInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorProfileCreateInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorProfileCreateOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorProfileGetInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorProfileGetInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorProfileGetOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorProtocolType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorStartInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorStartInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorStartOutput;
@@ -160,21 +160,21 @@ public final class AlivenessMonitorUtils {
 
     public Optional<Long> allocateArpMonitorProfile() {
         return allocateProfile(ArpConstants.FAILURE_THRESHOLD, ArpConstants.ARP_CACHE_TIMEOUT_MILLIS,
-                ArpConstants.MONITORING_WINDOW, EtherTypes.Arp);
+                ArpConstants.MONITORING_WINDOW, MonitorProtocolType.Arp);
     }
 
     public Optional<Long> allocateIpv6NaMonitorProfile() {
         Long monitorInterval = vpnConfig.getIpv6NdMonitorInterval() * 1000; // converting to milliseconds
         return allocateProfile(vpnConfig.getIpv6NdMonitorFailureThreshold(), monitorInterval,
-                vpnConfig.getIpv6NdMonitorWindow(), EtherTypes.Ipv6Nd);
+                vpnConfig.getIpv6NdMonitorWindow(), MonitorProtocolType.Ipv6Nd);
     }
 
     public Optional<Long> allocateProfile(long failureThreshold, long monitoringInterval, long monitoringWindow,
-            EtherTypes etherTypes) {
+            MonitorProtocolType protocolType) {
         MonitorProfileCreateInput input = new MonitorProfileCreateInputBuilder()
             .setProfile(new ProfileBuilder().setFailureThreshold(failureThreshold)
                 .setMonitorInterval(monitoringInterval).setMonitorWindow(monitoringWindow)
-                .setProtocolType(etherTypes).build()).build();
+                .setProtocolType(protocolType).build()).build();
         return createMonitorProfile(input);
     }
 
@@ -214,7 +214,7 @@ public final class AlivenessMonitorUtils {
     }
 
     private MonitorProfileGetInput buildMonitorGetProfile(long monitorInterval, long monitorWindow,
-                                                          long failureThreshold, EtherTypes protocolType) {
+            long failureThreshold, MonitorProtocolType protocolType) {
         MonitorProfileGetInputBuilder buildGetProfile = new MonitorProfileGetInputBuilder();
         org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.profile.get.input
             .ProfileBuilder
