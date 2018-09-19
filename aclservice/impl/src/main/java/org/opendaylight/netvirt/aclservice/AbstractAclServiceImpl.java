@@ -693,10 +693,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                     syncRemoteAclTable(portId, aclId, aclTag, aaps, addOrRemove);
                 }
                 else if (addOrRemove == NwConstants.DEL_FLOW) {
-                    jobCoordinator.enqueueJob(aclId.getValue().intern(),
-                        () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                            syncRemoteAclTable(portId, aclId, aclTag, aaps, addOrRemove);
-                        })));
+                    jobCoordinator.enqueueJob(aclId.getValue().intern(), () -> {
+                        syncRemoteAclTable(portId, aclId, aclTag, aaps, addOrRemove);
+                        return Collections.emptyList();
+                    });
                 }
             }
         }
