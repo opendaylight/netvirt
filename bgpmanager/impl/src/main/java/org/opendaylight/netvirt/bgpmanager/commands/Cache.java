@@ -92,13 +92,12 @@ public class Cache extends OsgiCommandSupport {
         return doExecute();
     }
 
-    @SuppressWarnings("resource")
+    @SuppressWarnings({"resource", "checkstyle:RegexpSinglelineJava"})
     @Override
     protected Object doExecute() {
         boolean listVrfs = false;
         boolean listNets = false;
-        PrintStream ps = session.getConsole();
-
+        PrintStream ps = System.out;
         if (action != null) {
             return usage();
         }
@@ -109,7 +108,7 @@ public class Cache extends OsgiCommandSupport {
                 fileStream = new PrintStream(ofile);
                 ps = fileStream;
             } catch (FileNotFoundException e) {
-                session.getConsole().println("error: cannot create file " + ofile + "; exception: " + e);
+                System.out.println("error: cannot create file " + ofile + "; exception: " + e);
                 return null;
             }
         }
@@ -123,7 +122,7 @@ public class Cache extends OsgiCommandSupport {
                         listNets = true;
                         break;
                     default:
-                        session.getConsole().println("error: unknown value for " + LST + ": " + item);
+                        System.out.println("error: unknown value for " + LST + ": " + item);
                         if (fileStream != null) {
                             fileStream.close();
                         }
