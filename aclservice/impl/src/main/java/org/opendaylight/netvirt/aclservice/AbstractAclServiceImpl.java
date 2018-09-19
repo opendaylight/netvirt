@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.aclservice;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -561,17 +563,17 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             List<InstructionInfo> instructions, int addOrRemove) {
         jobCoordinator.enqueueJob(flowName, () -> {
             if (addOrRemove == NwConstants.DEL_FLOW) {
-                FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName,
-                        idleTimeOut, hardTimeOut, cookie, matches, null);
                 LOG.trace("Removing Acl Flow DpnId {}, flowId {}", dpId, flowId);
 
-                return Collections.singletonList(mdsalManager.removeFlow(dpId, flowEntity));
+                return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                    tx -> mdsalManager.removeFlow(tx, dpId, flowId, tableId)));
 
             } else {
                 FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName,
                         idleTimeOut, hardTimeOut, cookie, matches, instructions);
                 LOG.trace("Installing DpnId {}, flowId {}", dpId, flowId);
-                return Collections.singletonList(mdsalManager.installFlow(dpId, flowEntity));
+                return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                    tx -> mdsalManager.addFlow(tx, flowEntity)));
             }
         });
     }
