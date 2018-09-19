@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f0975b9_e7262242",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AbstractIpLearnNotificationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-19T12:15:30Z",
+      "side": 1,
+      "message": "change name to srcSubnetId or something better. We are actually trying to get the subnetId for the primary adjacency of the same ipversion as the hidden ip.\nAlso, add a comment as to why thsi is needed.\n\nPlease check my comments in processIpLearning. You can directly return in this valudation method based on whether or not there is a primaryAdj with the same ipversion as that of srcIp",
+      "range": {
+        "startLine": 82,
+        "startChar": 20,
+        "endLine": 82,
+        "endChar": 33
+      },
+      "revId": "25810f310c1108c7c276ba9cfd58be8d356b3db4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "269cbcf3_a1564169",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AbstractIpLearnNotificationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-19T12:15:30Z",
+      "side": 1,
+      "message": "dual stack VMs",
+      "range": {
+        "startLine": 115,
+        "startChar": 31,
+        "endLine": 115,
+        "endChar": 38
+      },
+      "revId": "25810f310c1108c7c276ba9cfd58be8d356b3db4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1915d6e4_2e0151d9",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AbstractIpLearnNotificationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-19T12:15:30Z",
+      "side": 1,
+      "message": "where only its v4 or v6 arm will be part of a VPN.",
+      "range": {
+        "startLine": 115,
+        "startChar": 40,
+        "endLine": 115,
+        "endChar": 77
+      },
+      "revId": "25810f310c1108c7c276ba9cfd58be8d356b3db4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9084a8dd_eba8efd8",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AbstractIpLearnNotificationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-19T12:15:30Z",
+      "side": 1,
+      "message": "Actually you dont even need this entire block.\nA v4/v6 primary adjacency will be added to config vpn interface only if its subnet is associated to a VPN.\nSo, in method that calls processIplearning(), where you iterate over the list of adjacencies, if you dont find any adj that is of the same ipversion as the srcIp, then you can set isPartOfVpn\u003dfalse, and not learn the ip itself. no need to passing the subnetId and reading the subnetMaps.",
+      "range": {
+        "startLine": 117,
+        "startChar": 28,
+        "endLine": 117,
+        "endChar": 34
+      },
+      "revId": "25810f310c1108c7c276ba9cfd58be8d356b3db4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3bca146b_2a66e589",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/ipv4/ArpNotificationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-19T12:15:30Z",
+      "side": 1,
+      "message": "please comment as to what this parameter is",
+      "range": {
+        "startLine": 64,
+        "startChar": 78,
+        "endLine": 64,
+        "endChar": 79
+      },
+      "revId": "25810f310c1108c7c276ba9cfd58be8d356b3db4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
