@@ -32,9 +32,10 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
         this.bgpConfigurationManager = bgpConfigurationManager;
     }
 
+    @SuppressWarnings("checkstyle:RegexpSinglelineJava")
     @Override
     protected Object doExecute() {
-        PrintStream ps = session.getConsole();
+        PrintStream ps = System.out;
 
         if (debug) {
             ps.printf("%nis ODL Connected to Q-BGP: %s%n", bgpConfigurationManager.isBgpConnected() ? "TRUE" : "FALSE");
