@@ -61,7 +61,7 @@ public class ArpNotificationHandler extends AbstractIpLearnNotificationHandler i
                         + "target destination {}, learning MAC",
                 srcInterface, srcIP.stringValue(), srcMac.getValue(), targetIP.stringValue());
 
-        processIpLearning(srcInterface, srcIP, srcMac, metadata, targetIP, null);
+        processIpLearning(srcInterface, srcIP, srcMac, metadata, targetIP);
     }
 
     @Override
