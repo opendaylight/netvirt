@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a80d329f_de7fa61b",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-09-20T06:56:31Z",
+      "side": 1,
+      "message": "define this in bgpconstants",
+      "revId": "d027067adbeeaa6a9a641c2fd15dcc531adf52ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "199c1660_0716e601",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 859,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-09-20T06:56:31Z",
+      "side": 1,
+      "message": "remove this comment",
+      "revId": "d027067adbeeaa6a9a641c2fd15dcc531adf52ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c9668836_f9a7f3ff",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-09-20T06:56:31Z",
+      "side": 1,
+      "message": "use constants here",
+      "revId": "d027067adbeeaa6a9a641c2fd15dcc531adf52ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "14b60e53_f660f08a",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-09-20T06:56:31Z",
+      "side": 1,
+      "message": "remove these errors",
+      "revId": "d027067adbeeaa6a9a641c2fd15dcc531adf52ca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
