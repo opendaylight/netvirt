@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "ecc2eba8_c2d35a7d",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1779,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-20T06:11:35Z",
+      "side": 1,
+      "message": "Please also add a comment that subnetMaps internetVpnUUID is updated only for V6 internet use-cases.\nElse, it might be confusing here because this check does not explicitly say that we have properly identified that this is a v6 internet use case and no a v4 internet case",
+      "range": {
+        "startLine": 1779,
+        "startChar": 29,
+        "endLine": 1779,
+        "endChar": 33
+      },
+      "revId": "a04286ccba2419059466acf3b7f2ab99f1a8722d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f3e31c56_ccc866ec",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 7
