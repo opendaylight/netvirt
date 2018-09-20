@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "31f989af_530ca572",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-20T06:55:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "57a79d50_8a452a69",
+      "range": {
+        "startLine": 7,
+        "startChar": 47,
+        "endLine": 7,
+        "endChar": 49
+      },
+      "revId": "a04286ccba2419059466acf3b7f2ab99f1a8722d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ecc2eba8_c2d35a7d",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 7
