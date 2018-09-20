@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "88833dfb_f257cadc",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AbstractIpLearnNotificationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-20T05:09:55Z",
+      "side": 1,
+      "message": "New implementation logic this attribute is not needed",
+      "parentUuid": "5f0975b9_e7262242",
+      "range": {
+        "startLine": 82,
+        "startChar": 20,
+        "endLine": 82,
+        "endChar": 33
+      },
+      "revId": "25810f310c1108c7c276ba9cfd58be8d356b3db4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "269cbcf3_a1564169",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AbstractIpLearnNotificationHandler.java",
         "patchSetId": 5
@@ -71,6 +95,54 @@
     },
     {
       "key": {
+        "uuid": "8f50325a_ec81fa8a",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AbstractIpLearnNotificationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-20T05:09:55Z",
+      "side": 1,
+      "message": "New implementation logic this attribute is not needed",
+      "parentUuid": "269cbcf3_a1564169",
+      "range": {
+        "startLine": 115,
+        "startChar": 31,
+        "endLine": 115,
+        "endChar": 38
+      },
+      "revId": "25810f310c1108c7c276ba9cfd58be8d356b3db4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "41e356a1_4259c209",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AbstractIpLearnNotificationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-20T05:09:55Z",
+      "side": 1,
+      "message": "New implementation logic this attribute is not needed",
+      "parentUuid": "1915d6e4_2e0151d9",
+      "range": {
+        "startLine": 115,
+        "startChar": 40,
+        "endLine": 115,
+        "endChar": 77
+      },
+      "revId": "25810f310c1108c7c276ba9cfd58be8d356b3db4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9084a8dd_eba8efd8",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AbstractIpLearnNotificationHandler.java",
         "patchSetId": 5
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "86bfe83b_1bd3d51c",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/AbstractIpLearnNotificationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-20T05:09:55Z",
+      "side": 1,
+      "message": "Thanks Kiran for your optimal way of implement this solution. Have done the same implementation in separate review. Please review.",
+      "parentUuid": "9084a8dd_eba8efd8",
+      "range": {
+        "startLine": 117,
+        "startChar": 28,
+        "endLine": 117,
+        "endChar": 34
+      },
+      "revId": "25810f310c1108c7c276ba9cfd58be8d356b3db4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3bca146b_2a66e589",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/ipv4/ArpNotificationHandler.java",
         "patchSetId": 5
@@ -105,6 +201,30 @@
       "writtenOn": "2018-09-19T12:15:30Z",
       "side": 1,
       "message": "please comment as to what this parameter is",
+      "range": {
+        "startLine": 64,
+        "startChar": 78,
+        "endLine": 64,
+        "endChar": 79
+      },
+      "revId": "25810f310c1108c7c276ba9cfd58be8d356b3db4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc56ddb0_aeefc45c",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/iplearn/ipv4/ArpNotificationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-20T05:09:55Z",
+      "side": 1,
+      "message": "New implementation logic this attribute is not needed",
+      "parentUuid": "3bca146b_2a66e589",
       "range": {
         "startLine": 64,
         "startChar": 78,
