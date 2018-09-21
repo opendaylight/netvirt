@@ -22,6 +22,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.NWUtil;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -103,6 +104,8 @@ public class ArpNotificationHandler implements OdlArputilListener {
         LOG.info("ArpNotification Response Received from interface {} and IP {} having MAC {}, learning MAC",
                 srcInterface, srcIP.getIpv4Address().getValue(), srcMac.getValue());
         List<Adjacency> adjacencies = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, srcInterface);
+        IpVersionChoice srcIpVersion = VpnUtil.getIpVersionFromString(String.valueOf(srcIP.getValue()));
+        boolean isSrcIpVersionPartOfVpn = false;
         if (adjacencies != null) {
             for (Adjacency adj : adjacencies) {
                 String ipAddress = adj.getIpAddress();
@@ -110,9 +113,17 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     if (NWUtil.isIpInSubnet(NWUtil.ipAddressToInt(srcIP.getIpv4Address().getValue()), ipAddress)) {
                         return;
                     }
+                    IpVersionChoice currentAdjIpVersion = VpnUtil.getIpVersionFromString(adj.getIpAddress());
+                    if (srcIpVersion.isIpVersionChosen(currentAdjIpVersion)) {
+                        isSrcIpVersionPartOfVpn = true;
+                    }
                 } catch (UnknownHostException e) {
                     LOG.error("Subnet string {} not convertible to InetAdddress", srcIP, e);
                 }
+            }
+            //If srcIP version is not part of the srcInterface VPN Adjacency, ignore IpLearning process
+            if (!isSrcIpVersionPartOfVpn) {
+                return;
             }
         }
         BigInteger metadata = notification.getMetadata();
