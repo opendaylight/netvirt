@@ -48,204 +48,162 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata
 class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
 
     protected def etherFlows() {
-        fixedIngressFlowsPort1
-        + fixedConntrackIngressFlowsPort1
-        + fixedEgressL2BroadcastFlowsPort1
-        + fixedIngressL3BroadcastFlows
-        + fixedEgressFlowsPort1
-        + fixedConntrackEgressFlowsPort1
-        + etherEgressFlowsPort1
-        + fixedIngressFlowsPort2
-        + fixedConntrackIngressFlowsPort2
-        + etherIngressFlowsPort2
-        + etherIngressFlowsPort2
-        + fixedEgressL2BroadcastFlowsPort2
-        + fixedIngressL3BroadcastFlows
-        + fixedEgressFlowsPort2
-        + fixedConntrackEgressFlowsPort2
+        egressCommitConntrack1
+        + egressCommitNonConntrack1
+        + egressfixedAclMissDrop1
         + etheregressFlowPort2
+        + etherEgressFlowsPort1
+        + etherIngressFlowsPort2
+        + fixedConntrackEgressFlowsPort1
+        + fixedConntrackEgressFlowsPort2
+        + fixedConntrackIngressFlowsPort1
+        + fixedConntrackIngressFlowsPort2
+        + fixedEgressFlowsPort1
+        + fixedEgressFlowsPort2
+        + fixedEgressL2BroadcastFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressFlowsPort1
+        + fixedIngressFlowsPort2
+        + fixedIngressL3BroadcastFlows
+        + ingressCommitConntrack1
+        + ingressCommitNonConntrack1
+        + ingressDispatcherFirst
+        + ingressDispatcherLast
+        + ingressfixedAclMissDrop1
         + remoteEgressFlowsPort1
         + remoteEgressFlowsPort2
-        + ingressCommitNonConntrack1
-        + ingressCommitNonConntrack1
-        + egressCommitNonConntrack1
-        + egressCommitNonConntrack1
-        + ingressCommitConntrack1
-        + ingressCommitConntrack1
-        + egressCommitConntrack1
-        + egressCommitConntrack1
-        + ingressfixedAclMissDrop1
-        + ingressfixedAclMissDrop1
-        + egressfixedAclMissDrop1
-        + egressfixedAclMissDrop1
-        + ingressDispatcherFirst
-        + ingressDispatcherFirst
-        + ingressDispatcherLast
-        + ingressDispatcherLast
     }
 
     protected def tcpFlows() {
-        fixedIngressFlowsPort1
-        + fixedConntrackIngressFlowsPort1
-        + tcpIngressFlowPort1
-        + fixedEgressL2BroadcastFlowsPort1
-        + fixedIngressL3BroadcastFlows
-        + fixedEgressFlowsPort1
+        egressCommitConntrack1
+        + egressCommitNonConntrack1
+        + egressDispatcherFirst
+        + egressDispatcherLast
+        + egressfixedAclMissDrop1
         + fixedConntrackEgressFlowsPort1
-        + fixedIngressFlowsPort2
-        + fixedConntrackIngressFlowsPort2
-        + tcpIngressFlowPort2
-        + fixedEgressL2BroadcastFlowsPort2
-        + fixedIngressL3BroadcastFlows
-        + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
-        + tcpEgressFlowPort2
-        + tcpEgressFlowPort2
-        + egressDispatcherFirst
-        + egressDispatcherFirst
-        + egressDispatcherLast
-        + egressDispatcherLast
+        + fixedConntrackIngressFlowsPort1
+        + fixedConntrackIngressFlowsPort2
+        + fixedEgressFlowsPort1
+        + fixedEgressFlowsPort2
+        + fixedEgressL2BroadcastFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressFlowsPort1
+        + fixedIngressFlowsPort2
+        + fixedIngressL3BroadcastFlows
+        + ingressCommitConntrack1
+        + ingressCommitNonConntrack1
+        + ingressfixedAclMissDrop1
         + remoteIngressFlowsPort1
         + remoteIngressFlowsPort2
-        + ingressCommitNonConntrack1
-        + ingressCommitNonConntrack1
-        + egressCommitNonConntrack1
-        + egressCommitNonConntrack1
-        + ingressCommitConntrack1
-        + ingressCommitConntrack1
-        + egressCommitConntrack1
-        + egressCommitConntrack1
-        + ingressfixedAclMissDrop1
-        + ingressfixedAclMissDrop1
-        + egressfixedAclMissDrop1
-        + egressfixedAclMissDrop1
-
+        + tcpEgressFlowPort2
+        + tcpIngressFlowPort1
+        + tcpIngressFlowPort2
     }
 
     protected def udpFlows() {
-        fixedIngressFlowsPort1
-        + fixedConntrackIngressFlowsPort1
-        + fixedEgressL2BroadcastFlowsPort1
-        + fixedIngressL3BroadcastFlows
-        + fixedEgressFlowsPort1
+        egressCommitConntrack1
+        + egressCommitNonConntrack1
+        + egressfixedAclMissDrop1
         + fixedConntrackEgressFlowsPort1
-        + udpEgressFlowsPort1
-        + fixedIngressFlowsPort2
-        + fixedConntrackIngressFlowsPort2
-        + udpIngressFlowsPort2
-        + udpIngressFlowsPort2
-        + fixedEgressL2BroadcastFlowsPort2
-        + fixedIngressL3BroadcastFlows
-        + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
-        + udpEgressFlowsPort2
-        + ingressDispatcherFirst
+        + fixedConntrackIngressFlowsPort1
+        + fixedConntrackIngressFlowsPort2
+        + fixedEgressFlowsPort1
+        + fixedEgressFlowsPort2
+        + fixedEgressL2BroadcastFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressFlowsPort1
+        + fixedIngressFlowsPort2
+        + fixedIngressL3BroadcastFlows
+        + ingressCommitConntrack1
+        + ingressCommitNonConntrack1
         + ingressDispatcherFirst
         + ingressDispatcherLast
-        + ingressDispatcherLast
+        + ingressfixedAclMissDrop1
         + remoteEgressFlowsPort1
         + remoteEgressFlowsPort2
-        + ingressCommitNonConntrack1
-        + ingressCommitNonConntrack1
-        + egressCommitNonConntrack1
-        + egressCommitNonConntrack1
-        + ingressCommitConntrack1
-        + ingressCommitConntrack1
-        + egressCommitConntrack1
-        + egressCommitConntrack1
-        + ingressfixedAclMissDrop1
-        + ingressfixedAclMissDrop1
-        + egressfixedAclMissDrop1
-        + egressfixedAclMissDrop1
+        + udpEgressFlowsPort1
+        + udpEgressFlowsPort2
+        + udpIngressFlowsPort2
     }
 
     protected def icmpFlows() {
-        fixedIngressFlowsPort1
-        + fixedConntrackIngressFlowsPort1
-        + icmpIngressFlowsPort1
-        + fixedEgressL2BroadcastFlowsPort1
-        + fixedIngressL3BroadcastFlows
-        + fixedEgressFlowsPort1
+        egressCommitConntrack1
+        + egressCommitNonConntrack1
+        + egressDispatcherFirst
+        + egressDispatcherLast
+        + egressfixedAclMissDrop1
         + fixedConntrackEgressFlowsPort1
-        + fixedIngressFlowsPort2
-        + fixedConntrackIngressFlowsPort2
-        + icmpIngressFlowsPort2
-        + fixedEgressL2BroadcastFlowsPort2
-        + fixedIngressL3BroadcastFlows
-        + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
+        + fixedConntrackIngressFlowsPort1
+        + fixedConntrackIngressFlowsPort2
+        + fixedEgressFlowsPort1
+        + fixedEgressFlowsPort2
+        + fixedEgressL2BroadcastFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressFlowsPort1
+        + fixedIngressFlowsPort2
+        + fixedIngressL3BroadcastFlows
         + icmpEgressFlowsPort2
-        + icmpEgressFlowsPort2
-        + egressDispatcherFirst
-        + egressDispatcherFirst
-        + egressDispatcherLast
-        + egressDispatcherLast
+        + icmpIngressFlowsPort1
+        + icmpIngressFlowsPort2
+        + ingressCommitConntrack1
+        + ingressCommitNonConntrack1
+        + ingressfixedAclMissDrop1
         + remoteIngressFlowsPort1
         + remoteIngressFlowsPort2
-        + ingressCommitNonConntrack1
-        + ingressCommitNonConntrack1
-        + egressCommitNonConntrack1
-        + egressCommitNonConntrack1
-        + ingressCommitConntrack1
-        + ingressCommitConntrack1
-        + egressCommitConntrack1
-        + egressCommitConntrack1
-        + ingressfixedAclMissDrop1
-        + ingressfixedAclMissDrop1
-        + egressfixedAclMissDrop1
-        + egressfixedAclMissDrop1
     }
 
     protected def dstRangeFlows() {
-        fixedIngressFlowsPort1
-        +fixedConntrackIngressFlowsPort1
-        + udpIngressPortRangeFlows
-        + fixedEgressL2BroadcastFlowsPort1
-        + fixedIngressL3BroadcastFlows
-        + fixedEgressFlowsPort1
-        + fixedConntrackEgressFlowsPort1
-        + tcpEgressRangeFlows
-        + ingressCommitNonConntrack1
+        egressCommitConntrack1
         + egressCommitNonConntrack1
-        + ingressCommitConntrack1
-        + egressCommitConntrack1
-        + ingressfixedAclMissDrop1
         + egressfixedAclMissDrop1
-
+        + fixedConntrackEgressFlowsPort1
+        + fixedConntrackIngressFlowsPort1
+        + fixedEgressFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressFlowsPort1
+        + fixedIngressL3BroadcastFlows
+        + ingressCommitConntrack1
+        + ingressCommitNonConntrack1
+        + ingressfixedAclMissDrop1
+        + tcpEgressRangeFlows
+        + udpIngressPortRangeFlows
     }
 
     protected def dstAllFlows() {
-        fixedIngressFlowsPort1
-        + fixedConntrackIngressFlowsPort1
-        + udpIngressAllFlows
-        + fixedEgressL2BroadcastFlowsPort1
-        + fixedIngressL3BroadcastFlows
-        + fixedEgressFlowsPort1
-        + fixedConntrackEgressFlowsPort1
-        + tcpEgressAllFlows
-        + ingressCommitNonConntrack1
+        egressCommitConntrack1
         + egressCommitNonConntrack1
-        + ingressCommitConntrack1
-        + egressCommitConntrack1
-        + ingressfixedAclMissDrop1
         + egressfixedAclMissDrop1
+        + fixedConntrackEgressFlowsPort1
+        + fixedConntrackIngressFlowsPort1
+        + fixedEgressFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressFlowsPort1
+        + fixedIngressL3BroadcastFlows
+        + ingressCommitConntrack1
+        + ingressCommitNonConntrack1
+        + ingressfixedAclMissDrop1
+        + tcpEgressAllFlows
+        + udpIngressAllFlows
     }
 
     protected def icmpFlowsForTwoAclsHavingSameRules() {
-        fixedIngressFlowsPort3
-        + fixedConntrackIngressFlowsPort3
-        + icmpIngressFlowsPort3
-        + fixedEgressFlowsPort3
-        + fixedConntrackEgressFlowsPort3
-        + icmpEgressFlowsPort3
-        + ingressCommitConntrack1
-        + egressCommitConntrack1
-        + ingressCommitNonConntrack1
+        egressCommitConntrack1
         + egressCommitNonConntrack1
-        + ingressfixedAclMissDrop1
         + egressfixedAclMissDrop1
-        + fixedIngressL3BroadcastFlows
+        + fixedConntrackEgressFlowsPort3
+        + fixedConntrackIngressFlowsPort3
+        + fixedEgressFlowsPort3
         + fixedEgressL2BroadcastFlowsPort3
+        + fixedIngressFlowsPort3
+        + fixedIngressL3BroadcastFlows
+        + icmpEgressFlowsPort3
+        + icmpIngressFlowsPort3
+        + ingressCommitConntrack1
+        + ingressCommitNonConntrack1
+        + ingressfixedAclMissDrop1
     }
 
     protected def aapWithIpv4AllFlows() {
@@ -260,54 +218,35 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
     }
 
     protected def multipleAcl() {
-        fixedIngressFlowsPort1
-        + fixedConntrackIngressFlowsPort1
-        + fixedEgressL2BroadcastFlowsPort1
-        + fixedIngressL3BroadcastFlows
-        + fixedEgressFlowsPort1
-        + fixedConntrackEgressFlowsPort1
-        + etherEgressFlowsPort1
-        + fixedIngressFlowsPort2
-        + fixedConntrackIngressFlowsPort2
-        + etherIngressFlowsPort2
-        + etherIngressFlowsPort2
-        + fixedEgressL2BroadcastFlowsPort2
-        + fixedIngressL3BroadcastFlows
-        + fixedEgressFlowsPort2
-        + fixedConntrackEgressFlowsPort2
+        egressCommitConntrack1
+        + egressCommitNonConntrack1
+        + egressDispatcherFirst1
+        + egressDispatcherLast1
+        + egressfixedAclMissDrop1
         + etheregressFlowPort2
+        + etherEgressFlowsPort1
+        + etherIngressFlowsPort2
+        + fixedConntrackEgressFlowsPort1
+        + fixedConntrackEgressFlowsPort2
+        + fixedConntrackIngressFlowsPort1
+        + fixedConntrackIngressFlowsPort2
+        + fixedEgressFlowsPort1
+        + fixedEgressFlowsPort2
+        + fixedEgressL2BroadcastFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressFlowsPort1
+        + fixedIngressFlowsPort2
+        + fixedIngressL3BroadcastFlows
+        + ingressCommitConntrack1
+        + ingressCommitNonConntrack1
+        + ingressDispatcherFirst
+        + ingressDispatcherLast
+        + ingressfixedAclMissDrop1
         + remoteEgressFlowsPort1
         + remoteEgressFlowsPort2
-        + tcpEgressFlowPort2WithRemoteIpSg
-        + tcpEgressFlowPort2WithRemoteIpSg
-        + tcpIngressFlowPort1WithMultipleSG
-        + tcpIngressFlowPort1WithMultipleSG
-        + ingressCommitNonConntrack1
-        + ingressCommitNonConntrack1
-        + egressCommitNonConntrack1
-        + egressCommitNonConntrack1
-        + ingressCommitConntrack1
-        + ingressCommitConntrack1
-        + egressCommitConntrack1
-        + egressCommitConntrack1
-        + ingressfixedAclMissDrop1
-        + ingressfixedAclMissDrop1
-        + egressfixedAclMissDrop1
-        + egressfixedAclMissDrop1
         + remoteEgressFlowsPort3
-        + egressDispatcherLast1
-        + egressDispatcherFirst1
-        + ingressDispatcherLast
-        + ingressDispatcherFirst
-        + egressDispatcherLast1
-        + egressDispatcherFirst1
-        + ingressDispatcherLast
-        + ingressDispatcherFirst
-        + ingressDispatcherFirst
-        + ingressDispatcherFirst
-        + ingressDispatcherLast
-        + ingressDispatcherLast
-
+        + tcpEgressFlowPort2WithRemoteIpSg
+        + tcpIngressFlowPort1WithMultipleSG
     }
 
     protected def tcpEgressFlowPort2WithRemoteIpSg() {
