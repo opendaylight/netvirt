@@ -130,6 +130,8 @@ public interface AclConstants {
     String ACL_SYNC_KEY_EXT = "-acl";
     int JOB_MAX_RETRIES = 3;
 
+    String ACL_FLOW_NAME = "ACL";
+
     List<IPProtocols> PROTOCOLS_SUPPORTED_BY_CONNTRACK =
             ImmutableList.of(IPProtocols.TCP, IPProtocols.UDP, IPProtocols.ICMP, IPProtocols.IPV6ICMP);
 
