@@ -44,7 +44,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v4123_987_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_DHCP_Server_v4123_987_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -64,10 +64,10 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v6_123_987_Permit_"
-            flowName = "ACL"
-            instructionInfoList = #[
-                new InstructionApplyActions(#[
-                    new ActionNxResubmit(220 as short)
+                flowName = "Ingress_DHCP_Server_v6_123_987_Permit_"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -84,10 +84,10 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
-            flowName = "ACL"
-            instructionInfoList = #[
-                new InstructionApplyActions(#[
-                    new ActionNxResubmit(220 as short)
+                flowName = "Ingress_ICMPv6_123_987_130_Permit_"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -103,10 +103,10 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
-            flowName = "ACL"
-            instructionInfoList = #[
-                new InstructionApplyActions(#[
-                    new ActionNxResubmit(220 as short)
+                flowName = "Ingress_ICMPv6_123_987_135_Permit_"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -122,10 +122,10 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
-            flowName = "ACL"
-            instructionInfoList = #[
-                new InstructionApplyActions(#[
-                    new ActionNxResubmit(220 as short)
+                flowName = "Ingress_ICMPv6_123_987_136_Permit_"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -141,10 +141,10 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ARP_123_987"
-            flowName = "ACL"
-            instructionInfoList = #[
-                new InstructionApplyActions(#[
-                    new ActionNxResubmit(220 as short)
+                flowName = "Ingress_ARP_123_987"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -164,7 +164,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:F3"
-                flowName = "ACL"
+                flowName = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:F3"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -186,7 +186,7 @@ class FlowEntryObjectsBase {
                 cookie = 110100480bi
                 dpnId = 123bi
                 flowId = "Ingress_v4_Broadcast_123_987_10.0.0.255_Permit"
-                flowName = "ACL"
+                flowName = "Ingress_v4_Broadcast_123_987_10.0.0.255_Permit"
                 hardTimeOut = 0
                 idleTimeOut = 0
                 instructionInfoList = #[
@@ -213,7 +213,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:F3_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:F3_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -234,7 +234,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_133_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -253,7 +253,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -272,7 +272,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -297,7 +297,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F310.0.0.1/32"
-                flowName = "ACL"
+                flowName = "Egress_ARP_123_987_0D:AA:D8:42:30:F310.0.0.1/32"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -322,7 +322,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v4123_987_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_DHCP_Server_v4123_987_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -342,7 +342,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v6_123_987_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_DHCP_Server_v6_123_987_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -362,7 +362,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_ICMPv6_123_987_130_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -381,7 +381,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -400,7 +400,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -419,7 +419,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ARP_123_987"
-                flowName = "ACL"
+                flowName = "Ingress_ARP_123_987"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -441,7 +441,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:F4"
-                flowName = "ACL"
+                flowName = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:F4"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -463,7 +463,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:F4_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:F4_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -484,7 +484,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_133_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -503,7 +503,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -522,7 +522,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -546,7 +546,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F410.0.0.2/32"
-                flowName = "ACL"
+                flowName = "Egress_ARP_123_987_0D:AA:D8:42:30:F410.0.0.2/32"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -571,7 +571,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v4123_987_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_DHCP_Server_v4123_987_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -591,7 +591,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v6_123_987_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_DHCP_Server_v6_123_987_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -611,7 +611,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_ICMPv6_123_987_130_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -630,7 +630,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -649,7 +649,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -668,7 +668,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ARP_123_987"
-                flowName = "ACL"
+                flowName = "Ingress_ARP_123_987"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -690,7 +690,7 @@ class FlowEntryObjectsBase {
                dpnId = 123bi
                cookie = 110100480bi
                flowId = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:F5"
-               flowName = "ACL"
+               flowName = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:F5"
                instructionInfoList = #[
                    new InstructionApplyActions(#[
                        new ActionNxResubmit(17 as short)
@@ -712,7 +712,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:F5_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:F5_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -733,7 +733,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_133_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -752,7 +752,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -771,7 +771,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -790,7 +790,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F510.0.0.3/32"
-                flowName = "ACL"
+                flowName = "Egress_ARP_123_987_0D:AA:D8:42:30:F510.0.0.3/32"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -815,7 +815,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v4123_987_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_DHCP_Server_v4123_987_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -835,7 +835,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v6_123_987_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_DHCP_Server_v6_123_987_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -855,7 +855,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_ICMPv6_123_987_130_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -874,7 +874,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -893,7 +893,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -912,7 +912,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ARP_123_987"
-                flowName = "ACL"
+                flowName = "Ingress_ARP_123_987"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -934,7 +934,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v4123_987__Permit_"
-                flowName = "ACL"
+                flowName = "Egress_DHCP_Client_v4123_987__Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -954,7 +954,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
-                flowName = "ACL"
+                flowName = "Egress_DHCP_Client_v6_123_987__Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -974,7 +974,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_133_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -993,7 +993,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -1012,7 +1012,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -1031,7 +1031,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F6"
-                flowName = "ACL"
+                flowName = "Egress_ARP_123_987_0D:AA:D8:42:30:F6"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -1050,7 +1050,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F6"
-                flowName = "ACL"
+                flowName = "Egress_ARP_123_987_0D:AA:D8:42:30:F6"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -1105,7 +1105,7 @@ class FlowEntryObjectsBase {
             dpnId = 123bi
             cookie = 110100480bi
             flowId = "Acl_Filter_Egress_" + ip + "/32_2"
-            flowName = "ACL"
+            flowName = "Acl_Filter_Egress_" + ip + "/32_2"
             instructionInfoList = #[
                new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
             ]
@@ -1124,7 +1124,7 @@ class FlowEntryObjectsBase {
             dpnId = 123bi
             cookie = 110100480bi
             flowId = "Acl_Filter_Ingress_" + ip + "/32_2"
-            flowName = "ACL"
+            flowName = "Acl_Filter_Ingress_" + ip + "/32_2"
             instructionInfoList = #[
                 new InstructionGotoTable(NwConstants.EGRESS_ACL_COMMITTER_TABLE)
             ]
@@ -1144,7 +1144,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Acl_Filter_Ingress_10.0.0.2/32_4"
-                flowName = "ACL"
+                flowName = "Acl_Filter_Ingress_10.0.0.2/32_4"
                 instructionInfoList = #[
                     new InstructionGotoTable(247 as short)
                 ]
@@ -1165,7 +1165,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Acl_Filter_Egress_10.0.0.2/32_4"
-                flowName = "ACL"
+                flowName = "Acl_Filter_Egress_10.0.0.2/32_4"
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -1187,7 +1187,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v4123_987_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_DHCP_Server_v4123_987_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -1207,7 +1207,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_DHCP_Server_v6_123_987_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_DHCP_Server_v6_123_987_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -1227,7 +1227,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_ICMPv6_123_987_130_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -1246,7 +1246,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -1265,7 +1265,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
-                flowName = "ACL"
+                flowName = "Ingress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -1284,7 +1284,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_ARP_123_987"
-                flowName = "ACL"
+                flowName = "Ingress_ARP_123_987"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
@@ -1301,7 +1301,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v4123_987_" + mac + "_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_DHCP_Client_v4123_987_" + mac + "_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -1322,7 +1322,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v6_123_987_" + mac + "_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_DHCP_Client_v6_123_987_" + mac + "_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -1343,7 +1343,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_133_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -1362,7 +1362,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -1381,7 +1381,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -1400,7 +1400,7 @@ class FlowEntryObjectsBase {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ARP_123_987_" + mac
-                flowName = "ACL"
+                flowName = "Egress_ARP_123_987_" + mac
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit
