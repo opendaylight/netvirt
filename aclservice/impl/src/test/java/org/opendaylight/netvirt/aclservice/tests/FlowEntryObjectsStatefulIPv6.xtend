@@ -63,7 +63,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_10.0.0.1/32"
-                flowName = "ACL"
+                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_10.0.0.1/32"
                 instructionInfoList = #[
                     new InstructionGotoTable(241 as short)
                 ]
@@ -80,7 +80,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                cookie = 110100480bi
                flowId = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-               flowName = "ACL"
+               flowName = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
                instructionInfoList = #[
                    new InstructionApplyActions(#[
                        new ActionNxConntrack(2, 0, 0, 5000, 243 as short)
@@ -97,7 +97,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                cookie = 1085218086715393bi
                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-               flowName = "ACL"
+               flowName = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                instructionInfoList = #[
                    new InstructionApplyActions(#[
                        new ActionDrop()
@@ -120,7 +120,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId1
-                flowName = "ACL"
+                flowName = flowId1
                 instructionInfoList = #[
                     new InstructionGotoTable(246 as short)
                 ]
@@ -142,7 +142,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_10.0.0.1/32"
-                flowName = "ACL"
+                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_10.0.0.1/32"
                 instructionInfoList = #[
                     new InstructionGotoTable(211 as short)
                 ]
@@ -159,7 +159,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 1085218086715393bi
                 flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-                flowName = "ACL"
+                flowName = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionDrop()
@@ -176,7 +176,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-                flowName = "ACL"
+                flowName = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 0, 0, 5000, 213 as short)
@@ -199,7 +199,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_10.0.0.2/32"
-                flowName = "ACL"
+                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_10.0.0.2/32"
                 instructionInfoList = #[
                     new InstructionGotoTable(241 as short)
                 ]
@@ -216,7 +216,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                  cookie = 110100480bi
                  flowId = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-                 flowName = "ACL"
+                 flowName = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
                  instructionInfoList = #[
                      new InstructionApplyActions(#[
                          new ActionNxConntrack(2, 0, 0, 5000, 243 as short)
@@ -233,7 +233,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                  cookie = 1085218086715393bi
                  flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-                 flowName = "ACL"
+                 flowName = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                  instructionInfoList = #[
                      new InstructionApplyActions(#[
                          new ActionDrop()
@@ -256,7 +256,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_10.0.0.2/32"
-                flowName = "ACL"
+                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_10.0.0.2/32"
                 instructionInfoList = #[
                     new InstructionGotoTable(211 as short)
                 ]
@@ -273,7 +273,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 1085218086715393bi
                 flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-                flowName = "ACL"
+                flowName = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionDrop()
@@ -290,7 +290,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-                flowName = "ACL"
+                flowName = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 0, 0, 5000, 213 as short)
@@ -312,7 +312,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_10.0.0.3/32"
-                flowName = "ACL"
+                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_10.0.0.3/32"
                 instructionInfoList = #[
                     new InstructionGotoTable(241 as short)
                 ]
@@ -329,7 +329,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-                flowName = "ACL"
+                flowName = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 0, 0, 5000, 243 as short)
@@ -346,7 +346,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 1085218086715393bi
                 flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-                flowName = "ACL"
+                flowName = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionDrop()
@@ -368,7 +368,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_10.0.0.3/32"
-                flowName = "ACL"
+                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_10.0.0.3/32"
                 instructionInfoList = #[
                     new InstructionGotoTable(211 as short)
                 ]
@@ -385,7 +385,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 1085218086715393bi
                 flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-                flowName = "ACL"
+                flowName = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionDrop()
@@ -402,7 +402,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 1085218086715393bi
                 flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-                flowName = "ACL"
+                flowName = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionDrop()
@@ -426,7 +426,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = theFlowId
-                flowName = "ACL"
+                flowName = theFlowId
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -448,7 +448,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = theFlowId
-                flowName = "ACL"
+                flowName = theFlowId
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -470,7 +470,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = theFlowId
-                flowName = "ACL"
+                flowName = theFlowId
                 instructionInfoList = #[
                     new InstructionGotoTable(247 as short)
                 ]
@@ -494,7 +494,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = theFlowId
-                flowName = "ACL"
+                flowName = theFlowId
                 instructionInfoList = #[
                     new InstructionGotoTable(247 as short)
                 ]
@@ -518,7 +518,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId1
-                flowName = "ACL"
+                flowName = flowId1
                 instructionInfoList = #[
                     new InstructionGotoTable(216 as short)
                 ]
@@ -542,7 +542,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = theFlowId
-                flowName = "ACL"
+                flowName = theFlowId
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -566,7 +566,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId1
-                flowName = "ACL"
+                flowName = flowId1
                 instructionInfoList = #[
                     new InstructionGotoTable(246 as short)
                 ]
@@ -591,7 +591,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = theFlowId
-                flowName = "ACL"
+                flowName = theFlowId
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
 
@@ -616,7 +616,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = theFlowId
-                flowName = "ACL"
+                flowName = theFlowId
                 instructionInfoList = #[
                     new InstructionGotoTable(247 as short)
                 ]
@@ -640,7 +640,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = theFlowId
-                flowName = "ACL"
+                flowName = theFlowId
                 instructionInfoList = #[
                     new InstructionGotoTable(247 as short)
                 ]
@@ -664,7 +664,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId1
-                flowName = "ACL"
+                flowName = flowId1
                 instructionInfoList = #[
                     new InstructionGotoTable(216 as short)
                 ]
@@ -688,7 +688,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = theFlowId
-                flowName = "ACL"
+                flowName = theFlowId
                 instructionInfoList = #[
                     new InstructionGotoTable(247 as short)
                 ]
@@ -719,7 +719,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId1
-                flowName = "ACL"
+                flowName = flowId1
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -737,7 +737,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId2
-                flowName = "ACL"
+                flowName = flowId2
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -755,7 +755,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId3
-                flowName = "ACL"
+                flowName = flowId3
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -773,7 +773,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId4
-                flowName = "ACL"
+                flowName = flowId4
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -791,7 +791,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId5
-                flowName = "ACL"
+                flowName = flowId5
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -809,7 +809,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId6
-                flowName = "ACL"
+                flowName = flowId6
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -827,7 +827,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId7
-                flowName = "ACL"
+                flowName = flowId7
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -845,7 +845,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId8
-                flowName = "ACL"
+                flowName = flowId8
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -869,7 +869,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = theFlowId
-                flowName = "ACL"
+                flowName = theFlowId
                 instructionInfoList = #[
                     new InstructionGotoTable(247 as short)
                 ]
@@ -892,7 +892,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = theFlowId
-                flowName = "ACL"
+                flowName = theFlowId
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -917,7 +917,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId1
-                flowName = "ACL"
+                flowName = flowId1
                 instructionInfoList = #[
                     new InstructionGotoTable(247 as short)
                 ]
@@ -935,7 +935,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId2
-                flowName = "ACL"
+                flowName = flowId2
                 instructionInfoList = #[
                     new InstructionGotoTable(247 as short)
                 ]
@@ -960,7 +960,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId1
-                flowName = "ACL"
+                flowName = flowId1
                 instructionInfoList = #[
                     new InstructionGotoTable(247 as short)
                 ]
@@ -978,7 +978,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId2
-                flowName = "ACL"
+                flowName = flowId2
                 instructionInfoList = #[
                     new InstructionGotoTable(247 as short)
                 ]
@@ -1003,7 +1003,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId1
-                flowName = "ACL"
+                flowName = flowId1
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -1021,7 +1021,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId2
-                flowName = "ACL"
+                flowName = flowId2
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -1046,7 +1046,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId1
-                flowName = "ACL"
+                flowName = flowId1
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -1064,7 +1064,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = flowId2
-                flowName = "ACL"
+                flowName = flowId2
                 instructionInfoList = #[
                     new InstructionGotoTable(217 as short)
                 ]
@@ -1087,7 +1087,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:F5_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:F5_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -1108,7 +1108,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_133_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -1127,7 +1127,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_135_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -1146,7 +1146,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
-                flowName = "ACL"
+                flowName = "Egress_ICMPv6_123_987_136_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -1165,7 +1165,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 dpnId = 123bi
                 cookie = 110100480bi
                 flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F510.0.0.3/32"
-                flowName = "ACL"
+                flowName = "Egress_ARP_123_987_0D:AA:D8:42:30:F510.0.0.3/32"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -1190,7 +1190,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     dpnId = 123bi
                     cookie = 110100480bi
                     flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_10.0.0.3/32"
-                    flowName = "ACL"
+                    flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_10.0.0.3/32"
                     instructionInfoList = #[
                         new InstructionGotoTable(211 as short)
                     ]
@@ -1207,7 +1207,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     dpnId = 123bi
                     cookie = 1085218086715393bi
                     flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-                    flowName = "ACL"
+                    flowName = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                     instructionInfoList = #[
                         new InstructionApplyActions(#[
                             new ActionDrop()
@@ -1224,7 +1224,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     dpnId = 123bi
                     cookie = 110100480bi
                     flowId = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-                    flowName = "ACL"
+                    flowName = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
                     instructionInfoList = #[
                         new InstructionApplyActions(#[
                             new ActionNxConntrack(2, 0, 0, 5000, 213 as short)
