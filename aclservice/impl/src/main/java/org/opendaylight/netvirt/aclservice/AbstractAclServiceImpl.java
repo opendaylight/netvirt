@@ -265,8 +265,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             List<InstructionInfo> instructions =
                     AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclRuleBasedFilterTable());
             instructions.add(AclServiceUtils.getWriteMetadataForRemoteAclTag(remoteAclTag));
-            syncFlow(port.getDpId(), getAclFilterCumDispatcherTable(), flowId,
-                    AclConstants.ACE_GOTO_NEXT_REMOTE_ACL_PRIORITY, "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
+            syncFlow(port.getDpId(), port.getInterfaceId(), getAclFilterCumDispatcherTable(), flowId,
+                    AclConstants.ACE_GOTO_NEXT_REMOTE_ACL_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
                     instructions, addOrRemove);
 
             previousRemoteAclTag = remoteAclTag;
@@ -283,8 +283,9 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         List<InstructionInfo> instructions =
                 AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclRuleBasedFilterTable());
         instructions.add(AclServiceUtils.getWriteMetadataForRemoteAclTag(firstRemoteAclTag));
-        syncFlow(port.getDpId(), getAclFilterCumDispatcherTable(), flowId, AclConstants.ACE_FIRST_REMOTE_ACL_PRIORITY,
-                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        syncFlow(port.getDpId(), port.getInterfaceId(), getAclFilterCumDispatcherTable(), flowId,
+                AclConstants.ACE_FIRST_REMOTE_ACL_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions,
+                addOrRemove);
     }
 
     protected void programLastRemoteAclEntryInDispatcherTable(AclInterface port, Integer lastRemoteAclTag,
@@ -296,8 +297,9 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 + lastRemoteAclTag;
 
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
-        syncFlow(port.getDpId(), getAclFilterCumDispatcherTable(), flowId, AclConstants.ACE_LAST_REMOTE_ACL_PRIORITY,
-                "ACL", 0, 0, AclServiceUtils.getDropFlowCookie(port.getLPortTag()), matches, instructions, addOrRemove);
+        syncFlow(port.getDpId(), port.getInterfaceId(), getAclFilterCumDispatcherTable(), flowId,
+                AclConstants.ACE_LAST_REMOTE_ACL_PRIORITY, 0, 0, AclServiceUtils.getDropFlowCookie(port.getLPortTag()),
+                matches, instructions, addOrRemove);
     }
 
     private void programAcl(AclInterface port, Action action, int addOrRemove) {
@@ -400,8 +402,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                     + ace.getKey().getRuleName();
 
             int operation = addOrRemove == NwConstants.MOD_FLOW ? NwConstants.DEL_FLOW : addOrRemove;
-            syncFlow(port.getDpId(), getAclFilterCumDispatcherTable(), flowId, flowPriority, "ACL", 0, 0,
-                    AclConstants.COOKIE_ACL_BASE, matches, instructions, operation);
+            syncFlow(port.getDpId(), port.getInterfaceId(), getAclFilterCumDispatcherTable(), flowId, flowPriority,
+                    0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, operation);
 
             if (addOrRemove != NwConstants.DEL_FLOW) {
                 programAclForExistingTrafficTable(port, ace, addOrRemove, flowName, matches, flowPriority);
@@ -432,8 +434,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                     + ace.getKey().getRuleName();
 
             int operation = addOrRemove == NwConstants.MOD_FLOW ? NwConstants.DEL_FLOW : addOrRemove;
-            syncFlow(port.getDpId(), getAclRuleBasedFilterTable(), flowId, flowPriority, "ACL", 0, 0,
-                    AclConstants.COOKIE_ACL_BASE, matches, instructions, operation);
+            syncFlow(port.getDpId(), port.getInterfaceId(), getAclRuleBasedFilterTable(), flowId, flowPriority,
+                    0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, operation);
 
             if (addOrRemove != NwConstants.DEL_FLOW) {
                 programAclForExistingTrafficTable(port, ace, addOrRemove, flowName, matches,
@@ -458,7 +460,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 AclServiceUtils.createCtMarkInstructionForNewState(getAclFilterCumDispatcherTable(), port.getElanId());
         // Reversing the flow add/delete operation for this table.
         int operation = (addOrRemove == NwConstants.ADD_FLOW) ? NwConstants.DEL_FLOW : NwConstants.ADD_FLOW;
-        syncFlow(port.getDpId(), getAclForExistingTrafficTable(), newFlowName, priority, "ACL", 0,
+        syncFlow(port.getDpId(), port.getInterfaceId(), getAclForExistingTrafficTable(), newFlowName, priority, 0,
                 AclServiceUtils.getHardTimoutForApplyStatefulChangeOnExistingTraffic(ace, aclServiceUtils),
                 AclConstants.COOKIE_ACL_BASE, newMatches, instructions, operation);
     }
@@ -537,14 +539,14 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      *
      * @param dpId
      *            the dpId
+     * @param interfaceId
+     *            the interfaceId
      * @param tableId
      *            the tableId
      * @param flowId
      *            the flowId
      * @param priority
      *            the priority
-     * @param flowName
-     *            the flow name
      * @param idleTimeOut
      *            the idle timeout
      * @param hardTimeOut
@@ -558,20 +560,19 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param addOrRemove
      *            add or remove the entries.
      */
-    protected void syncFlow(BigInteger dpId, short tableId, String flowId, int priority, String flowName,
+    protected void syncFlow(BigInteger dpId, String interfaceId, short tableId, String flowId, int priority,
             int idleTimeOut, int hardTimeOut, BigInteger cookie, List<? extends MatchInfoBase> matches,
             List<InstructionInfo> instructions, int addOrRemove) {
-        jobCoordinator.enqueueJob(flowName, () -> {
+        jobCoordinator.enqueueJob((AclConstants.ACL_JOB_KEY_PREFIX + interfaceId), () -> {
             if (addOrRemove == NwConstants.DEL_FLOW) {
-                FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName,
-                        idleTimeOut, hardTimeOut, cookie, matches, null);
+                FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority,
+                        flowId, idleTimeOut, hardTimeOut, cookie, matches, null);
                 LOG.trace("Removing Acl Flow DpnId {}, flowId {}", dpId, flowId);
 
                 return Collections.singletonList(mdsalManager.removeFlow(dpId, flowEntity));
-
             } else {
-                FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName,
-                        idleTimeOut, hardTimeOut, cookie, matches, instructions);
+                FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority,
+                        flowId, idleTimeOut, hardTimeOut, cookie, matches, instructions);
                 LOG.trace("Installing DpnId {}, flowId {}", dpId, flowId);
                 return Collections.singletonList(mdsalManager.installFlow(dpId, flowEntity));
             }
@@ -815,10 +816,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      */
     protected void programAclPortSpecificFixedRules(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
             int lportTag, String portId, Action action, int write) {
-        programGotoClassifierTableRules(dpId, allowedAddresses, lportTag, write);
+        programGotoClassifierTableRules(dpId, allowedAddresses, lportTag, portId, write);
         if (action == Action.ADD || action == Action.REMOVE) {
             programConntrackRecircRules(dpId, allowedAddresses, lportTag, portId, write);
-            programPortSpecificDropRules(dpId, lportTag, write);
+            programPortSpecificDropRules(dpId, lportTag, portId, write);
             programAclCommitRules(dpId, lportTag, portId, write);
         }
         LOG.info("programAclPortSpecificFixedRules: flows for dpId={}, lportId={}, action={}, write={}", dpId, lportTag,
@@ -826,7 +827,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     }
 
     protected abstract void programGotoClassifierTableRules(BigInteger dpId, List<AllowedAddressPairs> aaps,
-            int lportTag, int addOrRemove);
+            int lportTag, String portId, int addOrRemove);
 
     /**
      * Adds the rule to send the packet to the netfilter to check whether it is a known packet.
@@ -868,7 +869,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
         String flowName =
                 this.directionString + "_Fixed_Conntrk_" + dpId + "_" + lportTag + "_" + matchEtherType + "_Recirc";
-        syncFlow(dpId, getAclConntrackSenderTable(), flowName, AclConstants.ACL_DEFAULT_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, portId, getAclConntrackSenderTable(), flowName, AclConstants.ACL_DEFAULT_PRIORITY, 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -879,10 +880,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param lportTag the lport tag
      * @param addOrRemove whether to add or remove the flow
      */
-    protected void programPortSpecificDropRules(BigInteger dpId, int lportTag, int addOrRemove) {
+    protected void programPortSpecificDropRules(BigInteger dpId, int lportTag, String portId, int addOrRemove) {
         LOG.debug("Programming Drop Rules: DpId={}, lportTag={}, addOrRemove={}", dpId, lportTag, addOrRemove);
-        programConntrackInvalidDropRule(dpId, lportTag, addOrRemove);
-        programAclRuleMissDropRule(dpId, lportTag, addOrRemove);
+        programConntrackInvalidDropRule(dpId, lportTag, portId, addOrRemove);
+        programAclRuleMissDropRule(dpId, lportTag, portId, addOrRemove);
     }
 
     /**
@@ -892,14 +893,15 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param lportTag the lport tag
      * @param addOrRemove whether to add or remove the flow
      */
-    protected void programConntrackInvalidDropRule(BigInteger dpId, int lportTag, int addOrRemove) {
+    protected void programConntrackInvalidDropRule(BigInteger dpId, int lportTag, String portId, int addOrRemove) {
         List<MatchInfoBase> matches = AclServiceOFFlowBuilder.addLPortTagMatches(lportTag,
                 AclConstants.TRACKED_INV_CT_STATE, AclConstants.TRACKED_INV_CT_STATE_MASK, serviceMode);
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
 
         String flowId = this.directionString + "_Fixed_Conntrk_Drop" + dpId + "_" + lportTag + "_Tracked_Invalid";
-        syncFlow(dpId, getAclFilterCumDispatcherTable(), flowId, AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, "ACL",
-                0, 0, AclServiceUtils.getDropFlowCookie(lportTag), matches, instructions, addOrRemove);
+        syncFlow(dpId, portId, getAclFilterCumDispatcherTable(), flowId,
+                AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, 0, 0, AclServiceUtils.getDropFlowCookie(lportTag),
+                matches, instructions, addOrRemove);
     }
 
     /**
@@ -909,14 +911,14 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param lportTag the lport tag
      * @param addOrRemove the add or remove
      */
-    protected void programAclRuleMissDropRule(BigInteger dpId, int lportTag, int addOrRemove) {
+    protected void programAclRuleMissDropRule(BigInteger dpId, int lportTag, String portId, int addOrRemove) {
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
 
         String flowId = this.directionString + "_Fixed_Acl_Rule_Miss_Drop_" + dpId + "_" + lportTag;
-        syncFlow(dpId, getAclFilterCumDispatcherTable(), flowId, AclConstants.ACL_PORT_SPECIFIC_DROP_PRIORITY, "ACL", 0,
-                0, AclServiceUtils.getDropFlowCookie(lportTag), matches, instructions, addOrRemove);
+        syncFlow(dpId, portId, getAclFilterCumDispatcherTable(), flowId, AclConstants.ACL_PORT_SPECIFIC_DROP_PRIORITY,
+                0, 0, AclServiceUtils.getDropFlowCookie(lportTag), matches, instructions, addOrRemove);
     }
 
     /**
@@ -930,7 +932,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     protected void programAclCommitRules(BigInteger dpId, int lportTag, String portId, int addOrRemove) {
         programAclCommitRuleForConntrack(dpId, lportTag, portId, MatchEthernetType.IPV4, addOrRemove);
         programAclCommitRuleForConntrack(dpId, lportTag, portId, MatchEthernetType.IPV6, addOrRemove);
-        programAclCommitRuleForNonConntrack(dpId, lportTag, addOrRemove);
+        programAclCommitRuleForNonConntrack(dpId, lportTag, portId, addOrRemove);
     }
 
     /**
@@ -966,7 +968,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
         String flowName = directionString + "_Acl_Commit_Conntrack_" + dpId + "_" + lportTag + "_" + matchEtherType;
         // Flow for conntrack traffic to commit and resubmit to dispatcher
-        syncFlow(dpId, getAclCommitterTable(), flowName, AclConstants.ACL_DEFAULT_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, portId, getAclCommitterTable(), flowName, AclConstants.ACL_DEFAULT_PRIORITY, 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
@@ -977,7 +979,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param lportTag the lport tag
      * @param addOrRemove the add or remove
      */
-    protected void programAclCommitRuleForNonConntrack(BigInteger dpId, int lportTag, int addOrRemove) {
+    protected void programAclCommitRuleForNonConntrack(BigInteger dpId, int lportTag, String portId, int addOrRemove) {
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.addAll(AclServiceUtils.buildMatchesForLPortTagAndConntrackClassifierType(lportTag,
                 AclConntrackClassifierType.NON_CONNTRACK_SUPPORTED, serviceMode));
@@ -985,7 +987,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
         String flowName = this.directionString + "_Acl_Commit_Non_Conntrack_" + dpId + "_" + lportTag;
         // Flow for non-conntrack traffic to resubmit to dispatcher
-        syncFlow(dpId, getAclCommitterTable(), flowName, AclConstants.ACL_DEFAULT_PRIORITY, "ACL", 0, 0,
+        syncFlow(dpId, portId, getAclCommitterTable(), flowName, AclConstants.ACL_DEFAULT_PRIORITY, 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
