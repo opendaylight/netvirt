@@ -103,12 +103,6 @@ public class DhcpInterfaceEventListener
             LOG.trace("Interface operstatus is same orig {} updated {}", original, update);
             return;
         }
-
-        if (original.getOperStatus().equals(OperStatus.Unknown) || update.getOperStatus().equals(OperStatus.Unknown)) {
-            LOG.trace("New/old interface state is unknown not handling orig {} updated {}", original, update);
-            return;
-        }
-
         List<String> ofportIds = update.getLowerLayerIf();
         if (ofportIds == null || ofportIds.isEmpty()) {
             return;
@@ -116,8 +110,12 @@ public class DhcpInterfaceEventListener
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
         BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         String interfaceName = update.getName();
+        OperStatus updatedOperStatus = update.getOperStatus();
+        if (original.getOperStatus().equals(OperStatus.Up) && updatedOperStatus.equals(OperStatus.Unknown)) {
+            updatedOperStatus = OperStatus.Down;
+        }
         DhcpInterfaceUpdateJob job = new DhcpInterfaceUpdateJob(dhcpExternalTunnelManager, dataBroker,
-                interfaceName, dpnId, update.getOperStatus(), interfaceManager);
+                interfaceName, dpnId, updatedOperStatus, interfaceManager);
         jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DhcpMConstants.RETRY_COUNT);
     }
 
