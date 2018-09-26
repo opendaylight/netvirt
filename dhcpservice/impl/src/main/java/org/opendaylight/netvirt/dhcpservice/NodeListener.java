@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import java.math.BigInteger;
-import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -19,9 +18,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
-import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -57,10 +54,6 @@ public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeList
 
     @Override
     protected void remove(InstanceIdentifier<Node> identifier, Node del) {
-        NodeId nodeId = del.getId();
-        BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeId);
-        List<BigInteger> listOfDpns = DhcpServiceUtils.getListOfDpns(broker);
-        dhcpExternalTunnelManager.handleDesignatedDpnDown(dpnId, listOfDpns);
     }
 
     @Override
@@ -80,8 +73,6 @@ public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeList
         ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
             tx -> dhcpManager.setupDefaultDhcpFlows(tx, dpId)), LOG, "Error handling node addition for {}", add);
         dhcpExternalTunnelManager.installDhcpDropActionOnDpn(dpId);
-        List<BigInteger> listOfDpns = DhcpServiceUtils.getListOfDpns(broker);
-        dhcpExternalTunnelManager.handleDesignatedDpnDown(DhcpMConstants.INVALID_DPID, listOfDpns);
     }
 
     @Override
