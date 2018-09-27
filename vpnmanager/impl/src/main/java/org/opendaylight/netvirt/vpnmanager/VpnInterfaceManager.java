@@ -1567,6 +1567,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         List<String> oldVpnListCopy = new ArrayList<>();
         oldVpnListCopy.addAll(oldVpnList);
         List<String> newVpnList = vpnUtil.getVpnListForVpnInterface(update);
+        List<String> newVpnListCopy = new ArrayList<>();
+        newVpnListCopy.addAll(newVpnList);
 
         oldVpnList.removeAll(newVpnList);
         newVpnList.removeAll(oldVpnListCopy);
@@ -1594,11 +1596,67 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
              * oldVpnList = 1 and newVpnList = 1 (router VPN to Ext-BGPVPN)
              * oldVpnList = 1 and newVpnList = 1 (Ext-BGPVPN to router VPN)
              *
-             * TODO Two router VPN instance update use case will be addressed in separate patch
+             * Dual Router VPN Instance Update:
+             * ================================
+             * In this case single VPN interface will be part of maximum 3 VPN Instance only.
+             *
+             * 1st VPN Instance : router VPN or external BGP-VPN-1.
+             * 2nd VPN Instance : router VPN or external BGP-VPN-2.
+             * 3rd VPN Instance : Internet BGP-VPN(router-gw update/delete) for public network access.
+             *
+             * Dual Router --> Associated with common external BGP-VPN Instance.
+             * 1st router and 2nd router are getting associated with single External BGP-VPN
+             * 1) add 1st router to external bgpvpn --> oldVpnList=1, newVpnList=1;
+             * 2) add 2nd router to the same external bgpvpn --> oldVpnList=1, newVpnList=0
+             * In this case, we need to call removeVpnInterfaceCall() followed by addVpnInterfaceCall()
+             *
+             *
              */
             isVpnInstanceUpdate = Boolean.TRUE;
-            updateVpnInstanceChange(identifier, interfaceName, original, update, oldVpnList, newVpnList,
-                    oldVpnListCopy, futures);
+            if (vpnUtil.isDualRouterVpnUpdate(oldVpnListCopy, newVpnListCopy)) {
+                if ((oldVpnListCopy.size() == 2 || oldVpnListCopy.size() == 3)
+                        && (oldVpnList.size() == 1 && newVpnList.size() == 0)) {
+                    //Identify the external BGP-VPN Instance and pass that value as newVpnList
+                    List<String> externalBgpVpnList = new ArrayList<>();
+                    for (String newVpnName : newVpnListCopy) {
+                        String primaryRd = vpnUtil.getPrimaryRd(newVpnName);
+                        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnUtil.getVpnInstanceOpData(primaryRd);
+                        if (vpnInstanceOpDataEntry.getBgpvpnType() == VpnInstanceOpDataEntry
+                                .BgpvpnType.BGPVPNExternal) {
+                            externalBgpVpnList.add(newVpnName);
+                            break;
+                        }
+                    }
+                    //This call will execute removeVpnInterfaceCall() followed by addVpnInterfaceCall()
+                    updateVpnInstanceChange(identifier, interfaceName, original, update, oldVpnList,
+                            externalBgpVpnList, oldVpnListCopy, futures);
+
+                } else if ((oldVpnListCopy.size() == 2 || oldVpnListCopy.size() == 3)
+                        && (oldVpnList.size() == 0 && newVpnList.size() == 1)) {
+                    //Identify the router VPN Instance and pass that value as oldVpnList
+                    List<String> routerVpnList = new ArrayList<>();
+                    for (String newVpnName : newVpnListCopy) {
+                        String primaryRd = vpnUtil.getPrimaryRd(newVpnName);
+                        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnUtil.getVpnInstanceOpData(primaryRd);
+                        if (vpnInstanceOpDataEntry.getBgpvpnType() == VpnInstanceOpDataEntry
+                                .BgpvpnType.VPN) {
+                            routerVpnList.add(newVpnName);
+                            break;
+                        }
+                    }
+                    //This call will execute removeVpnInterfaceCall() followed by addVpnInterfaceCall()
+                    updateVpnInstanceChange(identifier, interfaceName, original, update, routerVpnList,
+                            newVpnList, oldVpnListCopy, futures);
+
+                } else {
+                    //Handle remaining use cases.
+                    updateVpnInstanceChange(identifier, interfaceName, original, update, oldVpnList, newVpnList,
+                            oldVpnListCopy, futures);
+                }
+            } else {
+                updateVpnInstanceChange(identifier, interfaceName, original, update, oldVpnList, newVpnList,
+                        oldVpnListCopy, futures);
+            }
         }
         return isVpnInstanceUpdate;
     }

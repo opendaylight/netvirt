@@ -2242,13 +2242,21 @@ public final class VpnUtil {
             builder.setRd(updatedRdList);
             return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                     OPERATIONAL, tx -> {
-                    InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier
-                            .builder(VpnInstanceOpData.class).child(VpnInstanceOpDataEntry.class,
-                                    new VpnInstanceOpDataEntryKey(primaryRd)).build();
-                    tx.merge(id, builder.build(), false);
-                    LOG.debug("updateVpnInstanceWithRdList: Successfully updated the VPN {} with list of RDs {}",
-                            vpnName, updatedRdList);
-                }));
+                        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier
+                                .builder(VpnInstanceOpData.class).child(VpnInstanceOpDataEntry.class,
+                                        new VpnInstanceOpDataEntryKey(primaryRd)).build();
+                        tx.merge(id, builder.build(), false);
+                        LOG.debug("updateVpnInstanceWithRdList: Successfully updated the VPN {} with list of RDs {}",
+                                vpnName, updatedRdList);
+                    }));
         });
+    }
+
+    public boolean isDualRouterVpnUpdate(List<String> oldVpnListCopy, List<String> newVpnListCopy) {
+        if ((oldVpnListCopy.size() == 2 && newVpnListCopy.size() == 3)
+                || (oldVpnListCopy.size() == 3 && newVpnListCopy.size() == 2)) {
+            return true;
+        }
+        return false;
     }
 }
