@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bc8f32c_c78c9c77",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-27T09:55:41Z",
+      "side": 1,
+      "message": "make read async. and delete on read success.\nAlso, if the router container is not empty but still contains one or more dpns for some reason, please LOG and then delete",
+      "range": {
+        "startLine": 532,
+        "startChar": 11,
+        "endLine": 539,
+        "endChar": 13
+      },
+      "revId": "c3484561853dc058bbc912d1e5396d0ef841d876",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
