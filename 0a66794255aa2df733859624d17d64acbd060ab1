@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "13005860_5d12c5fd",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-27T12:56:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "20759d81_04f28063",
+      "range": {
+        "startLine": 160,
+        "startChar": 69,
+        "endLine": 160,
+        "endChar": 78
+      },
+      "revId": "0a66794255aa2df733859624d17d64acbd060ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7431c805_2dd3a770",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2018-09-27T09:53:01Z",
       "side": 1,
       "message": "Move this logic into vpnInstanceListener.update() Let us avoid update vpn-instance-data in vpnInterfaceManager",
+      "range": {
+        "startLine": 2215,
+        "startChar": 8,
+        "endLine": 2221,
+        "endChar": 9
+      },
+      "revId": "0a66794255aa2df733859624d17d64acbd060ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2aacc695_8a4b5eb9",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2221,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-27T12:56:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7431c805_2dd3a770",
       "range": {
         "startLine": 2215,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "52e6e3a7_ed0db06b",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-27T12:56:15Z",
+      "side": 1,
+      "message": "Existing logic won\u0027t work for just to updating the RD list to BGP. Since all the existing condition will get executed only on if below condition is satisfied.\nif (!original.isIpv4Configured() \u0026\u0026 update.isIpv4Configured())\n\nConsider the scenario where VPN instance is configured with single RD first then later RD list is getting updated. In this case original.isIpv4Configured() value is true and update.isIpv4Configured() value also true. In this case we have to advertise the updated RD list to BGP, we required this additional check.",
+      "parentUuid": "ae5390d3_fe927e08",
+      "range": {
+        "startLine": 266,
+        "startChar": 25,
+        "endLine": 273,
+        "endChar": 25
+      },
+      "revId": "0a66794255aa2df733859624d17d64acbd060ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "04e93bde_3f6ebd10",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 6
@@ -82,6 +154,30 @@
       "writtenOn": "2018-09-27T09:53:01Z",
       "side": 1,
       "message": "Merge only the updated rdList directly. No need to read vpnOpData in the caller.",
+      "range": {
+        "startLine": 2236,
+        "startChar": 20,
+        "endLine": 2244,
+        "endChar": 33
+      },
+      "revId": "0a66794255aa2df733859624d17d64acbd060ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b049932e_6bdd663c",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2244,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-09-27T12:56:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "04e93bde_3f6ebd10",
       "range": {
         "startLine": 2236,
         "startChar": 20,
