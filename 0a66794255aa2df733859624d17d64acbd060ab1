@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20759d81_04f28063",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-27T09:53:01Z",
+      "side": 1,
+      "message": "Remove ignoring word",
+      "range": {
+        "startLine": 160,
+        "startChar": 69,
+        "endLine": 160,
+        "endChar": 78
+      },
+      "revId": "0a66794255aa2df733859624d17d64acbd060ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7431c805_2dd3a770",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2221,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-27T09:53:01Z",
+      "side": 1,
+      "message": "Move this logic into vpnInstanceListener.update() Let us avoid update vpn-instance-data in vpnInterfaceManager",
+      "range": {
+        "startLine": 2215,
+        "startChar": 8,
+        "endLine": 2221,
+        "endChar": 9
+      },
+      "revId": "0a66794255aa2df733859624d17d64acbd060ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae5390d3_fe927e08",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-27T09:53:01Z",
+      "side": 1,
+      "message": "why is this required? Wont the block from :253 to :262 advertise ?the newly updated RDs?",
+      "range": {
+        "startLine": 266,
+        "startChar": 25,
+        "endLine": 273,
+        "endChar": 25
+      },
+      "revId": "0a66794255aa2df733859624d17d64acbd060ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "04e93bde_3f6ebd10",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2244,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-09-27T09:53:01Z",
+      "side": 1,
+      "message": "Merge only the updated rdList directly. No need to read vpnOpData in the caller.",
+      "range": {
+        "startLine": 2236,
+        "startChar": 20,
+        "endLine": 2244,
+        "endChar": 33
+      },
+      "revId": "0a66794255aa2df733859624d17d64acbd060ab1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
