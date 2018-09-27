@@ -2228,4 +2228,12 @@ public final class VpnUtil {
         return vpnInter.getVpnInstanceNames().stream()
                 .map(VpnInstanceNames::getVpnName).collect(Collectors.toList());
     }
+
+    public boolean isDualRouterVpnUpdate(List<String> oldVpnListCopy, List<String> newVpnListCopy) {
+        if ((oldVpnListCopy.size() == 2 && newVpnListCopy.size() == 3)
+                || (oldVpnListCopy.size() == 3 && newVpnListCopy.size() == 2)) {
+            return true;
+        }
+        return false;
+    }
 }
