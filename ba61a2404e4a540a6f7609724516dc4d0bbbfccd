@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b96a25f0_7dec0e4e",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-01T06:46:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f55deafd_adc400a7",
+      "range": {
+        "startLine": 162,
+        "startChar": 16,
+        "endLine": 162,
+        "endChar": 38
+      },
+      "revId": "ba61a2404e4a540a6f7609724516dc4d0bbbfccd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b6c9336_60fd60a2",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 7
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "d20cbd0b_b21129a3",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-01T06:46:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8b6c9336_60fd60a2",
+      "range": {
+        "startLine": 166,
+        "startChar": 22,
+        "endLine": 166,
+        "endChar": 40
+      },
+      "revId": "ba61a2404e4a540a6f7609724516dc4d0bbbfccd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8acd9523_091aee48",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
         "patchSetId": 7
@@ -59,6 +107,30 @@
       "writtenOn": "2018-10-01T06:25:55Z",
       "side": 1,
       "message": "should you not be advertising only update - original rd list and not the entire update rd list?",
+      "range": {
+        "startLine": 268,
+        "startChar": 39,
+        "endLine": 271,
+        "endChar": 92
+      },
+      "revId": "ba61a2404e4a540a6f7609724516dc4d0bbbfccd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "668d7970_5a5c4dfc",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-01T06:46:00Z",
+      "side": 1,
+      "message": "This logic will update the entire updated RD list through foreach loop.\nfinal List\u003cString\u003e rds \u003d update.getRd();",
+      "parentUuid": "8acd9523_091aee48",
       "range": {
         "startLine": 268,
         "startChar": 39,
