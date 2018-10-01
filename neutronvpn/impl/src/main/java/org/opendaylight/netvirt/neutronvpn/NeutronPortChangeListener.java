@@ -315,7 +315,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                                      IpVersionChoice.IPV6, routerId, true)) {
                         neutronvpnUtils.updateVpnInstanceWithIpFamily(internetVpnId.getValue(), IpVersionChoice.IPV6,
                                 true);
-                        neutronvpnUtils.updateVpnInstanceWithFallback(internetVpnId, true);
+                        neutronvpnUtils.updateVpnInstanceWithFallback(routerId, internetVpnId, true);
                     }
                 }
                 if (! subnetMapList.isEmpty()) {
@@ -417,7 +417,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             if (vpnInstanceInternetIpVersionRemoved) {
                 neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnInstanceInternetUuid.getValue(),
                         IpVersionChoice.IPV6, false);
-                neutronvpnUtils.updateVpnInstanceWithFallback(vpnInstanceInternetUuid, false);
+                neutronvpnUtils.updateVpnInstanceWithFallback(routerId, vpnInstanceInternetUuid, false);
             }
         }
     }

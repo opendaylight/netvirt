@@ -1730,7 +1730,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
          */
         if (vpnExtUuid != null) {
             //Update V6 Internet default route match with new VPN metadata
-            neutronvpnUtils.updateVpnInstanceWithFallback(vpnExtUuid, isBeingAssociated);
+            if (isBeingAssociated) {
+                neutronvpnUtils.updateVpnInstanceWithFallback(oldVpnId, vpnExtUuid, isBeingAssociated);
+            } else {
+                neutronvpnUtils.updateVpnInstanceWithFallback(newVpnId, vpnExtUuid, isBeingAssociated);
+            }
         }
         //Update Router Interface first synchronously.
         //CAUTION:  Please DONOT make the router interface VPN Movement as an asynchronous commit again !
@@ -2423,7 +2427,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         if (!ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
             neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), IpVersionChoice.IPV6, true);
             LOG.info("associateExtNetworkToVpn: add IPv6 Internet default route in VPN {}", vpnId.getValue());
-            neutronvpnUtils.updateVpnInstanceWithFallback(vpnId, true);
         }
         return true;
     }
@@ -2552,7 +2555,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), IpVersionChoice.IPV6, false);
             LOG.info("disassociateExtNetworkFromVpn: withdraw IPv6 Internet default route from VPN {}",
                     vpnId.getValue());
-            neutronvpnUtils.updateVpnInstanceWithFallback(vpnId, false);
         }
         return true;
     }
@@ -3270,7 +3272,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             LOG.info("addV6PrivateSubnetToExtNetwork: Advertise IPv6 Private Subnet {} to Internet VPN {}",
                     subnetMap.getId(), internetVpnId.getValue());
         }
-        neutronvpnUtils.updateVpnInstanceWithFallback(internetVpnId, true);
+        neutronvpnUtils.updateVpnInstanceWithFallback(routerId, internetVpnId, true);
     }
 
     protected void removeV6PrivateSubnetToExtNetwork(@Nonnull Uuid routerId, @Nonnull Uuid internetVpnId,
@@ -3282,6 +3284,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             LOG.info("removeV6PrivateSubnetToExtNetwork: withdraw IPv6 Private subnet {} from Internet VPN {}",
                     subnetMap.getId(), internetVpnId.getValue());
         }
-        neutronvpnUtils.updateVpnInstanceWithFallback(internetVpnId, false);
+        neutronvpnUtils.updateVpnInstanceWithFallback(routerId, internetVpnId, false);
     }
 }
