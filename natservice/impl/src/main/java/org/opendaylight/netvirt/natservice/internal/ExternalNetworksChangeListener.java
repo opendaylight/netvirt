@@ -25,6 +25,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
@@ -51,6 +52,7 @@ public class ExternalNetworksChangeListener
     private final FloatingIPListener floatingIpListener;
     private final ExternalRoutersListener externalRouterListener;
     private final OdlInterfaceRpcService interfaceManager;
+    private final INeutronVpnManager nvpnManager;
     private final JobCoordinator coordinator;
     private final NatMode natMode;
 
@@ -58,6 +60,7 @@ public class ExternalNetworksChangeListener
     public ExternalNetworksChangeListener(final DataBroker dataBroker, final FloatingIPListener floatingIpListener,
                                           final ExternalRoutersListener externalRouterListener,
                                           final OdlInterfaceRpcService interfaceManager,
+                                          final INeutronVpnManager nvpnManager,
                                           final NatserviceConfig config,
                                           final JobCoordinator coordinator) {
         super(Networks.class, ExternalNetworksChangeListener.class);
@@ -66,6 +69,7 @@ public class ExternalNetworksChangeListener
         this.floatingIpListener = floatingIpListener;
         this.externalRouterListener = externalRouterListener;
         this.interfaceManager = interfaceManager;
+        this.nvpnManager = nvpnManager;
         this.coordinator = coordinator;
         if (config != null) {
             this.natMode = config.getNatMode();
@@ -180,6 +184,14 @@ public class ExternalNetworksChangeListener
                     floatingIpListener.createNATFlowEntries(dpnId, portName, routerId.getValue(), network.getId(),
                             ipMap, writeFlowInvTx);
                 }
+                //install V6 default fallback rule in FIB_TABLE
+                if (nvpnManager.isV6SubnetIsPartOfRouter(routerId)) {
+                    Uuid routerVpnId = NatUtil.getVpnForRouter(dataBroker, routerId.getValue());
+                    nvpnManager.addV6InternetDefaultRoute(dpnId,
+                            NatUtil.getVpnId(dataBroker, network.getVpnid().getValue()),
+                            NatUtil.getVpnId(dataBroker, routerVpnId.getValue()));
+
+                }
             }
         }
 
@@ -285,6 +297,12 @@ public class ExternalNetworksChangeListener
                         for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
                             floatingIpListener.removeNATFlowEntries(dpnId, portName, vpnName, routerId.getValue(),
                                     intExtPortMap, tx);
+                        }
+                        //remove V6 internet default fallback rule in FIB_TABLE
+                        if (nvpnManager.isV6SubnetIsPartOfRouter(routerId)) {
+                            Uuid routerVpnId = NatUtil.getVpnForRouter(dataBroker, routerId.getValue());
+                            nvpnManager.removeV6InternetDefaultRoute(dpnId, NatUtil.getVpnId(dataBroker, vpnName),
+                                    NatUtil.getVpnId(dataBroker, routerVpnId.getValue()));
                         }
                     }
                 }).get();

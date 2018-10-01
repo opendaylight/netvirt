@@ -37,6 +37,7 @@ import org.opendaylight.netvirt.natservice.internal.ExternalNetworksChangeListen
 import org.opendaylight.netvirt.natservice.internal.ExternalRoutersListener;
 import org.opendaylight.netvirt.natservice.internal.FloatingIPListener;
 import org.opendaylight.netvirt.natservice.internal.NatUtil;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
@@ -54,6 +55,8 @@ public class ExternalNetworksChangeListenerTest {
     @Mock
     IMdsalApiManager mdsalManager;
     @Mock
+    INeutronVpnManager nvpnManager;
+    @Mock
     GroupEntity groupMock;
     InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
         .external.networks.Networks> id = null;
@@ -68,6 +71,7 @@ public class ExternalNetworksChangeListenerTest {
             Mockito.mock(FloatingIPListener.class),
             Mockito.mock(ExternalRoutersListener.class),
             Mockito.mock(OdlInterfaceRpcService.class),
+            Mockito.mock(INeutronVpnManager.class),
             Mockito.mock(NatserviceConfig.class),
             Mockito.mock(JobCoordinator.class));
 

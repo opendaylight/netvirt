@@ -1649,21 +1649,20 @@ public class NeutronvpnUtils {
         return getSubnetsforVpn(router.getUuid());
     }
 
-    public void updateVpnInstanceWithFallback(Uuid vpnName, boolean add) {
+    public void updateVpnInstanceWithFallback(Uuid routerId, Uuid vpnName, boolean add) {
         VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName.getValue());
         if (vpnInstanceOpDataEntry == null) {
             // BGPVPN context not found
             return;
         }
-        Uuid routerIdUuid = getRouterforVpn(vpnName);
-        if (routerIdUuid != null) {
-            List<BigInteger> dpnIds = getDpnsForRouter(routerIdUuid.getValue());
+        if (routerId != null) {
+            List<BigInteger> dpnIds = getDpnsForRouter(routerId.getValue());
             if (!dpnIds.isEmpty()) {
                 Long internetBgpVpnId = vpnInstanceOpDataEntry.getVpnId();
-                VpnInstanceOpDataEntry vpnOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(routerIdUuid.getValue());
+                VpnInstanceOpDataEntry vpnOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(routerId.getValue());
                 Long routerIdAsLong = vpnOpDataEntry.getVpnId();
                 long vpnId;
-                Uuid rtrVpnId = getVpnForRouter(routerIdUuid, true);
+                Uuid rtrVpnId = getVpnForRouter(routerId, true);
                 if (rtrVpnId == null) {
                     //If external BGP-VPN is not associated with router then routerId is same as routerVpnId
                     vpnId = routerIdAsLong;
@@ -1786,5 +1785,21 @@ public class NeutronvpnUtils {
         LOG.error("getSubnetmapListFromNetworkId: Failed as subnetIdList is null for network {}",
                 networkId.getValue());
         return null;
+    }
+
+    protected boolean isV6SubnetIsPartOfVpn(Uuid routerId) {
+        List<Uuid> subnetList = getSubnetsforVpn(routerId);
+        for (Uuid snId: subnetList) {
+            Subnetmap sm = getSubnetmap(snId);
+            if (sm == null) {
+                continue;
+            }
+            IpVersionChoice ipVers = getIpVersionFromString(sm.getSubnetIp());
+            //skip further subnet processing once found first V6 subnet for the router
+            if (ipVers.isIpVersionChosen(IpVersionChoice.IPV6)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
