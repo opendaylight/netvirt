@@ -20,6 +20,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -61,6 +62,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.neutron.vip.states.VipState;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,13 +77,15 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     private final FloatingIPHandler floatingIPHandler;
     private final SNATDefaultRouteProgrammer defaultRouteProgrammer;
     private final JobCoordinator coordinator;
+    private final VipStateTracker vipStateTracker;
 
     @Inject
     public FloatingIPListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                               final OdlInterfaceRpcService interfaceManager,
                               final FloatingIPHandler floatingIPHandler,
                               final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
-                              final JobCoordinator coordinator) {
+                              final JobCoordinator coordinator,
+                              final VipStateTracker vipStateTracker) {
         super(InternalToExternalPortMap.class, FloatingIPListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -90,6 +94,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         this.floatingIPHandler = floatingIPHandler;
         this.defaultRouteProgrammer = snatDefaultRouteProgrammer;
         this.coordinator = coordinator;
+        this.vipStateTracker = vipStateTracker;
     }
 
     @Override
@@ -560,6 +565,21 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
     }
 
+    private BigInteger getAndCleanDpnForVip(String externalIp) {
+        VipState vipState = null;
+        try {
+            vipState = vipStateTracker.get(externalIp).orNull();
+        } catch (ReadFailedException e) {
+            return BigInteger.ZERO;
+        }
+        if (vipState == null) {
+            return BigInteger.ZERO;
+        }
+
+        vipStateTracker.deleteVipState(vipState);
+        return vipState.getDpnId();
+    }
+
     void removeNATFlowEntries(String interfaceName, final InternalToExternalPortMap mapping,
                               InstanceIdentifier<RouterPorts> portIid, final String routerName, BigInteger dpnId,
                               WriteTransaction removeFlowInvTx) {
@@ -569,9 +589,13 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         if (dpnId == null) {
             dpnId = NatUtil.getDpnForInterface(interfaceManager, interfaceName);
             if (dpnId.equals(BigInteger.ZERO)) {
-                LOG.warn("removeNATFlowEntries: Abort processing Floating ip configuration. No DPN for port: {}",
+                LOG.debug("removeNATFlowEntries: No DPN for port: {}, checking if it's a VIP",
                         interfaceName);
-                return;
+                dpnId = getAndCleanDpnForVip(mapping.getInternalIp());
+                if (dpnId.equals(BigInteger.ZERO)) {
+                    LOG.warn("removeNATFlowEntries: No DPN for port: {}, aborting processing", interfaceName);
+                    return;
+                }
             }
         }
 

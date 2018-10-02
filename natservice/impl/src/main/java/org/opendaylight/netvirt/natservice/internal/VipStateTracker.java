@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -51,6 +52,14 @@ public class VipStateTracker extends DataObjectCache<String, VipState> {
             tx.put(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(NeutronVipStates.class)
                             .child(VipState.class, vipState.getKey()).build(),
                     vipState, true);
+        });
+    }
+
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED")
+    public void deleteVipState(VipState vipState) {
+        txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            tx.delete(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(NeutronVipStates.class)
+                            .child(VipState.class, vipState.getKey()).build());
         });
     }
 }
