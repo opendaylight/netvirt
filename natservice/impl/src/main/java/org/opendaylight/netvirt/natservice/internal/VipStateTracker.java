@@ -48,6 +48,13 @@ public class VipStateTracker extends DataObjectCache<String, VipState> {
         return new VipStateBuilder().setIp(ip).setDpnId(dpnId).setIfcName(ifcName).build();
     }
 
+    public void deleteVipState(VipState vipState) {
+        txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
+            tx.delete(InstanceIdentifier.builder(NeutronVipStates.class)
+                            .child(VipState.class, vipState.key()).build());
+        });
+    }
+
     public FluentFuture<Void> writeVipState(VipState vipState) {
         return txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
             tx.put(InstanceIdentifier.builder(NeutronVipStates.class)
