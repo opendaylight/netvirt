@@ -29,6 +29,7 @@ import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -195,7 +196,11 @@ public class RouterDpnChangeListener
                                             snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routerId,
                                                 writeFlowInvTx);
                                         }
-
+                                        //add V6 internet default fallback rule in FIB_TABLE if V6 subnet is part
+                                        // of router.
+                                        nvpnManager.programV6InternetFallbackFlow(new Uuid(routerUuid),
+                                                NatUtil.getVpnIdfromNetworkId(dataBroker, networkId),
+                                                NwConstants.ADD_FLOW);
                                         if (router.isEnableSnat()) {
                                             LOG.info("add : SNAT enabled for router {}", routerUuid);
                                             if (extNwProvType == null) {
@@ -288,7 +293,10 @@ public class RouterDpnChangeListener
                                     snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, routerId,
                                         removeFlowInvTx);
                                 }
-
+                                //remove V6 internet default fallback rule in FIB_TABLE if V6 subnet is part of router.
+                                nvpnManager.programV6InternetFallbackFlow(new Uuid(routerUuid),
+                                        NatUtil.getVpnIdfromNetworkId(dataBroker, networkId),
+                                        NwConstants.DEL_FLOW);
                                 if (router.isEnableSnat()) {
                                     LOG.info("remove : SNAT enabled for router {}", routerUuid);
                                     removeSNATFromDPN(dpnId, routerUuid, routerId, vpnId, networkId, removeFlowInvTx);
