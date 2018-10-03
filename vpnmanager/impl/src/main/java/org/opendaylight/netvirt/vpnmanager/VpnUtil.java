@@ -2449,13 +2449,32 @@ public final class VpnUtil {
             builder.setRd(updatedRdList);
             return Collections.singletonList(new ManagedNewTransactionRunnerImpl(
                     dataBroker).callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier
-                            .builder(VpnInstanceOpData.class).child(VpnInstanceOpDataEntry.class,
-                                    new VpnInstanceOpDataEntryKey(primaryRd)).build();
-                        tx.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
-                        LOG.debug("updateVpnInstanceWithRdList: Successfully updated the VPN {} with list of RDs {}",
-                                vpnName, updatedRdList);
-                    }));
+                InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier
+                        .builder(VpnInstanceOpData.class).child(VpnInstanceOpDataEntry.class,
+                                new VpnInstanceOpDataEntryKey(primaryRd)).build();
+                tx.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
+                LOG.debug("updateVpnInstanceWithRdList: Successfully updated the VPN {} with list of RDs {}",
+                        vpnName, updatedRdList);
+            }));
         });
+    }
+
+    public static void checkAndUpdateV6InternetDefFlowIfNeeded(DataBroker dataBroker, INeutronVpnManager nvManager,
+                                                               BigInteger dpnId, String vpnName, long vpnId) {
+        if (isBgpVpnInternet(dataBroker, vpnName)) {
+            return;
+        } else {
+            Uuid routerId = nvManager.getRouterIdforVpnInstance(new Uuid(vpnName));
+            if (routerId != null) {
+                //check internet vpn is enabled for the router
+                Uuid internetVpnId = nvManager.isInternetVpnBoundToRouter(new Uuid(routerId));
+                if (internetVpnId != null) {
+                    nvManager.addV6InternetDefaultRoute(dpnId, routerId.getValue(),
+                            getVpnId(dataBroker, internetVpnId.getValue()), vpnId);
+                    LOG.debug("checkAndUpdateV6InternetDefFlowIfNeeded: Successfully added V6 internet vpn {} default "
+                            + "fallback flow on DPN {} for the router {} ", vpnName, dpnId, routerId);
+                }
+            }
+        }
     }
 }
