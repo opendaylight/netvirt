@@ -172,6 +172,13 @@ public class RouterDpnChangeListener
                         Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerUuid);
                         return Collections.singletonList(
                             txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
+                                long internetVpnId = NatConstants.INVALID_ID;
+                                boolean isV6SubnetPartOfRouter = false;
+                                if (nvpnManager.isV6SubnetPartOfNeutronRouter(new Uuid(routerUuid))) {
+                                    Uuid internetVpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
+                                    internetVpnId = NatUtil.getVpnId(dataBroker, internetVpnUuid.getValue());
+                                    isV6SubnetPartOfRouter = true;
+                                }
                                 Long vpnId;
                                 if (vpnName == null) {
                                     LOG.debug("add : Internal vpn associated to router {}", routerUuid);
@@ -186,6 +193,16 @@ public class RouterDpnChangeListener
                                         "add : Installing default route in FIB on dpn {} for router {} with vpn {}",
                                         dpnId, routerUuid, vpnId);
                                     snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, confTx);
+                                    /* install V6 internet default fallback rule in FIB_TABLE if router
+                                     * is having V6 subnet
+                                     */
+                                    if (isV6SubnetPartOfRouter && internetVpnId != NatConstants.INVALID_ID) {
+                                        LOG.debug("add : Install V6 internet default fallback rule "
+                                                        + "for the router {} with InternetVpnId {} ",
+                                                routerUuid, internetVpnId);
+                                        nvpnManager.addV6InternetDefaultRoute(dpnId, routerUuid,
+                                                internetVpnId, vpnId);
+                                    }
                                 } else {
                                     LOG.debug("add : External BGP vpn associated to router {}", routerUuid);
                                     vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
@@ -198,6 +215,16 @@ public class RouterDpnChangeListener
                                     LOG.debug("add : Installing default route in FIB on dpn {} for routerId {} with "
                                         + "vpnId {}...", dpnId, routerUuid, vpnId);
                                     snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routerId, confTx);
+                                    /* install V6 internet default fallback rule in FIB_TABLE if router
+                                     * is having V6 subnet
+                                     */
+                                    if (isV6SubnetPartOfRouter && internetVpnId != NatConstants.INVALID_ID) {
+                                        LOG.debug("add : Install V6 internet default fallback rule "
+                                                        + "for the router {} with InternetVpnId {} ",
+                                                routerUuid, internetVpnId);
+                                        nvpnManager.addV6InternetDefaultRoute(dpnId, routerUuid,
+                                                internetVpnId, vpnId);
+                                    }
                                 }
                                 if (router.isEnableSnat()) {
                                     LOG.info("add : SNAT enabled for router {}", routerUuid);
@@ -264,6 +291,13 @@ public class RouterDpnChangeListener
                         Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerUuid);
                         return Collections.singletonList(
                             txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
+                                long internetVpnId = NatConstants.INVALID_ID;
+                                boolean isV6SubnetPartOfRouter = false;
+                                if (nvpnManager.isV6SubnetPartOfNeutronRouter(new Uuid(routerUuid))) {
+                                    Uuid internetVpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
+                                    internetVpnId = NatUtil.getVpnId(dataBroker, internetVpnUuid.getValue());
+                                    isV6SubnetPartOfRouter = true;
+                                }
                                 Long vpnId;
                                 if (vpnName == null) {
                                     LOG.debug("remove : Internal vpn associated to router {}", routerUuid);
@@ -277,6 +311,16 @@ public class RouterDpnChangeListener
                                     LOG.debug("remove : Removing default route in FIB on dpn {} for vpn {} ...", dpnId,
                                         vpnName);
                                     snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, confTx);
+                                    /* remove V6 internet default fallback rule in FIB_TABLE if router
+                                     * is having V6 subnet
+                                     */
+                                    if (isV6SubnetPartOfRouter && internetVpnId != NatConstants.INVALID_ID) {
+                                        LOG.debug("remove : Remove V6 internet default fallback rule "
+                                                        + "for the router {} with InternetVpnId {} ",
+                                                routerUuid, internetVpnId);
+                                        nvpnManager.removeV6InternetDefaultRoute(dpnId, routerUuid, internetVpnId,
+                                                vpnId);
+                                    }
                                 } else {
                                     LOG.debug("remove : External vpn associated to router {}", routerUuid);
                                     vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
@@ -289,6 +333,16 @@ public class RouterDpnChangeListener
                                     LOG.debug("remove : Removing default route in FIB on dpn {} for vpn {} ...", dpnId,
                                         vpnName);
                                     snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, routerId, confTx);
+                                    /* remove V6 internet default fallback rule in FIB_TABLE if router
+                                     * is having V6 subnet
+                                     */
+                                    if (isV6SubnetPartOfRouter && internetVpnId != NatConstants.INVALID_ID) {
+                                        LOG.debug("remove : Remove V6 internet default fallback rule "
+                                                        + "for the router {} with InternetVpnId {} ",
+                                                routerUuid, internetVpnId);
+                                        nvpnManager.removeV6InternetDefaultRoute(dpnId, routerUuid, internetVpnId,
+                                                vpnId);
+                                    }
                                 }
 
                                 if (router.isEnableSnat()) {
