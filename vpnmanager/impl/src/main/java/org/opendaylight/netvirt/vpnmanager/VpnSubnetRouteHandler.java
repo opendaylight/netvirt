@@ -104,24 +104,28 @@ public class VpnSubnetRouteHandler {
                 LOGGING_PREFIX + " onSubnetAddedToVpn: SubnetPrefix cannot be null or empty!");
         Preconditions.checkNotNull(elanTag, LOGGING_PREFIX + " onSubnetAddedToVpn: ElanTag cannot be null or empty!");
 
-        String vpnName;
-        if (subnetmap.getVpnId() != null) {
-            vpnName = subnetmap.getVpnId().getValue();
-            long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-            if (vpnId == VpnConstants.INVALID_ID) {
-                vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataType.vpnInstanceToId, vpnName,
-                        VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
-                vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-                if (vpnId == VpnConstants.INVALID_ID) {
-                    LOG.error("{} onSubnetAddedToVpn: VpnInstance to VPNId mapping not yet available for VpnName {} "
-                              + "processing subnet {} with IP {}, bailing out now.", LOGGING_PREFIX, vpnName, subnetId,
-                            subnetIp);
-                    return;
-                }
-            }
-        } else {
+        if (subnetmap.getVpnId() == null) {
             LOG.error("onSubnetAddedToVpn: VpnId {} for subnet {} not found, bailing out", subnetmap.getVpnId(),
-                      subnetId);
+                    subnetId);
+            return;
+        }
+        String vpnName = subnetmap.getVpnId().getValue();
+        long vpnId = waitAndGetVpnIdIfInvalid(vpnName);
+        if (vpnId == VpnConstants.INVALID_ID) {
+            LOG.error(
+                    "{} onSubnetAddedToVpn: VpnInstance to VPNId mapping not yet available for VpnName {} "
+                            + "processing subnet {} with IP {}, bailing out now.",
+                    LOGGING_PREFIX, vpnName, subnetId, subnetIp);
+            return;
+        }
+
+        String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
+        VpnInstanceOpDataEntry vpnInstanceOpData = waitAndGetVpnInstanceOpDataIfNull(vpnName, primaryRd);
+        if (vpnInstanceOpData == null) {
+            LOG.error(
+                    "{} onSubnetAddedToVpn: VpnInstanceOpData not yet available for VpnName {} "
+                            + "processing subnet {} with IP {}, bailing out now.",
+                    LOGGING_PREFIX, vpnName, subnetId, subnetIp);
             return;
         }
         LOG.info("{} onSubnetAddedToVpn: Subnet {} with IP {} being added to vpn {}", LOGGING_PREFIX,
@@ -169,7 +173,6 @@ public class VpnSubnetRouteHandler {
             subOpBuilder = new SubnetOpDataEntryBuilder().setKey(new SubnetOpDataEntryKey(subnetId));
             subOpBuilder.setSubnetId(subnetId);
             subOpBuilder.setSubnetCidr(subnetIp);
-            String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
 
             if (isBgpVpn && !VpnUtil.isBgpVpn(vpnName, primaryRd)) {
                 LOG.error("{} onSubnetAddedToVpn: The VPN Instance name {} does not have RD. Bailing out for"
@@ -181,7 +184,7 @@ public class VpnSubnetRouteHandler {
             subOpBuilder.setSubnetToDpn(new ArrayList<>());
             subOpBuilder.setRouteAdvState(TaskState.Idle);
             subOpBuilder.setElanTag(elanTag);
-            Long l3Vni = VpnUtil.getVpnInstanceOpData(dataBroker, primaryRd).getL3vni();
+            Long l3Vni = vpnInstanceOpData.getL3vni();
             subOpBuilder.setL3vni(l3Vni);
             subOpEntry = subOpBuilder.build();
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier,
@@ -274,6 +277,28 @@ public class VpnSubnetRouteHandler {
         } finally {
             VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
         }
+    }
+
+    private long waitAndGetVpnIdIfInvalid(String vpnName) {
+        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+        if (vpnId == VpnConstants.INVALID_ID) {
+            LOG.debug("VpnId is invalid, waiting to fetch again: vpnName={}, vpnId={}", vpnName, vpnId);
+            vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataType.vpnInstanceToId, vpnName,
+                    VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
+            vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+        }
+        return vpnId;
+    }
+
+    private VpnInstanceOpDataEntry waitAndGetVpnInstanceOpDataIfNull(String vpnName, String primaryRd) {
+        VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, primaryRd);
+        if (vpnInstanceOpData == null) {
+            LOG.debug("vpnInstanceOpData is null, waiting to fetch again: vpnName={}", vpnName);
+            vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataType.vpnOpData, vpnName,
+                    VpnConstants.PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS);
+            vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, primaryRd);
+        }
+        return vpnInstanceOpData;
     }
 
     // TODO Clean up the exception handling
