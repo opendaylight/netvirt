@@ -16,6 +16,24 @@
       "revId": "532b4a02c26a013c69b394e9b9d3c9bae661f39b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b9ba7e5_8679824c",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-10-03T10:22:20Z",
+      "side": 1,
+      "message": "or the intention here is to create a thread per interface created?",
+      "parentUuid": "912d759c_fc073f31",
+      "revId": "532b4a02c26a013c69b394e9b9d3c9bae661f39b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
