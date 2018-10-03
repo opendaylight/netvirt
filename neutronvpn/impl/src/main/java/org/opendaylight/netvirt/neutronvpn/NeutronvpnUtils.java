@@ -1671,9 +1671,9 @@ public class NeutronvpnUtils {
                 }
                 for (BigInteger dpnId : dpnIds) {
                     if (add) {
-                        ipV6InternetDefRt.installDefaultRoute(dpnId, internetBgpVpnId, vpnId);
+                        ipV6InternetDefRt.installDefaultRoute(dpnId, routerId.getValue(), internetBgpVpnId, vpnId);
                     } else {
-                        ipV6InternetDefRt.removeDefaultRoute(dpnId, internetBgpVpnId, vpnId);
+                        ipV6InternetDefRt.removeDefaultRoute(dpnId, routerId.getValue(), internetBgpVpnId, vpnId);
                     }
                 }
             }
@@ -1801,5 +1801,17 @@ public class NeutronvpnUtils {
             }
         }
         return false;
+    }
+
+    protected Uuid getRouterIdforVpn(Uuid vpnId) {
+        InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
+                new VpnMapKey(vpnId)).build();
+        Optional<VpnMap> optionalVpnMap = read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
+        if (optionalVpnMap.isPresent()) {
+            VpnMap vpnMap = optionalVpnMap.get();
+            return vpnMap.getRouterId();
+        }
+        LOG.error("getRouterIdforVpn: Failed as VPNMaps DS is absent for VPN {}", vpnId.getValue());
+        return null;
     }
 }

@@ -47,11 +47,15 @@ public interface INeutronVpnManager {
 
     String getOpenDaylightVniRangesConfig();
 
-    void addV6InternetDefaultRoute(BigInteger dpnId, long internetBgpVpnId, long vpnId);
+    void addV6InternetDefaultRoute(BigInteger dpnId, String routerId, long internetBgpVpnId, long vpnId);
 
-    void removeV6InternetDefaultRoute(BigInteger dpnId, long internetBgpVpnId, long vpnId);
+    void removeV6InternetDefaultRoute(BigInteger dpnId, String routerId, long internetBgpVpnId, long vpnId);
 
     boolean isV6SubnetIsPartOfRouter(Uuid routerId);
+
+    Uuid isInternetVpnIsBoundToRouter(Uuid routerId);
+
+    Uuid getRouterIdforVpnInstance(Uuid vpnName);
 
 }
 

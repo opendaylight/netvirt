@@ -31,6 +31,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
@@ -73,17 +74,19 @@ public class VpnFootprintService implements IVpnFootprintService {
     private final VpnOpDataSyncer vpnOpDataSyncer;
     private final NotificationPublishService notificationPublishService;
     private final IInterfaceManager interfaceManager;
+    private final INeutronVpnManager nvManager;
 
     @Inject
     public VpnFootprintService(final DataBroker dataBroker, final IFibManager fibManager,
             final NotificationPublishService notificationPublishService, final VpnOpDataSyncer vpnOpDataSyncer,
-            final IInterfaceManager interfaceManager) {
+            final IInterfaceManager interfaceManager, final INeutronVpnManager nvManager) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.fibManager = fibManager;
         this.vpnOpDataSyncer = vpnOpDataSyncer;
         this.notificationPublishService = notificationPublishService;
         this.interfaceManager = interfaceManager;
+        this.nvManager = nvManager;
     }
 
     @Override
@@ -184,6 +187,8 @@ public class VpnFootprintService implements IVpnFootprintService {
                     new DpnEnterExitVpnWorker(dpnId, vpnName, primaryRd, true /* entered */));
             LOG.info("createOrUpdateVpnToDpnList: Sent populateFib event for new dpn {} in VPN {} for interface {}",
                     dpnId, vpnName, intfName);
+            //check and install V6 internet default fallback rule if router is part of public/internet vpn already
+            VpnUtil.checkAndUpdateV6InternetDefFlowIfNeeded(dataBroker, nvManager, dpnId, vpnName, vpnId, true);
         }
     }
 
@@ -242,6 +247,8 @@ public class VpnFootprintService implements IVpnFootprintService {
             LOG.debug("Sending populateFib event for new dpn {} in VPN {}", dpnId, vpnName);
             fibManager.populateFibOnNewDpn(dpnId, vpnId, primaryRd,
                     new DpnEnterExitVpnWorker(dpnId, vpnName, primaryRd, true /* entered */));
+            //check and install V6 internet default fallback rule if router is part of public/internet vpn already
+            VpnUtil.checkAndUpdateV6InternetDefFlowIfNeeded(dataBroker, nvManager, dpnId, vpnName, vpnId, true);
         }
     }
 
@@ -307,6 +314,8 @@ public class VpnFootprintService implements IVpnFootprintService {
                         new DpnEnterExitVpnWorker(dpnId, vpnName, rd, false /* exited */));
                 LOG.info("removeOrUpdateVpnToDpnList: Sent cleanup event for dpn {} in VPN {} vpnId {} interface {}",
                         dpnId, vpnName, vpnId, intfName);
+                //check and remove V6 internet default fallback rule if router is part of public/internet vpn
+                VpnUtil.checkAndUpdateV6InternetDefFlowIfNeeded(dataBroker, nvManager, dpnId, vpnName, vpnId, false);
             }
         } catch (ReadFailedException e) {
             LOG.error("removeOrUpdateVpnToDpnList: Failed to read data store for interface {} dpn {} vpn {} rd {}",
@@ -373,6 +382,8 @@ public class VpnFootprintService implements IVpnFootprintService {
             LOG.debug("Sending cleanup event for dpn {} in VPN {}", dpnId, vpnName);
             fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd,
                     new DpnEnterExitVpnWorker(dpnId, vpnName, rd, false /* exited */));
+            //check and remove V6 internet default fallback rule if router is part of public/internet vpn
+            VpnUtil.checkAndUpdateV6InternetDefFlowIfNeeded(dataBroker, nvManager, dpnId, vpnName, vpnId, false);
         }
     }
 

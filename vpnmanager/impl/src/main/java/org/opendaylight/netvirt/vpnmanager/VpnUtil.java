@@ -266,6 +266,7 @@ public final class VpnUtil {
     }
 
     private VpnUtil() {
+
     }
 
     static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
@@ -2433,5 +2434,27 @@ public final class VpnUtil {
     public static List<String> getVpnListForVpnInterface(VpnInterface vpnInter) {
         return vpnInter.getVpnInstanceNames().stream()
                 .map(VpnInstanceNames::getVpnName).collect(Collectors.toList());
+    }
+
+    public static void checkAndUpdateV6InternetDefFlowIfNeeded(DataBroker dataBroker, INeutronVpnManager nvManager,
+                                                               BigInteger dpnId, String vpnName,
+                                                               long vpnId, boolean add) {
+        Uuid routerId = nvManager.getRouterIdforVpnInstance(new Uuid(vpnName));
+        if (routerId != null) {
+            //check internet vpn is enabled for the router
+            Uuid internetVpnId = nvManager.isInternetVpnIsBoundToRouter(new Uuid(routerId));
+            if (internetVpnId != null) {
+                if (add) {
+                    nvManager.addV6InternetDefaultRoute(dpnId, routerId.getValue(),
+                            getVpnId(dataBroker, internetVpnId.getValue()), vpnId);
+                } else {
+                    nvManager.removeV6InternetDefaultRoute(dpnId, routerId.getValue(),
+                            getVpnId(dataBroker, internetVpnId.getValue()), vpnId);
+                }
+                LOG.debug("checkAndUpdateV6InternetDefFlowIfNeeded: Successfully {} V6 internet default fallback "
+                                + "flow on DPN {} for the VPN {} ", add == true ? "added" : "removed", dpnId,
+                        vpnName);
+            }
+        }
     }
 }
