@@ -195,7 +195,14 @@ public class RouterDpnChangeListener
                                             snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routerId,
                                                 writeFlowInvTx);
                                         }
-
+                                        /* install V6 internet default fallback rule in FIB_TABLE if router
+                                         * is having V6 subnet
+                                         */
+                                        if (nvpnManager.isV6SubnetPartOfNeutronRouter(new Uuid(routerUuid))) {
+                                            Uuid internetVpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
+                                            addOrRemoveV6InternetDefFallbackFlow(dpnId, routerUuid, NatUtil.getVpnId(
+                                                    dataBroker, internetVpnUuid.getValue()), vpnId, true);
+                                        }
                                         if (router.isEnableSnat()) {
                                             LOG.info("add : SNAT enabled for router {}", routerUuid);
                                             if (extNwProvType == null) {
@@ -288,7 +295,14 @@ public class RouterDpnChangeListener
                                     snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, routerId,
                                         removeFlowInvTx);
                                 }
-
+                                /* remove V6 internet default fallback rule in FIB_TABLE if router
+                                 * is having V6 subnet
+                                 */
+                                if (nvpnManager.isV6SubnetPartOfNeutronRouter(new Uuid(routerUuid))) {
+                                    Uuid internetVpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
+                                    addOrRemoveV6InternetDefFallbackFlow(dpnId, routerUuid, NatUtil.getVpnId(
+                                            dataBroker, internetVpnUuid.getValue()), vpnId, false);
+                                }
                                 if (router.isEnableSnat()) {
                                     LOG.info("remove : SNAT enabled for router {}", routerUuid);
                                     removeSNATFromDPN(dpnId, routerUuid, routerId, vpnId, networkId, removeFlowInvTx);
@@ -506,5 +520,16 @@ public class RouterDpnChangeListener
                 LOG.debug("installDefaultNatRouteForRouterExternalSubnets : No vpnID for subnet {} found", subnetId);
             }
         }
+    }
+
+    private void addOrRemoveV6InternetDefFallbackFlow(BigInteger dpnId, String routerUuid, long internetVpnId,
+                                                      long vpnId, boolean add) {
+        if (add) {
+            nvpnManager.addV6InternetDefaultRoute(dpnId, routerUuid, internetVpnId, vpnId);
+        } else {
+            nvpnManager.removeV6InternetDefaultRoute(dpnId, routerUuid, internetVpnId, vpnId);
+        }
+        LOG.debug("addOrRemoveV6InternetDefFallbackFlow : Successfully {} V6 internet vpn {} default fallback rule for "
+                        + "the router {} with vpnId {} ", add ? "added" : "removed" ,internetVpnId, routerUuid, vpnId);
     }
 }
