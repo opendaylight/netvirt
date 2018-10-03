@@ -132,6 +132,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     @Override
     protected void add(InstanceIdentifier<Port> identifier, Port input) {
+        LOG.trace("Received port add event: port={}", input);
         String portName = input.getUuid().getValue();
         LOG.trace("Adding Port : key: {}, value={}", identifier, input);
         Network network = neutronvpnUtils.getNeutronNetwork(input.getNetworkId());
@@ -202,6 +203,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
+        LOG.trace("Received port update event: original={}, update={}", original, update);
         // Switchdev ports need to be bounded to a host before creation
         // in order to validate the supported vnic types from the hostconfig
         if (isPortTypeSwitchdev(original)

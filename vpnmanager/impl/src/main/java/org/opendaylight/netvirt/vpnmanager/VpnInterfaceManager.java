@@ -209,9 +209,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     @Override
     public void add(final InstanceIdentifier<VpnInterface> identifier, final VpnInterface vpnInterface) {
-        LOG.info("add: intfName {} onto vpnName {}",
-                 vpnInterface.getName(),
-                 VpnHelper.getVpnInterfaceVpnInstanceNamesString(vpnInterface.getVpnInstanceNames()));
+        LOG.trace("Received VpnInterface add event: vpnInterface={}", vpnInterface);
+        LOG.info("add: intfName {} onto vpnName {}", vpnInterface.getName(),
+                VpnHelper.getVpnInterfaceVpnInstanceNamesString(vpnInterface.getVpnInstanceNames()));
         addVpnInterface(identifier, vpnInterface, null, null);
     }
 
@@ -1214,6 +1214,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     @Override
     public void remove(InstanceIdentifier<VpnInterface> identifier, VpnInterface vpnInterface) {
+        LOG.trace("Received VpnInterface remove event: vpnInterface={}", vpnInterface);
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
         final String interfaceName = key.getName();
         for (VpnInstanceNames vpnInterfaceVpnInstance : vpnInterface.getVpnInstanceNames()) {
@@ -1535,9 +1536,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     @Override
     protected void update(final InstanceIdentifier<VpnInterface> identifier, final VpnInterface original,
         final VpnInterface update) {
-        LOG.info("update: VPN Interface update event - intfName {} on dpn {} oldVpn {} newVpn {}" ,update.getName(),
-                update.getDpnId(), original.getVpnInstanceNames(),
-                update.getVpnInstanceNames());
+        LOG.trace("Received VpnInterface update event: original={}, update={}", original, update);
+        LOG.info("update: VPN Interface update event - intfName {} on dpn {} oldVpn {} newVpn {}", update.getName(),
+                update.getDpnId(), original.getVpnInstanceNames(), update.getVpnInstanceNames());
         final String vpnInterfaceName = update.getName();
         final BigInteger dpnId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, vpnInterfaceName);
         LOG.info("VPN Interface update event - intfName {}", vpnInterfaceName);
