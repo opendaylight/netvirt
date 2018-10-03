@@ -2434,4 +2434,23 @@ public final class VpnUtil {
         return vpnInter.getVpnInstanceNames().stream()
                 .map(VpnInstanceNames::getVpnName).collect(Collectors.toList());
     }
+
+    public static void checkAndUpdateV6InternetDefFlowIfNeeded(DataBroker dataBroker, INeutronVpnManager nvManager,
+                                                               BigInteger dpnId, String vpnName, long vpnId) {
+        if (isBgpVpnInternet(dataBroker, vpnName)) {
+            return;
+        } else {
+            Uuid routerId = nvManager.getRouterIdforVpnInstance(new Uuid(vpnName));
+            if (routerId != null) {
+                //check internet vpn is enabled for the router
+                Uuid internetVpnId = nvManager.isInternetVpnBoundToRouter(new Uuid(routerId));
+                if (internetVpnId != null) {
+                    nvManager.addV6InternetDefaultRoute(dpnId, routerId.getValue(),
+                            getVpnId(dataBroker, internetVpnId.getValue()), vpnId);
+                    LOG.debug("checkAndUpdateV6InternetDefFlowIfNeeded: Successfully added V6 internet vpn {} default "
+                            + "fallback flow on DPN {} for the router {} ", vpnName, dpnId, routerId);
+                }
+            }
+        }
+    }
 }
