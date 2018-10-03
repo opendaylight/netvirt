@@ -261,6 +261,7 @@ public final class VpnUtil {
     private final JobCoordinator jobCoordinator;
     private final ManagedNewTransactionRunner txRunner;
     private final OdlInterfaceRpcService ifmRpcService;
+    private final INeutronVpnManager nvManager;
 
     /**
      * Class to generate timestamps with microsecond precision.
@@ -289,7 +290,7 @@ public final class VpnUtil {
     public VpnUtil(DataBroker dataBroker, IdManagerService idManager, IFibManager fibManager,
                    IBgpManager bgpManager, LockManagerService lockManager, INeutronVpnManager neutronVpnService,
                    IMdsalApiManager mdsalManager, JobCoordinator jobCoordinator, IInterfaceManager interfaceManager,
-                   OdlInterfaceRpcService ifmRpcService) {
+                   OdlInterfaceRpcService ifmRpcService, INeutronVpnManager nvManager) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.fibManager = fibManager;
@@ -301,6 +302,7 @@ public final class VpnUtil {
         this.jobCoordinator = jobCoordinator;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.ifmRpcService = ifmRpcService;
+        this.nvManager = nvManager;
     }
 
     public static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
@@ -2242,13 +2244,33 @@ public final class VpnUtil {
             builder.setRd(updatedRdList);
             return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                     OPERATIONAL, tx -> {
-                    InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier
-                            .builder(VpnInstanceOpData.class).child(VpnInstanceOpDataEntry.class,
-                                    new VpnInstanceOpDataEntryKey(primaryRd)).build();
-                    tx.merge(id, builder.build(), false);
-                    LOG.debug("updateVpnInstanceWithRdList: Successfully updated the VPN {} with list of RDs {}",
-                            vpnName, updatedRdList);
-                }));
+                        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier
+                                .builder(VpnInstanceOpData.class).child(VpnInstanceOpDataEntry.class,
+                                        new VpnInstanceOpDataEntryKey(primaryRd)).build();
+                        tx.merge(id, builder.build(), false);
+                        LOG.debug("updateVpnInstanceWithRdList: Successfully updated the VPN {} with list of RDs {}",
+                                vpnName, updatedRdList);
+                    }));
         });
+    }
+
+    public void checkAndUpdateV6InternetDefFlowIfNeeded(BigInteger dpnId, String vpnName, long vpnId) {
+        if (isBgpVpnInternet(vpnName)) {
+            return;
+        } else {
+            List<Uuid> routerList = nvManager.getRouterListforVpnInstance(new Uuid(vpnName));
+            if (routerList != null && !routerList.isEmpty()) {
+                for (Uuid routerId : routerList) {
+                    //check internet vpn is enabled for the router
+                    Uuid internetVpnId = nvManager.isInternetVpnIsBoundToRouter(new Uuid(routerId));
+                    if (internetVpnId != null) {
+                        nvManager.addV6InternetDefaultRoute(dpnId, routerId.getValue(),
+                                getVpnId(internetVpnId.getValue()), vpnId);
+                        LOG.debug("checkAndUpdateV6InternetDefFlowIfNeeded: Successfully added V6 internet vpn {} "
+                                + "default fallback flow on DPN {} for the router {} ", vpnName, dpnId, routerId);
+                    }
+                }
+            }
+        }
     }
 }
