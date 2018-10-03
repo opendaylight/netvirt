@@ -52,6 +52,7 @@ import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.KeyedLocks;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
@@ -1781,7 +1782,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
          */
         if (vpnExtUuid != null) {
             //Update V6 Internet default route match with new VPN metadata
-            neutronvpnUtils.updateVpnInstanceWithFallback(vpnExtUuid, isBeingAssociated);
+            neutronvpnUtils.updateVpnInstanceWithFallback(vpnExtUuid, true);
         }
         //Update Router Interface first synchronously.
         //CAUTION:  Please DONOT make the router interface VPN Movement as an asynchronous commit again !
@@ -2311,6 +2312,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void dissociateRouterFromVpn(Uuid vpnId, Uuid routerId) {
 
+        clearFromVpnMaps(vpnId, routerId, null);
         List<Subnetmap> subMapList = neutronvpnUtils.getNeutronRouterSubnetMapList(routerId);
         IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
         for (Subnetmap sn : subMapList) {
@@ -2327,7 +2329,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion,
                     false);
         }
-        clearFromVpnMaps(vpnId, routerId, null);
         try {
             checkAndPublishRouterDisassociatedFromVpnNotification(routerId, vpnId);
             LOG.debug("notification upon disassociation of router {} from VPN {} published", routerId.getValue(),
@@ -3328,24 +3329,27 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected void addV6PrivateSubnetToExtNetwork(@Nonnull Uuid routerId, @Nonnull Uuid internetVpnId,
                                                   @Nonnull Subnetmap subnetMap) {
         updateVpnInternetForSubnet(subnetMap, internetVpnId, true);
-        if (neutronvpnUtils.shouldVpnHandleIpVersionChoiceChange(
-                IpVersionChoice.IPV6, routerId, true)) {
+        neutronvpnUtils.updateVpnInstanceWithFallback(internetVpnId, true);
+        if (neutronvpnUtils.shouldVpnHandleIpVersionChoiceChange(IpVersionChoice.IPV6, routerId, true)) {
             neutronvpnUtils.updateVpnInstanceWithIpFamily(internetVpnId.getValue(), IpVersionChoice.IPV6, true);
             LOG.info("addV6PrivateSubnetToExtNetwork: Advertise IPv6 Private Subnet {} to Internet VPN {}",
-                    subnetMap.getId(), internetVpnId.getValue());
+                    subnetMap.getId().getValue(), internetVpnId.getValue());
         }
-        neutronvpnUtils.updateVpnInstanceWithFallback(internetVpnId, true);
     }
 
     protected void removeV6PrivateSubnetToExtNetwork(@Nonnull Uuid routerId, @Nonnull Uuid internetVpnId,
                                                      @Nonnull Subnetmap subnetMap) {
         updateVpnInternetForSubnet(subnetMap, internetVpnId, false);
-        if (neutronvpnUtils.shouldVpnHandleIpVersionChoiceChange(
-                IpVersionChoice.IPV6, routerId, false)) {
-            neutronvpnUtils.updateVpnInstanceWithIpFamily(internetVpnId.getValue(), IpVersionChoice.IPV6, false);
-            LOG.info("removeV6PrivateSubnetToExtNetwork: withdraw IPv6 Private subnet {} from Internet VPN {}",
-                    subnetMap.getId(), internetVpnId.getValue());
-        }
         neutronvpnUtils.updateVpnInstanceWithFallback(internetVpnId, false);
+    }
+
+    protected void programV6InternetFallbackFlow(Uuid routerId, Uuid internetVpnId, int addOrRemove) {
+        if (neutronvpnUtils.isV6SubnetPartOfRouter(routerId)) {
+            LOG.debug("processV6InternetFlowsForRtr: Successfully {} V6 internet vpn {} default fallback rule "
+                            + "for the router {}", addOrRemove == NwConstants.ADD_FLOW ? "added" : "removed",
+                    internetVpnId.getValue(), routerId.getValue());
+            neutronvpnUtils.updateVpnInstanceWithFallback(internetVpnId, addOrRemove == NwConstants.ADD_FLOW
+                    ? true : false);
+        }
     }
 }
