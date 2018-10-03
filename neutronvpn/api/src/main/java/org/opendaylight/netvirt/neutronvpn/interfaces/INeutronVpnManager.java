@@ -46,5 +46,7 @@ public interface INeutronVpnManager {
 
     String getOpenDaylightVniRangesConfig();
 
+    void programV6InternetFallbackFlow(Uuid routerId, Uuid internetVpnId, int addOrRemove);
+
 }
 
