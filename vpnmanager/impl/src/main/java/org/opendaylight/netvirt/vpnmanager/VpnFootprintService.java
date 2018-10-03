@@ -189,6 +189,8 @@ public class VpnFootprintService implements IVpnFootprintService {
                     new DpnEnterExitVpnWorker(dpnId, vpnName, primaryRd, true /* entered */));
             LOG.info("createOrUpdateVpnToDpnList: Sent populateFib event for new dpn {} in VPN {} for interface {}",
                     dpnId, vpnName, intfName);
+            //check and install V6 internet default fallback rule if router is part of public/internet vpn already
+            vpnUtil.checkAndUpdateV6InternetDefFlowIfNeeded(dpnId, vpnName, vpnId);
         }
     }
 
@@ -250,6 +252,8 @@ public class VpnFootprintService implements IVpnFootprintService {
             LOG.debug("Sending populateFib event for new dpn {} in VPN {}", dpnId, vpnName);
             fibManager.populateFibOnNewDpn(dpnId, vpnId, primaryRd,
                     new DpnEnterExitVpnWorker(dpnId, vpnName, primaryRd, true /* entered */));
+            //check and install V6 internet default fallback rule if router is part of public/internet vpn
+            vpnUtil.checkAndUpdateV6InternetDefFlowIfNeeded(dpnId, vpnName, vpnId);
         }
     }
 
