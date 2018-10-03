@@ -1781,7 +1781,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
          */
         if (vpnExtUuid != null) {
             //Update V6 Internet default route match with new VPN metadata
-            neutronvpnUtils.updateVpnInstanceWithFallback(vpnExtUuid, isBeingAssociated);
+            neutronvpnUtils.updateVpnInstanceWithFallback(vpnExtUuid, true);
         }
         //Update Router Interface first synchronously.
         //CAUTION:  Please DONOT make the router interface VPN Movement as an asynchronous commit again !
@@ -2311,6 +2311,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void dissociateRouterFromVpn(Uuid vpnId, Uuid routerId) {
 
+        clearFromVpnMaps(vpnId, routerId, null);
         List<Subnetmap> subMapList = neutronvpnUtils.getNeutronRouterSubnetMapList(routerId);
         IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
         for (Subnetmap sn : subMapList) {
@@ -2327,7 +2328,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion,
                     false);
         }
-        clearFromVpnMaps(vpnId, routerId, null);
         try {
             checkAndPublishRouterDisassociatedFromVpnNotification(routerId, vpnId);
             LOG.debug("notification upon disassociation of router {} from VPN {} published", routerId.getValue(),
