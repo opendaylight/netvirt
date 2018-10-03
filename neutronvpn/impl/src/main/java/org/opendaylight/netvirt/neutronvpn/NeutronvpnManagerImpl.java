@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -26,14 +25,11 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
 
     private final NeutronvpnManager nvManager;
     private final NeutronvpnUtils neutronvpnUtils;
-    private IPV6InternetDefaultRouteProgrammer ipV6InternetDefRt;
 
     @Inject
-    public NeutronvpnManagerImpl(final NeutronvpnManager neutronvpnManager, final NeutronvpnUtils neutronvpnUtils,
-                                 final IPV6InternetDefaultRouteProgrammer ipV6InternetDefRt) {
+    public NeutronvpnManagerImpl(final NeutronvpnManager neutronvpnManager, final NeutronvpnUtils neutronvpnUtils) {
         this.nvManager = neutronvpnManager;
         this.neutronvpnUtils = neutronvpnUtils;
-        this.ipV6InternetDefRt = ipV6InternetDefRt;
     }
 
     @Override
@@ -102,19 +98,13 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
     }
 
     @Override
-    public void addV6InternetDefaultRoute(BigInteger dpnId, long internetBgpVpnId, long vpnId) {
-        ipV6InternetDefRt.installDefaultRoute(dpnId, internetBgpVpnId, vpnId);
+    public void processV6InternetFlowsForRtr(Uuid routerId, Uuid internetVpnId, boolean add) {
+        nvManager.processV6InternetFlowsForRtr(routerId, internetVpnId, add);
 
     }
 
     @Override
-    public void removeV6InternetDefaultRoute(BigInteger dpnId, long internetBgpVpnId, long vpnId) {
-        ipV6InternetDefRt.removeDefaultRoute(dpnId, internetBgpVpnId, vpnId);
-
-    }
-
-    @Override
-    public boolean isV6SubnetIsPartOfRouter(Uuid routerId) {
-        return neutronvpnUtils.isV6SubnetIsPartOfVpn(routerId);
+    public void programFlowsForV6InternetForRtr(Uuid routerId, Uuid extNetworkId, Uuid internetVpnId, boolean add) {
+        nvManager.programFlowsForV6InternetForRtr(routerId, extNetworkId, internetVpnId, add);
     }
 }

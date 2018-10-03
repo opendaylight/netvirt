@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.neutronvpn.interfaces;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -47,11 +46,9 @@ public interface INeutronVpnManager {
 
     String getOpenDaylightVniRangesConfig();
 
-    void addV6InternetDefaultRoute(BigInteger dpnId, long internetBgpVpnId, long vpnId);
+    void processV6InternetFlowsForRtr(Uuid routerId, Uuid internetVpnId, boolean add);
 
-    void removeV6InternetDefaultRoute(BigInteger dpnId, long internetBgpVpnId, long vpnId);
-
-    boolean isV6SubnetIsPartOfRouter(Uuid routerId);
+    void programFlowsForV6InternetForRtr(Uuid routerId, Uuid extNetworkId, Uuid internetVpnId, boolean add);
 
 }
 
