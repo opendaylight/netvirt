@@ -28,7 +28,6 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
-import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
@@ -56,7 +55,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPortsKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIps;
@@ -347,27 +345,6 @@ public class NeutronvpnNatManager implements AutoCloseable {
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier,
                     networkss);
             LOG.trace("Updated externalnetworks successfully to CONFIG Datastore");
-            //get vpn external form this network external to setup vpnInternet for ipv6
-            Uuid vpnExternal = neutronvpnUtils.getVpnForNetwork(extNetId);
-            if (vpnExternal == null) {
-                LOG.debug("addExternalNetworkToRouter : no vpnExternal for Network {}", extNetId);
-            }
-            LOG.debug("addExternalNetworkToRouter : the vpnExternal {}", vpnExternal);
-            //get subnetmap associate to the router, any subnetmap "external" could be existing
-            List<Subnetmap> snList = neutronvpnUtils.getNeutronRouterSubnetMaps(routerId);
-            LOG.debug("addExternalNetworkToRouter : the vpnExternal {} subnetmap to be set with vpnInternet {}",
-                    vpnExternal, snList);
-            for (Subnetmap sn : snList) {
-                if (sn.getInternetVpnId() == null) {
-                    continue;
-                }
-                IpVersionChoice ipVers = NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp());
-                if (ipVers == IpVersionChoice.IPV6) {
-                    LOG.debug("addExternalNetworkToRouter : setup vpnInternet IPv6 for vpnExternal {} subnetmap {}",
-                            vpnExternal, sn);
-                    nvpnManager.updateVpnInternetForSubnet(sn, vpnExternal, true);
-                }
-            }
         } catch (TransactionCommitFailedException | ReadFailedException ex) {
             LOG.error("Creation of externalnetworks failed for {}",
                 extNetId.getValue(), ex);
@@ -420,26 +397,6 @@ public class NeutronvpnNatManager implements AutoCloseable {
         } catch (TransactionCommitFailedException ex) {
             LOG.error("removeExternalNetworkFromRouter: Failed to remove provider network {} from router {}",
                       origExtNetId.getValue(), routerId.getValue(), ex);
-        }
-
-        // Remove the vpnInternetId fromSubnetmap
-        Network net = neutronvpnUtils.getNeutronNetwork(nets.getId());
-        List<Uuid> submapIds = neutronvpnUtils.getPrivateSubnetsToExport(net, /*internetVpnId*/ null);
-        for (Uuid snId : submapIds) {
-            Subnetmap subnetMap = neutronvpnUtils.getSubnetmap(snId);
-            if (subnetMap == null || subnetMap.getInternetVpnId() == null) {
-                LOG.error("removeExternalNetworkFromRouter: Can not find Subnetmap for SubnetId {} in ConfigDS",
-                          snId.getValue());
-                continue;
-            }
-            LOG.trace("removeExternalNetworkFromRouter: Remove Internet VPN Id {} from SubnetMap {}",
-                      subnetMap.getInternetVpnId(), subnetMap.getId());
-            IpVersionChoice ipVers = NeutronvpnUtils.getIpVersionFromString(subnetMap.getSubnetIp());
-            if (ipVers == IpVersionChoice.IPV6) {
-                nvpnManager.updateVpnInternetForSubnet(subnetMap, subnetMap.getInternetVpnId(), false);
-                LOG.debug("removeExternalNetworkFromRouter: Withdraw IPv6 routes from VPN {}",
-                          subnetMap.getInternetVpnId());
-            }
         }
     }
 
