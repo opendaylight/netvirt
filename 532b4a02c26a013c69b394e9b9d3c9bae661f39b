@@ -34,6 +34,42 @@
       "revId": "532b4a02c26a013c69b394e9b9d3c9bae661f39b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25766140_c1eff463",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2018-10-03T10:56:18Z",
+      "side": 1,
+      "message": "yes. With this, all flows programed per port/interface will run in a single thread context.",
+      "parentUuid": "5b9ba7e5_8679824c",
+      "revId": "532b4a02c26a013c69b394e9b9d3c9bae661f39b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2710715d_6f2c851d",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2018-10-03T10:56:18Z",
+      "side": 1,
+      "message": "With flow id, we will end up programing each flow in a different thread.",
+      "parentUuid": "912d759c_fc073f31",
+      "revId": "532b4a02c26a013c69b394e9b9d3c9bae661f39b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
