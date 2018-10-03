@@ -266,8 +266,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             String dstIpAddress, long elanTag) throws UnknownHostException {
         long groupid = VpnUtil.getRemoteBCGroup(elanTag);
         if (NWUtil.isIpv4Address(dstIpAddress)) {
-            LOG.debug("Sending ARP: srcIp={}, srcMac={}, dstIp={}, dpId={}, elan-tag={}", sourceIpAddress, sourceMac,
-                    dstIpAddress, dpnId, elanTag);
+            LOG.debug("Sending ARP: srcIp={}, srcMac={}, dstIp={}, dpId={}, elan-tag={}, groupid={}", sourceIpAddress,
+                    sourceMac, dstIpAddress, dpnId, elanTag, groupid);
             vpnManagerCounters.subnetRoutePacketArpSent();
 
             TransmitPacketInput packetInput =
@@ -276,8 +276,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             JdkFutures.addErrorLogging(packetService.transmitPacket(packetInput), LOG, "Transmit packet");
         } else {
             // IPv6 case
-            LOG.debug("Sending NS: srcIp={}, srcMac={}, dstIp={}, dpId={}, elan-tag={}", sourceIpAddress, sourceMac,
-                    dstIpAddress, dpnId, elanTag);
+            LOG.debug("Sending NS: srcIp={}, srcMac={}, dstIp={}, dpId={}, elan-tag={}, groupid={}", sourceIpAddress,
+                    sourceMac, dstIpAddress, dpnId, elanTag, groupid);
             vpnManagerCounters.subnetRoutePacketNsSent();
 
             VpnUtil.sendNeighborSolicationToOfGroup(this.ipv6NdUtilService, new Ipv6Address(sourceIpAddress),

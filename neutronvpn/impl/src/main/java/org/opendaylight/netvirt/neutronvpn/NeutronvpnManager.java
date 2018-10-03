@@ -844,8 +844,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         if (port.getDeviceOwner() != null) {
             isRouterInterface = NeutronConstants.DEVICE_OWNER_ROUTER_INF.equals(port.getDeviceOwner());
         }
-        Adjacencies adjs = createPortIpAdjacencies(port, isRouterInterface, wrtConfigTxn, null, null);
         String infName = port.getUuid().getValue();
+        // Handling cluster reboot scenario where VpnInterface already exists in datastore.
+        VpnInterface vpnIface = VpnHelper.getVpnInterface(dataBroker, infName);
+        Adjacencies adjs = createPortIpAdjacencies(port, isRouterInterface, wrtConfigTxn, null, vpnIface);
         LOG.trace("createVpnInterface for Port: {}, isRouterInterface: {}", infName, isRouterInterface);
         writeVpnInterfaceToDs(vpnIds, infName, adjs, port.getNetworkId(), isRouterInterface, wrtConfigTxn);
     }

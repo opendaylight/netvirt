@@ -208,8 +208,8 @@ public class VpnSubnetRouteHandlerTest {
     public void setUp() throws Exception {
         setupMocks();
 
-        vpnSubnetRouteHandler = new VpnSubnetRouteHandler(dataBroker, subnetOpDpnManager, bgpManager,
-            idManager, lockManagerService, vpnOpDataSyncer, vpnNodeListener, fibManager, vpnUtil);
+        vpnSubnetRouteHandler = new VpnSubnetRouteHandler(dataBroker, subnetOpDpnManager, bgpManager, vpnOpDataSyncer,
+                vpnNodeListener, fibManager, vpnUtil);
         final Future<RpcResult<AllocateIdOutput>> idOutputOptional =
             RpcResultBuilder.success(allocateIdOutput).buildFuture();
 
