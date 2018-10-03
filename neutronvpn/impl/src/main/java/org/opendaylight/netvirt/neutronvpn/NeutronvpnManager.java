@@ -1733,7 +1733,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (isBeingAssociated) {
                 neutronvpnUtils.updateVpnInstanceWithFallback(oldVpnId, vpnExtUuid, isBeingAssociated);
             } else {
-                neutronvpnUtils.updateVpnInstanceWithFallback(newVpnId, vpnExtUuid, isBeingAssociated);
+                neutronvpnUtils.updateVpnInstanceWithFallback(newVpnId, vpnExtUuid, !isBeingAssociated);
             }
         }
         //Update Router Interface first synchronously.
@@ -2255,6 +2255,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void dissociateRouterFromVpn(Uuid vpnId, Uuid routerId) {
 
+        clearFromVpnMaps(vpnId, routerId, null);
         List<Subnetmap> subMapList = neutronvpnUtils.getNeutronRouterSubnetMapList(routerId);
         IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
         for (Subnetmap sn : subMapList) {
@@ -2271,7 +2272,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion,
                     false);
         }
-        clearFromVpnMaps(vpnId, routerId, null);
         try {
             checkAndPublishRouterDisassociatedFromVpnNotification(routerId, vpnId);
             LOG.debug("notification upon disassociation of router {} from VPN {} published", routerId.getValue(),
@@ -2378,7 +2378,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         passedNwList.add(nw);
                     }
                 }
-                if (ipVersion != IpVersionChoice.UNDEFINED) {
+                if (ipVersion != IpVersionChoice.UNDEFINED && !neutronvpnUtils.getIsExternal(network)) {
                     LOG.debug("vpnInstanceOpDataEntry is getting update with ip address family {} for VPN {} ",
                             ipVersion, vpnId);
                     neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion, true);
@@ -2406,27 +2406,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             return false;
         }
         if (!vpnOpDataEntry.getBgpvpnType().equals(BgpvpnType.BGPVPNInternet)) {
-            LOG.info("associateExtNetworkToVpn: set type {} for VPN {}", BgpvpnType.BGPVPNInternet, vpnId.getValue());
+            LOG.info("associateExtNetworkToVpn: set type {} for VPN {} and update IPv6 address family",
+                    BgpvpnType.BGPVPNInternet, vpnId.getValue());
             neutronvpnUtils.updateVpnInstanceOpWithType(BgpvpnType.BGPVPNInternet, vpnId);
-        }
-        IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
-        for (Uuid snId: neutronvpnUtils.getPrivateSubnetsToExport(extNet, vpnId)) {
-            Subnetmap sm = neutronvpnUtils.getSubnetmap(snId);
-            if (sm == null) {
-                LOG.error("associateExtNetworkToVpn: can not find subnet with Id {} in ConfigDS", snId.getValue());
-                continue;
-            }
-            IpVersionChoice ipVers = neutronvpnUtils.getIpVersionFromString(sm.getSubnetIp());
-            if (ipVers.isIpVersionChosen(IpVersionChoice.IPV6)) {
-                updateVpnInternetForSubnet(sm, vpnId, true);
-            }
-            if (!ipVersion.isIpVersionChosen(ipVers)) {
-                ipVersion = ipVersion.addVersion(ipVers);
-            }
-        }
-        if (!ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
             neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), IpVersionChoice.IPV6, true);
-            LOG.info("associateExtNetworkToVpn: add IPv6 Internet default route in VPN {}", vpnId.getValue());
         }
         return true;
     }
@@ -2503,7 +2486,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         vpnId.getValue());
                 passedNwList.add(nw);
             }
-            if (ipVersion != IpVersionChoice.UNDEFINED) {
+            if (ipVersion != IpVersionChoice.UNDEFINED && !NeutronvpnUtils.getIsExternal(network)) {
                 LOG.debug("vpnInstanceOpDataEntry is getting update with ip address family {} for VPN {}",
                         ipVersion, vpnId);
                 neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion, false);
@@ -2533,29 +2516,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
         }
         //Set VPN Type is BGPVPNExternal from BGPVPNInternet
-        LOG.info("disassociateExtNetworkFromVpn: set type {} for VPN {}",
+        LOG.info("disassociateExtNetworkFromVpn: set type {} for VPN {} and update IPv6 address family",
                 VpnInstanceOpDataEntry.BgpvpnType.BGPVPNExternal, vpnId.getValue());
         neutronvpnUtils.updateVpnInstanceOpWithType(VpnInstanceOpDataEntry.BgpvpnType.BGPVPNExternal, vpnId);
-        IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
-        for (Uuid snId : neutronvpnUtils.getPrivateSubnetsToExport(extNet, vpnId)) {
-            Subnetmap sm = neutronvpnUtils.getSubnetmap(snId);
-            if (sm == null) {
-                LOG.error("disassociateExtNetworkFromVpn: can not find subnet with Id {} in ConfigDS", snId.getValue());
-                continue;
-            }
-            IpVersionChoice ipVers = neutronvpnUtils.getIpVersionFromString(sm.getSubnetIp());
-            if (ipVers.isIpVersionChosen(IpVersionChoice.IPV6)) {
-                updateVpnInternetForSubnet(sm, vpnId, false);
-            }
-            if (!ipVersion.isIpVersionChosen(ipVers)) {
-                ipVersion = ipVersion.addVersion(ipVers);
-            }
-        }
-        if (!ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
-            neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), IpVersionChoice.IPV6, false);
-            LOG.info("disassociateExtNetworkFromVpn: withdraw IPv6 Internet default route from VPN {}",
-                    vpnId.getValue());
-        }
+        neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), IpVersionChoice.IPV6, false);
         return true;
     }
 
@@ -3266,24 +3230,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected void addV6PrivateSubnetToExtNetwork(@Nonnull Uuid routerId, @Nonnull Uuid internetVpnId,
                                                   @Nonnull Subnetmap subnetMap) {
         updateVpnInternetForSubnet(subnetMap, internetVpnId, true);
-        if (neutronvpnUtils.shouldVpnHandleIpVersionChoiceChange(
-                IpVersionChoice.IPV6, routerId, true)) {
-            neutronvpnUtils.updateVpnInstanceWithIpFamily(internetVpnId.getValue(), IpVersionChoice.IPV6, true);
-            LOG.info("addV6PrivateSubnetToExtNetwork: Advertise IPv6 Private Subnet {} to Internet VPN {}",
-                    subnetMap.getId(), internetVpnId.getValue());
-        }
         neutronvpnUtils.updateVpnInstanceWithFallback(routerId, internetVpnId, true);
     }
 
     protected void removeV6PrivateSubnetToExtNetwork(@Nonnull Uuid routerId, @Nonnull Uuid internetVpnId,
                                                      @Nonnull Subnetmap subnetMap) {
         updateVpnInternetForSubnet(subnetMap, internetVpnId, false);
-        if (neutronvpnUtils.shouldVpnHandleIpVersionChoiceChange(
-                IpVersionChoice.IPV6, routerId, false)) {
-            neutronvpnUtils.updateVpnInstanceWithIpFamily(internetVpnId.getValue(), IpVersionChoice.IPV6, false);
-            LOG.info("removeV6PrivateSubnetToExtNetwork: withdraw IPv6 Private subnet {} from Internet VPN {}",
-                    subnetMap.getId(), internetVpnId.getValue());
-        }
         neutronvpnUtils.updateVpnInstanceWithFallback(routerId, internetVpnId, false);
     }
 }

@@ -14,9 +14,11 @@ import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -102,19 +104,45 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
     }
 
     @Override
-    public void addV6InternetDefaultRoute(BigInteger dpnId, long internetBgpVpnId, long vpnId) {
-        ipV6InternetDefRt.installDefaultRoute(dpnId, internetBgpVpnId, vpnId);
-
-    }
-
-    @Override
-    public void removeV6InternetDefaultRoute(BigInteger dpnId, long internetBgpVpnId, long vpnId) {
-        ipV6InternetDefRt.removeDefaultRoute(dpnId, internetBgpVpnId, vpnId);
+    public void addV6InternetDefaultRoute(BigInteger dpnId, String routerId, long internetBgpVpnId, long vpnId) {
+        ipV6InternetDefRt.installDefaultRoute(dpnId, routerId, internetBgpVpnId, vpnId);
 
     }
 
     @Override
     public boolean isV6SubnetIsPartOfRouter(Uuid routerId) {
         return neutronvpnUtils.isV6SubnetIsPartOfVpn(routerId);
+    }
+
+    @Override
+    public Uuid isInternetVpnIsBoundToRouter(Uuid routerId) {
+        return neutronvpnUtils.getInternetvpnUuidBoundToRouterId(routerId);
+    }
+
+    @Override
+    public Uuid getRouterIdforVpnInstance(Uuid vpnName) {
+        return neutronvpnUtils.getRouterIdforVpn(vpnName);
+    }
+
+    @Override
+    public List<Subnetmap> getNeutronRouterSubnetMapList(Uuid routerId) {
+        return neutronvpnUtils.getNeutronRouterSubnetMaps(routerId);
+    }
+
+    @Override
+    public void addV6PrivateSubnetToExtVpn(Uuid routerId, Uuid internetVpnId, Subnetmap subnetMap) {
+        nvManager.addV6PrivateSubnetToExtNetwork(routerId, internetVpnId, subnetMap);
+
+    }
+
+    @Override
+    public void removeV6PrivateSubnetToExtVpn(Uuid routerId, Uuid internetVpnId, Subnetmap subnetMap) {
+        nvManager.removeV6PrivateSubnetToExtNetwork(routerId, internetVpnId, subnetMap);
+
+    }
+
+    @Override
+    public IpVersionChoice getSubnetAddrFamilyVersion(String subnetCidr) {
+        return neutronvpnUtils.getIpVersionFromString(subnetCidr);
     }
 }

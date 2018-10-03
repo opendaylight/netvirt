@@ -58,7 +58,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingBuilder;
@@ -433,14 +432,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         if (isExternal) {
             Uuid vpnInternetId = neutronvpnUtils.getVpnForNetwork(networkId);
             if (vpnInternetId != null) {
-                if (isRtrGwRemoved) {
-                     //Set VPN type BGPVPNExternal from BGPVPNInternet for removal case
-                    neutronvpnUtils.updateVpnInstanceOpWithType(VpnInstanceOpDataEntry.BgpvpnType.BGPVPNExternal,
-                            vpnInternetId);
-                } else {
-                    //Set VPN type BGPVPNInternet from BGPVPNExternal for add case
-                    neutronvpnUtils.updateVpnInstanceOpWithType(VpnInstanceOpDataEntry.BgpvpnType.BGPVPNInternet,
-                            vpnInternetId);
+                if (!isRtrGwRemoved) {
                     nvpnManager.updateVpnMaps(vpnInternetId, null, routerId, null, null);
                 }
                 List<Subnetmap> snList = neutronvpnUtils.getNeutronRouterSubnetMaps(routerId);

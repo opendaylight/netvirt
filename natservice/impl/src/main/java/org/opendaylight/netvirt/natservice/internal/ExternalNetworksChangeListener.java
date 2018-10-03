@@ -25,6 +25,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -38,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.slf4j.Logger;
@@ -184,14 +186,6 @@ public class ExternalNetworksChangeListener
                     floatingIpListener.createNATFlowEntries(dpnId, portName, routerId.getValue(), network.getId(),
                             ipMap, writeFlowInvTx);
                 }
-                //install V6 default fallback rule in FIB_TABLE
-                if (nvpnManager.isV6SubnetIsPartOfRouter(routerId)) {
-                    Uuid routerVpnId = NatUtil.getVpnForRouter(dataBroker, routerId.getValue());
-                    nvpnManager.addV6InternetDefaultRoute(dpnId,
-                            NatUtil.getVpnId(dataBroker, network.getVpnid().getValue()),
-                            NatUtil.getVpnId(dataBroker, routerVpnId.getValue()));
-
-                }
             }
         }
 
@@ -209,7 +203,22 @@ public class ExternalNetworksChangeListener
                         networkId, routerId);
                 return;
             }
-
+            //install V6 internet default fallback rule in FIB_TABLE and update V6 subnetMap with internetVpnId
+            if (nvpnManager.isV6SubnetIsPartOfRouter(routerId)) {
+                List<Subnetmap> snList = nvpnManager.getNeutronRouterSubnetMapList(routerId);
+                for (Subnetmap sm : snList) {
+                    if (sm.getNetworkId() == networkId) {
+                        continue;
+                    }
+                    if (nvpnManager.getSubnetAddrFamilyVersion(sm.getSubnetIp()) != IpVersionChoice.IPV6) {
+                        continue;
+                    }
+                    LOG.debug("associateExternalNetworkWithVPN: Install V6 internet default fallback rule "
+                            + "for the router {} and update V6 subnetMap {} with InternetVpnId {}", routerId.getValue(),
+                            sm, vpnName);
+                    nvpnManager.addV6PrivateSubnetToExtVpn(routerId, network.getVpnid(), sm);
+                }
+            }
             BigInteger dpnId = new BigInteger("0");
             InstanceIdentifier<RouterToNaptSwitch> routerToNaptSwitch =
                 NatUtil.buildNaptSwitchRouterIdentifier(routerId.getValue());
@@ -273,6 +282,22 @@ public class ExternalNetworksChangeListener
         List<Uuid> routerIds = network.getRouterIds();
 
         for (Uuid routerId : routerIds) {
+            //remove V6 internet default fallback rule in FIB_TABLE and update V6 subnetMap to remove InternetVpnId
+            if (nvpnManager.isV6SubnetIsPartOfRouter(routerId)) {
+                List<Subnetmap> snList = nvpnManager.getNeutronRouterSubnetMapList(routerId);
+                for (Subnetmap sm : snList) {
+                    if (sm.getNetworkId() == network.getId()) {
+                        continue;
+                    }
+                    if (nvpnManager.getSubnetAddrFamilyVersion(sm.getSubnetIp()) != IpVersionChoice.IPV6) {
+                        continue;
+                    }
+                    LOG.debug("disassociateExternalNetworkFromVPN: Remove V6 internet default fallback rule "
+                                    + "for the router {} and update V6 subnetMap {} to remove InternetVpnId {}",
+                            routerId.getValue(), sm, vpnName);
+                    nvpnManager.removeV6PrivateSubnetToExtVpn(routerId, new Uuid(vpnName), sm);
+                }
+            }
             InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerId.getValue());
             Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 routerPortsId);
@@ -297,12 +322,6 @@ public class ExternalNetworksChangeListener
                         for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
                             floatingIpListener.removeNATFlowEntries(dpnId, portName, vpnName, routerId.getValue(),
                                     intExtPortMap, tx);
-                        }
-                        //remove V6 internet default fallback rule in FIB_TABLE
-                        if (nvpnManager.isV6SubnetIsPartOfRouter(routerId)) {
-                            Uuid routerVpnId = NatUtil.getVpnForRouter(dataBroker, routerId.getValue());
-                            nvpnManager.removeV6InternetDefaultRoute(dpnId, NatUtil.getVpnId(dataBroker, vpnName),
-                                    NatUtil.getVpnId(dataBroker, routerVpnId.getValue()));
                         }
                     }
                 }).get();
