@@ -117,6 +117,30 @@
       "revId": "532b4a02c26a013c69b394e9b9d3c9bae661f39b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25637a79_85adaa3d",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-10-03T13:51:35Z",
+      "side": 1,
+      "message": "flowName is misleading. \nIt\u0027s better to to remove parameter \"flowName\" from this method as it is always \"ACL\", instead declare as constant and use it.",
+      "parentUuid": "72680cc1_b9e07912",
+      "range": {
+        "startLine": 568,
+        "startChar": 34,
+        "endLine": 568,
+        "endChar": 56
+      },
+      "revId": "532b4a02c26a013c69b394e9b9d3c9bae661f39b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
