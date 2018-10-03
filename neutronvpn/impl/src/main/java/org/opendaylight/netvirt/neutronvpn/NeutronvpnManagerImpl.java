@@ -96,4 +96,9 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
     public String getOpenDaylightVniRangesConfig() {
         return nvManager.getOpenDaylightVniRangesConfig();
     }
+
+    @Override
+    public void programV6InternetFallbackFlow(Uuid routerId, Uuid internetVpnId, int addOrRemove) {
+        nvManager.programV6InternetFallbackFlow(routerId, internetVpnId, addOrRemove);
+    }
 }

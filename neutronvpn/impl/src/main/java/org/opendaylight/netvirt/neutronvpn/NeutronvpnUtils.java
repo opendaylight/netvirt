@@ -1701,9 +1701,9 @@ public class NeutronvpnUtils {
             }
             for (BigInteger dpnId : dpnIds) {
                 if (add) {
-                    ipV6InternetDefRt.installDefaultRoute(dpnId, internetBgpVpnId, vpnId);
+                    ipV6InternetDefRt.installDefaultRoute(dpnId, rtrId.getValue(), internetBgpVpnId, vpnId);
                 } else {
-                    ipV6InternetDefRt.removeDefaultRoute(dpnId, internetBgpVpnId, vpnId);
+                    ipV6InternetDefRt.removeDefaultRoute(dpnId, rtrId.getValue(), internetBgpVpnId, vpnId);
                 }
             }
         }
@@ -1868,5 +1868,21 @@ public class NeutronvpnUtils {
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
                         .VpnInstance::getVpnId).orElse(null);
+    }
+
+    protected boolean isV6SubnetPartOfRouter(Uuid routerId) {
+        List<Uuid> subnetList = getSubnetsforVpn(routerId);
+        for (Uuid snId: subnetList) {
+            Subnetmap sm = getSubnetmap(snId);
+            if (sm == null) {
+                continue;
+            }
+            IpVersionChoice ipVers = getIpVersionFromString(sm.getSubnetIp());
+            //skip further subnet processing once found first V6 subnet for the router
+            if (ipVers.isIpVersionChosen(IpVersionChoice.IPV6)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
