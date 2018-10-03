@@ -613,23 +613,6 @@ public final class NatUtil {
                     if (vpnMap.getRouterId() == null) {
                         continue;
                     }
-                    //Skip router vpnId fetching from internet BGP-VPN
-                    boolean isInternetBgpVpn = false;
-                    if (vpnMap.getNetworkIds() != null && !vpnMap.getNetworkIds().isEmpty()) {
-                        for (Uuid netId: vpnMap.getNetworkIds()) {
-                            if (isExternalNetwork(broker, netId)) {
-                                isInternetBgpVpn = true;
-                            }
-                            /* If first network is not a external network then no need iterate
-                             * whole network list from the VPN
-                             */
-                            break;
-                        }
-                    }
-                    if (isInternetBgpVpn) {
-                        //skip further processing
-                        continue;
-                    }
                     if (vpnMap.getRouterId() != null
                             && routerId.equals(vpnMap.getRouterId().getValue())
                             && !routerId.equals(vpnMap.getVpnId().getValue())) {
