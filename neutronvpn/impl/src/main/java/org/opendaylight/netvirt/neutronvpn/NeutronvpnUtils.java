@@ -1538,21 +1538,21 @@ public class NeutronvpnUtils {
     }
 
     public void updateVpnInstanceWithIpFamily(String vpnName, IpVersionChoice ipVersion, boolean add) {
-        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName);
-        if (vpnInstanceOpDataEntry == null) {
-            return;
-        }
-        if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
-            LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}."
-                    + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnName, ipVersion);
-            return;
-        }
-        if (ipVersion == IpVersionChoice.UNDEFINED) {
-            LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with Undefined address family"
-                    + "is not allowed. Do nothing", vpnName);
-            return;
-        }
         jobCoordinator.enqueueJob("VPN-" + vpnName, () -> {
+            VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName);
+            if (vpnInstanceOpDataEntry == null) {
+                return Collections.emptyList();
+            }
+            if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
+                LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}."
+                        + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnName, ipVersion);
+                return Collections.emptyList();
+            }
+            if (ipVersion == IpVersionChoice.UNDEFINED) {
+                LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with Undefined address family"
+                        + "is not allowed. Do nothing", vpnName);
+                return Collections.emptyList();
+            }
             VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
             boolean ipConfigured = add;
             if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4AND6)) {
@@ -1701,9 +1701,9 @@ public class NeutronvpnUtils {
             }
             for (BigInteger dpnId : dpnIds) {
                 if (add) {
-                    ipV6InternetDefRt.installDefaultRoute(dpnId, internetBgpVpnId, vpnId);
+                    ipV6InternetDefRt.installDefaultRoute(dpnId, rtrId.getValue(), internetBgpVpnId, vpnId);
                 } else {
-                    ipV6InternetDefRt.removeDefaultRoute(dpnId, internetBgpVpnId, vpnId);
+                    ipV6InternetDefRt.removeDefaultRoute(dpnId, rtrId.getValue(), internetBgpVpnId, vpnId);
                 }
             }
         }
@@ -1868,5 +1868,20 @@ public class NeutronvpnUtils {
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
                         .VpnInstance::getVpnId).orElse(null);
+    }
+
+    protected boolean isV6SubnetPartOfRouter(Uuid routerId) {
+        List<Subnetmap> subnetList = getNeutronRouterSubnetMapList(routerId);
+        for (Subnetmap sm: subnetList) {
+            if (sm == null) {
+                continue;
+            }
+            IpVersionChoice ipVers = getIpVersionFromString(sm.getSubnetIp());
+            //skip further subnet processing once found first V6 subnet for the router
+            if (ipVers.isIpVersionChosen(IpVersionChoice.IPV6)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
