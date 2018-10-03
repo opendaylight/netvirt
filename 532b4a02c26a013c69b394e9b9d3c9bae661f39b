@@ -70,6 +70,29 @@
       "revId": "532b4a02c26a013c69b394e9b9d3c9bae661f39b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6a35678d_b16b6e6d",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-10-03T13:03:35Z",
+      "side": 1,
+      "message": "As the intention here is to use single-queue/one-thread per port, shouldn\u0027t jobkey here be just \"interfaceId\" instead of \"flowName + interfaceId\"?",
+      "range": {
+        "startLine": 568,
+        "startChar": 34,
+        "endLine": 568,
+        "endChar": 56
+      },
+      "revId": "532b4a02c26a013c69b394e9b9d3c9bae661f39b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
