@@ -102,14 +102,14 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
     }
 
     @Override
-    public void addV6InternetDefaultRoute(BigInteger dpnId, long internetBgpVpnId, long vpnId) {
-        ipV6InternetDefRt.installDefaultRoute(dpnId, internetBgpVpnId, vpnId);
+    public void addV6InternetDefaultRoute(BigInteger dpnId, String routerId, long internetBgpVpnId, long vpnId) {
+        ipV6InternetDefRt.installDefaultRoute(dpnId, routerId, internetBgpVpnId, vpnId);
 
     }
 
     @Override
-    public void removeV6InternetDefaultRoute(BigInteger dpnId, long internetBgpVpnId, long vpnId) {
-        ipV6InternetDefRt.removeDefaultRoute(dpnId, internetBgpVpnId, vpnId);
+    public void removeV6InternetDefaultRoute(BigInteger dpnId, String routerId, long internetBgpVpnId, long vpnId) {
+        ipV6InternetDefRt.removeDefaultRoute(dpnId, routerId, internetBgpVpnId, vpnId);
 
     }
 

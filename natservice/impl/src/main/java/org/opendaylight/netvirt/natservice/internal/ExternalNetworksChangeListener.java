@@ -184,14 +184,6 @@ public class ExternalNetworksChangeListener
                     floatingIpListener.createNATFlowEntries(dpnId, portName, routerId.getValue(), network.getId(),
                             ipMap, writeFlowInvTx);
                 }
-                //install V6 default fallback rule in FIB_TABLE
-                if (nvpnManager.isV6SubnetIsPartOfRouter(routerId)) {
-                    Uuid routerVpnId = NatUtil.getVpnForRouter(dataBroker, routerId.getValue());
-                    nvpnManager.addV6InternetDefaultRoute(dpnId,
-                            NatUtil.getVpnId(dataBroker, network.getVpnid().getValue()),
-                            NatUtil.getVpnId(dataBroker, routerVpnId.getValue()));
-
-                }
             }
         }
 
@@ -209,7 +201,21 @@ public class ExternalNetworksChangeListener
                         networkId, routerId);
                 return;
             }
-
+            //install V6 internet default fallback rule in FIB_TABLE
+            if (nvpnManager.isV6SubnetIsPartOfRouter(routerId)) {
+                List<BigInteger> dpnList = NatUtil.getDpnsForRouter(dataBroker, routerId.getValue());
+                if (!dpnList.isEmpty()) {
+                    for (BigInteger dpnId : dpnList) {
+                        Uuid routerVpnId = NatUtil.getVpnForRouter(dataBroker, routerId.getValue());
+                        LOG.debug("associateExternalNetworkWithVPN: Install V6 internet VPN {} default fall back rule "
+                                + "for the router {} on the DPN {}", vpnName, routerId, dpnId);
+                        nvpnManager.addV6InternetDefaultRoute(dpnId, routerId.getValue(),
+                                NatUtil.getVpnId(dataBroker, vpnName),
+                                NatUtil.getVpnId(dataBroker, routerVpnId != null ? routerVpnId.getValue()
+                                        : routerId.getValue()));
+                    }
+                }
+            }
             BigInteger dpnId = new BigInteger("0");
             InstanceIdentifier<RouterToNaptSwitch> routerToNaptSwitch =
                 NatUtil.buildNaptSwitchRouterIdentifier(routerId.getValue());
@@ -273,6 +279,21 @@ public class ExternalNetworksChangeListener
         List<Uuid> routerIds = network.getRouterIds();
 
         for (Uuid routerId : routerIds) {
+            //remove V6 internet default fallback rule in FIB_TABLE
+            if (nvpnManager.isV6SubnetIsPartOfRouter(routerId)) {
+                List<BigInteger> dpnList = NatUtil.getDpnsForRouter(dataBroker, routerId.getValue());
+                if (!dpnList.isEmpty()) {
+                    for (BigInteger dpnId : dpnList) {
+                        Uuid routerVpnId = NatUtil.getVpnForRouter(dataBroker, routerId.getValue());
+                        LOG.debug("disassociateExternalNetworkFromVPN: Remove V6 internet VPN {} default fall back "
+                                + "rule for the router {} on the DPN {}", vpnName, routerId, dpnId);
+                        nvpnManager.removeV6InternetDefaultRoute(dpnId, routerId.getValue(),
+                                NatUtil.getVpnId(dataBroker, vpnName),
+                                NatUtil.getVpnId(dataBroker, routerVpnId != null ? routerVpnId.getValue()
+                                        : routerId.getValue()));
+                    }
+                }
+            }
             InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerId.getValue());
             Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 routerPortsId);
@@ -297,12 +318,6 @@ public class ExternalNetworksChangeListener
                         for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
                             floatingIpListener.removeNATFlowEntries(dpnId, portName, vpnName, routerId.getValue(),
                                     intExtPortMap, tx);
-                        }
-                        //remove V6 internet default fallback rule in FIB_TABLE
-                        if (nvpnManager.isV6SubnetIsPartOfRouter(routerId)) {
-                            Uuid routerVpnId = NatUtil.getVpnForRouter(dataBroker, routerId.getValue());
-                            nvpnManager.removeV6InternetDefaultRoute(dpnId, NatUtil.getVpnId(dataBroker, vpnName),
-                                    NatUtil.getVpnId(dataBroker, routerVpnId.getValue()));
                         }
                     }
                 }).get();
