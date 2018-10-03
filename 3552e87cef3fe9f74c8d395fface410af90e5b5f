@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af9ac875_bf26f7a3",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-10-03T09:51:20Z",
+      "side": 1,
+      "message": "do we dont need the remaining of removeNATFlowEntries to be executed to clear the flows?",
+      "range": {
+        "startLine": 606,
+        "startChar": 20,
+        "endLine": 606,
+        "endChar": 26
+      },
+      "revId": "3552e87cef3fe9f74c8d395fface410af90e5b5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
