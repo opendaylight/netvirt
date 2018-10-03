@@ -1701,9 +1701,9 @@ public class NeutronvpnUtils {
             }
             for (BigInteger dpnId : dpnIds) {
                 if (add) {
-                    ipV6InternetDefRt.installDefaultRoute(dpnId, internetBgpVpnId, vpnId);
+                    ipV6InternetDefRt.installDefaultRoute(dpnId, rtrId.getValue(), internetBgpVpnId, vpnId);
                 } else {
-                    ipV6InternetDefRt.removeDefaultRoute(dpnId, internetBgpVpnId, vpnId);
+                    ipV6InternetDefRt.removeDefaultRoute(dpnId, rtrId.getValue(), internetBgpVpnId, vpnId);
                 }
             }
         }

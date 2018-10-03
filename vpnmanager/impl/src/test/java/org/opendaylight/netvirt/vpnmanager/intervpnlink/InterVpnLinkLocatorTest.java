@@ -83,6 +83,8 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
     IInterfaceManager interfaceManager;
     @Mock
     OdlInterfaceRpcService ifmRpcService;
+    @Mock
+    INeutronVpnManager nvManager;
 
     @Before
     public void setUp() throws Exception {
@@ -90,7 +92,7 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
         dataBroker = getDataBroker();
 
         vpnUtil = new VpnUtil(dataBroker, idManager, fibManager, bgpManager, lockManager, neutronVpnService,
-                mdsalManager, jobCoordinator, interfaceManager, ifmRpcService);
+                mdsalManager, jobCoordinator, interfaceManager, ifmRpcService, nvManager);
 
         // Creating both empty containers: InterVpnLinks and InterVpnLinkStates
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
