@@ -120,7 +120,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.Ne
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeFlat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeGre;
@@ -268,24 +267,6 @@ public class NeutronvpnUtils {
             List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
             for (VpnMap vpnMap : allMaps) {
                 if (vpnMap.getRouterId() == null) {
-                    continue;
-                }
-                boolean isInternetBgpVpn = false;
-                //Skip router vpnId fetching from internet BGP-VPN
-                if (vpnMap.getNetworkIds() != null && !vpnMap.getNetworkIds().isEmpty()) {
-                    for (Uuid netId: vpnMap.getNetworkIds()) {
-                        Network network = getNeutronNetwork(netId);
-                        if (getIsExternal(network)) {
-                            isInternetBgpVpn = true;
-                        }
-                        /* If first network is not a external network then no need iterate
-                         * whole network list from the VPN
-                         */
-                        break;
-                    }
-                }
-                if (isInternetBgpVpn) {
-                    //skip further processing
                     continue;
                 }
                 if (routerId.equals(vpnMap.getRouterId())) {
@@ -1521,21 +1502,21 @@ public class NeutronvpnUtils {
     }
 
     public void updateVpnInstanceWithIpFamily(String vpnName, IpVersionChoice ipVersion, boolean add) {
-        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName);
-        if (vpnInstanceOpDataEntry == null) {
-            return;
-        }
-        if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
-            LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}."
-                    + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnName, ipVersion);
-            return;
-        }
-        if (ipVersion == IpVersionChoice.UNDEFINED) {
-            LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with Undefined address family"
-                    + "is not allowed. Do nothing", vpnName);
-            return;
-        }
         jobCoordinator.enqueueJob("VPN-" + vpnName, () -> {
+            VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName);
+            if (vpnInstanceOpDataEntry == null) {
+                return Collections.emptyList();
+            }
+            if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
+                LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}."
+                        + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnName, ipVersion);
+                return Collections.emptyList();
+            }
+            if (ipVersion == IpVersionChoice.UNDEFINED) {
+                LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with Undefined address family"
+                        + "is not allowed. Do nothing", vpnName);
+                return Collections.emptyList();
+            }
             VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
             boolean ipConfigured = add;
             if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4AND6)) {
@@ -1616,39 +1597,6 @@ public class NeutronvpnUtils {
         return externalNetworkUuid != null ? getVpnForNetwork(externalNetworkUuid) : null;
     }
 
-    /**
-     * Get a list of Private Subnetmap Ids from router to export then its prefixes in Internet VPN.
-     * @param extNet Provider Network, which has a port attached as external network gateway to router
-     * @return a list of Private Subnetmap Ids of the router with external network gateway
-     */
-    public @Nonnull List<Uuid> getPrivateSubnetsToExport(@Nonnull Network extNet, Uuid internetVpnId) {
-        List<Uuid> subList = new ArrayList<>();
-        Uuid routerId = null;
-        if (internetVpnId != null) {
-            routerId = getRouterforVpn(internetVpnId);
-        } else {
-            Uuid extNwVpnId = getVpnForNetwork(extNet.getUuid());
-            routerId = getRouterforVpn(extNwVpnId);
-        }
-        if (routerId == null) {
-            return subList;
-        }
-        Router router = getNeutronRouter(routerId);
-        ExternalGatewayInfo info = router.getExternalGatewayInfo();
-        if (info == null) {
-            LOG.error("getPrivateSubnetsToExport: can not get info about external gateway for router {}",
-                    router.getUuid().getValue());
-            return subList;
-        }
-        // check that router really has given provider network as its external gateway port
-        if (!extNet.getUuid().equals(info.getExternalNetworkId())) {
-            LOG.error("getPrivateSubnetsToExport: router {} is not attached to given provider network {}",
-                    router.getUuid().getValue(), extNet.getUuid().getValue());
-            return subList;
-        }
-        return getSubnetsforVpn(router.getUuid());
-    }
-
     public void updateVpnInstanceWithFallback(Uuid routerId, Uuid vpnName, boolean add) {
         VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName.getValue());
         if (vpnInstanceOpDataEntry == null) {
@@ -1671,9 +1619,9 @@ public class NeutronvpnUtils {
                 }
                 for (BigInteger dpnId : dpnIds) {
                     if (add) {
-                        ipV6InternetDefRt.installDefaultRoute(dpnId, internetBgpVpnId, vpnId);
+                        ipV6InternetDefRt.installDefaultRoute(dpnId, routerId.getValue(), internetBgpVpnId, vpnId);
                     } else {
-                        ipV6InternetDefRt.removeDefaultRoute(dpnId, internetBgpVpnId, vpnId);
+                        ipV6InternetDefRt.removeDefaultRoute(dpnId, routerId.getValue(), internetBgpVpnId, vpnId);
                     }
                 }
             }
@@ -1742,25 +1690,6 @@ public class NeutronvpnUtils {
         return dpns;
     }
 
-    public String getRouterIdfromVpnInstance(String vpnName) {
-        // returns only router, attached to IPv4 networks
-        InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
-            .child(VpnMap.class, new VpnMapKey(new Uuid(vpnName))).build();
-        Optional<VpnMap> optionalVpnMap = SingleTransactionDataBroker
-                .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                        LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
-        if (!optionalVpnMap.isPresent()) {
-            LOG.error("getRouterIdfromVpnInstance : Router not found for vpn : {}", vpnName);
-            return null;
-        }
-        Uuid routerId = optionalVpnMap.get().getRouterId();
-        if (routerId != null) {
-            return routerId.getValue();
-        }
-        LOG.info("getRouterIdfromVpnInstance : Router not found for vpn : {}", vpnName);
-        return null;
-    }
-
     public InstanceIdentifier<Router> buildNeutronRouterIdentifier(Uuid routerUuid) {
         InstanceIdentifier<Router> routerInstanceIdentifier = InstanceIdentifier.create(Neutron.class)
              .child(Routers.class).child(Router.class, new RouterKey(routerUuid));
@@ -1787,10 +1716,9 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected boolean isV6SubnetIsPartOfVpn(Uuid routerId) {
-        List<Uuid> subnetList = getSubnetsforVpn(routerId);
-        for (Uuid snId: subnetList) {
-            Subnetmap sm = getSubnetmap(snId);
+    protected boolean isV6SubnetPartOfRouter(Uuid routerId) {
+        List<Subnetmap> subnetList = getNeutronRouterSubnetMapList(routerId);
+        for (Subnetmap sm: subnetList) {
             if (sm == null) {
                 continue;
             }
