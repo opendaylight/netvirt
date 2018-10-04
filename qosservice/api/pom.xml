@@ -26,8 +26,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
             <artifactId>yang-binding</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>iana-if-type-2014-05-08</artifactId>
+            <groupId>org.opendaylight.mdsal.binding.model.iana</groupId>
+            <artifactId>iana-if-type</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal.model</groupId>
