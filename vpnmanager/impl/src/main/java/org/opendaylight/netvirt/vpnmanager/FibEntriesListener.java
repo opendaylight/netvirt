@@ -68,7 +68,7 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
     protected void remove(InstanceIdentifier<VrfEntry> identifier,
         VrfEntry del) {
         LOG.trace("Remove Fib event - Key : {}, value : {} ", identifier, del);
-        final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
+        final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class);
         String rd = key.getRouteDistinguisher();
         List<RoutePaths> routePaths = del.getRoutePaths();
         removeLabelFromVpnInstance(rd, routePaths);
@@ -77,7 +77,7 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
     @Override
     protected void update(InstanceIdentifier<VrfEntry> identifier,
         VrfEntry original, VrfEntry update) {
-        final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
+        final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class);
         String rd = key.getRouteDistinguisher();
         List<RoutePaths> originalRoutePaths = new ArrayList<>(original.getRoutePaths());
         List<RoutePaths> updateRoutePaths = new ArrayList<>(update.getRoutePaths());
@@ -94,7 +94,7 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
     protected void add(InstanceIdentifier<VrfEntry> identifier,
         VrfEntry add) {
         LOG.trace("Add Vrf Entry event - Key : {}, value : {}", identifier, add);
-        final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
+        final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class);
         String rd = key.getRouteDistinguisher();
         addLabelToVpnInstance(rd, add.getRoutePaths());
     }

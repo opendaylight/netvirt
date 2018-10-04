@@ -10,12 +10,12 @@ package org.opendaylight.netvirt.elan.diagstatus;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.aries.blueprint.annotation.service.Service;
 import org.opendaylight.infrautils.diagstatus.DiagStatusService;
 import org.opendaylight.infrautils.diagstatus.ServiceDescriptor;
 import org.opendaylight.infrautils.diagstatus.ServiceState;
 import org.opendaylight.infrautils.diagstatus.ServiceStatusProvider;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
-import org.ops4j.pax.cdi.api.OsgiServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  * ElanDiagStatusProvider which lets ELAN register/unregister for infrautils status and diagnostics related services.
  */
 @Singleton
-@OsgiServiceProvider(classes = ServiceStatusProvider.class)
+@Service(classes = ServiceStatusProvider.class)
 public class ElanDiagStatusProvider implements ServiceStatusProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanDiagStatusProvider.class);
