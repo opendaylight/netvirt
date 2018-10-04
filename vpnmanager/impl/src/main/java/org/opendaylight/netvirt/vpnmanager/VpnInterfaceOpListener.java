@@ -90,8 +90,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     @Override
     protected void remove(final InstanceIdentifier<VpnInterfaceOpDataEntry> identifier,
             final VpnInterfaceOpDataEntry del) {
-        final VpnInterfaceOpDataEntryKey key = identifier.firstKeyOf(VpnInterfaceOpDataEntry.class,
-                VpnInterfaceOpDataEntryKey.class);
+        final VpnInterfaceOpDataEntryKey key = identifier.firstKeyOf(VpnInterfaceOpDataEntry.class);
         final String interfaceName = key.getName();
         jobCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
             () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
@@ -109,8 +108,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                     "Error post-processing VPN interface removal");
             return;
         }
-        final VpnInterfaceOpDataEntryKey key = identifier.firstKeyOf(VpnInterfaceOpDataEntry.class,
-                VpnInterfaceOpDataEntryKey.class);
+        final VpnInterfaceOpDataEntryKey key = identifier.firstKeyOf(VpnInterfaceOpDataEntry.class);
         String interfaceName = key.getName();
         String vpnName = del.getVpnInstanceName();
         try {

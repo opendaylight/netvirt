@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -86,8 +85,6 @@ public class NeutronPortChangeListenerTest {
 
     @Before
     public void setUp() {
-        doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
-        doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(mockNetwork)));
@@ -99,8 +96,6 @@ public class NeutronPortChangeListenerTest {
         InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class,
                         new ElanInstanceKey(new Uuid("12345678-1234-1234-1234-123456789012").getValue())).build();
-        when(mockReadTx.read(any(LogicalDatastoreType.class), eq(elanIdentifierId)))
-            .thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInstance)));
     }
 
     @After
