@@ -1202,8 +1202,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             List<ActionInfo> actionInfos =
                     Collections.singletonList(new ActionGroup(groupId));
             instructions.add(new InstructionApplyActions(actionInfos));
-            baseVrfEntryHandler.makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions,
-                    NwConstants.ADD_FLOW, TransactionAdapter.toWriteTransaction(tx), null);
+            String jobKey = FibUtil.getCreateRemoteNextHopJobKey(vpnId, remoteDpnId, vrfEntry.getDestPrefix());
+            jobCoordinator.enqueueJob(jobKey,
+                () ->  Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(txn -> {
+                    baseVrfEntryHandler.makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions,
+                            NwConstants.ADD_FLOW, txn, null);
+                })));
         } else {
             baseVrfEntryHandler.programRemoteFib(remoteDpnId, vpnId, vrfEntry,
                 TransactionAdapter.toWriteTransaction(tx), rd, adjacencyResults, null);
