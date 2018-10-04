@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.elanmanager.tests;
 
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
@@ -56,7 +56,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev16041
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
-import org.ops4j.pax.cdi.api.OsgiService;
 
 
 /**
@@ -104,7 +103,6 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         ItmRpcService itmRpcService = new ItmRpcTestImpl();
 
         bind(DataBroker.class).toInstance(dataBroker);
-        bind(DataBroker.class).annotatedWith(OsgiService.class).toInstance(dataBroker);
         bind(IdManagerService.class).toInstance(Mockito.mock(IdHelper.class,  CALLS_REAL_METHODS));
         bind(IInterfaceManager.class).toInstance(testInterfaceManager);
         bind(TestInterfaceManager.class).toInstance(testInterfaceManager);
@@ -128,11 +126,10 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         IBgpManager ibgpManager = BgpManagerTestImpl.newInstance(singleTransactionDataBroker);
         bind(ItmRpcService.class).toInstance(itmRpcService);
         bind(ItmRpcTestImpl.class).toInstance((ItmRpcTestImpl)itmRpcService);
-        bind(DataImportBootReady.class).annotatedWith(OsgiService.class).toInstance(new DataImportBootReady() {});
+        bind(DataImportBootReady.class).toInstance(new DataImportBootReady() {});
         bind(DiagStatusService.class).toInstance(Mockito.mock(DiagStatusService.class));
         bind(IVpnManager.class).toInstance(ivpnManager);
         bind(IBgpManager.class).toInstance(ibgpManager);
-        bind(DataImportBootReady.class).toInstance(new DataImportBootReady() {});
         bind(IElanService.class).to(ElanServiceProvider.class);
 
         MdsalUtils mdsalUtils = new MdsalUtils(dataBroker);
