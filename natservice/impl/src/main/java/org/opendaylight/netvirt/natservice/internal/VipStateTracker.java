@@ -29,7 +29,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 @Singleton
 public class VipStateTracker extends DataObjectCache<String, VipState> {
 
-    private ManagedNewTransactionRunner txRunner = null;
+    private ManagedNewTransactionRunner txRunner;
 
     @Inject
     public VipStateTracker(DataBroker dataBroker, CacheProvider cacheProvider) {
@@ -39,8 +39,8 @@ public class VipStateTracker extends DataObjectCache<String, VipState> {
             InstanceIdentifier.builder(NeutronVipStates.class).child(VipState.class).build(),
             cacheProvider,
             (iid, vipState) -> vipState.key().getIp(),
-            ip -> InstanceIdentifier.builder(NeutronVipStates.class) .child(VipState.class, new VipStateKey(ip)).build()
-            );
+            ip -> InstanceIdentifier.builder(NeutronVipStates.class).child(VipState.class,
+                new VipStateKey(ip)).build());
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
