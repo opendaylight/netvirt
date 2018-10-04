@@ -7,8 +7,6 @@
  */
 package org.opendaylight.netvirt.fibmanager.test;
 
-import static org.mockito.Mockito.when;
-
 import java.math.BigInteger;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,7 +64,7 @@ public class FibManagerTest {
         dpn = BigInteger.valueOf(100000L);
         identifier = buildVrfEntryId(TEST_RD, PREFIX);
         vrfEntry = FibHelper.getVrfEntryBuilder(PREFIX, LABEL, NEXTHOP, origin, null).build();
-        when(vrfTableKey.getRouteDistinguisher()).thenReturn(TEST_RD);
+        //when(vrfTableKey.getRouteDistinguisher()).thenReturn(TEST_RD);
     }
 
     @Before
