@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9174af38_1c1689cf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-10-04T11:38:40Z",
+      "side": 1,
+      "message": "If this is only applicable for VPNv6. Please include this in the commit message for readability.",
+      "revId": "11fb5a81399aa41e1ae9a5009717217a2a292ea2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6d92cb51_8feea0c9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-10-04T11:38:40Z",
+      "side": 1,
+      "message": "The bug description[1] says that this issue is only seen with Oxygen release and not with Flourine/Master branch. Can you please clarify the situation?\n\n[1] https://jira.opendaylight.org/browse/NETVIRT-1440",
+      "revId": "11fb5a81399aa41e1ae9a5009717217a2a292ea2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
