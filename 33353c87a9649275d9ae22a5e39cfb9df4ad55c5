@@ -22,6 +22,108 @@
       "revId": "33353c87a9649275d9ae22a5e39cfb9df4ad55c5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "00c63169_653a29f8",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-10-04T13:51:36Z",
+      "side": 1,
+      "message": "Out of curiosity, why would config be null?",
+      "revId": "33353c87a9649275d9ae22a5e39cfb9df4ad55c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "232ebc38_fc7eb098",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-10-04T13:51:36Z",
+      "side": 1,
+      "message": "style nit: missing a space here",
+      "revId": "33353c87a9649275d9ae22a5e39cfb9df4ad55c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "38ccef23_d4a0dae6",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-10-04T13:51:36Z",
+      "side": 1,
+      "message": "What is the purpose updatedDpnId? Especially because dpnId is used on line 452. If you don\u0027t want to assign to an input param, that\u0027s fine but it should be consistent.",
+      "revId": "33353c87a9649275d9ae22a5e39cfb9df4ad55c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0363a0bb_153b4a4f",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-10-04T13:51:36Z",
+      "side": 1,
+      "message": "So there is a non-trivial merge that needs to happen in this method with https://git.opendaylight.org/gerrit/#/c/76560/\nBasically, the dpn may come from the VIP state and would there for not be available via getDpnInterface. This patch is much more important than 76560. Let\u0027s get this one in first",
+      "revId": "33353c87a9649275d9ae22a5e39cfb9df4ad55c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3b548c5c_9054deea",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 2502,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-10-04T13:51:36Z",
+      "side": 1,
+      "message": "IIRC, a bunch of these are in elanManager as well and we should be probably put them somewhere more generic but, ya\u0027 know, not now.",
+      "revId": "33353c87a9649275d9ae22a5e39cfb9df4ad55c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "99699e59_4cb6aaa7",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 2518,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-10-04T13:51:36Z",
+      "side": 1,
+      "message": "This is a misleading comment because it will be printed even if the ovsdbNode is present but has no otherConfig.",
+      "revId": "33353c87a9649275d9ae22a5e39cfb9df4ad55c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
