@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87061663_ee9f633d",
+        "filename": "natservice/api/src/main/java/org/opendaylight/netvirt/natservice/api/SnatServiceListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-10-04T07:25:39Z",
+      "side": 1,
+      "message": "nit: you can remove this \"/removed\" (you can change this only if you have to update the patch)",
+      "range": {
+        "startLine": 80,
+        "startChar": 67,
+        "endLine": 80,
+        "endChar": 75
+      },
+      "revId": "fb510cd118e7fae3fe7c1d51ff575d56a135cf82",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67e34f84_05af6419",
+        "filename": "natservice/api/src/main/java/org/opendaylight/netvirt/natservice/api/SnatServiceListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-10-04T07:25:39Z",
+      "side": 1,
+      "message": "nit: you can remove this \"added/\" (you can change this only if you have to update the patch)",
+      "range": {
+        "startLine": 101,
+        "startChar": 62,
+        "endLine": 101,
+        "endChar": 68
+      },
+      "revId": "fb510cd118e7fae3fe7c1d51ff575d56a135cf82",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "34034daa_9999a6fa",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-10-04T07:25:39Z",
+      "side": 1,
+      "message": "please change this to \"addTerminatingServiceTblEntry\"",
+      "range": {
+        "startLine": 443,
+        "startChar": 18,
+        "endLine": 443,
+        "endChar": 51
+      },
+      "revId": "fb510cd118e7fae3fe7c1d51ff575d56a135cf82",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "70ba192b_cf1399c2",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-10-04T07:25:39Z",
+      "side": 1,
+      "message": "and this to \"removeTerminatingServiceTblEntry\"",
+      "range": {
+        "startLine": 463,
+        "startChar": 18,
+        "endLine": 463,
+        "endChar": 51
+      },
+      "revId": "fb510cd118e7fae3fe7c1d51ff575d56a135cf82",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
