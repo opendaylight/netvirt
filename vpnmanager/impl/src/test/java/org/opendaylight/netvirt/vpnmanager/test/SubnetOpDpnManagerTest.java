@@ -98,7 +98,6 @@ public class SubnetOpDpnManagerTest {
             subnetIdList).setPortId(portId).build();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
-        doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
     }
 
     @Test

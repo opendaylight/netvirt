@@ -238,7 +238,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     private void addVpnInterfaceCall(final InstanceIdentifier<VpnInterface> identifier, final VpnInterface vpnInterface,
                          final List<Adjacency> oldAdjs, final List<Adjacency> newAdjs, String vpnName) {
-        final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
+        final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class);
         final String interfaceName = key.getName();
 
         if (!canHandleNewVpnInterface(identifier, vpnInterface, vpnName)) {
@@ -265,7 +265,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     final VpnInterface vpnInterface, final List<Adjacency> oldAdjs,
                     final List<Adjacency> newAdjs,
                     final InstanceIdentifier<VpnInterface> identifier, String vpnName) {
-        final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
+        final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class);
         final String interfaceName = key.getName();
         String primaryRd = vpnUtil.getPrimaryRd(vpnName);
         if (!vpnUtil.isVpnPendingDelete(primaryRd)) {
@@ -1214,7 +1214,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     @Override
     public void remove(InstanceIdentifier<VpnInterface> identifier, VpnInterface vpnInterface) {
-        final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
+        final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class);
         final String interfaceName = key.getName();
         for (VpnInstanceNames vpnInterfaceVpnInstance : vpnInterface.getVpnInstanceNames()) {
             String vpnName = vpnInterfaceVpnInstance.getVpnName();
@@ -1561,7 +1561,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                            VpnInterface original, VpnInterface update,
                                                            List<ListenableFuture<Void>> futures) {
         boolean isVpnInstanceUpdate = Boolean.FALSE;
-        final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
+        final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class);
         final String interfaceName = key.getName();
         List<String> oldVpnList = vpnUtil.getVpnListForVpnInterface(original);
         List<String> oldVpnListCopy = new ArrayList<>();
@@ -2076,8 +2076,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                   vpnName, intefaceData.vpnInterface.getName());
             return;
         }
-        final VpnInterfaceKey key = intefaceData.identifier
-               .firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
+        final VpnInterfaceKey key = intefaceData.identifier.firstKeyOf(VpnInterface.class);
         final String interfaceName = key.getName();
         InstanceIdentifier<VpnInterfaceOpDataEntry> vpnInterfaceOpIdentifier = VpnUtil
                  .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);

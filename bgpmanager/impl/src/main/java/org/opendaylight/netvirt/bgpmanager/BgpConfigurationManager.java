@@ -244,7 +244,6 @@ public class BgpConfigurationManager {
         this.bundleContext = bundleContext;
         this.bgpUtil = bgpUtil;
         this.metricProvider = metricProvider;
-        String updatePort = getProperty(UPDATE_PORT, DEF_UPORT);
         hostStartup = getProperty(CONFIG_HOST, DEF_CHOST);
         portStartup = getProperty(CONFIG_PORT, DEF_CPORT);
         LOG.info("ConfigServer at {}:{}", hostStartup, portStartup);
@@ -282,6 +281,7 @@ public class BgpConfigurationManager {
                 }
             }
 
+            String updatePort = getProperty(UPDATE_PORT, DEF_UPORT);
             if (InetAddresses.isInetAddress(getBgpSdncMipIp())) {
                 InetSocketAddress bgpThriftServerSocketAddr = new InetSocketAddress(getBgpSdncMipIp(),
                         Integer.parseInt(updatePort));
