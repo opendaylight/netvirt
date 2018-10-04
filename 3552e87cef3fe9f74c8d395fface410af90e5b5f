@@ -22,6 +22,30 @@
       "revId": "3552e87cef3fe9f74c8d395fface410af90e5b5f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d937cbd3_bd92e277",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-10-04T10:37:50Z",
+      "side": 1,
+      "message": "If we get to this point then we can\u0027t clean those flows because we do not know what dpn they\u0027re on. this should not happen.",
+      "parentUuid": "af9ac875_bf26f7a3",
+      "range": {
+        "startLine": 606,
+        "startChar": 20,
+        "endLine": 606,
+        "endChar": 26
+      },
+      "revId": "3552e87cef3fe9f74c8d395fface410af90e5b5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
