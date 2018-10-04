@@ -12,9 +12,9 @@ import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import javax.inject.Singleton;
+import org.apache.aries.blueprint.annotation.service.Service;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.ops4j.pax.cdi.api.OsgiServiceProvider;
 
 /**
  * Implementation of L2GatewayCache.
@@ -22,7 +22,7 @@ import org.ops4j.pax.cdi.api.OsgiServiceProvider;
  * @author Thomas Pantelis
  */
 @Singleton
-@OsgiServiceProvider(classes = L2GatewayCache.class)
+@Service(classes = L2GatewayCache.class)
 public class L2GatewayCacheImpl implements L2GatewayCache {
     private final ConcurrentMap<String, L2GatewayDevice> cache = new ConcurrentHashMap<>();
 

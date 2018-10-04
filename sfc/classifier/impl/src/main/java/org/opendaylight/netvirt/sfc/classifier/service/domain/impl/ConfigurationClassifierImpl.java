@@ -294,7 +294,6 @@ public class ConfigurationClassifierImpl implements ClassifierState {
         nodeToInterfaces.forEach((nodeId, ifaces) -> {
             // Get node info
             DpnIdType nodeDpn = new DpnIdType(OpenFlow13Provider.getDpnIdFromNodeId(nodeId));
-            String nodeIp = geniusProvider.getIpFromDpnId(nodeDpn).orElse(LOCAL_HOST_IP);
 
             if (firstHopIp == null && !nodeDpn.equals(firstHopDpn)) {
                 LOG.warn("Ace {} RSP {} classifier {} ignored: no IP to reach first hop DPN {}",
@@ -332,6 +331,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             // Egress services must bind to egress ports. Since we dont know before-hand what
             // the egress ports will be, we will bind on all switch ports. If the packet
             // doesnt have NSH, it will be returned to the the egress dispatcher table.
+            String nodeIp = geniusProvider.getIpFromDpnId(nodeDpn).orElse(LOCAL_HOST_IP);
             List<Interfaces> interfaceUuidStrList = geniusProvider.getInterfacesFromNode(nodeId);
             interfaceUuidStrList.forEach(interfaceUuidStr -> {
                 InterfaceKey interfaceKey = new InterfaceKey(interfaceUuidStr.getInterfaceName());
