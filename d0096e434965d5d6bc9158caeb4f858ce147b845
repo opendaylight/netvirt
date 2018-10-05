@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ce76f6f_80137769",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-05T10:37:29Z",
+      "side": 1,
+      "message": "Now that ExternalNetworks change listener takes care of handling router gateway addition, the older implemention of adding v6InternetFlows in handleRouterGatewayUpdated() need to be removed.\nHave you taken care of this?",
+      "range": {
+        "startLine": 23,
+        "startChar": 44,
+        "endLine": 23,
+        "endChar": 53
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "46f2e39c_87987208",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-05T10:37:29Z",
+      "side": 1,
+      "message": "You should not do this for all routerIds in network.getRouterId().\nYou should execute it only for updateRouterIds - originalRouterIds.",
+      "range": {
+        "startLine": 206,
+        "startChar": 13,
+        "endLine": 207,
+        "endChar": 30
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "84f31a70_0331c5f0",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-05T10:37:29Z",
+      "side": 1,
+      "message": "again. please do this for updateRouterds - originalRouterIds",
+      "range": {
+        "startLine": 284,
+        "startChar": 21,
+        "endLine": 284,
+        "endChar": 39
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d2daf49_2669a03b",
+        "filename": "neutronvpn/api/src/main/java/org/opendaylight/netvirt/neutronvpn/interfaces/INeutronVpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-05T10:37:29Z",
+      "side": 1,
+      "message": "isV6SubnetPartOfRouter",
+      "range": {
+        "startLine": 54,
+        "startChar": 12,
+        "endLine": 54,
+        "endChar": 36
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b92796a_7a3f8a85",
+        "filename": "neutronvpn/api/src/main/java/org/opendaylight/netvirt/neutronvpn/interfaces/INeutronVpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-05T10:37:29Z",
+      "side": 1,
+      "message": "isInternetVpnBoundToRouter",
+      "range": {
+        "startLine": 56,
+        "startChar": 9,
+        "endLine": 56,
+        "endChar": 37
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d17f8e8_38c00a73",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/IPV6InternetDefaultRouteProgrammer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-05T10:37:29Z",
+      "side": 1,
+      "message": "Please add a comment why router id is used here instead of internetVpnid",
+      "range": {
+        "startLine": 62,
+        "startChar": 87,
+        "endLine": 62,
+        "endChar": 95
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e5bbafca_4163510b",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-05T10:37:29Z",
+      "side": 1,
+      "message": "is this required at all, now that gateway updated is handled through ExternalRoutersListener? Anyhow for N routers, this information will be incorrect.",
+      "range": {
+        "startLine": 436,
+        "startChar": 41,
+        "endLine": 436,
+        "endChar": 71
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "17d190c5_6415b9bc",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-05T10:37:29Z",
+      "side": 1,
+      "message": "This might not be required now I think, since gateway update is handled through externalNetworkListener.\nPlease check my very first comment in ExternalRouterListner.",
+      "range": {
+        "startLine": 446,
+        "startChar": 21,
+        "endLine": 449,
+        "endChar": 31
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e32e9ebd_c94a8bd5",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-05T10:37:29Z",
+      "side": 1,
+      "message": "Again. this might not be required now.",
+      "range": {
+        "startLine": 453,
+        "startChar": 16,
+        "endLine": 455,
+        "endChar": 17
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb921150_612da4cc",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2258,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-05T10:37:29Z",
+      "side": 1,
+      "message": "This is not required now right? We dont depend upon rotuerId in vpnMaps for the shared external network use-case.",
+      "range": {
+        "startLine": 2258,
+        "startChar": 18,
+        "endLine": 2258,
+        "endChar": 48
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e9ca62a3_23f74c3b",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2409,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-05T10:37:29Z",
+      "side": 1,
+      "message": "so now, you are never going to switch a bgpvpn type from external to internet and vice versa? will it always be internet?",
+      "range": {
+        "startLine": 2409,
+        "startChar": 33,
+        "endLine": 2409,
+        "endChar": 37
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

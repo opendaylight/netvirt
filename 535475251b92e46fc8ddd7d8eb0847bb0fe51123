@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39eb21b6_8a19739d",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2421,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-05T10:37:29Z",
+      "side": 0,
+      "message": "okay. so this is not needed since internetVpnId is not needed to be updated to external subnetMaps right?",
+      "range": {
+        "startLine": 2421,
+        "startChar": 24,
+        "endLine": 2421,
+        "endChar": 37
+      },
+      "revId": "535475251b92e46fc8ddd7d8eb0847bb0fe51123",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf6e1b46_54133a43",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2548,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-05T10:37:29Z",
+      "side": 0,
+      "message": "same comment as :2421",
+      "range": {
+        "startLine": 2548,
+        "startChar": 33,
+        "endLine": 2548,
+        "endChar": 42
+      },
+      "revId": "535475251b92e46fc8ddd7d8eb0847bb0fe51123",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d30cc922_42c87f6e",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 3271,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-05T10:37:29Z",
+      "side": 0,
+      "message": "so now you are not going to change the vpnType and address family configurations for an internet bgpvpn ever?",
+      "range": {
+        "startLine": 3271,
+        "startChar": 51,
+        "endLine": 3271,
+        "endChar": 91
+      },
+      "revId": "535475251b92e46fc8ddd7d8eb0847bb0fe51123",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
