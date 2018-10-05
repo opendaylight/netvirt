@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6dd47540_81534449",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-10-05T18:17:38Z",
+      "side": 1,
+      "message": "The VipState YANG model has \"ip\" as the Key. So if two different tenants use the same subnet CIDR (i.e., overlapping ips which is a valid use-case) then we would have issues with the implementation. \n\nTo avoid this situtation, the VipState should actually have the key as \"IP + networkID/portID\"",
+      "range": {
+        "startLine": 603,
+        "startChar": 45,
+        "endLine": 603,
+        "endChar": 68
+      },
+      "revId": "1e16616e90e84f35a0e303c06b212fc2e762d74f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "353deaf6_e682a677",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VipStateTracker.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-10-05T18:17:38Z",
+      "side": 1,
+      "message": "mac is unused",
+      "range": {
+        "startLine": 47,
+        "startChar": 52,
+        "endLine": 47,
+        "endChar": 55
+      },
+      "revId": "1e16616e90e84f35a0e303c06b212fc2e762d74f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
