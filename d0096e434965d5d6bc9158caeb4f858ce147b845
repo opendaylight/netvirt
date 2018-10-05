@@ -252,6 +252,29 @@
       "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "72b89373_bb0fc915",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1772,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-05T11:51:21Z",
+      "side": 1,
+      "message": "How will this work for N routers?",
+      "range": {
+        "startLine": 1772,
+        "startChar": 26,
+        "endLine": 1772,
+        "endChar": 48
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
