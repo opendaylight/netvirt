@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0566813c_b2497f0a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T04:57:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9174af38_1c1689cf",
+      "revId": "11fb5a81399aa41e1ae9a5009717217a2a292ea2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6d92cb51_8feea0c9",
         "filename": "/COMMIT_MSG",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2018-10-04T11:38:40Z",
       "side": 1,
       "message": "The bug description[1] says that this issue is only seen with Oxygen release and not with Flourine/Master branch. Can you please clarify the situation?\n\n[1] https://jira.opendaylight.org/browse/NETVIRT-1440",
+      "revId": "11fb5a81399aa41e1ae9a5009717217a2a292ea2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b0b539d_0c62a086",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T04:57:58Z",
+      "side": 1,
+      "message": "I have updated the bug description. Since this fix is needed in oxygen and fluorine and above release as well.\n\nDifference between Oxygen and Fluorine and above release.\n\n\nOxygen Limitation:\n      Assume basic internet connectivity configurations are existing and V6 and V4 internet data traffic is working fine.\n\n (Dual stack network + router + router has V4 and V6 subnets + Internet BGP-VPN is associated with external-network(GRE) + router is getting associated with external network via router-gw set).\n\nConfiguration Update:\n             Internet BGP-VPN is getting disassociated from external network(GRE), we need to clear/withdraw all internet VPN related flows/routes as part of this config update. For doing this operation we need to get the list of routers which has been part of external network(GRE) with the inputs \"internet BGP-VPN\" and \"external network\" only. Hence with current design we are querying VpnMaps DS to get the router details for the given internet BGP-VPN ID as a input. In case of fluorine and above releases we can get the list of routers instead of single router.\n\nHence Oxygen VPNv6 internet design is dependent on NAT module to program and un-program the V6 internet default fallback rules for each router.",
+      "parentUuid": "6d92cb51_8feea0c9",
       "revId": "11fb5a81399aa41e1ae9a5009717217a2a292ea2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
