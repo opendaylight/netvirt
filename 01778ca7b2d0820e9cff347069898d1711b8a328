@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "589dc749_76afc096",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-10-05T18:11:07Z",
+      "side": 1,
+      "message": "actually this is an internalIP right and not externalIP - am I missing something?",
+      "range": {
+        "startLine": 568,
+        "startChar": 51,
+        "endLine": 568,
+        "endChar": 61
+      },
+      "revId": "01778ca7b2d0820e9cff347069898d1711b8a328",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2387d710_7ae72f7d",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-10-05T18:11:07Z",
+      "side": 1,
+      "message": "The VipState YANG model has \"ip\" as the Key. So if two different tenants use the same subnet CIDR (i.e., overlapping ips which is a valid use-case) then we would have issues with the implementation. \n\nTo avoid this situtation, the VipState should actually have the key as \"IP + networkID/portID\"",
+      "range": {
+        "startLine": 594,
+        "startChar": 45,
+        "endLine": 594,
+        "endChar": 68
+      },
+      "revId": "01778ca7b2d0820e9cff347069898d1711b8a328",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a21329d6_10a6dd0a",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VipStateTracker.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-10-05T18:11:07Z",
+      "side": 1,
+      "message": "mac is unused",
+      "range": {
+        "startLine": 46,
+        "startChar": 45,
+        "endLine": 46,
+        "endChar": 55
+      },
+      "revId": "01778ca7b2d0820e9cff347069898d1711b8a328",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
