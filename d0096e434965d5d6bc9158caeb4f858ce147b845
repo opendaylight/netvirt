@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "3bc39242_265ab762",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T11:59:51Z",
+      "side": 1,
+      "message": "The idea here is network.getRouterIds() will get the router list only after router gw set is been done already. \n\nConsider when external network is getting associated to router, at that time ext-network DS is empty. So, after router gw set with external network if we do internet BGP-VPN disassociation from external network, we have clear all the internet V6 related flows for all the routers which has been part of external network. Hence it is need to clear all the routers.\n\nExternal network to Router --\u003e Relation (In this case we have clear the updated router only)\nInternet BGP-VPN to Ext-Network --\u003e Relation (In this case we have to clear all the routers)",
+      "parentUuid": "46f2e39c_87987208",
+      "range": {
+        "startLine": 206,
+        "startChar": 13,
+        "endLine": 207,
+        "endChar": 30
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "84f31a70_0331c5f0",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
         "patchSetId": 3
@@ -59,6 +83,30 @@
       "writtenOn": "2018-10-05T10:37:29Z",
       "side": 1,
       "message": "again. please do this for updateRouterds - originalRouterIds",
+      "range": {
+        "startLine": 284,
+        "startChar": 21,
+        "endLine": 284,
+        "endChar": 39
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "71ae7773_b3cd166d",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T11:59:51Z",
+      "side": 1,
+      "message": "Please refer my previous comment.",
+      "parentUuid": "84f31a70_0331c5f0",
       "range": {
         "startLine": 284,
         "startChar": 21,
@@ -94,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "4a17078d_5611fcca",
+        "filename": "neutronvpn/api/src/main/java/org/opendaylight/netvirt/neutronvpn/interfaces/INeutronVpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T11:59:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d2daf49_2669a03b",
+      "range": {
+        "startLine": 54,
+        "startChar": 12,
+        "endLine": 54,
+        "endChar": 36
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b92796a_7a3f8a85",
         "filename": "neutronvpn/api/src/main/java/org/opendaylight/netvirt/neutronvpn/interfaces/INeutronVpnManager.java",
         "patchSetId": 3
@@ -105,6 +177,30 @@
       "writtenOn": "2018-10-05T10:37:29Z",
       "side": 1,
       "message": "isInternetVpnBoundToRouter",
+      "range": {
+        "startLine": 56,
+        "startChar": 9,
+        "endLine": 56,
+        "endChar": 37
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5adece47_59e3b583",
+        "filename": "neutronvpn/api/src/main/java/org/opendaylight/netvirt/neutronvpn/interfaces/INeutronVpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T11:59:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b92796a_7a3f8a85",
       "range": {
         "startLine": 56,
         "startChar": 9,
@@ -140,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "97f6b53c_5b7674dd",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/IPV6InternetDefaultRouteProgrammer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T11:59:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d17f8e8_38c00a73",
+      "range": {
+        "startLine": 62,
+        "startChar": 87,
+        "endLine": 62,
+        "endChar": 95
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e5bbafca_4163510b",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 3
@@ -151,6 +271,30 @@
       "writtenOn": "2018-10-05T10:37:29Z",
       "side": 1,
       "message": "is this required at all, now that gateway updated is handled through ExternalRoutersListener? Anyhow for N routers, this information will be incorrect.",
+      "range": {
+        "startLine": 436,
+        "startChar": 41,
+        "endLine": 436,
+        "endChar": 71
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e34f3fe4_29c4a08e",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T11:59:51Z",
+      "side": 1,
+      "message": "Not Needed in Oxygen. Removed from here.",
+      "parentUuid": "e5bbafca_4163510b",
       "range": {
         "startLine": 436,
         "startChar": 41,
@@ -186,6 +330,30 @@
     },
     {
       "key": {
+        "uuid": "cd3f5c72_08bea9ba",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T11:59:51Z",
+      "side": 1,
+      "message": "No. This is needed. Please refer my comment in externalNetworkListener",
+      "parentUuid": "17d190c5_6415b9bc",
+      "range": {
+        "startLine": 446,
+        "startChar": 21,
+        "endLine": 449,
+        "endChar": 31
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e32e9ebd_c94a8bd5",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 3
@@ -197,6 +365,30 @@
       "writtenOn": "2018-10-05T10:37:29Z",
       "side": 1,
       "message": "Again. this might not be required now.",
+      "range": {
+        "startLine": 453,
+        "startChar": 16,
+        "endLine": 455,
+        "endChar": 17
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5cb9d85b_dba23eca",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T11:59:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e32e9ebd_c94a8bd5",
       "range": {
         "startLine": 453,
         "startChar": 16,
@@ -232,6 +424,30 @@
     },
     {
       "key": {
+        "uuid": "60cf822e_30f55e5c",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2258,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T11:59:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb921150_612da4cc",
+      "range": {
+        "startLine": 2258,
+        "startChar": 18,
+        "endLine": 2258,
+        "endChar": 48
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e9ca62a3_23f74c3b",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 3
@@ -255,6 +471,30 @@
     },
     {
       "key": {
+        "uuid": "89572312_3d653ff1",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2409,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T11:59:51Z",
+      "side": 1,
+      "message": "associateExtNetworkToVpn() it is switching from externalVpn to InternetVpn\ndisassociateExtNetworkFromVpn() it is switching back to externalVpn from InternetVpn.",
+      "parentUuid": "e9ca62a3_23f74c3b",
+      "range": {
+        "startLine": 2409,
+        "startChar": 33,
+        "endLine": 2409,
+        "endChar": 37
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "72b89373_bb0fc915",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 3
@@ -266,6 +506,30 @@
       "writtenOn": "2018-10-05T11:51:21Z",
       "side": 1,
       "message": "How will this work for N routers?",
+      "range": {
+        "startLine": 1772,
+        "startChar": 26,
+        "endLine": 1772,
+        "endChar": 48
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c26996f3_149d8355",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1772,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T11:59:51Z",
+      "side": 1,
+      "message": "This logic is like from the VpnFootprintService update what ever the Vpnname we are passing, we need to get the equivalent routerId format. Please check createOrUpdateVpnToDpnListForInterfaceName() method where when ever the first VM is booted on the compute it has to check on the new compute has vpn presence.\n\nPlease check the caller of updateVpnToDpnMapping update where they have the whole Vpnlist and they were iterating each Vpn by Vpn in InterfaceStateChangeListener. This will taken care of N routers",
+      "parentUuid": "72b89373_bb0fc915",
       "range": {
         "startLine": 1772,
         "startChar": 26,

@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0bba0b91_7646a63a",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2421,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T11:59:51Z",
+      "side": 0,
+      "message": "Yes.",
+      "parentUuid": "39eb21b6_8a19739d",
+      "range": {
+        "startLine": 2421,
+        "startChar": 24,
+        "endLine": 2421,
+        "endChar": 37
+      },
+      "revId": "535475251b92e46fc8ddd7d8eb0847bb0fe51123",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cf6e1b46_54133a43",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-10-05T10:37:29Z",
       "side": 0,
       "message": "same comment as :2421",
+      "range": {
+        "startLine": 2548,
+        "startChar": 33,
+        "endLine": 2548,
+        "endChar": 42
+      },
+      "revId": "535475251b92e46fc8ddd7d8eb0847bb0fe51123",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "06e207a5_d3ec4f0f",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2548,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T11:59:51Z",
+      "side": 0,
+      "message": "Please refer my comment",
+      "parentUuid": "cf6e1b46_54133a43",
       "range": {
         "startLine": 2548,
         "startChar": 33,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "692e334d_7fe55e98",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 3271,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T11:59:51Z",
+      "side": 0,
+      "message": "VpnType and IP address family type will get change from InternetVpn to externalVpn and IPv6 only on external-network to bgpVpn association and disassociation.",
+      "parentUuid": "d30cc922_42c87f6e",
+      "range": {
+        "startLine": 3271,
+        "startChar": 51,
+        "endLine": 3271,
+        "endChar": 91
+      },
+      "revId": "535475251b92e46fc8ddd7d8eb0847bb0fe51123",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "07c6c4e4_5d37ff1f",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 3
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "c73f23b2_72fdd733",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T11:59:51Z",
+      "side": 0,
+      "message": "Yes",
+      "parentUuid": "07c6c4e4_5d37ff1f",
+      "range": {
+        "startLine": 351,
+        "startChar": 33,
+        "endLine": 353,
+        "endChar": 17
+      },
+      "revId": "535475251b92e46fc8ddd7d8eb0847bb0fe51123",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ef93cbd2_61446533",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 3
@@ -105,6 +201,30 @@
       "writtenOn": "2018-10-05T11:51:21Z",
       "side": 0,
       "message": "This block is not required due to ExternalNetworkListener changes right?",
+      "range": {
+        "startLine": 423,
+        "startChar": 31,
+        "endLine": 423,
+        "endChar": 43
+      },
+      "revId": "535475251b92e46fc8ddd7d8eb0847bb0fe51123",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6e6dd28_2341c0d0",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-05T11:59:51Z",
+      "side": 0,
+      "message": "Yes",
+      "parentUuid": "ef93cbd2_61446533",
       "range": {
         "startLine": 423,
         "startChar": 31,
