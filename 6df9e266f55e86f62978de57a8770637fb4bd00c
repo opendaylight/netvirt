@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "405dfdbd_5a03147b",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-10-05T19:21:42Z",
+      "side": 1,
+      "message": "this is removed on the master branch patch. Lets keep the code consistent across the branches.",
+      "range": {
+        "startLine": 152,
+        "startChar": 69,
+        "endLine": 152,
+        "endChar": 77
+      },
+      "revId": "6df9e266f55e86f62978de57a8770637fb4bd00c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
