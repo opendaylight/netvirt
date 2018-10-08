@@ -539,6 +539,29 @@
       "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e0c21502_e898c043",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-08T11:53:57Z",
+      "side": 1,
+      "message": "Can you please check if you can use RouterDpnsChangeListener to install the def flow instead of doing it here?",
+      "range": {
+        "startLine": 191,
+        "startChar": 28,
+        "endLine": 191,
+        "endChar": 79
+      },
+      "revId": "d0096e434965d5d6bc9158caeb4f858ce147b845",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
