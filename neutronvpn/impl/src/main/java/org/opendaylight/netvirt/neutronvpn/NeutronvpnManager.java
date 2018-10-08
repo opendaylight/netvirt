@@ -131,10 +131,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetL3VPNOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterAssociatedToVpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterAssociatedToVpnBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterDisassociatedFromVpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterDisassociatedFromVpnBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
@@ -2281,15 +2277,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     vpnId);
             neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion, true);
         }
-
-        try {
-            checkAndPublishRouterAssociatedtoVpnNotification(routerId, vpnId);
-            LOG.debug("notification upon association of router {} to VPN {} published", routerId.getValue(),
-                    vpnId.getValue());
-        } catch (Exception e) {
-            LOG.error("publishing of notification upon association of router {} to VPN {} failed : ", routerId
-                    .getValue(), vpnId.getValue(), e);
-        }
     }
 
     protected void associateRouterToInternalVpn(Uuid vpnId, Uuid routerId) {
@@ -2328,14 +2315,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     false);
         }
         clearFromVpnMaps(vpnId, routerId, null);
-        try {
-            checkAndPublishRouterDisassociatedFromVpnNotification(routerId, vpnId);
-            LOG.debug("notification upon disassociation of router {} from VPN {} published", routerId.getValue(),
-                    vpnId.getValue());
-        } catch (Exception e) {
-            LOG.error("publishing of notification upon disassociation of router {} from VPN {} failed : ", routerId
-                    .getValue(), vpnId.getValue(), e);
-        }
     }
 
     /**
@@ -3189,22 +3168,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         StringBuilder help = new StringBuilder("Usage:");
         help.append("display vpn-config [-vid/--vpnid <id>]");
         return help.toString();
-    }
-
-    private void checkAndPublishRouterAssociatedtoVpnNotification(Uuid routerId, Uuid vpnId) throws
-            InterruptedException {
-        RouterAssociatedToVpn routerAssociatedToVpn = new RouterAssociatedToVpnBuilder().setRouterId(routerId)
-                .setVpnId(vpnId).build();
-        LOG.info("publishing notification upon association of router to VPN");
-        notificationPublishService.putNotification(routerAssociatedToVpn);
-    }
-
-    private void checkAndPublishRouterDisassociatedFromVpnNotification(Uuid routerId, Uuid vpnId) throws
-            InterruptedException {
-        RouterDisassociatedFromVpn routerDisassociatedFromVpn =
-            new RouterDisassociatedFromVpnBuilder().setRouterId(routerId).setVpnId(vpnId).build();
-        LOG.info("publishing notification upon disassociation of router from VPN");
-        notificationPublishService.putNotification(routerDisassociatedFromVpn);
     }
 
     protected void dissociatefixedIPFromFloatingIP(String fixedNeutronPortName) {
