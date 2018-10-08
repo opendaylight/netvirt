@@ -12,11 +12,13 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -26,16 +28,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterAssociatedToVpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterDisassociatedFromVpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class RouterToVpnListener implements NeutronvpnListener {
-    private static final Logger LOG = LoggerFactory.getLogger(RouterToVpnListener.class);
+public class NatVpnMapsChangeListener extends AsyncDataTreeChangeListenerBase<VpnMap, NatVpnMapsChangeListener> {
+    private static final Logger LOG = LoggerFactory.getLogger(NatVpnMapsChangeListener.class);
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
     private final FloatingIPListener floatingIpListener;
@@ -43,10 +44,11 @@ public class RouterToVpnListener implements NeutronvpnListener {
     private final ExternalRoutersListener externalRoutersListener;
 
     @Inject
-    public RouterToVpnListener(final DataBroker dataBroker,
+    public NatVpnMapsChangeListener(final DataBroker dataBroker,
                                final FloatingIPListener floatingIpListener,
                                final OdlInterfaceRpcService interfaceManager,
                                final ExternalRoutersListener externalRoutersListener) {
+        super(VpnMap.class, NatVpnMapsChangeListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.floatingIpListener = floatingIpListener;
@@ -54,13 +56,75 @@ public class RouterToVpnListener implements NeutronvpnListener {
         this.externalRoutersListener = externalRoutersListener;
     }
 
-    /**
-     * router association to vpn.
-     */
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
+        registerListener(dataBroker);
+    }
+
     @Override
-    public void onRouterAssociatedToVpn(RouterAssociatedToVpn notification) {
-        String routerName = notification.getRouterId().getValue();
-        String vpnName = notification.getVpnId().getValue();
+    protected InstanceIdentifier<VpnMap> getWildCardPath() {
+        return InstanceIdentifier.create(VpnMaps.class).child(VpnMap.class);
+    }
+
+    private void registerListener(final DataBroker db) {
+        registerListener(LogicalDatastoreType.CONFIGURATION, db);
+    }
+
+    @Override
+    protected void add(InstanceIdentifier<VpnMap> identifier, VpnMap vpnMap) {
+        Uuid vpnUuid = vpnMap.getVpnId();
+        String vpnName = vpnUuid.getValue();
+        vpnMap.getRouterIds().stream()
+                .filter(router -> !(Objects.equals(router.getRouterId(), vpnUuid)))
+                .forEach(router -> {
+                            String routerName = router.getRouterId().getValue();
+                            LOG.info("REMOVE: Router {} is disassociated from Vpn {}", routerName, vpnName);
+                            onRouterAssociatedToVpn(vpnName, routerName);
+                });
+    }
+
+    @Override
+    protected void remove(InstanceIdentifier<VpnMap> identifier, VpnMap vpnMap) {
+        Uuid vpnUuid = vpnMap.getVpnId();
+        String vpnName = vpnUuid.getValue();
+        vpnMap.getRouterIds().stream()
+                .filter(router -> !(Objects.equals(router.getRouterId(), vpnUuid)))
+                .forEach(router -> {
+                    String routerName = router.getRouterId().getValue();
+                    LOG.info("REMOVE: Router {} is disassociated from Vpn {}", routerName, vpnName);
+                    onRouterDisassociatedFromVpn(vpnName, routerName);
+                });
+    }
+
+    @Override
+    protected void update(InstanceIdentifier<VpnMap> identifier, VpnMap original, VpnMap updated) {
+        Uuid vpnUuid = updated.getVpnId();
+        String vpnName = vpnUuid.getValue();
+
+        updated.getRouterIds().stream()
+                .filter(router -> ! original.getRouterIds().contains(router))
+                .filter(router -> !(Objects.equals(router.getRouterId(), updated.getVpnId())))
+                .forEach(router -> {
+                    String routerName = router.getRouterId().getValue();
+                    onRouterAssociatedToVpn(vpnName, routerName);
+                });
+
+        original.getRouterIds().stream()
+                .filter(router -> ! updated.getRouterIds().contains(router))
+                .filter(router -> !(Objects.equals(router.getRouterId(), original.getVpnId())))
+                .forEach(router -> {
+                    String routerName = router.getRouterId().getValue();
+                    onRouterDisassociatedFromVpn(vpnName, routerName);
+                });
+    }
+
+    @Override
+    protected NatVpnMapsChangeListener getDataTreeChangeListener() {
+        return this;
+    }
+
+    public void onRouterAssociatedToVpn(String vpnName, String routerName) {
+
         //check router is associated to external network
         String extNetwork = NatUtil.getAssociatedExternalNetwork(dataBroker, routerName);
         if (extNetwork != null) {
@@ -70,11 +134,11 @@ public class RouterToVpnListener implements NeutronvpnListener {
                 Uuid extNetworkUuid = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
                 if (extNetworkUuid == null) {
                     LOG.error("onRouterAssociatedToVpn : Unable to retrieve external network Uuid for router {}",
-                        routerName);
+                            routerName);
                     return;
                 }
                 ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName,
-                    extNetworkUuid);
+                        extNetworkUuid);
                 if (extNwProvType == null) {
                     LOG.error("onRouterAssociatedToVpn : External Network Provider Type missing");
                     return;
@@ -82,7 +146,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
                 long routerId = NatUtil.getVpnId(dataBroker, routerName);
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     tx -> externalRoutersListener.changeLocalVpnIdToBgpVpnId(routerName, routerId, vpnName, tx,
-                            extNwProvType)).get();
+                                extNwProvType)).get();
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error changling local VPN identifier to BGP VPN identifier", e);
             }
@@ -95,16 +159,15 @@ public class RouterToVpnListener implements NeutronvpnListener {
     /**
      * router disassociation from vpn.
      */
-    @Override
-    public void onRouterDisassociatedFromVpn(RouterDisassociatedFromVpn notification) {
-        String routerName = notification.getRouterId().getValue();
-        String vpnName = notification.getVpnId().getValue();
+
+    public void onRouterDisassociatedFromVpn(String vpnName, String routerName) {
+
         //check router is associated to external network
         String extNetwork = NatUtil.getAssociatedExternalNetwork(dataBroker, routerName);
         if (extNetwork != null) {
             try {
                 LOG.debug("onRouterDisassociatedFromVpn : Router {} is associated with ext nw {}", routerName,
-                    extNetwork);
+                        extNetwork);
                 handleDNATConfigurationForRouterDisassociation(routerName, vpnName, extNetwork);
                 Uuid extNetworkUuid = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
                 if (extNetworkUuid == null) {
@@ -121,7 +184,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
                 long routerId = NatUtil.getVpnId(dataBroker, routerName);
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     tx -> externalRoutersListener.changeBgpVpnIdToLocalVpnId(routerName, routerId, vpnName, tx,
-                            extNwProvType)).get();
+                                extNwProvType)).get();
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error changing BGP VPN identifier to local VPN identifier", e);
             }
@@ -135,7 +198,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
             throws ExecutionException, InterruptedException {
         InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerName);
         Optional<RouterPorts> optRouterPorts =
-            MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsId);
+                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsId);
         if (!optRouterPorts.isPresent()) {
             LOG.debug("handleDNATConfigurationForRouterAssociation : Could not read Router Ports data "
                     + "object with id: {} to handle associate vpn {}", routerName, vpnName);
@@ -170,7 +233,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
             throws ExecutionException, InterruptedException {
         InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerName);
         Optional<RouterPorts> optRouterPorts =
-            MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsId);
+                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsId);
         if (!optRouterPorts.isPresent()) {
             LOG.error("handleDNATConfigurationForRouterDisassociation : Could not read Router Ports "
                     + "data object with id: {} to handle disassociate vpn {}", routerName, vpnName);
