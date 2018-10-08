@@ -35,6 +35,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.apache.commons.net.util.SubnetUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -236,7 +237,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
@@ -672,8 +672,9 @@ public final class NatUtil {
         return new BigInteger(getDpnFromNodeConnectorId(nodeConnectorId));
     }
 
+
     @Nullable
-    public static String getRouterIdfromVpnInstance(DataBroker broker, String vpnName) {
+    public static String getRouterIdfromVpnInstance(DataBroker broker, String vpnName, String ipAddress) {
         // returns only router, attached to IPv4 networks
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
             .child(VpnMap.class, new VpnMapKey(new Uuid(vpnName))).build();
@@ -687,20 +688,18 @@ public final class NatUtil {
         List<Uuid> routerIdsList = NeutronUtils.getVpnMapRouterIdsListUuid(optionalVpnMap.get().getRouterIds());
         if (routerIdsList != null && !routerIdsList.isEmpty()) {
             for (Uuid routerUuid : routerIdsList) {
-                InstanceIdentifier<Router> routerIdentifier = buildNeutronRouterIdentifier(routerUuid);
-                Optional<Router> optRouter = SingleTransactionDataBroker
-                    .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                            LogicalDatastoreType.CONFIGURATION, routerIdentifier);
-                if (!optRouter.isPresent()) {
-                    continue;
-                }
-                List<Routes> routes = optRouter.get().getRoutes();
-                if (routes == null || routes.isEmpty()) {
-                    continue;
-                }
-                for (Routes r : routes) {
-                    if (r.getDestination().getIpv4Prefix() != null) {
-                        return routerUuid.getValue();
+                InstanceIdentifier<Routers> id = buildRouterIdentifier(routerUuid.getValue());
+                Optional<Routers> routerData =
+                        SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                                LogicalDatastoreType.CONFIGURATION, id);
+                if (routerData.isPresent()) {
+                    List<Uuid> subnetIdsList = routerData.get().getSubnetIds();
+                    for (Uuid subnetUuid : subnetIdsList) {
+                        String subnetIp = getSubnetIp(broker, subnetUuid);
+                        SubnetUtils subnet = new SubnetUtils(subnetIp);
+                        if (subnet.getInfo().isInRange(ipAddress)) {
+                            return routerUuid.getValue();
+                        }
                     }
                 }
             }
