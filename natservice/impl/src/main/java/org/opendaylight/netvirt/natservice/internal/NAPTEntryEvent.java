@@ -35,6 +35,18 @@ public class NAPTEntryEvent {
         this.objectCreationTime = System.currentTimeMillis();
     }
 
+    NAPTEntryEvent(String ipAddress, int portNumber, Long routerId, Operation op, Protocol protocol) {
+        this.op = op;
+        this.ipAddress = ipAddress;
+        this.portNumber = portNumber;
+        this.routerId = routerId;
+        this.protocol = protocol;
+        this.packetReceived = null;
+        this.pktProcessed = false;
+        this.state = null;
+        this.objectCreationTime = System.currentTimeMillis();
+    }
+
     public PacketReceived getPacketReceived() {
         return packetReceived;
     }

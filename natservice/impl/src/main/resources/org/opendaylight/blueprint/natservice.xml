@@ -57,7 +57,6 @@
 
   <odl:notification-listener ref="naptPacketInHandler" />
   <odl:notification-listener ref="naptFlowRemovedEventHandler" />
-  <odl:notification-listener ref="routerToVpnListener" />
 
   <service ref="vpnFloatingIpHandler"
            interface="org.opendaylight.netvirt.natservice.internal.FloatingIPHandler" />

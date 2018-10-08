@@ -460,25 +460,4 @@ module neutronvpn {
             }
         }
     }
-
-    notification router-associated-to-vpn {
-            description "router association to vpn";
-            leaf router-id{
-                type yang:uuid;
-            }
-            leaf vpn-id{
-                type yang:uuid;
-            }
-    }
-
-    notification router-disassociated-from-vpn {
-            description "router disassociation from vpn";
-            leaf router-id{
-                type yang:uuid;
-            }
-            leaf vpn-id{
-                type yang:uuid;
-            }
-    }
-
 }

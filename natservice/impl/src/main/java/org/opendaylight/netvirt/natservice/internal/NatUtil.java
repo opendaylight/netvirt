@@ -235,9 +235,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
@@ -679,13 +679,13 @@ public final class NatUtil {
                 if (!optRouter.isPresent()) {
                     continue;
                 }
-                List<Routes> routes = optRouter.get().getRoutes();
-                if (routes == null || routes.isEmpty()) {
-                    continue;
-                }
-                for (Routes r : routes) {
-                    if (r.getDestination().getIpv4Prefix() != null) {
-                        return routerUuid.getValue();
+                List<ExternalFixedIps> externalFixedIps = optRouter.get().getExternalGatewayInfo()
+                        .getExternalFixedIps();
+                if (externalFixedIps != null) {
+                    for (int i = 0 ;i < externalFixedIps.size();i++) {
+                        if (externalFixedIps.get(i).getIpAddress().getIpv4Address() != null) {
+                            return routerUuid.getValue();
+                        }
                     }
                 }
             }

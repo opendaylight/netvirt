@@ -100,6 +100,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.ip.port.map.IpPortExternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -317,8 +318,7 @@ public class NaptEventHandler {
                         naptEntryEvent.isPktProcessed());
             } else {
                 LOG.debug("handleEvent : Inside delete Operation of NaptEventHandler");
-                removeNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId, naptEntryEvent.getIpAddress(),
-                    naptEntryEvent.getPortNumber());
+                handleFlowRemoved(naptEntryEvent, routerId, sourceIPPortKey, dpnId);
                 LOG.info("handleEvent : exited for removeEvent for IP {}, port {}, routerID : {}",
                         naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), routerId);
             }
@@ -638,7 +638,7 @@ public class NaptEventHandler {
         String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(segmentId), ip, port);
         FlowEntity snatFlowEntity = NatUtil.buildFlowEntity(dpnId, tableId, switchFlowRef);
         LOG.debug("removeNatFlows : Remove the flow in the table {} for the switch with the DPN ID {}",
-            NwConstants.INBOUND_NAPT_TABLE, dpnId);
+                tableId, dpnId);
         long startTime = System.currentTimeMillis();
         mdsalManager.removeFlow(snatFlowEntity);
         LOG.trace("removeNatFlows : Time Elapsed for removing table-{} flow from switch with DPN ID:{} "
@@ -712,5 +712,33 @@ public class NaptEventHandler {
         }
 
         return NatConstants.INVALID_ID;
+    }
+
+    public void handleFlowRemoved(NAPTEntryEvent naptEntryEvent, Long routerId, String sourceIPPortKey,
+                                  BigInteger dpnId) {
+        String internalIpv4HostAddress = naptEntryEvent.getIpAddress();
+        Integer internalPortNumber = naptEntryEvent.getPortNumber();
+        NAPTEntryEvent.Protocol protocol = naptEntryEvent.getProtocol();
+        //Get the external IP address and the port from the model
+        IpPortExternal ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId, internalIpv4HostAddress,
+                internalPortNumber.toString(), protocol);
+        if (ipPortExternal == null) {
+            LOG.error("handleFlowRemoved : IpPortExternal is null while queried from the model for routerId {}",
+                    routerId);
+            return;
+        }
+        String externalIpAddress = ipPortExternal.getIpAddress();
+        int externalPortNumber = ipPortExternal.getPortNum();
+
+        removeNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId, externalIpAddress, externalPortNumber);
+
+        removeNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId, internalIpv4HostAddress, internalPortNumber);
+
+        //Remove the SourceIP:Port key from the Napt packet handler map.
+        NaptPacketInHandler.removeIncomingPacketMap(sourceIPPortKey);
+
+        //Remove the mapping of internal fixed ip/port to external ip/port from the datastore.
+        SessionAddress internalSessionAddress = new SessionAddress(internalIpv4HostAddress, internalPortNumber);
+        naptManager.releaseIpExtPortMapping(routerId, internalSessionAddress, protocol);
     }
 }
