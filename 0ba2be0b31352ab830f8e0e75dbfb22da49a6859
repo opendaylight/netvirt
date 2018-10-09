@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf7bde90_f8089dea",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-09T11:47:02Z",
+      "side": 1,
+      "message": "This flag is not required. DIrectly call nvpnManager API.\nAlso, move this block to another method and call it. Similar to handleSNATForDPN. Let us not keep on adding code to a single method",
+      "range": {
+        "startLine": 204,
+        "startChar": 100,
+        "endLine": 204,
+        "endChar": 104
+      },
+      "revId": "0ba2be0b31352ab830f8e0e75dbfb22da49a6859",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d92f1ea0_d8972524",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-09T11:47:02Z",
+      "side": 1,
+      "message": "same comment as add()",
+      "range": {
+        "startLine": 303,
+        "startChar": 50,
+        "endLine": 304,
+        "endChar": 71
+      },
+      "revId": "0ba2be0b31352ab830f8e0e75dbfb22da49a6859",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "962a7ebc_97107dcc",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-09T11:47:02Z",
+      "side": 1,
+      "message": "Not required. Directly call nvpnManager RPC",
+      "range": {
+        "startLine": 525,
+        "startChar": 45,
+        "endLine": 526,
+        "endChar": 37
+      },
+      "revId": "0ba2be0b31352ab830f8e0e75dbfb22da49a6859",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "232bcf96_7231d5cf",
+        "filename": "neutronvpn/api/src/main/java/org/opendaylight/netvirt/neutronvpn/interfaces/INeutronVpnManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-09T11:47:02Z",
+      "side": 1,
+      "message": "Let us not expose very fine grained utility methods as an API here.\nNATService needs two APIs:\n1) In ExternalRouterChangeListener... needs to check isV6partOfRouter, get SubnetMaps, and install internet routes\u003cboth fallback and others\u003e. So for this can you expose one method, so that the implementation for this method in nVPnManager will do all the three required reads and writes?\n2) For RouterDpnChangeListener, u need to check ifV6PartOfRouter and program fallback rules. So expose on for that. \nThat should be enough.",
+      "range": {
+        "startLine": 58,
+        "startChar": 4,
+        "endLine": 58,
+        "endChar": 49
+      },
+      "revId": "0ba2be0b31352ab830f8e0e75dbfb22da49a6859",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
