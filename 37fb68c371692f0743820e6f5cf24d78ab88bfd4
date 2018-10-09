@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6894e85_6bfed612",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-10-09T14:41:38Z",
+      "side": 1,
+      "message": "I think what we really want here is to not so much to move from MDSALUtil to SingleTransactionDataBroker, but to the ManagedNewTransactionRunner ... agreed, Stephen?  \n\nI\u0027m not against this an intermediate step, but it\u0027s ... not really helping with \"fix unclosed ReadTransaction\" as this commit message says, MDSALUtil already does that.  \n\nNETVIRT-1295 mentions leaks re. newWriteOnlyTransaction which I do not see this patch address?  Perhaps that has already been done separately (Stephen?), in which case this change is not really related to NETVIRT-1295.",
+      "revId": "37fb68c371692f0743820e6f5cf24d78ab88bfd4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
