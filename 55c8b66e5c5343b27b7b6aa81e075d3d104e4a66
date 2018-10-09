@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b610c97e_87653850",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2255,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-09T09:56:30Z",
+      "side": 1,
+      "message": "This method can be written in a better way.\n1) Move Line 2246 to 2241.\n2) for rtrIdsList, call dissociateRouterFromVpn().\n3) if vpnId not in rtrIdsList, and vpnMap.getNetworkIds() !\u003d null, call dissociateNetworksFromVpn().\n4) Delete VpnMaps\n5) Delete vpnInstance\n\nPlase refer removeVpn)() method in stable/oxygen, and use the above points to refactor this method correctly.",
+      "range": {
+        "startLine": 2252,
+        "startChar": 10,
+        "endLine": 2255,
+        "endChar": 13
+      },
+      "revId": "55c8b66e5c5343b27b7b6aa81e075d3d104e4a66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
