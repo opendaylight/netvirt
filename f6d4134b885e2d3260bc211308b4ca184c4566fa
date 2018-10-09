@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a448b15f_4df560b5",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-09T10:19:29Z",
+      "side": 1,
+      "message": "No need for two separate block. Move this to :195 so that additional variables are not necessary.",
+      "range": {
+        "startLine": 168,
+        "startChar": 40,
+        "endLine": 175,
+        "endChar": 46
+      },
+      "revId": "f6d4134b885e2d3260bc211308b4ca184c4566fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff53ad57_0a9c0be1",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-09T10:19:29Z",
+      "side": 1,
+      "message": "VpnId is null here for router cases. I guess you will have to pass the routerVpnId here?",
+      "range": {
+        "startLine": 200,
+        "startChar": 71,
+        "endLine": 200,
+        "endChar": 76
+      },
+      "revId": "f6d4134b885e2d3260bc211308b4ca184c4566fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fe8c9a9d_d5bba17c",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-09T10:19:29Z",
+      "side": 1,
+      "message": "You dont need to have these three separate blocks that \n1) checks ifV6PartOFRouter\n2) adds default flow for bgpvpn\n3) Or, adds def flow for routerVPn.\n\nPlease combine all the above into once single code block",
+      "range": {
+        "startLine": 219,
+        "startChar": 48,
+        "endLine": 219,
+        "endChar": 71
+      },
+      "revId": "f6d4134b885e2d3260bc211308b4ca184c4566fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e311ad03_12a7aedf",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-09T10:19:29Z",
+      "side": 1,
+      "message": "Please check my comments for addDefFlow() condition. All those comments hold true for remove as well.",
+      "range": {
+        "startLine": 345,
+        "startChar": 40,
+        "endLine": 346,
+        "endChar": 55
+      },
+      "revId": "f6d4134b885e2d3260bc211308b4ca184c4566fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb2f2e62_239041af",
+        "filename": "neutronvpn/api/src/main/java/org/opendaylight/netvirt/neutronvpn/interfaces/INeutronVpnManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-09T10:19:29Z",
+      "side": 1,
+      "message": "Please revisit these new APIs and remove them if they are not used now that VpnManager does not have any code",
+      "range": {
+        "startLine": 52,
+        "startChar": 4,
+        "endLine": 64,
+        "endChar": 66
+      },
+      "revId": "f6d4134b885e2d3260bc211308b4ca184c4566fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "014b8347_8c3edb76",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManagerImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-09T10:19:29Z",
+      "side": 1,
+      "message": "Please check my comments on INeutronvpnManager",
+      "range": {
+        "startLine": 123,
+        "startChar": 13,
+        "endLine": 124,
+        "endChar": 26
+      },
+      "revId": "f6d4134b885e2d3260bc211308b4ca184c4566fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
