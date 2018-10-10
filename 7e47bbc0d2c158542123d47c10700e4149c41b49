@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37134cd3_3ae21168",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-10T05:50:03Z",
+      "side": 1,
+      "message": "Use NwConstants.ADD_FLOW. Similarly for DEL_FLOW",
+      "range": {
+        "startLine": 207,
+        "startChar": 96,
+        "endLine": 207,
+        "endChar": 100
+      },
+      "revId": "7e47bbc0d2c158542123d47c10700e4149c41b49",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "02931611_218552d0",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-10T05:50:03Z",
+      "side": 1,
+      "message": "This Needs to be NwConstants.DEL_FLOW. Similarly for ADD_FLOW",
+      "range": {
+        "startLine": 296,
+        "startChar": 94,
+        "endLine": 296,
+        "endChar": 99
+      },
+      "revId": "7e47bbc0d2c158542123d47c10700e4149c41b49",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89de3a4f_50a937e5",
+        "filename": "neutronvpn/api/src/main/java/org/opendaylight/netvirt/neutronvpn/interfaces/INeutronVpnManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-10T05:50:03Z",
+      "side": 1,
+      "message": "programV6InternetFallbackFlow()",
+      "range": {
+        "startLine": 49,
+        "startChar": 9,
+        "endLine": 49,
+        "endChar": 37
+      },
+      "revId": "7e47bbc0d2c158542123d47c10700e4149c41b49",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9346e1a5_549e9141",
+        "filename": "neutronvpn/api/src/main/java/org/opendaylight/netvirt/neutronvpn/interfaces/INeutronVpnManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-10T05:50:03Z",
+      "side": 1,
+      "message": "programV6InternetFlows()",
+      "range": {
+        "startLine": 51,
+        "startChar": 9,
+        "endLine": 51,
+        "endChar": 40
+      },
+      "revId": "7e47bbc0d2c158542123d47c10700e4149c41b49",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
