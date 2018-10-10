@@ -22,6 +22,30 @@
       "revId": "55c8b66e5c5343b27b7b6aa81e075d3d104e4a66",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7dee92a5_f90906f3",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2255,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2018-10-10T05:58:10Z",
+      "side": 1,
+      "message": "We still need the outer else block in line 2252 for the case when VpnMap doesnt have routers associated ? Also rtrIdslist needs to be populated inside as null check block required since findbugs forcing it.\n\nDoes this look cleaner without streams\n        List\u003cUuid\u003e rtrIdsList \u003d new ArrayList\u003cUuid\u003e();\n        // dissociate router\n        if (routerIdsList !\u003d null \u0026\u0026 !routerIdsList.isEmpty()) {\n            for (RouterIds router : routerIdsList) {\n                Uuid routerId \u003d router.getRouterId();\n                dissociateRouterFromVpn(vpnId, routerId);\n                rtrIdsList.add(routerId);\n            }\n        }\n        if (!rtrIdsList.contains(vpnId) \u0026\u0026 vpnMap.getNetworkIds() !\u003d null) {\n            dissociateNetworksFromVpn(vpnId, vpnMap.getNetworkIds());\n        }",
+      "parentUuid": "b610c97e_87653850",
+      "range": {
+        "startLine": 2252,
+        "startChar": 10,
+        "endLine": 2255,
+        "endChar": 13
+      },
+      "revId": "55c8b66e5c5343b27b7b6aa81e075d3d104e4a66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
