@@ -161,6 +161,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.A
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev160617.BgpvpnVni;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev160617.OperationalPortStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev160617.service.provider.features.attributes.Features;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev160617.service.provider.features.attributes.features.Feature;
@@ -243,10 +244,20 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         Neutron.class).child(Features.class).child(
                         Feature.class, new FeatureKey(OperationalPortStatus.class)).build();
         Feature feature = new FeatureBuilder().withKey(new FeatureKey(OperationalPortStatus.class)).build();
+        InstanceIdentifier<Feature> bgpvpnVniIid = InstanceIdentifier.builder(
+                        Neutron.class).child(Features.class).child(
+                        Feature.class, new FeatureKey(BgpvpnVni.class)).build();
+        Feature bgpvpnVniFeature = new FeatureBuilder().withKey(new FeatureKey(BgpvpnVni.class)).build();
         try {
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, iid, feature);
         } catch (TransactionCommitFailedException e) {
             LOG.warn("Error configuring feature {}", feature, e);
+        }
+        try {
+            SingleTransactionDataBroker.syncWrite(
+                        dataBroker, LogicalDatastoreType.OPERATIONAL, bgpvpnVniIid, bgpvpnVniFeature);
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Error configuring feature {}", bgpvpnVniFeature, e);
         }
     }
 
