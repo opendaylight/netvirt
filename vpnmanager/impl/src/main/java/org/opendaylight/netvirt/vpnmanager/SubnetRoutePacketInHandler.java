@@ -288,7 +288,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                                 throws UnknownHostException {
         String routerId = VpnUtil.getAssociatedExternalRouter(dataBroker, srcIpStr);
         if (null == routerId) {
-            LOG.debug("The ip is not associated with any external router", srcIpStr);
+            LOG.debug("This ip is not associated with any external router: {}", srcIpStr);
+            return;
         }
         handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName), routerId, dstIp, elanTag);
     }
