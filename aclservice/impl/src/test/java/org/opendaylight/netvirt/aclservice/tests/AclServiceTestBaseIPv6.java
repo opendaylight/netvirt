@@ -7,9 +7,8 @@
  */
 package org.opendaylight.netvirt.aclservice.tests;
 
-import java.util.Arrays;
-
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
+
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.MatchesBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpBuilder;
@@ -17,13 +16,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRangeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 
 public abstract class AclServiceTestBaseIPv6 extends AclServiceTestBase {
 
-    static String IPv6_PREFIX_1 = "2001:db8:1::/64";
-    static String IPv6_PREFIX_2 = "2001:db8:2::/64";
-    static String IPv6_PREFIX_3 = "2001:db8:3::/64";
+    static String IPv6_PREFIX_1 = "2001:db8:a0b:12f0::1/128";
+    static String IPv6_PREFIX_2 = "2001:db8:a0b:12f0::2/128";
+    static String IPv6_PREFIX_3 = "2001:db8:a0b:12f0::3/128";
+    static String IP_100_PREFIX = "2001:db8:a0b:12f0::101/128";
+    static String IP_101_PREFIX = "2001:db8:a0b:12f0::101/128";
 
     @Override
     protected Matches newMatch(int srcLowerPort, int srcUpperPort, int destLowerPort, int destupperPort,
@@ -60,12 +60,11 @@ public abstract class AclServiceTestBaseIPv6 extends AclServiceTestBase {
         newElanInterface(ELAN, PORT_2, true);
         newElanInterface(ELAN, PORT_3, true);
 
-        final AllowedAddressPairs aapPort1 = buildAap(IPv6_PREFIX_1, PORT_MAC_1);
-        final AllowedAddressPairs aapPort2 = buildAap(IPv6_PREFIX_2, PORT_MAC_2);
-        final AllowedAddressPairs aapPort3 = buildAap(IPv6_PREFIX_3, PORT_MAC_3);
+        AAP_PORT_1 = buildAap(IPv6_PREFIX_1, PORT_MAC_1);
+        AAP_PORT_2 = buildAap(IPv6_PREFIX_2, PORT_MAC_2);
+        AAP_PORT_3 = buildAap(IPv6_PREFIX_3, PORT_MAC_3);
+        AAP_PORT_100 = buildAap(IP_100_PREFIX, PORT_MAC_2);
+        AAP_PORT_101 = buildAap(IP_101_PREFIX, "0D:AA:D8:42:30:A4");
 
-        newAllowedAddressPair(PORT_1, Arrays.asList(SG_UUID_1), Arrays.asList(aapPort1));
-        newAllowedAddressPair(PORT_2, Arrays.asList(SG_UUID_1), Arrays.asList(aapPort2));
-        newAllowedAddressPair(PORT_3, Arrays.asList(SG_UUID_1, SG_UUID_2), Arrays.asList(aapPort3));
     }
 }

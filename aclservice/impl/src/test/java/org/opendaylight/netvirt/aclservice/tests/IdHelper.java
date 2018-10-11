@@ -87,9 +87,9 @@ public final class IdHelper {
         idCacheMap.put("ETHERnullIngress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7", 1002);
         idCacheMap.put("ETHERnullEgress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6", 1002);
         idCacheMap.put("ICMP_V6_DESTINATION_23_Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6", 1002);
-        idCacheMap.put("ICMP_V6_DESTINATION_23_Egress_123_987_85cc3048-abc3-43cc-89b3-377341426a21", 1002);
+        idCacheMap.put("ICMP_V6_DESTINATION_23_Egress_123_987_85cc3048-abc3-43cc-89b3-377341426a21", 1004);
         idCacheMap.put("ICMP_V6_DESTINATION_23_Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7", 1002);
-        idCacheMap.put("ICMP_V6_DESTINATION_23_Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426a22", 1002);
+        idCacheMap.put("ICMP_V6_DESTINATION_23_Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426a22", 1004);
         idCacheMap.put("Egress_ACL_Dispatcher_Last_123_987_2", 230);
         idCacheMap.put("Egress_ACL_Dispatcher_First_123_987_2", 210);
         idCacheMap.put("Ingress_ACL_Dispatcher_Last_123_987_2", 230);

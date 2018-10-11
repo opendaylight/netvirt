@@ -8,319 +8,504 @@
 package org.opendaylight.netvirt.aclservice.tests
 
 import org.opendaylight.genius.mdsalutil.MetaDataUtil
+import org.opendaylight.genius.mdsalutil.NwConstants
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack
+import org.opendaylight.genius.mdsalutil.actions.ActionNxCtClear
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
-import org.opendaylight.genius.mdsalutil.FlowEntityBuilder
-import org.opendaylight.genius.mdsalutil.matches.MatchArpSha
-import org.opendaylight.genius.mdsalutil.matches.MatchArpSpa
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6
 import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol
-import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source
-import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Source
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
-import org.opendaylight.genius.mdsalutil.NwConstants
+import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort
+import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpDestinationPort
-import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort
-import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort
+import org.opendaylight.genius.mdsalutil.FlowEntityBuilder
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix
 
 import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
-import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable
+import org.opendaylight.netvirt.aclservice.utils.AclConstants
+import java.math.BigInteger
+import java.util.Collections
 
-class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination
 
-    override icmpFlowsForTwoAclsHavingSameRules() {
-        fixedIngressFlowsPort3
-        + fixedConntrackIngressFlowsPort3
-        + icmpIngressFlowsPort4
-        + fixedEgressFlowsPort3
-        + fixedConntrackEgressFlowsPort5
-        + icmpEgressFlowsPort4
-        + ingressCommitNonConntrack1
+class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsBaseIpv6 {
+
+    protected def etherFlows(String ip1 ,String ip2, String prefix) {
+        egressCommitConntrack1
         + egressCommitNonConntrack1
-        + ingressCommitConntrack1
-        + egressCommitConntrack1
-        + ingressfixedAclMissDrop1
         + egressfixedAclMissDrop1
+        + etheregressFlowPort2
+        + etherEgressFlowsPort1
+        + etherIngressFlowsPort2
+        + fixedConntrackEgressFlowsPort1(ip1, prefix)
+        + fixedConntrackEgressFlowsPort2(ip2, prefix)
+        + fixedConntrackIngressFlowsPort1(ip1, prefix)
+        + fixedConntrackIngressFlowsPort2(ip2, prefix)
+        + fixedEgressFlowsPort1(ip1, prefix)
+        + fixedEgressFlowsPort2(ip2, prefix)
+        + fixedEgressL2BroadcastFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressFlowsPort1
+        + fixedIngressFlowsPort2
         + fixedIngressL3BroadcastFlows
+        + ingressCommitConntrack1
+        + ingressCommitNonConntrack1
+        + ingressDispatcherFirst
+        + ingressDispatcherLast
+        + ingressfixedAclMissDrop1
+        + remoteEgressFlowsPort1(ip1, prefix)
+        + remoteEgressFlowsPort2(ip2, prefix)
+    }
+
+    protected def tcpFlows(String ip1 ,String ip2, String prefix) {
+        egressCommitConntrack1
+        + egressCommitNonConntrack1
+        + egressDispatcherFirst
+        + egressDispatcherLast
+        + egressfixedAclMissDrop1
+        + fixedConntrackEgressFlowsPort1(ip1, prefix)
+        + fixedConntrackEgressFlowsPort2(ip2, prefix)
+        + fixedConntrackIngressFlowsPort1(ip1, prefix)
+        + fixedConntrackIngressFlowsPort2(ip2, prefix)
+        + fixedEgressFlowsPort1(ip1, prefix)
+        + fixedEgressFlowsPort2(ip2, prefix)
+        + fixedEgressL2BroadcastFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressFlowsPort1
+        + fixedIngressFlowsPort2
+        + fixedIngressL3BroadcastFlows
+        + ingressCommitConntrack1
+        + ingressCommitNonConntrack1
+        + ingressfixedAclMissDrop1
+        + remoteIngressFlowsPort1(ip1, prefix)
+        + remoteIngressFlowsPort2(ip2, prefix)
+        + tcpEgressFlowPort2
+        + tcpIngressFlowPort1
+        + tcpIngressFlowPort2
+    }
+
+    protected def udpFlows(String ip1 ,String ip2, String prefix) {
+        egressCommitConntrack1
+        + egressCommitNonConntrack1
+        + egressfixedAclMissDrop1
+        + fixedConntrackEgressFlowsPort1(ip1, prefix)
+        + fixedConntrackEgressFlowsPort2(ip2, prefix)
+        + fixedConntrackIngressFlowsPort1(ip1, prefix)
+        + fixedConntrackIngressFlowsPort2(ip2, prefix)
+        + fixedEgressFlowsPort1(ip1, prefix)
+        + fixedEgressFlowsPort2(ip2, prefix)
+        + fixedEgressL2BroadcastFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressFlowsPort1
+        + fixedIngressFlowsPort2
+        + fixedIngressL3BroadcastFlows
+        + ingressCommitConntrack1
+        + ingressCommitNonConntrack1
+        + ingressDispatcherFirst
+        + ingressDispatcherLast
+        + ingressfixedAclMissDrop1
+        + remoteEgressFlowsPort1(ip1, prefix)
+        + remoteEgressFlowsPort2(ip2, prefix)
+        + udpEgressFlowsPort1
+        + udpEgressFlowsPort2
+        + udpIngressFlowsPort2
+    }
+
+    protected def icmpFlows(String ip1 ,String ip2, String prefix) {
+        egressCommitConntrack1
+        + egressCommitNonConntrack1
+        + egressDispatcherFirst
+        + egressDispatcherLast
+        + egressfixedAclMissDrop1
+        + fixedConntrackEgressFlowsPort1(ip1, prefix)
+        + fixedConntrackEgressFlowsPort2(ip2, prefix)
+        + fixedConntrackIngressFlowsPort1(ip1, prefix)
+        + fixedConntrackIngressFlowsPort2(ip2, prefix)
+        + fixedEgressFlowsPort1(ip1, prefix)
+        + fixedEgressFlowsPort2(ip2, prefix)
+        + fixedEgressL2BroadcastFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressFlowsPort1
+        + fixedIngressFlowsPort2
+        + fixedIngressL3BroadcastFlows
+        + icmpEgressFlowsPort2
+        + icmpIngressFlowsPort1
+        + icmpIngressFlowsPort2
+        + ingressCommitConntrack1
+        + ingressCommitNonConntrack1
+        + ingressfixedAclMissDrop1
+        + remoteIngressFlowsPort1(ip1, prefix)
+        + remoteIngressFlowsPort2(ip2, prefix)
+    }
+
+    protected def dstRangeFlows(String ip1, String prefix) {
+        egressCommitConntrack1
+        + egressCommitNonConntrack1
+        + egressfixedAclMissDrop1
+        + fixedConntrackEgressFlowsPort1(ip1, prefix)
+        + fixedConntrackIngressFlowsPort1(ip1, prefix)
+        + fixedEgressFlowsPort1(ip1, prefix)
+        + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressFlowsPort1
+        + fixedIngressL3BroadcastFlows
+        + ingressCommitConntrack1
+        + ingressCommitNonConntrack1
+        + ingressfixedAclMissDrop1
+        + tcpEgressRangeFlows
+        + udpIngressPortRangeFlows
+    }
+
+    protected def dstAllFlows(String ip1, String prefix) {
+        egressCommitConntrack1
+        + egressCommitNonConntrack1
+        + egressfixedAclMissDrop1
+        + fixedConntrackEgressFlowsPort1(ip1, prefix)
+        + fixedConntrackIngressFlowsPort1(ip1, prefix)
+        + fixedEgressFlowsPort1(ip1, prefix)
+        + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressFlowsPort1
+        + fixedIngressL3BroadcastFlows
+        + ingressCommitConntrack1
+        + ingressCommitNonConntrack1
+        + ingressfixedAclMissDrop1
+        + tcpEgressAllFlows
+        + udpIngressAllFlows
+    }
+
+    protected def icmpFlowsForTwoAclsHavingSameRules(String ip3, String prefix) {
+        egressCommitConntrack1
+        + egressCommitNonConntrack1
+        + egressfixedAclMissDrop1
+        + fixedConntrackEgressFlowsPort3(ip3, prefix)
+        + fixedConntrackIngressFlowsPort3(ip3, prefix)
+        + fixedEgressFlowsPort3(ip3, prefix)
         + fixedEgressL2BroadcastFlowsPort3
-
+        + fixedIngressFlowsPort3
+        + fixedIngressL3BroadcastFlows
+        + icmpEgressFlowsPort3
+        + icmpIngressFlowsPort3
+        + ingressCommitConntrack1
+        + ingressCommitNonConntrack1
+        + ingressfixedAclMissDrop1
     }
 
-    override fixedConntrackIngressFlowsPort1() {
-        #[
-            new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
-                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_10.0.0.1/32"
-                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_10.0.0.1/32"
-                instructionInfoList = #[
-                    new InstructionGotoTable(241 as short)
-                ]
-                matchInfoList = #[
-                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
-                    new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F3")),
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.1", "32")
-                ]
-                priority = 61010
-                tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
-            ],
-            new FlowEntityBuilder >> [
-                dpnId = 123bi
-               cookie = 110100480bi
-               flowId = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-               flowName = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-               instructionInfoList = #[
-                   new InstructionApplyActions(#[
-                       new ActionNxConntrack(2, 0, 0, 5000, 243 as short)
-                   ])
-               ]
-               matchInfoList = #[
-                   new MatchEthernetType(2048L),
-                   new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
-               ]
-               priority = 100
-               tableId = NwConstants.EGRESS_ACL_CONNTRACK_SENDER_TABLE
-           ],
-           new FlowEntityBuilder >> [
-                dpnId = 123bi
-               cookie = 1085218086715393bi
-               flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-               flowName = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-               instructionInfoList = #[
-                   new InstructionApplyActions(#[
-                       new ActionDrop()
-                   ])
-               ]
-               matchInfoList = #[
-                   new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
-                   new NxMatchCtState(48, 48)
-               ]
-               priority = 62020
-               tableId = NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
-           ]
-        ]
+    protected def aapWithIpv4AllFlows(String ip1 ,String ip2, String prefix) {
+        icmpFlows(ip1, ip2, prefix)
+        + aapIpv4AllFlowsPort2
     }
 
-    override etherIngressFlowsPort2() {
-        val flowId1 = "ETHERnullIngress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7"
-        #[
-            new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
-                flowId = flowId1
-                flowName = flowId1
-                instructionInfoList = #[
-                    new InstructionGotoTable(246 as short)
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(34525L),
-                    new MatchEthernetType(34525L),
-                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
-                    new MatchMetadata(32bi, 16777200bi)
-                ]
-                priority = IdHelper.getId(flowId1)
-                tableId = NwConstants.EGRESS_ACL_RULE_BASED_FILTER_TABLE
-            ]
-        ]
+    protected def aapFlows(String ip1 ,String ip2, String ip100, String ip101, String prefix) {
+        icmpFlows(ip1, ip2, prefix)
+        + aapRemoteFlowsPort1(ip100, ip101, prefix)
+        + aapFlowsPort2(ip100, ip101, prefix)
     }
 
-    override fixedConntrackEgressFlowsPort1() {
-        #[
-            new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
-                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_10.0.0.1/32"
-                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_10.0.0.1/32"
-                instructionInfoList = #[
-                    new InstructionGotoTable(211 as short)
-                ]
-                matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
-                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F3")),
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.1", "32")
-                ]
-                priority = 61010
-                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
-            ],
-            new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 1085218086715393bi
-                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-                flowName = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-                instructionInfoList = #[
-                    new InstructionApplyActions(#[
-                        new ActionDrop()
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
-                    new NxMatchCtState(48L, 48L)
-                ]
-                priority = 62020
-                tableId = NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
-            ],
-            new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
-                flowId = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-                flowName = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-                instructionInfoList = #[
-                    new InstructionApplyActions(#[
-                        new ActionNxConntrack(2, 0, 0, 5000, 213 as short)
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
-
-                ]
-                priority = 100
-                tableId = NwConstants.INGRESS_ACL_CONNTRACK_SENDER_TABLE
-            ]
-        ]
+    protected def multipleAcl(String ip1 ,String ip2, String prefix) {
+        egressCommitConntrack1
+        + egressCommitNonConntrack1
+        + egressDispatcherFirst1
+        + egressDispatcherLast1
+        + egressfixedAclMissDrop1
+        + etheregressFlowPort2
+        + etherEgressFlowsPort1
+        + etherIngressFlowsPort2
+        + fixedConntrackEgressFlowsPort1(ip1, prefix)
+        + fixedConntrackEgressFlowsPort2(ip2, prefix)
+        + fixedConntrackIngressFlowsPort1(ip1, prefix)
+        + fixedConntrackIngressFlowsPort2(ip2, prefix)
+        + fixedEgressFlowsPort1(ip1, prefix)
+        + fixedEgressFlowsPort2(ip2, prefix)
+        + fixedEgressL2BroadcastFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressFlowsPort1
+        + fixedIngressFlowsPort2
+        + fixedIngressL3BroadcastFlows
+        + ingressCommitConntrack1
+        + ingressCommitNonConntrack1
+        + ingressDispatcherFirst
+        + ingressDispatcherLast
+        + ingressfixedAclMissDrop1
+        + remoteEgressFlowsPort1(ip1, prefix)
+        + remoteEgressFlowsPort2(ip2, prefix)
+        + remoteEgressFlowsPort3(ip2, prefix)
+        + tcpEgressFlowPort2WithRemoteIpSg
+        + tcpIngressFlowPort1WithMultipleSG
     }
 
-    override fixedConntrackIngressFlowsPort2() {
+    protected def tcpEgressFlowPort2WithRemoteIpSg() {
+        val theFlowId1 ="TCP_DESTINATION_80_65535Egress_123_987_85cc3048-abc3-43cc-89b3-377341426a21"
         #[
              new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_10.0.0.2/32"
-                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_10.0.0.2/32"
+                flowId = theFlowId1
+                flowName = theFlowId1
                 instructionInfoList = #[
-                    new InstructionGotoTable(241 as short)
+                    new InstructionGotoTable(NwConstants.INGRESS_REMOTE_ACL_TABLE)
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchEthernetType(34525L),
+                    new NxMatchTcpDestinationPort(80, 65535),
+                    new MatchIpProtocol(6 as short),
+                    new MatchMetadata(1085217976614976bi, 1152920405111996400bi)
+                ]
+                priority = IdHelper.getId(theFlowId1)
+                tableId = NwConstants.INGRESS_ACL_RULE_BASED_FILTER_TABLE
+            ]
+        ]
+    }
+
+    protected def tcpIngressFlowPort1WithMultipleSG() {
+        val theFlowId = "TCP_DESTINATION_80_65535Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426a22"
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = theFlowId
+                flowName = theFlowId
+                instructionInfoList = #[
+                    new InstructionGotoTable(NwConstants.EGRESS_ACL_COMMITTER_TABLE)
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchEthernetType(34525L),
+                    new NxMatchTcpDestinationPort(80, 65535),
+                    new MatchIpProtocol(6 as short),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
+                ]
+                priority = IdHelper.getId(theFlowId)
+                tableId = NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
+            ]
+        ]
+    }
+
+    protected def aapIpv4AllFlowsPort2() {
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_0.0.0.0/0"
+                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_0.0.0.0/0"
+                instructionInfoList = #[
+                    new InstructionGotoTable(211 as short)
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4")),
+                    new MatchEthernetType(34525L)
+                ]
+                priority = 61010
+                tableId = 210 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_0.0.0.0/0"
+                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_0.0.0.0/0"
+                instructionInfoList = #[
+                    new InstructionGotoTable(NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
                 ]
                 matchInfoList = #[
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F4")),
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.2", "32")
+                    new MatchEthernetType(34525L)
                 ]
                 priority = 61010
-                tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
-             ],
-             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                 cookie = 110100480bi
-                 flowId = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-                 flowName = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-                 instructionInfoList = #[
-                     new InstructionApplyActions(#[
-                         new ActionNxConntrack(2, 0, 0, 5000, 243 as short)
-                     ])
-                 ]
-                 matchInfoList = #[
-                     new MatchEthernetType(2048L),
-                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
-                 ]
-                 priority = 100
-                 tableId = NwConstants.EGRESS_ACL_CONNTRACK_SENDER_TABLE
-             ],
-             new FlowEntityBuilder >> [
-                dpnId = 123bi
-                 cookie = 1085218086715393bi
-                 flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-                 flowName = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-                 instructionInfoList = #[
-                     new InstructionApplyActions(#[
-                         new ActionDrop()
-                     ])
-                 ]
-                 matchInfoList = #[
-                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
-                     new NxMatchCtState(48, 48)
-                 ]
-                 priority = 62020
-                 tableId = NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
-             ]
-
-        ]
-    }
-
-    override fixedConntrackEgressFlowsPort2() {
-        #[
+                tableId = 240 as short
+            ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_10.0.0.2/32"
-                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_10.0.0.2/32"
+                flowId = "Egress_DHCP_Client_v6_123_987_0D:AA:D8:42:30:F4_Permit_"
+                flowName = "Egress_DHCP_Client_v6_123_987_0D:AA:D8:42:30:F4_Permit_"
                 instructionInfoList = #[
-                    new InstructionGotoTable(211 as short)
+                    new InstructionApplyActions(#[
+                    new ActionNxResubmit(17 as short)
+                    ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
-                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4")),
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.2", "32")
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(17 as short),
+                    new MatchUdpDestinationPort(547 as short),
+                    new MatchUdpSourcePort(546 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4"))
                 ]
-                priority = 61010
+                priority = 63010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
-            ],
-            new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 1085218086715393bi
-                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-                flowName = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-                instructionInfoList = #[
-                    new InstructionApplyActions(#[
-                        new ActionDrop()
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
-                    new NxMatchCtState(48L, 48L)
-                ]
-                priority =62020
-                tableId = NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
-            ],
-            new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
-                flowId = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-                flowName = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-                instructionInfoList = #[
-                    new InstructionApplyActions(#[
-                        new ActionNxConntrack(2, 0, 0, 5000, 213 as short)
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(2048L),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
-                ]
-                priority = 100
-                tableId = NwConstants.INGRESS_ACL_CONNTRACK_SENDER_TABLE
             ]
         ]
     }
 
-    override fixedConntrackIngressFlowsPort3() {
+    protected def aapRemoteFlowsPort1(String ip100, String ip101, String prefix) {
+        #[
+            remoteIngressFlowsPort(ip100, prefix),
+            remoteIngressFlowsPort(ip101, prefix)
+        ]
+    }
+
+    protected def aapFlowsPort2(String ip100, String ip101, String prefix) {
         #[
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_10.0.0.3/32"
-                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_10.0.0.3/32"
+                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_" + ip100 + "/" + prefix
+                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_" + ip100 + "/" + prefix
                 instructionInfoList = #[
-                    new InstructionGotoTable(241 as short)
+                   new InstructionGotoTable(211 as short)
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4")),
+                    new MatchEthernetType(34525L),
+                    new MatchIpv6Source(ip100 + "/"+ prefix)
+                ]
+                priority = 61010
+                tableId = 210 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_" + ip100 + "/" + prefix
+                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_" + ip100 + "/" + prefix
+                instructionInfoList = #[
+                    new InstructionGotoTable(NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
                 ]
                 matchInfoList = #[
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
-                    new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F5")),
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.3", "32")
+                    new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F4")),
+                    new MatchEthernetType(34525L),
+                    new MatchIpv6Destination(ip100 + "/"+ prefix)
+                ]
+                priority = 61010
+                tableId = 240 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:A4_" + ip101 + "/" + prefix
+                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:A4_" + ip101 + "/" + prefix
+                instructionInfoList = #[
+                    new InstructionGotoTable(211 as short)
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:A4")),
+                    new MatchEthernetType(34525L),
+                    new MatchIpv6Source(ip101 + "/"+ prefix)
+                ]
+                priority = 61010
+                tableId = 210 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:A4_" + ip101 + "/" + prefix
+                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:A4_" + ip101 + "/" + prefix
+                instructionInfoList = #[
+                    new InstructionGotoTable(NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:A4")),
+                    new MatchEthernetType(34525L),
+                    new MatchIpv6Destination(ip101 + "/"+ prefix)
+                ]
+                priority = 61010
+                tableId = 240 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_DHCP_Client_v6_123_987_0D:AA:D8:42:30:A4_Permit_"
+                flowName = "Egress_DHCP_Client_v6_123_987_0D:AA:D8:42:30:A4_Permit_"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(17 as short),
+                    new MatchUdpDestinationPort(547 as short),
+                    new MatchUdpSourcePort(546 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:A4"))
+                ]
+                priority = 63010
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_DHCP_Client_v6_123_987_0D:AA:D8:42:30:F4_Permit_"
+                flowName = "Egress_DHCP_Client_v6_123_987_0D:AA:D8:42:30:F4_Permit_"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(17 as short),
+                    new MatchUdpDestinationPort(547 as short),
+                    new MatchUdpSourcePort(546 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4"))
+                ]
+                priority = 63010
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:A4"
+                flowName = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:A4"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:A4")),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 61005
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
+            ]
+        ]
+    }
+
+    protected def fixedConntrackIngressFlowsPort1(String ip1, String prefix) {
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_" + ip1 + "/" + prefix
+                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_" + ip1 + "/" + prefix
+                instructionInfoList = #[
+                new InstructionGotoTable(NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
+            ]
+            matchInfoList = #[
+                new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F3")),
+                new MatchEthernetType(34525L),
+                new MatchIpv6Destination(ip1 + "/" + prefix)
                 ]
                 priority = 61010
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -328,15 +513,15 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-                flowName = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
+                flowId = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[34525]_Recirc"
+                flowName = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[34525]_Recirc"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 0, 0, 5000, 243 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(34525L),
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 100
@@ -354,7 +539,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 ]
                 matchInfoList = #[
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
-                    new NxMatchCtState(48, 48)
+                    new NxMatchCtState(48L, 48L)
                 ]
                 priority = 62020
                 tableId = NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
@@ -362,24 +547,64 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         ]
     }
 
-    override fixedConntrackEgressFlowsPort3() {
+    protected def etherIngressFlowsPort2() {
+        val theFlowId = "ETHERnullIngress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7"
         #[
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_10.0.0.3/32"
-                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_10.0.0.3/32"
+                flowId = theFlowId
+                flowName = theFlowId
+                instructionInfoList = #[
+                     new InstructionGotoTable(NwConstants.EGRESS_REMOTE_ACL_TABLE)
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchEthernetType(34525L),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new MatchMetadata(32bi, 16777200bi)
+                ]
+                priority = IdHelper.getId(theFlowId)
+                tableId = NwConstants.EGRESS_ACL_RULE_BASED_FILTER_TABLE
+            ]
+        ]
+    }
+
+    protected def fixedConntrackEgressFlowsPort1(String ip1, String prefix) {
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_" + ip1 + "/" + prefix
+                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_" + ip1 + "/" + prefix
                 instructionInfoList = #[
                     new InstructionGotoTable(211 as short)
                 ]
                 matchInfoList = #[
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F5")),
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.3", "32")
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F3")),
+                    new MatchEthernetType(34525L),
+                    new MatchIpv6Source(ip1 + "/" + prefix)
                 ]
                 priority = 61010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[34525]_Recirc"
+                flowName = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[34525]_Recirc"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                       new ActionNxConntrack(2, 0, 0, 5000, NwConstants.INGRESS_ACL_FOR_EXISTING_TRAFFIC_TABLE)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 100
+                tableId = NwConstants.INGRESS_ACL_CONNTRACK_SENDER_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -392,17 +617,56 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
-                    new NxMatchCtState(48L, 48L)
+                   new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                   new NxMatchCtState(48L, 48L)
                 ]
                 priority = 62020
                 tableId = NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
+            ]
+        ]
+    }
+
+    protected def fixedConntrackIngressFlowsPort2(String ip2, String prefix) {
+        #[
+             new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_" + ip2 + "/" + prefix
+                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_" + ip2 + "/" + prefix
+                instructionInfoList = #[
+                    new InstructionGotoTable(NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F4")),
+                    new MatchEthernetType(34525L),
+                    new MatchIpv6Destination(ip2 + "/" + prefix)
+                ]
+                priority = 61010
+                tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[34525]_Recirc"
+                flowName = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[34525]_Recirc"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.EGRESS_ACL_FOR_EXISTING_TRAFFIC_TABLE)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
+                ]
+                priority = 100
+                tableId = NwConstants.EGRESS_ACL_CONNTRACK_SENDER_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 1085218086715393bi
-                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-                flowName = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionDrop()
@@ -410,7 +674,62 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 ]
                 matchInfoList = #[
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchCtState(48L, 48L)
+                ]
+                priority = 62020
+                tableId = NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
+            ]
+        ]
+    }
+
+    protected def fixedConntrackEgressFlowsPort2(String ip2, String prefix){
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_" + ip2 + "/" + prefix
+                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_" + ip2 + "/" + prefix
+                instructionInfoList = #[
+                    new InstructionGotoTable(NwConstants.INGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4")),
+                    new MatchEthernetType(34525L),
+                    new MatchIpv6Source(ip2 + "/"+ prefix)
+                ]
+                priority = 61010
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[34525]_Recirc"
+                flowName = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[34525]_Recirc"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, 213 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 100
+                tableId = NwConstants.INGRESS_ACL_CONNTRACK_SENDER_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchCtState(48L, 48L)
                 ]
                 priority = 62020
@@ -419,7 +738,269 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         ]
     }
 
-    override etherEgressFlowsPort1() {
+    protected def fixedConntrackIngressFlowsPort3(String ip3, String prefix) {
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_" + ip3 + "/" + prefix
+                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_" + ip3 + "/" + prefix
+                instructionInfoList = #[
+                    new InstructionGotoTable(NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F5")),
+                    new MatchEthernetType(34525L),
+                    new MatchIpv6Destination(ip3 + "/" + prefix)
+                ]
+                priority = 61010
+                tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[34525]_Recirc"
+                flowName = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[34525]_Recirc"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.EGRESS_ACL_FOR_EXISTING_TRAFFIC_TABLE)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
+                ]
+                priority = 100
+                tableId = NwConstants.EGRESS_ACL_CONNTRACK_SENDER_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(48L, 48L)
+                ]
+                priority = 62020
+                tableId = NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
+            ]
+        ]
+    }
+
+    protected def fixedConntrackEgressFlowsPort3(String ip3, String prefix) {
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_" + ip3 + "/" + prefix
+                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_" + ip3 + "/" + prefix
+                instructionInfoList = #[
+                    new InstructionGotoTable(NwConstants.INGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F5")),
+                    new MatchEthernetType(34525L),
+                    new MatchIpv6Source(ip3 + "/"+ prefix)
+                ]
+                priority = 61010
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[34525]_Recirc"
+                flowName = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[34525]_Recirc"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.INGRESS_ACL_FOR_EXISTING_TRAFFIC_TABLE)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 100
+                tableId = NwConstants.INGRESS_ACL_CONNTRACK_SENDER_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchCtState(48L, 48L)
+                ]
+                priority = 62020
+                tableId = NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
+            ]
+        ]
+    }
+
+    static def fixedConntrackIngressFlowsPort4(String ip4, String prefix) {
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_" + ip4 + "/" + prefix + "_Recirc"
+                flowName = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_" + ip4 + "/" + prefix + "_Recirc"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F6")),
+                    new MatchEthernetType(34525L),
+                    new MatchIpv6Destination(ip4 + "/" + prefix)
+                ]
+                priority = 61010
+                tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_0.0.0.0/0_Recirc"
+                flowName = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_0.0.0.0/0_Recirc"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F6")),
+                    new MatchEthernetType(34525L)
+                ]
+                priority = 61010
+                tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_New"
+                flowName = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_New"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchCtState(32L, 32L)
+                ]
+                priority = 50
+                tableId = NwConstants.INGRESS_ACL_FOR_EXISTING_TRAFFIC_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(48L, 48L)
+                ]
+                priority = 62020
+                tableId = NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
+            ]
+        ]
+    }
+
+    static def fixedConntrackEgressFlowsPort4(String ip4, String prefix) {
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_" + ip4 + "/" + prefix + "_Recirc"
+                flowName = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_" + ip4 + "/" + prefix + "_Recirc"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.INGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F6")),
+                    new MatchEthernetType(34525L),
+                    new MatchIpv6Source(ip4 + "/"+ prefix)
+                ]
+                priority = 61010
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_0.0.0.0/0_Recirc"
+                flowName = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_0.0.0.0/0_Recirc"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.INGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F6")),
+                    new MatchEthernetType(2048L)
+                ]
+                priority = 61010
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_New"
+                flowName = "Egress_Fixed_Conntrk_Drop123_987_Tracked_New"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(32L, 32L)
+                ]
+                priority = 50
+                tableId = NwConstants.EGRESS_ACL_FOR_EXISTING_TRAFFIC_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                   new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchCtState(48L, 48L)
+                ]
+                priority = 62020
+                tableId = NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
+            ]
+        ]
+    }
+
+    protected def etherEgressFlowsPort1() {
         val theFlowId = "ETHERnullEgress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6"
         #[
             new FlowEntityBuilder >> [
@@ -428,7 +1009,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = theFlowId
                 flowName = theFlowId
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
+                    new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -441,7 +1022,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         ]
     }
 
-    override etheregressFlowPort2() {
+    protected def etheregressFlowPort2() {
         val theFlowId = "ETHERnullEgress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6"
         #[
             new FlowEntityBuilder >> [
@@ -450,7 +1031,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = theFlowId
                 flowName = theFlowId
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
+                    new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -463,7 +1044,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         ]
     }
 
-    override tcpIngressFlowPort1() {
+    protected def tcpIngressFlowPort1() {
         val theFlowId = "TCP_DESTINATION_80_65535Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7"
         #[
             new FlowEntityBuilder >> [
@@ -472,7 +1053,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = theFlowId
                 flowName = theFlowId
                 instructionInfoList = #[
-                    new InstructionGotoTable(247 as short)
+                   new InstructionGotoTable(NwConstants.EGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -487,7 +1068,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         ]
     }
 
-    override tcpIngressFlowPort2() {
+    protected def tcpIngressFlowPort2() {
         val theFlowId = "TCP_DESTINATION_80_65535Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7"
         #[
             new FlowEntityBuilder >> [
@@ -496,7 +1077,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = theFlowId
                 flowName = theFlowId
                 instructionInfoList = #[
-                    new InstructionGotoTable(247 as short)
+                    new InstructionGotoTable(NwConstants.EGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -511,16 +1092,16 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         ]
     }
 
-    override tcpEgressFlowPort2() {
-        val flowId1 = "TCP_DESTINATION_80_65535Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6"
+    protected def tcpEgressFlowPort2() {
+        val theFlowId = "TCP_DESTINATION_80_65535Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6"
         #[
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = flowId1
-                flowName = flowId1
+                flowId = theFlowId
+                flowName = theFlowId
                 instructionInfoList = #[
-                    new InstructionGotoTable(216 as short)
+                    new InstructionGotoTable(NwConstants.INGRESS_REMOTE_ACL_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -529,13 +1110,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchIpProtocol(6 as short),
                     new MatchMetadata(1085217976614944bi, 1152920405111996400bi)
                 ]
-                priority = IdHelper.getId(flowId1)
+                priority = IdHelper.getId(theFlowId)
                 tableId = NwConstants.INGRESS_ACL_RULE_BASED_FILTER_TABLE
             ]
         ]
     }
 
-    override udpEgressFlowsPort1() {
+    protected def udpEgressFlowsPort1() {
         val theFlowId = "UDP_DESTINATION_80_65535Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6"
         #[
              new FlowEntityBuilder >> [
@@ -544,7 +1125,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = theFlowId
                 flowName = theFlowId
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
+                     new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -559,16 +1140,16 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         ]
     }
 
-    override udpIngressFlowsPort2() {
-        val flowId1 = "UDP_DESTINATION_80_65535Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7"
+    protected def udpIngressFlowsPort2() {
+        val theFlowId = "UDP_DESTINATION_80_65535Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7"
         #[
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = flowId1
-                flowName = flowId1
+                flowId = theFlowId
+                flowName = theFlowId
                 instructionInfoList = #[
-                    new InstructionGotoTable(246 as short)
+                    new InstructionGotoTable(NwConstants.EGRESS_REMOTE_ACL_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -578,13 +1159,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new MatchMetadata(32bi, 16777200bi)
                 ]
-                priority = IdHelper.getId(flowId1)
+                priority = IdHelper.getId(theFlowId)
                 tableId = NwConstants.EGRESS_ACL_RULE_BASED_FILTER_TABLE
             ]
         ]
     }
 
-    override udpEgressFlowsPort2() {
+    protected def udpEgressFlowsPort2() {
         val theFlowId = "UDP_DESTINATION_80_65535Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6"
         #[
             new FlowEntityBuilder >> [
@@ -593,8 +1174,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = theFlowId
                 flowName = theFlowId
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
-
+                    new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -609,7 +1189,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         ]
     }
 
-    override icmpIngressFlowsPort1() {
+    protected def icmpIngressFlowsPort1() {
         val theFlowId = "ICMP_V6_DESTINATION_23_Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7"
         #[
             new FlowEntityBuilder >> [
@@ -618,7 +1198,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = theFlowId
                 flowName = theFlowId
                 instructionInfoList = #[
-                    new InstructionGotoTable(247 as short)
+                    new InstructionGotoTable(NwConstants.EGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -633,7 +1213,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         ]
     }
 
-    override icmpIngressFlowsPort2() {
+    protected def icmpIngressFlowsPort2() {
         val theFlowId = "ICMP_V6_DESTINATION_23_Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7"
         #[
             new FlowEntityBuilder >> [
@@ -642,7 +1222,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = theFlowId
                 flowName = theFlowId
                 instructionInfoList = #[
-                    new InstructionGotoTable(247 as short)
+                    new InstructionGotoTable(NwConstants.EGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -657,16 +1237,16 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         ]
     }
 
-    override icmpEgressFlowsPort2() {
-        val flowId1 = "ICMP_V6_DESTINATION_23_Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6"
+    protected def icmpEgressFlowsPort2() {
+        val theFlowId = "ICMP_V6_DESTINATION_23_Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6"
         #[
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = flowId1
-                flowName = flowId1
+                flowId = theFlowId
+                flowName = theFlowId
                 instructionInfoList = #[
-                    new InstructionGotoTable(216 as short)
+                    new InstructionGotoTable(NwConstants.INGRESS_REMOTE_ACL_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -675,13 +1255,13 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchIpProtocol(58 as short),
                     new MatchMetadata(1085217976614944bi, 1152920405111996400bi)
                 ]
-                priority = IdHelper.getId(flowId1)
+                priority = IdHelper.getId(theFlowId)
                 tableId = NwConstants.INGRESS_ACL_RULE_BASED_FILTER_TABLE
             ]
         ]
     }
 
-    override udpIngressPortRangeFlows() {
+    protected def udpIngressPortRangeFlows() {
         val theFlowId = "UDP_DESTINATION_2000_65532Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7"
         #[
             new FlowEntityBuilder >> [
@@ -690,7 +1270,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = theFlowId
                 flowName = theFlowId
                 instructionInfoList = #[
-                    new InstructionGotoTable(247 as short)
+                    new InstructionGotoTable(NwConstants.EGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -705,7 +1285,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         ]
     }
 
-    override tcpEgressRangeFlows() {
+    protected def tcpEgressRangeFlows() {
         val flowId1 = "TCP_DESTINATION_776_65534Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6"
         val flowId2 = "TCP_DESTINATION_512_65280Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6"
         val flowId3 = "TCP_DESTINATION_334_65534Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6"
@@ -721,7 +1301,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = flowId1
                 flowName = flowId1
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
+                    new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -739,7 +1319,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = flowId2
                 flowName = flowId2
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
+                    new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -757,7 +1337,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = flowId3
                 flowName = flowId3
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
+                    new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -775,7 +1355,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = flowId4
                 flowName = flowId4
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
+                    new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -793,7 +1373,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = flowId5
                 flowName = flowId5
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
+                    new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -811,7 +1391,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = flowId6
                 flowName = flowId6
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
+                    new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -829,7 +1409,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = flowId7
                 flowName = flowId7
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
+                    new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -847,7 +1427,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = flowId8
                 flowName = flowId8
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
+                    new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -862,7 +1442,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         ]
     }
 
-    override udpIngressAllFlows() {
+    protected def udpIngressAllFlows() {
         val theFlowId = "UDP_DESTINATION_1_0Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7"
         #[
             new FlowEntityBuilder >> [
@@ -871,7 +1451,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = theFlowId
                 flowName = theFlowId
                 instructionInfoList = #[
-                    new InstructionGotoTable(247 as short)
+                    new InstructionGotoTable(NwConstants.EGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -885,7 +1465,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         ]
     }
 
-    override tcpEgressAllFlows() {
+    protected def tcpEgressAllFlows() {
         val theFlowId = "TCP_DESTINATION_1_0Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6"
          #[
              new FlowEntityBuilder >> [
@@ -894,11 +1474,11 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = theFlowId
                 flowName = theFlowId
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
+                    new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
-                    new MatchEthernetType(34525L),
-                    new MatchEthernetType(34525L),
+                    new MatchEthernetType(34525),
+                    new MatchEthernetType(34525),
                     new MatchIpProtocol(6 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
@@ -909,7 +1489,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
 
      }
 
-    override icmpIngressFlowsPort3() {
+    protected def icmpIngressFlowsPort3() {
         val flowId1 = "ICMP_V6_DESTINATION_23_Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7"
         val flowId2 = "ICMP_V6_DESTINATION_23_Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426a22"
         #[
@@ -919,7 +1499,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = flowId1
                 flowName = flowId1
                 instructionInfoList = #[
-                    new InstructionGotoTable(247 as short)
+                    new InstructionGotoTable(NwConstants.EGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -937,7 +1517,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = flowId2
                 flowName = flowId2
                 instructionInfoList = #[
-                    new InstructionGotoTable(247 as short)
+                    new InstructionGotoTable(NwConstants.EGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -947,55 +1527,12 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = IdHelper.getId(flowId2)
-                tableId = NwConstants.EGRESS_ACL_CONNTRACK_SENDER_TABLE
-            ]
-        ]
-    }
-
-    protected def icmpIngressFlowsPort4() {
-        val flowId1 = "ICMP_V6_DESTINATION_23_Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7"
-        val flowId2 = "ICMP_V6_DESTINATION_23_Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426a22"
-        #[
-            new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
-                flowId = flowId1
-                flowName = flowId1
-                instructionInfoList = #[
-                    new InstructionGotoTable(247 as short)
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(34525L),
-                    new MatchEthernetType(34525L),
-                    new MatchIcmpv6(2 as short, 3 as short),
-                    new MatchIpProtocol(58 as short),
-                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
-                ]
-                priority = IdHelper.getId(flowId1)
-                tableId = NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
-            ],
-            new FlowEntityBuilder >> [
-                dpnId = 123bi
-                cookie = 110100480bi
-                flowId = flowId2
-                flowName = flowId2
-                instructionInfoList = #[
-                    new InstructionGotoTable(247 as short)
-                ]
-                matchInfoList = #[
-                    new MatchEthernetType(34525L),
-                    new MatchEthernetType(34525L),
-                    new MatchIcmpv6(2 as short, 3 as short),
-                    new MatchIpProtocol(58 as short),
-                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
-                ]
-                priority = 1004
                 tableId = NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
             ]
         ]
     }
 
-    override icmpEgressFlowsPort3() {
+    protected def icmpEgressFlowsPort3() {
         val flowId1 = "ICMP_V6_DESTINATION_23_Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6"
         val flowId2 = "ICMP_V6_DESTINATION_23_Egress_123_987_85cc3048-abc3-43cc-89b3-377341426a21"
         #[
@@ -1005,7 +1542,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = flowId1
                 flowName = flowId1
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
+                    new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -1023,7 +1560,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 flowId = flowId2
                 flowName = flowId2
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
+                    new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
@@ -1033,76 +1570,203 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = IdHelper.getId(flowId2)
-                tableId = NwConstants.INGRESS_ACL_CONNTRACK_SENDER_TABLE
+                tableId = NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
             ]
         ]
     }
 
-    protected def icmpEgressFlowsPort4() {
-        val flowId1 = "ICMP_V6_DESTINATION_23_Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6"
-        val flowId2 = "ICMP_V6_DESTINATION_23_Egress_123_987_85cc3048-abc3-43cc-89b3-377341426a21"
+    override def expectedFlows(String mac, String ip1, String prefix) {
+        // Code auto. generated by https://github.com/vorburger/xtendbeans
         #[
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = flowId1
-                flowName = flowId1
+                flowId = "Ingress_DHCP_Server_v4123_987_Permit_"
+                flowName = "Ingress_DHCP_Server_v4123_987_Permit_"
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
+                    ])
                 ]
                 matchInfoList = #[
-                    new MatchEthernetType(34525L),
-                    new MatchEthernetType(34525L),
-                    new MatchIcmpv6(2 as short, 3 as short),
-                    new MatchIpProtocol(58 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchEthernetType(2048L),
+                    new MatchIpProtocol(17 as short),
+                    new MatchUdpDestinationPort(68 as short),
+                    new MatchUdpSourcePort(67 as short),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
-                priority = IdHelper.getId(flowId1)
-                tableId = NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
+                priority = 63010
+                tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = flowId2
-                flowName = flowId2
+                flowId = "Ingress_DHCP_Server_v6_123_987_Permit_"
+                flowName = "Ingress_DHCP_Server_v6_123_987_Permit_"
                 instructionInfoList = #[
-                    new InstructionGotoTable(217 as short)
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
+                    ])
                 ]
                 matchInfoList = #[
                     new MatchEthernetType(34525L),
-                    new MatchEthernetType(34525L),
-                    new MatchIcmpv6(2 as short, 3 as short),
-                    new MatchIpProtocol(58 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchIpProtocol(17 as short),
+                    new MatchUdpDestinationPort(546 as short),
+                    new MatchUdpSourcePort(547 as short),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
-                priority = 1004
-                tableId = NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
-            ]
-        ]
-    }
-
-    override fixedEgressFlowsPort3 () {
-        #[
+                priority = 63010
+                tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:F5_Permit_"
-                flowName = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:F5_Permit_"
+                flowId = "Ingress_ICMPv6_123_987_130_Permit_"
+                flowName = "Ingress_ICMPv6_123_987_130_Permit_"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(58 as short),
+                    new MatchIcmpv6(130 as short, 0 as short),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
+                ]
+                priority = 63010
+                tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_ICMPv6_123_987_135_Permit_"
+                flowName = "Ingress_ICMPv6_123_987_135_Permit_"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(58 as short),
+                    new MatchIcmpv6(135 as short, 0 as short),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
+                ]
+                priority = 63010
+                tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_ICMPv6_123_987_136_Permit_"
+                flowName = "Ingress_ICMPv6_123_987_136_Permit_"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(58 as short),
+                    new MatchIcmpv6(136 as short, 0 as short),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
+                ]
+                priority = 63010
+                tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                cookie = 110100480bi
+                dpnId = 123bi
+                flowId = "Ingress_v4_Broadcast_123_987_10.0.0.255_Permit"
+                flowName = "Ingress_v4_Broadcast_123_987_10.0.0.255_Permit"
+                hardTimeOut = 0
+                idleTimeOut = 0
+                instructionInfoList = #[
+                new InstructionGotoTable(241 as short)
+                ]
+                matchInfoList = #[
+                new MatchEthernetDestination(new MacAddress("ff:ff:ff:ff:ff:ff")),
+                new MatchEthernetType(2048L),
+                new MatchIpv4Destination(new Ipv4Prefix("10.0.0.255/32")),
+                new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
+                ]
+                priority = 61010
+               sendFlowRemFlag = false
+               strictFlag = false
+               tableId = 240 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_ARP_123_987"
+                flowName = "Ingress_ARP_123_987"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2054L),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
+                ]
+                priority = 63010
+                tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_" + ip1 + "/" + prefix
+                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_" + ip1 + "/" + prefix
+                instructionInfoList = #[
+                    new InstructionGotoTable(NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new MatchEthernetDestination(new MacAddress(mac)),
+                    new MatchEthernetType(34525L),
+                    new MatchIpv6Destination(ip1 + "/" + prefix)
+                ]
+                priority = 61010
+                tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new NxMatchCtState(48L, 48L)
+                ]
+                priority = 62020
+                tableId = NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_DHCP_Client_v6_123_987_" + mac + "_Permit_"
+                flowName = "Egress_DHCP_Client_v6_123_987_" + mac + "_Permit_"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(34525L),
                     new MatchIpProtocol(17 as short),
-                    new MatchUdpDestinationPort(67),
-                    new MatchUdpSourcePort(68),
+                    new MatchUdpDestinationPort(547 as short),
+                    new MatchUdpSourcePort(546 as short),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F5"))
+                    new MatchEthernetSource(new MacAddress(mac))
                 ]
                 priority = 63010
-                tableId = 210 as short
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1121,7 +1785,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = 210 as short
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1140,7 +1804,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = 210 as short
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1159,85 +1823,630 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = 210 as short
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F510.0.0.3/32"
-                flowName = "Egress_ARP_123_987_0D:AA:D8:42:30:F510.0.0.3/32"
+                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_" + ip1 + "/" + prefix
+                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_" + ip1 + "/" + prefix
+                instructionInfoList = #[
+                    new InstructionGotoTable(211 as short)
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchEthernetSource(new MacAddress(mac)),
+                    new MatchEthernetType(34525L),
+                    new MatchIpv6Source(ip1 + "/"+ prefix)
+                ]
+                priority = 61010
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new NxMatchCtState(48L, 48L)
+                ]
+                priority = 62020
+                tableId = NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[34525]_Recirc"
+                flowName = "Ingress_Fixed_Conntrk_123_987_MatchEthernetType[34525]_Recirc"
+                   instructionInfoList = #[
+                new InstructionApplyActions(#[
+                    new ActionNxConntrack(2, 0, 0, 5000, NwConstants.EGRESS_ACL_FOR_EXISTING_TRAFFIC_TABLE)
+                ])
+            ]
+            matchInfoList = #[
+                new MatchEthernetType(34525L),
+                new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
+                ]
+                priority = 100
+                tableId = NwConstants.EGRESS_ACL_CONNTRACK_SENDER_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[34525]_Recirc"
+                flowName = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[34525]_Recirc"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.INGRESS_ACL_FOR_EXISTING_TRAFFIC_TABLE)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 100
+                tableId = NwConstants.INGRESS_ACL_CONNTRACK_SENDER_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_L2Broadcast_123_987_" + mac
+                flowName = "Egress_L2Broadcast_123_987_" + mac
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchEthernetType(2054L),
-                    new MatchArpSha(new MacAddress("0D:AA:D8:42:30:F5")),
-                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F5")),
-                    new MatchArpSpa(new Ipv4Prefix("10.0.0.3/32")),
+                    new MatchEthernetSource(new MacAddress(mac)),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
-                priority = 63010
-                tableId = 210 as short
+                priority = 61005
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_Acl_Commit_Conntrack_123_987_MatchEthernetType[2048]"
+                flowName = "Ingress_Acl_Commit_Conntrack_123_987_MatchEthernetType[2048]"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short,
+                            Collections.singletonList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE))
+                        ),
+                        new ActionNxCtClear(),
+                        new ActionNxResubmit(220 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2048L),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new MatchMetadata(0bi, 2bi)
+                    ]
+                priority = 100
+                tableId = 247 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_Acl_Commit_Conntrack_123_987_MatchEthernetType[34525]"
+                flowName = "Ingress_Acl_Commit_Conntrack_123_987_MatchEthernetType[34525]"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short,
+                            Collections.singletonList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE))
+                        ),
+                        new ActionNxCtClear(),
+                        new ActionNxResubmit(220 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new MatchMetadata(0bi, 2bi)
+                ]
+                priority = 100
+                tableId = 247 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_Acl_Commit_Conntrack_123_987_MatchEthernetType[2048]"
+                flowName = "Egress_Acl_Commit_Conntrack_123_987_MatchEthernetType[2048]"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                    new ActionNxConntrack(2, 1, 0, 5000, 255 as short,
+                            Collections.singletonList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE))
+                    ),
+                    new ActionNxCtClear(),
+                    new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2048L),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219202bi)
+                ]
+                priority = 100
+                tableId = 217 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_Acl_Commit_Conntrack_123_987_MatchEthernetType[34525]"
+                flowName = "Egress_Acl_Commit_Conntrack_123_987_MatchEthernetType[34525]"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short,
+                            Collections.singletonList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE))
+                        ),
+                        new ActionNxCtClear(),
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                        new MatchMetadata(1085217976614912bi, 1152920405095219202bi)
+                ]
+                priority = 100
+                tableId = 217 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_Acl_Commit_Non_Conntrack_123_987"
+                flowName = "Egress_Acl_Commit_Non_Conntrack_123_987"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                new MatchMetadata(1085217976614914bi, 1152920405095219202bi)
+                ]
+                priority = 100
+                tableId = 217 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Egress_123_987_Drop"
+                flowName = "Egress_123_987_Drop"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                   new MatchMetadata(1085217976614916bi, new BigInteger("0FFFFF0000000004", 16))
+                ]
+                priority = 62020
+                tableId = 217 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Ingress_Acl_Commit_Non_Conntrack_123_987"
+                flowName = "Ingress_Acl_Commit_Non_Conntrack_123_987"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                    new ActionNxResubmit(220 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new MatchMetadata(2bi, 2bi)
+                ]
+                priority = 100
+                tableId = 247 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Ingress_123_987_Drop"
+                flowName = "Ingress_123_987_Drop"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new MatchMetadata(4bi, 4bi)
+                ]
+                priority = 62020
+                tableId = 247 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Ingress_Fixed_Acl_Rule_Miss_Drop_123_987"
+                flowName = "Ingress_Fixed_Acl_Rule_Miss_Drop_123_987"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
+                ]
+                priority = 50
+                tableId = 244 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Egress_Fixed_Acl_Rule_Miss_Drop_123_987"
+                flowName = "Egress_Fixed_Acl_Rule_Miss_Drop_123_987"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 50
+                tableId = 214 as short
             ]
         ]
     }
 
-    protected def fixedConntrackEgressFlowsPort5() {
+    protected def ingressCommitConntrack1() {
+        val flowId1 = "Ingress_Acl_Commit_Conntrack_123_987_MatchEthernetType[2048]"
+        val flowId2 = "Ingress_Acl_Commit_Conntrack_123_987_MatchEthernetType[34525]"
+        #[
+            new FlowEntityBuilder >> [
+                    dpnId = 123bi
+                    cookie = 110100480bi
+                    flowId = flowId1
+                    flowName = flowId1
+                    instructionInfoList = #[
+                        new InstructionApplyActions(#[
+                            new ActionNxConntrack(2, 1, 0, 5000, 255 as short,
+                                Collections.singletonList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE)
+                                )
+                            ),
+                            new ActionNxCtClear(),
+                            new ActionNxResubmit(220 as short)
+                        ])
+                    ]
+                    matchInfoList = #[
+                        new MatchEthernetType(2048L),
+                        new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                        new MatchMetadata(0bi, 2bi)
+                    ]
+                    priority = 100
+                    tableId = 247 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = flowId2
+                flowName = flowId2
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short,
+                            Collections.singletonList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE))
+                        ),
+                        new ActionNxCtClear(),
+                        new ActionNxResubmit(220 as short)
+                        ])
+                    ]
+                    matchInfoList = #[
+                        new MatchEthernetType(34525L),
+                        new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                        new MatchMetadata(0bi, 2bi)
+                    ]
+                    priority = 100
+                    tableId = 247 as short
+            ]
+        ]
+    }
+
+    protected def egressCommitConntrack1() {
+        val flowId1 = "Egress_Acl_Commit_Conntrack_123_987_MatchEthernetType[2048]"
+        val flowId2 = "Egress_Acl_Commit_Conntrack_123_987_MatchEthernetType[34525]"
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = flowId1
+                flowName = flowId1
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short,
+                            Collections.singletonList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE))
+                        ),
+                        new ActionNxCtClear(),
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2048L),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219202bi)
+                ]
+                priority = 100
+                tableId = 217 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = flowId2
+                flowName = flowId2
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short,
+                            Collections.singletonList(new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE))
+                        ),
+                        new ActionNxCtClear(),
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                        new MatchMetadata(1085217976614912bi, 1152920405095219202bi)
+                ]
+                priority = 100
+                tableId = 217 as short
+            ]
+        ]
+    }
+
+    protected def egressCommitNonConntrack1() {
+        val flowId1 = "Egress_Acl_Commit_Non_Conntrack_123_987"
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = flowId1
+                flowName = flowId1
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                    new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614914bi, 1152920405095219202bi)
+                ]
+                priority = 100
+                tableId = 217 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Egress_123_987_Drop"
+                flowName = "Egress_123_987_Drop"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614916bi, new BigInteger("0FFFFF0000000004", 16))
+                ]
+                priority = 62020
+                tableId = 217 as short
+            ]
+        ]
+    }
+
+    protected def ingressCommitNonConntrack1() {
+        val flowId1 = "Ingress_Acl_Commit_Non_Conntrack_123_987"
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = flowId1
+                flowName = flowId1
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
+                    ])
+                ]
+                 matchInfoList = #[
+                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                         new MatchMetadata(2bi, 2bi)
+                     ]
+                 priority = 100
+                 tableId = 247 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = "Ingress_123_987_Drop"
+                flowName = "Ingress_123_987_Drop"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new MatchMetadata(4bi, 4bi)
+                ]
+                priority = 62020
+                tableId = 247 as short
+            ]
+        ]
+    }
+
+    protected def ingressfixedAclMissDrop1() {
+        val flowId1 = "Ingress_Fixed_Acl_Rule_Miss_Drop_123_987"
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = flowId1
+                flowName = flowId1
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
+                ]
+                priority = 50
+                tableId = 244 as short
+            ]
+        ]
+    }
+
+    protected def egressfixedAclMissDrop1() {
+        val flowId1 = "Egress_Fixed_Acl_Rule_Miss_Drop_123_987"
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = flowId1
+                flowName = flowId1
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 50
+                tableId = 214 as short
+            ]
+        ]
+    }
+
+    protected def ingressDispatcherFirst() {
+        val flowId1 = "Ingress_ACL_Dispatcher_First_123_987_2"
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = flowId1
+                flowName = flowId1
+                instructionInfoList = #[
+                    new InstructionGotoTable(245 as short),
+                    new InstructionWriteMetadata(32bi, 16777200bi)
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
+                ]
+                priority = IdHelper.getId(flowId1)
+                tableId = NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
+            ]
+        ]
+    }
+
+    protected def ingressDispatcherLast() {
+        val flowId1 = "Ingress_ACL_Dispatcher_Last_123_987_2"
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = flowId1
+                flowName = flowId1
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                    new MatchMetadata(32bi, 16777200bi)
+                ]
+                priority = IdHelper.getId(flowId1)
+                tableId = NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
+            ]
+        ]
+    }
+
+    protected def egressDispatcherFirst() {
+        val flowId1 = "Egress_ACL_Dispatcher_First_123_987_2"
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = flowId1
+                flowName = flowId1
+                instructionInfoList = #[
+                    new InstructionGotoTable(215 as short),
+                    new InstructionWriteMetadata(32bi, 16777200bi)
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = IdHelper.getId(flowId1)
+                tableId = NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
+            ]
+        ]
+    }
+
+    protected def egressDispatcherLast() {
+        val flowId1 = "Egress_ACL_Dispatcher_Last_123_987_2"
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 1085218086715393bi
+                flowId = flowId1
+                flowName = flowId1
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614944bi, 1152920405111996400bi)
+                ]
+                priority = IdHelper.getId(flowId1)
+                tableId = NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
+            ]
+        ]
+    }
+
+    protected def egressDispatcherFirst1() {
+            val flowId1 = "Egress_ACL_Dispatcher_First_123_987_4"
             #[
                 new FlowEntityBuilder >> [
                     dpnId = 123bi
                     cookie = 110100480bi
-                    flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_10.0.0.3/32"
-                    flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_10.0.0.3/32"
+                    flowId = flowId1
+                    flowName = flowId1
                     instructionInfoList = #[
-                        new InstructionGotoTable(211 as short)
+                        new InstructionGotoTable(215 as short),
+                        new InstructionWriteMetadata(64bi, 16777200bi)
                     ]
                     matchInfoList = #[
-                        new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
-                        new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F5")),
-                        new MatchEthernetType(2048L),
-                        new MatchIpv4Source("10.0.0.3", "32")
+                        new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                     ]
-                    priority = 61010
-                    tableId = 210 as short
-                ],
+                    priority = IdHelper.getId(flowId1)
+                    tableId = NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
+                ]
+            ]
+        }
+
+        protected def egressDispatcherLast1() {
+            val flowId1 = "Egress_ACL_Dispatcher_Last_123_987_4"
+            #[
                 new FlowEntityBuilder >> [
                     dpnId = 123bi
                     cookie = 1085218086715393bi
-                    flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
-                    flowName = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                    flowId = flowId1
+                    flowName = flowId1
                     instructionInfoList = #[
                         new InstructionApplyActions(#[
                             new ActionDrop()
                         ])
                     ]
                     matchInfoList = #[
-                        new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
-                        new NxMatchCtState(48L, 48L)
+                        new MatchMetadata(1085217976614976bi, 1152920405111996400bi)
                     ]
-                    priority = 62020
+                    priority = IdHelper.getId(flowId1)
                     tableId = NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE
-                ],
-                new FlowEntityBuilder >> [
-                    dpnId = 123bi
-                    cookie = 110100480bi
-                    flowId = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-                    flowName = "Egress_Fixed_Conntrk_123_987_MatchEthernetType[2048]_Recirc"
-                    instructionInfoList = #[
-                        new InstructionApplyActions(#[
-                            new ActionNxConntrack(2, 0, 0, 5000, 213 as short)
-                        ])
-                    ]
-                    matchInfoList = #[
-                        new MatchEthernetType(2048L),
-                        new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
-                    ]
-                    priority = 100
-                    tableId = NwConstants.INGRESS_ACL_CONNTRACK_SENDER_TABLE
                 ]
             ]
         }
-
 }
