@@ -47,124 +47,124 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata
 
 class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
 
-    protected def etherFlows() {
+    protected def etherFlows(String ip1 ,String ip2, String prefix) {
         egressCommitConntrack1
         + egressCommitNonConntrack1
         + egressfixedAclMissDrop1
         + etheregressFlowPort2
         + etherEgressFlowsPort1
         + etherIngressFlowsPort2
-        + fixedConntrackEgressFlowsPort1
-        + fixedConntrackEgressFlowsPort2
-        + fixedConntrackIngressFlowsPort1
-        + fixedConntrackIngressFlowsPort2
-        + fixedEgressFlowsPort1
-        + fixedEgressFlowsPort2
+        + fixedConntrackEgressFlowsPort1(ip1, prefix)
+        + fixedConntrackEgressFlowsPort2(ip2, prefix)
+        + fixedConntrackIngressFlowsPort1(ip1, prefix)
+        + fixedConntrackIngressFlowsPort2(ip2, prefix)
+        + fixedEgressFlowsPort1(ip1, prefix)
+        + fixedEgressFlowsPort2(ip2, prefix)
         + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressL2BroadcastFlowsPort2
         + fixedIngressFlowsPort1
         + fixedIngressFlowsPort2
-        + fixedIngressL3BroadcastFlows
+        + fixedIngressL3BroadcastFlows(prefix)
         + ingressCommitConntrack1
         + ingressCommitNonConntrack1
         + ingressDispatcherFirst
         + ingressDispatcherLast
         + ingressfixedAclMissDrop1
-        + remoteEgressFlowsPort1
-        + remoteEgressFlowsPort2
+        + remoteEgressFlowsPort1(ip1, prefix)
+        + remoteEgressFlowsPort2(ip2, prefix)
     }
 
-    protected def tcpFlows() {
+    protected def tcpFlows(String ip1 ,String ip2, String prefix) {
         egressCommitConntrack1
         + egressCommitNonConntrack1
         + egressDispatcherFirst
         + egressDispatcherLast
         + egressfixedAclMissDrop1
-        + fixedConntrackEgressFlowsPort1
-        + fixedConntrackEgressFlowsPort2
-        + fixedConntrackIngressFlowsPort1
-        + fixedConntrackIngressFlowsPort2
-        + fixedEgressFlowsPort1
-        + fixedEgressFlowsPort2
+        + fixedConntrackEgressFlowsPort1(ip1, prefix)
+        + fixedConntrackEgressFlowsPort2(ip2, prefix)
+        + fixedConntrackIngressFlowsPort1(ip1, prefix)
+        + fixedConntrackIngressFlowsPort2(ip2, prefix)
+        + fixedEgressFlowsPort1(ip1, prefix)
+        + fixedEgressFlowsPort2(ip2, prefix)
         + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressL2BroadcastFlowsPort2
         + fixedIngressFlowsPort1
         + fixedIngressFlowsPort2
-        + fixedIngressL3BroadcastFlows
+        + fixedIngressL3BroadcastFlows(prefix)
         + ingressCommitConntrack1
         + ingressCommitNonConntrack1
         + ingressfixedAclMissDrop1
-        + remoteIngressFlowsPort1
-        + remoteIngressFlowsPort2
+        + remoteIngressFlowsPort1(ip1, prefix)
+        + remoteIngressFlowsPort2(ip2, prefix)
         + tcpEgressFlowPort2
         + tcpIngressFlowPort1
         + tcpIngressFlowPort2
     }
 
-    protected def udpFlows() {
+    protected def udpFlows(String ip1 ,String ip2, String prefix) {
         egressCommitConntrack1
         + egressCommitNonConntrack1
         + egressfixedAclMissDrop1
-        + fixedConntrackEgressFlowsPort1
-        + fixedConntrackEgressFlowsPort2
-        + fixedConntrackIngressFlowsPort1
-        + fixedConntrackIngressFlowsPort2
-        + fixedEgressFlowsPort1
-        + fixedEgressFlowsPort2
+        + fixedConntrackEgressFlowsPort1(ip1, prefix)
+        + fixedConntrackEgressFlowsPort2(ip2, prefix)
+        + fixedConntrackIngressFlowsPort1(ip1, prefix)
+        + fixedConntrackIngressFlowsPort2(ip2, prefix)
+        + fixedEgressFlowsPort1(ip1, prefix)
+        + fixedEgressFlowsPort2(ip2, prefix)
         + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressL2BroadcastFlowsPort2
         + fixedIngressFlowsPort1
         + fixedIngressFlowsPort2
-        + fixedIngressL3BroadcastFlows
+        + fixedIngressL3BroadcastFlows(prefix)
         + ingressCommitConntrack1
         + ingressCommitNonConntrack1
         + ingressDispatcherFirst
         + ingressDispatcherLast
         + ingressfixedAclMissDrop1
-        + remoteEgressFlowsPort1
-        + remoteEgressFlowsPort2
+        + remoteEgressFlowsPort1(ip1, prefix)
+        + remoteEgressFlowsPort2(ip2, prefix)
         + udpEgressFlowsPort1
         + udpEgressFlowsPort2
         + udpIngressFlowsPort2
     }
 
-    protected def icmpFlows() {
+    protected def icmpFlows(String ip1 ,String ip2, String prefix) {
         egressCommitConntrack1
         + egressCommitNonConntrack1
         + egressDispatcherFirst
         + egressDispatcherLast
         + egressfixedAclMissDrop1
-        + fixedConntrackEgressFlowsPort1
-        + fixedConntrackEgressFlowsPort2
-        + fixedConntrackIngressFlowsPort1
-        + fixedConntrackIngressFlowsPort2
-        + fixedEgressFlowsPort1
-        + fixedEgressFlowsPort2
+        + fixedConntrackEgressFlowsPort1(ip1, prefix)
+        + fixedConntrackEgressFlowsPort2(ip2, prefix)
+        + fixedConntrackIngressFlowsPort1(ip1, prefix)
+        + fixedConntrackIngressFlowsPort2(ip2, prefix)
+        + fixedEgressFlowsPort1(ip1, prefix)
+        + fixedEgressFlowsPort2(ip2, prefix)
         + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressL2BroadcastFlowsPort2
         + fixedIngressFlowsPort1
         + fixedIngressFlowsPort2
-        + fixedIngressL3BroadcastFlows
+        + fixedIngressL3BroadcastFlows(prefix)
         + icmpEgressFlowsPort2
         + icmpIngressFlowsPort1
         + icmpIngressFlowsPort2
         + ingressCommitConntrack1
         + ingressCommitNonConntrack1
         + ingressfixedAclMissDrop1
-        + remoteIngressFlowsPort1
-        + remoteIngressFlowsPort2
+        + remoteIngressFlowsPort1(ip1, prefix)
+        + remoteIngressFlowsPort2(ip2, prefix)
     }
 
-    protected def dstRangeFlows() {
+    protected def dstRangeFlows(String ip1, String prefix) {
         egressCommitConntrack1
         + egressCommitNonConntrack1
         + egressfixedAclMissDrop1
-        + fixedConntrackEgressFlowsPort1
-        + fixedConntrackIngressFlowsPort1
-        + fixedEgressFlowsPort1
+        + fixedConntrackEgressFlowsPort1(ip1, prefix)
+        + fixedConntrackIngressFlowsPort1(ip1, prefix)
+        + fixedEgressFlowsPort1(ip1, prefix)
         + fixedEgressL2BroadcastFlowsPort1
         + fixedIngressFlowsPort1
-        + fixedIngressL3BroadcastFlows
+        + fixedIngressL3BroadcastFlows(prefix)
         + ingressCommitConntrack1
         + ingressCommitNonConntrack1
         + ingressfixedAclMissDrop1
@@ -172,16 +172,16 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + udpIngressPortRangeFlows
     }
 
-    protected def dstAllFlows() {
+    protected def dstAllFlows(String ip1, String prefix) {
         egressCommitConntrack1
         + egressCommitNonConntrack1
         + egressfixedAclMissDrop1
-        + fixedConntrackEgressFlowsPort1
-        + fixedConntrackIngressFlowsPort1
-        + fixedEgressFlowsPort1
+        + fixedConntrackEgressFlowsPort1(ip1, prefix)
+        + fixedConntrackIngressFlowsPort1(ip1, prefix)
+        + fixedEgressFlowsPort1(ip1, prefix)
         + fixedEgressL2BroadcastFlowsPort1
         + fixedIngressFlowsPort1
-        + fixedIngressL3BroadcastFlows
+        + fixedIngressL3BroadcastFlows(prefix)
         + ingressCommitConntrack1
         + ingressCommitNonConntrack1
         + ingressfixedAclMissDrop1
@@ -189,16 +189,16 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + udpIngressAllFlows
     }
 
-    protected def icmpFlowsForTwoAclsHavingSameRules() {
+    protected def icmpFlowsForTwoAclsHavingSameRules(String ip3, String prefix) {
         egressCommitConntrack1
         + egressCommitNonConntrack1
         + egressfixedAclMissDrop1
-        + fixedConntrackEgressFlowsPort3
-        + fixedConntrackIngressFlowsPort3
-        + fixedEgressFlowsPort3
+        + fixedConntrackEgressFlowsPort3(ip3, prefix)
+        + fixedConntrackIngressFlowsPort3(ip3, prefix)
+        + fixedEgressFlowsPort3(ip3, prefix)
         + fixedEgressL2BroadcastFlowsPort3
         + fixedIngressFlowsPort3
-        + fixedIngressL3BroadcastFlows
+        + fixedIngressL3BroadcastFlows(prefix)
         + icmpEgressFlowsPort3
         + icmpIngressFlowsPort3
         + ingressCommitConntrack1
@@ -206,18 +206,18 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + ingressfixedAclMissDrop1
     }
 
-    protected def aapWithIpv4AllFlows() {
-        icmpFlows()
+    protected def aapWithIpv4AllFlows(String ip1 ,String ip2, String prefix) {
+        icmpFlows(ip1, ip2, prefix)
         + aapIpv4AllFlowsPort2
     }
 
-    protected def aapFlows() {
-        icmpFlows()
-        + aapRemoteFlowsPort1
-        + aapFlowsPort2
+    protected def aapFlows(String ip1 ,String ip2, String ip100, String ip101, String prefix) {
+        icmpFlows(ip1, ip2, prefix)
+        + aapRemoteFlowsPort1(ip100, ip101, prefix)
+        + aapFlowsPort2(ip100, ip101, prefix)
     }
 
-    protected def multipleAcl() {
+    protected def multipleAcl(String ip1 ,String ip2, String prefix) {
         egressCommitConntrack1
         + egressCommitNonConntrack1
         + egressDispatcherFirst1
@@ -226,29 +226,28 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + etheregressFlowPort2
         + etherEgressFlowsPort1
         + etherIngressFlowsPort2
-        + fixedConntrackEgressFlowsPort1
-        + fixedConntrackEgressFlowsPort2
-        + fixedConntrackIngressFlowsPort1
-        + fixedConntrackIngressFlowsPort2
-        + fixedEgressFlowsPort1
-        + fixedEgressFlowsPort2
+        + fixedConntrackEgressFlowsPort1(ip1, prefix)
+        + fixedConntrackEgressFlowsPort2(ip2, prefix)
+        + fixedConntrackIngressFlowsPort1(ip1, prefix)
+        + fixedConntrackIngressFlowsPort2(ip2, prefix)
+        + fixedEgressFlowsPort1(ip1, prefix)
+        + fixedEgressFlowsPort2(ip2, prefix)
         + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressL2BroadcastFlowsPort2
         + fixedIngressFlowsPort1
         + fixedIngressFlowsPort2
-        + fixedIngressL3BroadcastFlows
+        + fixedIngressL3BroadcastFlows(prefix)
         + ingressCommitConntrack1
         + ingressCommitNonConntrack1
         + ingressDispatcherFirst
         + ingressDispatcherLast
         + ingressfixedAclMissDrop1
-        + remoteEgressFlowsPort1
-        + remoteEgressFlowsPort2
-        + remoteEgressFlowsPort3
+        + remoteEgressFlowsPort1(ip1, prefix)
+        + remoteEgressFlowsPort2(ip2, prefix)
+        + remoteEgressFlowsPort3(ip2, prefix)
         + tcpEgressFlowPort2WithRemoteIpSg
         + tcpIngressFlowPort1WithMultipleSG
     }
-
     protected def tcpEgressFlowPort2WithRemoteIpSg() {
         val theFlowId1 ="TCP_DESTINATION_80_65535Egress_123_987_85cc3048-abc3-43cc-89b3-377341426a21"
         #[
@@ -374,20 +373,20 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         ]
     }
 
-    protected def aapRemoteFlowsPort1() {
+    protected def aapRemoteFlowsPort1(String ip100, String ip101, String prefix) {
         #[
-            remoteIngressFlowsPort("10.0.0.100"),
-            remoteIngressFlowsPort("10.0.0.101")
+            remoteIngressFlowsPort(ip100, prefix),
+            remoteIngressFlowsPort(ip101, prefix)
         ]
     }
 
-    protected def aapFlowsPort2() {
+   protected def aapFlowsPort2(String ip100, String ip101, String prefix) {
         #[
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_10.0.0.100/32"
-                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_10.0.0.100/32"
+                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_" + ip100 + "/" + prefix
+                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_" + ip100 + "/" + prefix
                 instructionInfoList = #[
                    new InstructionGotoTable(211 as short)
                 ]
@@ -395,7 +394,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4")),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.100", "32")
+                    new MatchIpv4Source(ip100, prefix)
                 ]
                 priority = 61010
                 tableId = 210 as short
@@ -403,8 +402,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_10.0.0.100/32"
-                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_10.0.0.100/32"
+                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_" + ip100 + "/" + prefix
+                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_" + ip100 + "/" + prefix
                 instructionInfoList = #[
                     new InstructionGotoTable(NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
                 ]
@@ -412,7 +411,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F4")),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.100", "32")
+                    new MatchIpv4Destination(ip100, prefix)
                 ]
                 priority = 61010
                 tableId = 240 as short
@@ -420,8 +419,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:A4_10.0.0.101/32"
-                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:A4_10.0.0.101/32"
+                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:A4_" + ip101 + "/" + prefix
+                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:A4_" + ip101 + "/" + prefix
                 instructionInfoList = #[
                     new InstructionGotoTable(211 as short)
                 ]
@@ -429,7 +428,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:A4")),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.101", "32")
+                    new MatchIpv4Source(ip101, prefix)
                 ]
                 priority = 61010
                 tableId = 210 as short
@@ -437,8 +436,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:A4_10.0.0.101/32"
-                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:A4_10.0.0.101/32"
+                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:A4_" + ip101 + "/" + prefix
+                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:A4_" + ip101 + "/" + prefix
                 instructionInfoList = #[
                     new InstructionGotoTable(NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
                 ]
@@ -446,7 +445,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:A4")),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.101", "32")
+                    new MatchIpv4Destination(ip101, prefix)
                 ]
                 priority = 61010
                 tableId = 240 as short
@@ -454,8 +453,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F410.0.0.100/32"
-                flowName = "Egress_ARP_123_987_0D:AA:D8:42:30:F410.0.0.100/32"
+                flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F4" + ip100 + "/" + prefix
+                flowName = "Egress_ARP_123_987_0D:AA:D8:42:30:F4" + ip100 + "/" + prefix
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -465,7 +464,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetType(2054L),
                     new MatchArpSha(new MacAddress("0D:AA:D8:42:30:F4")),
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4")),
-                    new MatchArpSpa(new Ipv4Prefix("10.0.0.100/32")),
+                    new MatchArpSpa(new Ipv4Prefix(ip100 + "/" + prefix)),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
@@ -474,8 +473,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:A410.0.0.101/32"
-                flowName = "Egress_ARP_123_987_0D:AA:D8:42:30:A410.0.0.101/32"
+                flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:A4" + ip101 + "/" + prefix
+                flowName = "Egress_ARP_123_987_0D:AA:D8:42:30:A4" + ip101 + "/" + prefix
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -485,7 +484,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetType(2054L),
                     new MatchArpSha(new MacAddress("0D:AA:D8:42:30:A4")),
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:A4")),
-                    new MatchArpSpa(new Ipv4Prefix("10.0.0.101/32")),
+                    new MatchArpSpa(new Ipv4Prefix(ip101 + "/" + prefix)),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
@@ -553,21 +552,21 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         ]
     }
 
-    protected def fixedConntrackIngressFlowsPort1() {
+    protected def fixedConntrackIngressFlowsPort1(String ip1, String prefix) {
         #[
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_10.0.0.1/32"
-                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_10.0.0.1/32"
+                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_" + ip1 + "/" + prefix
+                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_" + ip1 + "/" + prefix
                 instructionInfoList = #[
                     new InstructionGotoTable(NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
                 ]
                 matchInfoList = #[
-                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
-                    new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F3")),
-                    new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.1", "32")
+                new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
+                new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F3")),
+                new MatchEthernetType(2048L),
+                new MatchIpv4Destination(ip1, prefix)
                 ]
                 priority = 61010
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -632,13 +631,13 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         ]
     }
 
-    protected def fixedConntrackEgressFlowsPort1() {
+    protected def fixedConntrackEgressFlowsPort1(String ip1, String prefix) {
         #[
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_10.0.0.1/32"
-                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_10.0.0.1/32"
+                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_" + ip1 + "/" + prefix
+                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_" + ip1 + "/" + prefix
                 instructionInfoList = #[
                     new InstructionGotoTable(211 as short)
                 ]
@@ -646,7 +645,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F3")),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.1", "32")
+                    new MatchIpv4Source(ip1, prefix)
                 ]
                 priority = 61010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -688,13 +687,13 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         ]
     }
 
-    protected def fixedConntrackIngressFlowsPort2() {
+    protected def fixedConntrackIngressFlowsPort2(String ip2, String prefix) {
         #[
              new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_10.0.0.2/32"
-                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_10.0.0.2/32"
+                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_" + ip2 + "/" + prefix
+                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_" + ip2 + "/" + prefix
                 instructionInfoList = #[
                     new InstructionGotoTable(NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
                 ]
@@ -702,7 +701,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F4")),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.2", "32")
+                    new MatchIpv4Destination(ip2, prefix)
                 ]
                 priority = 61010
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -744,13 +743,13 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         ]
     }
 
-    protected def fixedConntrackEgressFlowsPort2() {
+    protected def fixedConntrackEgressFlowsPort2(String ip2, String prefix){
         #[
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_10.0.0.2/32"
-                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_10.0.0.2/32"
+                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_" + ip2 + "/" + prefix
+                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F4_" + ip2 + "/" + prefix
                 instructionInfoList = #[
                     new InstructionGotoTable(NwConstants.INGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
                 ]
@@ -758,7 +757,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4")),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.2", "32")
+                    new MatchIpv4Source(ip2, prefix)
                 ]
                 priority = 61010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -800,13 +799,13 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         ]
     }
 
-    protected def fixedConntrackIngressFlowsPort3() {
+    protected def fixedConntrackIngressFlowsPort3(String ip3, String prefix) {
         #[
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_10.0.0.3/32"
-                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_10.0.0.3/32"
+                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_" + ip3 + "/" + prefix
+                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_" + ip3 + "/" + prefix
                 instructionInfoList = #[
                     new InstructionGotoTable(NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
                 ]
@@ -814,7 +813,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F5")),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.3", "32")
+                    new MatchIpv4Destination(ip3, prefix)
                 ]
                 priority = 61010
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -856,13 +855,13 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         ]
     }
 
-    protected def fixedConntrackEgressFlowsPort3() {
+    protected def fixedConntrackEgressFlowsPort3(String ip3, String prefix) {
         #[
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_10.0.0.3/32"
-                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_10.0.0.3/32"
+                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_" + ip3 + "/" + prefix
+                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F5_" + ip3 + "/" + prefix
                 instructionInfoList = #[
                     new InstructionGotoTable(NwConstants.INGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
                 ]
@@ -870,7 +869,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F5")),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.3", "32")
+                    new MatchIpv4Source(ip3, prefix)
                 ]
                 priority = 61010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -912,13 +911,13 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         ]
     }
 
-    static def fixedConntrackIngressFlowsPort4() {
+    static def fixedConntrackIngressFlowsPort4(String ip4, String prefix) {
         #[
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_10.0.0.4/32_Recirc"
-                flowName = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_10.0.0.4/32_Recirc"
+                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_" + ip4 + "/" + prefix + "_Recirc"
+                flowName = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_" + ip4 + "/" + prefix + "_Recirc"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 0, 0, 5000, NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
@@ -928,7 +927,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L),
                     new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F6")),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.4", "32")
+                    new MatchIpv4Destination(ip4, prefix)
                 ]
                 priority = 61010
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -988,13 +987,13 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         ]
     }
 
-    static def fixedConntrackEgressFlowsPort4() {
+    static def fixedConntrackEgressFlowsPort4(String ip4, String prefix) {
         #[
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_10.0.0.4/32_Recirc"
-                flowName = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_10.0.0.4/32_Recirc"
+                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_" + ip4 + "/" + prefix + "_Recirc"
+                flowName = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_" + ip4 + "/" + prefix + "_Recirc"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 0, 0, 5000, NwConstants.INGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
@@ -1003,7 +1002,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F6")),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.4", "32")
+                    new MatchIpv4Source(ip4, prefix)
                 ]
                 priority = 61010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -1637,7 +1636,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         ]
     }
 
-    override def expectedFlows(String mac) {
+    override def expectedFlows(String mac, String ip1, String prefix) {
         // Code auto. generated by https://github.com/vorburger/xtendbeans
         #[
             new FlowEntityBuilder >> [
@@ -1757,8 +1756,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_10.0.0.1/32"
-                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_10.0.0.1/32"
+                flowId = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_" + ip1 + "/" + prefix
+                flowName = "Ingress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_" + ip1 + "/" + prefix
                 instructionInfoList = #[
                     new InstructionGotoTable(NwConstants.EGRESS_ACL_CONNTRACK_CLASSIFIER_TABLE)
                 ]
@@ -1766,7 +1765,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L),
                     new MatchEthernetDestination(new MacAddress(mac)),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Destination("10.0.0.1", "32")
+                    new MatchIpv4Destination(ip1, prefix)
                 ]
                 priority = 61010
                 tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -1869,8 +1868,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_10.0.0.1/32"
-                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_10.0.0.1/32"
+                flowId = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_" + ip1 + "/" + prefix
+                flowName = "Egress_Fixed_Goto_Classifier_123_987_0D:AA:D8:42:30:F3_" + ip1 + "/" + prefix
                 instructionInfoList = #[
                     new InstructionGotoTable(211 as short)
                 ]
@@ -1878,7 +1877,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new MatchEthernetSource(new MacAddress(mac)),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Source("10.0.0.1", "32")
+                    new MatchIpv4Source(ip1, prefix)
                 ]
                 priority = 61010
                 tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
@@ -1937,8 +1936,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_ARP_123_987_" + mac + "10.0.0.1/32"
-                flowName = "Egress_ARP_123_987_" + mac + "10.0.0.1/32"
+                flowId = "Egress_ARP_123_987_" + mac + ip1 + "/" + prefix
+                flowName = "Egress_ARP_123_987_" + mac + ip1 + "/" + prefix
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
@@ -1948,7 +1947,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetType(2054L),
                     new MatchArpSha(new MacAddress(mac)),
                     new MatchEthernetSource(new MacAddress(mac)),
-                    new MatchArpSpa(new Ipv4Prefix("10.0.0.1/32")),
+                    new MatchArpSpa(new Ipv4Prefix( ip1 + "/" + prefix)),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
@@ -1984,7 +1983,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetDestination(new MacAddress("ff:ff:ff:ff:ff:ff")),
                     new MatchEthernetType(2048L),
-                    new MatchIpv4Destination(new Ipv4Prefix("10.0.0.255/32")),
+                    new MatchIpv4Destination(new Ipv4Prefix("10.0.0.255/" + prefix)),
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 61010
