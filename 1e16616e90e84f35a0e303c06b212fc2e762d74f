@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3ca4f529_83bbed9c",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-10-11T12:43:39Z",
+      "side": 1,
+      "message": "I\u0027ll handle this and your other comment in a separate gerrit.",
+      "parentUuid": "6dd47540_81534449",
+      "range": {
+        "startLine": 603,
+        "startChar": 45,
+        "endLine": 603,
+        "endChar": 68
+      },
+      "revId": "1e16616e90e84f35a0e303c06b212fc2e762d74f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "353deaf6_e682a677",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VipStateTracker.java",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-10-05T18:17:38Z",
       "side": 1,
       "message": "mac is unused",
+      "range": {
+        "startLine": 47,
+        "startChar": 52,
+        "endLine": 47,
+        "endChar": 55
+      },
+      "revId": "1e16616e90e84f35a0e303c06b212fc2e762d74f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc56d636_13b492c7",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VipStateTracker.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-10-11T12:43:39Z",
+      "side": 1,
+      "message": "I\u0027ll handle this and your other comment in a separate gerrit.",
+      "parentUuid": "353deaf6_e682a677",
       "range": {
         "startLine": 47,
         "startChar": 52,
