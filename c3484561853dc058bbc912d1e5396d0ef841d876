@@ -22,6 +22,30 @@
       "revId": "c3484561853dc058bbc912d1e5396d0ef841d876",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "91abc72f_68302276",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-10-11T12:35:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8bc8f32c_c78c9c77",
+      "range": {
+        "startLine": 532,
+        "startChar": 11,
+        "endLine": 539,
+        "endChar": 13
+      },
+      "revId": "c3484561853dc058bbc912d1e5396d0ef841d876",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
