@@ -27,6 +27,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.VpnManagerCounters;
@@ -61,17 +62,19 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     private final OdlInterfaceRpcService odlInterfaceRpcService;
     private final ICentralizedSwitchProvider centralizedSwitchProvider;
     private final IInterfaceManager interfaceManager;
+    private final INeutronVpnManager neutronVpnManager;
 
     @Inject
     public SubnetRoutePacketInHandler(final DataBroker dataBroker, final PacketProcessingService packetService,
-            final OdlInterfaceRpcService odlInterfaceRpcService,
-            final ICentralizedSwitchProvider centralizedSwitchProvider,
-            final IInterfaceManager interfaceManager) {
+                                      final OdlInterfaceRpcService odlInterfaceRpcService,
+                                      final ICentralizedSwitchProvider centralizedSwitchProvider,
+                                      final IInterfaceManager interfaceManager, INeutronVpnManager neutronVpnManager) {
         this.dataBroker = dataBroker;
         this.packetService = packetService;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.centralizedSwitchProvider = centralizedSwitchProvider;
         this.interfaceManager = interfaceManager;
+        this.neutronVpnManager = neutronVpnManager;
     }
 
     @Override
@@ -286,9 +289,10 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     private void handlePacketFromTunnelToExternalNetwork(String vpnIdVpnInstanceName,
                         String srcIpStr, byte[] dstIp, long elanTag)
                                 throws UnknownHostException {
-        String routerId = VpnUtil.getAssociatedExternalRouter(dataBroker, srcIpStr);
+        String routerId = VpnUtil.getAssociatedExternalRouter(dataBroker, srcIpStr, neutronVpnManager);
         if (null == routerId) {
-            LOG.debug("The ip is not associated with any external router", srcIpStr);
+            LOG.debug("This ip is not associated with any external router: {}", srcIpStr);
+            return;
         }
         handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName), routerId, dstIp, elanTag);
     }
