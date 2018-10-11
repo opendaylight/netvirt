@@ -43,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
@@ -61,17 +62,19 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     private final OdlInterfaceRpcService odlInterfaceRpcService;
     private final ICentralizedSwitchProvider centralizedSwitchProvider;
     private final IInterfaceManager interfaceManager;
+    private final NeutronvpnService neutronvpnService;
 
     @Inject
     public SubnetRoutePacketInHandler(final DataBroker dataBroker, final PacketProcessingService packetService,
-            final OdlInterfaceRpcService odlInterfaceRpcService,
-            final ICentralizedSwitchProvider centralizedSwitchProvider,
-            final IInterfaceManager interfaceManager) {
+                                      final OdlInterfaceRpcService odlInterfaceRpcService,
+                                      final ICentralizedSwitchProvider centralizedSwitchProvider,
+                                      final IInterfaceManager interfaceManager, NeutronvpnService neutronvpnService) {
         this.dataBroker = dataBroker;
         this.packetService = packetService;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.centralizedSwitchProvider = centralizedSwitchProvider;
         this.interfaceManager = interfaceManager;
+        this.neutronvpnService = neutronvpnService;
     }
 
     @Override
@@ -286,9 +289,10 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     private void handlePacketFromTunnelToExternalNetwork(String vpnIdVpnInstanceName,
                         String srcIpStr, byte[] dstIp, long elanTag)
                                 throws UnknownHostException {
-        String routerId = VpnUtil.getAssociatedExternalRouter(dataBroker, srcIpStr);
+        String routerId = VpnUtil.getAssociatedExternalRouter(dataBroker, srcIpStr, neutronvpnService);
         if (null == routerId) {
-            LOG.debug("The ip is not associated with any external router", srcIpStr);
+            LOG.debug("This ip is not associated with any external router: {}", srcIpStr);
+            return;
         }
         handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName), routerId, dstIp, elanTag);
     }

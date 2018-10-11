@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterators;
 import com.google.common.net.InetAddresses;
+import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import java.math.BigInteger;
 import java.net.Inet4Address;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -84,6 +86,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames.AssociatedSubnetType;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNamesBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -211,6 +214,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes.NetworkType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
@@ -1231,22 +1235,73 @@ public final class VpnUtil {
         return null;
     }
 
-    public static String getAssociatedExternalRouter(DataBroker dataBroker, String extIp) {
+    private static Subnet readNeutronSubnet(DataBroker dataBroker, String uuid) {
+        InstanceIdentifier<Subnet> inst = InstanceIdentifier.create(Neutron.class).child(Subnets.class).child(Subnet
+                .class, new SubnetKey(new Uuid(uuid)));
+        ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction();
+        CheckedFuture<Optional<Subnet>, ReadFailedException> future = tx.read(LogicalDatastoreType.CONFIGURATION, inst);
+        Optional<Subnet> sn = null;
+        try {
+            sn = future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Failed to retrieve subnet {}", uuid, e);
+            return null;
+        }
+
+        return sn.orNull();
+
+    }
+
+    public static String getAssociatedExternalRouter(DataBroker dataBroker,
+                                                     String extIp, NeutronvpnService neutronVpnService) {
         InstanceIdentifier<ExtRouters> extRouterInstanceIndentifier =
                 InstanceIdentifier.builder(ExtRouters.class).build();
-        Optional<ExtRouters> extRouterData = read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                extRouterInstanceIndentifier);
-        if (extRouterData.isPresent()) {
-            for (Routers routerData : extRouterData.get().getRouters()) {
-                List<ExternalIps> externalIps = routerData.getExternalIps();
-                for (ExternalIps externalIp : externalIps) {
-                    if (externalIp.getIpAddress().equals(extIp)) {
-                        return routerData.getRouterName();
-                    }
+        Optional<ExtRouters> extRouterData = read(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, extRouterInstanceIndentifier);
+        if (!extRouterData.isPresent()) {
+            return null;
+        }
+
+        // We need to find the router associated with the src ip of this packet.
+        // This case is either SNAT, in which case the src ip is the same as the
+        // router's external ip, or FIP in which case the src ip is in the router's
+        // external leg's subnet. We first check the SNAT case because it is much
+        // cheaper to do so because it does not require (potentially, there is a
+        // cache) an datastore read of the neutron subnet for each external IP.
+
+        String routerName = null;
+
+        for (Routers routerData : extRouterData.get().getRouters()) {
+            List<ExternalIps> externalIps = routerData.getExternalIps();
+            for (ExternalIps externalIp : externalIps) {
+                if (externalIp.getIpAddress().equals(extIp)) {
+                    routerName = routerData.getRouterName();
+                    break;
                 }
             }
         }
-        return null;
+
+        if (routerName != null) {
+            return routerName;
+        }
+
+        for (Routers routerData : extRouterData.get().getRouters()) {
+            List<ExternalIps> externalIps = routerData.getExternalIps();
+            for (ExternalIps externalIp : externalIps) {
+                Subnet neutronSubnet = readNeutronSubnet(dataBroker, externalIp.getSubnetId().getValue());
+                if (neutronSubnet == null) {
+                    LOG.warn("Failed to retrieve subnet {} referenced by router {}",
+                            externalIp.getSubnetId(), routerData);
+                    continue;
+                }
+                if (NWUtil.isIpAddressInRange(IpAddressBuilder.getDefaultInstance(extIp), neutronSubnet.getCidr())) {
+                    routerName = routerData.getRouterName();
+                    break;
+                }
+            }
+        }
+
+        return routerName;
     }
 
     static InstanceIdentifier<Routers> buildRouterIdentifier(String routerId) {
