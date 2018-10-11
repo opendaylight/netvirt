@@ -333,6 +333,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         String routerId = vpnUtil.getAssociatedExternalRouter(srcIpStr);
         if (null == routerId) {
             LOG.debug("This ip is not associated with any external router: {}", srcIpStr);
+            return;
         }
         handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName), routerId, dstIp, dstIpStr, elanTag);
     }

@@ -93,6 +93,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -1103,17 +1104,50 @@ public final class VpnUtil {
         InstanceIdentifier<ExtRouters> extRouterInstanceIndentifier =
                 InstanceIdentifier.builder(ExtRouters.class).build();
         Optional<ExtRouters> extRouterData = read(LogicalDatastoreType.CONFIGURATION, extRouterInstanceIndentifier);
-        if (extRouterData.isPresent()) {
-            for (Routers routerData : extRouterData.get().getRouters()) {
-                List<ExternalIps> externalIps = routerData.getExternalIps();
-                for (ExternalIps externalIp : externalIps) {
-                    if (externalIp.getIpAddress().equals(extIp)) {
-                        return routerData.getRouterName();
-                    }
+        if (!extRouterData.isPresent()) {
+            return null;
+        }
+
+        // We need to find the router associated with the src ip of this packet.
+        // This case is either SNAT, in which case the src ip is the same as the
+        // router's external ip, or FIP in which case the src ip is in the router's
+        // external leg's subnet. We first check the SNAT case because it is much
+        // cheaper to do so because it does not require (potentially, there is a
+        // cache) an datastore read of the neutron subnet for each external IP.
+
+        String routerName = null;
+
+        for (Routers routerData : extRouterData.get().getRouters()) {
+            List<ExternalIps> externalIps = routerData.getExternalIps();
+            for (ExternalIps externalIp : externalIps) {
+                if (externalIp.getIpAddress().equals(extIp)) {
+                    routerName = routerData.getRouterName();
+                    break;
                 }
             }
         }
-        return null;
+
+        if (routerName != null) {
+            return routerName;
+        }
+
+        for (Routers routerData : extRouterData.get().getRouters()) {
+            List<ExternalIps> externalIps = routerData.getExternalIps();
+            for (ExternalIps externalIp : externalIps) {
+                Subnet neutronSubnet = neutronVpnService.getNeutronSubnet(externalIp.getSubnetId());
+                if (neutronSubnet == null) {
+                    LOG.warn("Failed to retrieve subnet {} referenced by router {}",
+                            externalIp.getSubnetId(), routerData);
+                    continue;
+                }
+                if (NWUtil.isIpAddressInRange(IpAddressBuilder.getDefaultInstance(extIp), neutronSubnet.getCidr())) {
+                    routerName = routerData.getRouterName();
+                    break;
+                }
+            }
+        }
+
+        return routerName;
     }
 
     static InstanceIdentifier<Routers> buildRouterIdentifier(String routerId) {
