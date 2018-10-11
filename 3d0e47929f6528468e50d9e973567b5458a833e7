@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e50c97af_e15b7067",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 2382,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-11T12:53:25Z",
+      "side": 1,
+      "message": "If you do this change, then for v6InternetBgpvpn, the updateVpnInstanceWithIpFamily will be called twice right, once here and once in associateExternalNetworkToVpn? Can we avoid that?\n\nCan you make sure that the ip family update in associateExtNetworkToVpn() takes care of both V4 and V6 Internet cases?",
+      "range": {
+        "startLine": 2382,
+        "startChar": 62,
+        "endLine": 2382,
+        "endChar": 101
+      },
+      "revId": "3d0e47929f6528468e50d9e973567b5458a833e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
