@@ -22,6 +22,30 @@
       "revId": "3d0e47929f6528468e50d9e973567b5458a833e7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03feeb54_32119c04",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 2382,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-11T14:25:23Z",
+      "side": 1,
+      "message": "Addressed internet VPN instance update with Ip address family in better way. Please review.",
+      "parentUuid": "e50c97af_e15b7067",
+      "range": {
+        "startLine": 2382,
+        "startChar": 62,
+        "endLine": 2382,
+        "endChar": 101
+      },
+      "revId": "3d0e47929f6528468e50d9e973567b5458a833e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
