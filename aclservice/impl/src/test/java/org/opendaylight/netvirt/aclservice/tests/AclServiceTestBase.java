@@ -99,16 +99,20 @@ public abstract class AclServiceTestBase {
     static String IP_PREFIX_2 = "10.0.0.2/32";
     static String IP_PREFIX_3 = "10.0.0.3/32";
     static String IP_PREFIX_4 = "10.0.0.4/32";
+    static String IP_100_PREFIX = "10.0.0.100/32";
+    static String IP_101_PREFIX = "10.0.0.101/32";
     static long ELAN_TAG = 5000L;
 
     static String SUBNET_IP_PREFIX_1 = "10.0.0.0/24";
     static Uuid SUBNET_ID_1 = new Uuid("39add98b-63b7-42e6-8368-ff807eee165e");
     static SubnetInfo SUBNET_INFO_1 = buildSubnetInfo(SUBNET_ID_1, SUBNET_IP_PREFIX_1, IpVersionV4.class, "10.0.0.1");
 
-    static final AllowedAddressPairs AAP_PORT_1 = buildAap(IP_PREFIX_1, PORT_MAC_1);
-    static final AllowedAddressPairs AAP_PORT_2 = buildAap(IP_PREFIX_2, PORT_MAC_2);
-    static final AllowedAddressPairs AAP_PORT_3 = buildAap(IP_PREFIX_3, PORT_MAC_3);
-    static final AllowedAddressPairs AAP_PORT_4 = buildAap(IP_PREFIX_4, PORT_MAC_4);
+    static AllowedAddressPairs AAP_PORT_1;
+    static AllowedAddressPairs AAP_PORT_2;
+    static AllowedAddressPairs AAP_PORT_3;
+    static AllowedAddressPairs AAP_PORT_4;
+    static AllowedAddressPairs AAP_PORT_100;
+    static AllowedAddressPairs AAP_PORT_101;
 
     @Inject DataBroker dataBroker;
     @Inject DataBrokerPairsUtil dataBrokerUtil;
@@ -483,10 +487,12 @@ public abstract class AclServiceTestBase {
     @Test
     public void newInterfaceWithAapIpv4All() throws Exception {
         LOG.info("newInterfaceWithAapIpv4All test - start");
-
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
-        newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1),
-                Arrays.asList(AAP_PORT_2, buildAap(AclConstants.IPV4_ALL_NETWORK, PORT_MAC_2)));
+        List<AllowedAddressPairs> aapList = new ArrayList<>();
+        aapList.add(AAP_PORT_2);
+        aapList.add(buildAap("0.0.0.0/0", PORT_MAC_2));
+        newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), aapList);
+
         dataBrokerUtil.put(new IdentifiedPortSubnetBuilder().interfaceName(PORT_1).addAllSubnetInfo(
                 Collections.singletonList(SUBNET_INFO_1)));
         dataBrokerUtil.put(new IdentifiedPortSubnetBuilder().interfaceName(PORT_2).addAllSubnetInfo(
@@ -510,14 +516,9 @@ public abstract class AclServiceTestBase {
     public void newInterfaceWithAap() throws Exception {
         LOG.info("newInterfaceWithAap test - start");
 
-        // AAP with same MAC and different IP
-        AllowedAddressPairs aapWithSameMac = buildAap("10.0.0.100/32", PORT_MAC_2);
-        // AAP with different MAC and different IP
-        AllowedAddressPairs aapWithDifferentMac = buildAap("10.0.0.101/32", "0D:AA:D8:42:30:A4");
-
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1),
-                Arrays.asList(AAP_PORT_2, aapWithSameMac, aapWithDifferentMac));
+                Arrays.asList(AAP_PORT_2, AAP_PORT_100, AAP_PORT_101));
         dataBrokerUtil.put(new IdentifiedPortSubnetBuilder().interfaceName(PORT_1).addAllSubnetInfo(
                 Collections.singletonList(SUBNET_INFO_1)));
         dataBrokerUtil.put(new IdentifiedPortSubnetBuilder().interfaceName(PORT_2).addAllSubnetInfo(
@@ -637,6 +638,13 @@ public abstract class AclServiceTestBase {
         newElanInterface(ELAN, PORT_2, true);
         newElanInterface(ELAN, PORT_3, true);
         newElanInterface(ELAN, PORT_4, true);
+
+        AAP_PORT_1 = buildAap(IP_PREFIX_1, PORT_MAC_1);
+        AAP_PORT_2 = buildAap(IP_PREFIX_2, PORT_MAC_2);
+        AAP_PORT_3 = buildAap(IP_PREFIX_3, PORT_MAC_3);
+        AAP_PORT_4 = buildAap(IP_PREFIX_4, PORT_MAC_4);
+        AAP_PORT_100 = buildAap(IP_100_PREFIX, PORT_MAC_2);
+        AAP_PORT_101 = buildAap(IP_101_PREFIX, "0D:AA:D8:42:30:A4");
     }
 
 }
