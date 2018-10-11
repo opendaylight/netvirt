@@ -93,6 +93,8 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -1103,17 +1105,43 @@ public final class VpnUtil {
         InstanceIdentifier<ExtRouters> extRouterInstanceIndentifier =
                 InstanceIdentifier.builder(ExtRouters.class).build();
         Optional<ExtRouters> extRouterData = read(LogicalDatastoreType.CONFIGURATION, extRouterInstanceIndentifier);
-        if (extRouterData.isPresent()) {
-            for (Routers routerData : extRouterData.get().getRouters()) {
-                List<ExternalIps> externalIps = routerData.getExternalIps();
-                for (ExternalIps externalIp : externalIps) {
-                    if (externalIp.getIpAddress().equals(extIp)) {
-                        return routerData.getRouterName();
-                    }
+        if (!extRouterData.isPresent()) {
+            return null;
+        }
+
+        String routerName = null;
+
+        for (Routers routerData : extRouterData.get().getRouters()) {
+            List<ExternalIps> externalIps = routerData.getExternalIps();
+            for (ExternalIps externalIp : externalIps) {
+                if (externalIp.getIpAddress().equals(extIp)) {
+                    routerName = routerData.getRouterName();
+                    break;
                 }
             }
         }
-        return null;
+
+        if (routerName != null) {
+            return routerName;
+        }
+
+        for (Routers routerData : extRouterData.get().getRouters()) {
+            List<ExternalIps> externalIps = routerData.getExternalIps();
+            for (ExternalIps externalIp : externalIps) {
+                Subnet neutronSubnet = neutronVpnService.getNeutronSubnet(externalIp.getSubnetId());
+                if (neutronSubnet == null) {
+                    LOG.warn("Failed to retrieve subnet {} referenced by router {}",
+                            externalIp.getSubnetId(), routerData);
+                    continue;
+                }
+                if(NWUtil.isIpAddressInRange(IpAddressBuilder.getDefaultInstance(extIp), neutronSubnet.getCidr())) {
+                    routerName = routerData.getRouterName();
+                    break;
+                }
+            }
+        }
+
+        return routerName;
     }
 
     static InstanceIdentifier<Routers> buildRouterIdentifier(String routerId) {
