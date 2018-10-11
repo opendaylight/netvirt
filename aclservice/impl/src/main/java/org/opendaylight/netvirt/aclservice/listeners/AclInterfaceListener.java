@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -171,6 +172,14 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         }
         if (addedAcls != null && !addedAcls.isEmpty()) {
             aclDataUtil.addOrUpdateAclInterfaceMap(addedAcls, aclInterfaceAfter);
+        }
+        List<AllowedAddressPairs> addedAap = AclServiceUtils.getUpdatedAllowedAddressPairs(aclInterfaceAfter
+                .getAllowedAddressPairs(), aclInterfaceBefore.getAllowedAddressPairs());
+        List<AllowedAddressPairs> deletedAap = AclServiceUtils.getUpdatedAllowedAddressPairs(aclInterfaceBefore
+                .getAllowedAddressPairs(), aclInterfaceAfter.getAllowedAddressPairs());
+        if (deletedAap != null && !deletedAap.isEmpty() || addedAap != null && !addedAap.isEmpty()) {
+            LOG.debug("Update cache by removing interface={}", aclInterfaceAfter.getInterfaceId());
+            aclDataUtil.addOrUpdateAclInterfaceMap(aclInterfaceAfter.getSecurityGroups(), aclInterfaceAfter);
         }
     }
 
