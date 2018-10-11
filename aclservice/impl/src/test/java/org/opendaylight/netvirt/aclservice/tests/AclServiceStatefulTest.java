@@ -16,6 +16,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.r
 
 
 public class AclServiceStatefulTest extends AclServiceTestBase {
+    private String IP_1 = "10.0.0.1";
+    private String IP_2 = "10.0.0.2";
+    private String IP_3 = "10.0.0.3";
+    private String IP_100 = "10.0.0.100";
+    private String IP_101 = "10.0.0.101";
+    private String PREFIX = "32";
 
     public @Rule MethodRule guice = new GuiceRule(new AclServiceModule(),
             new AclServiceTestModule(SecurityGroupMode.Stateful),
@@ -26,56 +32,56 @@ public class AclServiceStatefulTest extends AclServiceTestBase {
 
     @Override
     void newInterfaceCheck() {
-        assertFlowsInAnyOrder(ipv4statefulentries.expectedFlows(PORT_MAC_1));
+        assertFlowsInAnyOrder(ipv4statefulentries.expectedFlows(PORT_MAC_1, IP_1, PREFIX));
     }
 
     @Override
     void newInterfaceWithEtherTypeAclCheck() {
-        assertFlowsInAnyOrder(ipv4statefulentries.etherFlows());
+        assertFlowsInAnyOrder(ipv4statefulentries.etherFlows(IP_1, IP_2, PREFIX));
     }
 
     @Override
     public void newInterfaceWithTcpDstAclCheck() {
-        assertFlowsInAnyOrder(ipv4statefulentries.tcpFlows());
+        assertFlowsInAnyOrder(ipv4statefulentries.tcpFlows(IP_1, IP_2, PREFIX));
     }
 
     @Override
     public void newInterfaceWithUdpDstAclCheck() {
-        assertFlowsInAnyOrder(ipv4statefulentries.udpFlows());
+        assertFlowsInAnyOrder(ipv4statefulentries.udpFlows(IP_1, IP_2, PREFIX));
     }
 
     @Override
     public void newInterfaceWithIcmpAclCheck() {
-        assertFlowsInAnyOrder(ipv4statefulentries.icmpFlows());
+        assertFlowsInAnyOrder(ipv4statefulentries.icmpFlows(IP_1, IP_2, PREFIX));
     }
 
     @Override
     public void newInterfaceWithDstPortRangeCheck() {
-        assertFlowsInAnyOrder(ipv4statefulentries.dstRangeFlows());
+        assertFlowsInAnyOrder(ipv4statefulentries.dstRangeFlows(IP_1, PREFIX));
     }
 
     @Override
     public void newInterfaceWithDstAllPortsCheck() {
-        assertFlowsInAnyOrder(ipv4statefulentries.dstAllFlows());
+        assertFlowsInAnyOrder(ipv4statefulentries.dstAllFlows(IP_1, PREFIX));
     }
 
     @Override
     void newInterfaceWithTwoAclsHavingSameRulesCheck() {
-        assertFlowsInAnyOrder(ipv4statefulentries.icmpFlowsForTwoAclsHavingSameRules());
+        assertFlowsInAnyOrder(ipv4statefulentries.icmpFlowsForTwoAclsHavingSameRules(IP_3, PREFIX));
     }
 
     @Override
     void newInterfaceWithAapIpv4AllCheck() {
-        assertFlowsInAnyOrder(ipv4statefulentries.aapWithIpv4AllFlows());
+        assertFlowsInAnyOrder(ipv4statefulentries.aapWithIpv4AllFlows(IP_1, IP_2, PREFIX));
     }
 
     @Override
     void newInterfaceWithAapCheck() {
-        assertFlowsInAnyOrder(ipv4statefulentries.aapFlows());
+        assertFlowsInAnyOrder(ipv4statefulentries.aapFlows(IP_1, IP_2, IP_100, IP_101, PREFIX));
     }
 
     @Override
     void newInterfaceWithMultipleAclCheck() {
-        assertFlowsInAnyOrder(ipv4statefulentries.multipleAcl());
+        assertFlowsInAnyOrder(ipv4statefulentries.multipleAcl(IP_1, IP_2, PREFIX));
     }
 }
