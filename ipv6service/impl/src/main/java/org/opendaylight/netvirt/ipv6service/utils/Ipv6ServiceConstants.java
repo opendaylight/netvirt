@@ -25,9 +25,11 @@ public interface Ipv6ServiceConstants {
     String DEVICE_OWNER_DHCP = "network:dhcp";
     String DEVICE_OWNER_COMPUTE_NOVA = "compute:nova";
 
-    BigInteger INVALID_DPID = new BigInteger("-1");
+    short RS_PUNT_PROTECTION_FLOW_PRIORITY = 60;
     short DEFAULT_FLOW_PRIORITY = 50;
     short PUNT_NA_FLOW_PRIORITY = 40;
+
+    BigInteger INVALID_DPID = new BigInteger("-1");
     String FLOWID_PREFIX = "IPv6.";
     String FLOWID_SEPARATOR = ".";
 
