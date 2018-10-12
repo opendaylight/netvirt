@@ -2238,7 +2238,7 @@ public final class VpnUtil {
             return;
         }
         jobCoordinator.enqueueJob("VPN-" + vpnName, () -> {
-            VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder();
+            VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder().setVrfId(primaryRd);
             builder.setRd(updatedRdList);
             return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                     OPERATIONAL, tx -> {
