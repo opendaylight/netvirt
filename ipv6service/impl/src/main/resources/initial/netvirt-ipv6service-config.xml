@@ -1,0 +1,3 @@
+<ipv6service-config xmlns="urn:opendaylight:netvirt:ipv6service:config">
+  <router-discovery-punt-timeout>10</router-discovery-punt-timeout>
+</ipv6service-config>
