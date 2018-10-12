@@ -13,6 +13,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
@@ -21,6 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.ipv6util.api.Icmpv6Type;
 import org.opendaylight.genius.ipv6util.api.Ipv6Constants;
 import org.opendaylight.genius.ipv6util.api.Ipv6Util;
@@ -31,6 +35,8 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.NwConstants.NxmOfFieldType;
+import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
@@ -41,6 +47,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6NdTarget;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.ipv6service.VirtualSubnet;
 import org.opendaylight.netvirt.ipv6service.api.IVirtualPort;
@@ -62,6 +69,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.config.rev181010.Ipv6serviceConfig;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -84,11 +92,15 @@ public class Ipv6ServiceUtils {
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalUtil;
+    private final ManagedNewTransactionRunner txRunner;
+    private final Ipv6serviceConfig ipv6serviceConfig;
 
     @Inject
-    public Ipv6ServiceUtils(DataBroker broker, IMdsalApiManager mdsalUtil) {
+    public Ipv6ServiceUtils(DataBroker broker, IMdsalApiManager mdsalUtil, Ipv6serviceConfig ipv6ServiceConfig) {
         this.broker = broker;
         this.mdsalUtil = mdsalUtil;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
+        this.ipv6serviceConfig = ipv6ServiceConfig;
     }
 
     /**
@@ -222,22 +234,54 @@ public class Ipv6ServiceUtils {
         if (dpId == null || dpId.equals(Ipv6ServiceConstants.INVALID_DPID)) {
             return;
         }
-        List<MatchInfo> routerSolicitationMatch = getIcmpv6RSMatch(elanTag);
-        List<InstructionInfo> instructions = new ArrayList<>();
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        // Punt to controller
-        actionsInfos.add(new ActionPuntToController());
-        instructions.add(new InstructionApplyActions(actionsInfos));
-        FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
-                getIPv6FlowRef(dpId, elanTag, "IPv6RS"),Ipv6ServiceConstants.DEFAULT_FLOW_PRIORITY, "IPv6RS", 0, 0,
-                NwConstants.COOKIE_IPV6_TABLE, routerSolicitationMatch, instructions);
+        String flowId = getIPv6FlowRef(dpId, elanTag, "IPv6RS");
         if (addOrRemove == Ipv6ServiceConstants.DEL_FLOW) {
             LOG.trace("Removing IPv6 Router Solicitation Flow DpId {}, elanTag {}", dpId, elanTag);
-            mdsalUtil.removeFlow(rsFlowEntity);
+            txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
+                tx -> mdsalUtil.removeFlow(tx, dpId, flowId, tableId));
         } else {
+            List<ActionInfo> actionsInfos = new ArrayList<>();
+            // Punt to controller
+            actionsInfos.add(new ActionPuntToController());
+
+            int rdPuntTimeout = ipv6serviceConfig.getRouterDiscoveryPuntTimeout();
+            if (isRdPuntProtectionEnabled(rdPuntTimeout)) {
+                actionsInfos.add(getLearnActionForRsPuntProtection(rdPuntTimeout));
+            }
+            List<InstructionInfo> instructions = Arrays.asList(new InstructionApplyActions(actionsInfos));
+            List<MatchInfo> routerSolicitationMatch = getIcmpv6RSMatch(elanTag);
+            FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
+                    flowId,Ipv6ServiceConstants.DEFAULT_FLOW_PRIORITY, "IPv6RS", 0, 0,
+                    NwConstants.COOKIE_IPV6_TABLE, routerSolicitationMatch, instructions);
+
             LOG.trace("Installing IPv6 Router Solicitation Flow DpId {}, elanTag {}", dpId, elanTag);
-            mdsalUtil.installFlow(rsFlowEntity);
+            txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+                tx -> mdsalUtil.addFlow(tx, rsFlowEntity));
         }
+    }
+
+    private ActionLearn getLearnActionForRsPuntProtection(int rdPuntTimeout) {
+        return new ActionLearn(0, rdPuntTimeout, Ipv6ServiceConstants.RS_PUNT_PROTECTION_FLOW_PRIORITY,
+                NwConstants.COOKIE_IPV6_TABLE, 0, NwConstants.IPV6_TABLE, 0, 0,
+                Arrays.asList(
+                        new ActionLearn.MatchFromValue(NwConstants.ETHTYPE_IPV6,
+                                NxmOfFieldType.NXM_OF_ETH_TYPE.getType(),
+                                NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLenInt()),
+                        new ActionLearn.MatchFromValue(IPProtocols.IPV6ICMP.shortValue(),
+                                NxmOfFieldType.NXM_OF_IP_PROTO.getType(),
+                                NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLenInt()),
+                        new ActionLearn.MatchFromValue(Icmpv6Type.ROUTER_SOLICITATION.getValue(),
+                                NxmOfFieldType.NXM_OF_ICMPv6_TYPE.getType(),
+                                NxmOfFieldType.NXM_OF_ICMPv6_TYPE.getFlowModHeaderLenInt()),
+                        new ActionLearn.MatchFromValue((short) 0, NxmOfFieldType.NXM_OF_ICMPv6_CODE.getType(),
+                                NxmOfFieldType.NXM_OF_ICMPv6_CODE.getFlowModHeaderLenInt()),
+                        new ActionLearn.MatchFromField(NxmOfFieldType.OXM_OF_METADATA.getType(),
+                                MetaDataUtil.METADATA_LPORT_TAG_OFFSET, NxmOfFieldType.OXM_OF_METADATA.getType(),
+                                MetaDataUtil.METADATA_LPORT_TAG_OFFSET, MetaDataUtil.METADATA_LPORT_TAG_BITLEN)));
+    }
+
+    private boolean isRdPuntProtectionEnabled(int rdPuntTimeout) {
+        return rdPuntTimeout != 0;
     }
 
     public void installIcmpv6NaForwardFlow(short tableId, IVirtualPort vmPort, BigInteger dpId, Long elanTag,
