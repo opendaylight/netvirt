@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "871a4c69_2490ad4f",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2240,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-13T12:19:51Z",
+      "side": 1,
+      "message": "routerUuidList",
+      "range": {
+        "startLine": 2240,
+        "startChar": 19,
+        "endLine": 2240,
+        "endChar": 29
+      },
+      "revId": "68a6834d443b9c39dadcb62d99f833d983a22d78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dbe4c5f7_8194b616",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2240,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-13T12:19:51Z",
+      "side": 1,
+      "message": "new ArrayList\u003c\u003e() is enough",
+      "range": {
+        "startLine": 2240,
+        "startChar": 46,
+        "endLine": 2240,
+        "endChar": 50
+      },
+      "revId": "68a6834d443b9c39dadcb62d99f833d983a22d78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4c594abb_8b33d1db",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2246,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-13T12:19:51Z",
+      "side": 1,
+      "message": "swap these two statements",
+      "range": {
+        "startLine": 2245,
+        "startChar": 16,
+        "endLine": 2246,
+        "endChar": 23
+      },
+      "revId": "68a6834d443b9c39dadcb62d99f833d983a22d78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
