@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -924,8 +925,8 @@ public class VpnSubnetRouteHandler {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void electNewDpnForSubnetRoute(SubnetOpDataEntryBuilder subOpBuilder, BigInteger oldDpnId, Uuid subnetId,
-                                           Uuid networkId, boolean isBgpVpn) {
+    private void electNewDpnForSubnetRoute(SubnetOpDataEntryBuilder subOpBuilder, @Nullable BigInteger oldDpnId,
+                                           Uuid subnetId, Uuid networkId, boolean isBgpVpn) {
         List<SubnetToDpn> subDpnList = null;
         boolean isRouteAdvertised = false;
         subDpnList = subOpBuilder.getSubnetToDpn();

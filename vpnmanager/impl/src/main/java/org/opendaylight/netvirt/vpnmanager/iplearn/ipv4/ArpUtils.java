@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.vpnmanager.iplearn.ipv4;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
@@ -50,6 +51,7 @@ public final class ArpUtils {
             ingress, lstActionInfo);
     }
 
+    @Nullable
     public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, Long groupId, byte[] abySenderMAC,
             byte[] abyTargetMAC, byte[] abySenderIpAddress, byte[] abyTargetIpAddress, NodeConnectorRef ingress,
             List<ActionInfo> lstActionInfo) {

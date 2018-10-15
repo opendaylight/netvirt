@@ -85,7 +85,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             return;
         }
         if (subnetmap.getVpnId() != null) {
-            if (subnetmap.getNetworkType().equals(NetworkType.VLAN)) {
+            if (NetworkType.VLAN.equals(subnetmap.getNetworkType())) {
                 vpnUtil.addRouterPortToElanDpnListForVlaninAllDpn(subnetmap.getVpnId().getValue());
             }
         }
@@ -145,7 +145,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             return;
         }
         updateVlanDataEntry(subnetmapOriginal.getVpnId(), subnetmapUpdate.getVpnId(), subnetmapUpdate,
-                subnetmapOriginal, elanTag, elanInstanceName);
+                subnetmapOriginal, elanInstanceName);
         if (VpnUtil.getIsExternal(network)) {
             LOG.debug("SubnetMapChangeListener:update: provider subnetwork {} is handling in "
                       + "ExternalSubnetVpnInstanceListener", subnetId.getValue());
@@ -218,14 +218,14 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
     }
 
     private void updateVlanDataEntry(Uuid vpnIdOld, Uuid vpnIdNew, Subnetmap subnetmapUpdate,
-            Subnetmap subnetmapOriginal, Long elanTag, String  elanInstanceName) {
+            Subnetmap subnetmapOriginal, String elanInstanceName) {
         if (vpnIdNew != null && vpnIdOld == null) {
-            if (elanInstanceName != null && subnetmapUpdate.getNetworkType().equals(NetworkType.VLAN)) {
+            if (elanInstanceName != null && NetworkType.VLAN.equals(subnetmapUpdate.getNetworkType())) {
                 vpnUtil.addRouterPortToElanDpnListForVlaninAllDpn(vpnIdNew.getValue());
             }
         }
         if (vpnIdOld != null && vpnIdNew == null) {
-            if (subnetmapOriginal.getNetworkType().equals(NetworkType.VLAN)) {
+            if (NetworkType.VLAN.equals(subnetmapOriginal.getNetworkType())) {
                 vpnUtil.removeRouterPortFromElanDpnListForVlanInAllDpn(elanInstanceName, subnetmapOriginal
                         .getRouterInterfacePortId().getValue(), vpnIdOld.getValue());
             }
