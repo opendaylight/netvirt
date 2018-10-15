@@ -16,6 +16,7 @@ import com.google.common.base.Preconditions;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -139,7 +140,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
     }
 
     public void addToLabelMapper(Long label, BigInteger dpnId, String prefix, List<String> nextHopIpList, Long vpnId,
-            String vpnInterfaceName, Long elanTag, boolean isSubnetRoute, String rd) {
+            @Nullable String vpnInterfaceName, @Nullable Long elanTag, boolean isSubnetRoute, String rd) {
         Preconditions.checkNotNull(label, "addToLabelMapper: label cannot be null or empty!");
         Preconditions.checkNotNull(prefix, "addToLabelMapper: prefix cannot be null or empty!");
         Preconditions.checkNotNull(vpnId, "addToLabelMapper: vpnId cannot be null or empty!");
@@ -197,9 +198,10 @@ public abstract class L3vpnPopulator implements VpnPopulator {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void addPrefixToBGP(String rd, String primaryRd, String macAddress, String prefix, String nextHopIp,
-                                  VrfEntry.EncapType encapType, long label, long l3vni, String gatewayMac,
-                                  RouteOrigin origin, TypedWriteTransaction<Configuration> writeConfigTxn) {
+    protected void addPrefixToBGP(String rd, String primaryRd, @Nullable String macAddress, String prefix,
+                                  String nextHopIp, VrfEntry.EncapType encapType, long label, long l3vni,
+                                  String gatewayMac, RouteOrigin origin,
+                                  TypedWriteTransaction<Configuration> writeConfigTxn) {
         try {
             List<String> nextHopList = Collections.singletonList(nextHopIp);
             LOG.info("ADD: addPrefixToBGP: Adding Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,

@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -47,6 +48,7 @@ public class SubnetOpDpnManager {
         broker = db;
     }
 
+    @Nullable
     private SubnetToDpn addDpnToSubnet(Uuid subnetId, BigInteger dpnId) {
         try {
             InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
@@ -145,7 +147,7 @@ public class SubnetOpDpnManager {
         return subDpn;
     }
 
-    public void addPortOpDataEntry(String intfName, Uuid subnetId, BigInteger dpnId) {
+    public void addPortOpDataEntry(String intfName, Uuid subnetId, @Nullable BigInteger dpnId) {
         try {
             // Add to PortOpData as well.
             PortOpDataEntryBuilder portOpBuilder = null;

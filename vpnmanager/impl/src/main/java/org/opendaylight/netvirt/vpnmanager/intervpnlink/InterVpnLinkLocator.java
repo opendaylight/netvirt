@@ -12,9 +12,11 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -85,7 +87,7 @@ public class InterVpnLinkLocator {
         int pendingDPNs = numberOfDpns - result.size();
 
         List<BigInteger> dpnsToAvoid = findDpnsWithSimilarIVpnLinks(interVpnLink, allInterVpnLinks);
-        result.addAll(dpnIdPool.stream().filter(dpId -> dpnsToAvoid == null || !dpnsToAvoid.contains(dpId))
+        result.addAll(dpnIdPool.stream().filter(dpId -> !dpnsToAvoid.contains(dpId))
                                .limit(pendingDPNs).collect(Collectors.toList()));
 
         int currentNbrOfItems = result.size();
@@ -133,6 +135,7 @@ public class InterVpnLinkLocator {
      * @return the list of dpnIds where the specified InterVpnLink should not
      *     be installed
      */
+    @Nonnull
     private List<BigInteger> findDpnsWithSimilarIVpnLinks(InterVpnLink interVpnLink,
                                                           List<InterVpnLinkDataComposite> allInterVpnLinks) {
         List<InterVpnLinkDataComposite> sameGroupInterVpnLinks = findInterVpnLinksSameGroup(interVpnLink,
@@ -158,8 +161,8 @@ public class InterVpnLinkLocator {
             return new ArrayList<>();
         }
         return vpnTargets.stream()
-            .filter(target -> target.getVrfRTType().equals(rtType)
-                || target.getVrfRTType().equals(VpnTarget.VrfRTType.Both))
+            .filter(target -> Objects.equals(target.getVrfRTType(), rtType)
+                || Objects.equals(target.getVrfRTType(), VpnTarget.VrfRTType.Both))
             .map(VpnTarget::getVrfRTValue)
             .collect(Collectors.toList());
     }
@@ -175,7 +178,7 @@ public class InterVpnLinkLocator {
         if (irts1 == null && irts2 == null) {
             return true;
         }
-        if (irts1 == null && irts2 != null || irts1 != null && irts2 == null) {
+        if (irts1 == null || irts2 == null) {
             return false;
         }
 

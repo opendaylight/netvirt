@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.vpnmanager.iplearn;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
@@ -26,6 +27,6 @@ public class IpMonitorStartTask implements Callable<List<ListenableFuture<Void>>
     @Override
     public List<ListenableFuture<Void>> call() {
         alivenessMonitorUtils.startIpMonitoring(macEntry, arpMonitorProfileId);
-        return null;
+        return Collections.emptyList();
     }
 }

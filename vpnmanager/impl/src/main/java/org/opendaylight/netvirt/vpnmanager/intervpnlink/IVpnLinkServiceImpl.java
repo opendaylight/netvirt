@@ -7,7 +7,9 @@
  */
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
+import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -17,7 +19,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -49,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
@@ -160,7 +165,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     public void leakRoute(InterVpnLinkDataComposite interVpnLink, String srcVpnUuid, String dstVpnUuid,
-                          String prefix, Long label, RouteOrigin forcedOrigin) {
+                          String prefix, Long label, @Nullable RouteOrigin forcedOrigin) {
         String ivpnLinkName = interVpnLink.getInterVpnLinkName();
         // The source VPN must participate in the InterVpnLink
         Preconditions.checkArgument(interVpnLink.isVpnLinked(srcVpnUuid),
@@ -307,8 +312,8 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         String vpn2Endpoint = vpnLink.getOtherEndpointIpAddr(vpn2Uuid);
         List<VrfEntry> allVpnVrfEntries = vpnUtil.getAllVrfEntries(vpn1Rd);
         for (VrfEntry vrfEntry : allVpnVrfEntries) {
-            vrfEntry.getRoutePaths().stream()
-                    .filter(routePath -> routePath.getNexthopAddress().equals(vpn2Endpoint))
+            requireNonNullElse(vrfEntry.getRoutePaths(), Collections.<RoutePaths>emptyList()).stream()
+                    .filter(routePath -> Objects.equals(routePath.getNexthopAddress(), vpn2Endpoint))
                     .forEach(routePath -> {
                         // Vpn1 has a route pointing to Vpn2's endpoint. Forcing the leaking of the route will update
                         // the BGP accordingly
@@ -354,7 +359,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             return new HashMap<>();
         }
         Map<String,String> vmap = new HashMap<>();
-        final List<VpnMap> VpnMapList = optVpnMaps.get().getVpnMap();
+        final List<VpnMap> VpnMapList = requireNonNullElse(optVpnMaps.get().getVpnMap(), emptyList());
         for (VpnMap map : VpnMapList) {
             if (map.getRouterIds() == null) {
                 continue;
@@ -390,7 +395,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
 
             return;
         }
-        List<Router> routers = routerOpData.get().getRouter();
+        List<Router> routers = requireNonNullElse(routerOpData.get().getRouter(), emptyList());
         for (Router router : routers) {
             String vpnId = routerXL3VpnMap.get(router.getUuid().getValue());
             if (vpnId == null) {
