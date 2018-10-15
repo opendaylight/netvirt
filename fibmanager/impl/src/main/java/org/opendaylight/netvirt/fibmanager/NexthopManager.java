@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.fibmanager;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
+import static org.opendaylight.netvirt.fibmanager.FibUtil.nullToEmpty;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -20,9 +21,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -283,7 +286,7 @@ public class NexthopManager implements AutoCloseable {
                 }
             }
             List<ActionInfo> listActionInfo = new ArrayList<>();
-            for (Action action : actions) {
+            for (Action action : nullToEmpty(actions)) {
                 actionKey = action.key().getOrder() + actionKey;
                 org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action
                     actionClass = action.getAction();
@@ -317,6 +320,7 @@ public class NexthopManager implements AutoCloseable {
         return Collections.emptyList();
     }
 
+    @Nullable
     protected String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {
         Class<? extends TunnelTypeBase> tunType = getReqTunType(getReqTransType().toUpperCase(Locale.getDefault()));
         Future<RpcResult<GetTunnelInterfaceNameOutput>> result;
@@ -338,6 +342,7 @@ public class NexthopManager implements AutoCloseable {
         return null;
     }
 
+    @Nullable
     protected String getTunnelInterfaceName(BigInteger srcDpId, org.opendaylight.yang.gen.v1.urn.ietf.params
         .xml.ns.yang.ietf.inet.types.rev130715.IpAddress dstIp, Class<? extends TunnelTypeBase> tunnelType) {
         Future<RpcResult<GetInternalOrExternalInterfaceNameOutput>> result;
@@ -520,6 +525,7 @@ public class NexthopManager implements AutoCloseable {
         return id;
     }
 
+    @Nullable
     protected VpnNexthop getVpnNexthop(long vpnId, String ipAddress) {
 
         // check if vpn node is there
@@ -530,9 +536,9 @@ public class NexthopManager implements AutoCloseable {
         Optional<VpnNexthops> vpnNexthops = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (vpnNexthops.isPresent()) {
             // get nexthops list for vpn
-            List<VpnNexthop> nexthops = vpnNexthops.get().getVpnNexthop();
+            List<VpnNexthop> nexthops = nullToEmpty(vpnNexthops.get().getVpnNexthop());
             for (VpnNexthop nexthop : nexthops) {
-                if (nexthop.getIpAddress().equals(ipAddress)) {
+                if (Objects.equals(nexthop.getIpAddress(), ipAddress)) {
                     // return nexthop
                     LOG.trace("VpnNextHop : {}", nexthop);
                     return nexthop;
@@ -543,8 +549,9 @@ public class NexthopManager implements AutoCloseable {
         return null;
     }
 
+    @Nullable
     public AdjacencyResult getRemoteNextHopPointer(BigInteger remoteDpnId, long vpnId, String prefixIp,
-            String nextHopIp, Class<? extends TunnelTypeBase> tunnelType) {
+            @Nullable String nextHopIp, Class<? extends TunnelTypeBase> tunnelType) {
         String egressIfName = null;
         LOG.trace("getRemoteNextHopPointer: input [remoteDpnId {}, vpnId {}, prefixIp {}, nextHopIp {} ]", remoteDpnId,
             vpnId, prefixIp, nextHopIp);
@@ -570,10 +577,10 @@ public class NexthopManager implements AutoCloseable {
                 prefixIp) : null;
     }
 
+    @Nullable
     public BigInteger getDpnForPrefix(long vpnId, String prefixIp) {
         VpnNexthop vpnNexthop = getVpnNexthop(vpnId, prefixIp);
-        BigInteger localDpnId = vpnNexthop == null ? null : vpnNexthop.getDpnId();
-        return localDpnId;
+        return vpnNexthop == null ? null : vpnNexthop.getDpnId();
     }
 
     private void removeVpnNexthopFromDS(long vpnId, String ipPrefix) {
@@ -593,7 +600,7 @@ public class NexthopManager implements AutoCloseable {
             if (FibUtil.lockCluster(lockManager, nextHopLockStr, WAIT_TIME_TO_ACQUIRE_LOCK)) {
                 VpnNexthop nh = getVpnNexthop(vpnId, primaryIpAddress);
                 if (nh != null) {
-                    List<IpAdjacencies> prefixesList = nh.getIpAdjacencies();
+                    List<IpAdjacencies> prefixesList = new ArrayList<>(nullToEmpty(nh.getIpAdjacencies()));
                     IpAdjacencies prefix = new IpAdjacenciesBuilder().setIpAdjacency(currDestIpPrefix).build();
                     prefixesList.remove(prefix);
                     if (prefixesList.isEmpty()) { //remove the group only if there are no more flows using this group
@@ -659,7 +666,7 @@ public class NexthopManager implements AutoCloseable {
                 MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, getConfTransportTypeIdentifier());
 
             if (configuredTransTypeFromConfig.isPresent()) {
-                if (configuredTransTypeFromConfig.get().getTransportType().equals(TunnelTypeGre.class)) {
+                if (TunnelTypeGre.class.equals(configuredTransTypeFromConfig.get().getTransportType())) {
                     configuredTransportTypeL3VPN = L3VPNTransportTypes.GRE;
                 } else {
                     configuredTransportTypeL3VPN = L3VPNTransportTypes.VxLAN;
@@ -730,6 +737,7 @@ public class NexthopManager implements AutoCloseable {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
+    @Nullable
     private String getTunnelRemoteNextHopPointer(BigInteger remoteDpnId, String nextHopIp,
                                                  Class<? extends TunnelTypeBase> tunnelType) {
         if (nextHopIp != null && !nextHopIp.isEmpty()) {
@@ -823,14 +831,12 @@ public class NexthopManager implements AutoCloseable {
                 return false;
             }
 
-            boolean result = false;
             if (getClass() != obj.getClass()) {
-                return result;
+                return false;
             } else {
                 AdjacencyResult other = (AdjacencyResult) obj;
-                result = interfaceName.equals(other.interfaceName);
+                return interfaceName.equals(other.interfaceName);
             }
-            return result;
         }
     }
 
@@ -904,15 +910,15 @@ public class NexthopManager implements AutoCloseable {
     }
 
     long createNextHopGroups(Long vpnId, String rd, BigInteger dpnId, VrfEntry vrfEntry,
-            Routes routes, List<Routes> vpnExtraRoutes) {
+            @Nullable Routes routes, List<Routes> vpnExtraRoutes) {
         List<BucketInfo> localBucketInfo = new ArrayList<>();
         List<Routes> clonedVpnExtraRoutes  = new ArrayList<>(vpnExtraRoutes);
         if (clonedVpnExtraRoutes.contains(routes)) {
             localBucketInfo.addAll(getBucketsForLocalNexthop(vpnId, dpnId, vrfEntry, routes));
             clonedVpnExtraRoutes.remove(routes);
         }
-        List<BucketInfo> remoteBucketInfo = new ArrayList<>();
-        remoteBucketInfo.addAll(getBucketsForRemoteNexthop(vpnId, dpnId, vrfEntry, rd, clonedVpnExtraRoutes));
+        List<BucketInfo> remoteBucketInfo =
+            new ArrayList<>(getBucketsForRemoteNexthop(vpnId, dpnId, vrfEntry, rd, clonedVpnExtraRoutes));
         return setupLoadBalancingNextHop(vpnId, dpnId,
             vrfEntry.getDestPrefix(), localBucketInfo, remoteBucketInfo);
     }
@@ -925,7 +931,7 @@ public class NexthopManager implements AutoCloseable {
                     routes.getNexthopIpList());
         }
         List<BucketInfo> listBucketInfo = new CopyOnWriteArrayList<>();
-        routes.getNexthopIpList().parallelStream().forEach(nextHopIp -> {
+        nullToEmpty(routes.getNexthopIpList()).parallelStream().forEach(nextHopIp -> {
             String localNextHopIP;
             if (isIpv4Address(nextHopIp)) {
                 localNextHopIP = nextHopIp + NwConstants.IPV4PREFIX;
@@ -955,7 +961,7 @@ public class NexthopManager implements AutoCloseable {
             List<Routes> vpnExtraRoutes) {
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         Map<String, List<ActionInfo>> egressActionMap = new HashMap<>();
-        vpnExtraRoutes.forEach(vpnExtraRoute -> vpnExtraRoute.getNexthopIpList().forEach(nextHopIp -> {
+        vpnExtraRoutes.forEach(vpnExtraRoute -> nullToEmpty(vpnExtraRoute.getNexthopIpList()).forEach(nextHopIp -> {
             String nextHopPrefixIp;
             if (isIpv4Address(nextHopIp)) {
                 nextHopPrefixIp = nextHopIp + NwConstants.IPV4PREFIX;
@@ -1091,7 +1097,7 @@ public class NexthopManager implements AutoCloseable {
                 LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
                         interfaceName, rpcResult.getErrors());
             } else {
-                actions = rpcResult.getResult().getAction();
+                actions = nullToEmpty(rpcResult.getResult().getAction());
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when egress actions for interface {}", interfaceName, e);
@@ -1121,7 +1127,7 @@ public class NexthopManager implements AutoCloseable {
                 if (!dpnLbNextHops.isPresent()) {
                     return;
                 }
-                List<String> nextHopKeys = dpnLbNextHops.get().getNexthopKey();
+                List<String> nextHopKeys = nullToEmpty(dpnLbNextHops.get().getNexthopKey());
                 for (String nextHopKey : nextHopKeys) {
                     Optional<Nexthops> optionalNextHops = fibUtil.getNexthops(nextHopKey);
                     if (!optionalNextHops.isPresent()) {
@@ -1161,7 +1167,7 @@ public class NexthopManager implements AutoCloseable {
             if (!dpnLbNextHops.isPresent()) {
                 return;
             }
-            List<String> nextHopKeys = dpnLbNextHops.get().getNexthopKey();
+            List<String> nextHopKeys = nullToEmpty(dpnLbNextHops.get().getNexthopKey());
             for (String nextHopKey : nextHopKeys) {
                 Optional<Nexthops> optionalNextHops = fibUtil.getNexthops(nextHopKey);
                 if (!optionalNextHops.isPresent()) {

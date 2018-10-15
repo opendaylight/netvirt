@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.fibmanager;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
@@ -15,18 +16,18 @@ import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CR
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
-
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -218,6 +219,7 @@ public class FibUtil {
         return operTx.read(getVpnInstanceOpDataIdentifier(rd)).get();
     }
 
+    @Nullable
     VpnInstanceOpDataEntry getVpnInstance(String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id =
                 InstanceIdentifier.create(VpnInstanceOpData.class)
@@ -231,17 +233,20 @@ public class FibUtil {
         return rd + FibConstants.SEPARATOR + prefix;
     }
 
+    @Nullable
     Prefixes getPrefixToInterface(Long vpnId, String ipPrefix) {
         Optional<Prefixes> localNextHopInfoData = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
             getPrefixToInterfaceIdentifier(vpnId, ipPrefix));
         return localNextHopInfoData.isPresent() ? localNextHopInfoData.get() : null;
     }
 
+    @Nullable
     static Prefixes getPrefixToInterface(TypedReadTransaction<Operational> operTx, Long vpnId, String ipPrefix)
             throws ExecutionException, InterruptedException {
         return operTx.read(getPrefixToInterfaceIdentifier(vpnId, ipPrefix)).get().orNull();
     }
 
+    @Nullable
     String getMacAddressFromPrefix(String ifName, String vpnName, String ipPrefix) {
         Optional<Adjacency> adjacencyData = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                        getAdjacencyIdentifierOp(ifName, vpnName, ipPrefix));
@@ -287,6 +292,7 @@ public class FibUtil {
                 getVpnInstanceOpData(rd).toJavaUtil().map(VpnInstanceOpDataEntry::getVpnInstanceName));
     }
 
+    @Nullable
     public String getVpnNameFromId(long vpnId) {
         InstanceIdentifier<VpnIds> id = getVpnIdToVpnInstanceIdentifier(vpnId);
         return MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
@@ -442,8 +448,8 @@ public class FibUtil {
             }
             java.util.Optional<RoutePaths> optRoutePath =
                     routePaths.stream()
-                              .filter(routePath -> routePath.getNexthopAddress().equals(
-                                    nextHopToRemove)).findFirst();
+                        .filter(
+                            routePath -> Objects.equals(routePath.getNexthopAddress(), nextHopToRemove)).findFirst();
             if (!optRoutePath.isPresent()) {
                 LOG.error("Unable to find a routePath that contains the given nextHop to remove {}", nextHopToRemove);
                 return;
@@ -563,11 +569,12 @@ public class FibUtil {
             return java.util.Optional.empty();
         }
         return routePaths.stream()
-                .filter(routePath -> routePath.getNexthopAddress().equals(nextHopIp))
+                .filter(routePath -> Objects.equals(routePath.getNexthopAddress(), nextHopIp))
                 .findFirst()
                 .map(RoutePaths::getLabel);
     }
 
+    @Nullable
     public StateTunnelList getTunnelState(String interfaceName) throws ReadFailedException {
         Optional<StateTunnelList> tunnelStateOptional = iitmProvider.getTunnelState(interfaceName);
         if (tunnelStateOptional.isPresent()) {
@@ -588,6 +595,7 @@ public class FibUtil {
         return id;
     }
 
+    @Nullable
     public org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
         .state.Interface getInterfaceStateFromOperDS(String interfaceName) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
@@ -715,7 +723,7 @@ public class FibUtil {
     public static void removeOrUpdateNextHopInfo(BigInteger dpnId, String nextHopKey, String groupId,
             Nexthops nexthops, TypedWriteTransaction<Operational> tx) {
         InstanceIdentifier<Nexthops> nextHopsId = getNextHopsIdentifier(nextHopKey);
-        List<String> targetDeviceIds = nexthops.getTargetDeviceId();
+        List<String> targetDeviceIds = new ArrayList<>(nullToEmpty(nexthops.getTargetDeviceId()));
         targetDeviceIds.remove(dpnId.toString());
         if (targetDeviceIds.isEmpty()) {
             tx.delete(nextHopsId);
@@ -892,5 +900,11 @@ public class FibUtil {
             LOG.warn("Failed to read interfaces with error {}", e.getMessage());
         }
         return false;
+    }
+
+    // TODO Replace this with mdsal's DataObjectUtils.nullToEmpty when upgrading to mdsal 3
+    @Nonnull
+    public static <T> List<T> nullToEmpty(final @Nullable List<T> input) {
+        return input != null ? input : emptyList();
     }
 }

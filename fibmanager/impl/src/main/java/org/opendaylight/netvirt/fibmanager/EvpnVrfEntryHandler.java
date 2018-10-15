@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.netvirt.fibmanager.FibUtil.nullToEmpty;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import java.util.Objects;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -148,7 +150,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             //Handle extra routes and imported routes
             Routes extraRoute = getVpnToExtraroute(vpnId, rd, vrfEntry.getDestPrefix());
             if (extraRoute != null) {
-                for (String nextHopIp : extraRoute.getNexthopIpList()) {
+                for (String nextHopIp : nullToEmpty(extraRoute.getNexthopIpList())) {
                     LOG.info("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
                     if (nextHopIp != null) {
                         localNextHopInfo = getFibUtil().getPrefixToInterface(vpnId, nextHopIp + "/32");
@@ -235,7 +237,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             String prefix = adjacencyResult.getPrefix();
             Prefixes prefixInfo = getFibUtil().getPrefixToInterface(vpnId, prefix);
             String interfaceName = prefixInfo.getVpnInterfaceName();
-            if (vrfEntry.getOrigin().equals(RouteOrigin.BGP.getValue()) || isNatPrefix) {
+            if (RouteOrigin.BGP.getValue().equals(vrfEntry.getOrigin()) || isNatPrefix) {
                 tunnelId = BigInteger.valueOf(vrfEntry.getL3vni());
             } else if (FibUtil.isVxlanNetwork(prefixInfo.getNetworkType())) {
                 tunnelId = BigInteger.valueOf(prefixInfo.getSegmentationId());
@@ -307,7 +309,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                     } else {
                         for (BigInteger localDpnId : localDpnIdList) {
                             for (VpnToDpnList curDpn2 : vpnToDpnList) {
-                                if (!curDpn2.getDpnId().equals(localDpnId)) {
+                                if (!Objects.equals(curDpn2.getDpnId(), localDpnId)) {
                                     if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
                                         if (curDpn2.getDpnState() == VpnToDpnList.DpnState.Active) {
                                             bgpRouteVrfEntryHandler.deleteRemoteRoute(localDpnId, curDpn2.getDpnId(),
