@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -521,6 +522,7 @@ public class NaptEventHandler {
         return new FlowRef(flowInstanceId);
     }
 
+    @Nullable
     private static List<MatchInfo> buildAndGetMatchInfo(String ip, int port, short tableId,
                                                         NAPTEntryEvent.Protocol protocol, long segmentId) {
         MatchInfo ipMatchInfo = null;
@@ -572,6 +574,7 @@ public class NaptEventHandler {
         return matchInfo;
     }
 
+    @Nonnull
     private static List<InstructionInfo> buildAndGetSetActionInstructionInfo(String ipAddress, int port,
                                                                              long segmentId, long vpnId,
                                                                              short tableId,
@@ -611,7 +614,7 @@ public class NaptEventHandler {
             default:
                 LOG.error("buildAndGetSetActionInstructionInfo : Neither OUTBOUND_NAPT_TABLE nor "
                         + "INBOUND_NAPT_TABLE matches with input table id {}", tableId);
-                return null;
+                return Collections.emptyList();
         }
 
         listActionInfo.add(ipActionInfo);
@@ -645,6 +648,7 @@ public class NaptEventHandler {
                 + "for SNAT ({}:{}) session:{}ms", tableId, dpnId, ip, port, System.currentTimeMillis() - startTime);
     }
 
+    @Nullable
     @SuppressFBWarnings("PZLA_PREFER_ZERO_LENGTH_ARRAYS")
     protected byte[] buildNaptPacketOut(Ethernet etherPkt) {
         LOG.debug("removeNatFlows : About to build Napt Packet Out");

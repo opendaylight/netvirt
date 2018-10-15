@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -177,9 +178,7 @@ public class ExternalNetworkGroupInstaller {
 
         coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + subnetName + extInterface, () -> {
             GroupEntity groupEntity = buildExtNetGroupEntity(macAddress, subnetName, groupId, extInterface, dpnId);
-            if (groupEntity != null) {
-                mdsalManager.syncInstallGroup(groupEntity);
-            }
+            mdsalManager.syncInstallGroup(groupEntity);
             return Collections.emptyList();
         });
     }
@@ -248,6 +247,7 @@ public class ExternalNetworkGroupInstaller {
         return MDSALUtil.buildGroupEntity(dpnId, groupId, subnetName, GroupTypes.GroupAll, listBucketInfo);
     }
 
+    @Nullable
     private GroupEntity buildEmptyExtNetGroupEntity(String subnetName, long groupId, String extInterface) {
         BigInteger dpId = NatUtil.getDpnForInterface(odlInterfaceRpcService, extInterface);
         if (BigInteger.ZERO.equals(dpId)) {

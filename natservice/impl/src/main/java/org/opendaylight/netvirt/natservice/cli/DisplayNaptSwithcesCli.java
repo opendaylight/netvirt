@@ -11,7 +11,9 @@ package org.opendaylight.netvirt.natservice.cli;
 import com.google.common.base.Optional;
 import java.io.PrintStream;
 import java.math.BigInteger;
+import java.util.Collections;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -40,13 +42,15 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    @Nullable
+    protected Object doExecute() {
         PrintStream ps = session.getConsole();
         Optional<NaptSwitches> npatSwitches = NatUtil.getAllPrimaryNaptSwitches(dataBroker);
         ps.printf(String.format(" %-36s  %-20s  %-20s %n", "Router Id ", "Datapath Node Id", "Managment Ip Address"));
         ps.printf("-------------------------------------------------------------------------------------------%n");
         if (npatSwitches.isPresent()) {
-            for (RouterToNaptSwitch routerToNaptSwitch : npatSwitches.get().getRouterToNaptSwitch()) {
+            for (RouterToNaptSwitch routerToNaptSwitch : NatUtil.requireNonNullElse(
+                    npatSwitches.get().getRouterToNaptSwitch(), Collections.<RouterToNaptSwitch>emptyList())) {
                 ps.printf(String.format(" %-36s  %-20s  %-20s %n", routerToNaptSwitch.getRouterName(),
                      routerToNaptSwitch.getPrimarySwitchId(), getDpnLocalIp(routerToNaptSwitch.getPrimarySwitchId())));
             }
@@ -73,10 +77,12 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
                 LogicalDatastoreType.OPERATIONAL, nodeId);
     }
 
+    @Nullable
     private String getDpnLocalIp(BigInteger dpId) {
         return getPortsNode(dpId).toJavaUtil().map(node -> getOpenvswitchOtherConfig(node, LOCAL_IP)).orElse(null);
     }
 
+    @Nullable
     private String getOpenvswitchOtherConfig(Node node, String key) {
         OvsdbNodeAugmentation ovsdbNode = node.augmentation(OvsdbNodeAugmentation.class);
         if (ovsdbNode == null) {
@@ -88,7 +94,7 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
 
         if (ovsdbNode != null && ovsdbNode.getOpenvswitchOtherConfigs() != null) {
             for (OpenvswitchOtherConfigs openvswitchOtherConfigs : ovsdbNode.getOpenvswitchOtherConfigs()) {
-                if (openvswitchOtherConfigs.getOtherConfigKey().equals(key)) {
+                if (key.equals(openvswitchOtherConfigs.getOtherConfigKey())) {
                     return openvswitchOtherConfigs.getOtherConfigValue();
                 }
             }
@@ -110,7 +116,8 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
 
     }
 
-    private OvsdbBridgeAugmentation extractBridgeAugmentation(Node node) {
+    @Nullable
+    private OvsdbBridgeAugmentation extractBridgeAugmentation(@Nullable Node node) {
         if (node == null) {
             return null;
         }

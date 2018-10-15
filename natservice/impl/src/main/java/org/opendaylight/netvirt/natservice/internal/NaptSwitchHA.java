@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -137,7 +138,7 @@ public class NaptSwitchHA {
     }
 
     protected void removeSnatFlowsInOldNaptSwitch(String routerName, Long routerId, BigInteger naptSwitch,
-                                                  Map<String, Long> externalIpmap,
+                                                  @Nullable Map<String, Long> externalIpmap,
                                                   TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
 
@@ -508,6 +509,7 @@ public class NaptSwitchHA {
         return true;
     }
 
+    @Nullable
     private String getExtNetworkVpnName(String routerName, Uuid networkId) {
         if (networkId == null) {
             LOG.error("getExtNetworkVpnName : networkId is null for the router ID {}", routerName);
@@ -737,6 +739,7 @@ public class NaptSwitchHA {
         LOG.debug("modifySnatGroupEntry : modified SnatMissEntry for dpnId {} of router {}", dpnId, routerName);
     }
 
+    @Nullable
     protected String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {
         Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
         RpcResult<GetTunnelInterfaceNameOutput> rpcResult;

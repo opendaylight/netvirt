@@ -15,6 +15,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -219,7 +221,8 @@ public final class NeutronUtils {
         }
     }
 
-    public static List<Uuid> getVpnMapRouterIdsListUuid(List<RouterIds> routerIds) {
+    @Nonnull
+    public static List<Uuid> getVpnMapRouterIdsListUuid(@Nullable List<RouterIds> routerIds) {
         if (routerIds == null) {
             return Collections.emptyList();
         }

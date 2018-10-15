@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
+import javax.annotation.Nullable;
 import org.opendaylight.netvirt.natservice.internal.NaptPacketInHandler.NatPacketProcessingState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 
@@ -23,7 +24,7 @@ public class NAPTEntryEvent {
     private final NatPacketProcessingState state;
 
     NAPTEntryEvent(String ipAddress, int portNumber, Long routerId, Operation op, Protocol protocol,
-            PacketReceived packetReceived, boolean pktProcessed, NatPacketProcessingState state) {
+            @Nullable PacketReceived packetReceived, boolean pktProcessed, @Nullable NatPacketProcessingState state) {
         this.ipAddress = ipAddress;
         this.portNumber = portNumber;
         this.routerId = routerId;

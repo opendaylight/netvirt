@@ -11,15 +11,19 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.net.util.SubnetUtils;
@@ -221,6 +225,7 @@ public class NaptManager {
      */
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
+    @Nullable
     public SessionAddress getExternalAddressMapping(long segmentId, SessionAddress sourceAddress,
                                                     NAPTEntryEvent.Protocol protocol) {
         LOG.debug("getExternalAddressMapping : called with segmentId {}, internalIp {} and port {}",
@@ -527,6 +532,7 @@ public class NaptManager {
             .child(IpPortMap.class, new IpPortMapKey(internal)).build();
     }
 
+    @Nullable
     private SessionAddress checkIpPortMap(long segmentId, String internalIpPort,
             NAPTEntryEvent.Protocol protocol) {
         LOG.debug("checkIpPortMap : called with segmentId {} and internalIpPort {}",
@@ -555,6 +561,7 @@ public class NaptManager {
         return null;
     }
 
+    @Nullable
     protected String checkIpMap(long segmentId, String internalIp) {
         LOG.debug("checkIpMap : called with segmentId {} and internalIp {}", segmentId, internalIp);
         String externalIp;
@@ -564,9 +571,8 @@ public class NaptManager {
         InstanceIdentifier<IpMapping> id = idBuilder.build();
         Optional<IpMapping> ipMapping = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (ipMapping.isPresent()) {
-            List<IpMap> ipMaps = ipMapping.get().getIpMap();
-            for (IpMap ipMap : ipMaps) {
-                if (ipMap.getInternalIp().equals(internalIp)) {
+            for (IpMap ipMap : requireNonNullElse(ipMapping.get().getIpMap(), Collections.<IpMap>emptyList())) {
+                if (Objects.equals(ipMap.getInternalIp(), internalIp)) {
                     LOG.debug("checkIpMap : IpMap : {}", ipMap);
                     externalIp = ipMap.getExternalIp();
                     LOG.debug("checkIpMap : successfully returning externalIp {}", externalIp);
@@ -681,6 +687,7 @@ public class NaptManager {
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
+    @Nullable
     protected String getExternalIpAllocatedForSubnet(long segmentId, String internalIp) {
         InstanceIdentifierBuilder<IpMap> idBuilder = InstanceIdentifier.builder(IntextIpMap.class)
             .child(IpMapping.class, new IpMappingKey(segmentId))
@@ -699,12 +706,10 @@ public class NaptManager {
             .child(IpMapping.class, new IpMappingKey(segmentId));
         InstanceIdentifier<IpMapping> id = idBuilder.build();
         // Get all externalIps and decrement their counters before deleting the ipmap
-        String externalIp = null;
         Optional<IpMapping> ipMapping = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (ipMapping.isPresent()) {
-            List<IpMap> ipMaps = ipMapping.get().getIpMap();
-            for (IpMap ipMap : ipMaps) {
-                externalIp = ipMap.getExternalIp();
+            for (IpMap ipMap : requireNonNullElse(ipMapping.get().getIpMap(), Collections.<IpMap>emptyList())) {
+                String externalIp = ipMap.getExternalIp();
                 LOG.debug("removeIpMappingForRouterID : externalIP is {}", externalIp);
                 if (externalIp != null) {
                     updateCounter(segmentId, externalIp, false);
@@ -760,10 +765,10 @@ public class NaptManager {
 
     protected void initialiseExternalCounter(Routers routers, long routerId) {
         LOG.debug("initialiseExternalCounter : Initialise External IPs counter");
-        List<ExternalIps> externalIps = routers.getExternalIps();
 
         //update the new counter value for this externalIp
-        for (ExternalIps externalIp : externalIps) {
+        for (ExternalIps externalIp : requireNonNullElse(routers.getExternalIps(),
+                Collections.<ExternalIps>emptyList())) {
             String[] ipSplit = externalIp.getIpAddress().split("/");
             String extIp = ipSplit[0];
             String extPrefix = Short.toString(NatConstants.DEFAULT_PREFIX);
