@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.vpnmanager.iplearn;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
@@ -36,15 +37,13 @@ public class IpMonitorStopTask implements Callable<List<ListenableFuture<Void>>>
     public List<ListenableFuture<Void>> call() {
         final List<ListenableFuture<Void>> futures = new ArrayList<>();
         java.util.Optional<Long> monitorIdOptional = AlivenessMonitorUtils.getMonitorIdFromInterface(macEntry);
-        monitorIdOptional.ifPresent(monitorId -> {
-            alivenessMonitorUtils.stopIpMonitoring(monitorId);
-        });
+        monitorIdOptional.ifPresent(alivenessMonitorUtils::stopIpMonitoring);
 
         String learntIp = macEntry.getIpAddress().getHostAddress();
         if (this.isRemoveMipAdjAndLearntIp) {
             String vpnName =  macEntry.getVpnName();
             LearntVpnVipToPort vpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, learntIp);
-            if (vpnVipToPort != null && !vpnVipToPort.getCreationTime().equals(macEntry.getCreatedTime())) {
+            if (vpnVipToPort != null && !Objects.equals(vpnVipToPort.getCreationTime(), macEntry.getCreatedTime())) {
                 LOG.warn("The MIP {} over vpn {} has been learnt again and processed. "
                         + "Ignoring this remove event.", learntIp, vpnName);
                 return futures;

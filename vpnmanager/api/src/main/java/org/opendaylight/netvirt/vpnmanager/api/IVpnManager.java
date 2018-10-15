@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Set;
 
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
@@ -31,12 +33,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 
 
 public interface IVpnManager {
-    void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-        Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
-        VrfEntry.EncapType encapType, TypedWriteTransaction<Configuration> confTx);
+    void addExtraRoute(String vpnName, String destination, String nextHop, String rd, @Nullable String routerID,
+        Long l3vni, RouteOrigin origin, @Nullable String intfName, @Nullable Adjacency operationalAdj,
+        VrfEntry.EncapType encapType, @Nonnull TypedWriteTransaction<Configuration> confTx);
 
-    void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-        String intfName, TypedWriteTransaction<Configuration> confTx, TypedWriteTransaction<Operational> operTx);
+    void delExtraRoute(String vpnName, String destination, String nextHop, String rd, @Nullable String routerID,
+        @Nullable String intfName, @Nonnull TypedWriteTransaction<Configuration> confTx,
+        @Nonnull TypedWriteTransaction<Operational> operTx);
 
     void removePrefixFromBGP(String vpnName, String primaryRd, String extraRouteRd, String vpnInterfaceName,
                                     String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId,

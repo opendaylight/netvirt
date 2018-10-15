@@ -7,7 +7,9 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
@@ -70,7 +72,7 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                         SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
                 if (vpnOpValue.isPresent()) {
                     VpnInstanceOpDataEntry vpnInstOpData = vpnOpValue.get();
-                    List<VpnToDpnList> vpnToDpnList = vpnInstOpData.getVpnToDpnList();
+                    List<VpnToDpnList> vpnToDpnList = requireNonNullElse(vpnInstOpData.getVpnToDpnList(), emptyList());
                     boolean flushDpnsOnVpn = true;
                     for (VpnToDpnList dpn : vpnToDpnList) {
                         if (dpn.getDpnState() == VpnToDpnList.DpnState.Active) {

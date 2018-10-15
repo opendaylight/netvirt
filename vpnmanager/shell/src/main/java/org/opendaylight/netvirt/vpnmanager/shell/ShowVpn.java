@@ -13,8 +13,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -60,17 +62,20 @@ public class ShowVpn extends OsgiCommandSupport {
     }
 
     @Override
+    @Nullable
     protected Object doExecute() {
         Map<String, Integer> vpnNameToConfigInterfaceMap = new HashMap<>();
         Map<String, Integer> vpnNameToOperInterfaceMap = new HashMap<>();
         if (detail == null) {
             showVpn();
-            Set<String> vpnInstances = new HashSet();
+            Set<String> vpnInstances = new HashSet<>();
             for (VpnInterface vpnInterface : vpnInterfaceConfigList) {
-                for (VpnInstanceNames vpnInterfaceVpnInstance : vpnInterface.getVpnInstanceNames()) {
-                    String vpnName = vpnInterfaceVpnInstance.getVpnName();
-                    if (vpnName != null) {
-                        vpnInstances.add(vpnName);
+                if (vpnInterface.getVpnInstanceNames() != null) {
+                    for (VpnInstanceNames vpnInterfaceVpnInstance : vpnInterface.getVpnInstanceNames()) {
+                        String vpnName = vpnInterfaceVpnInstance.getVpnName();
+                        if (vpnName != null) {
+                            vpnInstances.add(vpnName);
+                        }
                     }
                 }
             }
@@ -132,7 +137,7 @@ public class ShowVpn extends OsgiCommandSupport {
             }
             session.getConsole().println("Present Oper VpnInterfaces are:");
             for (VpnInterfaceOpDataEntry vpnInterfaceOp : vpnInterfaceOpList) {
-                if (vpnInterfaceOp.getVpnInstanceName().equals(detail)) {
+                if (Objects.equals(vpnInterfaceOp.getVpnInstanceName(), detail)) {
                     session.getConsole().println(vpnInterfaceOp.getName());
                 }
             }

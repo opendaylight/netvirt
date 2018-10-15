@@ -7,12 +7,17 @@
  */
 package org.opendaylight.netvirt.vpnmanager.iplearn;
 
+import static java.util.Collections.emptyList;
+import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -39,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacencyList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
@@ -191,8 +197,8 @@ public class LearntVpnVipToPortEventProcessor
                                 .withKey(new AdjacencyKey(ip)).setAdjacencyType(AdjacencyType.PrimaryAdjacency)
                                 .setMacAddress(mipMacAddress).setSubnetId(new Uuid(subnetId)).setPhysNetworkFunc(true);
 
-                        List<Adjacency> adjacencyList = adjacencies.isPresent()
-                                ? adjacencies.get().getAdjacency() : new ArrayList<>();
+                        List<Adjacency> adjacencyList = new ArrayList<>(requireNonNullElse(
+                            adjacencies.toJavaUtil().map(AdjacencyList::getAdjacency).orElse(null), emptyList()));
 
                         adjacencyList.add(newAdjBuilder.build());
 
@@ -213,11 +219,12 @@ public class LearntVpnVipToPortEventProcessor
                     }
 
                     if (adjacencies.isPresent()) {
-                        List<Adjacency> adjacencyList = adjacencies.get().getAdjacency();
+                        List<Adjacency> adjacencyList =
+                            requireNonNullElse(adjacencies.get().getAdjacency(), emptyList());
                         ip = VpnUtil.getIpPrefix(ip);
                         for (Adjacency adjacs : adjacencyList) {
                             if (adjacs.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
-                                if (adjacs.getIpAddress().equals(ip)) {
+                                if (Objects.equals(adjacs.getIpAddress(), ip)) {
                                     LOG.error("The MIP {} is already present as a primary adjacency for interface {}"
                                             + "vpn {} Skipping adjacency addition.", ip, vpnInterface, vpnInstName);
                                     return;
@@ -272,14 +279,15 @@ public class LearntVpnVipToPortEventProcessor
             }
         }
 
+        @Nullable
         private String getSubnetId(String vpnInstName, String ip) {
             // Check if this IP belongs to a router_interface
             VpnPortipToPort vpnPortipToPort =
                     vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnInstName, ip);
             if (vpnPortipToPort != null && vpnPortipToPort.isSubnetIp()) {
-                List<Adjacency> adjacecnyList = vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(
-                        vpnPortipToPort.getPortName());
-                for (Adjacency adjacency : adjacecnyList) {
+                List<Adjacency> adjacencies = requireNonNullElse(vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(
+                        vpnPortipToPort.getPortName()), emptyList());
+                for (Adjacency adjacency : adjacencies) {
                     if (adjacency.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
                         return adjacency.getSubnetId().getValue();
                     }

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.vpnmanager.populator.impl;
 
+import static java.util.Collections.singletonList;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -81,7 +83,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         if (VpnUtil.isEligibleForBgp(primaryRd, input.getVpnName(), input.getDpnId(), input.getNetworkName())) {
             // the DpnId is set as rd in case of extra routes present in router based VPN
             addToLabelMapper(label, input.getDpnId(), nextHopIpAddress,
-                    Arrays.asList(nextHopIp), vpnId, input.getInterfaceName(), null,false,
+                    singletonList(nextHopIp), vpnId, input.getInterfaceName(), null,false,
                     primaryRd);
             Objects.requireNonNull(input.getRouteOrigin(), "RouteOrigin is mandatory");
             addPrefixToBGP(rd, primaryRd, null /*macAddress*/, nextHopIpAddress, nextHopIp, encapType,
@@ -126,7 +128,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
             throw new NullPointerException(error);
         }
         List<String> nextHopList = adjNextHop != null && !adjNextHop.isEmpty() ? adjNextHop
-                : nextHopIp == null ? Collections.emptyList() : Collections.singletonList(nextHopIp);
+                : nextHopIp == null ? Collections.emptyList() : singletonList(nextHopIp);
 
         return new AdjacencyBuilder(nextHop).setLabel(label).setNextHopIpList(nextHopList)
                 .setIpAddress(prefix).setVrfId(rd).withKey(new AdjacencyKey(prefix))

@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import static java.util.Collections.emptyList;
+import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -106,7 +109,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 && vpnFootprintService.isVpnFootPrintCleared(update)) {
             //Cleanup VPN data
             final String vpnName = update.getVpnInstanceName();
-            final List<String> rds = update.getRd();
+            final List<String> rds = requireNonNullElse(update.getRd(), emptyList());
             String primaryRd = update.getVrfId();
             final long vpnId = vpnUtil.getVpnId(vpnName);
             jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
@@ -241,14 +244,13 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
             }
             jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
                 //RD update case get only updated RD list
-                List<String> rds = update.getRd();
-                if (original.getRd().size() != update.getRd().size()) {
-                    List<String> oldRds = original.getRd();
-                    rds.removeAll(oldRds);
+                List<String> rds = update.getRd() != null ? new ArrayList<>(update.getRd()) : new ArrayList<>();
+                if (original.getRd() != null && original.getRd().size() != rds.size()) {
+                    rds.removeAll(original.getRd());
                 }
                 rds.parallelStream().forEach(rd -> {
                     try {
-                        List<String> importRTList = rd.equals(primaryRd) ? irtList : Collections.emptyList();
+                        List<String> importRTList = rd.equals(primaryRd) ? irtList : emptyList();
                         LOG.info("VpnOpStatusListener.update: updating BGPVPN for vpn {} with RD {}"
                                 + " Type is {}, IPv4 is {}, IPv6 is {}, iRT {}", vpnName, primaryRd, update.getType(),
                                 update.isIpv4Configured(), update.isIpv6Configured(), importRTList);
@@ -281,7 +283,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                                + " for vpn {} rd {}", vpnName, rd);
                     }
                 });
-                return Collections.emptyList();
+                return emptyList();
             });
         }
     }

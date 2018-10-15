@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
+
 import com.google.common.base.Optional;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
@@ -15,10 +17,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -190,9 +194,9 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-        Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj, VrfEntry.EncapType encapType,
-        @Nonnull TypedWriteTransaction<Configuration> confTx) {
+    public void addExtraRoute(String vpnName, String destination, String nextHop, String rd, @Nullable String routerID,
+        Long l3vni, RouteOrigin origin, @Nullable String intfName, @Nullable Adjacency operationalAdj,
+        VrfEntry.EncapType encapType, @Nonnull TypedWriteTransaction<Configuration> confTx) {
         //add extra route to vpn mapping; advertise with nexthop as tunnel ip
         vpnUtil.syncUpdate(LogicalDatastoreType.OPERATIONAL,
                 VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, rd != null ? rd : routerID,
@@ -254,8 +258,8 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-                              String intfName, @Nonnull TypedWriteTransaction<Configuration> confTx,
+    public void delExtraRoute(String vpnName, String destination, String nextHop, String rd, @Nullable String routerID,
+                              @Nullable String intfName, @Nonnull TypedWriteTransaction<Configuration> confTx,
                               @Nonnull TypedWriteTransaction<Operational> operTx) {
         BigInteger dpnId = null;
         String tunnelIp = nextHop;
@@ -469,7 +473,8 @@ public class VpnManagerImpl implements IVpnManager {
             }
 
             String extIfc = null;
-            for (String dpnInterface : dpnInterfaces.getInterfaces()) {
+            for (String dpnInterface : requireNonNullElse(dpnInterfaces.getInterfaces(),
+                    Collections.<String>emptyList())) {
                 if (interfaceManager.isExternalInterface(dpnInterface)) {
                     extIfc = dpnInterface;
                     break;
@@ -632,6 +637,7 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
+    @Nullable
     public VpnInstance getVpnInstance(DataBroker broker, String vpnInstanceName) {
         return vpnUtil.getVpnInstance(vpnInstanceName);
     }
@@ -649,10 +655,11 @@ public class VpnManagerImpl implements IVpnManager {
     @Override
     public VpnPortipToPort getNeutronPortFromVpnPortFixedIp(TypedReadTransaction<Configuration> confTx, String vpnName,
         String fixedIp) {
-        return vpnUtil.getNeutronPortFromVpnPortFixedIp(confTx, vpnName, fixedIp);
+        return VpnUtil.getNeutronPortFromVpnPortFixedIp(confTx, vpnName, fixedIp);
     }
 
     @Override
+    @Nullable
     public VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
         return vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, fixedIp);
     }
@@ -767,7 +774,8 @@ public class VpnManagerImpl implements IVpnManager {
                         Optional<RouteTarget> indirectRts = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                 LogicalDatastoreType.OPERATIONAL, VpnUtil.getRouteTargetsIdentifier(
                                         routerTarget.getRt(), RouteTarget.RtType.ERT));
-                        if (indirectRts.isPresent() && routerTarget.getAssociatedSubnet() != null) {
+                        if (indirectRts.isPresent() && indirectRts.get().getAssociatedSubnet() != null
+                                && routerTarget.getAssociatedSubnet() != null) {
                             for (AssociatedSubnet associatedSubnet : indirectRts.get().getAssociatedSubnet()) {
                                 if (VpnUtil.areSubnetsOverlapping(associatedSubnet.getCidr(), subnetCidr)) {
                                     LOG.error("doesExistingVpnsHaveConflictingSubnet: There is an indirect overlap for"
@@ -808,7 +816,7 @@ public class VpnManagerImpl implements IVpnManager {
                 } else {
                     for (Iterator<AssociatedVpn> iterator = associatedVpns.iterator(); iterator.hasNext();) {
                         AssociatedVpn associatedVpn = iterator.next();
-                        if (associatedVpn.getName().equals(vpnName)) {
+                        if (Objects.equals(associatedVpn.getName(), vpnName)) {
                             iterator.remove();
                             break;
                         }
@@ -849,7 +857,7 @@ public class VpnManagerImpl implements IVpnManager {
             List<AssociatedSubnet> associatedSubnets = rtToSubnetsAssociation.get().getAssociatedSubnet();
             if (associatedSubnets != null && !associatedSubnets.isEmpty()) {
                 for (Iterator<AssociatedSubnet> iterator = associatedSubnets.iterator(); iterator.hasNext(); ) {
-                    if (iterator.next().getCidr().equals(cidr)) {
+                    if (Objects.equals(iterator.next().getCidr(), cidr)) {
                         iterator.remove();
                         break;
                     }

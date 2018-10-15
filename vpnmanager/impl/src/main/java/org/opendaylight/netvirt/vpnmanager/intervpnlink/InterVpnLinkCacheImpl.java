@@ -8,11 +8,15 @@
 
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
+import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -67,7 +71,8 @@ public class InterVpnLinkCacheImpl implements InterVpnLinkCache {
             return; // Nothing to be added to cache
         }
         InterVpnLinks interVpnLinks = optIVpnLinksOpData.get();
-        for (InterVpnLink interVpnLink : interVpnLinks.getInterVpnLink()) {
+        for (InterVpnLink interVpnLink : requireNonNullElse(interVpnLinks.getInterVpnLink(),
+                Collections.<InterVpnLink>emptyList())) {
             addInterVpnLinkToCaches(interVpnLink);
         }
 
@@ -81,7 +86,8 @@ public class InterVpnLinkCacheImpl implements InterVpnLinkCache {
             return;
         }
         InterVpnLinkStates interVpnLinkStates = optIVpnLinkStateOpData.get();
-        for (InterVpnLinkState interVpnLinkState : interVpnLinkStates.getInterVpnLinkState()) {
+        for (InterVpnLinkState interVpnLinkState : requireNonNullElse(interVpnLinkStates.getInterVpnLinkState(),
+                Collections.<InterVpnLinkState>emptyList())) {
             addInterVpnLinkStateToCaches(interVpnLinkState);
         }
     }
@@ -200,17 +206,18 @@ public class InterVpnLinkCacheImpl implements InterVpnLinkCache {
         return ImmutableList.copyOf(nameToInterVpnLinkCache.values());
     }
 
-    private <T> void safeRemove(ConcurrentMap<T, ?> fromMap, T key) {
+    private <T> void safeRemove(ConcurrentMap<T, ?> fromMap, @Nullable T key) {
         if (key != null) {
             fromMap.remove(key);
         }
     }
 
-    private <K, V> V safeGet(ConcurrentMap<K, V> fromMap, K key) {
+    @Nullable
+    private <K, V> V safeGet(ConcurrentMap<K, V> fromMap, @Nullable K key) {
         return key != null ? fromMap.get(key) : null;
     }
 
-    private <K, V> void safePut(ConcurrentMap<K, V> toMap, K key, V value) {
+    private <K, V> void safePut(ConcurrentMap<K, V> toMap, @Nullable K key, V value) {
         if (key != null) {
             toMap.put(key, value);
         }
