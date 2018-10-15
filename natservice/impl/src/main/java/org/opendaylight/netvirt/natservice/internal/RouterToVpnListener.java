@@ -8,10 +8,11 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
-import java.util.List;
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -142,9 +143,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
             return;
         }
         Uuid networkId = Uuid.getDefaultInstance(externalNetwork);
-        RouterPorts routerPorts = optRouterPorts.get();
-        List<Ports> interfaces = routerPorts.getPorts();
-        for (Ports port : interfaces) {
+        for (Ports port : requireNonNullElse(optRouterPorts.get().getPorts(), Collections.<Ports>emptyList())) {
             String portName = port.getPortName();
             BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
             if (dpnId.equals(BigInteger.ZERO)) {
@@ -153,8 +152,8 @@ public class RouterToVpnListener implements NeutronvpnListener {
                 continue;
             }
 
-            List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
-            for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
+            for (InternalToExternalPortMap intExtPortMap : requireNonNullElse(port.getInternalToExternalPortMap(),
+                    Collections.<InternalToExternalPortMap>emptyList())) {
                 //remove all NAT related entries with routerName
                 //floatingIpListener.removeNATOnlyFlowEntries(dpnId, portName, routerName, null,
                 // intExtPortMap.getInternalIp(), externalIp);
@@ -177,9 +176,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
             return;
         }
         Uuid networkId = Uuid.getDefaultInstance(externalNetwork);
-        RouterPorts routerPorts = optRouterPorts.get();
-        List<Ports> interfaces = routerPorts.getPorts();
-        for (Ports port : interfaces) {
+        for (Ports port : requireNonNullElse(optRouterPorts.get().getPorts(), Collections.<Ports>emptyList())) {
             String portName = port.getPortName();
             BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
             if (dpnId.equals(BigInteger.ZERO)) {
@@ -187,8 +184,8 @@ public class RouterToVpnListener implements NeutronvpnListener {
                         + "skip handling of router {} association with vpn {}", portName, routerName, vpnName);
                 continue;
             }
-            List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
-            for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
+            for (InternalToExternalPortMap intExtPortMap : requireNonNullElse(port.getInternalToExternalPortMap(),
+                    Collections.<InternalToExternalPortMap>emptyList())) {
                 //remove all NAT related entries with routerName
                 //floatingIpListener.removeNATOnlyFlowEntries(dpnId, portName, routerName, vpnName,
                 // intExtPortMap.getInternalIp(), externalIp);

@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
@@ -289,7 +290,7 @@ public final class NatUtil {
     /*
         getVpnId() returns the VPN ID from the VPN name
      */
-    public static long getVpnId(DataBroker broker, String vpnName) {
+    public static long getVpnId(DataBroker broker, @Nullable String vpnName) {
         if (vpnName == null) {
             return NatConstants.INVALID_ID;
         }
@@ -376,6 +377,7 @@ public final class NatUtil {
                     .instance.to.vpn.id.VpnInstanceKey(vpnName)).build();
     }
 
+    @Nullable
     static String getVpnInstanceFromVpnIdentifier(DataBroker broker, long vpnId) {
         InstanceIdentifier<VpnIds> id = InstanceIdentifier.builder(VpnIdToVpnInstance.class)
             .child(VpnIds.class, new VpnIdsKey(vpnId)).build();
@@ -402,6 +404,7 @@ public final class NatUtil {
                 + port;
     }
 
+    @Nullable
     static Uuid getNetworkIdFromRouterId(DataBroker broker, long routerId) {
         String routerName = getRouterName(broker, routerId);
         if (routerName == null) {
@@ -411,6 +414,7 @@ public final class NatUtil {
         return getNetworkIdFromRouterName(broker, routerName);
     }
 
+    @Nullable
     static Uuid getNetworkIdFromRouterName(DataBroker broker, String routerName) {
         if (routerName == null) {
             LOG.error("getNetworkIdFromRouterName - empty routerName received");
@@ -446,6 +450,7 @@ public final class NatUtil {
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Routers::isEnableSnat).orElse(false);
     }
 
+    @Nullable
     public static Uuid getVpnIdfromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
@@ -462,6 +467,7 @@ public final class NatUtil {
         }
     }
 
+    @Nullable
     public static ProviderTypes getProviderTypefromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
@@ -487,6 +493,7 @@ public final class NatUtil {
                 Collections.emptyList());
     }
 
+    @Nullable
     static String getAssociatedExternalNetwork(DataBroker dataBroker, String routerId) {
         InstanceIdentifier<Routers> id = NatUtil.buildRouterIdentifier(routerId);
         Optional<Routers> routerData =
@@ -507,6 +514,7 @@ public final class NatUtil {
             .child(Networks.class, new NetworksKey(networkId)).build();
     }
 
+    @Nullable
     public static BigInteger getPrimaryNaptfromRouterId(DataBroker broker, Long routerId) {
         // convert routerId to Name
         String routerName = getRouterName(broker, routerId);
@@ -517,6 +525,7 @@ public final class NatUtil {
         return getPrimaryNaptfromRouterName(broker, routerName);
     }
 
+    @Nullable
     public static BigInteger getPrimaryNaptfromRouterName(DataBroker broker, String routerName) {
         if (routerName == null) {
             LOG.error("getPrimaryNaptfromRouterName - empty routerName received");
@@ -529,9 +538,8 @@ public final class NatUtil {
     }
 
     public static InstanceIdentifier<RouterToNaptSwitch> buildNaptSwitchIdentifier(String routerId) {
-        InstanceIdentifier<RouterToNaptSwitch> rtrNaptSw = InstanceIdentifier.builder(NaptSwitches.class)
-            .child(RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerId)).build();
-        return rtrNaptSw;
+        return InstanceIdentifier.builder(NaptSwitches.class).child(RouterToNaptSwitch.class,
+            new RouterToNaptSwitchKey(routerId)).build();
     }
 
     public static Optional<NaptSwitches> getAllPrimaryNaptSwitches(DataBroker broker) {
@@ -539,6 +547,7 @@ public final class NatUtil {
                 LogicalDatastoreType.CONFIGURATION, getNaptSwitchesIdentifier());
     }
 
+    @Nullable
     public static String getRouterName(DataBroker broker, Long routerId) {
         return getVpnInstanceFromVpnIdentifier(broker, routerId);
     }
@@ -570,6 +579,7 @@ public final class NatUtil {
             + ((rawIpAddress[2] & 0xFF) << 1 * 8) + (rawIpAddress[3] & 0xFF) & 0xffffffffL;
     }
 
+    @Nullable
     public static String getEndpointIpAddressForDPN(DataBroker broker, BigInteger dpnId) {
         String nextHopIp = null;
         InstanceIdentifier<DPNTEPsInfo> tunnelInfoId =
@@ -587,8 +597,8 @@ public final class NatUtil {
         return nextHopIp;
     }
 
+    @Nullable
     public static String getVpnRd(DataBroker broker, String vpnName) {
-
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
             .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
@@ -597,6 +607,7 @@ public final class NatUtil {
                         .VpnInstance::getVrfId).orElse(null);
     }
 
+    @Nullable
     public static String getVpnRd(TypedReadTransaction<Configuration> tx, String vpnName) {
         try {
             return tx.read(getVpnInstanceToVpnIdIdentifier(vpnName)).get().toJavaUtil().map(
@@ -608,6 +619,7 @@ public final class NatUtil {
         }
     }
 
+    @Nullable
     public static IpPortExternal getExternalIpPortMap(DataBroker broker, Long routerId, String internalIpAddress,
                                                       String internalPort, NAPTEntryEvent.Protocol protocol) {
         ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
@@ -632,12 +644,14 @@ public final class NatUtil {
             .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).build();
     }
 
+    @Nullable
     static VpnInterface getConfiguredVpnInterface(DataBroker broker, String interfaceName) {
         InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                 LogicalDatastoreType.CONFIGURATION, interfaceId).orNull();
     }
 
+    @Nullable
     public static String getDpnFromNodeConnectorId(NodeConnectorId portId) {
         /*
          * NodeConnectorId is of form 'openflow:dpnid:portnum'
@@ -658,6 +672,7 @@ public final class NatUtil {
         return new BigInteger(getDpnFromNodeConnectorId(nodeConnectorId));
     }
 
+    @Nullable
     public static String getRouterIdfromVpnInstance(DataBroker broker, String vpnName) {
         // returns only router, attached to IPv4 networks
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
@@ -694,6 +709,7 @@ public final class NatUtil {
         return null;
     }
 
+    @Nullable
     static Uuid getVpnForRouter(DataBroker broker, String routerId) {
         Preconditions.checkNotNull(routerId, "dissociateRouter: routerId not found!");
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
@@ -701,31 +717,22 @@ public final class NatUtil {
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                         LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
-            List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
-            for (VpnMap vpnMap: allMaps) {
+            for (VpnMap vpnMap : requireNonNullElse(optionalVpnMaps.get().getVpnMap(),
+                    Collections.<VpnMap>emptyList())) {
                 if (routerId.equals(vpnMap.getVpnId().getValue())) {
                     continue;
                 }
                 List<Uuid> routerIdsList = NeutronUtils.getVpnMapRouterIdsListUuid(vpnMap.getRouterIds());
-                if (routerIdsList == null || routerIdsList.isEmpty()) {
+                if (routerIdsList.isEmpty()) {
                     return null;
                 }
-                //Skip router vpnId fetching from internet BGP-VPN
-                boolean isInternetBgpVpn = false;
+                // Skip router vpnId fetching from internet BGP-VPN
                 if (vpnMap.getNetworkIds() != null && !vpnMap.getNetworkIds().isEmpty()) {
-                    for (Uuid netId: vpnMap.getNetworkIds()) {
-                        if (isExternalNetwork(broker, netId)) {
-                            isInternetBgpVpn = true;
-                        }
-                        /* If first network is not a external network then no need iterate
-                         * whole network list from the VPN
-                         */
-                        break;
+                    // We only need to check the first network; if it’s not an external network there’s no
+                    // need to check the rest of the VPN’s network list
+                    if (isExternalNetwork(broker, vpnMap.getNetworkIds().iterator().next())) {
+                        continue;
                     }
-                }
-                if (isInternetBgpVpn) {
-                    //skip further processing
-                    continue;
                 }
                 if (routerIdsList.contains(new Uuid(routerId))) {
                     return vpnMap.getVpnId();
@@ -743,6 +750,7 @@ public final class NatUtil {
                 NatConstants.INVALID_ID);
     }
 
+    @Nullable
     public static String getAssociatedVPN(DataBroker dataBroker, Uuid networkId) {
         Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
         if (vpnUuid == null) {
@@ -752,6 +760,7 @@ public final class NatUtil {
         return vpnUuid.getValue();
     }
 
+    @Nullable
     public static String getAssociatedVPN(TypedReadTransaction<Configuration> tx, Uuid networkId) {
         Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(tx, networkId);
         if (vpnUuid == null) {
@@ -768,11 +777,10 @@ public final class NatUtil {
                                       IFibManager fibManager,
                                       String vpnName,
                                       String rd,
-                                      Uuid subnetId,
                                       String prefix,
                                       String nextHopIp,
-                                      String parentVpnRd,
-                                      String macAddress,
+                                      @Nullable String parentVpnRd,
+                                      @Nullable String macAddress,
                                       long label,
                                       long l3vni,
                                       RouteOrigin origin,
@@ -787,7 +795,7 @@ public final class NatUtil {
             }
 
             addPrefixToInterface(broker, getVpnId(broker, vpnName), null /*interfaceName*/,prefix, parentVpnRd,
-                    subnetId, dpId, Prefixes.PrefixCue.Nat);
+                dpId, Prefixes.PrefixCue.Nat);
             fibManager.addOrUpdateFibEntry(rd, macAddress, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, l3vni /*l3vni*/,
                     null /*gatewayMacAddress*/, parentVpnRd, origin, null /*writeTxn*/);
@@ -805,8 +813,8 @@ public final class NatUtil {
         }
     }
 
-    static void addPrefixToInterface(DataBroker broker, long vpnId, String interfaceName, String ipPrefix,
-                                     String networkId, Uuid subnetId, BigInteger dpId, Prefixes.PrefixCue prefixCue) {
+    static void addPrefixToInterface(DataBroker broker, long vpnId, @Nullable String interfaceName, String ipPrefix,
+                                     String networkId, BigInteger dpId, Prefixes.PrefixCue prefixCue) {
         InstanceIdentifier<Prefixes> prefixId = InstanceIdentifier.builder(PrefixToInterface.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface
                         .VpnIds.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix
@@ -937,6 +945,7 @@ public final class NatUtil {
         }
     }
 
+    @Nullable
     public static IpPortMapping getIportMapping(DataBroker broker, long routerId) {
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                 LogicalDatastoreType.CONFIGURATION, getIportMappingIdentifier(routerId)).orNull();
@@ -949,12 +958,11 @@ public final class NatUtil {
 
     public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt
         .natservice.rev160111.intext.ip.map.IpMapping> getIpMappingBuilder(Long routerId) {
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
-            .intext.ip.map.IpMapping> idBuilder = InstanceIdentifier.builder(IntextIpMap.class)
+        return InstanceIdentifier.builder(IntextIpMap.class)
             .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map
                 .IpMapping.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
-                .intext.ip.map.IpMappingKey(routerId)).build();
-        return idBuilder;
+                .intext.ip.map.IpMappingKey(routerId))
+            .build();
     }
 
     @Nonnull
@@ -966,8 +974,7 @@ public final class NatUtil {
         // Ensure there are no duplicates
         Collection<String> externalIps = new HashSet<>();
         if (ipMappingOptional.isPresent()) {
-            List<IpMap> ipMaps = ipMappingOptional.get().getIpMap();
-            for (IpMap ipMap : ipMaps) {
+            for (IpMap ipMap : requireNonNullElse(ipMappingOptional.get().getIpMap(), Collections.<IpMap>emptyList())) {
                 externalIps.add(ipMap.getExternalIp());
             }
         }
@@ -992,14 +999,14 @@ public final class NatUtil {
                         LogicalDatastoreType.OPERATIONAL, getIpMappingBuilder(routerId));
         Map<String, Long> externalIpsLabel = new HashMap<>();
         if (ipMappingOptional.isPresent()) {
-            List<IpMap> ipMaps = ipMappingOptional.get().getIpMap();
-            for (IpMap ipMap : ipMaps) {
+            for (IpMap ipMap : requireNonNullElse(ipMappingOptional.get().getIpMap(), Collections.<IpMap>emptyList())) {
                 externalIpsLabel.put(ipMap.getExternalIp(), ipMap.getLabel());
             }
         }
         return externalIpsLabel;
     }
 
+    @Nullable
     public static String getLeastLoadedExternalIp(DataBroker dataBroker, long segmentId) {
         String leastLoadedExternalIp = null;
         InstanceIdentifier<ExternalCounters> id =
@@ -1009,9 +1016,9 @@ public final class NatUtil {
             MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (externalCountersData.isPresent()) {
             ExternalCounters externalCounter = externalCountersData.get();
-            List<ExternalIpCounter> externalIpCounterList = externalCounter.getExternalIpCounter();
             short countOfLstLoadExtIp = 32767;
-            for (ExternalIpCounter externalIpCounter : externalIpCounterList) {
+            for (ExternalIpCounter externalIpCounter : requireNonNullElse(externalCounter.getExternalIpCounter(),
+                    Collections.<ExternalIpCounter>emptyList())) {
                 String curExternalIp = externalIpCounter.getExternalIp();
                 short countOfCurExtIp = externalIpCounter.getCounter();
                 if (countOfCurExtIp < countOfLstLoadExtIp) {
@@ -1024,6 +1031,7 @@ public final class NatUtil {
     }
 
     @SuppressFBWarnings("PZLA_PREFER_ZERO_LENGTH_ARRAYS")
+    @Nullable
     public static String[] getSubnetIpAndPrefix(DataBroker dataBroker, Uuid subnetId) {
         String subnetIP = getSubnetIp(dataBroker, subnetId);
         if (subnetIP != null) {
@@ -1033,6 +1041,7 @@ public final class NatUtil {
         return null;
     }
 
+    @Nonnull
     public static String[] getSubnetIpAndPrefix(String subnetString) {
         String[] subnetSplit = subnetString.split("/");
         String subnetIp = subnetSplit[0];
@@ -1043,6 +1052,7 @@ public final class NatUtil {
         return new String[] {subnetIp, subnetPrefix};
     }
 
+    @Nullable
     public static String getSubnetIp(DataBroker dataBroker, Uuid subnetId) {
         InstanceIdentifier<Subnetmap> subnetmapId = InstanceIdentifier
             .builder(Subnetmaps.class)
@@ -1050,7 +1060,6 @@ public final class NatUtil {
             .build();
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION, subnetmapId).toJavaUtil().map(Subnetmap::getSubnetIp).orElse(null);
-
     }
 
     public static String[] getExternalIpAndPrefix(String leastLoadedExtIpAddr) {
@@ -1072,8 +1081,8 @@ public final class NatUtil {
                         LogicalDatastoreType.OPERATIONAL, id);
         List<BigInteger> dpns = new ArrayList<>();
         if (routerDpnListData.isPresent()) {
-            List<DpnVpninterfacesList> dpnVpninterfacesList = routerDpnListData.get().getDpnVpninterfacesList();
-            for (DpnVpninterfacesList dpnVpnInterface : dpnVpninterfacesList) {
+            for (DpnVpninterfacesList dpnVpnInterface : requireNonNullElse(
+                    routerDpnListData.get().getDpnVpninterfacesList(), Collections.<DpnVpninterfacesList>emptyList())) {
                 dpns.add(dpnVpnInterface.getDpnId());
             }
         }
@@ -1089,6 +1098,7 @@ public final class NatUtil {
         return bgpVpnId;
     }
 
+    @Nullable
     static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces
         .RouterInterface getConfiguredRouterInterface(DataBroker broker, String interfaceName) {
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
@@ -1370,7 +1380,7 @@ public final class NatUtil {
     public static List<ActionInfo> getEgressActionsForInterface(OdlInterfaceRpcService odlInterfaceRpcService,
                                                                 ItmRpcService itmRpcService,
                                                                 IInterfaceManager interfaceManager,
-                                                                String ifName, Long tunnelKey, int pos,
+                                                                String ifName, @Nullable Long tunnelKey, int pos,
                                                                 boolean internalTunnelInterface) {
         LOG.debug("getEgressActionsForInterface : called for interface {}", ifName);
         GetEgressActionsForInterfaceInputBuilder egressActionsIfmBuilder =
@@ -1404,7 +1414,7 @@ public final class NatUtil {
                 }
             }
             List<ActionInfo> listActionInfo = new ArrayList<>();
-            for (Action action : actions) {
+            for (Action action : requireNonNullElse(actions, Collections.<Action>emptyList())) {
                 org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action
                     actionClass = action.getAction();
                 if (actionClass instanceof OutputActionCase) {
@@ -1436,6 +1446,7 @@ public final class NatUtil {
         return Collections.emptyList();
     }
 
+    @Nullable
     public static Port getNeutronPortForRouterGetewayIp(DataBroker broker, IpAddress targetIP) {
         return getNeutronPortForIp(broker, targetIP, NeutronConstants.DEVICE_OWNER_GATEWAY_INF);
     }
@@ -1458,8 +1469,8 @@ public final class NatUtil {
         return portsOptional.get().getPort();
     }
 
-    public static Port getNeutronPortForIp(DataBroker broker,
-                                           IpAddress targetIP, String deviceType) {
+    @Nullable
+    public static Port getNeutronPortForIp(DataBroker broker, IpAddress targetIP, String deviceType) {
         List<Port> ports = getNeutronPorts(
             broker);
 
@@ -1476,12 +1487,13 @@ public final class NatUtil {
         return null;
     }
 
+    @Nullable
     public static Uuid getSubnetIdForFloatingIp(Port port, IpAddress targetIP) {
         if (port == null) {
             LOG.error("getSubnetIdForFloatingIp : port is null");
             return null;
         }
-        for (FixedIps ip : port.getFixedIps()) {
+        for (FixedIps ip : requireNonNullElse(port.getFixedIps(), Collections.<FixedIps>emptyList())) {
             if (Objects.equals(ip.getIpAddress(), targetIP)) {
                 return ip.getSubnetId();
             }
@@ -1490,6 +1502,7 @@ public final class NatUtil {
         return null;
     }
 
+    @Nullable
     public static Subnetmap getSubnetMap(DataBroker broker, Uuid subnetId) {
         InstanceIdentifier<Subnetmap> subnetmapId = InstanceIdentifier.builder(Subnetmaps.class)
             .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
@@ -1506,6 +1519,7 @@ public final class NatUtil {
                 Collections.emptyList());
     }
 
+    @Nullable
     public static String getSubnetGwMac(DataBroker broker, Uuid subnetId, String vpnName) {
         if (subnetId == null) {
             LOG.error("getSubnetGwMac : subnetID is null");
@@ -1576,6 +1590,7 @@ public final class NatUtil {
             .child(RouterDpnList.class, new RouterDpnListKey(routerName)).build();
     }
 
+    @Nullable
     protected static String getFloatingIpPortMacFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
         InstanceIdentifier<FloatingIpIdToPortMapping> id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
@@ -1583,6 +1598,7 @@ public final class NatUtil {
                 FloatingIpIdToPortMapping::getFloatingIpPortMacAddress).orElse(null);
     }
 
+    @Nullable
     protected static String getFloatingIpPortMacFromFloatingIpId(TypedReadTransaction<Configuration> confTx,
         Uuid floatingIpId) {
         try {
@@ -1594,6 +1610,7 @@ public final class NatUtil {
         }
     }
 
+    @Nullable
     protected static Uuid getFloatingIpPortSubnetIdFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
         InstanceIdentifier<FloatingIpIdToPortMapping> id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
@@ -1618,6 +1635,7 @@ public final class NatUtil {
             FloatingIpIdToPortMappingKey(floatingIpId)).build();
     }
 
+    @Nullable
     static Interface getInterfaceStateFromOperDS(DataBroker dataBroker, String interfaceName) {
         InstanceIdentifier<Interface> ifStateId =
             buildStateInterfaceId(interfaceName);
@@ -1632,10 +1650,10 @@ public final class NatUtil {
                 .child(Interface.class,
                     new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
                         .interfaces.state.InterfaceKey(interfaceName));
-        InstanceIdentifier<Interface> id = idBuilder.build();
-        return id;
+        return idBuilder.build();
     }
 
+    @Nullable
     public static Routers getRoutersFromConfigDS(DataBroker dataBroker, String routerName) {
         InstanceIdentifier<Routers> routerIdentifier = NatUtil.buildRouterIdentifier(routerName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
@@ -1662,6 +1680,7 @@ public final class NatUtil {
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, buildRouterIdentifier(routerId), rtrs);
     }
 
+    @Nullable
     static FlowEntity buildDefaultNATFlowEntityForExternalSubnet(BigInteger dpId, long vpnId, String subnetId,
             IdManagerService idManager) {
         InetAddress defaultIP = null;
@@ -1684,12 +1703,12 @@ public final class NatUtil {
         actionsInfo.add(new ActionGroup(groupId));
         String flowRef = getFlowRef(dpId, NwConstants.L3_FIB_TABLE, defaultIP, vpnId);
         instructions.add(new InstructionApplyActions(actionsInfo));
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef,
+        return MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
                 NwConstants.COOKIE_DNAT_TABLE, matches, instructions);
-        return flowEntity;
     }
 
+    @Nullable
     static String getExtGwMacAddFromRouterId(DataBroker broker, long routerId) {
         String routerName = getRouterName(broker, routerId);
         if (routerName == null) {
@@ -1699,6 +1718,7 @@ public final class NatUtil {
         return getExtGwMacAddFromRouterName(broker, routerName);
     }
 
+    @Nullable
     static String getExtGwMacAddFromRouterName(DataBroker broker, String routerName) {
         InstanceIdentifier<Routers> id = buildRouterIdentifier(routerName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
@@ -1723,6 +1743,7 @@ public final class NatUtil {
         return routerInstanceIdentifier;
     }
 
+    @Nullable
     public static String getNeutronRouterNamebyUuid(DataBroker broker, Uuid routerUuid) {
         InstanceIdentifier<Router> neutronRouterIdentifier = NatUtil.buildNeutronRouterIdentifier(routerUuid);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
@@ -1745,9 +1766,10 @@ public final class NatUtil {
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                         LogicalDatastoreType.CONFIGURATION, externalNwIdentifier);
         if (externalNwData.isPresent()) {
-            for (Networks externalNw : externalNwData.get().getNetworks()) {
+            for (Networks externalNw : requireNonNullElse(externalNwData.get().getNetworks(),
+                    Collections.<Networks>emptyList())) {
                 if (externalNw.getVpnid() != null && externalNw.getVpnid().equals(vpnUuid)) {
-                    return externalNw.getRouterIds();
+                    return requireNonNullElse(externalNw.getRouterIds(), Collections.emptyList());
                 }
             }
         }
@@ -1768,7 +1790,7 @@ public final class NatUtil {
     }
 
     @Nonnull
-    public static Collection<Uuid> getExternalSubnetIdsFromExternalIps(List<ExternalIps> externalIps) {
+    public static Collection<Uuid> getExternalSubnetIdsFromExternalIps(@Nullable List<ExternalIps> externalIps) {
         if (externalIps == null) {
             return Collections.emptySet();
         }
@@ -1777,7 +1799,7 @@ public final class NatUtil {
     }
 
     @Nonnull
-    public static Collection<Uuid> getExternalSubnetIdsForRouter(DataBroker dataBroker, String routerName) {
+    public static Collection<Uuid> getExternalSubnetIdsForRouter(DataBroker dataBroker, @Nullable String routerName) {
         if (routerName == null) {
             LOG.error("getExternalSubnetIdsForRouter : empty routerName received");
             return Collections.emptySet();
@@ -1865,10 +1887,10 @@ public final class NatUtil {
         return NatConstants.INVALID_ID;
     }
 
+    @Nullable
     protected static Uuid getExternalSubnetForRouterExternalIp(String externalIpAddress, Routers router) {
         externalIpAddress = validateAndAddNetworkMask(externalIpAddress);
-        List<ExternalIps> externalIps = router.getExternalIps();
-        for (ExternalIps extIp : externalIps) {
+        for (ExternalIps extIp : requireNonNullElse(router.getExternalIps(), Collections.<ExternalIps>emptyList())) {
             String extIpString = validateAndAddNetworkMask(extIp.getIpAddress());
             if (extIpString.equals(externalIpAddress)) {
                 return extIp.getSubnetId();
@@ -1898,6 +1920,7 @@ public final class NatUtil {
     }
 
     // elan-instances config container
+    @Nullable
     public static ElanInstance getElanInstanceByName(String elanInstanceName, DataBroker broker) {
         InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
@@ -1963,7 +1986,7 @@ public final class NatUtil {
                 + NwConstants.FLOWID_SEPARATOR + uniqueId;
     }
 
-    public static Boolean isFloatingIpPresentForDpn(DataBroker dataBroker, BigInteger dpnId, String rd,
+    public static boolean isFloatingIpPresentForDpn(DataBroker dataBroker, BigInteger dpnId, String rd,
                                                     String vpnName, String externalIp,
                                                     Boolean isMoreThanOneFipCheckOnDpn) {
         InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(rd, dpnId);
@@ -1976,31 +1999,31 @@ public final class NatUtil {
                 if (ipAddressList != null && !ipAddressList.isEmpty()) {
                     int floatingIpPresentCount = 0;
                     for (IpAddresses ipAddress: ipAddressList) {
-                        if (!ipAddress.getIpAddress().equals(externalIp)
+                        if (!Objects.equals(ipAddress.getIpAddress(), externalIp)
                                 && IpAddresses.IpAddressSource.FloatingIP.equals(ipAddress.getIpAddressSource())) {
                             floatingIpPresentCount++;
                             //Add tunnel table check
                             if (isMoreThanOneFipCheckOnDpn && floatingIpPresentCount > 1) {
-                                return Boolean.TRUE;
+                                return true;
                             }
                             //Remove tunnel table check
                             if (!isMoreThanOneFipCheckOnDpn) {
-                                return Boolean.TRUE;
+                                return true;
                             }
                         }
                     }
                 } else {
                     LOG.debug("isFloatingIpPresentForDpn : vpn-to-dpn-list does not contain any floating IP for DPN {}",
                            dpnId);
-                    return Boolean.FALSE;
+                    return false;
                 }
             } catch (NullPointerException e) {
                 LOG.error("isFloatingIpPresentForDpn: Exception occurred on getting external IP address from "
                         + "vpn-to-dpn-list on Dpn {}", dpnId, e);
-                return Boolean.FALSE;
+                return false;
             }
         }
-        return Boolean.FALSE;
+        return false;
     }
 
     private static InstanceIdentifier<VpnToDpnList> getVpnToDpnListIdentifier(String rd, BigInteger dpnId) {
@@ -2026,12 +2049,13 @@ public final class NatUtil {
         return vpnName;
     }
 
-    public static String getPrimaryRd(VpnInstance vpnInstance) {
-        List<String> rds = null;
-        if (vpnInstance != null) {
-            rds = getListOfRdsFromVpnInstance(vpnInstance);
+    @Nullable
+    public static String getPrimaryRd(@Nullable VpnInstance vpnInstance) {
+        if (vpnInstance == null) {
+            return null;
         }
-        return rds == null || rds.isEmpty() ? vpnInstance.getVpnInstanceName() : rds.get(0);
+        List<String> rds = getListOfRdsFromVpnInstance(vpnInstance);
+        return rds.isEmpty() ? vpnInstance.getVpnInstanceName() : rds.get(0);
     }
 
     public static InstanceIdentifier<VpnInstance> getVpnInstanceIdentifier(String vpnName) {
@@ -2067,6 +2091,7 @@ public final class NatUtil {
         new VpnInterfaceOpDataEntryKey(vpnInterfaceName, vpnName)).build();
     }
 
+    @Nullable
     public static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = NatUtil.getVpnInstanceOpDataIdentifier(rd);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
@@ -2085,9 +2110,7 @@ public final class NatUtil {
                     String sharedRouterName = routerUuid.getValue();
                     if (!routerName.equals(sharedRouterName)) {
                         BigInteger switchDpnId = NatUtil.getPrimaryNaptfromRouterName(broker, sharedRouterName);
-                        if (switchDpnId == null) {
-                            continue;
-                        } else if (switchDpnId.equals(dpnId)) {
+                        if (switchDpnId != null && switchDpnId.equals(dpnId)) {
                             LOG.debug("checkForRoutersWithSameExtNetAndNaptSwitch: external-network {} is "
                                     + "associated with other active router {} on NAPT switch {}", networkId,
                                     sharedRouterName, switchDpnId);
@@ -2105,14 +2128,12 @@ public final class NatUtil {
         List<Uuid> routerUuidList = getOptionalExternalSubnets(broker, externalSubnetId).toJavaUtil()
             .map(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
                 .subnets.Subnets::getRouterIds).orElse(Collections.emptyList());
-        if (routerUuidList != null && !routerUuidList.isEmpty()) {
+        if (!routerUuidList.isEmpty()) {
             for (Uuid routerUuid : routerUuidList) {
                 String sharedRouterName = routerUuid.getValue();
                 if (!routerName.equals(sharedRouterName)) {
                     BigInteger switchDpnId = NatUtil.getPrimaryNaptfromRouterName(broker, sharedRouterName);
-                    if (switchDpnId == null) {
-                        continue;
-                    } else if (switchDpnId.equals(dpnId)) {
+                    if (switchDpnId != null && switchDpnId.equals(dpnId)) {
                         LOG.debug("checkForRoutersWithSameExtSubnetAndNaptSwitch: external-subnetwork {} is "
                                   + "associated with other active router {} on NAPT switch {}", externalSubnetId,
                             sharedRouterName, switchDpnId);
@@ -2130,7 +2151,7 @@ public final class NatUtil {
             List<ExternalIps> externalIps = router.getExternalIps();
             List<String> externalIpsSting = new ArrayList<>();
 
-            if (externalIps.isEmpty()) {
+            if (externalIps == null || externalIps.isEmpty()) {
                 LOG.error("installRouterGwFlows: setupRouterGwFlows no externalIP present");
                 return;
             }
@@ -2365,17 +2386,16 @@ public final class NatUtil {
         return extRouterInstanceIndentifier;
     }
 
+    @Nullable
     public static LearntVpnVipToPortData getLearntVpnVipToPortData(DataBroker dataBroker) {
-        InstanceIdentifier<LearntVpnVipToPortData> learntVpnVipToPortDataId = getLearntVpnVipToPortDataId();
-        LearntVpnVipToPortData learntVpnVipToPortData = null;
         try {
-            learntVpnVipToPortData = SingleTransactionDataBroker.syncRead(dataBroker,
-                    LogicalDatastoreType.OPERATIONAL, learntVpnVipToPortDataId);
+            return SingleTransactionDataBroker.syncRead(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, getLearntVpnVipToPortDataId());
         }
         catch (ReadFailedException e) {
             LOG.warn("Failed to read LearntVpnVipToPortData with error {}", e.getMessage());
+            return null;
         }
-        return learntVpnVipToPortData;
     }
 
     public static InstanceIdentifier<LearntVpnVipToPortData> getLearntVpnVipToPortDataId() {
@@ -2437,14 +2457,11 @@ public final class NatUtil {
         Optional<Networks> networkData =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
                         broker, LogicalDatastoreType.CONFIGURATION, id);
-        if (networkData.isPresent()) {
-            return true;
-        }
-        return false;
+        return networkData.isPresent();
     }
 
+    @Nullable
     public static String getElanInstancePhysicalNetwok(String elanInstanceName, DataBroker broker) {
-
         ElanInstance elanInstance =  getElanInstanceByName(elanInstanceName, broker);
         if (null != elanInstance) {
             return elanInstance.getPhysicalNetworkName();
@@ -2494,11 +2511,13 @@ public final class NatUtil {
                 LogicalDatastoreType.OPERATIONAL, nodeId);
     }
 
+    @Nullable
     public static String getProviderMappings(BigInteger dpId, DataBroker dataBroker) {
         return getBridgeRefInfo(dpId, dataBroker).toJavaUtil().map(node -> getOpenvswitchOtherConfigs(node,
                 PROVIDER_MAPPINGS, dataBroker)).orElse(null);
     }
 
+    @Nullable
     public static String getOpenvswitchOtherConfigs(Node node, String key, DataBroker dataBroker) {
         OvsdbNodeAugmentation ovsdbNode = node.augmentation(OvsdbNodeAugmentation.class);
         if (ovsdbNode == null) {
@@ -2510,7 +2529,7 @@ public final class NatUtil {
 
         if (ovsdbNode != null && ovsdbNode.getOpenvswitchOtherConfigs() != null) {
             for (OpenvswitchOtherConfigs openvswitchOtherConfigs : ovsdbNode.getOpenvswitchOtherConfigs()) {
-                if (openvswitchOtherConfigs.getOtherConfigKey().equals(key)) {
+                if (Objects.equals(openvswitchOtherConfigs.getOtherConfigKey(), key)) {
                     return openvswitchOtherConfigs.getOtherConfigValue();
                 }
             }
@@ -2532,10 +2551,17 @@ public final class NatUtil {
 
     }
 
+    @Nullable
     public static OvsdbBridgeAugmentation extractBridgeAugmentation(Node node) {
         if (node == null) {
             return null;
         }
         return node.augmentation(OvsdbBridgeAugmentation.class);
+    }
+
+    // Use Objects.requireNonNullElse instead with JDK9+
+    @Nonnull
+    public static <T> T requireNonNullElse(@Nullable T obj, @Nonnull T defaultObj) {
+        return obj != null ? obj : requireNonNull(defaultObj);
     }
 }

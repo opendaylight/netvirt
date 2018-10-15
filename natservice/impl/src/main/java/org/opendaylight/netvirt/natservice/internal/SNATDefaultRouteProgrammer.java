@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -64,6 +65,7 @@ public class SNATDefaultRouteProgrammer {
         this.natServiceCounters = natServiceCounters;
     }
 
+    @Nullable
     private FlowEntity buildDefNATFlowEntity(BigInteger dpId, long vpnId) {
         InetAddress defaultIP = null;
         try {
@@ -96,6 +98,7 @@ public class SNATDefaultRouteProgrammer {
         return flowEntity;
     }
 
+    @Nullable
     private FlowEntity buildDefNATFlowEntity(BigInteger dpId, long bgpVpnId, long routerId) {
         InetAddress defaultIP = null;
         try {

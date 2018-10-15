@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
 
 import java.math.BigInteger;
 import java.time.Duration;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -61,7 +63,6 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -291,7 +292,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         addDefaultFibRouteForSNAT(confTx, dpnId, routerId);
         int elanId = NatUtil.getElanInstanceByName(routers.getNetworkId().getValue(), getDataBroker())
                 .getElanTag().intValue();
-        for (ExternalIps externalIp : routers.getExternalIps()) {
+        for (ExternalIps externalIp : requireNonNullElse(routers.getExternalIps(),
+                Collections.<ExternalIps>emptyList())) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -309,7 +311,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         removeDefaultFibRouteForSNAT(confTx, dpnId, routerId);
-        for (ExternalIps externalIp : routers.getExternalIps()) {
+        for (ExternalIps externalIp : requireNonNullElse(routers.getExternalIps(),
+                Collections.<ExternalIps>emptyList())) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -325,7 +328,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         String externalGwMac = routers.getExtGwMacAddress();
-        for (ExternalIps externalIp : routers.getExternalIps()) {
+        for (ExternalIps externalIp : requireNonNullElse(routers.getExternalIps(),
+                Collections.<ExternalIps>emptyList())) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -342,7 +346,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             Routers routers, BigInteger dpnId) throws ExecutionException, InterruptedException {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(confTx, routerName);
-        for (ExternalIps externalIp : routers.getExternalIps()) {
+        for (ExternalIps externalIp : requireNonNullElse(routers.getExternalIps(),
+                Collections.<ExternalIps>emptyList())) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -419,7 +424,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
         String ipPrefix = externalIp + "/32";
         NatUtil.addPrefixToInterface(dataBroker, NatUtil.getVpnId(dataBroker, subNetId),
-                null, ipPrefix, externalNetId, new Uuid(subNetId), dpnId, Prefixes.PrefixCue.Nat);
+                null, ipPrefix, externalNetId, dpnId, Prefixes.PrefixCue.Nat);
 
         fibManager.addOrUpdateFibEntry(rd, routerMac, ipPrefix,
                 Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, extSubnetId,
@@ -635,6 +640,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         return "snatmiss." + routerName;
     }
 
+    @Nullable
     protected String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {
         Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
         RpcResult<GetTunnelInterfaceNameOutput> rpcResult;
@@ -672,7 +678,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected void removeMipAdjacencies(Routers routers) {
         LOG.info("removeMipAdjacencies for router {}", routers.getRouterName());
         String externalSubNetId  = null;
-        for (ExternalIps externalIp : routers.getExternalIps()) {
+        for (ExternalIps externalIp : requireNonNullElse(routers.getExternalIps(),
+                Collections.<ExternalIps>emptyList())) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -691,11 +698,13 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             VpnInterfaces vpnInterfaces = SingleTransactionDataBroker.syncRead(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, vpnInterfacesId);
             List<VpnInterface> updatedVpnInterface = new ArrayList<>();
-            for (VpnInterface vpnInterface : vpnInterfaces.getVpnInterface()) {
+            for (VpnInterface vpnInterface : requireNonNullElse(vpnInterfaces.getVpnInterface(),
+                    Collections.<VpnInterface>emptyList())) {
                 List<Adjacency> updatedAdjacencies = new ArrayList<>();
                 Adjacencies adjacencies = vpnInterface.augmentation(Adjacencies.class);
                 if (null != adjacencies) {
-                    for (Adjacency adjacency : adjacencies.getAdjacency()) {
+                    for (Adjacency adjacency : requireNonNullElse(adjacencies.getAdjacency(),
+                            Collections.<Adjacency>emptyList())) {
                         if (!adjacency.getSubnetId().getValue().equals(externalSubNetId)) {
                             updatedAdjacencies.add(adjacency);
                         }
@@ -729,13 +738,15 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         }
         LearntVpnVipToPortDataBuilder learntVpnVipToPortDataBuilder = new LearntVpnVipToPortDataBuilder();
         List<LearntVpnVipToPort> learntVpnVipToPortList = new ArrayList<>();
-        for (LearntVpnVipToPort learntVpnVipToPort : learntVpnVipToPortData.getLearntVpnVipToPort()) {
-            if (!learntVpnVipToPort.getVpnName().equals(networkId)) {
+        for (LearntVpnVipToPort learntVpnVipToPort : requireNonNullElse(learntVpnVipToPortData.getLearntVpnVipToPort(),
+                Collections.<LearntVpnVipToPort>emptyList())) {
+            if (!networkId.equals(learntVpnVipToPort.getVpnName())) {
                 LOG.info("The learned port belongs to Vpn {} hence not removing", learntVpnVipToPort.getVpnName());
                 learntVpnVipToPortList.add(learntVpnVipToPort);
             } else {
                 String externalSubNetId = null;
-                for (ExternalIps externalIp : routers.getExternalIps()) {
+                for (ExternalIps externalIp : requireNonNullElse(routers.getExternalIps(),
+                        Collections.<ExternalIps>emptyList())) {
                     if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                         // In this class we handle only IPv4 use-cases.
                         continue;

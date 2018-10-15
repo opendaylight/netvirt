@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.natservice.api;
 import java.math.BigInteger;
 
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Nullable;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
@@ -31,8 +32,8 @@ public interface SnatServiceManager {
 
     void removeNatServiceListener(SnatServiceListener aclServiceListner);
 
-    void notify(TypedReadWriteTransaction<Configuration> confTx,
-        Routers router, Routers oldRouter, BigInteger primarySwitchId, BigInteger dpnId, Action action)
+    void notify(TypedReadWriteTransaction<Configuration> confTx, Routers router, @Nullable Routers oldRouter,
+        BigInteger primarySwitchId, @Nullable BigInteger dpnId, Action action)
         throws ExecutionException, InterruptedException;
 
 }
