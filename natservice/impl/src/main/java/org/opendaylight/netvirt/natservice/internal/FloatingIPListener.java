@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -138,6 +139,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                 update.key(), original, update);
     }
 
+    @Nullable
     private FlowEntity buildPreDNATFlowEntity(BigInteger dpId, InternalToExternalPortMap mapping, long routerId, long
             associatedVpn) {
         String externalIp = mapping.getExternalIp();
@@ -250,6 +252,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         return flowEntity;
     }
 
+    @Nullable
     private FlowEntity buildSNATFlowEntity(BigInteger dpId, InternalToExternalPortMap mapping, long vpnId, Uuid
             externalNetworkId) {
         String internalIp = mapping.getInternalIp();
@@ -341,6 +344,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
     }
 
+    @Nullable
     private Uuid getExtNetworkId(final InstanceIdentifier<RouterPorts> portIid,
                                  LogicalDatastoreType dataStoreType) {
         Optional<RouterPorts> rtrPort =
@@ -351,8 +355,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return null;
         }
 
-        Uuid extNwId = rtrPort.get().getExternalNetworkId();
-        return extNwId;
+        return rtrPort.get().getExternalNetworkId();
     }
 
     private long getVpnId(Uuid extNwId, Uuid floatingIpExternalId) {
@@ -463,7 +466,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     }
 
     void createNATFlowEntries(String interfaceName, final InternalToExternalPortMap mapping,
-                              final InstanceIdentifier<RouterPorts> portIid, final String routerName, BigInteger dpnId,
+            final InstanceIdentifier<RouterPorts> portIid, final String routerName, @Nullable BigInteger dpnId,
             TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
         if (!validateIpMapping(mapping)) {
             LOG.error("createNATFlowEntries : Not a valid ip addresses in the mapping {}", mapping);
@@ -560,7 +563,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                 confTx);
     }
 
-    void createNATOnlyFlowEntries(BigInteger dpnId, String routerName, String associatedVPN,
+    void createNATOnlyFlowEntries(BigInteger dpnId, String routerName, @Nullable String associatedVPN,
                                   Uuid externalNetworkId, InternalToExternalPortMap mapping)
             throws ExecutionException, InterruptedException {
         String internalIp = mapping.getInternalIp();
@@ -604,9 +607,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     }
 
     void removeNATFlowEntries(String interfaceName, final InternalToExternalPortMap mapping,
-                              InstanceIdentifier<RouterPorts> portIid, final String routerName, BigInteger dpnId,
-                              TypedReadWriteTransaction<Configuration> removeFlowInvTx)
-            throws ExecutionException, InterruptedException {
+            InstanceIdentifier<RouterPorts> portIid, final String routerName, @Nullable BigInteger dpnId,
+            TypedReadWriteTransaction<Configuration> removeFlowInvTx) throws ExecutionException, InterruptedException {
         Uuid extNwId = getExtNetworkId(portIid, LogicalDatastoreType.OPERATIONAL);
         if (extNwId == null) {
             LOG.error("removeNATFlowEntries : External network associated with interface {} could not be retrieved",
@@ -819,7 +821,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     }
 
     private void addOrDelDefaultFibRouteForDnat(BigInteger dpnId, String routerName, long routerId,
-            TypedReadWriteTransaction<Configuration> confTx, boolean create)
+            @Nullable TypedReadWriteTransaction<Configuration> confTx, boolean create)
             throws ExecutionException, InterruptedException {
         if (confTx == null) {
             ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,

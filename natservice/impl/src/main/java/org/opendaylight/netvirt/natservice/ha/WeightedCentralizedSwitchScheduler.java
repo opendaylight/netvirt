@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -356,6 +357,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 new SubnetmapKey(subnetId)).build();
     }
 
+    @Nullable
     public BigInteger getCentralizedSwitch(String routerName) {
         try {
             Optional<RouterToNaptSwitch> naptSwitches = SingleTransactionDataBroker
@@ -381,9 +383,8 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         return false;
     }
 
-    public static List<Uuid> getUpdatedSubnetIds(
-            List<Uuid> updatedSubnetIds,
-            List<Uuid> currentSubnetIds) {
+    @Nullable
+    public static List<Uuid> getUpdatedSubnetIds(List<Uuid> updatedSubnetIds, List<Uuid> currentSubnetIds) {
         if (updatedSubnetIds == null) {
             return null;
         }

@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
@@ -410,13 +411,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     protected void subnetRegisterMapping(Routers routerEntry, Long segmentId) {
         LOG.debug("subnetRegisterMapping : Fetching values from extRouters model");
-        List<Uuid> subnetList = routerEntry.getSubnetIds();
         List<String> externalIps = NatUtil.getIpsListFromExternalIps(routerEntry.getExternalIps());
         int counter = 0;
         int extIpCounter = externalIps.size();
         LOG.debug("subnetRegisterMapping : counter values before looping counter {} and extIpCounter {}",
                 counter, extIpCounter);
-        for (Uuid subnet : subnetList) {
+        for (Uuid subnet : requireNonNullElse(routerEntry.getSubnetIds(), Collections.<Uuid>emptyList())) {
             LOG.debug("subnetRegisterMapping : Looping internal subnets for subnet {}", subnet);
             InstanceIdentifier<Subnetmap> subnetmapId = InstanceIdentifier
                 .builder(Subnetmaps.class)
@@ -715,6 +715,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         mdsalManager.addFlow(confTx, icmpDropFlow);
     }
 
+    @Nullable
     protected String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {
         Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
         RpcResult<GetTunnelInterfaceNameOutput> rpcResult;
@@ -975,11 +976,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         if (networkId != null) {
             Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
             if (vpnUuid != null) {
-                Long vpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
+                long vpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
                 coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + networkId, () -> {
                     installNaptPfibEntriesForExternalSubnets(routerName, dpnId, null);
                     //Install the NAPT PFIB TABLE which forwards outgoing packet to FIB Table matching on the VPN ID.
-                    if (vpnId != null && vpnId != NatConstants.INVALID_ID) {
+                    if (vpnId != NatConstants.INVALID_ID) {
                         installNaptPfibEntry(dpnId, vpnId, null);
                     }
                     return Collections.emptyList();
@@ -1001,7 +1002,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         return listBucketInfo;
     }
 
-    public void installNaptPfibEntry(BigInteger dpnId, long segmentId, TypedWriteTransaction<Configuration> confTx) {
+    public void installNaptPfibEntry(BigInteger dpnId, long segmentId,
+            @Nullable TypedWriteTransaction<Configuration> confTx) {
         LOG.debug("installNaptPfibEntry : called for dpnId {} and segmentId {} ", dpnId, segmentId);
         FlowEntity naptPfibFlowEntity = buildNaptPfibFlowEntity(dpnId, segmentId);
         if (confTx != null) {
@@ -1055,7 +1057,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     public void advToBgpAndInstallFibAndTsFlows(final BigInteger dpnId, final short tableId, final String vpnName,
                                                 final long routerId, final String routerName, final String externalIp,
-                                                final Uuid extNetworkId, final Routers router,
+                                                final Uuid extNetworkId, @Nullable final Routers router,
                                                 final TypedWriteTransaction<Configuration> confTx) {
         LOG.debug("advToBgpAndInstallFibAndTsFlows : entry for DPN ID {}, tableId {}, vpnname {} "
                 + "and externalIp {}", dpnId, tableId, vpnName, externalIp);
@@ -1090,33 +1092,28 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 int externalIpInDsFlag = 0;
                 //Get IPMaps from the DB for the router ID
                 List<IpMap> dbIpMaps = NaptManager.getIpMapList(dataBroker, routerId);
-                if (dbIpMaps != null) {
-                    for (IpMap dbIpMap : dbIpMaps) {
-                        String dbExternalIp = dbIpMap.getExternalIp();
-                        //Select the IPMap, whose external IP is the IP for which FIB is installed
-                        if (dbExternalIp.contains(externalIp)) {
-                            String dbInternalIp = dbIpMap.getInternalIp();
-                            IpMapKey dbIpMapKey = dbIpMap.key();
-                            LOG.debug("advToBgpAndInstallFibAndTsFlows : Setting label {} for internalIp {} "
-                                    + "and externalIp {}", label, dbInternalIp, externalIp);
-                            IpMap newIpm = new IpMapBuilder().withKey(dbIpMapKey).setInternalIp(dbInternalIp)
-                                .setExternalIp(dbExternalIp).setLabel(label).build();
-                            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                                naptManager.getIpMapIdentifier(routerId, dbInternalIp), newIpm);
-                            externalIpInDsFlag++;
-                        }
+                for (IpMap dbIpMap : dbIpMaps) {
+                    String dbExternalIp = dbIpMap.getExternalIp();
+                    //Select the IPMap, whose external IP is the IP for which FIB is installed
+                    if (dbExternalIp.contains(externalIp)) {
+                        String dbInternalIp = dbIpMap.getInternalIp();
+                        IpMapKey dbIpMapKey = dbIpMap.key();
+                        LOG.debug("advToBgpAndInstallFibAndTsFlows : Setting label {} for internalIp {} "
+                                + "and externalIp {}", label, dbInternalIp, externalIp);
+                        IpMap newIpm = new IpMapBuilder().withKey(dbIpMapKey).setInternalIp(dbInternalIp)
+                            .setExternalIp(dbExternalIp).setLabel(label).build();
+                        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                            naptManager.getIpMapIdentifier(routerId, dbInternalIp), newIpm);
+                        externalIpInDsFlag++;
                     }
-                    if (externalIpInDsFlag <= 0) {
-                        LOG.debug("advToBgpAndInstallFibAndTsFlows : External Ip {} not found in DS, "
-                                + "Failed to update label {} for routerId {} in DS",
-                                externalIp, label, routerId);
-                        String errMsg = String.format("Failed to update label %s due to external Ip %s not"
-                            + " found in DS for router %s", label, externalIp, routerId);
-                        return Futures.immediateFailedFuture(new Exception(errMsg));
-                    }
-                } else {
-                    LOG.error("advToBgpAndInstallFibAndTsFlows : Failed to write label {} for externalIp {} for"
-                            + " routerId {} in DS", label, externalIp, routerId);
+                }
+                if (externalIpInDsFlag <= 0) {
+                    LOG.debug("advToBgpAndInstallFibAndTsFlows : External Ip {} not found in DS, "
+                            + "Failed to update label {} for routerId {} in DS",
+                            externalIp, label, routerId);
+                    String errMsg = String.format("Failed to update label %s due to external Ip %s not"
+                        + " found in DS for router %s", label, externalIp, routerId);
+                    return Futures.immediateFailedFuture(new Exception(errMsg));
                 }
                 //Inform BGP
                 long l3vni = 0;
@@ -1125,9 +1122,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 }
                 Routers extRouter = router != null ? router :
                     NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
-                Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(externalIp,
-                        extRouter);
-                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, externalSubnetId,
+                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd,
                     externalIp, nextHopIp, extRouter.getNetworkId().getValue(), null, label, l3vni,
                     RouteOrigin.STATIC, dpnId);
 
@@ -1146,12 +1141,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId, NwConstants.INBOUND_NAPT_TABLE, confTx);
                 }
                 String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
-                Optional<Subnets> externalSubnet = NatUtil.getOptionalExternalSubnets(dataBroker,
-                        externalSubnetId);
-                String externalVpn = vpnName;
-                if (externalSubnet.isPresent()) {
-                    externalVpn =  externalSubnetId.getValue();
-                }
+                Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(externalIp, extRouter);
+                Optional<Subnets> externalSubnet = NatUtil.getOptionalExternalSubnets(dataBroker, externalSubnetId);
+                String externalVpn = externalSubnet.isPresent() ? externalSubnetId.getValue() : vpnName;
                 CreateFibEntryInput input = new CreateFibEntryInputBuilder()
                     .setVpnName(externalVpn)
                     .setSourceDpid(dpnId).setIpAddress(fibExternalIp).setServiceId(label)
@@ -1429,12 +1421,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             Optional<IpPortMapping> ipPortMapping =
                                     MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, ipPortMappingId);
                             if (ipPortMapping.isPresent()) {
-                                List<IntextIpProtocolType> intextIpProtocolTypes = ipPortMapping.get()
-                                        .getIntextIpProtocolType();
-                                for (IntextIpProtocolType intextIpProtocolType : intextIpProtocolTypes) {
+                                for (IntextIpProtocolType intextIpProtocolType : requireNonNullElse(
+                                        ipPortMapping.get().getIntextIpProtocolType(),
+                                        Collections.<IntextIpProtocolType>emptyList())) {
                                     ProtocolTypes protoType = intextIpProtocolType.getProtocol();
-                                    List<IpPortMap> ipPortMaps = intextIpProtocolType.getIpPortMap();
-                                    for (IpPortMap ipPortMap : ipPortMaps) {
+                                    for (IpPortMap ipPortMap : requireNonNullElse(intextIpProtocolType.getIpPortMap(),
+                                            Collections.<IpPortMap>emptyList())) {
                                         IpPortExternal ipPortExternal = ipPortMap.getIpPortExternal();
                                         if (ipPortExternal.getIpAddress().equals(externalIp)) {
                                             externalPorts.add(ipPortExternal.getPortNum());
@@ -1530,8 +1522,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     LOG.debug("update : Checking if this is update on subnets");
                     List<Uuid> originalSubnetIds = original.getSubnetIds();
                     List<Uuid> updatedSubnetIds = update.getSubnetIds();
-                    Set<Uuid> addedSubnetIds = new HashSet<>(updatedSubnetIds);
-                    addedSubnetIds.removeAll(originalSubnetIds);
+                    Set<Uuid> addedSubnetIds =
+                        updatedSubnetIds != null ? new HashSet<>(updatedSubnetIds) : new HashSet<>();
+                    if (originalSubnetIds != null) {
+                        addedSubnetIds.removeAll(originalSubnetIds);
+                    }
 
                     //Check if the Subnet IDs are added during the update.
                     if (addedSubnetIds.size() != 0) {
@@ -1611,9 +1606,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (externalCountersData.isPresent()) {
             ExternalIpsCounter externalIpsCounters = externalCountersData.get();
-            List<ExternalCounters> externalCounters = externalIpsCounters.getExternalCounters();
-            for (ExternalCounters ext : externalCounters) {
-                for (ExternalIpCounter externalIpCount : ext.getExternalIpCounter()) {
+            for (ExternalCounters ext : requireNonNullElse(externalIpsCounters.getExternalCounters(),
+                    Collections.<ExternalCounters>emptyList())) {
+                for (ExternalIpCounter externalIpCount : requireNonNullElse(ext.getExternalIpCounter(),
+                        Collections.<ExternalIpCounter>emptyList())) {
                     if (externalIpCount.getExternalIp().equals(externalIp)) {
                         if (externalIpCount.getCounter() != 0) {
                             return true;
@@ -1694,6 +1690,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
     }
 
+    @Nullable
     protected Long checkExternalIpLabel(long routerId, String externalIp) {
         List<IpMap> ipMaps = naptManager.getIpMapList(dataBroker, routerId);
         for (IpMap ipMap : ipMaps) {
@@ -1769,7 +1766,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     public void handleDisableSnat(Routers router, Uuid networkUuid, @Nonnull Collection<String> externalIps,
-                                  boolean routerFlag, String vpnName, BigInteger naptSwitchDpnId,
+                                  boolean routerFlag, @Nullable String vpnName, BigInteger naptSwitchDpnId,
                                   long routerId, TypedReadWriteTransaction<Configuration> removeFlowInvTx) {
         LOG.info("handleDisableSnat : Entry");
         String routerName = router.getRouterName();
@@ -2026,10 +2023,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             return;
         }
 
-        List<IntextIpProtocolType> intextIpProtocolTypes = ipPortMapping.getIntextIpProtocolType();
-        for (IntextIpProtocolType intextIpProtocolType : intextIpProtocolTypes) {
-            List<IpPortMap> ipPortMaps = intextIpProtocolType.getIpPortMap();
-            for (IpPortMap ipPortMap : ipPortMaps) {
+        for (IntextIpProtocolType intextIpProtocolType : requireNonNullElse(ipPortMapping.getIntextIpProtocolType(),
+                Collections.<IntextIpProtocolType>emptyList())) {
+            for (IpPortMap ipPortMap : requireNonNullElse(intextIpProtocolType.getIpPortMap(),
+                    Collections.<IpPortMap>emptyList())) {
                 String ipPortInternal = ipPortMap.getIpPortInternal();
                 String[] ipPortParts = ipPortInternal.split(":");
                 if (ipPortParts.length != 2) {
@@ -2142,10 +2139,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 LOG.error("removeNaptFlowsFromActiveSwitchInternetVpn : Unable to retrieve the IpPortMapping");
                 return;
             }
-            List<IntextIpProtocolType> intextIpProtocolTypes = ipPortMapping.getIntextIpProtocolType();
-            for (IntextIpProtocolType intextIpProtocolType : intextIpProtocolTypes) {
-                List<IpPortMap> ipPortMaps = intextIpProtocolType.getIpPortMap();
-                for (IpPortMap ipPortMap : ipPortMaps) {
+            for (IntextIpProtocolType intextIpProtocolType : requireNonNullElse(ipPortMapping.getIntextIpProtocolType(),
+                    Collections.<IntextIpProtocolType>emptyList())) {
+                for (IpPortMap ipPortMap : requireNonNullElse(intextIpProtocolType.getIpPortMap(),
+                        Collections.<IpPortMap>emptyList())) {
                     String ipPortInternal = ipPortMap.getIpPortInternal();
                     String[] ipPortParts = ipPortInternal.split(":");
                     if (ipPortParts.length != 2) {
@@ -2233,8 +2230,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
     }
 
-    public void clrRtsFromBgpAndDelFibTs(final BigInteger dpnId, Long routerId, Uuid networkUuid,
-                                         @Nonnull Collection<String> externalIps, String vpnName,
+    public void clrRtsFromBgpAndDelFibTs(final BigInteger dpnId, Long routerId, @Nullable Uuid networkUuid,
+                                         @Nonnull Collection<String> externalIps, @Nullable String vpnName,
                                          String extGwMacAddress, TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
         //Withdraw the corresponding routes from the BGP.
@@ -2469,9 +2466,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     protected void clearFibTsAndReverseTraffic(final BigInteger dpnId, Long routerId, Uuid networkUuid,
-                                               List<String> externalIps, String vpnName, String extGwMacAddress,
-                                               TypedReadWriteTransaction<Configuration> writeFlowInvTx)
-            throws ExecutionException, InterruptedException {
+            List<String> externalIps, @Nullable String vpnName, String extGwMacAddress,
+            TypedReadWriteTransaction<Configuration> writeFlowInvTx) throws ExecutionException, InterruptedException {
         //Withdraw the corresponding routes from the BGP.
         //Get the network ID using the router ID.
         LOG.debug("clearFibTsAndReverseTraffic : for externalIps {} with routerId {},"
@@ -2695,10 +2691,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     routerId);
             return;
         }
-        List<IntextIpProtocolType> intextIpProtocolTypes = ipPortMapping.getIntextIpProtocolType();
-        for (IntextIpProtocolType intextIpProtocolType : intextIpProtocolTypes) {
-            List<IpPortMap> ipPortMaps = intextIpProtocolType.getIpPortMap();
-            for (IpPortMap ipPortMap : ipPortMaps) {
+        for (IntextIpProtocolType intextIpProtocolType : requireNonNullElse(ipPortMapping.getIntextIpProtocolType(),
+                Collections.<IntextIpProtocolType>emptyList())) {
+            for (IpPortMap ipPortMap : requireNonNullElse(intextIpProtocolType.getIpPortMap(),
+                    Collections.<IpPortMap>emptyList())) {
                 String ipPortInternal = ipPortMap.getIpPortInternal();
                 String[] ipPortParts = ipPortInternal.split(":");
                 if (ipPortParts.length != 2) {
@@ -2897,7 +2893,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     protected void installNaptPfibEntriesForExternalSubnets(String routerName, BigInteger dpnId,
-                                                            TypedWriteTransaction<Configuration> writeFlowInvTx) {
+                                                        @Nullable TypedWriteTransaction<Configuration> writeFlowInvTx) {
         Collection<Uuid> externalSubnetIdsForRouter = NatUtil.getExternalSubnetIdsForRouter(dataBroker,
                 routerName);
         for (Uuid externalSubnetId : externalSubnetIdsForRouter) {

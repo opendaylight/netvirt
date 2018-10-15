@@ -7,9 +7,12 @@
  */
 package org.opendaylight.netvirt.natservice.rpcservice;
 
+import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
+
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -134,7 +137,8 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
         outerloop:
         for (Uuid subnetUuid: subnetUuidList) {
             subNet = nvpnManager.getNeutronSubnet(subnetUuid);
-            for (AllocationPools allocationPool : subNet.getAllocationPools()) {
+            for (AllocationPools allocationPool : requireNonNullElse(subNet.getAllocationPools(),
+                    Collections.<AllocationPools>emptyList())) {
                 if (NatUtil.isIpInSubnet(ipAddress,
                         allocationPool.getStart().stringValue(),
                         allocationPool.getEnd().stringValue())) {
@@ -162,8 +166,8 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
             LOG.warn("getNatTranslationsForNetworkAndIpaddress : No DNAT IP Mapping found for IP {}", ipAddress);
         } else {
             for (Ports fipPort : fipPorts) {
-                List<InternalToExternalPortMap> ipMapping = fipPort.getInternalToExternalPortMap();
-                for (InternalToExternalPortMap fipMap : ipMapping) {
+                for (InternalToExternalPortMap fipMap : requireNonNullElse(fipPort.getInternalToExternalPortMap(),
+                        Collections.<InternalToExternalPortMap>emptyList())) {
                     if (fipMap.getInternalIp().equals(ipAddress)) {
                         output = new GetNatTranslationsForNetworkAndIpaddressOutputBuilder()
                                     .setExternalIp(fipMap.getExternalIp())
@@ -180,8 +184,10 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
         if (ipPortMapping == null) {
             LOG.warn("getNatTranslationsForNetworkAndIpaddress : No SNAT IP Mapping found for IP {}", ipAddress);
         } else {
-            for (IntextIpProtocolType protocolType : ipPortMapping.getIntextIpProtocolType()) {
-                for (IpPortMap ipPortMap : protocolType.getIpPortMap()) {
+            for (IntextIpProtocolType protocolType : requireNonNullElse(ipPortMapping.getIntextIpProtocolType(),
+                    Collections.<IntextIpProtocolType>emptyList())) {
+                for (IpPortMap ipPortMap : requireNonNullElse(protocolType.getIpPortMap(),
+                        Collections.<IpPortMap>emptyList())) {
                     String[] internalIpPort = ipPortMap.getIpPortInternal().split(NwConstants.MACADDR_SEP);
                     if (ipAddress.equals(internalIpPort[0])) {
 
@@ -222,8 +228,10 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
             // Capturing SNAT information
             List<SnatIpMapping> snatIpMapping = new ArrayList<>();
 
-            for (IntextIpProtocolType protocolType : ipPortMapping.getIntextIpProtocolType()) {
-                for (IpPortMap ipPortMap : protocolType.getIpPortMap()) {
+            for (IntextIpProtocolType protocolType : requireNonNullElse(ipPortMapping.getIntextIpProtocolType(),
+                    Collections.<IntextIpProtocolType>emptyList())) {
+                for (IpPortMap ipPortMap : requireNonNullElse(protocolType.getIpPortMap(),
+                        Collections.<IpPortMap>emptyList())) {
                     String[] internalPortMap = ipPortMap.getIpPortInternal().split(NwConstants.MACADDR_SEP);
                     SnatIpMappingBuilder natIpMappingBuilder = new SnatIpMappingBuilder()
                             .setInternalIp(internalPortMap[0]).setInternalPort(internalPortMap[1])
@@ -243,8 +251,8 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
             LOG.warn("constructNatInformation : No DNAT IP Mapping found for router-uuid {}", routerUuid.getValue());
         } else {
             for (Ports fipPort : fipPorts) {
-                List<InternalToExternalPortMap> ipMapping = fipPort.getInternalToExternalPortMap();
-                for (InternalToExternalPortMap fipMap : ipMapping) {
+                for (InternalToExternalPortMap fipMap : requireNonNullElse(fipPort.getInternalToExternalPortMap(),
+                        Collections.<InternalToExternalPortMap>emptyList())) {
                     DnatIpMappingBuilder natIpMappingBuilder = new DnatIpMappingBuilder()
                             .setExternalIp(fipMap.getExternalIp()).setInternalIp(fipMap.getInternalIp());
                     dnatIpMapping.add(natIpMappingBuilder.build());

@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.HashBasedTable;
@@ -18,11 +19,14 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -112,7 +116,7 @@ public class NatSouthboundEventHandlers {
     }
 
     public void handleAdd(String interfaceName, BigInteger intfDpnId,
-                          RouterInterface routerInterface, VipState vipState) {
+                          RouterInterface routerInterface, @Nullable VipState vipState) {
         String routerName = routerInterface.getRouterName();
         NatInterfaceStateAddWorker natIfaceStateAddWorker = new NatInterfaceStateAddWorker(interfaceName,
                 intfDpnId, routerName);
@@ -286,7 +290,7 @@ public class NatSouthboundEventHandlers {
     private void processInterfaceAdded(String portName, String routerId, BigInteger dpnId, VipState vipState) {
         LOG.trace("processInterfaceAdded : Processing Interface Add Event for interface {}", portName);
         List<InternalToExternalPortMap> intExtPortMapList = getIntExtPortMapListForPortName(portName, routerId);
-        if (intExtPortMapList == null || intExtPortMapList.isEmpty()) {
+        if (intExtPortMapList.isEmpty()) {
             LOG.debug("processInterfaceAdded : Ip Mapping list is empty/null for portname {}", portName);
             return;
         }
@@ -304,6 +308,7 @@ public class NatSouthboundEventHandlers {
         }, MoreExecutors.directExecutor());
     }
 
+    @Nonnull
     private List<InternalToExternalPortMap> getIntExtPortMapListForPortName(String portName, String routerId) {
         InstanceIdentifier<Ports> portToIpMapIdentifier = NatUtil.buildPortToIpMapIdentifier(routerId, portName);
         Optional<Ports> port =
@@ -312,11 +317,12 @@ public class NatSouthboundEventHandlers {
         if (!port.isPresent()) {
             LOG.info("getIntExtPortMapListForPortName : Unable to read router port entry for router ID {} "
                     + "and port name {}", routerId, portName);
-            return null;
+            return Collections.emptyList();
         }
-        return port.get().getInternalToExternalPortMap();
+        return requireNonNullElse(port.get().getInternalToExternalPortMap(), Collections.emptyList());
     }
 
+    @Nullable
     private BigInteger getNaptSwitchforRouter(DataBroker broker, String routerName) {
         InstanceIdentifier<RouterToNaptSwitch> rtrNaptSw = InstanceIdentifier.builder(NaptSwitches.class)
             .child(RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerName)).build();
@@ -340,6 +346,7 @@ public class NatSouthboundEventHandlers {
             + "router {} ip {} port {}", tableId, dpnId, routerId, ipAddress, ipPort);
     }
 
+    @Nullable
     private List<String> getFixedIpsForPort(String interfname) {
         LOG.debug("getFixedIpsForPort : getFixedIpsForPort method is called for interface {}", interfname);
         try {
@@ -365,7 +372,7 @@ public class NatSouthboundEventHandlers {
         LOG.trace("processInterfaceRemoved : Processing Interface Removed Event for interface {} on DPN ID {}",
                 portName, dpnId);
         List<InternalToExternalPortMap> intExtPortMapList = getIntExtPortMapListForPortName(portName, routerId);
-        if (intExtPortMapList == null || intExtPortMapList.isEmpty()) {
+        if (intExtPortMapList.isEmpty()) {
             LOG.debug("processInterfaceRemoved : Ip Mapping list is empty/null for portName {}", portName);
             return;
         }
@@ -415,9 +422,10 @@ public class NatSouthboundEventHandlers {
                 continue;
             }
 
-            for (IntIpProtoType protoType: ipPort.getIntIpProtoType()) {
+            for (IntIpProtoType protoType : requireNonNullElse(ipPort.getIntIpProtoType(),
+                    Collections.<IntIpProtoType>emptyList())) {
                 ProtocolTypes protocol = protoType.getProtocol();
-                for (Integer portnum : protoType.getPorts()) {
+                for (Integer portnum : requireNonNullElse(protoType.getPorts(), Collections.<Integer>emptyList())) {
                     //build and remove the flow in outbound table
                     try {
                         removeNatFlow(naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE, routerId, internalIp, portnum);
