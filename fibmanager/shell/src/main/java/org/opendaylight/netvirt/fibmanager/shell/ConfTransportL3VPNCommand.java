@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.fibmanager.shell;
 
 import java.util.Locale;
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -31,6 +32,7 @@ public class ConfTransportL3VPNCommand extends OsgiCommandSupport {
     }
 
     @Override
+    @Nullable
     protected Object doExecute() {
 
         if (service == null || service.isEmpty() || !"L3VPN".equalsIgnoreCase(service)) {

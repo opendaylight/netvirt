@@ -15,6 +15,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Locale;
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
@@ -68,6 +69,7 @@ public class ShowFibCommand extends OsgiCommandSupport {
     }
 
     @Override
+    @Nullable
     protected Object doExecute() {
         PrintStream console = session.getConsole();
         if (prefixOrSubnetOption != null && prefixOrSubnetOption.length() > 0) {
@@ -188,7 +190,7 @@ public class ShowFibCommand extends OsgiCommandSupport {
     }
 
     private void printVrfTable(VrfTables vrfTable, PrintStream console, boolean isIpv4, boolean isIpv6,
-            boolean isL2vpn, String inputPrefixOrSubnet) {
+            boolean isL2vpn, @Nullable String inputPrefixOrSubnet) {
 
         List<VrfEntry> vrfEntries = vrfTable.getVrfEntry();
         if (vrfEntries == null) {
@@ -238,6 +240,7 @@ public class ShowFibCommand extends OsgiCommandSupport {
         }
     }
 
+    @Nullable
     private Object usage(PrintStream console) {
         String nl = System.getProperty("line.separator");
         console.println("===================================================");

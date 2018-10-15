@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.fibmanager.shell;
 
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -20,6 +21,7 @@ public class ShowTransportTypeCommand extends OsgiCommandSupport {
     }
 
     @Override
+    @Nullable
     protected Object doExecute() {
         String displayFormat = "%-16s %-16s";
         String cacheVal = fibManager.getReqTransType();
