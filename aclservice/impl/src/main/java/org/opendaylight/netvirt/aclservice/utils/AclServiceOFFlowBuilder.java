@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiFunction;
+import javax.annotation.Nullable;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -60,6 +61,7 @@ public final class AclServiceOFFlowBuilder {
      *            the matches
      * @return the map containing the flows and the respective flow id
      */
+    @Nullable
     public static Map<String, List<MatchInfoBase>> programIpFlow(Matches matches) {
         if (matches != null) {
             AceIp acl = (AceIp) matches.getAceType();

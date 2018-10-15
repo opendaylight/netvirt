@@ -64,7 +64,8 @@ public class AclInstanceRecoveryHandler implements ServiceRecoveryInterface {
                 Interface interfaceBefore = interfaceOptional.get();
                 LOG.debug("Starting Recovery of acl Instance {} for interface {}", entityId, interfaceBefore.getName());
                 InterfaceAcl interfaceAclBefore = interfaceBefore.augmentation(InterfaceAcl.class);
-                List<Uuid> sgList = new ArrayList<>(interfaceAclBefore.getSecurityGroups());
+                List<Uuid> sgList = interfaceAclBefore.getSecurityGroups() != null ? new ArrayList<>(
+                    interfaceAclBefore.getSecurityGroups()) : new ArrayList<>();
                 sgList.remove(aclId);
                 InterfaceAcl interfaceAclAfter = new InterfaceAclBuilder(interfaceAclBefore).setSecurityGroups(sgList)
                         .build();

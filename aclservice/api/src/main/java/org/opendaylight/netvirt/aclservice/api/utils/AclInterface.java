@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableSortedSet;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.SortedSet;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.port.subnet.SubnetInfo;
@@ -273,11 +274,11 @@ public final class AclInterface {
         private BigInteger dpId;
         private Long elanId;
         private boolean portSecurityEnabled;
-        private List<Uuid> securityGroups;
-        private List<AllowedAddressPairs> allowedAddressPairs;
-        private List<SubnetInfo> subnetInfo;
-        private SortedSet<Integer> ingressRemoteAclTags;
-        private SortedSet<Integer> egressRemoteAclTags;
+        private @Nullable List<Uuid> securityGroups;
+        private @Nullable List<AllowedAddressPairs> allowedAddressPairs;
+        private @Nullable List<SubnetInfo> subnetInfo;
+        private @Nullable SortedSet<Integer> ingressRemoteAclTags;
+        private @Nullable SortedSet<Integer> egressRemoteAclTags;
         private boolean isMarkedForDelete;
 
         private Builder() {
@@ -322,27 +323,27 @@ public final class AclInterface {
             return this;
         }
 
-        public Builder securityGroups(List<Uuid> list) {
+        public Builder securityGroups(@Nullable List<Uuid> list) {
             this.securityGroups = list == null ? null : ImmutableList.copyOf(list);
             return this;
         }
 
-        public Builder allowedAddressPairs(List<AllowedAddressPairs> list) {
+        public Builder allowedAddressPairs(@Nullable List<AllowedAddressPairs> list) {
             this.allowedAddressPairs = list == null ? null : ImmutableList.copyOf(list);
             return this;
         }
 
-        public Builder subnetInfo(List<SubnetInfo> list) {
+        public Builder subnetInfo(@Nullable List<SubnetInfo> list) {
             this.subnetInfo = list == null ? null : ImmutableList.copyOf(list);
             return this;
         }
 
-        public Builder ingressRemoteAclTags(SortedSet<Integer> list) {
+        public Builder ingressRemoteAclTags(@Nullable SortedSet<Integer> list) {
             this.ingressRemoteAclTags = list == null ? null : ImmutableSortedSet.copyOf(list);
             return this;
         }
 
-        public Builder egressRemoteAclTags(SortedSet<Integer> list) {
+        public Builder egressRemoteAclTags(@Nullable SortedSet<Integer> list) {
             this.egressRemoteAclTags = list == null ? null : ImmutableSortedSet.copyOf(list);
             return this;
         }

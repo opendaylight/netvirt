@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -340,9 +341,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 continue;
             }
             AccessListEntries accessListEntries = acl.getAccessListEntries();
-            List<Ace> aceList = accessListEntries.getAce();
-            for (Ace ace: aceList) {
-                programAceRule(port, aclUuid.getValue(), ace, addOrRemove);
+            if (accessListEntries != null && accessListEntries.getAce() != null) {
+                for (Ace ace: accessListEntries.getAce()) {
+                    programAceRule(port, aclUuid.getValue(), ace, addOrRemove);
+                }
             }
         }
         return true;
@@ -357,7 +359,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param addOrRemove whether to delete or add flow
      */
     protected void programAceRule(AclInterface port, String aclName, Ace ace, int addOrRemove) {
-        SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
+        SecurityRuleAttr aceAttr = AclServiceUtils.getAccessListAttributes(ace);
         if (!isValidDirection(aceAttr.getDirection())) {
             LOG.trace("Ignoring {} direction while processing for {} ACE Rule {}", aceAttr.getDirection(),
                     this.directionString, ace.getRuleName());
@@ -368,9 +370,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 port.getInterfaceId());
 
         Matches matches = ace.getMatches();
-        Map<String, List<MatchInfoBase>> flowMap = null;
-        if (matches.getAceType() instanceof AceIp) {
-            flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
+        if (matches != null && matches.getAceType() instanceof AceIp) {
+            Map<String, List<MatchInfoBase>> flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
             if (!AclServiceUtils.doesAceHaveRemoteGroupId(aceAttr)) {
                 // programming for ACE which doesn't have any remote group Id
                 programForAceNotHavingRemoteAclId(port, aclName, ace, flowMap, addOrRemove);
@@ -383,7 +384,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     }
 
     protected void programForAceNotHavingRemoteAclId(AclInterface port, String aclName, Ace ace,
-            Map<String, List<MatchInfoBase>> flowMap, int addOrRemove) {
+            @Nullable Map<String, List<MatchInfoBase>> flowMap, int addOrRemove) {
         if (null == flowMap) {
             return;
         }
@@ -409,7 +410,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     }
 
     protected void programAceSpecificFlows(AclInterface port, String aclName, Ace ace,
-            Map<String, List<MatchInfoBase>> flowMap, Uuid remoteAclId, int addOrRemove) {
+            @Nullable Map<String, List<MatchInfoBase>> flowMap, Uuid remoteAclId, int addOrRemove) {
         if (null == flowMap) {
             return;
         }
@@ -602,7 +603,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     protected void handleRemoteAclUpdate(Acl aclBefore, Acl aclAfter, Collection<AclInterface> portsBefore) {
         String aclName = aclAfter.getAclName();
         Collection<AclInterface> interfaceList = aclDataUtil.getInterfaceList(new Uuid(aclName));
-        if (interfaceList == null || interfaceList.isEmpty()) {
+        if (interfaceList.isEmpty()) {
             LOG.trace("handleRemoteAclUpdate: No interfaces found with ACL={}", aclName);
             return;
         }
@@ -634,7 +635,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     private void programRemoteAclTable(String aclName, Set<Uuid> remoteAclIds, Set<BigInteger> dpns, int addOrRemove) {
         for (Uuid remoteAclId : remoteAclIds) {
             Collection<AclInterface> remoteAclInterfaces = aclDataUtil.getInterfaceList(remoteAclId);
-            if (remoteAclInterfaces == null || remoteAclInterfaces.isEmpty()) {
+            if (remoteAclInterfaces.isEmpty()) {
                 continue;
             }
             Set<AllowedAddressPairs> aaps =
@@ -729,7 +730,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     private void syncRemoteAclTableFromOtherDpns(AclInterface port, Uuid remoteAclId, int addOrRemove) {
         Collection<AclInterface> aclInterfaces = aclDataUtil.getInterfaceList(remoteAclId);
 
-        if (aclInterfaces != null && !aclInterfaces.isEmpty() && isFirstPortInDpnWithRemoteAclId(port, remoteAclId)) {
+        if (!aclInterfaces.isEmpty() && isFirstPortInDpnWithRemoteAclId(port, remoteAclId)) {
             Integer aclTag = aclServiceUtils.getAclTag(remoteAclId);
             for (AclInterface aclInterface : aclInterfaces) {
                 if (port.getInterfaceId().equals(aclInterface.getInterfaceId())) {
@@ -767,7 +768,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     protected abstract void programRemoteAclTableFlow(BigInteger dpId, Integer aclTag, AllowedAddressPairs aap,
             int addOrRemove);
 
-    protected Set<BigInteger> collectDpns(Map<String, Set<AclInterface>> mapAclWithPortSet) {
+    protected Set<BigInteger> collectDpns(@Nullable Map<String, Set<AclInterface>> mapAclWithPortSet) {
         Set<BigInteger> dpns = new HashSet<>();
         if (mapAclWithPortSet == null) {
             return dpns;
@@ -969,6 +970,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
+    @Nullable
     protected Long getElanIdFromAclInterface(String elanInterfaceName) {
         AclInterface aclInterface = aclInterfaceCache.get(elanInterfaceName);
         if (null != aclInterface) {

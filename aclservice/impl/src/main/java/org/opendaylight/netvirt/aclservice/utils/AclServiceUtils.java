@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -214,6 +215,7 @@ public final class AclServiceUtils {
      * @param interfaceName the interface name.
      * @return the interface state.
      */
+    @Nullable
     public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
         .Interface getInterfaceStateFromOperDS(DataBroker dataBroker, String interfaceName) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
@@ -241,7 +243,8 @@ public final class AclServiceUtils {
      * @param ace the access list entry
      * @return the security rule attributes
      */
-    public static SecurityRuleAttr  getAccesssListAttributes(Ace ace) {
+    @Nullable
+    public static SecurityRuleAttr getAccessListAttributes(Ace ace) {
         if (ace == null) {
             LOG.error("Ace is Null");
             return null;
@@ -383,9 +386,10 @@ public final class AclServiceUtils {
         return newAclList;
     }
 
+    @Nullable
     public static List<AllowedAddressPairs> getUpdatedAllowedAddressPairs(
-            List<AllowedAddressPairs> updatedAllowedAddressPairs,
-            List<AllowedAddressPairs> currentAllowedAddressPairs) {
+            @Nullable List<AllowedAddressPairs> updatedAllowedAddressPairs,
+            @Nullable List<AllowedAddressPairs> currentAllowedAddressPairs) {
         if (updatedAllowedAddressPairs == null) {
             return null;
         }
@@ -406,6 +410,7 @@ public final class AclServiceUtils {
         return newAllowedAddressPairs;
     }
 
+    @Nullable
     public static BigInteger getDpIdFromIterfaceState(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
             .interfaces.rev140508.interfaces.state.Interface interfaceState) {
         BigInteger dpId = null;
@@ -695,7 +700,8 @@ public final class AclServiceUtils {
         return isNotIpv4AllNetwork(aap) && isNotIpv6AllNetwork(aap);
     }
 
-    public static Long getElanIdFromInterface(String elanInterfaceName,DataBroker broker) {
+    @Nullable
+    public static Long getElanIdFromInterface(String elanInterfaceName, DataBroker broker) {
         ElanInterface elanInterface = getElanInterfaceByElanInterfaceName(elanInterfaceName, broker);
         if (null != elanInterface) {
             ElanInstance elanInfo = getElanInstanceByName(elanInterface.getElanInstanceName(), broker);
@@ -704,6 +710,7 @@ public final class AclServiceUtils {
         return null;
     }
 
+    @Nullable
     public static ElanInterface getElanInterfaceByElanInterfaceName(String elanInterfaceName,DataBroker broker) {
         InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
         return read(broker, LogicalDatastoreType.CONFIGURATION, elanInterfaceId).orNull();
@@ -715,6 +722,7 @@ public final class AclServiceUtils {
     }
 
     // elan-instances config container
+    @Nullable
     public static ElanInstance getElanInstanceByName(String elanInstanceName, DataBroker broker) {
         InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
         return read(broker, LogicalDatastoreType.CONFIGURATION, elanIdentifierId).orNull();
@@ -725,6 +733,7 @@ public final class AclServiceUtils {
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
     }
 
+    @Nullable
     public List<SubnetInfo> getSubnetInfo(String portId) {
         InstanceIdentifier<PortSubnet> id = InstanceIdentifier.builder(PortSubnets.class)
                 .child(PortSubnet.class, new PortSubnetKey(portId)).build();
@@ -784,6 +793,7 @@ public final class AclServiceUtils {
      * @param aclId the acl id
      * @return the acl tag
      */
+    @Nullable
     public Integer getAclTag(final Uuid aclId) {
         String aclName = aclId.getValue();
         Integer aclTag = this.aclDataUtil.getAclTag(aclName);
@@ -979,7 +989,7 @@ public final class AclServiceUtils {
         return aceAttr != null && aceAttr.getRemoteGroupId() != null;
     }
 
-    public SortedSet<Integer> getRemoteAclTags(List<Uuid> aclIds, Class<? extends DirectionBase> direction) {
+    public SortedSet<Integer> getRemoteAclTags(@Nullable List<Uuid> aclIds, Class<? extends DirectionBase> direction) {
         SortedSet<Integer> remoteAclTags = new TreeSet<>();
         Set<Uuid> remoteAclIds = getRemoteAclIdsByDirection(aclIds, direction);
         for (Uuid remoteAclId : remoteAclIds) {
@@ -991,7 +1001,7 @@ public final class AclServiceUtils {
         return remoteAclTags;
     }
 
-    public Set<Uuid> getRemoteAclIdsByDirection(List<Uuid> aclIds, Class<? extends DirectionBase> direction) {
+    public Set<Uuid> getRemoteAclIdsByDirection(@Nullable List<Uuid> aclIds, Class<? extends DirectionBase> direction) {
         Set<Uuid> remoteAclIds = new HashSet<>();
         if (aclIds == null || aclIds.isEmpty()) {
             return remoteAclIds;
@@ -1013,8 +1023,8 @@ public final class AclServiceUtils {
         AccessListEntries accessListEntries = acl.getAccessListEntries();
         if (accessListEntries != null && accessListEntries.getAce() != null) {
             for (Ace ace : accessListEntries.getAce()) {
-                SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
-                if (aceAttr.getDirection().equals(direction) && doesAceHaveRemoteGroupId(aceAttr)) {
+                SecurityRuleAttr aceAttr = AclServiceUtils.getAccessListAttributes(ace);
+                if (Objects.equals(aceAttr.getDirection(), direction) && doesAceHaveRemoteGroupId(aceAttr)) {
                     remoteAclIds.add(aceAttr.getRemoteGroupId());
                 }
             }
@@ -1283,12 +1293,14 @@ public final class AclServiceUtils {
         return instructions;
     }
 
-    public static List<AllowedAddressPairs> excludeMulticastAAPs(List<AllowedAddressPairs> allowedAddresses) {
+    public static List<AllowedAddressPairs> excludeMulticastAAPs(@Nullable List<AllowedAddressPairs> allowedAddresses) {
         List<AllowedAddressPairs> filteredAAPs = new ArrayList<>();
-        for (AllowedAddressPairs allowedAddress : allowedAddresses) {
-            InetAddress inetAddr = getInetAddress(allowedAddress.getIpAddress());
-            if (inetAddr != null && !inetAddr.isMulticastAddress()) {
-                filteredAAPs.add(allowedAddress);
+        if (allowedAddresses != null) {
+            for (AllowedAddressPairs allowedAddress : allowedAddresses) {
+                InetAddress inetAddr = getInetAddress(allowedAddress.getIpAddress());
+                if (inetAddr != null && !inetAddr.isMulticastAddress()) {
+                    filteredAAPs.add(allowedAddress);
+                }
             }
         }
         return filteredAAPs;
@@ -1298,9 +1310,9 @@ public final class AclServiceUtils {
         return NetvirtAcl.class.toString();
     }
 
+    @Nullable
     private static InetAddress getInetAddress(IpPrefixOrAddress ipPrefixOrAddress) {
-        InetAddress inetAddress = null;
-        String addr = null;
+        String addr;
 
         IpPrefix ipPrefix = ipPrefixOrAddress.getIpPrefix();
         if (ipPrefix != null) {
@@ -1315,12 +1327,11 @@ public final class AclServiceUtils {
             }
         }
         try {
-            inetAddress = InetAddress.getByName(addr);
+            return InetAddress.getByName(addr);
         } catch (UnknownHostException e) {
             LOG.error("Invalid address : {}", addr, e);
             return null;
         }
-        return inetAddress;
     }
 
     public static Boolean isIpv6Subnet(List<SubnetInfo> subnetInfoList) {

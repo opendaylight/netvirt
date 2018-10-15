@@ -10,13 +10,16 @@ package org.opendaylight.netvirt.aclservice.stats;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
+import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetFlowStatisticsInputBuilder;
@@ -70,14 +73,14 @@ public final class AclLiveStatisticsHelper {
      * @param dataBroker the data broker
      * @return the acl port stats
      */
-    public static List<AclPortStats> getAclPortStats(Direction direction, List<String> interfaceNames,
+    public static List<AclPortStats> getAclPortStats(Direction direction, @Nullable List<String> interfaceNames,
             OpendaylightDirectStatisticsService odlDirectStatsService, DataBroker dataBroker) {
         LOG.trace("Get ACL port stats for direction {} and interfaces {}", direction, interfaceNames);
         List<AclPortStats> lstAclPortStats = new ArrayList<>();
 
         FlowCookie aclDropFlowCookieMask = new FlowCookie(COOKIE_ACL_DROP_FLOW_MASK);
 
-        for (String interfaceName : interfaceNames) {
+        for (String interfaceName : AclDataUtil.requireNonNullElse(interfaceNames, Collections.<String>emptyList())) {
             AclPortStatsBuilder aclStatsBuilder = new AclPortStatsBuilder().setInterfaceName(interfaceName);
 
             Interface interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, interfaceName);
@@ -131,14 +134,11 @@ public final class AclLiveStatisticsHelper {
      * @param rpcResult the rpc result
      */
     private static void handleRpcErrors(List<AclPortStats> lstAclPortStats, AclPortStatsBuilder aclStatsBuilder,
-            RpcResult<GetFlowStatisticsOutput> rpcResult) {
+            @Nullable RpcResult<GetFlowStatisticsOutput> rpcResult) {
         LOG.error("Unable to retrieve drop counts due to error: {}", rpcResult);
         String errMsg = "Unable to retrieve drop counts due to error: ";
-        if (rpcResult != null && rpcResult.getErrors() != null) {
-            for (RpcError error : rpcResult.getErrors()) {
-                errMsg += error.getMessage();
-                break;
-            }
+        if (rpcResult != null && rpcResult.getErrors() != null && !rpcResult.getErrors().isEmpty()) {
+            errMsg += rpcResult.getErrors().iterator().next().getMessage();
         } else {
             errMsg += "Internal RPC call failed.";
         }
@@ -170,11 +170,11 @@ public final class AclLiveStatisticsHelper {
         for (FlowAndStatisticsMapList flowStats : flowAndStatisticsMapList) {
             switch (flowStats.getTableId()) {
                 case NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE:
-                    if (flowStats.getPriority().equals(AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY)) {
+                    if (AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY.equals(flowStats.getPriority())) {
                         portEgressBytesBuilder.setInvalidDropCount(flowStats.getByteCount().getValue());
                         portEgressPacketsBuilder.setInvalidDropCount(flowStats.getPacketCount().getValue());
-                    } else if (flowStats.getPriority().equals(AclConstants.ACL_PORT_SPECIFIC_DROP_PRIORITY)
-                            || flowStats.getPriority().equals(AclConstants.ACE_LAST_REMOTE_ACL_PRIORITY)) {
+                    } else if (AclConstants.ACL_PORT_SPECIFIC_DROP_PRIORITY.equals(flowStats.getPriority())
+                            || AclConstants.ACE_LAST_REMOTE_ACL_PRIORITY.equals(flowStats.getPriority())) {
                         BigInteger portEgressBytesBuilderDropCount = BigInteger.valueOf(0);
                         BigInteger portEgressPacketsBuilderDropCount = BigInteger.valueOf(0);
                         if (portEgressBytesBuilder.getDropCount() != null) {
@@ -193,11 +193,11 @@ public final class AclLiveStatisticsHelper {
                     break;
 
                 case NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE:
-                    if (flowStats.getPriority().equals(AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY)) {
+                    if (AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY.equals(flowStats.getPriority())) {
                         portIngressBytesBuilder.setInvalidDropCount(flowStats.getByteCount().getValue());
                         portIngressPacketsBuilder.setInvalidDropCount(flowStats.getPacketCount().getValue());
-                    } else if (flowStats.getPriority().equals(AclConstants.ACL_PORT_SPECIFIC_DROP_PRIORITY)
-                            || flowStats.getPriority().equals(AclConstants.ACE_LAST_REMOTE_ACL_PRIORITY)) {
+                    } else if (AclConstants.ACL_PORT_SPECIFIC_DROP_PRIORITY.equals(flowStats.getPriority())
+                            || AclConstants.ACE_LAST_REMOTE_ACL_PRIORITY.equals(flowStats.getPriority())) {
                         BigInteger portIngressBytesBuilderDropCount = BigInteger.valueOf(0);
                         BigInteger portIngressPacketsBuilderDropCount = BigInteger.valueOf(0);
                         if (portIngressBytesBuilder.getDropCount() != null) {
@@ -215,13 +215,13 @@ public final class AclLiveStatisticsHelper {
                     // TODO: Update stats for other drops
                     break;
                 case NwConstants.INGRESS_ACL_COMMITTER_TABLE:
-                    if (flowStats.getPriority().equals(AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY)) {
+                    if (AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY.equals(flowStats.getPriority())) {
                         portEgressBytesBuilder.setAntiSpoofDropCount(flowStats.getByteCount().getValue());
                         portEgressPacketsBuilder.setAntiSpoofDropCount(flowStats.getPacketCount().getValue());
                     }
                     break;
                 case NwConstants.EGRESS_ACL_COMMITTER_TABLE:
-                    if (flowStats.getPriority().equals(AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY)) {
+                    if (AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY.equals(flowStats.getPriority())) {
                         portIngressBytesBuilder.setAntiSpoofDropCount(flowStats.getByteCount().getValue());
                         portIngressPacketsBuilder.setAntiSpoofDropCount(flowStats.getPacketCount().getValue());
                     }
