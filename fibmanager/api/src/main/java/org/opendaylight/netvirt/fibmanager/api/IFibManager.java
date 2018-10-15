@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import java.math.BigInteger;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
@@ -22,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 
 public interface IFibManager {
     void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd,
-                             FutureCallback<List<Void>> callback);
+                             @Nullable FutureCallback<List<Void>> callback);
 
     void cleanUpExternalRoutesOnDpn(BigInteger dpnId, long vpnId, String rd,
                                     String localNextHopIp, String remoteNextHopIp);
@@ -31,7 +32,7 @@ public interface IFibManager {
                                      String localNextHopIp, String remoteNextHopIp);
 
     void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
-                          FutureCallback<List<Void>> callback);
+                          @Nullable FutureCallback<List<Void>> callback);
 
     void setConfTransType(String service, String transportType);
 
@@ -53,10 +54,10 @@ public interface IFibManager {
                                 String destTepIp,
                                 long label);
 
-    void addOrUpdateFibEntry(String rd, String macAddress, String prefix, List<String> nextHopList,
-                             VrfEntry.EncapType encapType, long label, long l3vni, String gwMacAddress,
-                             String parentVpnRd, RouteOrigin origin,
-                             TypedWriteTransaction<Configuration> writeConfigTxn);
+    void addOrUpdateFibEntry(String rd, @Nullable String macAddress, String prefix, List<String> nextHopList,
+                             VrfEntry.EncapType encapType, long label, long l3vni, @Nullable String gwMacAddress,
+                             @Nullable String parentVpnRd, RouteOrigin origin,
+                             @Nullable TypedWriteTransaction<Configuration> writeConfigTxn);
 
     void addFibEntryForRouterInterface(String rd, String prefix,
                                        RouterInterface routerInterface, long label,
@@ -65,7 +66,7 @@ public interface IFibManager {
     void removeOrUpdateFibEntry(String rd, String prefix, String nextHopToRemove,
                                 TypedWriteTransaction<Configuration> writeConfigTxn);
 
-    void removeFibEntry(String rd, String prefix, TypedWriteTransaction<Configuration> writeConfigTxn);
+    void removeFibEntry(String rd, String prefix, @Nullable TypedWriteTransaction<Configuration> writeConfigTxn);
 
     void updateRoutePathForFibEntry(String rd, String prefix, String nextHop,
                                     long label, boolean nextHopAdd, WriteTransaction writeConfigTxn);

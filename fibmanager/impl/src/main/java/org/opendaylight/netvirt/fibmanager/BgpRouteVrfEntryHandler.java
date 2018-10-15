@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import static java.util.stream.Collectors.toList;
+import static org.opendaylight.netvirt.fibmanager.FibUtil.nullToEmpty;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -253,7 +255,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
                                              String rd,
                                              List<NexthopManager.AdjacencyResult> adjacencyResults,
                                              List<SubTransaction> subTxns) {
-        if (vrfEntry.getRoutePaths().size() > 2) {
+        if (nullToEmpty(vrfEntry.getRoutePaths()).size() > 2) {
             LOG.error("DC-GW can advertise only 2 bestPaths for prefix {}", vrfEntry.getDestPrefix());
             return;
         }
@@ -331,10 +333,10 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         }
     }
 
-    public void deleteRemoteRoute(final BigInteger localDpnId, final BigInteger remoteDpnId,
+    public void deleteRemoteRoute(@Nullable final BigInteger localDpnId, final BigInteger remoteDpnId,
                                   final long vpnId, final VrfTablesKey vrfTableKey,
                                   final VrfEntry vrfEntry, Optional<Routes> extraRouteOptional,
-                                  WriteTransaction tx, List<SubTransaction> subTxns) {
+                                  @Nullable WriteTransaction tx, List<SubTransaction> subTxns) {
         if (tx == null) {
             ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 newTx -> deleteRemoteRoute(localDpnId, remoteDpnId, vpnId, vrfTableKey, vrfEntry,
@@ -368,7 +370,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
             final BigInteger dpnId, final long vpnId, final String rd,
             final String remoteNextHopIp, final Optional<VrfTables> vrfTable,
             WriteTransaction writeCfgTxn, List<SubTransaction> subTxns) {
-        return vrfEntry -> vrfEntry.getRoutePaths().stream()
+        return vrfEntry -> nullToEmpty(vrfEntry.getRoutePaths()).stream()
                 .filter(routes -> !routes.getNexthopAddress().isEmpty()
                         && remoteNextHopIp.trim().equals(routes.getNexthopAddress().trim()))
                 .findFirst()
@@ -384,7 +386,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
             final BigInteger dpnId, final long vpnId,
             final String remoteNextHopIp, final Optional<VrfTables> vrfTable,
             WriteTransaction writeCfgTxn, List<SubTransaction> subTxns) {
-        return vrfEntry -> vrfEntry.getRoutePaths().stream()
+        return vrfEntry -> nullToEmpty(vrfEntry.getRoutePaths()).stream()
                 .filter(routes -> !routes.getNexthopAddress().isEmpty()
                         && remoteNextHopIp.trim().equals(routes.getNexthopAddress().trim()))
                 .findFirst()
@@ -426,8 +428,8 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
     }
 
     @Override
-    protected void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, Prefixes prefixInfo,
-                                        List<ActionInfo> actionInfos) {
+    protected void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, @Nullable Prefixes prefixInfo,
+                                          List<ActionInfo> actionInfos) {
         if (vrfEntry.getGatewayMacAddress() != null) {
             actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
                     new MacAddress(vrfEntry.getGatewayMacAddress())));

@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.fibmanager;
 
 import static java.util.stream.Collectors.toList;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
+import static org.opendaylight.netvirt.fibmanager.FibUtil.nullToEmpty;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -157,7 +159,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     @Nonnull
     protected List<AdjacencyResult> resolveAdjacency(final BigInteger remoteDpnId, final long vpnId,
                                                      final VrfEntry vrfEntry, String rd) {
-        List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
+        List<RoutePaths> routePaths = nullToEmpty(vrfEntry.getRoutePaths());
         FibHelper.sortIpAddress(routePaths);
         List<AdjacencyResult> adjacencyList = new ArrayList<>();
         List<String> prefixIpList;
@@ -185,7 +187,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                     prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
                 } else {
                     List<String> prefixIpListLocal = new ArrayList<>();
-                    vpnExtraRoutes.forEach(route -> route.getNexthopIpList().forEach(extraRouteIp -> {
+                    vpnExtraRoutes.forEach(route -> nullToEmpty(route.getNexthopIpList()).forEach(extraRouteIp -> {
                         String ipPrefix;
                         if (isIpv4Address(extraRouteIp)) {
                             ipPrefix = extraRouteIp + NwConstants.IPV4PREFIX;
@@ -231,8 +233,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     }
 
     protected void makeConnectedRoute(BigInteger dpId, long vpnId, VrfEntry vrfEntry, String rd,
-                            List<InstructionInfo> instructions, int addOrRemove, WriteTransaction tx,
-                            List<SubTransaction> subTxns) {
+                                      @Nullable List<InstructionInfo> instructions, int addOrRemove,
+                                      WriteTransaction tx, @Nullable List<SubTransaction> subTxns) {
         if (tx == null) {
             ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 newTx -> makeConnectedRoute(dpId, vpnId, vrfEntry, rd, instructions, addOrRemove, newTx, subTxns)),
@@ -308,8 +310,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
     }
 
-    protected void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, Prefixes prefixInfo,
-                                        List<ActionInfo> actionInfos) {
+    protected void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, @Nullable Prefixes prefixInfo,
+                                          List<ActionInfo> actionInfos) {
         if (vrfEntry.getMac() != null) {
             actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
                     new MacAddress(vrfEntry.getMac())));
@@ -410,6 +412,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         addRewriteDstMacAction(vpnId, vrfEntry, prefixInfo, actionInfos);
     }
 
+    @Nullable
     private InstanceIdentifier<Interface> getFirstAbsentInterfaceStateIid(List<AdjacencyResult> adjacencyResults) {
         InstanceIdentifier<Interface> res = null;
         for (AdjacencyResult adjacencyResult : adjacencyResults) {
@@ -424,9 +427,9 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     }
 
     public void programRemoteFib(final BigInteger remoteDpnId, final long vpnId,
-                                  final VrfEntry vrfEntry, WriteTransaction tx, String rd,
-                                  List<AdjacencyResult> adjacencyResults,
-                                  List<SubTransaction> subTxns) {
+                                 final VrfEntry vrfEntry, WriteTransaction tx, String rd,
+                                 List<AdjacencyResult> adjacencyResults,
+                                 @Nullable List<SubTransaction> subTxns) {
         if (upgradeState.isUpgradeInProgress()) {
             InstanceIdentifier<Interface> absentInterfaceStateIid = getFirstAbsentInterfaceStateIid(adjacencyResults);
             if (absentInterfaceStateIid != null) {
@@ -436,17 +439,15 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                     absentInterfaceStateIid,
                     (before, after) -> {
                         LOG.info("programRemoteFib: waited for and got interface state {}", absentInterfaceStateIid);
-                        txRunner.callWithNewWriteOnlyTransactionAndSubmit((wtx) -> {
-                            programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults, null);
-                        });
+                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                            (wtx) -> programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults, null));
                         return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
                     },
                     Duration.of(15, ChronoUnit.MINUTES),
                     (iid) -> {
                         LOG.error("programRemoteFib: timed out waiting for {}", absentInterfaceStateIid);
-                        txRunner.callWithNewWriteOnlyTransactionAndSubmit((wtx) -> {
-                            programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults, null);
-                        });
+                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                            (wtx) -> programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults, null));
                     });
                 return;
             }
@@ -477,8 +478,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     }
 
     public boolean checkDpnDeleteFibEntry(VpnNexthop localNextHopInfo, BigInteger remoteDpnId, long vpnId,
-                                           VrfEntry vrfEntry, String rd,
-                                           WriteTransaction tx, List<SubTransaction> subTxns) {
+                                          VrfEntry vrfEntry, String rd,
+                                          WriteTransaction tx, @Nullable List<SubTransaction> subTxns) {
         boolean isRemoteRoute = true;
         if (localNextHopInfo != null) {
             isRemoteRoute = !remoteDpnId.equals(localNextHopInfo.getDpnId());
@@ -494,10 +495,10 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
     }
 
-    public void deleteRemoteRoute(final BigInteger localDpnId, final BigInteger remoteDpnId,
+    public void deleteRemoteRoute(@Nullable final BigInteger localDpnId, final BigInteger remoteDpnId,
                                   final long vpnId, final VrfTablesKey vrfTableKey,
                                   final VrfEntry vrfEntry, Optional<Routes> extraRouteOptional,
-                                  WriteTransaction tx) {
+                                  @Nullable WriteTransaction tx) {
         if (tx == null) {
             ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 newTx -> deleteRemoteRoute(localDpnId, remoteDpnId, vpnId, vrfTableKey, vrfEntry,
@@ -535,6 +536,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                         new ExtraRoutesKey(vrfId)).child(Routes.class, new RoutesKey(ipPrefix)).build();
     }
 
+    @Nullable
     public Routes getVpnToExtraroute(Long vpnId, String vpnRd, String destPrefix) {
         String optVpnName = fibUtil.getVpnNameFromId(vpnId);
         if (optVpnName != null) {

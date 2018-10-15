@@ -15,10 +15,11 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -49,29 +50,29 @@ public final class FibHelper {
         return builder.build();
     }
 
-    public static VrfEntryBuilder getVrfEntryBuilder(String prefix, RouteOrigin origin, String parentVpnRd) {
+    public static VrfEntryBuilder getVrfEntryBuilder(String prefix, RouteOrigin origin, @Nullable String parentVpnRd) {
         return new VrfEntryBuilder().withKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
                 .setOrigin(origin.getValue()).setParentVpnRd(parentVpnRd);
     }
 
     public static VrfEntryBuilder getVrfEntryBuilder(String prefix, List<RoutePaths> routePaths,
-            RouteOrigin origin, String parentVpnRd) {
+            RouteOrigin origin, @Nullable String parentVpnRd) {
         return new VrfEntryBuilder().withKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
                 .setRoutePaths(routePaths).setOrigin(origin.getValue()).setParentVpnRd(parentVpnRd);
     }
 
     public static VrfEntryBuilder getVrfEntryBuilder(String prefix, long label, String nextHop, RouteOrigin origin,
-            String parentVpnRd) {
+            @Nullable String parentVpnRd) {
         if (nextHop != null) {
             RoutePaths routePath = buildRoutePath(nextHop, label);
-            return getVrfEntryBuilder(prefix, Arrays.asList(routePath), origin, parentVpnRd);
+            return getVrfEntryBuilder(prefix, Collections.singletonList(routePath), origin, parentVpnRd);
         } else {
             return getVrfEntryBuilder(prefix, origin, parentVpnRd);
         }
     }
 
     public static VrfEntryBuilder getVrfEntryBuilder(VrfEntry vrfEntry, long label,
-            List<String> nextHopList, RouteOrigin origin, String parentvpnRd) {
+            List<String> nextHopList, RouteOrigin origin, @Nullable String parentvpnRd) {
         List<RoutePaths> routePaths =
                 nextHopList.stream().map(nextHop -> buildRoutePath(nextHop, label))
                         .collect(toList());
@@ -152,19 +153,16 @@ public final class FibHelper {
      * @return true if it is an IPv4 or false if it is not.
      */
     public static boolean isIpv4Prefix(String prefix) {
-        boolean rep = false;
         if (prefix == null || prefix.length() < 7) {
-            return rep;
+            return false;
         }
         try {
             String ip = getIpFromPrefix(prefix);
             java.net.Inet4Address.getByName(ip);
-            rep = true;
         } catch (SecurityException | UnknownHostException | ClassCastException e) {
-            rep = false;
-            return rep;
+            return false;
         }
-        return rep;
+        return true;
     }
 
     /** get true if this prefix is an IPv6 version, false otherwise.
@@ -172,25 +170,23 @@ public final class FibHelper {
      * @return true if it is an IPv4 or false if it is not.
      */
     public static boolean isIpv6Prefix(String prefix) {
-        boolean rep = false;
         if (prefix == null || prefix.length() < 2) {
-            return rep;
+            return false;
         }
         try {
             String ip = getIpFromPrefix(prefix);
             java.net.Inet6Address.getByName(ip);
-            rep = true;
         } catch (SecurityException | UnknownHostException | ClassCastException e) {
-            rep = false;
-            return rep;
+            return false;
         }
-        return rep;
+        return true;
     }
 
     /**get String format IP from prefix as x.x.....x/nn.
      * @param prefix the prefix as IPv4 or IPv6 as x.....x/nn
      * @return prefix if "/" is unfindable or the IP only as x.x...x from x.x......x/nn
      */
+    @Nullable
     public static String getIpFromPrefix(String prefix) {
         if (prefix == null || prefix.length() < 2) {
             return null;
@@ -300,6 +296,7 @@ public final class FibHelper {
      * @param mask the lengh of the mask of net as 24 from this representation 10.1.1.0/24 or 64 for 2001::1/64
      * @return the bit mask of net ex: x.x.x.x/24 return a BigInteger == 0xFFFFFFotherwise null if any error
      */
+    @Nullable
     public static BigInteger getMaskNetwork(int ipVersion, int mask) {
         int lenghBitsIp = 0;
         if (ipVersion == 6) {
