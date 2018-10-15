@@ -8,8 +8,8 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -98,7 +98,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     }
 
     @Override
-    public void update(InstanceIdentifier<Interface> key, Interface portBefore, Interface portAfter) {
+    public void update(@Nullable InstanceIdentifier<Interface> key, Interface portBefore, Interface portAfter) {
         if (portBefore.augmentation(ParentRefs.class) == null
                 && portAfter.augmentation(ParentRefs.class) != null) {
             LOG.trace("Ignoring event for update in ParentRefs for {} ", portAfter.getName());
@@ -138,9 +138,8 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                             isPortSecurityEnable);
                     aclServiceManager.notify(aclInterfaceAfter, null, Action.UNBIND);
                 }
-                if (interfaceState != null && interfaceState.getOperStatus().equals(
-                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-                            .state.Interface.OperStatus.Up)) {
+                if (interfaceState != null && org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
+                        .rev140508.interfaces.state.Interface.OperStatus.Up.equals(interfaceState.getOperStatus())) {
                     // if port security enable is changed and is enabled, bind ACL service
                     if (isPortSecurityEnableBefore != isPortSecurityEnable && isPortSecurityEnable) {
                         LOG.debug("Notify bind ACL service for interface={}, isPortSecurityEnable={}", interfaceId,
@@ -179,17 +178,14 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                 && aclInPortAfter.isPortSecurityEnabled();
     }
 
-    private boolean isSecurityGroupsChanged(List<Uuid> sgsBefore, List<Uuid> sgsAfter) {
+    private boolean isSecurityGroupsChanged(@Nullable List<Uuid> sgsBefore, @Nullable List<Uuid> sgsAfter) {
         if (sgsBefore == null && sgsAfter == null) {
             return false;
         }
-        if ((sgsBefore == null && sgsAfter != null) || (sgsBefore != null && sgsAfter == null)) {
+        if (sgsBefore == null || sgsAfter == null) {
             return true;
         }
-        if (sgsBefore != null && sgsAfter != null) {
-            return !(new HashSet<>(sgsBefore)).equals(new HashSet<>(sgsAfter));
-        }
-        return true;
+        return !(sgsBefore.containsAll(sgsAfter) && sgsAfter.containsAll(sgsBefore));
     }
 
     private AclInterface addOrUpdateAclInterfaceCache(String interfaceId, InterfaceAcl aclInPort) {
@@ -197,8 +193,8 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     }
 
     private AclInterface addOrUpdateAclInterfaceCache(String interfaceId, InterfaceAcl aclInPort, boolean isSgChanged,
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
-                    .Interface interfaceState) {
+            @Nullable org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+                .state.Interface interfaceState) {
         AclInterface aclInterface = aclInterfaceCache.addOrUpdate(interfaceId, (prevAclInterface, builder) -> {
             List<Uuid> sgs = new ArrayList<>();
             if (aclInPort != null) {

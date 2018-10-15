@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.aclservice.utils;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import java.math.BigInteger;
@@ -21,6 +23,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import org.opendaylight.netvirt.aclservice.api.utils.AclDataCache;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
@@ -95,6 +99,7 @@ public class AclDataUtil implements AclDataCache {
     }
 
     @Override
+    @Nonnull
     public Collection<AclInterface> getInterfaceList(Uuid acl) {
         final ConcurrentMap<String, AclInterface> interfaceMap = aclInterfaceMap.get(acl);
         return interfaceMap != null ? interfaceMap.values() : Collections.emptySet();
@@ -109,6 +114,7 @@ public class AclDataUtil implements AclDataCache {
      * @return the set of ACL interfaces per ACL (in a map) which has specified
      *         remote ACL ID.
      */
+    @Nullable
     public Map<String, Set<AclInterface>> getRemoteAclInterfaces(Uuid remoteAclId,
             Class<? extends DirectionBase> direction) {
         Collection<Uuid> remoteAclList = getRemoteAcl(remoteAclId, direction);
@@ -118,10 +124,9 @@ public class AclDataUtil implements AclDataCache {
 
         Map<String, Set<AclInterface>> mapOfAclWithInterfaces = new HashMap<>();
         for (Uuid acl : remoteAclList) {
-            Set<AclInterface> interfaceSet = new HashSet<>();
             Collection<AclInterface> interfaces = getInterfaceList(acl);
-            if (interfaces != null && !interfaces.isEmpty()) {
-                interfaceSet.addAll(interfaces);
+            if (!interfaces.isEmpty()) {
+                Set<AclInterface> interfaceSet = new HashSet<>(interfaces);
                 mapOfAclWithInterfaces.put(acl.getValue(), interfaceSet);
             }
         }
@@ -237,5 +242,11 @@ public class AclDataUtil implements AclDataCache {
     @Override
     public Map<String, Acl> getAclMap() {
         return ImmutableMap.copyOf(aclMap);
+    }
+
+    // Use Objects.requireNonNullElse instead with JDK9+
+    @Nonnull
+    public static <T> T requireNonNullElse(@Nullable T obj, @Nonnull T defaultObj) {
+        return obj != null ? obj : requireNonNull(defaultObj);
     }
 }

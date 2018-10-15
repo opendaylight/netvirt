@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
@@ -79,6 +80,7 @@ public class AclInterfaceCacheImpl implements AclInterfaceCache {
     }
 
     @Override
+    @Nullable
     public AclInterface remove(String interfaceId) {
         AclInterface aclInterface = cache.get(interfaceId);
         if (aclInterface == null) {
