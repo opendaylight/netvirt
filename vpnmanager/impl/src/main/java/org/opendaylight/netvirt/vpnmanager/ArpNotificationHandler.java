@@ -106,7 +106,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
         List<Adjacency> adjacencies = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, srcInterface);
         IpVersionChoice srcIpVersion = VpnUtil.getIpVersionFromString(String.valueOf(srcIP.getValue()));
         boolean isSrcIpVersionPartOfVpn = false;
-        if (adjacencies != null) {
+        if (adjacencies != null && !adjacencies.isEmpty()) {
             for (Adjacency adj : adjacencies) {
                 String ipAddress = adj.getIpAddress();
                 try {
