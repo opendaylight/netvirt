@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -94,8 +95,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
+    @Nullable
     public AbstractSnatService createFlatVlanSnatServiceImpl() {
-
         if (natMode == NatMode.Conntrack) {
             return new FlatVlanConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService,
                     idManager, naptSwitchSelector, interfaceManager, vpnFootprintService, fibManager,  natDataUtil,
@@ -104,8 +105,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         return null;
     }
 
+    @Nullable
     public AbstractSnatService createVxlanGreSnatServiceImpl() {
-
         if (natMode == NatMode.Conntrack) {
             NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
                     NatConstants.ODL_VNI_POOL_NAME);
@@ -115,6 +116,4 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         }
         return null;
     }
-
-
 }

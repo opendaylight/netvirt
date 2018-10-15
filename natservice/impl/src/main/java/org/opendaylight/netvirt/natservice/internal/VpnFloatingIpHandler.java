@@ -223,8 +223,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                 }
                 String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
                 //Inform BGP
-                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, subnetId,
-                        fibExternalIp, nextHopIp, networkId.getValue(), floatingIpPortMacAddress,
+                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd,
+                    fibExternalIp, nextHopIp, networkId.getValue(), floatingIpPortMacAddress,
                         label, l3vni, RouteOrigin.STATIC, dpnId);
 
                 List<Instruction> instructions = new ArrayList<>();

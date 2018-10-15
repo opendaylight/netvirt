@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -167,7 +168,7 @@ public final class NatEvpnUtil {
                                                  String prefix,
                                                  String nextHopIp,
                                                  long l3Vni,
-                                                 String interfaceName,
+                                                 @Nullable String interfaceName,
                                                  String gwMacAddress,
                                                  TypedWriteTransaction<Configuration> writeTx,
                                                  RouteOrigin origin, BigInteger dpId,
@@ -181,7 +182,7 @@ public final class NatEvpnUtil {
                 return;
             }
             NatUtil.addPrefixToInterface(broker, NatUtil.getVpnId(broker, vpnName), interfaceName, prefix,
-                    networkId.getValue(), null, dpId, Prefixes.PrefixCue.Nat);
+                    networkId.getValue(), dpId, Prefixes.PrefixCue.Nat);
 
             fibManager.addOrUpdateFibEntry(rd, null /*macAddress*/, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE,
@@ -243,6 +244,7 @@ public final class NatEvpnUtil {
                 .FLOWID_SEPARATOR + l3Vni;
     }
 
+    @Nullable
     public static Uuid getFloatingIpInterfaceIdFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
         InstanceIdentifier<FloatingIpIdToPortMapping> id =
                 NatUtil.buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
