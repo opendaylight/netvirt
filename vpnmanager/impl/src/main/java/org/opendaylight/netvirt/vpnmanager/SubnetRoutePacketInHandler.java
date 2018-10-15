@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import static java.util.Collections.emptyList;
+import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
+
 import com.google.common.base.Optional;
 import com.google.common.primitives.Ints;
 import java.math.BigInteger;
@@ -14,6 +17,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -378,6 +382,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     }
 
     // return only the first VPN subnetopdataentry
+    @Nullable
     private SubnetOpDataEntry getTargetSubnetForPacketOut(long elanTag, String ipAddress) {
         ElanTagName elanInfo = vpnUtil.getElanInfoByElanTag(elanTag);
         if (elanInfo == null) {
@@ -394,7 +399,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                         elanInfo.getName());
                 return null;
             }
-            List<Uuid> subnetList = optionalNetworkMap.get().getSubnetIdList();
+            List<Uuid> subnetList = requireNonNullElse(optionalNetworkMap.get().getSubnetIdList(), emptyList());
             LOG.debug("{} getTargetDpnForPacketOut: Obtained subnetList as {} for network {}", LOGGING_PREFIX,
                     subnetList, elanInfo.getName());
             for (Uuid subnetId : subnetList) {
@@ -432,9 +437,6 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     }
 
     public boolean isTunnel(String interfaceName) {
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-            .ietf.interfaces.rev140508.interfaces.Interface configIface =
-            interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
-        return configIface.augmentation(IfTunnel.class) != null;
+        return interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName).augmentation(IfTunnel.class) != null;
     }
 }

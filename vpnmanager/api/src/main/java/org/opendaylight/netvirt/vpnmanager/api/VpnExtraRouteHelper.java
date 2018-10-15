@@ -11,12 +11,12 @@ package org.opendaylight.netvirt.vpnmanager.api;
 import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Optional;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -51,12 +51,6 @@ public final class VpnExtraRouteHelper {
 
     private VpnExtraRouteHelper() { }
 
-    public static  List<Routes> getVpnExtraroutes(DataBroker broker, String vpnName, String vpnRd) {
-        InstanceIdentifier<ExtraRoutes> vpnExtraRoutesId = getVpnToExtrarouteIdentifier(vpnName, vpnRd);
-        Optional<ExtraRoutes> vpnOpc = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId);
-        return vpnOpc.isPresent() ? vpnOpc.get().getRoutes() : new ArrayList<>();
-    }
-
     public static Optional<Routes> getVpnExtraroutes(DataBroker broker, String vpnName,
                                                      String vpnRd, String destPrefix) {
         InstanceIdentifier<Routes> vpnExtraRoutesId = getVpnToExtrarouteVrfIdIdentifier(vpnName, vpnRd, destPrefix);
@@ -73,12 +67,6 @@ public final class VpnExtraRouteHelper {
         return InstanceIdentifier.builder(VpnToExtraroutes.class)
                 .child(Vpn.class, new VpnKey(vpnName)).child(ExtraRoutes.class,
                         new ExtraRoutesKey(vrfId)).child(Routes.class, new RoutesKey(ipPrefix)).build();
-    }
-
-    public static  InstanceIdentifier<ExtraRoutes> getVpnToExtrarouteIdentifier(String vpnName, String vrfId) {
-        return InstanceIdentifier.builder(VpnToExtraroutes.class)
-                .child(Vpn.class, new VpnKey(vpnName)).child(ExtraRoutes.class,
-                        new ExtraRoutesKey(vrfId)).build();
     }
 
     public static  InstanceIdentifier<Vpn> getVpnToExtrarouteVpnIdentifier(String vpnName) {
@@ -103,14 +91,14 @@ public final class VpnExtraRouteHelper {
     public static  List<String> getUsedRds(DataBroker broker, long vpnId, String destPrefix) {
         InstanceIdentifier<DestPrefixes> usedRdsId = getUsedRdsIdentifier(vpnId, destPrefix);
         Optional<DestPrefixes> usedRds = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, usedRdsId);
-        return usedRds.isPresent() ? usedRds.get().getAllocatedRds().stream()
+        return usedRds.isPresent() && usedRds.get().getAllocatedRds() != null ? usedRds.get().getAllocatedRds().stream()
                 .map(AllocatedRds::getRd).distinct().collect(toList()) : new ArrayList<>();
     }
 
     public static  List<String> getUsedRds(TypedReadTransaction<Configuration> confTx, long vpnId, String destPrefix)
             throws ExecutionException, InterruptedException {
         Optional<DestPrefixes> usedRds = confTx.read(getUsedRdsIdentifier(vpnId, destPrefix)).get();
-        return usedRds.isPresent() ? usedRds.get().getAllocatedRds().stream()
+        return usedRds.isPresent() && usedRds.get().getAllocatedRds() != null ? usedRds.get().getAllocatedRds().stream()
             .map(AllocatedRds::getRd).distinct().collect(toList()) : new ArrayList<>();
     }
 
@@ -132,16 +120,7 @@ public final class VpnExtraRouteHelper {
                 .child(AllocatedRds.class, new AllocatedRdsKey(nh)).build();
     }
 
-    public static List<Routes> getAllExtraRoutes(DataBroker broker, String vpnName, String vrfId) {
-        Optional<ExtraRoutes> extraRoutes = MDSALUtil.read(broker,LogicalDatastoreType.OPERATIONAL,
-                getVpnToExtrarouteIdentifier(vpnName, vrfId));
-        List<Routes> extraRoutesList = new ArrayList<>();
-        if (extraRoutes.isPresent()) {
-            extraRoutesList = extraRoutes.get().getRoutes();
-        }
-        return extraRoutesList;
-    }
-
+    @Nullable
     public static Class<? extends TunnelTypeBase> getTunnelType(ItmRpcService itmRpcService, String ifName) {
         try {
             Future<RpcResult<GetTunnelTypeOutput>> result =
@@ -166,8 +145,10 @@ public final class VpnExtraRouteHelper {
     }
 
     public static List<DestPrefixes> getExtraRouteDestPrefixes(DataBroker broker, Long vpnId) {
-        Optional<ExtrarouteRds> extraRoutes = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
+        Optional<ExtrarouteRds> optionalExtraRoutes = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
                 getUsedRdsIdentifier(vpnId));
-        return extraRoutes.isPresent() ? extraRoutes.get().getDestPrefixes() : new ArrayList<>();
+        List<DestPrefixes> prefixes =
+            optionalExtraRoutes.isPresent() ? optionalExtraRoutes.get().getDestPrefixes() : null;
+        return prefixes == null ? Collections.emptyList() : prefixes;
     }
 }

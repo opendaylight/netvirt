@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.vpnmanager.api;
 
 import java.math.BigInteger;
+import javax.annotation.Nullable;
 
 /**
  * ICentralizedSwitchProvider allows to create or interrogate centralized
@@ -27,6 +28,7 @@ public interface ICentralizedSwitchProvider {
      * @param routerName The router's name.
      * @return The primary switch id.
      */
+    @Nullable
     BigInteger getPrimarySwitchForRouter(String routerName);
 
 }

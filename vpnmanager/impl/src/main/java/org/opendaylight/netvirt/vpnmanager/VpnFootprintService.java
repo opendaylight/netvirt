@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -88,8 +89,8 @@ public class VpnFootprintService implements IVpnFootprintService {
     }
 
     @Override
-    public void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String primaryRd, String interfaceName,
-            ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, boolean add) {
+    public void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String primaryRd, @Nullable String interfaceName,
+            @Nullable ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, boolean add) {
         long vpnId = vpnUtil.getVpnId(vpnName);
         if (!dpId.equals(BigInteger.ZERO)) {
             if (add) {

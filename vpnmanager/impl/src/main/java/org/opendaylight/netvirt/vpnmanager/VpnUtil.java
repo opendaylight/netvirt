@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
+import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Optional;
@@ -31,6 +33,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -151,6 +154,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.L3nexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
@@ -320,6 +324,7 @@ public final class VpnUtil {
                 .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
     }
 
+    @Nullable
     VpnInterface getVpnInterface(String vpnInterfaceName) {
         InstanceIdentifier<VpnInterface> id = getVpnInterfaceIdentifier(vpnInterfaceName);
         Optional<VpnInterface> vpnInterface = read(LogicalDatastoreType.CONFIGURATION, id);
@@ -375,6 +380,7 @@ public final class VpnUtil {
      * @param rd Route-Distinguisher
      * @return VrfTables that holds the list of VrfEntries of the specified rd
      */
+    @Nullable
     VrfTables getVrfTable(String rd) {
         InstanceIdentifier<VrfTables> id = InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class,
                 new VrfTablesKey(rd)).build();
@@ -410,10 +416,14 @@ public final class VpnUtil {
      */
     public List<VrfEntry> getAllVrfEntries(String rd) {
         VrfTables vrfTables = getVrfTable(rd);
-        return vrfTables != null ? vrfTables.getVrfEntry() : new ArrayList<>();
+        if (vrfTables != null && vrfTables.getVrfEntry() != null) {
+            return vrfTables.getVrfEntry();
+        }
+        return emptyList();
     }
 
     //FIXME: Implement caches for DS reads
+    @Nullable
     public VpnInstance getVpnInstance(String vpnInstanceName) {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class,
             new VpnInstanceKey(vpnInstanceName)).build();
@@ -421,28 +431,36 @@ public final class VpnUtil {
         return vpnInstance.isPresent() ? vpnInstance.get() : null;
     }
 
+    @Nonnull
     List<VpnInstanceOpDataEntry> getAllVpnInstanceOpData() {
         InstanceIdentifier<VpnInstanceOpData> id = InstanceIdentifier.builder(VpnInstanceOpData.class).build();
         Optional<VpnInstanceOpData> vpnInstanceOpDataOptional = read(LogicalDatastoreType.OPERATIONAL, id);
-        return vpnInstanceOpDataOptional.isPresent() ?  vpnInstanceOpDataOptional.get().getVpnInstanceOpDataEntry()
-                : Collections.emptyList();
+        return
+            vpnInstanceOpDataOptional.isPresent() && vpnInstanceOpDataOptional.get().getVpnInstanceOpDataEntry() != null
+                ? vpnInstanceOpDataOptional.get().getVpnInstanceOpDataEntry()
+                : emptyList();
     }
 
+    @Nonnull
     List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
             .vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> getDpnVpnInterfaces(VpnInstance vpnInstance,
                                                                                            BigInteger dpnId) {
         String primaryRd = getPrimaryRd(vpnInstance);
         InstanceIdentifier<VpnToDpnList> dpnToVpnId = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
         Optional<VpnToDpnList> dpnInVpn = read(LogicalDatastoreType.OPERATIONAL, dpnToVpnId);
-        return dpnInVpn.isPresent() ? dpnInVpn.get().getVpnInterfaces() : Collections.emptyList();
+        return dpnInVpn.isPresent() && dpnInVpn.get().getVpnInterfaces() != null ? dpnInVpn.get().getVpnInterfaces()
+            : emptyList();
     }
 
+    @Nonnull
     static List<String> getListOfRdsFromVpnInstance(VpnInstance vpnInstance) {
         VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
         LOG.trace("vpnConfig {}", vpnConfig);
-        return vpnConfig.getRouteDistinguisher() != null ? vpnConfig.getRouteDistinguisher() : Collections.emptyList();
+        return vpnConfig.getRouteDistinguisher() != null && vpnConfig.getRouteDistinguisher() != null
+            ? vpnConfig.getRouteDistinguisher() : emptyList();
     }
 
+    @Nullable
     VrfEntry getVrfEntry(String rd, String ipPrefix) {
         VrfTables vrfTable = getVrfTable(rd);
         // TODO: why check VrfTables if we later go for the specific VrfEntry?
@@ -458,13 +476,13 @@ public final class VpnUtil {
         return null;
     }
 
+    @Nullable
     public List<Adjacency> getAdjacenciesForVpnInterfaceFromConfig(String intfName) {
         final InstanceIdentifier<VpnInterface> identifier = getVpnInterfaceIdentifier(intfName);
         InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
         Optional<Adjacencies> adjacencies = read(LogicalDatastoreType.CONFIGURATION, path);
         if (adjacencies.isPresent()) {
-            List<Adjacency> nextHops = adjacencies.get().getAdjacency();
-            return nextHops;
+            return adjacencies.get().getAdjacency();
         }
         return null;
     }
@@ -473,6 +491,7 @@ public final class VpnUtil {
         return new RoutesBuilder().setPrefix(ipPrefix).setNexthopIpList(nextHopList).build();
     }
 
+    @Nullable
     String getVpnInterfaceName(BigInteger metadata) throws InterruptedException, ExecutionException {
         GetInterfaceFromIfIndexInputBuilder ifIndexInputBuilder = new GetInterfaceFromIfIndexInputBuilder();
         BigInteger lportTag = MetaDataUtil.getLportFromMetadata(metadata);
@@ -609,7 +628,8 @@ public final class VpnUtil {
             ListenableFutures.addErrorLogging(
                     new ManagedNewTransactionRunnerImpl(dataBroker).callWithNewWriteOnlyTransactionAndSubmit(
                                                                             Datastore.CONFIGURATION, tx -> {
-                            for (VrfEntry vrfEntry : vrfTables.getVrfEntry()) {
+                            for (VrfEntry vrfEntry : requireNonNullElse(vrfTables.getVrfEntry(),
+                                    Collections.<VrfEntry>emptyList())) {
                                 if (origin == RouteOrigin.value(vrfEntry.getOrigin())) {
                                     tx.delete(vpnVrfTableIid.child(VrfEntry.class, vrfEntry.key()));
                                 }
@@ -625,8 +645,8 @@ public final class VpnUtil {
         List<VrfEntry> matches = new ArrayList<>();
         if (vrfTablesOpc.isPresent()) {
             VrfTables vrfTables = vrfTablesOpc.get();
-            for (VrfEntry vrfEntry : vrfTables.getVrfEntry()) {
-                vrfEntry.getRoutePaths().stream()
+            for (VrfEntry vrfEntry : requireNonNullElse(vrfTables.getVrfEntry(), Collections.<VrfEntry>emptyList())) {
+                requireNonNullElse(vrfEntry.getRoutePaths(), Collections.<RoutePaths>emptyList()).stream()
                         .filter(routePath -> routePath.getNexthopAddress() != null && routePath.getNexthopAddress()
                                 .equals(nexthop)).findFirst().ifPresent(routePath -> matches.add(vrfEntry));
             }
@@ -719,6 +739,7 @@ public final class VpnUtil {
      * @param vpnId Dataplane identifier of the VPN
      * @return the Vpn instance name
      */
+    @Nullable
     String getVpnName(long vpnId) {
 
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn
@@ -738,11 +759,12 @@ public final class VpnUtil {
             .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
     }
 
+    @Nullable
     public VpnInstanceOpDataEntry getVpnInstanceOpData(String rd) {
-        InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnInstanceOpDataIdentifier(rd);
-        return read(LogicalDatastoreType.OPERATIONAL, id).orNull();
+        return read(LogicalDatastoreType.OPERATIONAL, getVpnInstanceOpDataIdentifier(rd)).orNull();
     }
 
+    @Nullable
     VpnInterface getConfiguredVpnInterface(String interfaceName) {
         InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
         Optional<VpnInterface> configuredVpnInterface = read(LogicalDatastoreType.CONFIGURATION, interfaceId);
@@ -834,6 +856,7 @@ public final class VpnUtil {
     }
 
     // interface-index-tag operational container
+    @Nullable
     IfIndexInterface getInterfaceInfoByInterfaceTag(long interfaceTag) {
         InstanceIdentifier<IfIndexInterface> interfaceId = getInterfaceInfoEntriesOperationalDataPath(interfaceTag);
         Optional<IfIndexInterface> existingInterfaceInfo = read(LogicalDatastoreType.OPERATIONAL, interfaceId);
@@ -848,6 +871,7 @@ public final class VpnUtil {
             new IfIndexInterfaceKey((int) interfaceTag)).build();
     }
 
+    @Nullable
     ElanTagName getElanInfoByElanTag(long elanTag) {
         InstanceIdentifier<ElanTagName> elanId = getElanInfoEntriesOperationalDataPath(elanTag);
         Optional<ElanTagName> existingElanInfo = read(LogicalDatastoreType.OPERATIONAL, elanId);
@@ -894,7 +918,7 @@ public final class VpnUtil {
     }
 
     void scheduleVpnInterfaceForRemoval(String interfaceName, BigInteger dpnId, String vpnInstanceName,
-                                        TypedWriteTransaction<Operational> writeOperTxn) {
+                                        @Nullable TypedWriteTransaction<Operational> writeOperTxn) {
         InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
                 getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnInstanceName);
         VpnInterfaceOpDataEntry interfaceToUpdate =
@@ -934,7 +958,7 @@ public final class VpnUtil {
     }
 
     void removeLearntVpnVipToPort(String vpnName, String fixedIp,
-                                                   TypedWriteTransaction<Operational> writeOperTxn) {
+                                  @Nullable TypedWriteTransaction<Operational> writeOperTxn) {
         synchronized ((vpnName + fixedIp).intern()) {
             InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
             if (writeOperTxn != null) {
@@ -948,7 +972,7 @@ public final class VpnUtil {
     }
 
     protected static void removeVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp,
-                                                     TypedWriteTransaction<Configuration> writeConfigTxn) {
+                                                     @Nullable TypedWriteTransaction<Configuration> writeConfigTxn) {
         synchronized ((vpnName + fixedIp).intern()) {
             InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
             if (writeConfigTxn != null) {
@@ -986,7 +1010,8 @@ public final class VpnUtil {
         return id;
     }
 
-    public void removeLearntVpnVipToPortEvent(String eventId, TypedWriteTransaction<Operational> writeOperTxn) {
+    public void removeLearntVpnVipToPortEvent(String eventId,
+            @Nullable TypedWriteTransaction<Operational> writeOperTxn) {
         InstanceIdentifier<LearntVpnVipToPortEvent> id = buildLearntVpnVipToPortEventIdentifier(eventId);
         if (writeOperTxn != null) {
             writeOperTxn.delete(id);
@@ -1048,6 +1073,7 @@ public final class VpnUtil {
                 new VpnPortipToPortKey(fixedIp, vpnName)).build();
     }
 
+    @Nullable
     public VpnPortipToPort getNeutronPortFromVpnPortFixedIp(String vpnName, String fixedIp) {
         InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         Optional<VpnPortipToPort> vpnPortipToPortData = read(LogicalDatastoreType.CONFIGURATION, id);
@@ -1057,6 +1083,7 @@ public final class VpnUtil {
         return null;
     }
 
+    @Nullable
     public static VpnPortipToPort getNeutronPortFromVpnPortFixedIp(TypedReadTransaction<Configuration> confTx,
             String vpnName, String fixedIp) {
         InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
@@ -1067,6 +1094,7 @@ public final class VpnUtil {
         }
     }
 
+    @Nullable
     public LearntVpnVipToPort getLearntVpnVipToPort(String vpnName, String fixedIp) {
         InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
         Optional<LearntVpnVipToPort> learntVpnVipToPort = read(LogicalDatastoreType.OPERATIONAL, id);
@@ -1100,6 +1128,7 @@ public final class VpnUtil {
         return result;
     }
 
+    @Nullable
     String getAssociatedExternalRouter(String extIp) {
         InstanceIdentifier<ExtRouters> extRouterInstanceIndentifier =
                 InstanceIdentifier.builder(ExtRouters.class).build();
@@ -1117,10 +1146,11 @@ public final class VpnUtil {
 
         String routerName = null;
 
-        for (Routers routerData : extRouterData.get().getRouters()) {
-            List<ExternalIps> externalIps = routerData.getExternalIps();
+        for (Routers routerData : requireNonNullElse(extRouterData.get().getRouters(),
+                Collections.<Routers>emptyList())) {
+            List<ExternalIps> externalIps = requireNonNullElse(routerData.getExternalIps(), emptyList());
             for (ExternalIps externalIp : externalIps) {
-                if (externalIp.getIpAddress().equals(extIp)) {
+                if (Objects.equals(externalIp.getIpAddress(), extIp)) {
                     routerName = routerData.getRouterName();
                     break;
                 }
@@ -1131,8 +1161,9 @@ public final class VpnUtil {
             return routerName;
         }
 
-        for (Routers routerData : extRouterData.get().getRouters()) {
-            List<ExternalIps> externalIps = routerData.getExternalIps();
+        for (Routers routerData : requireNonNullElse(extRouterData.get().getRouters(),
+                Collections.<Routers>emptyList())) {
+            List<ExternalIps> externalIps = requireNonNullElse(routerData.getExternalIps(), emptyList());
             for (ExternalIps externalIp : externalIps) {
                 Subnet neutronSubnet = neutronVpnService.getNeutronSubnet(externalIp.getSubnetId());
                 if (neutronSubnet == null) {
@@ -1154,6 +1185,7 @@ public final class VpnUtil {
         return InstanceIdentifier.builder(ExtRouters.class).child(Routers.class, new RoutersKey(routerId)).build();
     }
 
+    @Nullable
     Networks getExternalNetwork(Uuid networkId) {
         InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class)
             .child(Networks.class, new NetworksKey(networkId)).build();
@@ -1161,16 +1193,19 @@ public final class VpnUtil {
         return optionalNets.isPresent() ? optionalNets.get() : null;
     }
 
+    @Nullable
     Uuid getExternalNetworkVpnId(Uuid networkId) {
         Networks extNetwork = getExternalNetwork(networkId);
         return extNetwork != null ? extNetwork.getVpnid() : null;
     }
 
+    @Nonnull
     public List<Uuid> getExternalNetworkRouterIds(Uuid networkId) {
         Networks extNetwork = getExternalNetwork(networkId);
-        return extNetwork != null ? extNetwork.getRouterIds() : Collections.emptyList();
+        return extNetwork != null && extNetwork.getRouterIds() != null ? extNetwork.getRouterIds() : emptyList();
     }
 
+    @Nullable
     Routers getExternalRouter(String routerId) {
         InstanceIdentifier<Routers> id = InstanceIdentifier.builder(ExtRouters.class).child(Routers.class,
                 new RoutersKey(routerId)).build();
@@ -1344,7 +1379,7 @@ public final class VpnUtil {
         final Optional<Subnet> subnet = read(LogicalDatastoreType.CONFIGURATION, subnetidentifier);
         if (subnet.isPresent()) {
             Class<? extends IpVersionBase> ipVersionBase = subnet.get().getIpVersion();
-            if (ipVersionBase.equals(IpVersionV4.class)) {
+            if (IpVersionV4.class.equals(ipVersionBase)) {
                 Subnetmap subnetmap = getSubnetmapFromItsUuid(subnetUuid);
                 if (subnetmap != null && subnetmap.getRouterInterfaceFixedIp() != null) {
                     LOG.trace("getVpnSubnetGatewayIp: Obtained subnetMap {} for vpn interface",
@@ -1364,6 +1399,7 @@ public final class VpnUtil {
         return gwIpAddress;
     }
 
+    @Nullable
     RouterToNaptSwitch getRouterToNaptSwitch(String routerName) {
         InstanceIdentifier<RouterToNaptSwitch> id = InstanceIdentifier.builder(NaptSwitches.class)
                 .child(RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerName)).build();
@@ -1377,6 +1413,7 @@ public final class VpnUtil {
 
     }
 
+    @Nullable
     BigInteger getPrimarySwitchForRouter(String routerName) {
         RouterToNaptSwitch routerToNaptSwitch = getRouterToNaptSwitch(routerName);
         return routerToNaptSwitch != null ? routerToNaptSwitch.getPrimarySwitchId() : null;
@@ -1500,7 +1537,7 @@ public final class VpnUtil {
 
     public static List<String> getIpsListFromExternalIps(List<ExternalIps> externalIps) {
         if (externalIps == null) {
-            return Collections.emptyList();
+            return emptyList();
         }
 
         return externalIps.stream().map(ExternalIps::getIpAddress).collect(Collectors.toList());
@@ -1572,6 +1609,7 @@ public final class VpnUtil {
         return isVxLan ? VrfEntryBase.EncapType.Vxlan : VrfEntryBase.EncapType.Mplsgre;
     }
 
+    @Nullable
     org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets
         getExternalSubnet(Uuid subnetId) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets
@@ -1583,11 +1621,12 @@ public final class VpnUtil {
         return optionalSubnets.isPresent() ? optionalSubnets.get() : null;
     }
 
+    @Nullable
     public Uuid getSubnetFromExternalRouterByIp(Uuid routerId, String ip) {
         Routers externalRouter = getExternalRouter(routerId.getValue());
         if (externalRouter != null && externalRouter.getExternalIps() != null) {
             for (ExternalIps externalIp : externalRouter.getExternalIps()) {
-                if (externalIp.getIpAddress().equals(ip)) {
+                if (Objects.equals(externalIp.getIpAddress(), ip)) {
                     return externalIp.getSubnetId();
                 }
             }
@@ -1605,28 +1644,25 @@ public final class VpnUtil {
     }
 
     @SuppressWarnings("checkstyle:linelength")
+    @Nullable
     Network getNeutronNetwork(Uuid networkId) {
-        Network network = null;
         LOG.debug("getNeutronNetwork for {}", networkId.getValue());
         InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class).child(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks.class).child(
                 Network.class, new NetworkKey(networkId));
-        Optional<Network> net = read(LogicalDatastoreType.CONFIGURATION, inst);
-        if (net.isPresent()) {
-            network = net.get();
-        }
-        return network;
+        return read(LogicalDatastoreType.CONFIGURATION, inst).orNull();
     }
 
-    public static boolean isEligibleForBgp(String rd, String vpnName, BigInteger dpnId, String networkName) {
+    public static boolean isEligibleForBgp(@Nullable String rd, @Nullable String vpnName, @Nullable BigInteger dpnId,
+            @Nullable String networkName) {
         if (rd != null) {
-            if (vpnName != null && rd.equals(vpnName)) {
+            if (rd.equals(vpnName)) {
                 return false;
             }
             if (dpnId != null && rd.equals(dpnId.toString())) {
                 return false;
             }
-            if (networkName != null && rd.equals(networkName)) {
+            if (rd.equals(networkName)) {
                 return false;
             }
             return true;
@@ -1726,14 +1762,10 @@ public final class VpnUtil {
      * @param subnetUuid the subnet's Uuid
      * @return the Subnetmap of Uuid or null if it is not found
      */
+    @Nullable
     public Subnetmap getSubnetmapFromItsUuid(Uuid subnetUuid) {
-        Subnetmap sn = null;
         InstanceIdentifier<Subnetmap> id = buildSubnetmapIdentifier(subnetUuid);
-        Optional<Subnetmap> optionalSn = read(LogicalDatastoreType.CONFIGURATION, id);
-        if (optionalSn.isPresent()) {
-            sn = optionalSn.get();
-        }
-        return sn;
+        return read(LogicalDatastoreType.CONFIGURATION, id).orNull();
     }
 
     boolean isAdjacencyEligibleToVpnInternet(Adjacency adjacency) {
@@ -1759,6 +1791,7 @@ public final class VpnUtil {
         return adjacencyEligible;
     }
 
+    @Nullable
     String getInternetVpnFromVpnInstanceList(List<VpnInstanceNames> vpnInstanceList) {
         for (VpnInstanceNames vpnInstance : vpnInstanceList) {
             String vpnName = vpnInstance.getVpnName();
@@ -1804,7 +1837,6 @@ public final class VpnUtil {
      * @return the IpVersionChoice of the version or IpVersionChoice.UNDEFINED otherwise
      */
     public static IpVersionChoice getIpVersionFromString(String ipAddress) {
-        IpVersionChoice ipchoice = IpVersionChoice.UNDEFINED;
         int indexIpAddress = ipAddress.indexOf('/');
         if (indexIpAddress >= 0) {
             ipAddress = ipAddress.substring(0, indexIpAddress);
@@ -1817,9 +1849,9 @@ public final class VpnUtil {
                 return IpVersionChoice.IPV6;
             }
         } catch (UnknownHostException | SecurityException e) {
-            ipchoice = IpVersionChoice.UNDEFINED;
+            return IpVersionChoice.UNDEFINED;
         }
-        return ipchoice;
+        return IpVersionChoice.UNDEFINED;
     }
 
     ListenableFuture<Void> unsetScheduledToRemoveForVpnInterface(String interfaceName) {
@@ -1903,7 +1935,8 @@ public final class VpnUtil {
             Optional<ElanDpnInterfacesList> dpnInElanInterfaces = read(LogicalDatastoreType.OPERATIONAL,
                     elanDpnInterfaceId);
             if (dpnInElanInterfaces.isPresent()) {
-                List<DpnInterfaces> dpnInterfaces = dpnInElanInterfaces.get().getDpnInterfaces();
+                List<DpnInterfaces> dpnInterfaces =
+                    requireNonNullElse(dpnInElanInterfaces.get().getDpnInterfaces(), emptyList());
                 for (DpnInterfaces dpnInterface : dpnInterfaces) {
                     dpnIdSet.add(dpnInterface.getDpId());
                 }
@@ -1962,6 +1995,7 @@ public final class VpnUtil {
 
     }
 
+    @Nullable
     ElanInterface getElanInterfaceByElanInterfaceName(String elanInterfaceName) {
         InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
         return read(LogicalDatastoreType.CONFIGURATION, elanInterfaceId).orNull();
@@ -1972,12 +2006,14 @@ public final class VpnUtil {
                 .child(ElanInterface.class, new ElanInterfaceKey(interfaceName)).build();
     }
 
+    @Nullable
     DpnInterfaces getElanInterfaceInfoByElanDpn(String elanInstanceName, BigInteger dpId) {
         InstanceIdentifier<DpnInterfaces> elanDpnInterfacesId = getElanDpnInterfaceOperationalDataPath(elanInstanceName,
                 dpId);
         return read(LogicalDatastoreType.OPERATIONAL, elanDpnInterfacesId).orNull();
     }
 
+    @Nullable
     String getExternalElanInterface(String elanInstanceName, BigInteger dpnId) {
         DpnInterfaces dpnInterfaces = getElanInterfaceInfoByElanDpn(elanInstanceName, dpnId);
         if (dpnInterfaces == null || dpnInterfaces.getInterfaces() == null) {
@@ -2008,12 +2044,14 @@ public final class VpnUtil {
         return isVlan(elanInstance);
     }
 
+    @Nullable
     ElanInstance getElanInstanceByName(String elanInstanceName) {
         InstanceIdentifier<ElanInstance> elanIdentifierId =
                 ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName);
         return read(LogicalDatastoreType.CONFIGURATION, elanIdentifierId).orNull();
     }
 
+    @Nullable
     String getVpnNameFromElanIntanceName(String elanInstanceName) {
         Optional<Subnetmaps> subnetMapsData = read(LogicalDatastoreType.CONFIGURATION, buildSubnetMapsWildCardPath());
         if (subnetMapsData.isPresent()) {
@@ -2039,7 +2077,7 @@ public final class VpnUtil {
             if (subnetMapList != null && !subnetMapList.isEmpty()) {
                 for (Subnetmap subnet : subnetMapList) {
                     if (subnet.getVpnId() != null && subnet.getVpnId().getValue().equals(vpnName)
-                            && subnet.getNetworkType().equals(NetworkType.VLAN)) {
+                            && NetworkType.VLAN.equals(subnet.getNetworkType())) {
                         if (subnet.getRouterInterfacePortId() == null || subnet.getNetworkId() == null) {
                             LOG.warn("The RouterInterfacePortId or NetworkId is null");
                             continue;
@@ -2055,6 +2093,7 @@ public final class VpnUtil {
         return elanInstanceRouterPortMap;
     }
 
+    @Nullable
     String getRouterPordIdFromElanInstance(String elanInstanceName) {
         Optional<Subnetmaps> subnetMapsData = read(LogicalDatastoreType.CONFIGURATION, buildSubnetMapsWildCardPath());
         if (subnetMapsData.isPresent()) {
@@ -2072,7 +2111,7 @@ public final class VpnUtil {
         return null;
     }
 
-    boolean shouldPopulateFibForVlan(String vpnName, String elanInstanceName, BigInteger dpnId) {
+    boolean shouldPopulateFibForVlan(String vpnName, @Nullable String elanInstanceName, BigInteger dpnId) {
         Map<String,String> elanInstanceRouterPortMap = getElanInstanceRouterPortMap(vpnName);
         boolean shouldPopulateFibForVlan = false;
         if (!elanInstanceRouterPortMap.isEmpty()) {
@@ -2260,7 +2299,7 @@ public final class VpnUtil {
     }
 
     public List<String> getVpnListForVpnInterface(VpnInterface vpnInter) {
-        return vpnInter.getVpnInstanceNames().stream()
+        return requireNonNullElse(vpnInter.getVpnInstanceNames(), Collections.<VpnInstanceNames>emptyList()).stream()
                 .map(VpnInstanceNames::getVpnName).collect(Collectors.toList());
     }
 
@@ -2284,5 +2323,11 @@ public final class VpnUtil {
                             vpnName, updatedRdList);
                 }));
         });
+    }
+
+    // Use Objects.requireNonNullElse instead with JDK9+
+    @Nonnull
+    public static <T> T requireNonNullElse(@Nullable T obj, @Nonnull T defaultObj) {
+        return obj != null ? obj : requireNonNull(defaultObj);
     }
 }

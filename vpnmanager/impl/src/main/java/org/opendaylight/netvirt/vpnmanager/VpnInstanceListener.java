@@ -7,9 +7,11 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import static java.util.Collections.emptyList;
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
@@ -22,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -159,7 +162,9 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         VpnInstance original, VpnInstance update) {
         LOG.trace("VPN-UPDATE: update: VPN event key: {}, value: {}.", identifier, update);
         String vpnName = update.getVpnInstanceName();
-        if ((original.getIpv4Family() != null && update.getIpv4Family() != null)
+        if (original.getIpv4Family() != null && update.getIpv4Family() != null
+                && original.getIpv4Family().getRouteDistinguisher() != null
+                && update.getIpv4Family().getRouteDistinguisher() != null
                 && original.getIpv4Family().getRouteDistinguisher().size()
                 !=  update.getIpv4Family().getRouteDistinguisher().size()) {
             LOG.debug("VPN-UPDATE: VpnInstance:{} updated with new RDs: {} from old RDs: {}", vpnName,
@@ -404,6 +409,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         }
     }
 
+    @Nullable
     protected VpnInstanceOpDataEntry getVpnInstanceOpData(String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
         try {
@@ -425,13 +431,15 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 LOG.info("No DC gateways configured.");
                 return tunnelInterfaceNameList;
             }
-            List<DcGatewayIp> dcGatewayIps = dcGatewayIpListOptional.get().getDcGatewayIp();
+            List<DcGatewayIp> dcGatewayIps =
+                requireNonNullElse(dcGatewayIpListOptional.get().getDcGatewayIp(), emptyList());
             InstanceIdentifier<ExternalTunnelList> externalTunnelListId = InstanceIdentifier
                     .create(ExternalTunnelList.class);
             Optional<ExternalTunnelList> externalTunnelListOptional = SingleTransactionDataBroker.syncReadOptional(
                     dataBroker, LogicalDatastoreType.OPERATIONAL, externalTunnelListId);
             if (externalTunnelListOptional.isPresent()) {
-                List<ExternalTunnel> externalTunnels = externalTunnelListOptional.get().getExternalTunnel();
+                List<ExternalTunnel> externalTunnels =
+                    requireNonNullElse(externalTunnelListOptional.get().getExternalTunnel(), emptyList());
                 List<String> externalTunnelIpList = new ArrayList<>();
                 for (ExternalTunnel externalTunnel: externalTunnels) {
                     externalTunnelIpList.add(externalTunnel.getDestinationDevice());

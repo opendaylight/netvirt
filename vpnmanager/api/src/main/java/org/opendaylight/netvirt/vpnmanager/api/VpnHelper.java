@@ -16,6 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -46,6 +48,7 @@ public final class VpnHelper {
     private VpnHelper() { }
 
     //FIXME: Implement caches for DS reads
+    @Nullable
     public static VpnInstance getVpnInstance(DataBroker broker, String vpnInstanceName) {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class,
                 new VpnInstanceKey(vpnInstanceName)).build();
@@ -65,7 +68,7 @@ public final class VpnHelper {
     public static List<VpnInstance> getAllVpnInstances(DataBroker broker) {
         InstanceIdentifier<VpnInstances> id = InstanceIdentifier.builder(VpnInstances.class).build();
         Optional<VpnInstances> optVpnInstances = read(broker, LogicalDatastoreType.CONFIGURATION, id);
-        if (optVpnInstances.isPresent()) {
+        if (optVpnInstances.isPresent() && optVpnInstances.get().getVpnInstance() != null) {
             return optVpnInstances.get().getVpnInstance();
         } else {
             return Collections.emptyList();
@@ -104,6 +107,7 @@ public final class VpnHelper {
                         .VpnInstanceKey(vpnName)).build();
     }
 
+    @Nullable
     public static VpnInterface getVpnInterface(DataBroker broker, String vpnInterfaceName) {
         InstanceIdentifier<VpnInterface> id = getVpnInterfaceIdentifier(vpnInterfaceName);
         Optional<VpnInterface> vpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION, id);
@@ -115,6 +119,7 @@ public final class VpnHelper {
                 .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).build();
     }
 
+    @Nullable
     public static String getFirstVpnNameFromVpnInterface(final VpnInterface original) {
         List<VpnInstanceNames> optList = original.getVpnInstanceNames();
         if (optList != null && !optList.isEmpty()) {
@@ -124,10 +129,13 @@ public final class VpnHelper {
         }
     }
 
-    public static List<String> getVpnInterfaceVpnInstanceNamesString(List<VpnInstanceNames> vpnInstanceList) {
-        List listVpn = new ArrayList<String>();
-        for (VpnInstanceNames vpnInterfaceVpnInstance : vpnInstanceList) {
-            listVpn.add(vpnInterfaceVpnInstance.getVpnName());
+    @Nonnull
+    public static List<String> getVpnInterfaceVpnInstanceNamesString(@Nullable List<VpnInstanceNames> vpnInstanceList) {
+        List<String> listVpn = new ArrayList<>();
+        if (vpnInstanceList != null) {
+            for (VpnInstanceNames vpnInterfaceVpnInstance : vpnInstanceList) {
+                listVpn.add(vpnInterfaceVpnInstance.getVpnName());
+            }
         }
         return listVpn;
     }
@@ -138,14 +146,18 @@ public final class VpnHelper {
 
     public static void removeVpnInterfaceVpnInstanceNamesFromList(String vpnName,
                                List<VpnInstanceNames> vpnInstanceList) {
-        vpnInstanceList.removeIf(instance -> instance.getVpnName().equals(vpnName));
+        if (vpnInstanceList != null) {
+            vpnInstanceList.removeIf(instance -> vpnName.equals(instance.getVpnName()));
+        }
     }
 
     public static boolean doesVpnInterfaceBelongToVpnInstance(String vpnName,
                                                           List<VpnInstanceNames> vpnInstanceList) {
-        for (VpnInstanceNames vpnInstance : vpnInstanceList) {
-            if (vpnInstance.getVpnName().equals(vpnName)) {
-                return true;
+        if (vpnInstanceList != null) {
+            for (VpnInstanceNames vpnInstance : vpnInstanceList) {
+                if (vpnName.equals(vpnInstance.getVpnName())) {
+                    return true;
+                }
             }
         }
         return false;
@@ -172,6 +184,7 @@ public final class VpnHelper {
      * @param subnetUuid the subnet's Uuid
      * @return the Subnetmap of Uuid or null if it is not found
      */
+    @Nullable
     public static Subnetmap getSubnetmapFromItsUuid(DataBroker broker, Uuid subnetUuid) {
         Subnetmap sn = null;
         InstanceIdentifier<Subnetmap> id = buildSubnetmapIdentifier(subnetUuid);
