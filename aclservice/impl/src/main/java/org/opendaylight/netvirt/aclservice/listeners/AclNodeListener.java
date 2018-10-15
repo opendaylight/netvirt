@@ -12,6 +12,7 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import java.math.BigInteger;
 import java.util.Collections;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -55,6 +56,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     private final AclServiceUtils aclServiceUtils;
     private final JobCoordinator jobCoordinator;
 
+    @Nullable
     private SecurityGroupMode securityGroupMode = null;
 
     @Inject

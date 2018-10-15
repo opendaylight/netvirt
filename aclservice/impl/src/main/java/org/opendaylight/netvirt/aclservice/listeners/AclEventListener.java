@@ -10,11 +10,15 @@ package org.opendaylight.netvirt.aclservice.listeners;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -121,13 +125,13 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         // Find and update deleted ace rules in acl
         List<Ace> deletedAceRules = getChangedAceList(aclBefore, aclAfter);
 
-        if (interfacesBefore != null && aclClusterUtil.isEntityOwner()) {
+        if (aclClusterUtil.isEntityOwner()) {
             LOG.debug("On update event, remove Ace rules: {} for ACL: {}", deletedAceRules, aclName);
             updateAceRules(interfacesBefore, aclName, deletedAceRules, AclServiceManager.Action.REMOVE);
         }
         updateAclCaches(aclBefore, aclAfter, interfacesBefore);
 
-        if (interfacesBefore != null && aclClusterUtil.isEntityOwner()) {
+        if (aclClusterUtil.isEntityOwner()) {
             LOG.debug("On update event, add Ace rules: {} for ACL: {}", addedAceRules, aclName);
             updateAceRules(interfacesBefore, aclName, addedAceRules, AclServiceManager.Action.ADD);
 
@@ -173,7 +177,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
      * @param aclName the acl name
      * @param action the action
      */
-    private void updateRemoteAclCache(List<Ace> aceList, String aclName, AclServiceManager.Action action) {
+    private void updateRemoteAclCache(@Nullable List<Ace> aceList, String aclName, AclServiceManager.Action action) {
         if (null == aceList) {
             return;
         }
@@ -251,21 +255,26 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         return this;
     }
 
+    @Nonnull
     private List<Ace> getChangedAceList(Acl updatedAcl, Acl currentAcl) {
         if (updatedAcl == null) {
-            return null;
+            return Collections.emptyList();
         }
-        List<Ace> updatedAceList = updatedAcl.getAccessListEntries() == null ? new ArrayList<>()
+        List<Ace> updatedAceList =
+            updatedAcl.getAccessListEntries() == null || updatedAcl.getAccessListEntries().getAce() == null
+                ? new ArrayList<>()
                 : new ArrayList<>(updatedAcl.getAccessListEntries().getAce());
         if (currentAcl == null) {
             return updatedAceList;
         }
-        List<Ace> currentAceList = currentAcl.getAccessListEntries() == null ? new ArrayList<>()
+        List<Ace> currentAceList =
+            currentAcl.getAccessListEntries() == null || currentAcl.getAccessListEntries().getAce() == null
+                ? new ArrayList<>()
                 : new ArrayList<>(currentAcl.getAccessListEntries().getAce());
         for (Iterator<Ace> iterator = updatedAceList.iterator(); iterator.hasNext();) {
             Ace ace1 = iterator.next();
             for (Ace ace2 : currentAceList) {
-                if (ace1.getRuleName().equals(ace2.getRuleName())) {
+                if (Objects.equals(ace1.getRuleName(), ace2.getRuleName())) {
                     iterator.remove();
                 }
             }

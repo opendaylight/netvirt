@@ -13,6 +13,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -254,7 +255,8 @@ public class AclNodeDefaultFlowsTxBuilder {
         addGotoOrResubmitTableMissFlow(tableId, nextTableId, null);
     }
 
-    private void addGotoOrResubmitTableMissFlow(short tableId, short nextTableId, List<InstructionInfo> instructions) {
+    private void addGotoOrResubmitTableMissFlow(short tableId, short nextTableId,
+            @Nullable List<InstructionInfo> instructions) {
         List<MatchInfoBase> matches = Collections.emptyList();
         List<InstructionInfo> ins = getGotoOrResubmitInstructions(tableId, nextTableId);
         if (instructions != null && !instructions.isEmpty()) {
