@@ -63,7 +63,7 @@ public abstract class AbstractIpLearnNotificationHandler {
         List<Adjacency> adjacencies = vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(srcInterface);
         IpVersionChoice srcIpVersion = vpnUtil.getIpVersionFromString(srcIP.stringValue());
         boolean isSrcIpVersionPartOfVpn = false;
-        if (adjacencies != null) {
+        if (adjacencies != null && !adjacencies.isEmpty()) {
             for (Adjacency adj : adjacencies) {
                 IpPrefix ipPrefix = IpPrefixBuilder.getDefaultInstance(adj.getIpAddress());
                 // If extra/static route is configured, we should ignore for learning process
