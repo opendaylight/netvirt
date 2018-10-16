@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.cli.etree;
 
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -31,6 +32,7 @@ public class EtreeInterfaceDelete extends OsgiCommandSupport {
     }
 
     @Override
+    @Nullable
     protected Object doExecute() {
         LOG.debug("Deleting EtreeInterface command etreeName:{}, interfaceName:{}", etreeName, interfaceName);
         ElanInterface existingInterface =

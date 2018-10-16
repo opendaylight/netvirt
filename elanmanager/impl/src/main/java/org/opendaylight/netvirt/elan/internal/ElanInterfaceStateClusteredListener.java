@@ -69,7 +69,7 @@ public class ElanInterfaceStateClusteredListener extends
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, final Interface intrf) {
         if (intrf.getType() != null && intrf.getType().equals(Tunnel.class)) {
-            if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
+            if (Interface.OperStatus.Up.equals(intrf.getOperStatus())) {
                 final String interfaceName = intrf.getName();
 
                 elanClusterUtils.runOnlyInOwnerNode("external tunnel update", () -> {

@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elan.statisitcs;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
@@ -84,6 +85,7 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
                 .withResult(queryforElanInterfaceStatistics(tableId, elanInstanceName, interfaceInfo)).build());
     }
 
+    @Nullable
     private GetElanInterfaceStatisticsOutput queryforElanInterfaceStatistics(short tableId, String elanInstanceName,
             InterfaceInfo interfaceInfo) {
 //        BigInteger dpId = interfaceInfo.getDpId();

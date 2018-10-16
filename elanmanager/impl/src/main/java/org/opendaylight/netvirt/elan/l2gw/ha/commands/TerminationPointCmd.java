@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalPortAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalPortAugmentationBuilder;
@@ -29,6 +30,7 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
     }
 
     @Override
+    @Nullable
     public List<TerminationPoint> getData(Node node) {
         if (node != null) {
             return node.getTerminationPoint();

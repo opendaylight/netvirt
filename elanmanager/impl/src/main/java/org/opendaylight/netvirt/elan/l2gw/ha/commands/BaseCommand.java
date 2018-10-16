@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class BaseCommand<T> {
 
@@ -19,10 +20,11 @@ public abstract class BaseCommand<T> {
      * @param updated Updated List
      * @param original Origina list to be compared with
      * @param comparator based on which diff will be returned
-     * @param <T> T extends DataObject
+     * @param <U> U extends DataObject
      * @return List of diff based on comparator
      */
-    public <T> List<T> diffOf(List<T> updated, final List<T> original, final Comparator comparator) {
+    public <U> List<U> diffOf(@Nullable List<U> updated, @Nullable final List<U> original,
+            final Comparator<U> comparator) {
         if (updated == null) {
             return new ArrayList<>();
         }
@@ -30,10 +32,10 @@ public abstract class BaseCommand<T> {
             return new ArrayList<>(updated);
         }
 
-        List<T> result = new ArrayList<>();
-        for (T ele : updated) {
+        List<U> result = new ArrayList<>();
+        for (U ele : updated) {
             boolean present = false;
-            for (T orig : original) {
+            for (U orig : original) {
                 if (0 == comparator.compare(ele, orig)) {
                     present = true;
                     break;

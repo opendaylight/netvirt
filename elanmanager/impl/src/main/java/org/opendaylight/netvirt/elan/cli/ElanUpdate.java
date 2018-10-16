@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.cli;
 
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -31,6 +32,7 @@ public class ElanUpdate  extends OsgiCommandSupport {
     }
 
     @Override
+    @Nullable
     protected Object doExecute() {
         LOG.debug("Updating elanInstance update command for elanName:{}, macTimeOut:{}, elanDescr:{}",
                 elanName, macTimeOut, elanDescr);

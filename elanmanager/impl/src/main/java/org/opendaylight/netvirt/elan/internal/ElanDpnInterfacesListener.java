@@ -8,8 +8,10 @@
 
 package org.opendaylight.netvirt.elan.internal;
 
+import static java.util.Collections.emptyList;
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
+
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -76,13 +78,13 @@ public class ElanDpnInterfacesListener
         ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
 
         if (elanInstance != null && !elanInstance.isExternal() && ElanUtils.isVlan(elanInstance)) {
-            List<String> interfaces = update.getInterfaces();
+            List<String> interfaces = requireNonNullElse(update.getInterfaces(), emptyList());
             // trigger deletion for vlan provider intf on the DPN for the vlan provider network
             if (interfaces.size() == 1 && interfaceManager.isExternalInterface(interfaces.get(0))) {
                 LOG.debug("deleting vlan prv intf for elan {}, dpn {}", elanInstanceName, dpnId);
                 jobCoordinator.enqueueJob(dpnId.toString(), () -> {
                     elanService.deleteExternalElanNetwork(elanInstance, dpnId);
-                    return Collections.emptyList();
+                    return emptyList();
                 });
             }
         }
@@ -102,7 +104,7 @@ public class ElanDpnInterfacesListener
                 LOG.debug("creating vlan member intf for elan {}, dpn {}",
                         elanInstance.getPhysicalNetworkName(), dpnId);
                 elanService.createExternalElanNetwork(elanInstance, dpnId);
-                return Collections.emptyList();
+                return emptyList();
             });
         }
     }

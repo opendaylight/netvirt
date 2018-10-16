@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elan.utils;
 
 import com.google.common.base.Optional;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -25,6 +26,7 @@ public class ElanEtreeUtils {
         this.broker = broker;
     }
 
+    @Nullable
     public EtreeLeafTagName getEtreeLeafTagByElanTag(long elanTag) {
         InstanceIdentifier<ElanTagName> elanId = ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag);
         Optional<ElanTagName> existingElanInfo = ElanUtils.read(broker,

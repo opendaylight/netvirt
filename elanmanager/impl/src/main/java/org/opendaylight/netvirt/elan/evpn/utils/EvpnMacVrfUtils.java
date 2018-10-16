@@ -260,6 +260,7 @@ public class EvpnMacVrfUtils {
         }
     }
 
+    @Nullable
     public String getRoutePathNexthopIp(MacVrfEntry macVrfEntry) {
         if (macVrfEntry.getRoutePaths() == null || macVrfEntry.getRoutePaths().isEmpty()) {
             LOG.debug("RoutePaths is null or empty for macvrfentry {}", macVrfEntry);

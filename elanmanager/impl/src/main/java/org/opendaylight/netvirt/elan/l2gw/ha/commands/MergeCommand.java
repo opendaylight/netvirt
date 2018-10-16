@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -186,7 +187,7 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
         transformUpdate(existingData, updatedData, origData, nodePath, OPERATIONAL, tx);
     }
 
-    boolean areSameSize(List objA, List objB) {
+    boolean areSameSize(@Nullable List objA, @Nullable List objB) {
         if (HwvtepHAUtil.isEmptyList(objA) && HwvtepHAUtil.isEmptyList(objB)) {
             return true;
         }
@@ -217,6 +218,7 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
         }
     }
 
+    @Nullable
     public abstract List<T> getData(Z node);
 
     public abstract void setData(Y builder, List<T> data);

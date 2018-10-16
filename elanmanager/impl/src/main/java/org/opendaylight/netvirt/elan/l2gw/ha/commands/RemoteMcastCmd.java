@@ -7,8 +7,13 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentationBuilder;
@@ -31,6 +36,7 @@ public class RemoteMcastCmd extends
     }
 
     @Override
+    @Nullable
     public List<RemoteMcastMacs> getData(HwvtepGlobalAugmentation augmentation) {
         if (augmentation != null) {
             return augmentation.getRemoteMcastMacs();
@@ -55,7 +61,7 @@ public class RemoteMcastCmd extends
     public RemoteMcastMacs transform(InstanceIdentifier<Node> nodePath, RemoteMcastMacs src) {
         RemoteMcastMacsBuilder ucmlBuilder = new RemoteMcastMacsBuilder(src);
         List<LocatorSet> locatorSet = new ArrayList<>();
-        for (LocatorSet locator : src.getLocatorSet()) {
+        for (LocatorSet locator : requireNonNullElse(src.getLocatorSet(), Collections.<LocatorSet>emptyList())) {
             locatorSet.add(new LocatorSetBuilder().setLocatorRef(HwvtepHAUtil.buildLocatorRef(nodePath,
                     HwvtepHAUtil.getTepIpVal(locator.getLocatorRef()))).build());
         }
@@ -87,7 +93,7 @@ public class RemoteMcastCmd extends
                 .getHwvtepNodeName();
         InstanceIdentifier<?> origMacRefIdentifier = orig.getLogicalSwitchRef().getValue();
         HwvtepNodeName origMacNodeName = origMacRefIdentifier.firstKeyOf(LogicalSwitches.class).getHwvtepNodeName();
-        if (updated.getMacEntryKey().equals(orig.getMacEntryKey())
+        if (Objects.equals(updated.getMacEntryKey(), orig.getMacEntryKey())
                 && updatedMacNodeName.equals(origMacNodeName)) {
             List<LocatorSet> updatedLocatorSet = updated.getLocatorSet();
             List<LocatorSet> origLocatorSet = orig.getLocatorSet();

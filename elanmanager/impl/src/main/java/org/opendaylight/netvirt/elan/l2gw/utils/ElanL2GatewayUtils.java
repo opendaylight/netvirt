@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -74,6 +76,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.TransportZones;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.TransportZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.DeviceVteps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.AddL2GwDeviceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.AddL2GwDeviceOutput;
@@ -207,7 +210,7 @@ public class ElanL2GatewayUtils {
                     HwvtepSouthboundUtils.createPhysicalLocatorInstanceIdentifier(nodeId, expectedPhyLocatorAug));
             if (remoteMcastMac.getLocatorSet() != null) {
                 for (LocatorSet locatorSet : remoteMcastMac.getLocatorSet()) {
-                    if (locatorSet.getLocatorRef().equals(expectedPhyLocRef)) {
+                    if (Objects.equals(locatorSet.getLocatorRef(), expectedPhyLocRef)) {
                         LOG.trace("matched phyLocRef: {}", expectedPhyLocRef);
                         return true;
                     }
@@ -274,6 +277,7 @@ public class ElanL2GatewayUtils {
         return HwvtepUtils.deleteRemoteUcastMacs(broker, nodeId, logicalSwitchName, lstMac);
     }
 
+    @Nullable
     public ElanInstance getElanInstanceForUcastLocalMac(LocalUcastMacs localUcastMac) {
         Optional<LogicalSwitches> lsOpc = ElanUtils.read(broker, LogicalDatastoreType.OPERATIONAL,
                 (InstanceIdentifier<LogicalSwitches>) localUcastMac.getLogicalSwitchRef().getValue());
@@ -361,7 +365,7 @@ public class ElanL2GatewayUtils {
     }
 
     public void installL2GwUcastMacInElan(final ElanInstance elan, final L2GatewayDevice extL2GwDevice,
-            final String macToBeAdded, final LocalUcastMacs localUcastMacs, String interfaceName) {
+            final String macToBeAdded, final LocalUcastMacs localUcastMacs, @Nullable String interfaceName) {
         final String extDeviceNodeId = extL2GwDevice.getHwvtepNodeId();
         final String elanInstanceName = elan.getElanInstanceName();
         final Collection<DpnInterfaces> elanDpns = getElanDpns(elanInstanceName);
@@ -771,6 +775,7 @@ public class ElanL2GatewayUtils {
      *            the interface name
      * @return the dpid from interface
      */
+    @Nullable
     public BigInteger getDpidFromInterface(String interfaceName) {
         BigInteger dpId = null;
         Future<RpcResult<GetDpidFromInterfaceOutput>> output = interfaceManagerRpcService
@@ -935,6 +940,7 @@ public class ElanL2GatewayUtils {
         return interfaceInstanceIdentifierBuilder.build();
     }
 
+    @Nullable
     public static Interface getInterfaceFromConfigDS(InterfaceKey interfaceKey, DataBroker dataBroker) {
         InstanceIdentifier<Interface> interfaceId = getInterfaceIdentifier(interfaceKey);
         try {
@@ -1004,7 +1010,8 @@ public class ElanL2GatewayUtils {
                 return;
             }
             String psNodeId = globalNodeId + HwvtepHAUtil.PHYSICALSWITCH + psName;
-            tzonesoptional.get().getTransportZone().stream()
+            requireNonNullElse(tzonesoptional.get().getTransportZone(),
+                Collections.<TransportZone>emptyList()).stream()
                 .filter(transportZone -> transportZone.getSubnets() != null)
                 .flatMap(transportZone -> transportZone.getSubnets().stream())
                 .filter(subnet -> subnet.getDeviceVteps() != null)
@@ -1046,16 +1053,17 @@ public class ElanL2GatewayUtils {
             }
             JdkFutures.addErrorLogging(
                 new ManagedNewTransactionRunnerImpl(dataBroker).callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                    tx -> {
-                        optionalElan.get().getElanInstance().stream()
-                        .flatMap(elan -> elan.getExternalTeps().stream()
-                                .map(externalTep -> ElanL2GatewayMulticastUtils.buildExternalTepPath(
-                                        elan.getElanInstanceName(), externalTep.getTepIp())))
+                    tx -> requireNonNullElse(optionalElan.get().getElanInstance(),
+                        Collections.<ElanInstance>emptyList()).stream()
+                        .flatMap(elan -> requireNonNullElse(elan.getExternalTeps(),
+                            Collections.<ExternalTeps>emptyList()).stream()
+                            .map(externalTep -> ElanL2GatewayMulticastUtils.buildExternalTepPath(
+                                elan.getElanInstanceName(), externalTep.getTepIp())))
                         .filter(externalTepIid -> Objects.equals(
-                                deviceVteps.getIpAddress(), externalTepIid.firstKeyOf(ExternalTeps.class).getTepIp()))
+                            deviceVteps.getIpAddress(), externalTepIid.firstKeyOf(ExternalTeps.class).getTepIp()))
                         .peek(externalTepIid -> LOG.info("Deleting stale external tep {}", externalTepIid))
-                        .forEach(externalTepIid -> tx.delete(externalTepIid));
-                    }), LOG, "Failed to delete stale external teps {}", deviceVteps);
+                        .forEach(tx::delete)), LOG,
+                "Failed to delete stale external teps {}", deviceVteps);
             Thread.sleep(10000);//TODO remove the sleep currently it waits for interfacemgr to finish the cleanup
         } catch (ReadFailedException | InterruptedException e) {
             LOG.error("Failed to delete stale l2gw tep {}", deviceVteps, e);

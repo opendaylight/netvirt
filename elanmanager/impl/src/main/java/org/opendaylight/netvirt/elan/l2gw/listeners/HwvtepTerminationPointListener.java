@@ -7,12 +7,15 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
+import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -144,7 +147,7 @@ public class HwvtepTerminationPointListener
         } else {
             LOG.error("{} entry not in config datastore", psNodeId);
         }
-        return Collections.emptyList();
+        return emptyList();
     }
 
     private List<ListenableFuture<Void>> handlePortDeleted(InstanceIdentifier<TerminationPoint> identifier) {
@@ -164,12 +167,13 @@ public class HwvtepTerminationPointListener
             } else {
                 String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(
                         l2GwConn.getNetworkId().getValue());
-                List<Devices> l2Devices = l2Gateway.getDevices();
+                List<Devices> l2Devices = requireNonNullElse(l2Gateway.getDevices(), emptyList());
                 for (Devices l2Device : l2Devices) {
                     String l2DeviceName = l2Device.getDeviceName();
                     if (l2DeviceName != null && l2DeviceName.equals(psName)) {
-                        for (Interfaces deviceInterface : l2Device.getInterfaces()) {
-                            if (deviceInterface.getInterfaceName().equals(newPortId)) {
+                        for (Interfaces deviceInterface : requireNonNullElse(l2Device.getInterfaces(),
+                                Collections.<Interfaces>emptyList())) {
+                            if (Objects.equals(deviceInterface.getInterfaceName(), newPortId)) {
                                 if (deviceInterface.getSegmentationIds() != null
                                         && !deviceInterface.getSegmentationIds().isEmpty()) {
                                     for (Integer vlanId : deviceInterface.getSegmentationIds()) {

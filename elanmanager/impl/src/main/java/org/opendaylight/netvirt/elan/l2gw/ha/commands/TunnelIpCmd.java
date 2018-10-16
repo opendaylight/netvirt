@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical._switch.attributes.TunnelIps;
@@ -23,6 +24,7 @@ public class TunnelIpCmd extends
     }
 
     @Override
+    @Nullable
     public List<TunnelIps> getData(PhysicalSwitchAugmentation node) {
         if (node != null) {
             return node.getTunnelIps();

@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elan.cli.etree;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -40,6 +41,7 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
     }
 
     @Override
+    @Nullable
     protected Object doExecute() {
         LOG.debug("Executing Get EtreeInterface command for the corresponding Etree Instance {}", etreeName);
         if (etreeName != null) {

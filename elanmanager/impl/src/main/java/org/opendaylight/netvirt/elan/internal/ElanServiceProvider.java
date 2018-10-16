@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.elan.internal;
 
+import static java.util.Collections.emptyList;
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
+
 import com.google.common.base.Optional;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
@@ -17,10 +20,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -123,6 +128,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         candidateRegistration = registerCandidate(entityOwnershipService);
     }
 
+    @Nullable
     private static EntityOwnershipCandidateRegistration registerCandidate(
             EntityOwnershipService entityOwnershipService) {
         try {
@@ -228,6 +234,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
+    @Nullable
     public EtreeInterface getEtreeInterfaceByElanInterfaceName(String elanInterface) {
         return elanInterfaceCache.getEtreeInterface(elanInterface).orNull();
     }
@@ -236,7 +243,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             String description) {
         boolean isEqual = false;
         if (existingElanInstance.getMacTimeout() == macTimeOut
-                && existingElanInstance.getDescription().equals(description)) {
+                && Objects.equals(existingElanInstance.getDescription(), description)) {
             isEqual = true;
         }
         return isEqual;
@@ -254,17 +261,15 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Override
     public boolean deleteElanInstance(String elanInstanceName) {
-        boolean isSuccess = false;
         Optional<ElanInstance> existingElanInstance = elanInstanceCache.get(elanInstanceName);
         if (!existingElanInstance.isPresent()) {
             LOG.debug("Elan Instance is not present for {}", elanInstanceName);
-            return isSuccess;
+            return false;
         }
         LOG.debug("Deletion of the existing Elan Instance {}", existingElanInstance);
         ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
                 ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName));
-        isSuccess = true;
-        return isSuccess;
+        return true;
     }
 
     @Override
@@ -294,8 +299,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
-    public void addElanInterface(String elanInstanceName, String interfaceName, List<String> staticMacAddresses,
-            String description) {
+    public void addElanInterface(String elanInstanceName, String interfaceName,
+            @Nullable List<String> staticMacAddresses, @Nullable String description) {
         Optional<ElanInstance> existingElanInstance = elanInstanceCache.get(elanInstanceName);
         if (existingElanInstance.isPresent()) {
             ElanInterfaceBuilder elanInterfaceBuilder = new ElanInterfaceBuilder()
@@ -413,6 +418,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
+    @Nullable
     public ElanInstance getElanInstance(String elanName) {
         return elanInstanceCache.get(elanName).orNull();
     }
@@ -422,7 +428,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         InstanceIdentifier<ElanInstances> elanInstancesIdentifier = InstanceIdentifier.builder(ElanInstances.class)
                 .build();
         return ElanUtils.read(broker, LogicalDatastoreType.CONFIGURATION, elanInstancesIdentifier).toJavaUtil().map(
-                ElanInstances::getElanInstance).orElse(Collections.emptyList());
+                ElanInstances::getElanInstance).orElse(emptyList());
     }
 
     @Override
@@ -436,9 +442,10 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         if (!elanInterfacesOptional.isPresent()) {
             return elanInterfaces;
         }
-        List<ElanInterface> elanInterfaceList = elanInterfacesOptional.get().getElanInterface();
+        List<ElanInterface> elanInterfaceList =
+            requireNonNullElse(elanInterfacesOptional.get().getElanInterface(), emptyList());
         for (ElanInterface elanInterface : elanInterfaceList) {
-            if (elanInterface.getElanInstanceName().equals(elanInstanceName)) {
+            if (Objects.equals(elanInterface.getElanInstanceName(), elanInstanceName)) {
                 elanInterfaces.add(elanInterface.getName());
             }
         }
@@ -654,6 +661,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
+    @Nullable
     public ElanInterface getElanInterfaceByElanInterfaceName(String interfaceName) {
         return elanInterfaceCache.get(interfaceName).orNull();
     }
@@ -715,13 +723,13 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         ElanInstance elanInstance = getElanInstance(elanInstanceName);
         if (elanInstance == null) {
             LOG.debug("No ELAN instance found for {}", elanInstanceName);
-            return Collections.emptyList();
+            return emptyList();
         }
 
         Long elanTag = elanInstance.getElanTag();
         if (elanTag == null) {
             LOG.debug("No ELAN tag found for {}", elanInstanceName);
-            return Collections.emptyList();
+            return emptyList();
         }
         return Collections.singletonList(
                 new NxMatchRegister(ElanConstants.ELAN_REG_ID, elanTag, MetaDataUtil.getElanMaskForReg()));

@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.cli;
 
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -28,6 +29,7 @@ public class ElanMacTableFlush extends OsgiCommandSupport {
     }
 
     @Override
+    @Nullable
     protected Object doExecute() {
         LOG.debug("Executing mac table flush command for {}", elanName);
         elanProvider.flushMACTable(elanName);

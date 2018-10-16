@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.elanmanager.api;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -26,7 +27,7 @@ public interface IL2gwService {
     void addL2GatewayConnection(L2gatewayConnection input);
 
     void addL2GatewayConnection(L2gatewayConnection input,
-                                String l2GwDeviceName,
+                                @Nullable String l2GwDeviceName,
                                 L2gateway l2Gateway);
 
     List<L2gatewayConnection> getAssociatedL2GwConnections(Set<Uuid> l2GatewayIds);

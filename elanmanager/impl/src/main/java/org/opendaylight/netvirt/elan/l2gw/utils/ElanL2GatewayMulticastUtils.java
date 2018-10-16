@@ -10,16 +10,19 @@ package org.opendaylight.netvirt.elan.l2gw.utils;
 import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -226,12 +229,14 @@ public class ElanL2GatewayMulticastUtils {
         setupElanBroadcastGroups(elanInfo, null, dpnId);
     }
 
-    public void setupElanBroadcastGroups(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId) {
+    public void setupElanBroadcastGroups(ElanInstance elanInfo, @Nullable DpnInterfaces dpnInterfaces,
+            BigInteger dpnId) {
         setupStandardElanBroadcastGroups(elanInfo, dpnInterfaces, dpnId);
         setupLeavesEtreeBroadcastGroups(elanInfo, dpnInterfaces, dpnId);
     }
 
-    public void setupStandardElanBroadcastGroups(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId) {
+    public void setupStandardElanBroadcastGroups(ElanInstance elanInfo, @Nullable DpnInterfaces dpnInterfaces,
+            BigInteger dpnId) {
         List<Bucket> listBucket = new ArrayList<>();
         int bucketId = 0;
         int actionKey = 0;
@@ -250,7 +255,8 @@ public class ElanL2GatewayMulticastUtils {
         mdsalManager.syncInstallGroup(dpnId, group);
     }
 
-    public void setupLeavesEtreeBroadcastGroups(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId) {
+    public void setupLeavesEtreeBroadcastGroups(ElanInstance elanInfo, @Nullable DpnInterfaces dpnInterfaces,
+            BigInteger dpnId) {
         EtreeInstance etreeInstance = elanInfo.augmentation(EtreeInstance.class);
         if (etreeInstance != null) {
             long etreeLeafTag = etreeInstance.getEtreeLeafTagVal().getValue();
@@ -273,10 +279,12 @@ public class ElanL2GatewayMulticastUtils {
         }
     }
 
+    @Nullable
     private DpnInterfaces getDpnInterfaces(ElanDpnInterfacesList elanDpns, BigInteger dpnId) {
         if (elanDpns != null) {
-            for (DpnInterfaces dpnInterface : elanDpns.getDpnInterfaces()) {
-                if (dpnInterface.getDpId().equals(dpnId)) {
+            for (DpnInterfaces dpnInterface : requireNonNullElse(elanDpns.getDpnInterfaces(),
+                    Collections.<DpnInterfaces>emptyList())) {
+                if (Objects.equals(dpnInterface.getDpId(), dpnId)) {
                     return dpnInterface;
                 }
             }
@@ -306,8 +314,8 @@ public class ElanL2GatewayMulticastUtils {
     }
 
     @Nonnull
-    public List<Bucket> getRemoteBCGroupBuckets(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId,
-                                                int bucketId, long elanTag) {
+    public List<Bucket> getRemoteBCGroupBuckets(ElanInstance elanInfo, @Nullable DpnInterfaces dpnInterfaces,
+                                                BigInteger dpnId, int bucketId, long elanTag) {
         List<Bucket> listBucketInfo = new ArrayList<>();
         ElanDpnInterfacesList elanDpns = elanUtils.getElanDpnInterfacesList(elanInfo.getElanInstanceName());
 
@@ -389,7 +397,8 @@ public class ElanL2GatewayMulticastUtils {
             long elanTagOrVni) {
         List<Bucket> listBucketInfo = new ArrayList<>();
         if (elanDpns != null) {
-            for (DpnInterfaces dpnInterface : elanDpns.getDpnInterfaces()) {
+            for (DpnInterfaces dpnInterface : requireNonNullElse(elanDpns.getDpnInterfaces(),
+                    Collections.<DpnInterfaces>emptyList())) {
                 if (elanUtils.isDpnPresent(dpnInterface.getDpId()) && !Objects.equals(dpnInterface.getDpId(), dpnId)
                         && dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty()) {
                     try {

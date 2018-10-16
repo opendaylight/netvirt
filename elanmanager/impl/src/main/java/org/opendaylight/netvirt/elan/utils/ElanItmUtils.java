@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -203,7 +204,7 @@ public class ElanItmUtils {
      * @return the list
      */
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public List<Action> buildItmEgressActions(String interfaceName, Long tunnelKey, boolean internal) {
+    public List<Action> buildItmEgressActions(String interfaceName, @Nullable Long tunnelKey, boolean internal) {
         try {
             if (internal && interfaceManager.isItmDirectTunnelsEnabled()) {
                 GetEgressActionsForTunnelInput getEgressActInputItm = new GetEgressActionsForTunnelInputBuilder()

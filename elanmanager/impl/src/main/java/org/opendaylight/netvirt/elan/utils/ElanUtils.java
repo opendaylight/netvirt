@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.utils;
 
+import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -330,6 +333,7 @@ public class ElanUtils {
     }
 
     // elan-state Operational container
+    @Nullable
     public static Elan getElanByName(DataBroker broker, String elanInstanceName) {
         InstanceIdentifier<Elan> elanIdentifier = getElanInstanceOperationalDataPath(elanInstanceName);
         return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanIdentifier).orNull();
@@ -346,18 +350,14 @@ public class ElanUtils {
     }
 
     // grouping of forwarding-entries
+    @Nullable
     public MacEntry getInterfaceMacEntriesOperationalDataPath(String interfaceName, PhysAddress physAddress) {
         InstanceIdentifier<MacEntry> existingMacEntryId = getInterfaceMacEntriesIdentifierOperationalDataPath(
                 interfaceName, physAddress);
         return read(broker, LogicalDatastoreType.OPERATIONAL, existingMacEntryId).orNull();
     }
 
-    public MacEntry getInterfaceMacEntriesOperationalDataPathFromId(InstanceIdentifier identifier) {
-        Optional<MacEntry> existingInterfaceMacEntry = read(broker,
-                LogicalDatastoreType.OPERATIONAL, identifier);
-        return existingInterfaceMacEntry.orNull();
-    }
-
+    @Nullable
     public MacEntry getInterfaceMacEntriesOperationalDataPathFromId(TypedReadTransaction<Operational> tx,
             InstanceIdentifier<MacEntry> identifier) throws ExecutionException, InterruptedException {
         return tx.read(identifier).get().orNull();
@@ -383,12 +383,7 @@ public class ElanUtils {
         return tx.read(macId).get();
     }
 
-    public MacEntry getMacEntryFromElanMacId(InstanceIdentifier identifier) {
-        Optional<MacEntry> existingInterfaceMacEntry = read(broker,
-                LogicalDatastoreType.OPERATIONAL, identifier);
-        return existingInterfaceMacEntry.orNull();
-    }
-
+    @Nullable
     public MacEntry getMacEntryFromElanMacId(TypedReadTransaction<Operational> tx,
             InstanceIdentifier<MacEntry> identifier) throws ExecutionException, InterruptedException {
         return tx.read(identifier).get().orNull();
@@ -444,7 +439,7 @@ public class ElanUtils {
 
     /**
      * Returns the list of Interfaces that belong to an Elan on an specific DPN.
-     * Data retrieved from Elan's operational DS: elan-dpn-interfaces container
+     * Data retrieved from Elan's operational DS: elan-dpn-interfaces container.
      *
      * @param elanInstanceName
      *            name of the Elan to which the interfaces must belong to
@@ -452,6 +447,7 @@ public class ElanUtils {
      *            Id of the DPN where the interfaces are located
      * @return the elan interface Info
      */
+    @Nullable
     public DpnInterfaces getElanInterfaceInfoByElanDpn(String elanInstanceName, BigInteger dpId) {
         InstanceIdentifier<DpnInterfaces> elanDpnInterfacesId = getElanDpnInterfaceOperationalDataPath(elanInstanceName,
                 dpId);
@@ -477,6 +473,7 @@ public class ElanUtils {
     }
 
     // elan-tag-name-map Operational Container
+    @Nullable
     public ElanTagName getElanInfoByElanTag(long elanTag) {
         InstanceIdentifier<ElanTagName> elanId = getElanInfoEntriesOperationalDataPath(elanTag);
         Optional<ElanTagName> existingElanInfo = read(broker,
@@ -505,11 +502,13 @@ public class ElanUtils {
                 .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName)).build();
     }
 
+    @Nullable
     public ElanDpnInterfacesList getElanDpnInterfacesList(String elanName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationDataPath(elanName);
         return read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId).orNull();
     }
 
+    @Nullable
     public ElanDpnInterfaces getElanDpnInterfacesList() {
         InstanceIdentifier<ElanDpnInterfaces> elanDpnInterfaceId = InstanceIdentifier.builder(ElanDpnInterfaces.class)
                 .build();
@@ -534,7 +533,8 @@ public class ElanUtils {
         if (!existingElanDpnInterfaces.isPresent()) {
             return dpIds;
         }
-        List<DpnInterfaces> dpnInterfaces = existingElanDpnInterfaces.get().getDpnInterfaces();
+        List<DpnInterfaces> dpnInterfaces =
+            requireNonNullElse(existingElanDpnInterfaces.get().getDpnInterfaces(), emptyList());
         for (DpnInterfaces dpnInterface : dpnInterfaces) {
             dpIds.add(dpnInterface.getDpId());
         }
@@ -559,15 +559,17 @@ public class ElanUtils {
         if (!existingElanDpnInterfaces.isPresent()) {
             return false;
         }
-        List<DpnInterfaces> dpnInterfaces = existingElanDpnInterfaces.get().getDpnInterfaces();
+        List<DpnInterfaces> dpnInterfaces =
+            requireNonNullElse(existingElanDpnInterfaces.get().getDpnInterfaces(), emptyList());
         for (DpnInterfaces dpnInterface : dpnInterfaces) {
-            if (dpnInterface.getDpId().equals(dpId)) {
+            if (Objects.equals(dpnInterface.getDpId(), dpId)) {
                 return true;
             }
         }
         return false;
     }
 
+    @Nullable
     public ElanForwardingTables getElanForwardingList() {
         InstanceIdentifier<ElanForwardingTables> elanForwardingTableId = InstanceIdentifier
                 .builder(ElanForwardingTables.class).build();
@@ -585,6 +587,7 @@ public class ElanUtils {
      *            the elan name
      * @return the elan mac table
      */
+    @Nullable
     public MacTable getElanMacTable(String elanName) {
         return getElanMacTable(broker, elanName);
     }
@@ -799,7 +802,8 @@ public class ElanUtils {
      * @return the egress actions for interface
      */
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public List<Action> getEgressActionsForInterface(String ifName, Long tunnelKey) {
+    @Nonnull
+    public List<Action> getEgressActionsForInterface(String ifName, @Nullable Long tunnelKey) {
         List<Action> listAction = new ArrayList<>();
         try {
             GetEgressActionsForInterfaceInput getEgressActionInput = new GetEgressActionsForInterfaceInputBuilder()
@@ -811,8 +815,7 @@ public class ElanUtils {
                 LOG.debug("RPC Call to Get egress actions for interface {} returned with Errors {}", ifName,
                         rpcResult.getErrors());
             } else {
-                List<Action> actions = rpcResult.getResult().getAction();
-                listAction = actions;
+                listAction = requireNonNullElse(rpcResult.getResult().getAction(), emptyList());
             }
         } catch (Exception e) {
             LOG.warn("Exception when egress actions for interface {}", ifName, e);
@@ -842,7 +845,7 @@ public class ElanUtils {
         List<DpnInterfaces> elanDpns = getInvolvedDpnsInElan(elanInstanceName);
         for (DpnInterfaces elanDpn : elanDpns) {
 
-            if (elanDpn.getDpId().equals(dpId)) {
+            if (Objects.equals(elanDpn.getDpId(), dpId)) {
                 continue;
             }
 
@@ -876,7 +879,7 @@ public class ElanUtils {
     public List<DpnInterfaces> getElanDPNByName(String elanInstanceName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanIdentifier = getElanDpnOperationDataPath(elanInstanceName);
         return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanIdentifier).toJavaUtil().map(
-                ElanDpnInterfacesList::getDpnInterfaces).orElse(Collections.emptyList());
+                ElanDpnInterfacesList::getDpnInterfaces).orElse(emptyList());
     }
 
     private void setupLocalDmacFlow(long elanTag, BigInteger dpId, String ifName, String macAddress,
@@ -1295,6 +1298,7 @@ public class ElanUtils {
      *            the datastore type
      * @return the external tunnel
      */
+    @Nullable
     public ExternalTunnel getExternalTunnel(String sourceDevice, String destinationDevice,
             LogicalDatastoreType datastoreType) {
         Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
@@ -1312,6 +1316,7 @@ public class ElanUtils {
      *            the datastore type
      * @return the external tunnel
      */
+    @Nullable
     public ExternalTunnel getExternalTunnel(String interfaceName, LogicalDatastoreType datastoreType) {
         ExternalTunnel externalTunnel = null;
         List<ExternalTunnel> externalTunnels = getAllExternalTunnels(datastoreType);
@@ -1334,7 +1339,7 @@ public class ElanUtils {
     public List<ExternalTunnel> getAllExternalTunnels(LogicalDatastoreType datastoreType) {
         InstanceIdentifier<ExternalTunnelList> iid = InstanceIdentifier.builder(ExternalTunnelList.class).build();
         return read(broker, datastoreType, iid).toJavaUtil().map(ExternalTunnelList::getExternalTunnel).orElse(
-                Collections.emptyList());
+                emptyList());
     }
 
     public static List<MatchInfo> buildMatchesForElanTagShFlagAndDstMac(long elanTag, boolean shFlag, String macAddr) {
@@ -1374,6 +1379,7 @@ public class ElanUtils {
      *            the data broker
      * @return the interface state from oper ds
      */
+    @Nullable
     public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
         .ietf.interfaces.rev140508.interfaces.state.Interface getInterfaceStateFromOperDS(
             String interfaceName, DataBroker dataBroker) {
@@ -1434,7 +1440,7 @@ public class ElanUtils {
                 && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId() != 0;
     }
 
-    private static boolean isVxlanSegment(ElanInstance elanInstance) {
+    private static boolean isVxlanSegment(@Nullable ElanInstance elanInstance) {
         if (elanInstance != null) {
             List<ElanSegments> elanSegments = elanInstance.getElanSegments();
             if (elanSegments != null) {
@@ -1450,7 +1456,7 @@ public class ElanUtils {
         return false;
     }
 
-    public static boolean isVxlanNetworkOrVxlanSegment(ElanInstance elanInstance) {
+    public static boolean isVxlanNetworkOrVxlanSegment(@Nullable ElanInstance elanInstance) {
         return isVxlan(elanInstance) || isVxlanSegment(elanInstance);
     }
 
@@ -1520,6 +1526,7 @@ public class ElanUtils {
                 matches, instructions);
     }
 
+    @Nullable
     public String getExternalElanInterface(String elanInstanceName, BigInteger dpnId) {
         DpnInterfaces dpnInterfaces = getElanInterfaceInfoByElanDpn(elanInstanceName, dpnId);
         if (dpnInterfaces == null || dpnInterfaces.getInterfaces() == null) {
@@ -1652,7 +1659,7 @@ public class ElanUtils {
     public List<MacEntry> getElanMacEntries(String elanName) {
         MacTable macTable = getElanMacTable(elanName);
         if (macTable == null) {
-            return Collections.emptyList();
+            return emptyList();
         }
         return macTable.getMacEntry();
     }
@@ -1698,6 +1705,7 @@ public class ElanUtils {
         ArpResponderUtil.removeFlow(mdsalManager, dpnId, ArpResponderUtil.getFlowId(lportTag, ipAddress));
     }
 
+    @Nullable
     public static String getRouterPordIdFromElanInstance(DataBroker dataBroker, String elanInstanceName) {
         Optional<Subnetmaps> subnetMapsData =
                 read(dataBroker, LogicalDatastoreType.CONFIGURATION, buildSubnetMapsWildCardPath());
@@ -1724,6 +1732,10 @@ public class ElanUtils {
         return InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:" + dpnId)))
                 .augmentation(FlowCapableNode.class).child(Group.class, new GroupKey(new GroupId(groupId))).build();
     }
+
+    // Use Objects.requireNonNullElse instead with JDK9+
+    @Nonnull
+    public static <T> T requireNonNullElse(@Nullable T obj, @Nonnull T defaultObj) {
+        return obj != null ? obj : requireNonNull(defaultObj);
+    }
 }
-
-

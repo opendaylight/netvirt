@@ -7,7 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.evpn.utils;
 
+import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
@@ -23,6 +25,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -143,6 +146,7 @@ public class EvpnUtils {
         });
     }
 
+    @Nullable
     public String getEndpointIpAddressForDPN(BigInteger dpnId) {
 
         Future<RpcResult<GetDpnEndpointIpsOutput>> result = itmRpcService.getDpnEndpointIps(
@@ -176,6 +180,7 @@ public class EvpnUtils {
                 : interfaceManager.getInterfaceInfoFromOperationalDataStore(ifName).getMacAddress());
     }
 
+    @Nullable
     public String getL3vpnNameFromElan(ElanInstance elanInfo) {
         if (elanInfo == null) {
             LOG.debug("getL3vpnNameFromElan :elanInfo is NULL");
@@ -185,6 +190,7 @@ public class EvpnUtils {
         return evpnAugmentation != null ? evpnAugmentation.getL3vpnName() : null;
     }
 
+    @Nullable
     public static String getEvpnNameFromElan(ElanInstance elanInfo) {
         if (elanInfo == null) {
             LOG.debug("getEvpnNameFromElan :elanInfo is NULL");
@@ -194,6 +200,7 @@ public class EvpnUtils {
         return evpnAugmentation != null ? evpnAugmentation.getEvpnName() : null;
     }
 
+    @Nullable
     public String getEvpnRd(ElanInstance elanInfo) {
         String evpnName = getEvpnNameFromElan(elanInfo);
         if (evpnName == null) {
@@ -353,9 +360,10 @@ public class EvpnUtils {
             LOG.info("No External Tunnel Configured while programming the l2vni table.");
             return tunnelInterfaceNameList;
         }
-        List<ExternalTunnel> externalTunnels = externalTunnelListOptional.get().getExternalTunnel();
+        List<ExternalTunnel> externalTunnels =
+            requireNonNullElse(externalTunnelListOptional.get().getExternalTunnel(), emptyList());
 
-        dcGatewayIps
+        requireNonNullElse(dcGatewayIps, Collections.<DcGatewayIp>emptyList())
                 .forEach(dcIp -> externalTunnels
                 .stream()
                 .filter(externalTunnel -> externalTunnel.getDestinationDevice()

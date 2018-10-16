@@ -8,7 +8,9 @@
 
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
+import static java.util.Collections.emptyList;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -16,11 +18,12 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -105,9 +108,10 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     }
 
     public static boolean isGatewayAssociatedToL2Device(L2GatewayDevice l2GwDevice) {
-        return l2GwDevice.getL2GatewayIds().size() > 0;
+        return !l2GwDevice.getL2GatewayIds().isEmpty();
     }
 
+    @Nullable
     public static L2gateway getNeutronL2gateway(DataBroker broker, Uuid l2GatewayId) {
         LOG.debug("getNeutronL2gateway for {}", l2GatewayId.getValue());
         InstanceIdentifier<L2gateway> inst = InstanceIdentifier.create(Neutron.class).child(L2gateways.class)
@@ -119,7 +123,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     public static List<L2gateway> getL2gatewayList(DataBroker broker) {
         InstanceIdentifier<L2gateways> inst = InstanceIdentifier.create(Neutron.class).child(L2gateways.class);
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).toJavaUtil().map(
-                L2gateways::getL2gateway).orElse(Collections.emptyList());
+                L2gateways::getL2gateway).orElse(emptyList());
     }
 
     @Nonnull
@@ -127,7 +131,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         InstanceIdentifier<L2gatewayConnections> inst = InstanceIdentifier.create(Neutron.class)
                 .child(L2gatewayConnections.class);
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).toJavaUtil().map(
-                L2gatewayConnections::getL2gatewayConnection).orElse(Collections.emptyList());
+                L2gatewayConnections::getL2gatewayConnection).orElse(emptyList());
     }
 
     /**
@@ -145,7 +149,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         List<L2gatewayConnection> l2GwConnections = new ArrayList<>();
         for (Uuid l2GatewayId : l2GatewayIds) {
             for (L2gatewayConnection l2GwConn : allL2GwConns) {
-                if (l2GwConn.getL2gatewayId().equals(l2GatewayId)) {
+                if (Objects.equals(l2GwConn.getL2gatewayId(), l2GatewayId)) {
                     l2GwConnections.add(l2GwConn);
                 }
             }
@@ -184,8 +188,8 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     }
 
     public void addL2GatewayConnection(final L2gatewayConnection input,
-                                       final String l2GwDeviceName ,
-                                       L2gateway l2Gateway) {
+                                       @Nullable final String l2GwDeviceName ,
+                                       @Nullable L2gateway l2Gateway) {
         LOG.info("Adding L2gateway Connection with ID: {}", input.key().getUuid());
 
         Uuid networkUuid = input.getNetworkId();
@@ -224,7 +228,8 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
 
     private void disAssociateHwvtepsFromElan(String elanName, L2gatewayConnection input) {
         Integer defaultVlan = input.getSegmentId();
-        List<L2GatewayDevice> l2Devices = ElanL2GwCacheUtils.getAllElanDevicesFromCache();
+        List<L2GatewayDevice> l2Devices =
+            requireNonNullElse(ElanL2GwCacheUtils.getAllElanDevicesFromCache(), emptyList());
         List<Devices> l2gwDevicesToBeDeleted = new ArrayList<>();
         for (L2GatewayDevice elanL2gwDevice : l2Devices) {
             if (elanL2gwDevice.getL2GatewayIds().contains(input.key().getUuid())) {
@@ -238,7 +243,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
             if (l2Gateway == null) {
                 LOG.error("Failed to find the l2gateway for the connection {}", input.getUuid());
                 return;
-            } else {
+            } else if (l2Gateway.getDevices() != null) {
                 l2gwDevicesToBeDeleted.addAll(l2Gateway.getDevices());
             }
         }
@@ -274,11 +279,11 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     }
 
     private void associateHwvtepsToElan(ElanInstance elanInstance,
-            L2gateway l2Gateway, L2gatewayConnection input, String l2GwDeviceName) {
+            L2gateway l2Gateway, L2gatewayConnection input, @Nullable String l2GwDeviceName) {
         String elanName = elanInstance.getElanInstanceName();
         Integer defaultVlan = input.getSegmentId();
         Uuid l2GwConnId = input.key().getUuid();
-        List<Devices> l2Devices = l2Gateway.getDevices();
+        List<Devices> l2Devices = requireNonNullElse(l2Gateway.getDevices(), emptyList());
 
         LOG.trace("Associating ELAN {} with L2Gw Conn Id {} having below L2Gw devices {}", elanName, l2GwConnId,
                 l2Devices);
@@ -409,7 +414,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         List<L2gatewayConnection> l2GwConnections = new ArrayList<>();
         List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(broker);
         for (L2gatewayConnection l2GwConn : allL2GwConns) {
-            if (l2GwConn.getL2gatewayId().equals(l2GatewayId)) {
+            if (Objects.equals(l2GwConn.getL2gatewayId(), l2GatewayId)) {
                 l2GwConnections.add(l2GwConn);
             }
         }

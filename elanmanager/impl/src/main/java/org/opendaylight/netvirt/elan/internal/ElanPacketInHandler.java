@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -171,7 +172,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                                                final boolean isVlanOrFlatProviderIface) {
         jobCoordinator.enqueueJob(ElanUtils.getElanMacKey(elanTag, macAddress),
             () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
-                if (oldMacEntry != null && oldMacEntry.getInterface().equals(interfaceName)) {
+                if (oldMacEntry != null && Objects.equals(oldMacEntry.getInterface(), interfaceName)) {
                     // This should never occur because of ovs temporary mac learning
                     elanManagerCounters.unknownSmacPktinForwardingEntriesRemoved();
                 } else if (oldMacEntry != null && !isVlanOrFlatProviderIface) {
@@ -226,7 +227,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
     private void macMigrationFlowsCleanup(String interfaceName, ElanInstance elanInstance, MacEntry macEntry,
                                           boolean isVlanOrFlatProviderIface) {
-        if (macEntry != null && !macEntry.getInterface().equals(interfaceName)
+        if (macEntry != null && !Objects.equals(macEntry.getInterface(), interfaceName)
                 && !isVlanOrFlatProviderIface) {
             tryAndRemoveInvalidMacEntry(elanInstance.getElanInstanceName(), macEntry);
             elanManagerCounters.unknownSmacPktinFlowsRemovedForRelearned();
