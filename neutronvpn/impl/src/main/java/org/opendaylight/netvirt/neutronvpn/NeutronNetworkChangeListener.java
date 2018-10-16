@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -214,8 +215,9 @@ public class NeutronNetworkChangeListener
         return 0L;
     }
 
+    @Nullable
     private Class<? extends SegmentTypeBase> elanSegmentTypeFromNetworkType(
-            Class<? extends NetworkTypeBase> networkType) {
+            @Nullable Class<? extends NetworkTypeBase> networkType) {
         if (networkType == null) {
             return null;
         }

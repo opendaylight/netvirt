@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -25,6 +26,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.ObjectUtils;
@@ -267,9 +269,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         }
     }
 
-    private void handleFloatingIpPortUpdated(Port original, Port update) {
-        if ((original == null || original.getDeviceId().equals(NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING))
-            && !update.getDeviceId().equals(NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING)) {
+    private void handleFloatingIpPortUpdated(@Nullable Port original, Port update) {
+        if ((original == null || NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING.equals(original.getDeviceId()))
+            && !NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING.equals(update.getDeviceId())) {
             // populate floating-ip uuid and floating-ip port attributes (uuid, mac and subnet id for the ONLY
             // fixed IP) to be used by NAT, depopulated in NATService once mac is retrieved in the removal path
             addToFloatingIpPortInfo(new Uuid(update.getDeviceId()), update.getUuid(), update.getFixedIps().get(0)
@@ -294,9 +296,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 listVpnIds.add(vpnId);
                 Uuid internetVpnId = neutronvpnUtils.getInternetvpnUuidBoundToRouterId(routerId);
                 List<Subnetmap> subnetMapList = new ArrayList<>();
-                List<FixedIps> portIps = routerPort.getFixedIps();
                 boolean portIsIpv6 = false;
-                for (FixedIps portIP : portIps) {
+                for (FixedIps portIP : requireNonNullElse(routerPort.getFixedIps(),
+                        Collections.<FixedIps>emptyList())) {
                     // NOTE:  Please donot change the order of calls to updateSubnetNodeWithFixedIP
                     // and addSubnetToVpn here
                     if (internetVpnId != null
@@ -323,7 +325,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     nvpnManager.createVpnInterface(listVpnIds, routerPort, null);
                 }
                 IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
-                for (FixedIps portIP : routerPort.getFixedIps()) {
+                for (FixedIps portIP : requireNonNullElse(routerPort.getFixedIps(),
+                        Collections.<FixedIps>emptyList())) {
                     String ipValue = portIP.getIpAddress().stringValue();
                     ipVersion = NeutronvpnUtils.getIpVersionFromString(ipValue);
                     if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
@@ -366,7 +369,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             elanService.removeKnownL3DmacAddress(routerPort.getMacAddress().getValue(), infNetworkId.getValue());
             Uuid vpnId = ObjectUtils.defaultIfNull(neutronvpnUtils.getVpnForRouter(routerId, true),
                     routerId);
-            List<FixedIps> portIps = routerPort.getFixedIps();
+            List<FixedIps> portIps = requireNonNullElse(routerPort.getFixedIps(), Collections.emptyList());
             boolean vpnInstanceInternetIpVersionRemoved = false;
             Uuid vpnInstanceInternetUuid = null;
             for (FixedIps portIP : portIps) {
@@ -516,6 +519,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routersId, builder.build());
     }
 
+    @Nullable
     private String getPortHostId(final Port port) {
         if (port != null) {
             PortBindingExtension portBinding = port.augmentation(PortBindingExtension.class);
@@ -526,6 +530,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         return null;
     }
 
+    @Nullable
     private Hostconfig getHostConfig(final Port port) {
         String hostId = getPortHostId(port);
         if (hostId == null) {
@@ -538,7 +543,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             LOG.error("failed to read host config from host {}", hostId, e);
             return null;
         }
-        return hostConfig.isPresent() ? hostConfig.get() : null;
+        return hostConfig.orNull();
     }
 
     private boolean isPortBound(final Port port) {
@@ -565,13 +570,14 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         return false;
     }
 
+    @Nullable
     private Map<String, JsonElement> unmarshal(final String profile) {
         if (null == profile) {
             return null;
         }
         Gson gson = new Gson();
         JsonObject jsonObject = gson.fromJson(profile, JsonObject.class);
-        Map<String, JsonElement> map = new HashMap();
+        Map<String, JsonElement> map = new HashMap<>();
         for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             map.put(entry.getKey(), entry.getValue());
         }
@@ -608,7 +614,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private void handleNeutronPortCreated(final Port port) {
         final String portName = port.getUuid().getValue();
         final Uuid portId = port.getUuid();
-        final List<FixedIps> portIpAddrsList = port.getFixedIps();
+        final List<FixedIps> portIpAddrsList = requireNonNullElse(port.getFixedIps(), Collections.emptyList());
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(port)) {
             return;
         }
@@ -669,7 +675,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private void handleNeutronPortDeleted(final Port port) {
         final String portName = port.getUuid().getValue();
         final Uuid portId = port.getUuid();
-        final List<FixedIps> portIpsList = port.getFixedIps();
+        final List<FixedIps> portIpsList = requireNonNullElse(port.getFixedIps(), Collections.emptyList());
         jobCoordinator.enqueueJob("PORT- " + portName,
             () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, confTx -> {
                 if (!(NeutronUtils.isPortVnicTypeNormal(port) || isPortTypeSwitchdev(port))) {
@@ -812,6 +818,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             })));
     }
 
+    @Nullable
     private InterfaceAclBuilder handlePortSecurityUpdated(Port portOriginal,
             Port portUpdated, boolean origSecurityEnabled, boolean updatedSecurityEnabled,
             InterfaceBuilder interfaceBuilder) {

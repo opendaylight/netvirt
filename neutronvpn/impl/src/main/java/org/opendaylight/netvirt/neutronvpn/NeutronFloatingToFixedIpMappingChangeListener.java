@@ -8,10 +8,13 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingIpIdToPortMappingIdentifier;
+import static org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -205,11 +208,12 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                             routerPortsIdentifierBuilder.build());
             if (optionalRouterPorts.isPresent()) {
                 RouterPorts routerPorts = optionalRouterPorts.get();
-                List<Ports> portsList = routerPorts.getPorts();
+                List<Ports> portsList = requireNonNullElse(routerPorts.getPorts(), Collections.emptyList());
                 List<InternalToExternalPortMap> intExtPortMap = new ArrayList<>();
                 for (Ports ports : portsList) {
-                    if (ports.getPortName().equals(fixedNeutronPortName)) {
-                        intExtPortMap = ports.getInternalToExternalPortMap();
+                    if (Objects.equals(ports.getPortName(), fixedNeutronPortName)) {
+                        intExtPortMap =
+                            requireNonNullElse(ports.getInternalToExternalPortMap(), Collections.emptyList());
                         break;
                     }
                 }
@@ -218,7 +222,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                             fixedNeutronPortName, isLockAcquired);
                 } else {
                     for (InternalToExternalPortMap intToExtMap : intExtPortMap) {
-                        if (intToExtMap.getInternalIp().equals(fixedIpAddress)) {
+                        if (Objects.equals(intToExtMap.getInternalIp(), fixedIpAddress)) {
                             InstanceIdentifier<InternalToExternalPortMap> intExtPortMapIdentifier =
                                     routerPortsIdentifierBuilder.child(Ports
                                     .class, new PortsKey(fixedNeutronPortName)).child(InternalToExternalPortMap.class,
@@ -264,7 +268,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                         List<Ports> portsList = routerPorts.getPorts();
                         if (portsList != null && !portsList.isEmpty()) {
                             for (Ports ports : portsList) {
-                                if (ports.getPortName().equals(fixedNeutronPortName)) {
+                                if (Objects.equals(ports.getPortName(), fixedNeutronPortName)) {
                                     String routerName = routerPorts.getRouterId();
                                     InstanceIdentifier.InstanceIdentifierBuilder<RouterPorts>
                                         routerPortsIdentifierBuilder = floatingIpInfoIdentifierBuilder

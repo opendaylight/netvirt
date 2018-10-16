@@ -109,7 +109,7 @@ public class L2GwTransportZoneListener
     @Override
     protected void add(InstanceIdentifier<TransportZone> key, TransportZone tzNew) {
         LOG.trace("Received Transport Zone Add Event: {}", tzNew);
-        if (tzNew.getTunnelType().equals(TunnelTypeVxlan.class)) {
+        if (TunnelTypeVxlan.class.equals(tzNew.getTunnelType())) {
             AddL2GwDevicesToTransportZoneJob job =
                     new AddL2GwDevicesToTransportZoneJob(itmRpcService, tzNew, l2GatewayCache);
             jobCoordinator.enqueueJob(job.getJobKey(), job);

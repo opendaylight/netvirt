@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -164,6 +165,7 @@ public class NeutronSubnetGwMacResolver {
         }
     }
 
+    @Nullable
     private Port getRouterExtGatewayPort(Router router) {
         if (router == null) {
             LOG.trace("Router is null");
@@ -179,6 +181,7 @@ public class NeutronSubnetGwMacResolver {
         return neutronvpnUtils.getNeutronPort(extPortId);
     }
 
+    @Nullable
     private String getExternalInterface(Router router) {
         ExternalGatewayInfo extGatewayInfo = router.getExternalGatewayInfo();
         String routerName = router.getUuid().getValue();
@@ -202,6 +205,7 @@ public class NeutronSubnetGwMacResolver {
         return elanService.getExternalElanInterface(extNetworkId.getValue(), primarySwitch);
     }
 
+    @Nullable
     private IpAddress getExternalGwIpAddress(Uuid subnetId) {
         if (subnetId == null) {
             LOG.error("Subnet id is null");

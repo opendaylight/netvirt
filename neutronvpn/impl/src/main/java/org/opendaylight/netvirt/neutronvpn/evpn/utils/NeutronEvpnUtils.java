@@ -11,6 +11,7 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
 import java.util.Collections;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -58,6 +59,7 @@ public class NeutronEvpnUtils {
         this.jobCoordinator = jobCoordinator;
     }
 
+    @Nullable
     public VpnInstance getVpnInstance(Uuid vpnId) {
         return VpnHelper.getVpnInstance(dataBroker, vpnId.getValue());
     }
