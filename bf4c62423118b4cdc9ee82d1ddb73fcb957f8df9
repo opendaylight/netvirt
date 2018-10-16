@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10a9826f_237a1434",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 2413,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-10-16T05:52:48Z",
+      "side": 1,
+      "message": "Sorry if this is a repeated question, but who is going to set ipFamily for V4 InternetVPN? Is it done on a router-gateway-set? If so, hope its handled properly",
+      "range": {
+        "startLine": 2413,
+        "startChar": 45,
+        "endLine": 2413,
+        "endChar": 89
+      },
+      "revId": "bf4c62423118b4cdc9ee82d1ddb73fcb957f8df9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
