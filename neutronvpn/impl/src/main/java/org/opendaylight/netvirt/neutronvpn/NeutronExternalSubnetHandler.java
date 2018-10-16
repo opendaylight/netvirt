@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -37,7 +38,7 @@ public class NeutronExternalSubnetHandler implements AutoCloseable {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
-    public void handleExternalSubnetAdded(Network network, Uuid subnetId, List<Uuid> routerIds) {
+    public void handleExternalSubnetAdded(Network network, Uuid subnetId, @Nullable List<Uuid> routerIds) {
         Uuid networkId = network.getUuid();
         if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
             LOG.info("Added external subnet {} part of external network {} will create NAT external subnet",

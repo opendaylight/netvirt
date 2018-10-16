@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.neutronvpn.api.utils;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Preconditions;
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +17,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -219,7 +223,8 @@ public final class NeutronUtils {
         }
     }
 
-    public static List<Uuid> getVpnMapRouterIdsListUuid(List<RouterIds> routerIds) {
+    @Nonnull
+    public static List<Uuid> getVpnMapRouterIdsListUuid(@Nullable List<RouterIds> routerIds) {
         if (routerIds == null) {
             return Collections.emptyList();
         }
@@ -227,4 +232,9 @@ public final class NeutronUtils {
             routerId -> routerId.getRouterId()).collect(Collectors.toList());
     }
 
+    // Use Objects.requireNonNullElse instead with JDK9+
+    @Nonnull
+    public static <T> T requireNonNullElse(@Nullable T obj, @Nonnull T defaultObj) {
+        return obj != null ? obj : requireNonNull(defaultObj);
+    }
 }

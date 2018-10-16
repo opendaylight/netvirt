@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.neutronvpn;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -163,6 +164,7 @@ public class NeutronHostConfigChangeListener
         return hostconfigBuilder.build();
     }
 
+    @Nullable
     private String getExternalId(Node node, String key) {
         OvsdbNodeAugmentation ovsdbNode = getOvsdbNodeAugmentation(node);
         if (ovsdbNode != null && ovsdbNode.getOpenvswitchExternalIds() != null) {
@@ -175,6 +177,7 @@ public class NeutronHostConfigChangeListener
         return null;
     }
 
+    @Nullable
     private OvsdbNodeAugmentation getOvsdbNodeAugmentation(Node node) {
         OvsdbNodeAugmentation ovsdbNode = southboundUtils.extractOvsdbNode(node);
         if (ovsdbNode == null) {

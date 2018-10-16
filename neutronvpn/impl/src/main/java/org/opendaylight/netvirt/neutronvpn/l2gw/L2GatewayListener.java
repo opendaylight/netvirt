@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.neutronvpn.l2gw;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils.requireNonNullElse;
 
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
@@ -91,8 +92,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
     protected void add(final InstanceIdentifier<L2gateway> identifier, final L2gateway input) {
         LOG.info("Adding L2gateway with ID: {}", input.getUuid());
 
-        List<Devices> l2Devices = input.getDevices();
-        for (Devices l2Device : l2Devices) {
+        for (Devices l2Device : requireNonNullElse(input.getDevices(), Collections.<Devices>emptyList())) {
             LOG.trace("Adding L2gateway device: {}", l2Device);
             addL2Device(l2Device, input);
         }
@@ -112,8 +112,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
         }), new FutureCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                List<Devices> l2Devices = input.getDevices();
-                for (Devices l2Device : l2Devices) {
+                for (Devices l2Device : requireNonNullElse(input.getDevices(), Collections.<Devices>emptyList())) {
                     LOG.trace("Removing L2gateway device: {}", l2Device);
                     removeL2Device(l2Device, input);
                 }

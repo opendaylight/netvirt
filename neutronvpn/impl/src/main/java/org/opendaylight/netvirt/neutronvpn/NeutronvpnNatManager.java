@@ -7,14 +7,18 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
+import static org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils.requireNonNullElse;
+
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -90,7 +94,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
-    public void handleExternalNetworkForRouter(Router original, Router update) {
+    public void handleExternalNetworkForRouter(@Nullable Router original, Router update) {
         Uuid routerId = update.getUuid();
         Uuid origExtNetId = null;
         Uuid updExtNetId = null;
@@ -470,7 +474,8 @@ public class NeutronvpnNatManager implements AutoCloseable {
             builder.setEnableSnat(update.getExternalGatewayInfo().isEnableSnat());
 
             ArrayList<ExternalIps> externalIps = new ArrayList<>();
-            for (ExternalFixedIps fixedIps : update.getExternalGatewayInfo().getExternalFixedIps()) {
+            for (ExternalFixedIps fixedIps : requireNonNullElse(update.getExternalGatewayInfo().getExternalFixedIps(),
+                    Collections.<ExternalFixedIps>emptyList())) {
                 addExternalFixedIpToExternalIpsList(externalIps, fixedIps);
             }
             builder.setExternalIps(externalIps);
@@ -630,7 +635,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
         }
     }
 
-    public void updateOrAddExternalSubnet(Uuid networkId, Uuid subnetId, List<Uuid> routerIds) {
+    public void updateOrAddExternalSubnet(Uuid networkId, Uuid subnetId, @Nullable List<Uuid> routerIds) {
         Optional<Subnets> optionalExternalSubnets = neutronvpnUtils.getOptionalExternalSubnets(subnetId);
         if (optionalExternalSubnets.isPresent()) {
             LOG.trace("Will update external subnet {} with networkId {} and routerIds {}",
@@ -656,7 +661,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
         }
     }
 
-    public void updateExternalSubnet(Uuid networkId, Uuid subnetId, List<Uuid> routerIds) {
+    public void updateExternalSubnet(Uuid networkId, Uuid subnetId, @Nullable List<Uuid> routerIds) {
         InstanceIdentifier<Subnets> subnetsIdentifier = InstanceIdentifier.builder(ExternalSubnets.class)
                 .child(Subnets.class, new SubnetsKey(subnetId)).build();
         try {
@@ -701,7 +706,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
         }
     }
 
-    private static Subnets createSubnets(Uuid subnetId, Uuid networkId, List<Uuid> routerIds) {
+    private static Subnets createSubnets(Uuid subnetId, Uuid networkId, @Nullable List<Uuid> routerIds) {
         SubnetsBuilder subnetsBuilder = new SubnetsBuilder();
         subnetsBuilder.withKey(new SubnetsKey(subnetId));
         subnetsBuilder.setId(subnetId);
