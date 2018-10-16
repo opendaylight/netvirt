@@ -22,6 +22,30 @@
       "revId": "bf4c62423118b4cdc9ee82d1ddb73fcb957f8df9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f72e3197_8fddaf99",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 2413,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-16T05:59:32Z",
+      "side": 1,
+      "message": "When external network is getting associated/disassociated to/from Internet BGP-VPN, it will check whether external network is having V4 subnet or not. If V4 external subnet is there(It is mandatory for V4 NATing), it will take care of updating V4 IP address family in VpnInstanceOpData.\n\ndissociateNetworksFromVpn() and associateNetworksToVpn() these methods will be take care of V4 address family.",
+      "parentUuid": "10a9826f_237a1434",
+      "range": {
+        "startLine": 2413,
+        "startChar": 45,
+        "endLine": 2413,
+        "endChar": 89
+      },
+      "revId": "bf4c62423118b4cdc9ee82d1ddb73fcb957f8df9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
