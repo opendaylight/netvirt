@@ -166,7 +166,7 @@ public class NodeCopier implements INodeCopier {
                                      */
                                     HwvtepHAUtil.deleteNodeIfPresent(tx, dstPsPath);
                                 }
-                            }), LOG, "Failed to read source node {}", srcPsNodeOptional.get());
+                            }), LOG, "Failed to read source node {}", srcPsPath);
                     });
                 }
 

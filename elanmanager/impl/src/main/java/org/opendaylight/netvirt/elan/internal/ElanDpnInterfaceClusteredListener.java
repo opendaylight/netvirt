@@ -7,7 +7,10 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import java.util.Collections;
+import static java.util.Collections.emptyList;
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
+
+import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -84,7 +87,7 @@ public class ElanDpnInterfaceClusteredListener
         elanClusterUtils.runOnlyInOwnerNode(elanName, "updating mcast mac upon tunnel event",
             () -> {
                 elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName);
-                return Collections.emptyList();
+                return emptyList();
             });
     }
 
@@ -120,8 +123,9 @@ public class ElanDpnInterfaceClusteredListener
     @Override
     protected void update(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces original,
                           final DpnInterfaces dpnInterfaces) {
-        LOG.debug("dpninterfaces update fired new size {}", dpnInterfaces.getInterfaces().size());
-        if (dpnInterfaces.getInterfaces().isEmpty()) {
+        List<String> interfaces = requireNonNullElse(dpnInterfaces.getInterfaces(), emptyList());
+        LOG.debug("dpninterfaces update fired new size {}", interfaces.size());
+        if (interfaces.isEmpty()) {
             elanInstanceDpnsCache.remove(getElanName(identifier), dpnInterfaces);
             LOG.debug("dpninterfaces last dpn interface on this elan {} ", dpnInterfaces.key());
             // this is the last dpn interface on this elan
@@ -146,7 +150,7 @@ public class ElanDpnInterfaceClusteredListener
                     elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName);
                 }
             }
-            return null;
+            return emptyList();
         });
     }
 

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import javax.annotation.Nullable;
 import org.opendaylight.genius.utils.cache.CacheUtil;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 
@@ -47,7 +48,7 @@ public final class ElanL2GwCacheUtils {
         cachedMap.values().forEach(deviceMap -> deviceMap.remove(deviceName));
     }
 
-
+    @Nullable
     public static L2GatewayDevice removeL2GatewayDeviceFromCache(String elanName, String l2gwDeviceNodeId) {
         ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap =
                 (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil.getCache(
@@ -60,6 +61,7 @@ public final class ElanL2GwCacheUtils {
         }
     }
 
+    @Nullable
     public static L2GatewayDevice getL2GatewayDeviceFromCache(String elanName, String l2gwDeviceNodeId) {
         ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap =
                 (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil.getCache(
@@ -83,6 +85,7 @@ public final class ElanL2GwCacheUtils {
         return result;
     }
 
+    @Nullable
     public static List<L2GatewayDevice> getAllElanDevicesFromCache() {
         ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap =
                 (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil.getCache(

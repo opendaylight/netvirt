@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.elan.cli.l2gw;
 
+import static java.util.Collections.emptyList;
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
+
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
@@ -23,6 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -109,6 +113,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
 
     @Override
     @SuppressFBWarnings("DM_DEFAULT_ENCODING")
+    @Nullable
     public Object doExecute() throws Exception {
         try {
             pw = new PrintWriter(new FileOutputStream(new File("l2gw.validation.txt")));
@@ -132,13 +137,15 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             Optional<Topology> configTopoOptional = tx.read(LogicalDatastoreType.CONFIGURATION, topoId).checkedGet();
 
             if (operationalTopoOptional.isPresent()) {
-                for (Node node : operationalTopoOptional.get().getNode()) {
+                for (Node node : requireNonNullElse(operationalTopoOptional.get().getNode(),
+                        Collections.<Node>emptyList())) {
                     InstanceIdentifier<Node> nodeIid = topoId.child(Node.class, node.key());
                     operationalNodes.put(nodeIid, node);
                 }
             }
             if (configTopoOptional.isPresent()) {
-                for (Node node : configTopoOptional.get().getNode()) {
+                for (Node node : requireNonNullElse(configTopoOptional.get().getNode(),
+                        Collections.<Node>emptyList())) {
                     InstanceIdentifier<Node> nodeIid = topoId.child(Node.class, node.key());
                     configNodes.put(nodeIid, node);
                 }
@@ -171,6 +178,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
         return false;
     }
 
+    @Nullable
     private DataObject getData(Map<InstanceIdentifier<Node>, Map<InstanceIdentifier, DataObject>> dataMap,
                                InstanceIdentifier<Node> nodeIid, InstanceIdentifier dataIid) {
         if (dataMap.containsKey(nodeIid)) {
@@ -385,7 +393,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
 
             L2gateway l2gateway = uuidToL2Gateway.get(l2gatewayConnection.getL2gatewayId());
             String logicalSwitchName = l2gatewayConnection.getNetworkId().getValue();
-            List<Devices> devices = l2gateway.getDevices();
+            List<Devices> devices = requireNonNullElse(l2gateway.getDevices(), emptyList());
 
             for (Devices device : devices) {
 
@@ -549,8 +557,8 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             }
             VlanBindings expectedBindings = !expectedVlans.isEmpty() ? expectedVlans.get(0) : null;
             boolean foundBindings = false;
-            List<VlanBindings> vlanBindingses = configTerminationPoint.augmentation(
-                    HwvtepPhysicalPortAugmentation.class).getVlanBindings();
+            List<VlanBindings> vlanBindingses = requireNonNullElse(configTerminationPoint.augmentation(
+                    HwvtepPhysicalPortAugmentation.class).getVlanBindings(), emptyList());
             for (VlanBindings actual : vlanBindingses) {
                 if (actual.equals(expectedBindings)) {
                     foundBindings = true;

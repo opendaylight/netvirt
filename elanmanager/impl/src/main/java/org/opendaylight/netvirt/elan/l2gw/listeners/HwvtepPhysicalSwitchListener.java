@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -360,6 +361,7 @@ public class HwvtepPhysicalSwitchListener
         return psNodeId;
     }
 
+    @Nullable
     private InstanceIdentifier<Node> getManagedByNodeIid(InstanceIdentifier<PhysicalSwitchAugmentation> identifier) {
         String psNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
         if (psNodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
@@ -369,6 +371,7 @@ public class HwvtepPhysicalSwitchListener
         return null;
     }
 
+    @Nullable
     private String getPsName(InstanceIdentifier<PhysicalSwitchAugmentation> identifier) {
         String psNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
         if (psNodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {

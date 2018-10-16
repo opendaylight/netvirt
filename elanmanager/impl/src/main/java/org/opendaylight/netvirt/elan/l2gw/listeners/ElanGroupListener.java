@@ -12,6 +12,7 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -41,7 +42,6 @@ import org.slf4j.LoggerFactory;
 public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<Group, ElanGroupListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanGroupListener.class);
-    private final DataBroker broker;
     private final ManagedNewTransactionRunner txRunner;
     private final ElanClusterUtils elanClusterUtils;
     private final ElanUtils elanUtils;
@@ -52,13 +52,12 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
     public ElanGroupListener(DataBroker db, ElanClusterUtils elanClusterUtils, ElanUtils elanUtils,
             ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils, ElanInstanceCache elanInstanceCache) {
         super(Group.class, ElanGroupListener.class);
-        broker = db;
         this.txRunner = new ManagedNewTransactionRunnerImpl(db);
         this.elanClusterUtils = elanClusterUtils;
         this.elanUtils = elanUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.elanInstanceCache = elanInstanceCache;
-        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+        registerListener(LogicalDatastoreType.CONFIGURATION, db);
         LOG.trace("ElanGroupListener registered");
     }
 
@@ -74,6 +73,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
     }
 
 
+    @Nullable
     ElanInstance getElanInstanceFromGroupId(Group update) {
         for (ElanInstance elanInstance : elanInstanceCache.getAllPresent()) {
             if (elanInstance.getElanTag() != null) {
@@ -87,6 +87,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         return null;
     }
 
+    @Nullable
     private BigInteger getDpnId(String node) {
         //openflow:1]
         String[] temp = node.split(":");
@@ -97,7 +98,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
     }
 
     @Override
-    protected void update(InstanceIdentifier<Group> identifier, Group original, Group update) {
+    protected void update(InstanceIdentifier<Group> identifier, @Nullable Group original, Group update) {
         LOG.trace("received group updated {}", update.key().getGroupId());
         final BigInteger dpnId = getDpnId(identifier.firstKeyOf(Node.class).getId().getValue());
         if (dpnId == null) {

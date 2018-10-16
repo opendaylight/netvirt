@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentMap;
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -50,6 +51,7 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
     }
 
     @Override
+    @Nullable
     protected Object doExecute() throws IOException {
         if (cacheName == null) {
             session.getConsole().println("Available caches");

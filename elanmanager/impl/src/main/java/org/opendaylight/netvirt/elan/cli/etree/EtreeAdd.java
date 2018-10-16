@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.cli.etree;
 
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -32,6 +33,7 @@ public class EtreeAdd extends OsgiCommandSupport {
     }
 
     @Override
+    @Nullable
     protected Object doExecute() {
         if (macTimeOut == -1) {
             macTimeOut = 30;

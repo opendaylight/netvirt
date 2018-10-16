@@ -15,6 +15,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -305,15 +306,15 @@ public class ElanDmacUtils {
 
     private ListenableFuture<Void> buildEtreeDmacFlowForExternalRemoteMacWithBatch(
             BigInteger dpnId, String extDeviceNodeId, Long vni, String macAddress, String displayName,
-            String interfaceName, EtreeLeafTagName etreeLeafTag) {
+            @Nullable String interfaceName, EtreeLeafTagName etreeLeafTag) {
 
         boolean isRoot;
         if (interfaceName == null) {
             isRoot = true;
         } else {
             Optional<EtreeInterface> etreeInterface = elanInterfaceCache.getEtreeInterface(interfaceName);
-            isRoot = etreeInterface.isPresent() ? etreeInterface.get().getEtreeInterfaceType()
-                    == EtreeInterface.EtreeInterfaceType.Root : false;
+            isRoot = etreeInterface.isPresent()
+                && etreeInterface.get().getEtreeInterfaceType() == EtreeInterface.EtreeInterfaceType.Root;
         }
         if (isRoot) {
             Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId,
@@ -337,7 +338,7 @@ public class ElanDmacUtils {
 
     public List<ListenableFuture<Void>> installDmacFlowsToExternalRemoteMacInBatch(
             BigInteger dpnId, String extDeviceNodeId, Long elanTag, Long vni, String macAddress, String displayName,
-            String interfaceName) {
+            @Nullable String interfaceName) {
 
         Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId, elanTag, vni, macAddress,
                 displayName);
@@ -355,7 +356,7 @@ public class ElanDmacUtils {
 
     private List<ListenableFuture<Void>> installEtreeDmacFlowsToExternalRemoteMacInBatch(
             BigInteger dpnId, String extDeviceNodeId, Long elanTag, Long vni, String macAddress, String displayName,
-            String interfaceName) {
+            @Nullable String interfaceName) {
 
         EtreeLeafTagName etreeLeafTag = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag);
         if (etreeLeafTag != null) {

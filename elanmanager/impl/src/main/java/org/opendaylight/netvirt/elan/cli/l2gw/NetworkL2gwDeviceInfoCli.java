@@ -8,13 +8,18 @@
 
 package org.opendaylight.netvirt.elan.cli.l2gw;
 
+import static java.util.Collections.emptyList;
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
+
 import com.google.common.base.Optional;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -90,6 +95,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
     }
 
     @Override
+    @Nullable
     protected Object doExecute() {
         List<Node> nodes = new ArrayList<>();
         Set<String> networks = new HashSet<>();
@@ -97,7 +103,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
             Optional<Topology> topologyOptional = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     createHwvtepTopologyInstanceIdentifier());
             if (topologyOptional.isPresent()) {
-                nodes = topologyOptional.get().getNode();
+                nodes = requireNonNullElse(topologyOptional.get().getNode(), emptyList());
             }
         } else {
             Optional<Node> nodeOptional = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
@@ -251,7 +257,8 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
             if (elanName.equals(lsFromLocalMac)) {
                 String mac = localMac.getMacEntryKey().getValue();
                 List<String> locatorsets = new ArrayList<>();
-                for (LocatorSet locatorSet : localMac.getLocatorSet()) {
+                for (LocatorSet locatorSet : requireNonNullElse(localMac.getLocatorSet(),
+                        Collections.<LocatorSet>emptyList())) {
                     locatorsets.add(getLocatorValue(locatorSet.getLocatorRef()));
                 }
                 session.getConsole().println(mac + GAP + locatorsets.toString());
@@ -278,7 +285,8 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
             if (elanName.equals(lsFromremoteMac)) {
                 String mac = remoteMac.getMacEntryKey().getValue();
                 List<String> locatorsets = new ArrayList<>();
-                for (LocatorSet locatorSet : remoteMac.getLocatorSet()) {
+                for (LocatorSet locatorSet : requireNonNullElse(remoteMac.getLocatorSet(),
+                        Collections.<LocatorSet>emptyList())) {
                     locatorsets.add(getLocatorValue(locatorSet.getLocatorRef()));
                 }
                 session.getConsole().println(mac + GAP + locatorsets.toString());
@@ -317,6 +325,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
 
     }
 
+    @Nullable
     String getLocatorValue(HwvtepPhysicalLocatorRef locatorRef) {
         if (locatorRef == null) {
             return null;
@@ -325,6 +334,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
                 .firstKeyOf(TerminationPoint.class).getTpId().getValue();
     }
 
+    @Nullable
     String getLogicalSwitchValue(HwvtepLogicalSwitchRef logicalSwitchRef) {
         if (logicalSwitchRef == null) {
             return null;
@@ -333,12 +343,13 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
                 .firstKeyOf(LogicalSwitches.class).getHwvtepNodeName().getValue();
     }
 
+    @Nullable
     Node getPSnode(Node hwvtepNode, LogicalDatastoreType datastoreType) {
-        if (hwvtepNode.augmentation(HwvtepGlobalAugmentation.class) != null
-                && hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getSwitches() != null) {
-            for (Switches switches : hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getSwitches()) {
-                NodeId psNodeId = switches.getSwitchRef().getValue().firstKeyOf(Node.class).getNodeId();
-                return HwvtepUtils.getHwVtepNode(dataBroker, datastoreType, psNodeId);
+        if (hwvtepNode.augmentation(HwvtepGlobalAugmentation.class) != null) {
+            List<Switches> switches = hwvtepNode.augmentation(HwvtepGlobalAugmentation.class).getSwitches();
+            if (switches != null) {
+                return HwvtepUtils.getHwVtepNode(dataBroker, datastoreType,
+                    switches.iterator().next().getSwitchRef().getValue().firstKeyOf(Node.class).getNodeId());
             }
         }
         return null;

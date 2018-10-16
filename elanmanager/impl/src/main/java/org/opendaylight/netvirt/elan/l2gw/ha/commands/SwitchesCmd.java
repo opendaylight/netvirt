@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentationBuilder;
@@ -24,6 +25,7 @@ public class SwitchesCmd extends MergeCommand<Switches, HwvtepGlobalAugmentation
     }
 
     @Override
+    @Nullable
     public List<Switches> getData(HwvtepGlobalAugmentation node) {
         if (node != null) {
             return node.getSwitches();

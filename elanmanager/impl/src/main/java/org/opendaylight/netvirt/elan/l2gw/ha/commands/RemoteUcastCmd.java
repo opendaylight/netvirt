@@ -8,6 +8,8 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
 import java.util.List;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentationBuilder;
@@ -28,6 +30,7 @@ public class RemoteUcastCmd extends MergeCommand<RemoteUcastMacs,
     }
 
     @Override
+    @Nullable
     public List<RemoteUcastMacs> getData(HwvtepGlobalAugmentation node) {
         if (node != null) {
             return node.getRemoteUcastMacs();
@@ -78,7 +81,7 @@ public class RemoteUcastCmd extends MergeCommand<RemoteUcastMacs,
                 .getHwvtepNodeName();
         InstanceIdentifier<?> origMacRefIdentifier = orig.getLogicalSwitchRef().getValue();
         HwvtepNodeName origMacNodeName = origMacRefIdentifier.firstKeyOf(LogicalSwitches.class).getHwvtepNodeName();
-        return updated.getMacEntryKey().equals(orig.getMacEntryKey())
+        return Objects.equals(updated.getMacEntryKey(), orig.getMacEntryKey())
                 && updatedMacNodeName.equals(origMacNodeName);
     }
 

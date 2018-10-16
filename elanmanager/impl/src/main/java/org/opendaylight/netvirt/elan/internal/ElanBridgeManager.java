@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -214,6 +215,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
 
     }
 
+    @Nullable
     private List<ManagedNodeEntry> getManagedNodeEntries(Node node) {
         OvsdbNodeAugmentation ovsdbNode = southboundUtils.extractNodeAugmentation(node);
         if (ovsdbNode == null) {
@@ -311,7 +313,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
      * @param mac mac address to set on the bridge or null
      * @return true if no errors occurred
      */
-    public boolean addBridge(Node ovsdbNode, String bridgeName, String mac) {
+    public boolean addBridge(Node ovsdbNode, String bridgeName, @Nullable String mac) {
         boolean rv = true;
         if (southboundUtils.getBridgeFromConfig(ovsdbNode, bridgeName) == null) {
             Class<? extends DatapathTypeBase> dpType = null;
@@ -398,6 +400,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
      * @param physicalNetworkName name of physical network
      * @return physical network name
      */
+    @Nullable
     public String getProviderMappingValue(Node node, String physicalNetworkName) {
         Map<String, String> providerMappings = getOpenvswitchOtherConfigMap(node, PROVIDER_MAPPINGS_KEY);
         String providerMappingValue = providerMappings.get(physicalNetworkName);
@@ -567,6 +570,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
      * {@inheritDoc}.
      */
     @Override
+    @Nullable
     public Node getBridgeNode(BigInteger dpId) {
         List<Node> ovsdbNodes = southboundUtils.getOvsdbNodes();
         if (null == ovsdbNodes) {
@@ -588,6 +592,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
         return null;
     }
 
+    @Nullable
     public String getProviderInterfaceName(BigInteger dpId, String physicalNetworkName) {
         Node brNode;
 
@@ -600,6 +605,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
         return getProviderInterfaceName(brNode, physicalNetworkName);
     }
 
+    @Nullable
     public String getProviderInterfaceName(Node bridgeNode, String physicalNetworkName) {
         if (physicalNetworkName == null) {
             return null;
@@ -625,10 +631,10 @@ public class ElanBridgeManager implements IElanBridgeManager {
     }
 
     public boolean hasDatapathID(Node node) {
-        return southboundUtils.getDataPathId(node) > 0 ? true : false;
+        return southboundUtils.getDataPathId(node) > 0;
     }
 
-    public Boolean isBridgeOnOvsdbNode(Node ovsdbNode, String bridgename) {
+    public boolean isBridgeOnOvsdbNode(Node ovsdbNode, String bridgename) {
         return southboundUtils.isBridgeOnOvsdbNode(ovsdbNode, bridgename);
     }
 

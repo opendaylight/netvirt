@@ -8,6 +8,8 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
 import java.util.List;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
@@ -21,6 +23,7 @@ public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuild
     }
 
     @Override
+    @Nullable
     public List<TerminationPoint> getData(Node node) {
         if (node != null) {
             return node.getTerminationPoint();
@@ -59,7 +62,7 @@ public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuild
                 updated.augmentation(HwvtepPhysicalLocatorAugmentation.class);
         HwvtepPhysicalLocatorAugmentation origPhysicalLocator =
                 orig.augmentation(HwvtepPhysicalLocatorAugmentation.class);
-        return updatedPhysicalLocator.getDstIp().equals(origPhysicalLocator.getDstIp())
+        return Objects.equals(updatedPhysicalLocator.getDstIp(), origPhysicalLocator.getDstIp())
                 && updatedPhysicalLocator.getEncapsulationType() == origPhysicalLocator.getEncapsulationType();
     }
 

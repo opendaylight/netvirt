@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elan.utils;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.MapDifference;
@@ -20,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -394,8 +396,8 @@ public class TransportZoneNotificationUtil {
         }
 
         Subnets subnets = getOrAddSubnet(zoneSubnets, subnetIp);
-        for (Vteps existingVtep : subnets.getVteps()) {
-            if (existingVtep.getDpnId().equals(dpnId)) {
+        for (Vteps existingVtep : requireNonNullElse(subnets.getVteps(), Collections.<Vteps>emptyList())) {
+            if (Objects.equals(existingVtep.getDpnId(), dpnId)) {
                 return false;
             }
         }
@@ -425,7 +427,7 @@ public class TransportZoneNotificationUtil {
         IpPrefix subnetPrefix = IpPrefixBuilder.getDefaultInstance(subnetIp);
 
         for (Subnets subnet : subnets) {
-            if (subnet.getPrefix().equals(subnetPrefix)) {
+            if (Objects.equals(subnet.getPrefix(), subnetPrefix)) {
                 return subnet;
             }
         }
@@ -444,6 +446,7 @@ public class TransportZoneNotificationUtil {
         return subnetsBuilder.build();
     }
 
+    @Nullable
     private String getDpnLocalIp(BigInteger dpId) throws ReadFailedException {
         Optional<Node> node = getPortsNode(dpId);
 

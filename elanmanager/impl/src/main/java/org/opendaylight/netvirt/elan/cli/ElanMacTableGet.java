@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elan.cli;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -33,6 +34,7 @@ public class ElanMacTableGet extends OsgiCommandSupport {
     }
 
     @Override
+    @Nullable
     protected Object doExecute() {
         LOG.debug("Executing elan mac table get command for {}", elanName);
         Collection<MacEntry> macTables = elanProvider.getElanMacTable(elanName);

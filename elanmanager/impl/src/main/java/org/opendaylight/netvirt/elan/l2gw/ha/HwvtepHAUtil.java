@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -203,7 +204,7 @@ public final class HwvtepHAUtil {
         return physicalLocatorRef;
     }
 
-    public static boolean isEmptyList(List list) {
+    public static boolean isEmptyList(@Nullable List list) {
         return list == null || list.isEmpty();
     }
 
@@ -211,6 +212,7 @@ public final class HwvtepHAUtil {
         return collection == null || collection.isEmpty();
     }
 
+    @Nullable
     public static Node getOriginal(DataObjectModification<Node> mod) {
         Node node = null;
         switch (mod.getModificationType()) {
@@ -229,6 +231,7 @@ public final class HwvtepHAUtil {
         return node;
     }
 
+    @Nullable
     public static Node getUpdated(DataObjectModification<Node> mod) {
         Node node = null;
         switch (mod.getModificationType()) {
@@ -246,6 +249,7 @@ public final class HwvtepHAUtil {
         return node;
     }
 
+    @Nullable
     public static Node getCreated(DataObjectModification<Node> mod) {
         if (mod.getModificationType() == DataObjectModification.ModificationType.WRITE
                 && mod.getDataBefore() == null) {
@@ -254,6 +258,7 @@ public final class HwvtepHAUtil {
         return null;
     }
 
+    @Nullable
     public static Node getRemoved(DataObjectModification<Node> mod) {
         if (mod.getModificationType() == DataObjectModification.ModificationType.DELETE) {
             return mod.getDataBefore();
@@ -261,6 +266,7 @@ public final class HwvtepHAUtil {
         return null;
     }
 
+    @Nullable
     public static String getPsName(Node psNode) {
         String psNodeId = psNode.getNodeId().getValue();
         if (psNodeId.contains(PHYSICALSWITCH)) {
@@ -269,6 +275,7 @@ public final class HwvtepHAUtil {
         return null;
     }
 
+    @Nullable
     public static String getPsName(InstanceIdentifier<Node> psNodeIid) {
         String psNodeId = psNodeIid.firstKeyOf(Node.class).getNodeId().getValue();
         if (psNodeId.contains(PHYSICALSWITCH)) {
@@ -285,6 +292,7 @@ public final class HwvtepHAUtil {
         return convertToInstanceIdentifier(psNodeId);
     }
 
+    @Nullable
     public static InstanceIdentifier<Node> convertPsPath(Node psNode, InstanceIdentifier<Node> nodePath) {
         String psNodeId = psNode.getNodeId().getValue();
         if (psNodeId.contains(PHYSICALSWITCH)) {
@@ -304,6 +312,7 @@ public final class HwvtepHAUtil {
         return nodeBuilder;
     }
 
+    @Nullable
     public static String getHAIdFromManagerOtherConfig(Node node) {
         if (node.augmentation(HwvtepGlobalAugmentation.class) == null) {
             return null;
@@ -311,9 +320,9 @@ public final class HwvtepHAUtil {
         HwvtepGlobalAugmentation globalAugmentation = node.augmentation(HwvtepGlobalAugmentation.class);
         if (globalAugmentation != null) {
             List<Managers> managers = globalAugmentation.getManagers();
-            if (managers != null && managers.size() > 0 && managers.get(0).getManagerOtherConfigs() != null) {
+            if (managers != null && !managers.isEmpty() && managers.get(0).getManagerOtherConfigs() != null) {
                 for (ManagerOtherConfigs configs : managers.get(0).getManagerOtherConfigs()) {
-                    if (configs.getOtherConfigKey().equals(HA_ID)) {
+                    if (HA_ID.equals(configs.getOtherConfigKey())) {
                         return configs.getOtherConfigValue();
                     }
                 }
@@ -342,7 +351,7 @@ public final class HwvtepHAUtil {
                 return childNodeIds;
             }
             for (ManagerOtherConfigs otherConfigs : managers.getManagerOtherConfigs()) {
-                if (otherConfigs.getOtherConfigKey().equals(HA_CHILDREN)) {
+                if (HA_CHILDREN.equals(otherConfigs.getOtherConfigKey())) {
                     String nodeIdsVal = otherConfigs.getOtherConfigValue();
                     if (nodeIdsVal != null) {
                         String[] parts = nodeIdsVal.split(",");
