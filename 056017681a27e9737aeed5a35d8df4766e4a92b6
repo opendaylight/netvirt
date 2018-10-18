@@ -22,6 +22,30 @@
       "revId": "056017681a27e9737aeed5a35d8df4766e4a92b6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "20421c89_37d09e99",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 708,
+      "author": {
+        "id": 8015
+      },
+      "writtenOn": "2018-10-18T11:43:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "348b4d0f_47e84a20",
+      "range": {
+        "startLine": 702,
+        "startChar": 28,
+        "endLine": 708,
+        "endChar": 29
+      },
+      "revId": "056017681a27e9737aeed5a35d8df4766e4a92b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
