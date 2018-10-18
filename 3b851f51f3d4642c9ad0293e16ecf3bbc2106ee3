@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf0f5fc8_36175298",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1616,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-10-18T12:38:07Z",
+      "side": 1,
+      "message": "are these size checks enough to ensure it is the use case expected? What before this ensures it turns out this way - or is it just that we hope the orchestrator only does these steps?",
+      "revId": "3b851f51f3d4642c9ad0293e16ecf3bbc2106ee3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
