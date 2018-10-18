@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "348b4d0f_47e84a20",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 708,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-10-18T11:18:30Z",
+      "side": 1,
+      "message": "any specific reason for this check. Packet eaching this point will by IPv4address only. \n\nThere already a check in NaptPacketInHandler to check if he payload is of type IPv4",
+      "range": {
+        "startLine": 702,
+        "startChar": 28,
+        "endLine": 708,
+        "endChar": 29
+      },
+      "revId": "056017681a27e9737aeed5a35d8df4766e4a92b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
