@@ -17,6 +17,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.ArrayUtils;
 import org.opendaylight.openflowplugin.libraries.liblldp.HexEncode;
 import org.opendaylight.openflowplugin.libraries.liblldp.NetUtils;
@@ -83,6 +84,7 @@ public class DHCPOptions {
 
     // It's unclear from all the callers if returning an empty array would be safe.
     @SuppressFBWarnings("PZLA_PREFER_ZERO_LENGTH_ARRAYS")
+    @Nullable
     public byte[] getOptionBytes(byte code) {
         DhcpOption option = this.getOption(code);
         return option != null ? option.getValue() : null;
@@ -118,6 +120,7 @@ public class DHCPOptions {
         this.setOption(new DhcpOption(code, DHCPUtils.inetAddrToByteArray(opt)));
     }
 
+    @Nullable
     public InetAddress getOptionInetAddr(byte code) {
         byte[] opt = this.getOptionBytes(code);
         try {
@@ -131,6 +134,7 @@ public class DHCPOptions {
         this.setOption(new DhcpOption(code, DHCPUtils.strAddrToByteArray(opt)));
     }
 
+    @Nullable
     public String getOptionStrAddr(byte code) {
         byte[] opt = this.getOptionBytes(code);
         try {

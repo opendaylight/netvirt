@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPUtils.nullToEmpty;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -20,12 +21,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -174,8 +177,8 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         Optional<DesignatedSwitchesForExternalTunnels> designatedSwitchForTunnelOptional =
                 MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
         if (designatedSwitchForTunnelOptional.isPresent()) {
-            List<DesignatedSwitchForTunnel> list =
-                    designatedSwitchForTunnelOptional.get().getDesignatedSwitchForTunnel();
+            List<DesignatedSwitchForTunnel> list = nullToEmpty(
+                    designatedSwitchForTunnelOptional.get().getDesignatedSwitchForTunnel());
             for (DesignatedSwitchForTunnel designatedSwitchForTunnel : list) {
                 Set<Pair<IpAddress, String>> setOfTunnelIpElanNamePair =
                         designatedDpnsToTunnelIpElanNameCache
@@ -195,7 +198,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         InstanceIdentifier<Ports> inst = InstanceIdentifier.builder(Neutron.class).child(Ports.class).build();
         Optional<Ports> optionalPorts = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
         if (optionalPorts.isPresent()) {
-            List<Port> list = optionalPorts.get().getPort();
+            List<Port> list = nullToEmpty(optionalPorts.get().getPort());
             for (Port port : list) {
                 if (NeutronUtils.isPortVnicTypeNormal(port)) {
                     continue;
@@ -274,6 +277,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         tunnelIpElanNameToVmMacCache.remove(tunnelIpElanNamePair);
     }
 
+    @Nullable
     public BigInteger readDesignatedSwitchesForExternalTunnel(IpAddress tunnelIp, String elanInstanceName) {
         if (tunnelIp == null || elanInstanceName == null || elanInstanceName.isEmpty()) {
             return null;
@@ -349,7 +353,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
                 MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
         if (designatedSwitchForTunnelOptional.isPresent()) {
             List<DesignatedSwitchForTunnel> list =
-                    designatedSwitchForTunnelOptional.get().getDesignatedSwitchForTunnel();
+                    nullToEmpty(designatedSwitchForTunnelOptional.get().getDesignatedSwitchForTunnel());
             for (DesignatedSwitchForTunnel designatedSwitchForTunnel : list) {
                 if (dpId.equals(BigInteger.valueOf(designatedSwitchForTunnel.getDpId()))) {
                     return true;
@@ -599,7 +603,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
     public  java.util.Optional<SubnetToDhcpPort> getSubnetDhcpPortData(String elanInstanceName) {
         java.util.Optional<SubnetToDhcpPort> optSubnetDhcp = java.util.Optional.empty();
         Uuid nwUuid = new Uuid(elanInstanceName);
-        List<Uuid> subnets = DhcpServiceUtils.getSubnetIdsFromNetworkId(broker, nwUuid);
+        List<Uuid> subnets = nullToEmpty(DhcpServiceUtils.getSubnetIdsFromNetworkId(broker, nwUuid));
         for (Uuid subnet : subnets) {
             if (DhcpServiceUtils.isIpv4Subnet(broker, subnet)) {
                 optSubnetDhcp = DhcpServiceUtils.getSubnetDhcpPortData(broker, subnet.getValue());
@@ -707,7 +711,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         ConcurrentMap<String, L2GatewayDevice> l2GwDevices =
                 ElanL2GwCacheUtils.getInvolvedL2GwDevices(tunnelElanPair.getRight());
         for (L2GatewayDevice device : l2GwDevices.values()) {
-            if (device.getTunnelIp().equals(tunnelElanPair.getLeft())) {
+            if (Objects.equals(device.getTunnelIp(), tunnelElanPair.getLeft())) {
                 return true;
             }
         }
@@ -775,6 +779,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         vniMacAddressToPortCache.remove(vniMacAddressPair);
     }
 
+    @Nullable
     public Port readVniMacToPortCache(BigInteger vni, String macAddress) {
         if (macAddress == null) {
             return null;
@@ -815,6 +820,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         return MDSALUtil.read(LogicalDatastoreType.CONFIGURATION, psNodeId, dataBroker);
     }
 
+    @Nullable
     public RemoteMcastMacs createRemoteMcastMac(Node dstDevice, String logicalSwitchName, IpAddress internalTunnelIp) {
         Set<LocatorSet> locators = new HashSet<>();
         TerminationPointKey terminationPointKey = HwvtepSouthboundUtils.getTerminationPointKey(
@@ -847,11 +853,11 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
     private void putRemoteMcastMac(TypedWriteTransaction<Configuration> transaction, String elanName,
                                    L2GatewayDevice device, IpAddress internalTunnelIp) {
         Optional<Node> optionalNode = getNode(broker, device.getHwvtepNodeId());
-        Node dstNode = optionalNode.get();
-        if (dstNode == null) {
+        if (!optionalNode.isPresent()) {
             LOG.trace("could not get device node {} ", device.getHwvtepNodeId());
             return;
         }
+        Node dstNode = optionalNode.get();
         RemoteMcastMacs macs = createRemoteMcastMac(dstNode, elanName, internalTunnelIp);
         HwvtepUtils.addRemoteMcastMac(transaction, dstNode.getNodeId(), macs);
     }
@@ -893,6 +899,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         });
     }
 
+    @Nullable
     private L2GatewayDevice getDeviceFromTunnelIp(IpAddress tunnelIp) {
         Collection<L2GatewayDevice> devices = l2GatewayCache.getAll();
         LOG.trace("In getDeviceFromTunnelIp devices {}", devices);
@@ -990,6 +997,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         });
     }
 
+    @Nullable
     public IpAddress getTunnelIpBasedOnElan(String elanInstanceName, String vmMacAddress) {
         LOG.trace("DhcpExternalTunnelManager getTunnelIpBasedOnElan elanInstanceName {}", elanInstanceName);
         IpAddress tunnelIp = null;

@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -152,6 +153,7 @@ public class DhcpUCastMacListener
                 DhcpServiceUtils.getListOfDpns(broker), designatedDpnId, macAddress);
     }
 
+    @Nullable
     private LogicalSwitches getLogicalSwitches(LocalUcastMacs ucastMacs) {
         InstanceIdentifier<LogicalSwitches> logicalSwitchRef =
                 (InstanceIdentifier<LogicalSwitches>)ucastMacs.getLogicalSwitchRef().getValue();

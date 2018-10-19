@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.dhcpservice.shell;
 
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.dhcpservice.api.IDhcpExternalTunnelManager;
@@ -24,6 +25,7 @@ public class DhcpCacheCli extends OsgiCommandSupport {
     }
 
     @Override
+    @Nullable
     protected Object doExecute() {
         session.getConsole().println("Printing Designated Dpns To TunnelIp and ElanName cache "
                 + "(DesignatedDpnsToTunnelIpElanNameCache)");

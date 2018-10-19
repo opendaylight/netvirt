@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPUtils.nullToEmpty;
+
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.EventListener;
@@ -15,6 +17,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -93,13 +96,12 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
         }
     }
 
+    @Nullable
     public IpAddress getIpAllocation(String networkId, AllocationPool pool, String macAddress) {
         String poolIdKey = getPoolKeyIdByAllocationPool(networkId, pool);
         long allocatedIpLong = createIdAllocation(poolIdKey, macAddress);
         LOG.debug("allocated id {} for mac {}, from pool {}", allocatedIpLong, macAddress, poolIdKey);
-        IpAddress allocatedIpAddress = allocatedIpLong != 0 ? DhcpServiceUtils.convertLongToIp(allocatedIpLong)
-                : null;
-        return allocatedIpAddress;
+        return allocatedIpLong != 0 ? DhcpServiceUtils.convertLongToIp(allocatedIpLong) : null;
     }
 
     public void releaseIpAllocation(String networkId, AllocationPool pool, String macAddress) {
@@ -108,6 +110,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
         releaseIdAllocation(poolIdKey, macAddress);
     }
 
+    @Nullable
     public AllocationPool getAllocationPoolByNetwork(String networkId) throws ReadFailedException {
         InstanceIdentifier<Network> network = InstanceIdentifier.builder(DhcpAllocationPool.class)
                 .child(Network.class, new NetworkKey(networkId)).build();
@@ -129,6 +132,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
         }
     }
 
+    @Nullable
     public Map<BigInteger, List<String>> getElanDpnInterfacesByName(DataBroker broker, String elanInstanceName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnIfacesIid = InstanceIdentifier.builder(ElanDpnInterfaces.class)
                 .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName)).build();
@@ -139,10 +143,11 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
             return null;
         }
 
-        return elanDpnIfacesOpc.get().getDpnInterfaces().stream()
-                .collect(Collectors.toMap(DpnInterfaces::getDpId, DpnInterfaces::getInterfaces));
+        return nullToEmpty(elanDpnIfacesOpc.get().getDpnInterfaces()).stream()
+                .collect(Collectors.toMap(DpnInterfaces::getDpId, value -> nullToEmpty(value.getInterfaces())));
     }
 
+    @Nullable
     public String getNetworkByPort(String portUuid) throws ReadFailedException {
         InstanceIdentifier<ElanInterface> elanInterfaceName = InstanceIdentifier.builder(ElanInterfaces.class)
                 .child(ElanInterface.class, new ElanInterfaceKey(portUuid)).build();

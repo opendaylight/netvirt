@@ -146,6 +146,7 @@ public class DhcpManager {
         this.dhcpOptLeaseTime = leaseTime;
     }
 
+    @Nullable
     public Subnet getNeutronSubnet(Port port) {
         if (port != null) {
             // DHCP Service is only interested in IPv4 IPs/Subnets
@@ -154,6 +155,7 @@ public class DhcpManager {
         return null;
     }
 
+    @Nullable
     public Subnet getNeutronSubnet(List<FixedIps> fixedIps) {
         for (FixedIps fixedIp: fixedIps) {
             if (fixedIp.getIpAddress().getIpv4Address() != null) {
@@ -163,6 +165,7 @@ public class DhcpManager {
         return null;
     }
 
+    @Nullable
     private Subnet getNeutronSubnet(Uuid subnetId) {
         Subnet subnet = null;
         InstanceIdentifier<Subnet> inst = InstanceIdentifier.create(Neutron.class).child(Subnets.class).child(Subnet
@@ -175,6 +178,7 @@ public class DhcpManager {
         return subnet;
     }
 
+    @Nullable
     public Port getNeutronPort(String name) {
         Port prt = null;
         InstanceIdentifier<Port> inst = InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class,

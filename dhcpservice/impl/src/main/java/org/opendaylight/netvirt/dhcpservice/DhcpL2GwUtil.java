@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.dhcpservice;
 import com.google.common.base.Optional;
 import java.util.List;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -47,6 +48,7 @@ public class DhcpL2GwUtil {
         this.l2GatewayCache = l2GatewayCache;
     }
 
+    @Nullable
     public IpAddress getHwvtepNodeTunnelIp(InstanceIdentifier<Node> nodeIid) {
         String nodeId = nodeIid.firstKeyOf(Node.class).getNodeId().getValue();
         L2GatewayDevice targetDevice = null;
@@ -60,6 +62,7 @@ public class DhcpL2GwUtil {
     }
 
 
+    @Nullable
     private IpAddress getTunnelIp(InstanceIdentifier<Node> nodeIid) {
         Optional<Node> nodeOptional =
                 MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, nodeIid);

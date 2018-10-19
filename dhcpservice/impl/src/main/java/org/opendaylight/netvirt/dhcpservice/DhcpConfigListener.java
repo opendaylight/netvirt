@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -71,7 +72,7 @@ public class DhcpConfigListener extends AsyncClusteredDataTreeChangeListenerBase
         updateConfig(add);
     }
 
-    private void updateConfig(DhcpConfig update) {
+    private void updateConfig(@Nullable DhcpConfig update) {
         //TODO: Update operational with actual values
         if (update == null || update.getConfigs() == null || update.getConfigs().isEmpty()) {
             dhcpManager.setLeaseDuration(DhcpMConstants.DEFAULT_LEASE_TIME);

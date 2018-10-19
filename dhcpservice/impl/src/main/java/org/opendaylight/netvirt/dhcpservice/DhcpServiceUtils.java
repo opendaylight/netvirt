@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPUtils.nullToEmpty;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
@@ -194,8 +195,8 @@ public final class DhcpServiceUtils {
     }
 
     public static void setupDhcpArpRequest(BigInteger dpId, short tableId, BigInteger vni, String dhcpIpAddress,
-                                           int lportTag, Long elanTag, boolean add, IMdsalApiManager mdsalUtil,
-                                           TypedReadWriteTransaction<Configuration> tx)
+                                           int lportTag, @Nullable Long elanTag, boolean add,
+                                           IMdsalApiManager mdsalUtil, TypedReadWriteTransaction<Configuration> tx)
             throws ExecutionException, InterruptedException {
         List<MatchInfo> matches = getDhcpArpMatch(vni, dhcpIpAddress);
         if (add) {
@@ -275,7 +276,7 @@ public final class DhcpServiceUtils {
     @Nonnull
     private static List<BigInteger> extractDpnsFromNodes(Optional<Nodes> optionalNodes) {
         return optionalNodes.toJavaUtil().map(
-            nodes -> nodes.getNode().stream().map(Node::getId).filter(Objects::nonNull).map(
+            nodes -> nullToEmpty(nodes.getNode()).stream().map(Node::getId).filter(Objects::nonNull).map(
                     MDSALUtil::getDpnIdFromNodeName).collect(
                     Collectors.toList())).orElse(Collections.emptyList());
     }
@@ -289,7 +290,7 @@ public final class DhcpServiceUtils {
         Optional<ElanDpnInterfacesList> elanDpnOptional =
                 MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInstanceIdentifier);
         if (elanDpnOptional.isPresent()) {
-            List<DpnInterfaces> dpns = elanDpnOptional.get().getDpnInterfaces();
+            List<DpnInterfaces> dpns = nullToEmpty(elanDpnOptional.get().getDpnInterfaces());
             for (DpnInterfaces dpnInterfaces : dpns) {
                 elanDpns.add(dpnInterfaces.getDpId());
             }
@@ -297,6 +298,7 @@ public final class DhcpServiceUtils {
         return elanDpns;
     }
 
+    @Nullable
     public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
             .state.Interface getInterfaceFromOperationalDS(String interfaceName, DataBroker dataBroker) {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
@@ -311,6 +313,7 @@ public final class DhcpServiceUtils {
     }
 
 
+    @Nullable
     public static String getSegmentationId(Uuid networkId, DataBroker broker) {
         InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class)
                 .child(Networks.class).child(Network.class, new NetworkKey(networkId));
@@ -327,6 +330,7 @@ public final class DhcpServiceUtils {
         return MDSALUtil.NODE_PREFIX + MDSALUtil.SEPARATOR + dpnId.toString();
     }
 
+    @Nullable
     public static String getTrunkPortMacAddress(String parentRefName,
             DataBroker broker) {
         InstanceIdentifier<Port> portInstanceIdentifier =
@@ -514,6 +518,7 @@ public final class DhcpServiceUtils {
         return existingEntry.get().getMacAddress();
     }
 
+    @Nullable
     private static String getNeutronMacAddress(String interfaceName, DhcpManager dhcpManager) {
         Port port = dhcpManager.getNeutronPort(interfaceName);
         if (port != null) {
@@ -523,6 +528,7 @@ public final class DhcpServiceUtils {
         return null;
     }
 
+    @Nullable
     public static List<Uuid> getSubnetIdsFromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier id = buildNetworkMapIdentifier(networkId);
         Optional<NetworkMap> optionalNetworkMap = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
@@ -533,9 +539,8 @@ public final class DhcpServiceUtils {
     }
 
     static InstanceIdentifier<NetworkMap> buildNetworkMapIdentifier(Uuid networkId) {
-        InstanceIdentifier<NetworkMap> id = InstanceIdentifier.builder(NetworkMaps.class).child(NetworkMap.class, new
-                NetworkMapKey(networkId)).build();
-        return id;
+        return InstanceIdentifier.builder(NetworkMaps.class).child(NetworkMap.class,
+            new NetworkMapKey(networkId)).build();
     }
 
     public static boolean isIpv4Subnet(DataBroker broker, Uuid subnetUuid) {
@@ -545,9 +550,7 @@ public final class DhcpServiceUtils {
         final Optional<Subnet> subnet = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
         if (subnet.isPresent()) {
             Class<? extends IpVersionBase> ipVersionBase = subnet.get().getIpVersion();
-            if (ipVersionBase.equals(IpVersionV4.class)) {
-                return true;
-            }
+            return IpVersionV4.class.equals(ipVersionBase);
         }
         return false;
     }
