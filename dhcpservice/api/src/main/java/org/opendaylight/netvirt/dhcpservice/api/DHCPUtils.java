@@ -8,11 +8,15 @@
 
 package org.opendaylight.netvirt.dhcpservice.api;
 
+import static java.util.Collections.emptyList;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class DHCPUtils {
 
@@ -46,13 +50,14 @@ public abstract class DHCPUtils {
         return result;
     }
 
-    public static short byteArrayToShort(byte[] ba) {
+    public static short byteArrayToShort(@Nullable byte[] ba) {
         if (ba == null || ba.length != 2) {
             return 0;
         }
         return (short) ((0xff & ba[0]) << 8 | 0xff & ba[1]);
     }
 
+    @Nullable
     public static InetAddress byteArrayToInetAddr(byte[] ba) {
         try {
             return InetAddress.getByAddress(ba);
@@ -64,6 +69,7 @@ public abstract class DHCPUtils {
     // An empty byte[] would technically be an invalid MAC address and it's unclear if we can force callers to pass
     // a non-null String.
     @SuppressFBWarnings("PZLA_PREFER_ZERO_LENGTH_ARRAYS")
+    @Nullable
     public static byte[] strMacAddrtoByteArray(String macAddress) {
         if (macAddress == null) {
             return null;
@@ -87,5 +93,11 @@ public abstract class DHCPUtils {
         }
         str.deleteCharAt(str.lastIndexOf(":"));
         return str.toString();
+    }
+
+    // TODO Replace this with mdsal's DataObjectUtils.nullToEmpty when upgrading to mdsal 3
+    @Nonnull
+    public static <T> List<T> nullToEmpty(final @Nullable List<T> input) {
+        return input != null ? input : emptyList();
     }
 }

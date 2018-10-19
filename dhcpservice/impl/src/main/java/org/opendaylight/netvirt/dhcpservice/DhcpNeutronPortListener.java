@@ -9,8 +9,10 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPUtils.nullToEmpty;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -133,11 +135,11 @@ public class DhcpNeutronPortListener
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
         LOG.trace("Port changed to {}", update);
         //With Ipv6 changes we can get ipv4 subnets later. The below check is to support such scenario.
-        if (original.getFixedIps().size() < update.getFixedIps().size()) {
+        if (nullToEmpty(original.getFixedIps()).size() < nullToEmpty(update.getFixedIps()).size()) {
             final String interfaceName = update.getUuid().getValue();
-            List<FixedIps> updatedFixedIps = update.getFixedIps();
+            List<FixedIps> updatedFixedIps = new ArrayList<>(nullToEmpty(update.getFixedIps()));
             // Need to check only the newly added fixed ip.
-            updatedFixedIps.removeAll(original.getFixedIps());
+            updatedFixedIps.removeAll(nullToEmpty(original.getFixedIps()));
             Subnet subnet = dhcpManager.getNeutronSubnet(updatedFixedIps);
             if (null == subnet || !subnet.isEnableDhcp()) {
                 LOG.trace("Subnet is null/not ipv4 or not enabled {}", subnet);

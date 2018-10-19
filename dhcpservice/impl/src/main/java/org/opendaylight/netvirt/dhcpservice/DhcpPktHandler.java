@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPUtils.nullToEmpty;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.net.util.SubnetUtils;
@@ -256,6 +259,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         JdkFutures.addErrorLogging(pktService.transmitPacket(output), LOG, "Transmit packet");
     }
 
+    @Nullable
     private DHCP handleDhcpPacket(DHCP dhcpPkt, String interfaceName, String macAddress, Port interfacePort,
                                   Subnet subnet, String serverIp) {
         LOG.trace("DHCP pkt rcvd {}", dhcpPkt);
@@ -278,6 +282,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         return reply;
     }
 
+    @Nullable
     private DhcpInfo handleDhcpNeutronPacket(byte msgType, Port port, Subnet subnet, String serverIp) {
         if (msgType == DHCPConstants.MSG_DECLINE) {
             LOG.trace("DHCPDECLINE received");
@@ -290,6 +295,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     }
 
 
+    @Nullable
     private DhcpInfo handleDhcpAllocationPoolPacket(byte msgType, String interfaceName, String macAddress) {
         try {
             String networkId = dhcpAllocationPoolMgr.getNetworkByPort(interfaceName);
@@ -329,6 +335,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         return dhcpInfo;
     }
 
+    @Nullable
     private DhcpInfo getDhcpInfo(Port port, Subnet subnet, String serverIp) {
         DhcpInfo dhcpInfo = null;
         if (port != null && subnet != null) {
@@ -358,13 +365,12 @@ public class DhcpPktHandler implements PacketProcessingListener {
         return dhcpInfo;
     }
 
+    @Nonnull
     private static DhcpInfo getApDhcpInfo(AllocationPool ap, IpAddress allocatedIp) {
-        DhcpInfo dhcpInfo = null;
-
         String clientIp = allocatedIp.stringValue();
         String serverIp = ap.getGateway().stringValue();
         List<IpAddress> dnsServers = ap.getDnsServers();
-        dhcpInfo = new DhcpInfo();
+        DhcpInfo dhcpInfo = new DhcpInfo();
         dhcpInfo.setClientIp(clientIp).setServerIp(serverIp).setCidr(ap.getSubnet().stringValue())
             .setHostRoutes(Collections.emptyList()).setDnsServersIpAddrs(dnsServers).setGatewayIp(serverIp);
 
@@ -376,9 +382,10 @@ public class DhcpPktHandler implements PacketProcessingListener {
      * Many other modules use/need similar methods. Should
      * be refactored to a common NeutronUtils module.     *
      */
+    @Nullable
     private static String getIpv4Address(Port port) {
 
-        for (FixedIps fixedIp : port.getFixedIps()) {
+        for (FixedIps fixedIp : nullToEmpty(port.getFixedIps())) {
             if (isIpv4Address(fixedIp.getIpAddress())) {
                 return fixedIp.getIpAddress().getIpv4Address().getValue();
             }
@@ -387,18 +394,21 @@ public class DhcpPktHandler implements PacketProcessingListener {
         return null;
     }
 
-    private static boolean isIpv4Address(IpAddress ip) {
+    private static boolean isIpv4Address(@Nullable IpAddress ip) {
         return ip != null && ip.getIpv4Address() != null;
     }
 
+    @Nullable
     private Subnet getNeutronSubnet(Port port) {
         return dhcpMgr.getNeutronSubnet(port);
     }
 
+    @Nullable
     private Port getNeutronPort(String interfaceName) {
         return dhcpMgr.getNeutronPort(interfaceName);
     }
 
+    @Nullable
     private static DHCP getDhcpPktIn(Ethernet actualEthernetPacket) {
         Ethernet ethPkt = actualEthernetPacket;
         if (ethPkt.getEtherType() == (short)NwConstants.ETHTYPE_802_1Q) {
@@ -500,6 +510,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     // "Consider returning a zero length array rather than null" - the eventual user of the returned byte[] likely
     // expects null and it's unclear what the behavior would be if empty array was returned.
     @SuppressFBWarnings("PZLA_PREFER_ZERO_LENGTH_ARRAYS")
+    @Nullable
     protected byte[] getDhcpPacketOut(DHCP reply, Ethernet etherPkt, String phyAddrees) {
         if (reply == null) {
             /*
@@ -776,6 +787,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         return pktInReason == SendToController.class;
     }
 
+    @Nullable
     private String getInterfaceNameFromTag(long portTag) {
         String interfaceName = null;
         GetInterfaceFromIfIndexInput input =
