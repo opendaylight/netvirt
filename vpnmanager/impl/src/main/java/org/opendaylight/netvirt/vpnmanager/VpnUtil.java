@@ -933,6 +933,12 @@ public final class VpnUtil {
                 new LearntVpnVipToPortKey(fixedIp, vpnName)).build();
     }
 
+    static InstanceIdentifier<LearntVpnVipToPort> buildLearntVpnVipToPortIdentifier(String vpnName,
+                                                                                    String fixedIp) {
+        return InstanceIdentifier.builder(LearntVpnVipToPortData.class).child(LearntVpnVipToPort.class,
+                new LearntVpnVipToPortKey(fixedIp, vpnName)).build();
+    }
+    
     void removeLearntVpnVipToPort(String vpnName, String fixedIp,
                                                    TypedWriteTransaction<Operational> writeOperTxn) {
         synchronized ((vpnName + fixedIp).intern()) {

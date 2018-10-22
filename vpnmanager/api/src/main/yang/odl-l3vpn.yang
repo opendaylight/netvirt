@@ -756,4 +756,16 @@ module odl-l3vpn {
             }
         }
     }
+
+    container learnt-ip-container {
+        config true;
+        list learnt-ip {
+            key "vpn-name learnt-ip-address";
+            leaf vpn-name { type string; }
+            leaf learnt-ip-address { type string; }
+            leaf port-name { type string; }
+            leaf mac-address { type string; }
+            leaf arp-response-destination-ip { type string; }
+        }
+    }
 }
