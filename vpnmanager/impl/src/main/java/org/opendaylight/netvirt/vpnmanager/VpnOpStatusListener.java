@@ -232,10 +232,9 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
             }
             jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
                 //RD update case get only updated RD list
-                List<String> rds = update.getRd();
-                if (original.getRd().size() != update.getRd().size()) {
-                    List<String> oldRds = original.getRd();
-                    rds.removeAll(oldRds);
+                List<String> rds = update.getRd() != null ? new ArrayList<>(update.getRd()) : new ArrayList<>();
+                if (original.getRd() != null && original.getRd().size() != rds.size()) {
+                    rds.removeAll(original.getRd());
                 }
                 rds.parallelStream().forEach(rd -> {
                     try {
