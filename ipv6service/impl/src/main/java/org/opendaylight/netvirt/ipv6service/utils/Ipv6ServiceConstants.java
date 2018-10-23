@@ -26,6 +26,7 @@ public interface Ipv6ServiceConstants {
     String DEVICE_OWNER_COMPUTE_NOVA = "compute:nova";
 
     short RS_PUNT_PROTECTION_FLOW_PRIORITY = 60;
+    short NS_PUNT_PROTECTION_FLOW_PRIORITY = 60;
     short DEFAULT_FLOW_PRIORITY = 50;
     short PUNT_NA_FLOW_PRIORITY = 40;
 

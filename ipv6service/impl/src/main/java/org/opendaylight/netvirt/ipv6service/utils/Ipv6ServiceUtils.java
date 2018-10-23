@@ -37,6 +37,7 @@ import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NwConstants.NxmOfFieldType;
 import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
+import org.opendaylight.genius.mdsalutil.actions.ActionLearn.FlowMod;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
@@ -184,12 +185,12 @@ public class Ipv6ServiceUtils {
         return matches;
     }
 
-    private List<MatchInfo> getIcmpv6NSMatch(Long elanTag, String ndTarget) {
+    private List<MatchInfo> getIcmpv6NSMatch(Long elanTag, Ipv6Address ipv6Address) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
         matches.add(MatchIpProtocol.ICMPV6);
         matches.add(new MatchIcmpv6(Icmpv6Type.NEIGHBOR_SOLICITATION.getValue(), (short) 0));
-        matches.add(new MatchIpv6NdTarget(new Ipv6Address(ndTarget)));
+        matches.add(new MatchIpv6NdTarget(ipv6Address));
         matches.add(new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
         return matches;
     }
@@ -210,25 +211,46 @@ public class Ipv6ServiceUtils {
                 .append(flowType).toString();
     }
 
-    public void installIcmpv6NsPuntFlow(short tableId, BigInteger dpId,  Long elanTag, Ipv6Address ipv6Address,
+    public void installIcmpv6NsPuntFlow(short tableId, BigInteger dpId, Long elanTag, Ipv6Address ipv6Address,
             int addOrRemove) {
-        List<MatchInfo> neighborSolicitationMatch = getIcmpv6NSMatch(elanTag, ipv6Address.getValue());
-        List<InstructionInfo> instructions = new ArrayList<>();
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionPuntToController());
-        instructions.add(new InstructionApplyActions(actionsInfos));
+        String flowId = getIPv6FlowRef(dpId, elanTag, Ipv6Util.getFormattedIpv6Address(ipv6Address));
 
-        String formattedIp = Ipv6Util.getFormattedIpv6Address(ipv6Address);
-        FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, getIPv6FlowRef(dpId, elanTag, formattedIp),
-                Ipv6ServiceConstants.DEFAULT_FLOW_PRIORITY, "IPv6NS", 0, 0, NwConstants.COOKIE_IPV6_TABLE,
-                neighborSolicitationMatch, instructions);
         if (addOrRemove == Ipv6ServiceConstants.DEL_FLOW) {
             LOG.trace("Removing IPv6 Neighbor Solicitation Flow DpId {}, elanTag {}", dpId, elanTag);
-            mdsalUtil.removeFlow(rsFlowEntity);
+            LoggingFutures
+                    .addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION, tx -> {
+                        mdsalUtil.removeFlow(tx, dpId, flowId, tableId);
+                    }), LOG, "Error while removing flow={}", flowId);
         } else {
-            LOG.trace("Installing IPv6 Neighbor Solicitation Flow DpId {}, elanTag {}", dpId, elanTag);
-            mdsalUtil.installFlow(rsFlowEntity);
+            List<ActionInfo> actionsInfos = new ArrayList<>();
+            actionsInfos.add(new ActionPuntToController());
+
+            int ndPuntTimeout = ipv6serviceConfig.getNeighborDiscoveryPuntTimeout();
+            if (isNdPuntProtectionEnabled(ndPuntTimeout)) {
+                actionsInfos.add(getLearnActionForNsPuntProtection(ndPuntTimeout));
+            }
+            List<InstructionInfo> instructions = Arrays.asList(new InstructionApplyActions(actionsInfos));
+            List<MatchInfo> nsMatch = getIcmpv6NSMatch(elanTag, ipv6Address);
+            FlowEntity nsFlowEntity =
+                    MDSALUtil.buildFlowEntity(dpId, tableId, flowId, Ipv6ServiceConstants.DEFAULT_FLOW_PRIORITY,
+                            "IPv6NS", 0, 0, NwConstants.COOKIE_IPV6_TABLE, nsMatch, instructions);
+
+            LOG.trace("Installing IPv6 Neighbor Solicitation Flow DpId={}, elanTag={} ipv6Address={}", dpId, elanTag,
+                    ipv6Address.getValue());
+            LoggingFutures
+                    .addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION, tx -> {
+                        mdsalUtil.addFlow(tx, nsFlowEntity);
+                    }), LOG, "Error while adding flow={}", nsFlowEntity);
         }
+    }
+
+    private ActionLearn getLearnActionForNsPuntProtection(int ndPuntTimeout) {
+        List<FlowMod> flowMods = getFlowModsForIpv6PuntProtection(Icmpv6Type.NEIGHBOR_SOLICITATION);
+        flowMods.add(new ActionLearn.MatchFromField(NxmOfFieldType.NXM_NX_ND_TARGET.getType(),
+                NxmOfFieldType.NXM_NX_ND_TARGET.getType(), NxmOfFieldType.NXM_NX_ND_TARGET.getFlowModHeaderLenInt()));
+
+        return new ActionLearn(0, ndPuntTimeout, Ipv6ServiceConstants.NS_PUNT_PROTECTION_FLOW_PRIORITY,
+                NwConstants.COOKIE_IPV6_TABLE, 0, NwConstants.IPV6_TABLE, 0, 0, flowMods);
     }
 
     public void installIcmpv6RsPuntFlow(short tableId, BigInteger dpId, Long elanTag, int addOrRemove) {
@@ -268,25 +290,32 @@ public class Ipv6ServiceUtils {
     private ActionLearn getLearnActionForRsPuntProtection(int rdPuntTimeout) {
         return new ActionLearn(0, rdPuntTimeout, Ipv6ServiceConstants.RS_PUNT_PROTECTION_FLOW_PRIORITY,
                 NwConstants.COOKIE_IPV6_TABLE, 0, NwConstants.IPV6_TABLE, 0, 0,
-                Arrays.asList(
-                        new ActionLearn.MatchFromValue(NwConstants.ETHTYPE_IPV6,
-                                NxmOfFieldType.NXM_OF_ETH_TYPE.getType(),
-                                NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLenInt()),
-                        new ActionLearn.MatchFromValue(IPProtocols.IPV6ICMP.shortValue(),
-                                NxmOfFieldType.NXM_OF_IP_PROTO.getType(),
-                                NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLenInt()),
-                        new ActionLearn.MatchFromValue(Icmpv6Type.ROUTER_SOLICITATION.getValue(),
-                                NxmOfFieldType.NXM_OF_ICMPv6_TYPE.getType(),
-                                NxmOfFieldType.NXM_OF_ICMPv6_TYPE.getFlowModHeaderLenInt()),
-                        new ActionLearn.MatchFromValue((short) 0, NxmOfFieldType.NXM_OF_ICMPv6_CODE.getType(),
-                                NxmOfFieldType.NXM_OF_ICMPv6_CODE.getFlowModHeaderLenInt()),
-                        new ActionLearn.MatchFromField(NxmOfFieldType.OXM_OF_METADATA.getType(),
-                                MetaDataUtil.METADATA_LPORT_TAG_OFFSET, NxmOfFieldType.OXM_OF_METADATA.getType(),
-                                MetaDataUtil.METADATA_LPORT_TAG_OFFSET, MetaDataUtil.METADATA_LPORT_TAG_BITLEN)));
+                getFlowModsForIpv6PuntProtection(Icmpv6Type.ROUTER_SOLICITATION));
+    }
+
+    private List<FlowMod> getFlowModsForIpv6PuntProtection(Icmpv6Type icmpv6Type) {
+        return new ArrayList<>(Arrays.asList(
+                new ActionLearn.MatchFromValue(NwConstants.ETHTYPE_IPV6, NxmOfFieldType.NXM_OF_ETH_TYPE.getType(),
+                        NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLenInt()),
+                new ActionLearn.MatchFromValue(IPProtocols.IPV6ICMP.shortValue(),
+                        NxmOfFieldType.NXM_OF_IP_PROTO.getType(),
+                        NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLenInt()),
+                new ActionLearn.MatchFromValue(icmpv6Type.getValue(), NxmOfFieldType.NXM_OF_ICMPv6_TYPE.getType(),
+                        NxmOfFieldType.NXM_OF_ICMPv6_TYPE.getFlowModHeaderLenInt()),
+                new ActionLearn.MatchFromField(NxmOfFieldType.NXM_OF_ICMPv6_CODE.getType(),
+                        NxmOfFieldType.NXM_OF_ICMPv6_CODE.getType(),
+                        NxmOfFieldType.NXM_OF_ICMPv6_CODE.getFlowModHeaderLenInt()),
+                new ActionLearn.MatchFromField(NxmOfFieldType.OXM_OF_METADATA.getType(),
+                        MetaDataUtil.METADATA_LPORT_TAG_OFFSET, NxmOfFieldType.OXM_OF_METADATA.getType(),
+                        MetaDataUtil.METADATA_LPORT_TAG_OFFSET, MetaDataUtil.METADATA_LPORT_TAG_BITLEN)));
     }
 
     private boolean isRdPuntProtectionEnabled(int rdPuntTimeout) {
         return rdPuntTimeout != 0;
+    }
+
+    private boolean isNdPuntProtectionEnabled(int ndPuntTimeout) {
+        return ndPuntTimeout != 0;
     }
 
     public void installIcmpv6NaForwardFlow(short tableId, IVirtualPort vmPort, BigInteger dpId, Long elanTag,
