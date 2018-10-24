@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11dafe04_693e59eb",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2569,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-10-24T18:59:42Z",
+      "side": 1,
+      "message": "care that we lost the extinterface in the keyname?",
+      "revId": "ccd8af04c8dd84b6401b6f8c3e7f4deda613ab4e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
