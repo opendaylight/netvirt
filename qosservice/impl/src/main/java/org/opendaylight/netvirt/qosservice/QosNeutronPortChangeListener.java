@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.qosservice;
 
 import java.math.BigInteger;
 import java.util.Collections;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -98,7 +99,7 @@ public class QosNeutronPortChangeListener extends AsyncClusteredDataTreeChangeLi
             qosNeutronUtils.addToQosPortsCache(updateQos.getQosPolicyId(), update);
             qosNeutronUtils.handleNeutronPortQosAdd(update, updateQos.getQosPolicyId());
         } else if (originalQos != null && updateQos != null
-                && !originalQos.getQosPolicyId().equals(updateQos.getQosPolicyId())) {
+                && !Objects.equals(originalQos.getQosPolicyId(), updateQos.getQosPolicyId())) {
 
             // qosservice policy update
             qosNeutronUtils.removeFromQosPortsCache(originalQos.getQosPolicyId(), original);

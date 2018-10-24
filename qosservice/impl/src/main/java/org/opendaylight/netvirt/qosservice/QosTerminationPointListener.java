@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.qosservice;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import java.util.Collections;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -196,10 +197,11 @@ public class QosTerminationPointListener extends
                 })));
     }
 
+    @Nullable
     private String getIfaceId(OvsdbTerminationPointAugmentation tpAugmentation) {
         if (tpAugmentation.getInterfaceExternalIds() != null) {
             for (InterfaceExternalIds entry: tpAugmentation.getInterfaceExternalIds()) {
-                if (entry.getExternalIdKey().equals(EXTERNAL_ID_INTERFACE_ID)) {
+                if (EXTERNAL_ID_INTERFACE_ID.equals(entry.getExternalIdKey())) {
                     return entry.getExternalIdValue();
                 }
             }

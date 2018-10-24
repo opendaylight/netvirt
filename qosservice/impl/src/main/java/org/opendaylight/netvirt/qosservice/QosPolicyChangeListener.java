@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.qosservice;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.netvirt.qosservice.QosNeutronUtils.nullToEmpty;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -251,13 +252,13 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
             return;
         }
 
-        if (!qosNeutronUtils.getQosPolicyMap().get(policyUuid).getBandwidthLimitRules().isEmpty()) {
+        if (!nullToEmpty(qosNeutronUtils.getQosPolicyMap().get(policyUuid).getBandwidthLimitRules()).isEmpty()) {
             BandwidthLimitRules bandwidthLimitRules =
                     qosNeutronUtils.getQosPolicyMap().get(policyUuid).getBandwidthLimitRules().get(0);
             update(policyUuid, bandwidthLimitRules);
         }
 
-        if (!qosNeutronUtils.getQosPolicyMap().get(policyUuid).getDscpmarkingRules().isEmpty()) {
+        if (!nullToEmpty(qosNeutronUtils.getQosPolicyMap().get(policyUuid).getDscpmarkingRules()).isEmpty()) {
             DscpmarkingRules dscpmarkingRules =
                     qosNeutronUtils.getQosPolicyMap().get(policyUuid).getDscpmarkingRules().get(0);
             update(policyUuid, dscpmarkingRules);
