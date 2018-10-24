@@ -161,6 +161,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.A
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev160617.BgpvpnMultipleRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev160617.OperationalPortStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev160617.service.provider.features.attributes.Features;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.extensions.rev160617.service.provider.features.attributes.features.Feature;
@@ -247,6 +248,16 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, iid, feature);
         } catch (TransactionCommitFailedException e) {
             LOG.warn("Error configuring feature {}", feature, e);
+        }
+
+        InstanceIdentifier<Feature> iid2 = InstanceIdentifier.builder(
+                Neutron.class).child(Features.class).child(
+                Feature.class, new FeatureKey(BgpvpnMultipleRouters.class)).build();
+        Feature feature1 = new FeatureBuilder().withKey(new FeatureKey(BgpvpnMultipleRouters.class)).build();
+        try {
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, iid2, feature1);
+        } catch (TransactionCommitFailedException e) {
+            LOG.warn("Error configuring feature {}", feature1, e);
         }
     }
 
