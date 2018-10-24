@@ -2538,4 +2538,8 @@ public final class NatUtil {
         }
         return node.augmentation(OvsdbBridgeAugmentation.class);
     }
+
+    public static String getDefaultFibRouteToSNATForSubnetJobKey(String subnetName, BigInteger dpnId) {
+        return NatConstants.NAT_DJC_PREFIX + subnetName + dpnId;
+    }
 }

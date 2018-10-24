@@ -175,7 +175,7 @@ public class ExternalNetworkGroupInstaller {
     private void installExtNetGroupEntry(long groupId, String subnetName, String extInterface,
             String macAddress, BigInteger dpnId) {
 
-        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + subnetName + extInterface, () -> {
+        coordinator.enqueueJob(NatUtil.getDefaultFibRouteToSNATForSubnetJobKey(subnetName, dpnId), () -> {
             GroupEntity groupEntity = buildExtNetGroupEntity(macAddress, subnetName, groupId, extInterface, dpnId);
             if (groupEntity != null) {
                 mdsalManager.syncInstallGroup(groupEntity);
