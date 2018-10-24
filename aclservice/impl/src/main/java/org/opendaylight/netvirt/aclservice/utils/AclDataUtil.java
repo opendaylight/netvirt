@@ -91,10 +91,14 @@ public class AclDataUtil implements AclDataCache {
 
     public void removeAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
         for (Uuid acl : aclList) {
-            ConcurrentMap<String, AclInterface> interfaceMap = aclInterfaceMap.get(acl);
-            if (interfaceMap != null) {
-                interfaceMap.remove(port.getInterfaceId());
-            }
+            removeAclInterfaceMap(acl, port);
+        }
+    }
+
+    public void removeAclInterfaceMap(Uuid acl, AclInterface port) {
+        ConcurrentMap<String, AclInterface> interfaceMap = aclInterfaceMap.get(acl);
+        if (interfaceMap != null) {
+            interfaceMap.remove(port.getInterfaceId());
         }
     }
 
