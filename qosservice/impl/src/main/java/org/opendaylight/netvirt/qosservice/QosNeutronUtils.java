@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.qosservice;
 
+import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
@@ -150,7 +151,7 @@ public class QosNeutronUtils {
 
     public Collection<Port> getQosPorts(Uuid qosUuid) {
         final ConcurrentMap<Uuid, Port> portMap = qosPortsMap.get(qosUuid);
-        return portMap != null ? portMap.values() : Collections.emptyList();
+        return portMap != null ? portMap.values() : emptyList();
     }
 
     public void addToQosPortsCache(Uuid qosUuid, Port port) {
@@ -177,7 +178,7 @@ public class QosNeutronUtils {
     @Nonnull
     public Collection<Network> getQosNetworks(Uuid qosUuid) {
         final ConcurrentMap<Uuid, Network> networkMap = qosNetworksMap.get(qosUuid);
-        return networkMap != null ? networkMap.values() : Collections.emptyList();
+        return networkMap != null ? networkMap.values() : emptyList();
     }
 
     @Nonnull
@@ -186,7 +187,7 @@ public class QosNeutronUtils {
                 .child(NetworkMap.class, new NetworkMapKey(networkId)).build();
         Optional<NetworkMap> optionalNetworkMap = MDSALUtil.read(LogicalDatastoreType.CONFIGURATION,
                 networkMapId, dataBroker);
-        return optionalNetworkMap.isPresent() ? optionalNetworkMap.get().getSubnetIdList() : Collections.emptyList();
+        return optionalNetworkMap.isPresent() ? nullToEmpty(optionalNetworkMap.get().getSubnetIdList()) : emptyList();
     }
 
     @Nonnull
@@ -196,7 +197,7 @@ public class QosNeutronUtils {
                 .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
         Optional<Subnetmap> optionalSubnetmap = MDSALUtil.read(LogicalDatastoreType.CONFIGURATION,
                 subnetMapId,dataBroker);
-        return optionalSubnetmap.isPresent() ? optionalSubnetmap.get().getPortList() : Collections.emptyList();
+        return optionalSubnetmap.isPresent() ? nullToEmpty(optionalSubnetmap.get().getPortList()) : emptyList();
     }
 
     public void handleNeutronPortQosAdd(Port port, Uuid qosUuid) {
@@ -232,7 +233,7 @@ public class QosNeutronUtils {
                     && !qosPolicy.getDscpmarkingRules().isEmpty()) {
                 setPortDscpMarking(port, qosPolicy.getDscpmarkingRules().get(0));
             }
-            return Collections.emptyList();
+            return emptyList();
         });
     }
 
@@ -314,7 +315,7 @@ public class QosNeutronUtils {
                     && !qosPolicy.getDscpmarkingRules().isEmpty()) {
                 unsetPortDscpMark(port);
             }
-            return Collections.emptyList();
+            return emptyList();
         });
     }
 
@@ -328,7 +329,7 @@ public class QosNeutronUtils {
                     && !qosPolicy.getDscpmarkingRules().isEmpty()) {
                 unsetPortDscpMark(port, intrf);
             }
-            return Collections.emptyList();
+            return emptyList();
         });
     }
 
@@ -430,7 +431,7 @@ public class QosNeutronUtils {
                         || port.augmentation(QosPortExtension.class).getQosPolicyId() == null)) {
                     jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
                         unsetPortDscpMark(port);
-                        return Collections.emptyList();
+                        return emptyList();
                     });
                 }
             }
@@ -842,6 +843,7 @@ public class QosNeutronUtils {
         return neutronNetworkMap.get(networkUuid);
     }
 
+    @Nullable
     public static BigInteger getDpnIdFromLowerLayerIf(String lowerLayerIf) {
         try {
             return new BigInteger(lowerLayerIf.substring(lowerLayerIf.indexOf(":") + 1, lowerLayerIf.lastIndexOf(":")));
@@ -850,6 +852,7 @@ public class QosNeutronUtils {
         }
     }
 
+    @Nullable
     public static String getPortNumberFromLowerLayerIf(String lowerLayerIf) {
         try {
             return (lowerLayerIf.substring(lowerLayerIf.lastIndexOf(":") + 1));
@@ -871,16 +874,16 @@ public class QosNeutronUtils {
     }
 
     public boolean hasIpv4Addr(int versions) {
-        if ((versions & (1 << QosConstants.IPV4_ADDR_MASK_BIT)) != 0) {
-            return true;
-        }
-        return false;
+        return (versions & (1 << QosConstants.IPV4_ADDR_MASK_BIT)) != 0;
     }
 
     public boolean hasIpv6Addr(int versions) {
-        if ((versions & (1 << QosConstants.IPV6_ADDR_MASK_BIT)) != 0) {
-            return true;
-        }
-        return false;
+        return (versions & (1 << QosConstants.IPV6_ADDR_MASK_BIT)) != 0;
+    }
+
+    // TODO Replace this with mdsal's DataObjectUtils.nullToEmpty when upgrading to mdsal 3
+    @Nonnull
+    public static <T> List<T> nullToEmpty(final @Nullable List<T> input) {
+        return input != null ? input : emptyList();
     }
 }
