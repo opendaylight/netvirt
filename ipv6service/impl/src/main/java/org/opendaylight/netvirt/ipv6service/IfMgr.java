@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -225,6 +226,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
+    @Nullable
     private VirtualRouter getRouter(Uuid rtrId) {
         return rtrId != null ? vrouters.get(rtrId) : null;
     }
@@ -347,6 +349,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
+    @Nullable
     private VirtualSubnet getSubnet(Uuid snetId) {
         return snetId != null ? vsubnets.get(snetId) : null;
     }
@@ -393,6 +396,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
+    @Nullable
     private VirtualPort getPort(Uuid portId) {
         return portId != null ? vintfs.get(portId) : null;
     }
@@ -532,6 +536,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         }
     }
 
+    @Nullable
     public Set<VirtualPort> removeUnprocessed(Map<Uuid, Set<VirtualPort>> unprocessed, Uuid id) {
         if (id != null) {
             return unprocessed.remove(id);
@@ -583,11 +588,13 @@ public class IfMgr implements ElementCache, AutoCloseable {
         return removedSubnets != null ? removedSubnets : Collections.emptySet();
     }
 
+    @Nullable
     public VirtualPort getRouterV6InterfaceForNetwork(Uuid networkId) {
         LOG.debug("obtaining the virtual interface for {}", networkId);
         return networkId != null ? vrouterv6IntfMap.get(networkId) : null;
     }
 
+    @Nullable
     public VirtualPort obtainV6Interface(Uuid id) {
         VirtualPort intf = getPort(id);
         if (intf == null) {
@@ -821,6 +828,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         return interfaceName;
     }
 
+    @Nullable
     public Long updateNetworkElanTag(Uuid networkId) {
         Long elanTag = null;
         if (null != this.elanProvider) {
@@ -836,10 +844,12 @@ public class IfMgr implements ElementCache, AutoCloseable {
         return elanTag;
     }
 
+    @Nullable
     private VirtualNetwork getNetwork(Uuid networkId) {
         return networkId != null ? vnetworks.get(networkId) : null;
     }
 
+    @Nullable
     public Long getNetworkElanTag(Uuid networkId) {
         Long elanTag = null;
         IVirtualNetwork net = getNetwork(networkId);

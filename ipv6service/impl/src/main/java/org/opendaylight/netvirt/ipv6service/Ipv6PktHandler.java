@@ -247,7 +247,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
         private void updateNAResponse(NeighborSolicitationPacket pdu,
                                       VirtualPort port, NeighborAdvertisePacketBuilder naPacket) {
             long flag = 0;
-            if (!pdu.getSourceIpv6().equals(Ipv6ServiceUtils.UNSPECIFIED_ADDR)) {
+            if (!Ipv6ServiceUtils.UNSPECIFIED_ADDR.equals(pdu.getSourceIpv6())) {
                 naPacket.setDestinationIpv6(pdu.getSourceIpv6());
                 flag = 0xE0; // Set Router, Solicited and Override Flag.
             } else {

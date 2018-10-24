@@ -9,12 +9,14 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils.nullToEmpty;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.opendaylight.genius.ipv6util.api.Icmpv6Type;
 import org.opendaylight.genius.ipv6util.api.Ipv6Constants;
 import org.opendaylight.genius.ipv6util.api.Ipv6Constants.Ipv6RouterAdvertisementType;
@@ -55,7 +57,7 @@ public class Ipv6RouterAdvt {
     }
 
     public boolean transmitRtrAdvertisement(Ipv6RouterAdvertisementType raType, VirtualPort routerPort,
-                                            long elanTag, RouterSolicitationPacket rsPdu,
+                                            long elanTag, @Nullable RouterSolicitationPacket rsPdu,
                                             BigInteger dpnId, Uuid port) {
         RouterAdvertisementPacketBuilder raPacket = new RouterAdvertisementPacketBuilder();
         updateRAResponse(raType, rsPdu, raPacket, routerPort);
@@ -86,7 +88,7 @@ public class Ipv6RouterAdvt {
         return true;
     }
 
-    private static void updateRAResponse(Ipv6RouterAdvertisementType raType, RouterSolicitationPacket pdu,
+    private static void updateRAResponse(Ipv6RouterAdvertisementType raType, @Nullable RouterSolicitationPacket pdu,
                                          RouterAdvertisementPacketBuilder raPacket,
                                          VirtualPort routerPort) {
         short icmpv6RaFlags = 0;
@@ -124,6 +126,9 @@ public class Ipv6RouterAdvt {
         MacAddress sourceMac = MacAddress.getDefaultInstance(gatewayMac);
         raPacket.setSourceMac(sourceMac);
         if (raType == Ipv6RouterAdvertisementType.SOLICITED_ADVERTISEMENT) {
+            if (pdu == null) {
+                throw new IllegalArgumentException("Null pdu for solicited advertisement");
+            }
             raPacket.setDestinationMac(pdu.getSourceMac());
             raPacket.setDestinationIpv6(pdu.getSourceIpv6());
             raPacket.setFlowLabel(pdu.getFlowLabel());
@@ -191,8 +196,6 @@ public class Ipv6RouterAdvt {
         }
 
         raPacket.setPrefixList(prefixList);
-
-        return;
     }
 
     private byte[] fillRouterAdvertisementPacket(RouterAdvertisementPacket pdu) {
@@ -223,7 +226,7 @@ public class Ipv6RouterAdvt {
         buf.put((byte)pdu.getSourceAddrLength().shortValue());
         buf.put(Ipv6Util.bytesFromHexString(pdu.getSourceLlAddress().getValue()));
 
-        for (PrefixList prefix : pdu.getPrefixList()) {
+        for (PrefixList prefix : nullToEmpty(pdu.getPrefixList())) {
             buf.put((byte)prefix.getOptionType().shortValue());
             buf.put((byte)prefix.getOptionLength().shortValue());
             buf.put((byte)prefix.getPrefixLength().shortValue());

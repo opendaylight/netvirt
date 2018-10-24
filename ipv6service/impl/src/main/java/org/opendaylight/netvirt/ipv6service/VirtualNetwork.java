@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.opendaylight.genius.ipv6util.api.Ipv6Util;
 import org.opendaylight.netvirt.ipv6service.api.IVirtualNetwork;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
@@ -68,6 +69,7 @@ public class VirtualNetwork implements IVirtualNetwork {
         return dpnIfaceList.values();
     }
 
+    @Nullable
     public DpnInterfaceInfo getDpnIfaceInfo(BigInteger dpId) {
         return dpId != null ? dpnIfaceList.get(dpId) : null;
     }
