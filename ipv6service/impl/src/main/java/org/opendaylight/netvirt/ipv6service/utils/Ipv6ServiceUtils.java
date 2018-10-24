@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.ipv6service.utils;
 
+import static java.util.Collections.emptyList;
+
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -15,6 +17,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
@@ -73,6 +77,7 @@ public class Ipv6ServiceUtils {
     public static final Ipv6Address ALL_NODES_MCAST_ADDR = newIpv6Address(Ipv6Constants.ALL_NODES_MCAST_ADDRESS);
     public static final Ipv6Address UNSPECIFIED_ADDR = newIpv6Address("0:0:0:0:0:0:0:0");
 
+    @Nullable
     private static Ipv6Address newIpv6Address(String ip) {
         try {
             return Ipv6Address.getDefaultInstance(InetAddress.getByName(ip).getHostAddress());
@@ -110,15 +115,10 @@ public class Ipv6ServiceUtils {
      * @param interfaceName the interface name
      * @return the interface.
      */
+    @Nullable
     public org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
         .Interface getInterface(String interfaceName) {
-        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-            .Interface> optInterface =
-                read(LogicalDatastoreType.CONFIGURATION, getInterfaceIdentifier(interfaceName));
-        if (optInterface.isPresent()) {
-            return optInterface.get();
-        }
-        return null;
+        return read(LogicalDatastoreType.CONFIGURATION, getInterfaceIdentifier(interfaceName)).orNull();
     }
 
     /**
@@ -155,11 +155,10 @@ public class Ipv6ServiceUtils {
      * @param interfaceName the interface name.
      * @return the interface state.
      */
+    @Nullable
     public org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
             .Interface getInterfaceStateFromOperDS(String interfaceName) {
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
-                .interfaces.state.Interface> ifStateId = buildStateInterfaceId(interfaceName);
-        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, ifStateId, broker).orNull();
+        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, buildStateInterfaceId(interfaceName), broker).orNull();
     }
 
     private static List<MatchInfo> getIcmpv6RSMatch(Long elanTag) {
@@ -330,6 +329,7 @@ public class Ipv6ServiceUtils {
                         NwConstants.IPV6_SERVICE_INDEX)));
     }
 
+    @Nullable
     public BigInteger getDpIdFromInterfaceState(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
             .interfaces.rev140508.interfaces.state.Interface interfaceState) {
         BigInteger dpId = null;
@@ -357,5 +357,11 @@ public class Ipv6ServiceUtils {
             return false;
         }
         return subnet.getIpVersion().equals(Ipv6ServiceConstants.IP_VERSION_V6) ? true : false;
+    }
+
+    // TODO Replace this with mdsal's DataObjectUtils.nullToEmpty when upgrading to mdsal 3
+    @Nonnull
+    public static <T> List<T> nullToEmpty(final @Nullable List<T> input) {
+        return input != null ? input : emptyList();
     }
 }

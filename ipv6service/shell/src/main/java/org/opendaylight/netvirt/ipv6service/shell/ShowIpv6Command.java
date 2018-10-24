@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.ipv6service.shell;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -38,6 +39,7 @@ public class ShowIpv6Command extends OsgiCommandSupport {
     }
 
     @Override
+    @Nullable
     protected Object doExecute() {
         TablePrinter tp = new TablePrinter();
 

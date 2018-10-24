@@ -7,10 +7,13 @@
  */
 package org.opendaylight.netvirt.ipv6service;
 
+import static org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils.nullToEmpty;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -53,19 +56,18 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
 
     @Override
     protected void add(InstanceIdentifier<Port> identifier, Port port) {
-        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6ServiceConstants.NETWORK_ROUTER_GATEWAY)) {
+        if (Ipv6ServiceConstants.NETWORK_ROUTER_GATEWAY.equalsIgnoreCase(port.getDeviceOwner())) {
             // Todo: revisit when IPv6 north-south support is implemented.
             LOG.info("IPv6Service (TODO): Skipping router_gateway port {} for add event", port);
             return;
         }
-        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6ServiceConstants.DEVICE_OWNER_DHCP)) {
+        if (Ipv6ServiceConstants.DEVICE_OWNER_DHCP.equalsIgnoreCase(port.getDeviceOwner())) {
             LOG.info("IPv6Service: Skipping network_dhcp port {} for add event", port);
             return;
         }
 
         LOG.debug("Add port notification handler is invoked for port {} ", port);
-        List<FixedIps> ipList = port.getFixedIps();
-        for (FixedIps fixedip : ipList) {
+        for (FixedIps fixedip : nullToEmpty(port.getFixedIps())) {
             if (fixedip.getIpAddress().getIpv4Address() != null) {
                 continue;
             }
@@ -75,12 +77,12 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
 
     @Override
     protected void remove(InstanceIdentifier<Port> identifier, Port port) {
-        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6ServiceConstants.NETWORK_ROUTER_GATEWAY)) {
+        if (Ipv6ServiceConstants.NETWORK_ROUTER_GATEWAY.equalsIgnoreCase(port.getDeviceOwner())) {
             // Todo: revisit when IPv6 north-south support is implemented.
             LOG.info("IPv6Service (TODO): Skipping router_gateway port {} for remove event", port);
             return;
         }
-        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6ServiceConstants.DEVICE_OWNER_DHCP)) {
+        if (Ipv6ServiceConstants.DEVICE_OWNER_DHCP.equalsIgnoreCase(port.getDeviceOwner())) {
             LOG.info("IPv6Service: Skipping network_dhcp port {} for remove event", port);
             return;
         }
@@ -91,12 +93,12 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
 
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
-        if (update.getDeviceOwner().equalsIgnoreCase(Ipv6ServiceConstants.NETWORK_ROUTER_GATEWAY)) {
+        if (Ipv6ServiceConstants.NETWORK_ROUTER_GATEWAY.equalsIgnoreCase(update.getDeviceOwner())) {
             // Todo: revisit when IPv6 north-south support is implemented.
             LOG.info("IPv6Service (TODO): Skipping router_gateway port {} for update event", update);
             return;
         }
-        if (update.getDeviceOwner().equalsIgnoreCase(Ipv6ServiceConstants.DEVICE_OWNER_DHCP)) {
+        if (Ipv6ServiceConstants.DEVICE_OWNER_DHCP.equalsIgnoreCase(update.getDeviceOwner())) {
             LOG.info("IPv6Service: Skipping network_dhcp port {} for update event", update);
             return;
         }
@@ -133,7 +135,7 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
     }
 
     protected void addInterfaceInfo(Port port, FixedIps fixedip) {
-        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6ServiceConstants.NETWORK_ROUTER_INTERFACE)) {
+        if (Ipv6ServiceConstants.NETWORK_ROUTER_INTERFACE.equalsIgnoreCase(port.getDeviceOwner())) {
             LOG.info("IPv6: addInterfaceInfo is invoked for a router interface {}, fixedIp: {}", port, fixedip);
             // Add router interface
             ifMgr.addRouterIntf(port.getUuid(),
@@ -155,7 +157,7 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
         }
     }
 
-    private Set<FixedIps> getFixedIpSet(List<FixedIps> fixedIps) {
+    private Set<FixedIps> getFixedIpSet(@Nullable List<FixedIps> fixedIps) {
         return fixedIps != null ? new HashSet<>(fixedIps) : Collections.emptySet();
     }
 
