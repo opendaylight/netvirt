@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.sfc.translator.flowclassifier;
 
 import java.util.ArrayList;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv6Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
@@ -55,7 +56,7 @@ public final class FlowClassifierTranslator {
         return buildAcl(flowClassifier, null);
     }
 
-    public static Acl buildAcl(SfcFlowClassifier flowClassifier, String sfpName) {
+    public static Acl buildAcl(SfcFlowClassifier flowClassifier, @Nullable String sfpName) {
         LOG.info("OpenStack Networking SFC pushed Flow classifier : {}", flowClassifier);
         AclBuilder aclBuilder = new AclBuilder();
         AceBuilder aceBuilder = new AceBuilder();
@@ -101,7 +102,7 @@ public final class FlowClassifierTranslator {
                 if (sourceIp != null && sourceIp.getIpv6Prefix() != null) {
                     aceIpv6Builder.setSourceIpv6Network(sourceIp.getIpv6Prefix());
                 }
-                if (sourceIp != null && destinationIp.getIpv6Prefix() != null) {
+                if (destinationIp != null && destinationIp.getIpv6Prefix() != null) {
                     aceIpv6Builder.setDestinationIpv6Network(destinationIp.getIpv6Prefix());
                 }
                 aceIpBuilder.setAceIpVersion(aceIpv6Builder.build());

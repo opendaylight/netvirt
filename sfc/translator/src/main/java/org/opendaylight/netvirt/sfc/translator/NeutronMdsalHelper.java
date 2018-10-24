@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.sfc.translator;
 
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -50,21 +51,25 @@ public class NeutronMdsalHelper {
         this.dataBroker = dataBroker;
     }
 
+    @Nullable
     public Port getNeutronPort(Uuid portId) {
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION, getNeutronPortPath(portId)).orNull();
     }
 
+    @Nullable
     public PortPair getNeutronPortPair(Uuid portPairId) {
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION, getNeutronPortPairPath(portPairId)).orNull();
     }
 
+    @Nullable
     public PortPairGroup getNeutronPortPairGroup(Uuid portPairGroupId) {
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION, getNeutronPortPairGroupPath(portPairGroupId)).orNull();
     }
 
+    @Nullable
     public SfcFlowClassifier getNeutronFlowClassifier(Uuid flowClassifierId) {
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION, getNeutronSfcFlowClassifierPath(flowClassifierId)).orNull();

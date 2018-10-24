@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.sfc.classifier.service.domain;
 
 import com.google.common.base.MoreObjects;
 import java.util.Objects;
+import javax.annotation.Nullable;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierEntryRenderer;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierRenderableEntry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
@@ -31,19 +32,21 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
     }
 
     private final EntryType entryType;
-    private final NodeId node;
-    private final InterfaceKey interfaceKey;
-    private final String connector;
-    private final Matches matches;
-    private final Long nsp;
-    private final Short nsi;
-    private final Short nsl;
-    private final String destinationIp;
-    private final String firstHopIp;
+    // TODO skitt Rework using a class hierarchy so we can enforce null constraints
+    private final @Nullable NodeId node;
+    private final @Nullable InterfaceKey interfaceKey;
+    private final @Nullable String connector;
+    private final @Nullable Matches matches;
+    private final @Nullable Long nsp;
+    private final @Nullable Short nsi;
+    private final @Nullable Short nsl;
+    private final @Nullable String destinationIp;
+    private final @Nullable String firstHopIp;
 
-    private ClassifierEntry(EntryType entryType, NodeId node, InterfaceKey interfaceKey, String connector,
-                            Matches matches, Long nsp, Short nsi, Short nsl, String destinationIp,
-                            String firstHopIp) {
+    private ClassifierEntry(EntryType entryType, @Nullable NodeId node, @Nullable InterfaceKey interfaceKey,
+                            @Nullable String connector, @Nullable Matches matches, @Nullable Long nsp,
+                            @Nullable Short nsi, @Nullable Short nsl, @Nullable String destinationIp,
+                            @Nullable String firstHopIp) {
         this.entryType = entryType;
         this.node = node;
         this.interfaceKey = interfaceKey;
@@ -206,7 +209,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
      * @return the {@code ClassifierEntry}.
      */
     public static ClassifierEntry buildPathEntry(NodeId node, Long nsp, short nsi, short nsl,
-                                                 String firstHopIp) {
+                                                 @Nullable String firstHopIp) {
         return new ClassifierEntry(
                 EntryType.PATH_ENTRY_TYPE,
                 node,

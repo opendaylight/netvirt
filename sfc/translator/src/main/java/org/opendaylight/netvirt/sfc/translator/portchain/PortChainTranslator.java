@@ -61,7 +61,7 @@ public final class PortChainTranslator {
         List<ChainParameters> cpList = portChain.getChainParameters();
         if (cpList != null && !cpList.isEmpty()) {
             for (ChainParameters cp : cpList) {
-                if (cp.getChainParameter().equals(SYMMETRIC_PARAM)) {
+                if (SYMMETRIC_PARAM.equals(cp.getChainParameter())) {
                     //Override the symmetric default value.
                     sfcBuilder.setSymmetric(Boolean.valueOf(cp.getChainParameterValue()));
                     break;

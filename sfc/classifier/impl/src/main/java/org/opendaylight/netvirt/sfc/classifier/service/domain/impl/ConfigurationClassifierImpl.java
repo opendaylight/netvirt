@@ -215,7 +215,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
                 .orElse(null);
         RenderedServicePath reverseRsp = rsps.stream()
                 .filter(RenderedServicePath::isReversePath)
-                .filter(rsp -> forwardRsp != null && rsp.getSymmetricPathId().equals(forwardRsp.getPathId()))
+                .filter(rsp -> forwardRsp != null && Objects.equals(rsp.getSymmetricPathId(), forwardRsp.getPathId()))
                 .findAny()
                 .orElse(null);
 

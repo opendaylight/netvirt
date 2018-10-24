@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -37,6 +38,7 @@ public abstract class DelegatingDataTreeListener<T extends DataObject> implement
         .setNameFormat("NeutronSfcListener-%d").build();
     private final ExecutorService executorService = Executors.newFixedThreadPool(1, THREAD_FACTORY);
     private final INeutronSfcDataProcessor<T> dataProcessor;
+    @Nullable
     private ListenerRegistration<DelegatingDataTreeListener<T>> listenerRegistration;
 
     public DelegatingDataTreeListener(DataBroker db, DataTreeIdentifier<T> treeId) {
@@ -96,8 +98,6 @@ public abstract class DelegatingDataTreeListener<T extends DataObject> implement
             listenerRegistration.close();
             listenerRegistration = null;
         }
-        if (executorService != null) {
-            executorService.shutdownNow();
-        }
+        executorService.shutdownNow();
     }
 }
