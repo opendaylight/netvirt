@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.aclservice.listeners;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import javax.annotation.PostConstruct;
@@ -17,6 +18,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -52,11 +54,12 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     private final IInterfaceManager interfaceManager;
     private final AclInterfaceCache aclInterfaceCache;
     private final AclServiceUtils aclServiceUtils;
+    protected final JobCoordinator jobCoordinator;
 
     @Inject
     public AclInterfaceStateListener(AclServiceManager aclServiceManger, AclClusterUtil aclClusterUtil,
             DataBroker dataBroker, AclDataUtil aclDataUtil, IInterfaceManager interfaceManager,
-            AclInterfaceCache aclInterfaceCache, AclServiceUtils aclServicUtils,
+            AclInterfaceCache aclInterfaceCache, AclServiceUtils aclServicUtils, JobCoordinator jobCoordinator,
             ServiceRecoveryRegistry serviceRecoveryRegistry) {
         super(Interface.class, AclInterfaceStateListener.class);
         this.aclServiceManger = aclServiceManger;
@@ -66,6 +69,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         this.interfaceManager = interfaceManager;
         this.aclInterfaceCache = aclInterfaceCache;
         this.aclServiceUtils = aclServicUtils;
+        this.jobCoordinator = jobCoordinator;
         serviceRecoveryRegistry.addRecoverableListener(AclServiceUtils.getRecoverServiceRegistryKey(), this);
     }
 
@@ -105,7 +109,12 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                 }
             }
             if (aclList != null) {
-                aclDataUtil.removeAclInterfaceMap(aclList, aclInterface);
+                for (Uuid acl : aclList) {
+                    jobCoordinator.enqueueJob(acl.getValue().intern(), () -> {
+                        aclDataUtil.removeAclInterfaceMap(acl, aclInterface);
+                        return Collections.emptyList();
+                    });
+                }
             }
         }
     }
