@@ -2566,4 +2566,8 @@ public final class NatUtil {
     public static <T> T requireNonNullElse(@Nullable T obj, @Nonnull T defaultObj) {
         return obj != null ? obj : requireNonNull(defaultObj);
     }
+
+    public static String getDefaultFibRouteToSNATForSubnetJobKey(String subnetName, BigInteger dpnId) {
+        return NatConstants.NAT_DJC_PREFIX + subnetName + dpnId;
+    }
 }
