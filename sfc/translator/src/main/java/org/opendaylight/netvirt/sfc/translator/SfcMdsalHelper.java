@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.sfc.translator;
 
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -87,6 +88,7 @@ public class SfcMdsalHelper {
     }
 
     //Service Function
+    @Nullable
     public ServiceFunction readServiceFunction(ServiceFunctionKey sfKey) {
         InstanceIdentifier<ServiceFunction> sfIid = getSFPath(sfKey);
         LOG.info("Read Service Function {} from config data store at {}",sfKey, sfIid);
@@ -125,6 +127,7 @@ public class SfcMdsalHelper {
     }
 
     //Service Function Forwarder
+    @Nullable
     public ServiceFunctionForwarder readServiceFunctionForwarder(ServiceFunctionForwarderKey sffKey) {
         InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sffKey);
         LOG.info("Read Service Function Forwarder from config data store at {}", sffIid);

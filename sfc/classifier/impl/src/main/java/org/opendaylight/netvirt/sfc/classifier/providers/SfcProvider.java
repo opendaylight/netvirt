@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.sfc.classifier.providers;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -124,7 +125,7 @@ public class SfcProvider {
         SffSfDataPlaneLocator sffSfDataPlaneLocator = sff.map(ServiceFunctionForwarder::getServiceFunctionDictionary)
                 .orElse(Collections.emptyList())
                 .stream()
-                .filter(serviceFunctionDictionary -> serviceFunctionDictionary.getName().equals(sfName))
+                .filter(serviceFunctionDictionary -> Objects.equals(serviceFunctionDictionary.getName(), sfName))
                 .findAny()
                 .map(ServiceFunctionDictionary::getSffSfDataPlaneLocator)
                 .orElse(null);
@@ -153,7 +154,7 @@ public class SfcProvider {
         Optional<String> interfaceName = sff.map(ServiceFunctionForwarderBase::getSffDataPlaneLocator)
                 .orElse(Collections.emptyList())
                 .stream()
-                .filter(sffDataPlaneLocator -> sffDataPlaneLocator.getName().equals(locatorName))
+                .filter(sffDataPlaneLocator -> Objects.equals(sffDataPlaneLocator.getName(), locatorName))
                 .findAny()
                 .map(SffDataPlaneLocator::getDataPlaneLocator)
                 .filter(dataPlaneLocator -> dataPlaneLocator.getLocatorType() instanceof LogicalInterface)

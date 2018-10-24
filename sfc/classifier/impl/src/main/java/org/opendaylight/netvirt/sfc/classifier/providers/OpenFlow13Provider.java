@@ -12,6 +12,7 @@ import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -79,6 +80,7 @@ public class OpenFlow13Provider {
     public static final String OF_URI_SEPARATOR = ":";
     public static final Ipv4Address NULL_IP = new Ipv4Address("0.0.0.0");
 
+    @Nullable
     public List<MatchBuilder> getMatchBuilderFromAceMatches(Matches matches) {
         if (matches == null) {
             return null;

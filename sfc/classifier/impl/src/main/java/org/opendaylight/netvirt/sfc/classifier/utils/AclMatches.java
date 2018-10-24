@@ -98,7 +98,7 @@ public class AclMatches {
         }
         if (portMatches.isEmpty()) {
             newMatches.add(this.matchBuilder);
-        } else if (!portMatches.isEmpty()) {
+        } else {
             for (GeneralAugMatchNodesNodeTableFlow portMatch : portMatches) {
                 newMatches.add(new MatchBuilder(matchBuilder.build())
                     .addAugmentation(GeneralAugMatchNodesNodeTableFlow.class, portMatch));
