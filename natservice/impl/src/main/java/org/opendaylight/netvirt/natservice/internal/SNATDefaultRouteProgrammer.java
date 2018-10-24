@@ -12,6 +12,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import java.util.concurrent.ExecutionException;
@@ -35,6 +36,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -53,16 +55,18 @@ public class SNATDefaultRouteProgrammer {
     private final IdManagerService idManager;
     private final ExternalNetworkGroupInstaller extNetGroupInstaller;
     private final NatServiceCounters natServiceCounters;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
     public SNATDefaultRouteProgrammer(final IMdsalApiManager mdsalManager, final DataBroker dataBroker,
             final IdManagerService idManager, final ExternalNetworkGroupInstaller extNetGroupInstaller,
-            NatServiceCounters natServiceCounters) {
+            NatServiceCounters natServiceCounters, final JobCoordinator jobCoordinator) {
         this.mdsalManager = mdsalManager;
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.extNetGroupInstaller = extNetGroupInstaller;
         this.natServiceCounters = natServiceCounters;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Nullable
@@ -223,11 +227,13 @@ public class SNATDefaultRouteProgrammer {
             if (flowAction == NwConstants.ADD_FLOW || flowAction == NwConstants.MOD_FLOW) {
                 LOG.info("addOrDelDefaultFibRouteToSNATForSubnet : Installing flow {} for subnetId {},"
                         + "vpnId {} on dpn {}", flowEntity, subnetId, vpnId, dpn.getDpnId());
-                mdsalManager.installFlow(flowEntity);
+                jobCoordinator.enqueueJob(NatUtil.getDefaultFibRouteToSNATForSubnetJobKey(subnetId, dpn.getDpnId()),
+                    () -> Collections.singletonList(mdsalManager.installFlow(flowEntity)));
             } else {
                 LOG.info("addOrDelDefaultFibRouteToSNATForSubnet : Removing flow for subnetId {},"
                         + "vpnId {} with dpn {}", subnetId, vpnId, dpn);
-                mdsalManager.removeFlow(flowEntity);
+                jobCoordinator.enqueueJob(NatUtil.getDefaultFibRouteToSNATForSubnetJobKey(subnetId, dpn.getDpnId()),
+                    () -> Collections.singletonList(mdsalManager.removeFlow(flowEntity)));
             }
         }
     }
