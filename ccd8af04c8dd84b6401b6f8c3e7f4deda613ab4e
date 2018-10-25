@@ -16,6 +16,24 @@
       "revId": "ccd8af04c8dd84b6401b6f8c3e7f4deda613ab4e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ef64b2e_8543fb0f",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2569,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2018-10-25T08:15:55Z",
+      "side": 1,
+      "message": "I replaced extinterface by dpnId as it was readily available on all the places this is called from. There should be a 1 to 1 relationship of extinterface and dpnId so it should be ok?",
+      "parentUuid": "11dafe04_693e59eb",
+      "revId": "ccd8af04c8dd84b6401b6f8c3e7f4deda613ab4e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
