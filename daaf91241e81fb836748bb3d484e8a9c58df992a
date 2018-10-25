@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d3f129c_e8f7976b",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 677,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-25T06:36:05Z",
+      "side": 1,
+      "message": "Can please explain little bit more on this changes. Since i could see this getRouterIdfromVpnInstance() method is called from two places (NaptEventHandler and NaptFlowRemovedEventHandler) and both the places i am seeing routerId(long) to routerName(Uuid) value only needed and this logic is already there.\n\nI am not sure why getRouterIdfromVpnInstance() method call is needed to get the routerName(Uuid) again.",
+      "revId": "daaf91241e81fb836748bb3d484e8a9c58df992a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
