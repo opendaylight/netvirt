@@ -16,6 +16,23 @@
       "revId": "daaf91241e81fb836748bb3d484e8a9c58df992a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6714f7ac_c3a1de74",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-10-25T07:15:17Z",
+      "side": 1,
+      "message": "Please use Genius existing util NWUtil.isIpAddressInRange() to check the Ipaddress is within the subnet CIDR range.",
+      "revId": "daaf91241e81fb836748bb3d484e8a9c58df992a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
