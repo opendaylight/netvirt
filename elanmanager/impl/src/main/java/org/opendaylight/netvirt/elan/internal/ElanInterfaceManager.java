@@ -1047,10 +1047,15 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             dpnInterface.getDpId()) && otherFes.getInterfaces() != null
                             && !otherFes.getInterfaces().isEmpty()) {
                             try {
+                                // Adding 270000 to avoid collision between LPort and elan for broadcast group actions
                                 List<Action> remoteListActionInfo = elanItmUtils.getInternalTunnelItmEgressAction(
                                         dpnInterface.getDpId(), otherFes.getDpId(),
                                         elanUtils.isOpenstackVniSemanticsEnforced()
-                                                ? ElanUtils.getVxlanSegmentationId(elanInfo) : elanTag);
+                                                ? elanUtils.getVxlanSegmentationId(elanInfo) :
+                                                elanTag + ElanConstants.ELAN_TAG_ADDEND);
+                                LOG.trace("configuring broadcast group for elan {} for source DPN {}"
+                                    + " and destination DPN {} " + "with actions {}", elanTag, dpnInterface.getDpId(),
+                                        otherFes.getDpId(), remoteListActionInfo);
                                 if (!remoteListActionInfo.isEmpty()) {
                                     remoteListBucketInfo.add(MDSALUtil.buildBucket(remoteListActionInfo, MDSALUtil
                                             .GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
