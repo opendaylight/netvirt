@@ -1215,7 +1215,10 @@ public class ElanUtils {
 
     public static List<MatchInfo> getTunnelMatchesForServiceId(int elanTag) {
         List<MatchInfo> mkMatches = new ArrayList<>();
-        // Matching metadata
+
+        // Adding 270000 to avoid collision between LPort and elan tag for broadcast
+        elanTag += ElanConstants.ELAN_TAG_ADDEND;
+
         mkMatches.add(new MatchTunnelId(BigInteger.valueOf(elanTag)));
 
         return mkMatches;
