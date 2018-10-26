@@ -33,6 +33,24 @@
       "revId": "daaf91241e81fb836748bb3d484e8a9c58df992a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8fe81ff0_fec0909a",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 8015
+      },
+      "writtenOn": "2018-10-26T05:40:08Z",
+      "side": 1,
+      "message": "NWUtil.isIpAddressInRange() is also using the same SubnetUtils\u0027s method\n\nAlso if we trace back, we are filtering out ipv6 packets and allowing only ipv4 pkts in NAPTPacketInHandler\n\nHence I do not really see a need for NWUtil.isIpAddressInRange()",
+      "parentUuid": "6714f7ac_c3a1de74",
+      "revId": "daaf91241e81fb836748bb3d484e8a9c58df992a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
