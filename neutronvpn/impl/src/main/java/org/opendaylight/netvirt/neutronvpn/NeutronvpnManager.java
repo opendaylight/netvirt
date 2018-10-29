@@ -2279,29 +2279,31 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void associateRouterToVpn(Uuid vpnId, Uuid routerId) {
         updateVpnMaps(vpnId, null, routerId, null, null);
-        LOG.debug("Updating association of subnets to external vpn {}", vpnId.getValue());
-        IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
+        LOG.debug("associateRouterToVpn: Updating association of subnets to external vpn {}", vpnId.getValue());
         List<Subnetmap> subMapList = neutronvpnUtils.getNeutronRouterSubnetMapList(routerId);
+        IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
         for (Subnetmap sn : subMapList) {
-            updateVpnForSubnet(routerId, vpnId, sn.getId(), true);
             IpVersionChoice ipVers = neutronvpnUtils.getIpVersionFromString(sn.getSubnetIp());
             if (!ipVersion.isIpVersionChosen(ipVers)) {
                 ipVersion = ipVersion.addVersion(ipVers);
             }
         }
         if (ipVersion != IpVersionChoice.UNDEFINED) {
-            LOG.debug("vpnInstanceOpDataEntry is getting update with ip address family {} for VPN {} ", ipVersion,
-                    vpnId);
+            LOG.debug("associateRouterToVpn: Updating vpnInstanceOpDataEntrywith ip address family {} for VPN {} ",
+                    ipVersion, vpnId);
             neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion, true);
+        }
+        for (Subnetmap sn : subMapList) {
+            updateVpnForSubnet(routerId, vpnId, sn.getId(), true);
         }
 
         try {
             checkAndPublishRouterAssociatedtoVpnNotification(routerId, vpnId);
-            LOG.debug("notification upon association of router {} to VPN {} published", routerId.getValue(),
-                    vpnId.getValue());
+            LOG.debug("associateRouterToVpn: notification upon association of router {} to VPN {} published",
+                    routerId.getValue(), vpnId.getValue());
         } catch (Exception e) {
-            LOG.error("publishing of notification upon association of router {} to VPN {} failed : ", routerId
-                    .getValue(), vpnId.getValue(), e);
+            LOG.error("associateRouterToVpn: publishing of notification upon association of router {} to VPN {}"
+                    + " failed : ", routerId.getValue(), vpnId.getValue(), e);
         }
     }
 
@@ -2332,22 +2334,23 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (ipVersion.isIpVersionChosen(ipVers)) {
                 ipVersion = ipVersion.addVersion(ipVers);
             }
-            LOG.debug("Updating association of subnets to internal vpn {}", routerId.getValue());
+            LOG.debug("dissociateRouterFromVpn: Updating association of subnets to internal vpn {}",
+                    routerId.getValue());
             updateVpnForSubnet(vpnId, routerId, sn.getId(), false);
         }
         if (ipVersion != IpVersionChoice.UNDEFINED) {
-            LOG.debug("vpnInstanceOpDataEntry is getting update with ip address family {} for VPN {} ",
+            LOG.debug("dissociateRouterFromVpn; Updating vpnInstanceOpDataEntry with ip address family {} for VPN {} ",
                     ipVersion, vpnId);
             neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion,
                     false);
         }
         try {
             checkAndPublishRouterDisassociatedFromVpnNotification(routerId, vpnId);
-            LOG.debug("notification upon disassociation of router {} from VPN {} published", routerId.getValue(),
-                    vpnId.getValue());
+            LOG.debug("dissociateRouterFromVpn: notification upon disassociation of router {} from VPN {} published",
+                    routerId.getValue(), vpnId.getValue());
         } catch (Exception e) {
-            LOG.error("publishing of notification upon disassociation of router {} from VPN {} failed : ", routerId
-                    .getValue(), vpnId.getValue(), e);
+            LOG.error("dissociateRouterFromVpn: publishing of notification upon disassociation of router {}"
+                    + " from VPN {} failed : ", routerId.getValue(), vpnId.getValue(), e);
         }
     }
 
@@ -2429,6 +2432,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
                 IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
                 for (Subnetmap subnetmap : subnetmapList) {
+                    IpVersionChoice ipVers = neutronvpnUtils.getIpVersionFromString(subnetmap.getSubnetIp());
+                    if (!ipVersion.isIpVersionChosen(ipVers)) {
+                        ipVersion = ipVersion.addVersion(ipVers);
+                    }
+                }
+                if (ipVersion != IpVersionChoice.UNDEFINED) {
+                    LOG.debug("associateNetworksToVpn: Updating vpnInstanceOpDataEntry with ip address family {}"
+                            + " for VPN {} ", ipVersion, vpnId);
+                    neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion, true);
+                }
+                for (Subnetmap subnetmap : subnetmapList) {
                     Uuid subnetId = subnetmap.getId();
                     Uuid subnetVpnId = neutronvpnUtils.getVpnForSubnet(subnetId);
                     if (subnetVpnId != null) {
@@ -2438,10 +2452,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 + " as it is already associated", subnetId.getValue(), vpnId.getValue()));
                         continue;
                     }
-                    IpVersionChoice ipVers = neutronvpnUtils.getIpVersionFromString(subnetmap.getSubnetIp());
-                    if (!ipVersion.isIpVersionChosen(ipVers)) {
-                        ipVersion = ipVersion.addVersion(ipVers);
-                    }
                     if (!NeutronvpnUtils.getIsExternal(network)) {
                         LOG.debug("associateNetworksToVpn: Add subnet {} to VPN {}", subnetId.getValue(),
                                 vpnId.getValue());
@@ -2450,11 +2460,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 vpnId.getValue());
                         passedNwList.add(nw);
                     }
-                }
-                if (ipVersion != IpVersionChoice.UNDEFINED) {
-                    LOG.debug("vpnInstanceOpDataEntry is getting update with ip address family {} for VPN {} ",
-                            ipVersion, vpnId);
-                    neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion, true);
                 }
                 passedNwList.add(nw);
             }
@@ -2588,14 +2593,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             }
             if (ipVersion != IpVersionChoice.UNDEFINED) {
-                LOG.debug("vpnInstanceOpDataEntry is getting update with ip address family {} for VPN {}",
-                        ipVersion, vpnId);
+                LOG.debug("dissociateNetworksFromVpn: Updating vpnInstanceOpDataEntryupdate with ip address family {}"
+                        + " for VPN {}", ipVersion, vpnId);
                 neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion, false);
             }
         }
         clearFromVpnMaps(vpnId, null, new ArrayList<>(passedNwList));
-        LOG.info("Network(s) {} disassociated from L3VPN {} successfully", passedNwList.toString(),
-                vpnId.getValue());
+        LOG.info("dissociateNetworksFromVpn: Network(s) {} disassociated from L3VPN {} successfully",
+                passedNwList.toString(), vpnId.getValue());
         return failedNwList;
     }
 
