@@ -1545,10 +1545,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             }
                         }
                     }
-                    nextHopManager.removeNextHopPointer(nextHopManager
-                            .getRemoteSelectGroupKey(vpnInstance.getVpnId(), vrfEntry.getDestPrefix()));
-                    nextHopManager.removeNextHopPointer(nextHopManager
-                            .getLocalSelectGroupKey(vpnInstance.getVpnId(), vrfEntry.getDestPrefix()));
+                    if (extraRouteOptional.isPresent()) {
+                        nextHopManager.removeNextHopPointer(nextHopManager
+                                .getRemoteSelectGroupKey(vpnInstance.getVpnId(), vrfEntry.getDestPrefix()));
+                        nextHopManager.removeNextHopPointer(nextHopManager
+                                .getLocalSelectGroupKey(vpnInstance.getVpnId(), vrfEntry.getDestPrefix()));
+                    }
                 })), MAX_RETRIES);
         }
 
