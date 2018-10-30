@@ -253,9 +253,11 @@ class ExpectedObjects {
     def static Flow checkSmac(String flowId, InterfaceInfo interfaceInfo, ElanInstance elanInstance) {
         new FlowBuilder >> [
             flowName = ELAN1
+            barrier = false
             hardTimeout = 0
             id = new FlowId(flowId)
             idleTimeout = 0
+            installHw = true
             instructions = new InstructionsBuilder >> [
                 instruction = #[
                     new InstructionBuilder >> [
@@ -280,6 +282,7 @@ class ExpectedObjects {
                 ]
             ]
             priority = 20
+            strict = true
             tableId = 50 as short
         ]
     }
@@ -287,10 +290,12 @@ class ExpectedObjects {
     def static Flow checkDmacOfSameDpn(String flowId, InterfaceInfo interfaceInfo, ElanInstance elanInstance) {
     val regvalue = MetaDataUtil.getReg6ValueForLPortDispatcher(interfaceInfo.getInterfaceTag(), NwConstants.DEFAULT_SERVICE_INDEX);
         new FlowBuilder >> [
+            barrier = false
             flowName = ELAN1
             hardTimeout = 0
             id = new FlowId(flowId)
             idleTimeout = 0
+            installHw = true;
             instructions = new InstructionsBuilder >> [
                 instruction = #[
                     new InstructionBuilder >> [
@@ -340,6 +345,7 @@ class ExpectedObjects {
                 ]
             ]
             priority = 20
+            strict = true
             tableId = 51 as short
         ]
     }
@@ -348,10 +354,12 @@ class ExpectedObjects {
         val regvalue = MetaDataUtil.getReg6ValueForLPortDispatcher(tepDetails.getInterfaceInfo().getInterfaceTag(), NwConstants.DEFAULT_SERVICE_INDEX);
         val tnlId = new BigInteger(""+interfaceInfo.getInterfaceTag())
         new FlowBuilder >> [
+            barrier = false
             flowName = ELAN1
             hardTimeout = 0
             id = new FlowId(flowId)
             idleTimeout = 0
+            installHw = true
             instructions = new InstructionsBuilder >> [
                 instruction = #[
                     new InstructionBuilder >> [
@@ -411,6 +419,7 @@ class ExpectedObjects {
                 ]
             ]
             priority = 20
+            strict = true
             tableId = 51 as short
         ]
     }
