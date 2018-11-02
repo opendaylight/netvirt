@@ -350,7 +350,7 @@ public class NaptEventHandler {
         int portNum = -1;
         if (interfaceName != null) {
             LOG.debug("prepareAndSendPacketOut : interfaceName fetched from portTag is {}", interfaceName);
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220
                     .interfaces.Interface iface = null;
             int vlanId = 0;
             iface = interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);

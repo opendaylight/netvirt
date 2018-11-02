@@ -26,8 +26,8 @@ import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
 import org.opendaylight.serviceutils.srm.ServiceRecoveryRegistry;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
@@ -109,7 +109,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         InterfaceAcl aclInPortBefore = portBefore.augmentation(InterfaceAcl.class);
 
         String interfaceId = portAfter.getName();
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state
             .Interface interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, interfaceId);
 
         AclInterface aclInterfaceBefore = aclInterfaceCache.get(interfaceId);
@@ -139,7 +139,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                     aclServiceManager.notify(aclInterfaceAfter, null, Action.UNBIND);
                 }
                 if (interfaceState != null && org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
-                        .rev140508.interfaces.state.Interface.OperStatus.Up.equals(interfaceState.getOperStatus())) {
+                        .rev180220.interfaces.state.Interface.OperStatus.Up.equals(interfaceState.getOperStatus())) {
                     // if port security enable is changed and is enabled, bind ACL service
                     if (isPortSecurityEnableBefore != isPortSecurityEnable && isPortSecurityEnable) {
                         LOG.debug("Notify bind ACL service for interface={}, isPortSecurityEnable={}", interfaceId,
@@ -193,7 +193,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     }
 
     private AclInterface addOrUpdateAclInterfaceCache(String interfaceId, InterfaceAcl aclInPort, boolean isSgChanged,
-            @Nullable org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+            @Nullable org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces
                 .state.Interface interfaceState) {
         AclInterface aclInterface = aclInterfaceCache.addOrUpdate(interfaceId, (prevAclInterface, builder) -> {
             List<Uuid> sgs = new ArrayList<>();

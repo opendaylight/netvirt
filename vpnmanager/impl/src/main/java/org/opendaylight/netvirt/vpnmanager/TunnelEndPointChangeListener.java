@@ -106,7 +106,7 @@ public class TunnelEndPointChangeListener
                         jobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName,
                             () -> {
                                 final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
-                                        .rev140508.interfaces.state.Interface
+                                        .rev180220.interfaces.state.Interface
                                         interfaceState =
                                         InterfaceUtils.getInterfaceStateFromOperDS(broker, vpnInterfaceName);
                                 if (interfaceState == null) {

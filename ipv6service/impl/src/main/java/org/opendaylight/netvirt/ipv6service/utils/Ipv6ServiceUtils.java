@@ -59,10 +59,10 @@ import org.opendaylight.netvirt.ipv6service.VirtualSubnet;
 import org.opendaylight.netvirt.ipv6service.api.IVirtualPort;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
@@ -130,7 +130,7 @@ public class Ipv6ServiceUtils {
      * @return the interface.
      */
     @Nullable
-    public org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+    public org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces
         .Interface getInterface(String interfaceName) {
         return read(LogicalDatastoreType.CONFIGURATION, getInterfaceIdentifier(interfaceName)).orNull();
     }
@@ -140,11 +140,11 @@ public class Ipv6ServiceUtils {
      * @param interfaceName the interface name.
      * @return the interface identifier.
      */
-    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
+    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220
             .interfaces.Interface> getInterfaceIdentifier(String interfaceName) {
         return InstanceIdentifier.builder(Interfaces.class)
                 .child(
-                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces
                                 .Interface.class, new InterfaceKey(interfaceName)).build();
     }
 
@@ -153,14 +153,14 @@ public class Ipv6ServiceUtils {
      * @param interfaceName the interface name.
      * @return the interface state.
      */
-    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
+    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220
             .interfaces.state.Interface> buildStateInterfaceId(String interfaceName) {
         InstanceIdentifier.InstanceIdentifierBuilder<Interface> idBuilder =
                 InstanceIdentifier.builder(InterfacesState.class)
-                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces
                         .state.Interface.class,
                         new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
-                        .rev140508.interfaces.state.InterfaceKey(interfaceName));
+                        .rev180220.interfaces.state.InterfaceKey(interfaceName));
         return idBuilder.build();
     }
 
@@ -170,7 +170,7 @@ public class Ipv6ServiceUtils {
      * @return the interface state.
      */
     @Nullable
-    public org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
+    public org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state
             .Interface getInterfaceStateFromOperDS(String interfaceName) {
         return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, buildStateInterfaceId(interfaceName), broker).orNull();
     }
@@ -409,7 +409,7 @@ public class Ipv6ServiceUtils {
 
     @Nullable
     public BigInteger getDpIdFromInterfaceState(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
-            .interfaces.rev140508.interfaces.state.Interface interfaceState) {
+            .interfaces.rev180220.interfaces.state.Interface interfaceState) {
         BigInteger dpId = null;
         List<String> ofportIds = interfaceState.getLowerLayerIf();
         if (ofportIds != null && !ofportIds.isEmpty()) {

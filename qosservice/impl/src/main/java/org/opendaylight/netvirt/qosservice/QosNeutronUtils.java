@@ -49,8 +49,8 @@ import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.InterfacesState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
@@ -590,7 +590,7 @@ public class QosNeutronUtils {
     }
 
     private static BigInteger getDpIdFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
-                                                           .interfaces.rev140508.interfaces.state.Interface ifState) {
+                                                           .interfaces.rev180220.interfaces.state.Interface ifState) {
         String lowerLayerIf = ifState.getLowerLayerIf().get(0);
         NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
         return BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
@@ -714,7 +714,7 @@ public class QosNeutronUtils {
 
     @Nullable
     public org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-            .ietf.interfaces.rev140508.interfaces.state.Interface getInterfaceStateFromOperDS(
+            .ietf.interfaces.rev180220.interfaces.state.Interface getInterfaceStateFromOperDS(
             String interfaceName) {
         return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                 createInterfaceStateInstanceIdentifier(interfaceName)).orNull();
@@ -722,14 +722,14 @@ public class QosNeutronUtils {
 
     @Nonnull
     public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-            .ietf.interfaces.rev140508.interfaces.state.Interface> createInterfaceStateInstanceIdentifier(
+            .ietf.interfaces.rev180220.interfaces.state.Interface> createInterfaceStateInstanceIdentifier(
             String interfaceName) {
         return InstanceIdentifier
                 .builder(InterfacesState.class)
                 .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-                                .ietf.interfaces.rev140508.interfaces.state.Interface.class,
+                                .ietf.interfaces.rev180220.interfaces.state.Interface.class,
                         new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-                                .ietf.interfaces.rev140508.interfaces.state.InterfaceKey(
+                                .ietf.interfaces.rev180220.interfaces.state.InterfaceKey(
                                 interfaceName))
                 .build();
     }

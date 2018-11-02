@@ -22,7 +22,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.ClassifierEntry;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierEntryRenderer;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev180220.interfaces.InterfaceKey;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ClassifierUpdateTest {
