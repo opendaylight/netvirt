@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
+import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
@@ -490,7 +491,7 @@ public final class NatUtil {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Networks::getRouterIds).orElse(
-                Collections.emptyList());
+                emptyList());
     }
 
     @Nullable
@@ -864,7 +865,7 @@ public final class NatUtil {
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION,
                 buildSnatIntIpPortIdentifier(routerId, internalIpAddress, protocolType)).toJavaUtil().map(
-                IntIpProtoType::getPorts).orElse(Collections.emptyList());
+                IntIpProtoType::getPorts).orElse(emptyList());
     }
 
     public static InstanceIdentifier<IntIpProtoType> buildSnatIntIpPortIdentifier(Long routerId,
@@ -988,7 +989,7 @@ public final class NatUtil {
             return NatUtil.getIpsListFromExternalIps(routerData.getExternalIps());
         }
 
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Nonnull
@@ -1172,7 +1173,8 @@ public final class NatUtil {
         if (optionalDpnRoutersList.isPresent()) {
             RoutersList routersList = new RoutersListBuilder().withKey(new RoutersListKey(routerName))
                     .setRouter(routerName).build();
-            List<RoutersList> routersListFromDs = optionalDpnRoutersList.get().getRoutersList();
+            List<RoutersList> routersListFromDs = requireNonNullElse(optionalDpnRoutersList.get().getRoutersList(),
+                emptyList());
             if (!routersListFromDs.contains(routersList)) {
                 LOG.debug("addToDpnRoutersMap : Router {} not present for the DPN {}"
                         + " in the ODL-L3VPN : DPNRouters map", routerName, dpId);
@@ -1393,7 +1395,7 @@ public final class NatUtil {
         } //init builders, ITM/IFM rpc can be called based on type of interface
 
         try {
-            List<Action> actions = Collections.emptyList();
+            List<Action> actions = emptyList();
             if (interfaceManager.isItmDirectTunnelsEnabled() && internalTunnelInterface) {
                 RpcResult<GetEgressActionsForTunnelOutput> rpcResult =
                         itmRpcService.getEgressActionsForTunnel(egressActionsItmBuilder.build()).get();
@@ -1443,7 +1445,7 @@ public final class NatUtil {
             LOG.error("Exception when egress actions for interface {}", ifName, e);
         }
         LOG.error("Error when getting egress actions for interface {}", ifName);
-        return Collections.emptyList();
+        return emptyList();
     }
 
     @Nullable
@@ -1463,7 +1465,7 @@ public final class NatUtil {
 
         if (!portsOptional.isPresent() || portsOptional.get().getPort() == null) {
             LOG.error("getNeutronPorts : No neutron ports found");
-            return Collections.emptyList();
+            return emptyList();
         }
 
         return portsOptional.get().getPort();
@@ -1516,7 +1518,7 @@ public final class NatUtil {
             .child(NetworkMap.class, new NetworkMapKey(networkId)).build();
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(NetworkMap::getSubnetIdList).orElse(
-                Collections.emptyList());
+                emptyList());
     }
 
     @Nullable
@@ -1756,7 +1758,7 @@ public final class NatUtil {
         InstanceIdentifier<RouterPorts> routerPortsIdentifier = getRouterPortsId(routerUuid.getValue());
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                 LogicalDatastoreType.CONFIGURATION,
-                routerPortsIdentifier).toJavaUtil().map(RouterPorts::getPorts).orElse(Collections.emptyList());
+                routerPortsIdentifier).toJavaUtil().map(RouterPorts::getPorts).orElse(emptyList());
     }
 
     @Nonnull
@@ -1769,11 +1771,11 @@ public final class NatUtil {
             for (Networks externalNw : requireNonNullElse(externalNwData.get().getNetworks(),
                     Collections.<Networks>emptyList())) {
                 if (externalNw.getVpnid() != null && externalNw.getVpnid().equals(vpnUuid)) {
-                    return requireNonNullElse(externalNw.getRouterIds(), Collections.emptyList());
+                    return requireNonNullElse(externalNw.getRouterIds(), emptyList());
                 }
             }
         }
-        return Collections.emptyList();
+        return emptyList();
     }
 
     public static boolean isIpInSubnet(String ipAddress, String start, String end) {
@@ -1913,7 +1915,7 @@ public final class NatUtil {
     @Nonnull
     static List<String> getIpsListFromExternalIps(@Nullable List<ExternalIps> externalIps) {
         if (externalIps == null) {
-            return Collections.emptyList();
+            return emptyList();
         }
 
         return externalIps.stream().map(ExternalIps::getIpAddress).collect(Collectors.toList());
@@ -2127,7 +2129,7 @@ public final class NatUtil {
                                                                         String routerName, BigInteger dpnId) {
         List<Uuid> routerUuidList = getOptionalExternalSubnets(broker, externalSubnetId).toJavaUtil()
             .map(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
-                .subnets.Subnets::getRouterIds).orElse(Collections.emptyList());
+                .subnets.Subnets::getRouterIds).orElse(emptyList());
         if (!routerUuidList.isEmpty()) {
             for (Uuid routerUuid : routerUuidList) {
                 String sharedRouterName = routerUuid.getValue();
@@ -2231,7 +2233,7 @@ public final class NatUtil {
             GroupEntity groupEntity = null;
             try {
                 groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName,
-                    GroupTypes.GroupAll, Collections.emptyList() /*listBucketInfo*/);
+                    GroupTypes.GroupAll, emptyList() /*listBucketInfo*/);
                 LOG.info("removeSNATFromDPN : Removing NAPT GroupEntity:{}", groupEntity);
                 mdsalManager.removeGroup(groupEntity);
             } catch (Exception ex) {
