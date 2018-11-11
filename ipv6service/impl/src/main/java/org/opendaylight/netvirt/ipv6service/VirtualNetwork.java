@@ -25,6 +25,7 @@ public class VirtualNetwork implements IVirtualNetwork {
     private final Uuid networkUUID;
     private final ConcurrentMap<BigInteger, DpnInterfaceInfo> dpnIfaceList = new ConcurrentHashMap<>();
     private volatile Long elanTag;
+    private volatile int mtu = 0;
 
     public VirtualNetwork(Uuid networkUUID) {
         this.networkUUID = networkUUID;
@@ -106,6 +107,15 @@ public class VirtualNetwork implements IVirtualNetwork {
 
             clearDpnInterfaceList();
         }
+    }
+
+    public void setMtu(int mtu) {
+        this.mtu = mtu;
+    }
+
+    @Override
+    public int getMtu() {
+        return this.mtu;
     }
 
     public static class DpnInterfaceInfo {
