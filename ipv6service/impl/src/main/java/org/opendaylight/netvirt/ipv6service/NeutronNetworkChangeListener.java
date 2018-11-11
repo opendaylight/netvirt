@@ -13,6 +13,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.mtu.ext.rev181114.NetworkMtuExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
@@ -48,8 +49,12 @@ public class NeutronNetworkChangeListener extends AsyncClusteredDataTreeChangeLi
 
     @Override
     protected void add(InstanceIdentifier<Network> identifier, Network input) {
+        int mtu = 0;
         LOG.debug("Add Network notification handler is invoked {} ", input);
-        ifMgr.addNetwork(input.getUuid());
+        if (input.augmentation(NetworkMtuExtension.class) != null) {
+            mtu = input.augmentation(NetworkMtuExtension.class).getMtu();
+        }
+        ifMgr.addNetwork(input.getUuid(), mtu);
     }
 
     @Override

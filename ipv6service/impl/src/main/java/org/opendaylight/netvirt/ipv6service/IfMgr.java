@@ -245,6 +245,10 @@ public class IfMgr implements ElementCache, AutoCloseable {
                 .routerIntfFlag(true).deviceOwner(deviceOwner).build();
         intf.setSubnetInfo(snetId, fixedIp);
         intf.setPeriodicTimer(ipv6Queue);
+        int networkMtu = getNetworkMtu(networkId);
+        if (networkMtu != 0) {
+            intf.setMtu(networkMtu);
+        }
 
         boolean newIntf = false;
         VirtualPort prevIntf = vintfs.putIfAbsent(portId, intf);
@@ -845,6 +849,14 @@ public class IfMgr implements ElementCache, AutoCloseable {
     }
 
     @Nullable
+    public void updateNetworkMtuInfo(Uuid networkId, int mtu) {
+        VirtualNetwork net = getNetwork(networkId);
+        if (null != net) {
+            net.setMtu(mtu);
+        }
+    }
+
+    @Nullable
     private VirtualNetwork getNetwork(Uuid networkId) {
         return networkId != null ? vnetworks.get(networkId) : null;
     }
@@ -862,12 +874,23 @@ public class IfMgr implements ElementCache, AutoCloseable {
         return elanTag;
     }
 
-    public void addNetwork(Uuid networkId) {
+    @Nullable
+    public int getNetworkMtu(Uuid networkId) {
+        int mtu = 0;
+        IVirtualNetwork net = getNetwork(networkId);
+        if (null != net) {
+            mtu = net.getMtu();
+        }
+        return mtu;
+    }
+
+    public void addNetwork(Uuid networkId, int mtu) {
         if (networkId == null) {
             return;
         }
 
         if (vnetworks.putIfAbsent(networkId, new VirtualNetwork(networkId)) == null) {
+            updateNetworkMtuInfo(networkId, mtu);
             updateNetworkElanTag(networkId);
         }
         Set<VirtualPort> intfList = removeUnprocessed(unprocessedNetIntfs, networkId);
