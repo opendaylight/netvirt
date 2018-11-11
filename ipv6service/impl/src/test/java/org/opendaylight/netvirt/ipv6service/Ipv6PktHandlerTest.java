@@ -372,6 +372,10 @@ public class Ipv6PktHandlerTest {
                 "01",                                              // Type: Source Link-Layer Option
                 "01",                                              // Option length
                 "FA 16 3E 4E 18 0C",                               // Source Link layer address
+                "05",                                              // Type: MTU Option
+                "01",                                              // Option length
+                "00 00",                                           // Reserved
+                "00 00 05 78",                                     // MTU
                 "03",                                              // Type: Prefix Information
                 "04",                                              // Option length
                 "40",                                              // Prefix length

@@ -245,6 +245,10 @@ public class IfMgr implements ElementCache, AutoCloseable {
                 .routerIntfFlag(true).deviceOwner(deviceOwner).build();
         intf.setSubnetInfo(snetId, fixedIp);
         intf.setPeriodicTimer(ipv6Queue);
+        int networkMtu = getNetworkMtu(networkId);
+        if (networkMtu != 0) {
+            intf.setMtu(networkMtu);
+        }
 
         boolean newIntf = false;
         VirtualPort prevIntf = vintfs.putIfAbsent(portId, intf);
@@ -860,6 +864,17 @@ public class IfMgr implements ElementCache, AutoCloseable {
             }
         }
         return elanTag;
+    }
+
+    @Nullable
+    public int getNetworkMtu(Uuid networkId) {
+        int mtu = 0;
+        IVirtualNetwork net = getNetwork(networkId);
+        if (null != net) {
+            // TODO: This section has to be updated once the Network YANG model is updated with mtu info.
+            mtu = 1430;
+        }
+        return mtu;
     }
 
     public void addNetwork(Uuid networkId) {

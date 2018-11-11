@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import static java.util.Objects.requireNonNull;
+
 import static org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils.nullToEmpty;
 
 import java.math.BigInteger;
@@ -142,14 +143,15 @@ public class Ipv6RouterAdvt {
 
         raPacket.setVersion(Ipv6Constants.IPV6_VERSION);
         int prefixListLength = autoConfigPrefixList.size() + statefulConfigPrefixList.size();
+        int mtuOptionLength = routerPort.getMtu() == 0 ? 0 : Ipv6Constants.ICMPV6_OPTION_MTU_LENGTH;
         raPacket.setIpv6Length(Ipv6Constants.ICMPV6_RA_LENGTH_WO_OPTIONS
-                + Ipv6Constants.ICMPV6_OPTION_SOURCE_LLA_LENGTH
+                + mtuOptionLength + Ipv6Constants.ICMPV6_OPTION_SOURCE_LLA_LENGTH
                 + prefixListLength * Ipv6Constants.ICMPV6_OPTION_PREFIX_LENGTH);
         raPacket.setNextHeader(IPProtocols.IPV6ICMP.shortValue());
         raPacket.setHopLimit(Ipv6Constants.ICMP_V6_MAX_HOP_LIMIT);
         raPacket.setSourceIpv6(Ipv6Util.getIpv6LinkLocalAddressFromMac(sourceMac));
 
-        raPacket.setIcmp6Type(Icmpv6Type.ROUTER_ADVETISEMENT.getValue());
+        raPacket.setIcmp6Type(Icmpv6Type.ROUTER_ADVERTISEMENT.getValue());
         raPacket.setIcmp6Code((short)0);
         raPacket.setIcmp6Chksum(0);
 
@@ -164,13 +166,19 @@ public class Ipv6RouterAdvt {
         raPacket.setReachableTime((long) Ipv6Constants.IPV6_RA_REACHABLE_TIME);
         raPacket.setRetransTime((long) 0);
 
-        raPacket.setOptionSourceAddr((short)1);
+        raPacket.setOptionSourceAddr(Ipv6Constants.ICMP_V6_OPTION_SOURCE_LLA);
         raPacket.setSourceAddrLength((short)1);
         raPacket.setSourceLlAddress(MacAddress.getDefaultInstance(gatewayMac));
 
+        if (mtuOptionLength != 0) {
+            raPacket.setOptionMtu(Ipv6Constants.ICMP_V6_OPTION_MTU);
+            raPacket.setOptionMtuLength((short)1);
+            raPacket.setMtu((long) routerPort.getMtu());
+        }
+
         List<PrefixList> prefixList = new ArrayList<>();
         PrefixListBuilder prefix = new PrefixListBuilder();
-        prefix.setOptionType((short)3);
+        prefix.setOptionType(Ipv6Constants.ICMP_V6_OPTION_PREFIX_INFO);
         prefix.setOptionLength((short)4);
         // Note: EUI-64 auto-configuration requires 64 bits.
         prefix.setPrefixLength((short)64);
@@ -225,6 +233,12 @@ public class Ipv6RouterAdvt {
         buf.put((byte)pdu.getOptionSourceAddr().shortValue());
         buf.put((byte)pdu.getSourceAddrLength().shortValue());
         buf.put(Ipv6Util.bytesFromHexString(pdu.getSourceLlAddress().getValue()));
+        if (pdu.getOptionMtu() != null) {
+            buf.put((byte)pdu.getOptionMtu().shortValue());
+            buf.put((byte)pdu.getOptionMtuLength().shortValue());
+            buf.putShort((byte)0); // Reserved field
+            buf.putInt((int)pdu.getMtu().longValue());
+        }
 
         for (PrefixList prefix : nullToEmpty(pdu.getPrefixList())) {
             buf.put((byte)prefix.getOptionType().shortValue());

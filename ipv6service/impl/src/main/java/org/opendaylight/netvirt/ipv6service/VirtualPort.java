@@ -46,6 +46,7 @@ public class VirtualPort implements IVirtualPort  {
     private volatile boolean serviceBindingStatus;
     private volatile Ipv6PeriodicTimer periodicTimer;
     private volatile Timeout periodicTimeout;
+    private volatile int mtu = 0;
 
     // associated router if any
     private volatile VirtualRouter router;
@@ -144,6 +145,14 @@ public class VirtualPort implements IVirtualPort  {
 
     public VirtualRouter getRouter() {
         return router;
+    }
+
+    public void setMtu(int mtu) {
+        this.mtu = mtu;
+    }
+
+    public int getMtu() {
+        return this.mtu;
     }
 
     @Override
