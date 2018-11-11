@@ -17,4 +17,6 @@ public interface IVirtualNetwork {
     Long getElanTag();
 
     List<BigInteger> getDpnsHostingNetwork();
+
+    int getMtu();
 }
