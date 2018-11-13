@@ -302,9 +302,8 @@ public class NeutronvpnUtils {
                     //skip further processing
                     continue;
                 }
-                List<Uuid> rtrIdsList = routerIdsList.stream().map(routerIds -> routerIds.getRouterId())
-                        .collect(Collectors.toList());
-                if (rtrIdsList.contains(routerId)) {
+                // FIXME: NETVIRT-1503: this check can be replaced by a ReadOnlyTransaction.exists()
+                if (routerIdsList.stream().anyMatch(routerIds -> routerId.equals(routerIds.getRouterId()))) {
                     if (externalVpn) {
                         if (!routerId.equals(vpnMap.getVpnId())) {
                             return vpnMap.getVpnId();
