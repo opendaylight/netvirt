@@ -300,9 +300,7 @@ public class NeutronvpnUtils {
                         continue;
                     }
                 }
-                List<Uuid> rtrIdsList = routerIdsList.stream().map(routerIds -> routerIds.getRouterId())
-                        .collect(Collectors.toList());
-                if (rtrIdsList.contains(routerId)) {
+                if (routerIdsList.stream().anyMatch(routerIds -> routerId.equals(routerIds.getRouterId()))) {
                     if (externalVpn) {
                         if (!routerId.equals(vpnMap.getVpnId())) {
                             return vpnMap.getVpnId();
