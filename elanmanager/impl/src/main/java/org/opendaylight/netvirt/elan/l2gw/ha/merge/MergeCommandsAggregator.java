@@ -101,8 +101,9 @@ public abstract class MergeCommandsAggregator<BuilderTypeT extends Builder, AugT
                     datastoreType, modification, dstPath))
             .forEach(modification -> {
                 MergeCommand mergeCommand = commands.get(modification.getDataType());
-                boolean create = modification.getDataAfter() != null;
-                DataObject data = create ? modification.getDataAfter() : modification.getDataBefore();
+                DataObject dataAfter = modification.getDataAfter();
+                boolean create = dataAfter != null;
+                DataObject data = create ? dataAfter : modification.getDataBefore();
                 InstanceIdentifier<DataObject> transformedId = mergeCommand.generateId(dstPath, data);
                 DataObject transformedItem = mergeCommand.transform(dstPath, data);
 
