@@ -174,7 +174,8 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
     }
 
     private String logicalSwitchNameFromChildMod(DataObjectModification<? extends DataObject> childMod) {
-        DataObject data = childMod.getDataAfter() != null ? childMod.getDataAfter() : childMod.getDataBefore();
+        DataObject dataAfter = childMod.getDataAfter();
+        DataObject data = dataAfter != null ? dataAfter : childMod.getDataBefore();
         return LOGICAL_SWITCH_EXTRACTOR.getOrDefault(childMod.getModificationType().getClass(), noLogicalSwitch)
                 .apply(data);
     }

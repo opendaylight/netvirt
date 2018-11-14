@@ -233,20 +233,13 @@ public final class HwvtepHAUtil {
 
     @Nullable
     public static Node getUpdated(DataObjectModification<Node> mod) {
-        Node node = null;
         switch (mod.getModificationType()) {
             case SUBTREE_MODIFIED:
-                node = mod.getDataAfter();
-                break;
             case WRITE:
-                if (mod.getDataAfter() !=  null) {
-                    node = mod.getDataAfter();
-                }
-                break;
+                return mod.getDataAfter();
             default:
-                break;
+                return null;
         }
-        return node;
     }
 
     @Nullable
