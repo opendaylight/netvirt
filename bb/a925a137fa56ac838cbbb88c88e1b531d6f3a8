@@ -1,0 +1,7 @@
+Code-Review+2: Sam Hague <shague@redhat.com>
+Verified+1: Sam Hague <shague@redhat.com>
+Submitted-by: Thanh Ha (zxiiro) <thanh.ha@linuxfoundation.org>
+Submitted-at: Wed, 14 Nov 2018 20:21:57 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/77785
+Project: netvirt
+Branch: refs/heads/stable/fluorine
