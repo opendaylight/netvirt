@@ -2136,7 +2136,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     private void processSavedInterface(UnprocessedVpnInterfaceData intefaceData, String vpnName) {
         if (!canHandleNewVpnInterface(intefaceData.identifier, intefaceData.vpnInterface, vpnName)) {
-            LOG.error("add: VpnInstance {} for vpnInterface {} not ready, holding on ",
+            LOG.error("processSavedInterface: VpnInstance {} for vpnInterface {} not ready, holding on ",
                   vpnName, intefaceData.vpnInterface.getName());
             return;
         }
