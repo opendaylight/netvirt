@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "21c7e6cf_ac3b1c06",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-11-14T08:44:24Z",
+      "side": 0,
+      "message": "Please retain this.\nWhat we need to do is... If the processSavedInterfaces() is called from vpnInstanceFailed() or vpnInstanceIsReady(), we should not add the interface again to the queue if canHandleVpnInterface() fails.\n\nBecause, from the karaf logs, it looks like it was not a DS commit failure that triggered this behaviuor. Rather, it was the onSuccess:\n\nprocessSavedInterfaces: Handle saved vpn interfaces 052f2318-dd2a-4530-9703-fdd47b13c3cb in vpn instance b15bbaf1-6b95-46c9-b19d-83d7719804ba\n2018-11-07T00:30:16,628 | INFO  | jobcoordinator-main-task-0 | VpnInterfaceManager              | 359 - org.opendaylight.netvirt.vpnmanager-impl - 0.7.1 | addToUnprocessedVpnInterfaces: Saved unhandled vpn interface 93517e2a-2534-42c4-a334-2454e04fb17f in vpn instance b15bbaf1-6b95-46c9-b19d-83d7719804ba\n2018-11-07T00:30:16,628 | ERROR | jobcoordinator-main-task-0 | VpnInterfaceManager              | 359 - org.opendaylight.netvirt.vpnmanager-impl - 0.7.1 | add: VpnInstance b15bbaf1-6b95-46c9-b19d-83d7719804ba for vpnInterface 93517e2a-2534-42c4-a334-2454e04fb17f not ready, holding on",
+      "range": {
+        "startLine": 408,
+        "startChar": 24,
+        "endLine": 408,
+        "endChar": 52
+      },
+      "revId": "2b9880aa1d96ac6d7d526258a2155f535d64ad7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
