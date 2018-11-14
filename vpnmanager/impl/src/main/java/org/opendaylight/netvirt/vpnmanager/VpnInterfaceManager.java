@@ -2130,11 +2130,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     private void processSavedInterface(UnprocessedVpnInterfaceData intefaceData, String vpnName) {
-        if (!canHandleNewVpnInterface(intefaceData.identifier, intefaceData.vpnInterface, vpnName)) {
-            LOG.error("add: VpnInstance {} for vpnInterface {} not ready, holding on ",
-                  vpnName, intefaceData.vpnInterface.getName());
-            return;
-        }
         final VpnInterfaceKey key = intefaceData.identifier
                .firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
         final String interfaceName = key.getName();
