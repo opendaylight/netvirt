@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c190b69_b10c96ac",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-11-14T11:14:00Z",
+      "side": 1,
+      "message": "better LOG.error instead of just LOG.warn?  (But even better would be to just let it propagate...)",
+      "revId": "d4f606b2e88ab18e85235706d2bbe3a1a26e14b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
