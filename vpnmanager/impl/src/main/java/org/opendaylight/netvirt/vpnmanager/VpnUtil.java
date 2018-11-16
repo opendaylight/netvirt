@@ -682,7 +682,7 @@ public final class VpnUtil {
     public boolean removeOrUpdateDSForExtraRoute(String vpnName, String primaryRd, String extraRouteRd,
                                                  String vpnInterfaceName, String prefix, String nextHop,
                                                  String nextHopTunnelIp, TypedWriteTransaction<Operational> operTx) {
-        LOG.info("removeOrUpdateDSForExtraRoute: VPN WITHDRAW: Removing Fib Entry rd {} prefix {} nexthop {}",
+        LOG.debug("removeOrUpdateDSForExtraRoute: VPN WITHDRAW: Removing Fib Entry rd {} prefix {} nexthop {}",
                 extraRouteRd, prefix, nextHop);
         boolean areNextHopsClearedForRd = false;
         Optional<Routes> optVpnExtraRoutes = VpnExtraRouteHelper
@@ -1734,12 +1734,12 @@ public final class VpnUtil {
         List<String> rts = new ArrayList<>();
         VpnTargets targets = vpnInstance.getVpnTargets();
         if (targets == null) {
-            LOG.info("getRts: vpn targets not available for {}", name);
+            LOG.debug("getRts: vpn targets not available for {}", name);
             return rts;
         }
         List<VpnTarget> vpnTargets = targets.getVpnTarget();
         if (vpnTargets == null) {
-            LOG.info("getRts: vpnTarget values not available for {}", name);
+            LOG.debug("getRts: vpnTarget values not available for {}", name);
             return rts;
         }
         for (VpnTarget target : vpnTargets) {
@@ -1977,14 +1977,14 @@ public final class VpnUtil {
             List<String> elanInterfaceList;
             DpnInterfaces dpnInterface;
             if (!dpnInElanInterfaces.isPresent()) {
-                LOG.info("No interface in any dpn for {}", vpnName);
+                LOG.debug("No interface in any dpn for {}", vpnName);
                 return;
             } else {
                 dpnInterface = dpnInElanInterfaces.get();
                 elanInterfaceList = dpnInterface.getInterfaces();
             }
             if (!elanInterfaceList.contains(routerInterfacePortId)) {
-                LOG.info("Router port not present in DPN {} for VPN {}", dpnId, vpnName);
+                LOG.debug("Router port not present in DPN {} for VPN {}", dpnId, vpnName);
                 return;
             }
             elanInterfaceList.remove(routerInterfacePortId);
@@ -2017,7 +2017,7 @@ public final class VpnUtil {
     String getExternalElanInterface(String elanInstanceName, BigInteger dpnId) {
         DpnInterfaces dpnInterfaces = getElanInterfaceInfoByElanDpn(elanInstanceName, dpnId);
         if (dpnInterfaces == null || dpnInterfaces.getInterfaces() == null) {
-            LOG.info("Elan {} does not have interfaces in DPN {}", elanInstanceName, dpnId);
+            LOG.debug("Elan {} does not have interfaces in DPN {}", elanInstanceName, dpnId);
             return null;
         }
 
