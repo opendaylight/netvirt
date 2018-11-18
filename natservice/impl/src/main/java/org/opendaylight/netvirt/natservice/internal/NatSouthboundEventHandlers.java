@@ -24,12 +24,11 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
+import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -176,9 +175,9 @@ public class NatSouthboundEventHandlers {
     }
 
     private class NatInterfaceStateAddWorker implements Callable<List<ListenableFuture<Void>>> {
-        private String interfaceName;
-        private String routerName;
-        private BigInteger intfDpnId;
+        private final String interfaceName;
+        private final String routerName;
+        private final BigInteger intfDpnId;
 
         NatInterfaceStateAddWorker(String interfaceName, BigInteger intfDpnId, String routerName) {
             this.interfaceName = interfaceName;
@@ -189,26 +188,27 @@ public class NatSouthboundEventHandlers {
         @Override
         @SuppressWarnings("checkstyle:IllegalCatch")
         public List<ListenableFuture<Void>> call() {
+            LOG.trace("call : Received interface {} PORT UP OR ADD event ", interfaceName);
             List<ListenableFuture<Void>> futures = new ArrayList<>();
+            final ReentrantLock lock = NatUtil.lockForNat(intfDpnId);
+            lock.lock();
             try {
-                LOG.trace("call : Received interface {} PORT UP OR ADD event ", interfaceName);
-                String dpnLock = NatConstants.NAT_DJC_PREFIX + intfDpnId;
-                synchronized (dpnLock.intern()) {
-                    futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx ->
-                        handleRouterInterfacesUpEvent(routerName, interfaceName, intfDpnId, tx)));
-                }
+                futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx ->
+                    handleRouterInterfacesUpEvent(routerName, interfaceName, intfDpnId, tx)));
             } catch (Exception e) {
                 LOG.error("call : Exception caught in Interface {} Operational State Up event",
-                        interfaceName, e);
+                    interfaceName, e);
+            } finally {
+                lock.unlock();
             }
             return futures;
         }
     }
 
     private class NatInterfaceStateRemoveWorker implements Callable<List<ListenableFuture<Void>>> {
-        private String interfaceName;
-        private String routerName;
-        private BigInteger intfDpnId;
+        private final String interfaceName;
+        private final String routerName;
+        private final BigInteger intfDpnId;
 
         NatInterfaceStateRemoveWorker(String interfaceName, BigInteger intfDpnId, String routerName) {
             this.interfaceName = interfaceName;
@@ -219,26 +219,27 @@ public class NatSouthboundEventHandlers {
         @Override
         @SuppressWarnings("checkstyle:IllegalCatch")
         public List<ListenableFuture<Void>> call() {
+            LOG.trace("call : Received interface {} PORT DOWN or REMOVE event", interfaceName);
             List<ListenableFuture<Void>> futures = new ArrayList<>();
+            final ReentrantLock lock = NatUtil.lockForNat(intfDpnId);
+            lock.lock();
             try {
-                LOG.trace("call : Received interface {} PORT DOWN or REMOVE event", interfaceName);
-                String dpnLock = NatConstants.NAT_DJC_PREFIX + intfDpnId;
-                synchronized (dpnLock.intern()) {
-                    futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx ->
-                        handleRouterInterfacesDownEvent(routerName, interfaceName, intfDpnId, tx)));
-                }
+                futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx ->
+                    handleRouterInterfacesDownEvent(routerName, interfaceName, intfDpnId, tx)));
             } catch (Exception e) {
                 LOG.error("call : Exception observed in handling deletion of VPN Interface {}.", interfaceName, e);
+            } finally {
+                lock.unlock();
             }
             return futures;
         }
     }
 
     private class NatInterfaceStateUpdateWorker implements Callable<List<ListenableFuture<Void>>> {
-        private Interface original;
-        private Interface update;
-        private BigInteger intfDpnId;
-        private String routerName;
+        private final Interface original;
+        private final Interface update;
+        private final BigInteger intfDpnId;
+        private final String routerName;
 
         NatInterfaceStateUpdateWorker(Interface original, Interface update, BigInteger intfDpnId, String routerName) {
             this.original = original;
@@ -250,38 +251,40 @@ public class NatSouthboundEventHandlers {
         @Override
         @SuppressWarnings("checkstyle:IllegalCatch")
         public List<ListenableFuture<Void>> call() {
+            final String interfaceName = update.getName();
+            LOG.trace("call : Received interface {} state change event", interfaceName);
+            LOG.debug("call : DPN ID {} for the interface {} ", intfDpnId, interfaceName);
+
             List<ListenableFuture<Void>> futures = new ArrayList<>();
+            final ReentrantLock lock = NatUtil.lockForNat(intfDpnId);
+            lock.lock();
             try {
-                final String interfaceName = update.getName();
-                LOG.trace("call : Received interface {} state change event", interfaceName);
-                LOG.debug("call : DPN ID {} for the interface {} ", intfDpnId, interfaceName);
-                String dpnLock = NatConstants.NAT_DJC_PREFIX + intfDpnId;
-                synchronized (dpnLock.intern()) {
-                    IntfTransitionState state = getTransitionState(original.getOperStatus(), update.getOperStatus());
-                    if (state.equals(IntfTransitionState.STATE_IGNORE)) {
-                        LOG.info("NAT Service: Interface {} state original {} updated {} not handled",
-                                interfaceName, original.getOperStatus(), update.getOperStatus());
-                        return futures;
-                    }
-                    futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
-                        if (state.equals(IntfTransitionState.STATE_DOWN)) {
-                            LOG.debug("call : DPN {} connnected to the interface {} has gone down."
-                                    + "Hence clearing the dpn-vpninterfaces-list entry from the"
-                                    + " neutron-router-dpns model in the ODL:L3VPN", intfDpnId, interfaceName);
-                            // If the interface state is unknown, it means that the corresponding DPN has gone down.
-                            // So remove the dpn-vpninterfaces-list from the neutron-router-dpns model.
-                            NatUtil.removeFromNeutronRouterDpnsMap(routerName, interfaceName,
-                                    intfDpnId, tx);
-                        } else if (state.equals(IntfTransitionState.STATE_UP)) {
-                            LOG.debug("call : DPN {} connnected to the interface {} has come up. Hence adding"
-                                    + " the dpn-vpninterfaces-list entry from the neutron-router-dpns model"
-                                    + " in the ODL:L3VPN", intfDpnId, interfaceName);
-                            handleRouterInterfacesUpEvent(routerName, interfaceName, intfDpnId, tx);
-                        }
-                    }));
+                IntfTransitionState state = getTransitionState(original.getOperStatus(), update.getOperStatus());
+                if (state.equals(IntfTransitionState.STATE_IGNORE)) {
+                    LOG.info("NAT Service: Interface {} state original {} updated {} not handled",
+                        interfaceName, original.getOperStatus(), update.getOperStatus());
+                    return futures;
                 }
+                futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
+                    if (state.equals(IntfTransitionState.STATE_DOWN)) {
+                        LOG.debug("call : DPN {} connnected to the interface {} has gone down."
+                                + "Hence clearing the dpn-vpninterfaces-list entry from the"
+                                + " neutron-router-dpns model in the ODL:L3VPN", intfDpnId, interfaceName);
+                        // If the interface state is unknown, it means that the corresponding DPN has gone down.
+                        // So remove the dpn-vpninterfaces-list from the neutron-router-dpns model.
+                        NatUtil.removeFromNeutronRouterDpnsMap(routerName, interfaceName,
+                            intfDpnId, tx);
+                    } else if (state.equals(IntfTransitionState.STATE_UP)) {
+                        LOG.debug("call : DPN {} connnected to the interface {} has come up. Hence adding"
+                                + " the dpn-vpninterfaces-list entry from the neutron-router-dpns model"
+                                + " in the ODL:L3VPN", intfDpnId, interfaceName);
+                        handleRouterInterfacesUpEvent(routerName, interfaceName, intfDpnId, tx);
+                    }
+                }));
             } catch (Exception e) {
                 LOG.error("call : Exception observed in handling updation of VPN Interface {}.", update.getName(), e);
+            } finally {
+                lock.unlock();
             }
             return futures;
         }
@@ -475,10 +478,10 @@ public class NatSouthboundEventHandlers {
     }
 
     private class NatFlowAddWorker implements Callable<List<ListenableFuture<Void>>> {
-        private String interfaceName;
-        private String routerName;
-        private BigInteger dpnId;
-        private VipState vipState;
+        private final String interfaceName;
+        private final String routerName;
+        private final BigInteger dpnId;
+        private final VipState vipState;
 
         NatFlowAddWorker(String interfaceName,String routerName, BigInteger dpnId, VipState vipState) {
             this.interfaceName = interfaceName;
@@ -504,9 +507,9 @@ public class NatSouthboundEventHandlers {
     }
 
     private class NatFlowUpdateWorker implements Callable<List<ListenableFuture<Void>>> {
-        private Interface original;
-        private Interface update;
-        private String routerName;
+        private final Interface original;
+        private final Interface update;
+        private final String routerName;
 
         NatFlowUpdateWorker(Interface original, Interface update, String routerName) {
             this.original = original;
@@ -540,9 +543,9 @@ public class NatSouthboundEventHandlers {
     }
 
     private class NatFlowRemoveWorker implements Callable<List<ListenableFuture<Void>>> {
-        private String interfaceName;
-        private String routerName;
-        private BigInteger intfDpnId;
+        private final String interfaceName;
+        private final String routerName;
+        private final BigInteger intfDpnId;
 
         NatFlowRemoveWorker(String interfaceName, BigInteger intfDpnId, String routerName) {
             this.interfaceName = interfaceName;
