@@ -37,6 +37,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -72,6 +73,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -930,8 +932,10 @@ public final class VpnUtil {
 
     public void createLearntVpnVipToPort(String vpnName, String fixedIp, String portName, String macAddress,
             TypedWriteTransaction<Operational> writeOperTxn) {
-        synchronized ((vpnName + fixedIp).intern()) {
-            InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
+        final InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
+        final ReentrantLock lock = lockFor(vpnName, fixedIp);
+        lock.lock();
+        try {
             LearntVpnVipToPortBuilder builder =
                     new LearntVpnVipToPortBuilder().withKey(new LearntVpnVipToPortKey(fixedIp, vpnName)).setVpnName(
                             vpnName).setPortFixedip(fixedIp).setPortName(portName)
@@ -944,6 +948,8 @@ public final class VpnUtil {
             }
             LOG.debug("createLearntVpnVipToPort: ARP/NA learned for fixedIp: {}, vpn {}, interface {}, mac {},"
                     + " added to LearntVpnVipToPort DS", fixedIp, vpnName, portName, macAddress);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -955,8 +961,10 @@ public final class VpnUtil {
 
     void removeLearntVpnVipToPort(String vpnName, String fixedIp,
                                   @Nullable TypedWriteTransaction<Operational> writeOperTxn) {
-        synchronized ((vpnName + fixedIp).intern()) {
-            InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
+        final InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
+        final ReentrantLock lock = lockFor(vpnName, fixedIp);
+        lock.lock();
+        try {
             if (writeOperTxn != null) {
                 writeOperTxn.delete(id);
             } else {
@@ -964,13 +972,17 @@ public final class VpnUtil {
             }
             LOG.debug("removeLearntVpnVipToPort: Deleted LearntVpnVipToPort entry for fixedIp: {}, vpn {}",
                 fixedIp, vpnName);
+        } finally {
+            lock.unlock();
         }
     }
 
     protected static void removeVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp,
                                                      @Nullable TypedWriteTransaction<Configuration> writeConfigTxn) {
-        synchronized ((vpnName + fixedIp).intern()) {
-            InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
+        final InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
+        final ReentrantLock lock = lockFor(vpnName, fixedIp);
+        lock.lock();
+        try {
             if (writeConfigTxn != null) {
                 writeConfigTxn.delete(id);
             } else {
@@ -978,6 +990,8 @@ public final class VpnUtil {
             }
             LOG.debug("removeVpnPortFixedIpToPort: Deleted VpnPortipToPort entry for fixedIp: {}, vpn {}",
                 fixedIp, vpnName);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -1019,8 +1033,10 @@ public final class VpnUtil {
     }
 
     public void removeMipAdjAndLearntIp(String vpnName, String vpnInterface, String prefix) {
-        synchronized ((vpnName + prefix).intern()) {
-            InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, prefix);
+        InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, prefix);
+        final ReentrantLock lock = lockFor(vpnName, prefix);
+        lock.lock();
+        try {
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
             LOG.info("removeMipAdjAndLearntIp: Delete learned ARP for fixedIp: {}, vpn {} removed from"
                             + "VpnPortipToPort DS", prefix, vpnName);
@@ -1037,6 +1053,8 @@ public final class VpnUtil {
                 LOG.info("removeMipAdjAndLearntIp: Successfully Deleted Adjacency {} from interface {} vpn {}", ip,
                         vpnInterface, vpnName);
             }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -1944,7 +1962,9 @@ public final class VpnUtil {
     void addRouterPortToElanDpn(String elanInstanceName, String routerInterfacePortId, BigInteger dpnId) {
         InstanceIdentifier<DpnInterfaces> elanDpnInterfaceId = getElanDpnInterfaceOperationalDataPath(
                 elanInstanceName,dpnId);
-        synchronized (elanInstanceName.intern()) {
+        final ReentrantLock lock = JvmGlobalLocks.getLockForString(elanInstanceName);
+        lock.lock();
+        try {
             Optional<DpnInterfaces> dpnInElanInterfaces = read(LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
             List<String> elanInterfaceList;
             DpnInterfaces dpnInterface;
@@ -1960,15 +1980,18 @@ public final class VpnUtil {
                         .withKey(new DpnInterfacesKey(dpnId)).build();
                 syncWrite(LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId, dpnInterface);
             }
+        } finally {
+            lock.unlock();
         }
-
     }
 
     void removeRouterPortFromElanDpn(String elanInstanceName, String routerInterfacePortId,
             String vpnName, BigInteger dpnId) {
         InstanceIdentifier<DpnInterfaces> elanDpnInterfaceId = getElanDpnInterfaceOperationalDataPath(
                 elanInstanceName,dpnId);
-        synchronized (elanInstanceName.intern()) {
+        final ReentrantLock lock = JvmGlobalLocks.getLockForString(elanInstanceName);
+        lock.lock();
+        try {
             Optional<DpnInterfaces> dpnInElanInterfaces = read(LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
             List<String> elanInterfaceList;
             DpnInterfaces dpnInterface;
@@ -1987,6 +2010,8 @@ public final class VpnUtil {
             dpnInterface = new DpnInterfacesBuilder().setDpId(dpnId).setInterfaces(elanInterfaceList)
                     .withKey(new DpnInterfacesKey(dpnId)).build();
             syncWrite(LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId, dpnInterface);
+        } finally {
+            lock.unlock();
         }
 
     }
@@ -2336,5 +2361,10 @@ public final class VpnUtil {
     public static boolean isDualRouterVpnUpdate(List<String> oldVpnListCopy, List<String> newVpnListCopy) {
         return oldVpnListCopy.size() == 2 && newVpnListCopy.size() == 3
                 || oldVpnListCopy.size() == 3 && newVpnListCopy.size() == 2;
+    }
+
+    private static ReentrantLock lockFor(String vpnName, String fixedIp) {
+        // FIXME: is there some identifier we can use? LearntVpnVipToPortKey perhaps?
+        return JvmGlobalLocks.getLockForString(vpnName + fixedIp);
     }
 }
