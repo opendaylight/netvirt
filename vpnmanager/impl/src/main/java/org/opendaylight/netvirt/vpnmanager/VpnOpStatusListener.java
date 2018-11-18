@@ -17,6 +17,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -29,6 +30,7 @@ import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -186,8 +188,13 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                                 LOG.trace("Removed vpnIdentifier for  rd{} vpnname {}", primaryRd, vpnName);
 
                                 // Clean up FIB Entries Config DS
-                                synchronized (vpnName.intern()) {
+                                // FIXME: separate out to somehow?
+                                final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName);
+                                lock.lock();
+                                try {
                                     fibManager.removeVrfTable(primaryRd, confTx);
+                                } finally {
+                                    lock.unlock();
                                 }
                             }), new VpnOpStatusListener.PostDeleteVpnInstanceWorker(vpnName),
                                 MoreExecutors.directExecutor());

@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -47,6 +48,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
+import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
@@ -380,8 +382,13 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                         this.vpnName, primaryRd);
                 return false;
             }
-            synchronized (vpnName.intern()) {
+            // FIXME: separate out to somehow?
+            final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName);
+            lock.lock();
+            try {
                 fibManager.addVrfTable(primaryRd, null);
+            } finally {
+                lock.unlock();
             }
             vpnInterfaceManager.handleVpnsExportingRoutes(this.vpnName, primaryRd);
             return true;

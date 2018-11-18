@@ -16,6 +16,7 @@ import com.google.common.base.Preconditions;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -24,6 +25,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -141,7 +143,8 @@ public abstract class L3vpnPopulator implements VpnPopulator {
 
     public void addToLabelMapper(Long label, BigInteger dpnId, String prefix, List<String> nextHopIpList, Long vpnId,
             @Nullable String vpnInterfaceName, @Nullable Long elanTag, boolean isSubnetRoute, String rd) {
-        Preconditions.checkNotNull(label, "addToLabelMapper: label cannot be null or empty!");
+        final String labelStr = Preconditions.checkNotNull(label, "addToLabelMapper: label cannot be null or empty!")
+                .toString();
         Preconditions.checkNotNull(prefix, "addToLabelMapper: prefix cannot be null or empty!");
         Preconditions.checkNotNull(vpnId, "addToLabelMapper: vpnId cannot be null or empty!");
         Preconditions.checkNotNull(rd, "addToLabelMapper: rd cannot be null or empty!");
@@ -149,10 +152,14 @@ public abstract class L3vpnPopulator implements VpnPopulator {
             // NextHop must be present for non-subnetroute entries
             Preconditions.checkNotNull(nextHopIpList, "addToLabelMapper: nextHopIp cannot be null or empty!");
         }
-        synchronized (label.toString().intern()) {
+
+        // FIXME: separate this out somehow?
+        final ReentrantLock lock = JvmGlobalLocks.getLockForString(labelStr);
+        lock.lock();
+        try {
             addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                 LOG.info("addToLabelMapper: label {} dpn {} prefix {} nexthoplist {} vpnid {} vpnIntfcName {} rd {}"
-                        + " elanTag {}", label, dpnId, prefix, nextHopIpList, vpnId, vpnInterfaceName, rd, elanTag);
+                        + " elanTag {}", labelStr, dpnId, prefix, nextHopIpList, vpnId, vpnInterfaceName, rd, elanTag);
                 if (dpnId != null) {
                     LabelRouteInfoBuilder lriBuilder = new LabelRouteInfoBuilder();
                     lriBuilder.setLabel(label).setDpnId(dpnId).setPrefix(prefix).setNextHopIpList(nextHopIpList)
@@ -161,13 +168,13 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                         lriBuilder.setElanTag(elanTag);
                     } else {
                         LOG.warn("addToLabelMapper: elanTag is null for label {} prefix {} rd {} vpnId {}",
-                                label, prefix, rd, vpnId);
+                                labelStr, prefix, rd, vpnId);
                     }
                     if (vpnInterfaceName != null) {
                         lriBuilder.setVpnInterfaceName(vpnInterfaceName);
                     } else {
                         LOG.warn("addToLabelMapper: vpn interface is null for label {} prefix {} rd {} vpnId {}",
-                                label, prefix, rd, vpnId);
+                                labelStr, prefix, rd, vpnId);
                     }
                     lriBuilder.setParentVpnRd(rd);
                     VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnUtil.getVpnInstanceOpData(rd);
@@ -181,14 +188,16 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                             .child(LabelRouteInfo.class, new LabelRouteInfoKey(label)).build();
                     tx.merge(lriIid, lri, CREATE_MISSING_PARENTS);
                     LOG.info("addToLabelMapper: Added label route info to label {} prefix {} nextHopList {} vpnId {}"
-                            + " interface {} rd {} elantag {}", label, prefix, nextHopIpList, vpnId, vpnInterfaceName,
-                            rd, elanTag);
+                            + " interface {} rd {} elantag {}", labelStr, prefix, nextHopIpList, vpnId,
+                            vpnInterfaceName, rd, elanTag);
                 } else {
                     LOG.warn("addToLabelMapper: Can't add entry to label map for label {} prefix {} nextHopList {}"
-                            + " vpnId {} interface {} rd {} elantag {}, dpnId is null", label, prefix, nextHopIpList,
+                            + " vpnId {} interface {} rd {} elantag {}, dpnId is null", labelStr, prefix, nextHopIpList,
                             vpnId, vpnInterfaceName, rd, elanTag);
                 }
             }), LOG, "addToLabelMapper");
+        } finally {
+            lock.unlock();
         }
     }
 
