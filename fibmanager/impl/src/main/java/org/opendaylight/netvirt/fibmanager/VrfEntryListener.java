@@ -532,11 +532,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
         FibUtil.getLabelFromRoutePaths(vrfEntry).ifPresent(label -> {
             List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
-
-            final ReentrantLock lock = lockFor(label);
+            final LabelRouteInfoKey lriKey = new LabelRouteInfoKey(label);
+            final ReentrantLock lock = lockFor(lriKey);
             lock.lock();
             try {
-                LabelRouteInfo lri = getLabelRouteInfo(label);
+                LabelRouteInfo lri = getLabelRouteInfo(lriKey);
                 if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {
 
                     if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.SELF_IMPORTED) {
@@ -807,10 +807,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 if (optionalLabel.isPresent()) {
                     Long label = optionalLabel.get();
                     List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
-                    final ReentrantLock labelLock = lockFor(label);
+                    final LabelRouteInfoKey lriKey = new LabelRouteInfoKey(label);
+                    final ReentrantLock labelLock = lockFor(lriKey);
                     labelLock.lock();
                     try {
-                        LabelRouteInfo lri = getLabelRouteInfo(label);
+                        LabelRouteInfo lri = getLabelRouteInfo(lriKey);
                         if (isPrefixAndNextHopPresentInLri(localNextHopIP, nextHopAddressList, lri)) {
                             Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
                                     fibUtil.getVpnInstanceOpData(rd);
@@ -953,8 +954,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     @Nullable
     private LabelRouteInfo getLabelRouteInfo(Long label) {
+        return getLabelRouteInfo(new LabelRouteInfoKey(label));
+    }
+
+    @Nullable
+    private LabelRouteInfo getLabelRouteInfo(LabelRouteInfoKey label) {
         InstanceIdentifier<LabelRouteInfo> lriIid = InstanceIdentifier.builder(LabelRouteMap.class)
-            .child(LabelRouteInfo.class, new LabelRouteInfoKey(label)).build();
+            .child(LabelRouteInfo.class, label).build();
         Optional<LabelRouteInfo> opResult = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, lriIid);
         if (opResult.isPresent()) {
             return opResult.get();
@@ -1336,10 +1342,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 if (VrfEntry.EncapType.Mplsgre.equals(vrfEntry.getEncapType())) {
                     FibUtil.getLabelFromRoutePaths(vrfEntry).ifPresent(label -> {
                         List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
-                        final ReentrantLock lock = lockFor(label);
+                        final LabelRouteInfoKey lriKey = new LabelRouteInfoKey(label);
+                        final ReentrantLock lock = lockFor(lriKey);
                         lock.lock();
                         try {
-                            LabelRouteInfo lri = getLabelRouteInfo(label);
+                            LabelRouteInfo lri = getLabelRouteInfo(lriKey);
                             if (lri != null && Objects.equals(lri.getPrefix(), vrfEntry.getDestPrefix())
                                     && nextHopAddressList.contains(lri.getNextHopIpList().get(0))) {
                                 Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
@@ -1500,10 +1507,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         })));
             }
             optionalLabel.ifPresent(label -> {
-                final ReentrantLock lock = lockFor(label);
+                final LabelRouteInfoKey lriKey = new LabelRouteInfoKey(label);
+                final ReentrantLock lock = lockFor(lriKey);
                 lock.lock();
                 try {
-                    LabelRouteInfo lri = getLabelRouteInfo(label);
+                    LabelRouteInfo lri = getLabelRouteInfo(lriKey);
                     if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {
                         Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
                                 fibUtil.getVpnInstanceOpData(rd);
@@ -2075,8 +2083,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         return JvmGlobalLocks.getLockForString(vpnInstance.getVpnInstanceName());
     }
 
-    private static ReentrantLock lockFor(Long label) {
-        // FIXME: use LabelRouteInfoKey instead?
-        return JvmGlobalLocks.getLockForString(label.toString());
+    private static ReentrantLock lockFor(LabelRouteInfoKey label) {
+        return JvmGlobalLocks.getLockFor(label);
     }
 }
