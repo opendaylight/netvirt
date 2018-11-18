@@ -799,11 +799,7 @@ public final class VpnUtil {
     }
 
     public static String getIpPrefix(String prefix) {
-        String[] prefixValues = prefix.split("/");
-        if (prefixValues.length == 1) {
-            prefix = NWUtil.toIpPrefix(prefix);
-        }
-        return prefix;
+        return prefix.indexOf('/') != -1 ? prefix : NWUtil.toIpPrefix(prefix);
     }
 
     static final FutureCallback<Void> DEFAULT_CALLBACK =
@@ -1318,7 +1314,7 @@ public final class VpnUtil {
     }
 
     private boolean doesInterfaceAndHiddenIpAddressTypeMatch(InetAddress hiddenIp, FixedIps portIp) {
-        return (hiddenIp instanceof Inet4Address && portIp.getIpAddress().getIpv4Address() != null)
+        return hiddenIp instanceof Inet4Address && portIp.getIpAddress().getIpv4Address() != null
                 || hiddenIp instanceof Inet6Address && portIp.getIpAddress().getIpv6Address() != null;
     }
 
@@ -2266,32 +2262,39 @@ public final class VpnUtil {
            Also the Subnet overlap in a VPN detection logic to be addressed for router-based-l3vpns.
     */
     static boolean areSubnetsOverlapping(String cidr1, String cidr2) {
-        String[] ipaddressValues1 = cidr1.split("/");
-        int address1 = InetAddresses.coerceToInteger(InetAddresses.forString(ipaddressValues1[0]));
-        int cidrPart1 = Integer.parseInt(ipaddressValues1[1]);
-        String[] ipaddressValues2 = cidr2.split("/");
-        int address2 = InetAddresses.coerceToInteger(InetAddresses.forString(ipaddressValues2[0]));
-        int cidrPart2 = Integer.parseInt(ipaddressValues2[1]);
+        final int slash1 = cidr1.indexOf('/');
+        final int address1 = addressForCidr(cidr1, slash1);
+        final int cidrPart1 = maskForCidr(cidr1, slash1);
+
+        final int slash2 = cidr2.indexOf('/');
+        final int address2 = addressForCidr(cidr2, slash2);
+        final int cidrPart2 = maskForCidr(cidr2, slash2);
+
         int comparedValue = 0;
         int netmask = 0;
         if (cidrPart1 <= cidrPart2) {
             for (int j = 0; j < cidrPart1; ++j) {
-                netmask |= (1 << 31 - j);
+                netmask |= 1 << 31 - j;
             }
             int prefix = address2 & netmask;
             comparedValue = address1 ^ prefix;
         } else {
             for (int j = 0; j < cidrPart2; ++j) {
-                netmask |= (1 << 31 - j);
+                netmask |= 1 << 31 - j;
             }
             int prefix = address1 & netmask;
             comparedValue = address2 ^ prefix;
         }
-        if (comparedValue == 0) {
-            return  true;
-        } else {
-            return false;
-        }
+
+        return comparedValue == 0;
+    }
+
+    private static int addressForCidr(final String cidr, int slash) {
+        return InetAddresses.coerceToInteger(InetAddresses.forString(cidr.substring(0, slash)));
+    }
+
+    private static int maskForCidr(final String cidr, int slash) {
+        return Integer.parseInt(cidr.substring(slash + 1));
     }
 
     public static String buildIpMonitorJobKey(String ip, String vpnName) {
@@ -2332,8 +2335,8 @@ public final class VpnUtil {
     }
 
     public boolean isDualRouterVpnUpdate(List<String> oldVpnListCopy, List<String> newVpnListCopy) {
-        if ((oldVpnListCopy.size() == 2 && newVpnListCopy.size() == 3)
-                || (oldVpnListCopy.size() == 3 && newVpnListCopy.size() == 2)) {
+        if (oldVpnListCopy.size() == 2 && newVpnListCopy.size() == 3
+                || oldVpnListCopy.size() == 3 && newVpnListCopy.size() == 2) {
             return true;
         }
         return false;
