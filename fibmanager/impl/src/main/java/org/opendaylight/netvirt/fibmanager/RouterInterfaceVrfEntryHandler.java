@@ -12,6 +12,7 @@ import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 import com.google.common.base.Preconditions;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -19,6 +20,7 @@ import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackReg
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.serviceutils.upgrade.UpgradeState;
@@ -69,13 +71,17 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
         installRouterFibEntries(vrfEntry, rd, NwConstants.DEL_FLOW, routerInt);
     }
 
-    private Boolean installRouterFibEntries(VrfEntry vrfEntry, String rd, int addOrRemove,
+    private boolean installRouterFibEntries(VrfEntry vrfEntry, String rd, int addOrRemove,
             RouterInterface routerInterface) {
         final VpnInstanceOpDataEntry vpnInstance = getFibUtil().getVpnInstance(rd);
         Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + rd);
         Preconditions.checkNotNull(vpnInstance.getVpnId(),
                 "Vpn Instance with rd " + vpnInstance.getVrfId() + " has null vpnId!");
-        synchronized (vpnInstance.getVpnInstanceName().intern()) {
+
+        // FIXME: separate this out somehow?
+        final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnInstance.getVpnInstanceName());
+        lock.lock();
+        try {
             final Collection<VpnToDpnList> vpnToDpnList;
             if (vrfEntry.getParentVpnRd() != null
                     && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
@@ -101,6 +107,8 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
                     }
                 }
             }
+        } finally {
+            lock.unlock();
         }
         return true;
     }
