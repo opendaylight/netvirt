@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -43,6 +44,7 @@ import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
@@ -486,8 +488,11 @@ public class FibUtil {
         LOG.debug("Updating fib entry for prefix {} with nextHop {} for rd {}.", prefix, nextHop, rd);
 
         InstanceIdentifier<RoutePaths> routePathId = FibHelper.buildRoutePathId(rd, prefix, nextHop);
-        String routePathKey = rd + prefix + nextHop;
-        synchronized (routePathKey.intern()) {
+
+        // FIXME: use routePathId instead?
+        final ReentrantLock lock = JvmGlobalLocks.getLockForString(rd + prefix + nextHop);
+        lock.lock();
+        try {
             if (nextHopAdd) {
                 RoutePaths routePaths = FibHelper.buildRoutePath(nextHop, label);
                 if (writeConfigTxn != null) {
@@ -512,6 +517,8 @@ public class FibUtil {
                 }
                 LOG.info("Removed routepath with nextHop {} for prefix {} and rd {}.", nextHop, prefix, rd);
             }
+        } finally {
+            lock.unlock();
         }
     }
 
