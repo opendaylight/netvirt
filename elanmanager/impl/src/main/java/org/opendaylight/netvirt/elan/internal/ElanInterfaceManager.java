@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -67,6 +68,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
+import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
@@ -462,8 +464,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                                                                          String interfaceName, long elanTag,
                                                                          TypedReadWriteTransaction<Operational> tx)
             throws ExecutionException, InterruptedException {
-        synchronized (elanName.intern()) {
-
+        // FIXME: pass in and use ElanInstanceKey instead?
+        final ReentrantLock lock = JvmGlobalLocks.getLockForString(elanName);
+        lock.lock();
+        try {
             DpnInterfaces dpnInterfaces = elanUtils.getElanInterfaceInfoByElanDpn(elanName, dpId);
             if (dpnInterfaces != null) {
                 List<String> interfaceLists = dpnInterfaces.getInterfaces();
@@ -479,6 +483,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 }
             }
             return dpnInterfaces;
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -704,7 +710,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             // DpnInterfaces in the operational DS.
             holder.dpId = interfaceInfo.getDpId();
             if (holder.dpId != null && !holder.dpId.equals(ElanConstants.INVALID_DPN)) {
-                synchronized (elanInstanceName.intern()) {
+                // FIXME: use elanInstaince.key() instead?
+                final ReentrantLock lock = JvmGlobalLocks.getLockForString(elanInstanceName);
+                lock.lock();
+                try {
                     InstanceIdentifier<DpnInterfaces> elanDpnInterfaces = ElanUtils
                         .getElanDpnInterfaceOperationalDataPath(elanInstanceName, holder.dpId);
                     Optional<DpnInterfaces> existingElanDpnInterfaces = operTx.read(elanDpnInterfaces).get();
@@ -745,6 +754,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         holder.dpnInterfaces =
                             updateElanDpnInterfacesList(elanInstanceName, holder.dpId, elanInterfaces, operTx);
                     }
+                } finally {
+                    lock.unlock();
                 }
             }
 
