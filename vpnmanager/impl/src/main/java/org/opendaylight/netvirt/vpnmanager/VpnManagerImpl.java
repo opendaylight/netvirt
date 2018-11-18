@@ -21,12 +21,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -46,6 +46,7 @@ import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.infrautils.utils.function.InterruptibleCheckedConsumer;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -292,9 +293,11 @@ public class VpnManagerImpl implements IVpnManager {
                                     String prefix, String nextHop, String nextHopTunnelIp, BigInteger dpnId,
                                     TypedWriteTransaction<Configuration> confTx,
                                     TypedWriteTransaction<Operational> operTx) {
+        String vpnNamePrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
+        // FIXME: separate out to somehow?
+        final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnNamePrefixKey);
+        lock.lock();
         try {
-            String vpnNamePrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
-            synchronized (vpnNamePrefixKey.intern()) {
                 if (vpnUtil.removeOrUpdateDSForExtraRoute(vpnName, primaryRd, extraRouteRd, vpnInterfaceName, prefix,
                         nextHop, nextHopTunnelIp, operTx)) {
                     return;
@@ -304,11 +307,12 @@ public class VpnManagerImpl implements IVpnManager {
                     // TODO: Might be needed to include nextHop here
                     bgpManager.withdrawPrefix(extraRouteRd, prefix);
                 }
-            }
             LOG.info("removePrefixFromBGP: VPN WITHDRAW: Removed Fib Entry rd {} prefix {} nexthop {}", extraRouteRd,
                     prefix, nextHop);
         } catch (RuntimeException e) {
             LOG.error("removePrefixFromBGP: Delete prefix {} rd {} nextHop {} failed", prefix, extraRouteRd, nextHop);
+        } finally {
+            lock.unlock();
         }
     }
 
