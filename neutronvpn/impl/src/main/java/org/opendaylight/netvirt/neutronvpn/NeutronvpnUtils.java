@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -48,6 +49,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
@@ -910,15 +912,18 @@ public class NeutronvpnUtils {
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void removeLearntVpnVipToPort(String vpnName, String fixedIp) {
         InstanceIdentifier<LearntVpnVipToPort> id = NeutronvpnUtils.buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
+        // FIXME: can we use 'id' as the lock name?
+        final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName + fixedIp);
+        lock.lock();
         try {
-            synchronized ((vpnName + fixedIp).intern()) {
-                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-            }
+            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
             LOG.trace("Neutron router port with fixedIp: {}, vpn {} removed from LearntVpnPortipToPort DS", fixedIp,
                     vpnName);
         } catch (Exception e) {
             LOG.error("Failure while removing LearntVpnPortFixedIpToPort map for vpn {} - fixedIP {}",
                 vpnName, fixedIp, e);
+        } finally {
+            lock.unlock();
         }
     }
 
