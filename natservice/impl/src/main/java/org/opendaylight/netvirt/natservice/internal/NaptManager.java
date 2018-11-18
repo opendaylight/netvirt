@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -32,6 +33,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -247,130 +249,129 @@ public class NaptManager {
             LOG.debug("getExternalAddressMapping : successfully returning existingIpPort as {} and {}",
                 existingIpPort.getIpAddress(), existingIpPort.getPortNumber());
             return existingIpPort;
-        } else {
-            // Now check in ip-map
-            String externalIp = checkIpMap(segmentId, sourceAddress.getIpAddress());
-            if (externalIp == null) {
-                LOG.error("getExternalAddressMapping : Unexpected error, internal to external "
+        }
+
+        // Now check in ip-map
+        String externalIp = checkIpMap(segmentId, sourceAddress.getIpAddress());
+        if (externalIp == null) {
+            LOG.error("getExternalAddressMapping : Unexpected error, internal to external "
                     + "ip map does not exist");
-                return null;
-            } else {
-                 /* Logic assuming internalIp is always ip and not subnet
-                  * case 1: externalIp is ip
-                  *        a) goto externalIp pool and getPort and return
-                  *        b) else return error
-                  * case 2: externalIp is subnet
-                  *        a) Take first externalIp and goto that Pool and getPort
-                  *             if port -> return
-                  *             else Take second externalIp and create that Pool and getPort
-                  *             if port ->return
-                  *             else
-                  *             Continue same with third externalIp till we exhaust subnet
-                  *        b) Nothing worked return error
-                  */
-                SubnetUtils externalIpSubnet;
-                List<String> allIps = new ArrayList<>();
-                String subnetPrefix = "/" + String.valueOf(NatConstants.DEFAULT_PREFIX);
-                boolean extSubnetFlag = false;
-                if (!externalIp.contains(subnetPrefix)) {
-                    extSubnetFlag = true;
-                    externalIpSubnet = new SubnetUtils(externalIp);
-                    allIps = Arrays.asList(externalIpSubnet.getInfo().getAllAddresses());
-                    LOG.debug("getExternalAddressMapping : total count of externalIps available {}",
-                        externalIpSubnet.getInfo().getAddressCount());
+            return null;
+        }
+
+        /* Logic assuming internalIp is always ip and not subnet
+         * case 1: externalIp is ip
+         *        a) goto externalIp pool and getPort and return
+         *        b) else return error
+         * case 2: externalIp is subnet
+         *        a) Take first externalIp and goto that Pool and getPort
+         *             if port -> return
+         *             else Take second externalIp and create that Pool and getPort
+         *             if port ->return
+         *             else
+         *             Continue same with third externalIp till we exhaust subnet
+         *        b) Nothing worked return error
+         */
+        SubnetUtils externalIpSubnet;
+        List<String> allIps = new ArrayList<>();
+        String subnetPrefix = "/" + String.valueOf(NatConstants.DEFAULT_PREFIX);
+        boolean extSubnetFlag = false;
+        if (!externalIp.contains(subnetPrefix)) {
+            extSubnetFlag = true;
+            externalIpSubnet = new SubnetUtils(externalIp);
+            allIps = Arrays.asList(externalIpSubnet.getInfo().getAllAddresses());
+            LOG.debug("getExternalAddressMapping : total count of externalIps available {}",
+                externalIpSubnet.getInfo().getAddressCount());
+        } else {
+            LOG.debug("getExternalAddressMapping : getExternalAddress single ip case");
+            if (externalIp.contains(subnetPrefix)) {
+                //remove /32 what we got from checkIpMap
+                externalIp = externalIp.substring(0, externalIp.indexOf(subnetPrefix));
+            }
+            allIps.add(externalIp);
+        }
+
+        boolean nextExtIpFlag = false;
+        for (String extIp : allIps) {
+            LOG.info("getExternalAddressMapping : Looping externalIPs with externalIP now as {}", extIp);
+            if (nextExtIpFlag) {
+                createNaptPortPool(extIp);
+                LOG.debug("getExternalAddressMapping : Created Pool for next Ext IP {}", extIp);
+            }
+            AllocateIdInput getIdInput = new AllocateIdInputBuilder()
+                    .setPoolName(extIp).setIdKey(internalIpPort)
+                    .build();
+            try {
+                Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
+                RpcResult<AllocateIdOutput> rpcResult;
+                if (result != null && result.get().isSuccessful()) {
+                    LOG.debug("getExternalAddressMapping : Got id from idManager");
+                    rpcResult = result.get();
                 } else {
-                    LOG.debug("getExternalAddressMapping : getExternalAddress single ip case");
-                    if (externalIp.contains(subnetPrefix)) {
-                        //remove /32 what we got from checkIpMap
-                        externalIp = externalIp.substring(0, externalIp.indexOf(subnetPrefix));
-                    }
-                    allIps.add(externalIp);
-                }
-
-                boolean nextExtIpFlag = false;
-                for (String extIp : allIps) {
-                    LOG.info("getExternalAddressMapping : Looping externalIPs with externalIP now as {}", extIp);
-                    if (nextExtIpFlag) {
-                        createNaptPortPool(extIp);
-                        LOG.debug("getExternalAddressMapping : Created Pool for next Ext IP {}", extIp);
-                    }
-                    AllocateIdInput getIdInput = new AllocateIdInputBuilder()
-                        .setPoolName(extIp).setIdKey(internalIpPort)
-                        .build();
-                    try {
-                        Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
-                        RpcResult<AllocateIdOutput> rpcResult;
-                        if (result != null && result.get().isSuccessful()) {
-                            LOG.debug("getExternalAddressMapping : Got id from idManager");
-                            rpcResult = result.get();
-                        } else {
-                            LOG.error("getExternalAddressMapping : getExternalAddressMapping, idManager could not "
-                                + "allocate id retry if subnet");
-                            if (!extSubnetFlag) {
-                                LOG.error("getExternalAddressMapping : getExternalAddressMapping returning null "
-                                        + "for single IP case, may be ports exhausted");
-                                return null;
-                            }
-                            LOG.debug("getExternalAddressMapping : Could be ports exhausted case, "
-                                    + "try with another externalIP if possible");
-                            nextExtIpFlag = true;
-                            continue;
-                        }
-                        int extPort = rpcResult.getResult().getIdValue().intValue();
-                        // Write to ip-port-map before returning
-                        IpPortExternalBuilder ipExt = new IpPortExternalBuilder();
-                        IpPortExternal ipPortExt = ipExt.setIpAddress(extIp).setPortNum(extPort).build();
-                        IpPortMap ipm = new IpPortMapBuilder().withKey(new IpPortMapKey(internalIpPort))
-                            .setIpPortInternal(internalIpPort).setIpPortExternal(ipPortExt).build();
-                        LOG.debug("getExternalAddressMapping : writing into ip-port-map with "
-                            + "externalIP {} and port {}",
-                            ipPortExt.getIpAddress(), ipPortExt.getPortNum());
-                        try {
-                            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                                getIpPortMapIdentifier(segmentId, internalIpPort, protocol), ipm);
-                        } catch (UncheckedExecutionException uee) {
-                            LOG.error("getExternalAddressMapping : Failed to write into ip-port-map with exception",
-                                uee);
-                        }
-
-                        // Write to snat-internal-ip-port-info
-                        String internalIpAddress = sourceAddress.getIpAddress();
-                        int ipPort = sourceAddress.getPortNumber();
-                        ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
-                        String lock = new StringBuilder(Long.toString(segmentId))
-                                .append(NatConstants.COLON_SEPARATOR)
-                                .append(internalIpAddress)
-                                .append(NatConstants.COLON_SEPARATOR)
-                                .append(protocolType.getName()).toString();
-                        synchronized (lock.intern()) {
-                            List<Integer> portList = new ArrayList<>(
-                                    NatUtil.getInternalIpPortListInfo(dataBroker, segmentId, internalIpAddress,
-                                            protocolType));
-                            portList.add(ipPort);
-
-                            IntIpProtoTypeBuilder builder = new IntIpProtoTypeBuilder();
-                            IntIpProtoType intIpProtocolType =
-                                    builder.withKey(new IntIpProtoTypeKey(protocolType)).setPorts(portList).build();
-                            try {
-                                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                                    NatUtil.buildSnatIntIpPortIdentifier(segmentId, internalIpAddress, protocolType),
-                                    intIpProtocolType);
-                            } catch (Exception ex) {
-                                LOG.error("getExternalAddressMapping : Failed to write into snat-internal-ip-port-info "
-                                        + "with exception", ex);
-                            }
-                        }
-                        SessionAddress externalIpPort = new SessionAddress(extIp, extPort);
-                        LOG.debug("getExternalAddressMapping : successfully returning externalIP {} "
-                            + "and port {}", externalIpPort.getIpAddress(), externalIpPort.getPortNumber());
-                        return externalIpPort;
-                    } catch (InterruptedException | ExecutionException e) {
-                        LOG.error("getExternalAddressMapping : Exception caught", e);
+                    LOG.error("getExternalAddressMapping : getExternalAddressMapping, idManager could not "
+                            + "allocate id retry if subnet");
+                    if (!extSubnetFlag) {
+                        LOG.error("getExternalAddressMapping : getExternalAddressMapping returning null "
+                                + "for single IP case, may be ports exhausted");
                         return null;
                     }
-                } // end of for loop
-            } // end of else ipmap present
-        } // end of else check ipmap
+                    LOG.debug("getExternalAddressMapping : Could be ports exhausted case, "
+                            + "try with another externalIP if possible");
+                    nextExtIpFlag = true;
+                    continue;
+                }
+                int extPort = rpcResult.getResult().getIdValue().intValue();
+                // Write to ip-port-map before returning
+                IpPortExternalBuilder ipExt = new IpPortExternalBuilder();
+                IpPortExternal ipPortExt = ipExt.setIpAddress(extIp).setPortNum(extPort).build();
+                IpPortMap ipm = new IpPortMapBuilder().withKey(new IpPortMapKey(internalIpPort))
+                        .setIpPortInternal(internalIpPort).setIpPortExternal(ipPortExt).build();
+                LOG.debug("getExternalAddressMapping : writing into ip-port-map with "
+                        + "externalIP {} and port {}",
+                        ipPortExt.getIpAddress(), ipPortExt.getPortNum());
+                try {
+                    MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        getIpPortMapIdentifier(segmentId, internalIpPort, protocol), ipm);
+                } catch (UncheckedExecutionException uee) {
+                    LOG.error("getExternalAddressMapping : Failed to write into ip-port-map with exception",
+                        uee);
+                }
+
+                // Write to snat-internal-ip-port-info
+                String internalIpAddress = sourceAddress.getIpAddress();
+                int ipPort = sourceAddress.getPortNumber();
+                ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
+                final ReentrantLock lock = lockFor(segmentId, internalIpAddress, protocolType);
+                lock.lock();
+                try {
+                    List<Integer> portList = new ArrayList<>(
+                            NatUtil.getInternalIpPortListInfo(dataBroker, segmentId, internalIpAddress,
+                                protocolType));
+                    portList.add(ipPort);
+
+                    IntIpProtoTypeBuilder builder = new IntIpProtoTypeBuilder();
+                    IntIpProtoType intIpProtocolType =
+                            builder.withKey(new IntIpProtoTypeKey(protocolType)).setPorts(portList).build();
+                    try {
+                        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            NatUtil.buildSnatIntIpPortIdentifier(segmentId, internalIpAddress, protocolType),
+                            intIpProtocolType);
+                    } catch (Exception ex) {
+                        LOG.error("getExternalAddressMapping : Failed to write into snat-internal-ip-port-info "
+                                + "with exception", ex);
+                    }
+                } finally {
+                    lock.unlock();
+                }
+                SessionAddress externalIpPort = new SessionAddress(extIp, extPort);
+                LOG.debug("getExternalAddressMapping : successfully returning externalIP {} "
+                        + "and port {}", externalIpPort.getIpAddress(), externalIpPort.getPortNumber());
+                return externalIpPort;
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("getExternalAddressMapping : Exception caught", e);
+                return null;
+            }
+        } // end of for loop
         LOG.error("getExternalAddressMapping : Unable to handle external IP address and port mapping with segmentId {},"
                 + "internalIp {} and internalPort {}", segmentId, sourceAddress.getIpAddress(),
                 sourceAddress.getPortNumber());
@@ -461,18 +462,15 @@ public class NaptManager {
 
         //delete the entry of port for InternalIp from snatIntIpportMappingDS
         ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
-        String lock = new StringBuilder(Long.toString(segmentId))
-                .append(NatConstants.COLON_SEPARATOR)
-                .append(address.getIpAddress())
-                .append(NatConstants.COLON_SEPARATOR)
-                .append(protocolType.getName()).toString();
-        synchronized (lock.intern()) {
-            try {
-                removeSnatIntIpPortDS(segmentId, address, protocolType);
-            } catch (Exception e) {
-                LOG.error("releaseSnatIpPortMapping : failed, Removal of snatipportmap {} for "
-                        + "router {} failed", address.getIpAddress(), segmentId, e);
-            }
+        final ReentrantLock lock = lockFor(segmentId, address.getIpAddress(), protocolType);
+        lock.lock();
+        try {
+            removeSnatIntIpPortDS(segmentId, address, protocolType);
+        } catch (Exception e) {
+            LOG.error("releaseSnatIpPortMapping : failed, Removal of snatipportmap {} for router {} failed",
+                address.getIpAddress(), segmentId, e);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -802,5 +800,17 @@ public class NaptManager {
             .child(ExternalIpCounter.class, new ExternalIpCounterKey(externalIp)).build();
         LOG.debug("removeExternalIpCounter : Removing ExternalIpsCounter from datastore");
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+    }
+
+    private static ReentrantLock lockFor(final long segmentId, String ipAddress, final ProtocolTypes protocolType) {
+        // FIXME: use an Identifier class instead?
+        String lockName = new StringBuilder()
+            .append(segmentId)
+            .append(NatConstants.COLON_SEPARATOR)
+            .append(ipAddress)
+            .append(NatConstants.COLON_SEPARATOR)
+            .append(protocolType.getName()).toString();
+
+        return JvmGlobalLocks.getLockForString(lockName);
     }
 }

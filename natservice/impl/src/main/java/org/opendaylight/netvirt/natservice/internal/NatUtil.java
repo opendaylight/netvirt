@@ -17,7 +17,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -33,6 +32,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -69,6 +69,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -2284,40 +2285,45 @@ public final class NatUtil {
     public static void addPseudoPortToElanDpn(String elanInstanceName, String pseudoPortId,
             BigInteger dpnId, DataBroker dataBroker) {
         InstanceIdentifier<DpnInterfaces> elanDpnInterfaceId = getElanDpnInterfaceOperationalDataPath(
-                elanInstanceName,dpnId);
+                elanInstanceName, dpnId);
+        // FIXME: separate this out?
+        final ReentrantLock lock = JvmGlobalLocks.getLockForString(elanInstanceName);
+        lock.lock();
         try {
-            synchronized (elanInstanceName.intern()) {
-                Optional<DpnInterfaces> dpnInElanInterfaces = SingleTransactionDataBroker.syncReadOptional(dataBroker,
-                        LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
-                List<String> elanInterfaceList;
-                DpnInterfaces dpnInterface;
-                if (!dpnInElanInterfaces.isPresent()) {
-                    elanInterfaceList = new ArrayList<>();
-                } else {
-                    dpnInterface = dpnInElanInterfaces.get();
-                    elanInterfaceList = dpnInterface.getInterfaces();
-                }
-                if (!elanInterfaceList.contains(pseudoPortId)) {
-                    elanInterfaceList.add(pseudoPortId);
-                    dpnInterface = new DpnInterfacesBuilder().setDpId(dpnId).setInterfaces(elanInterfaceList)
-                            .withKey(new DpnInterfacesKey(dpnId)).build();
-                    SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                            elanDpnInterfaceId, dpnInterface);
-                }
+            Optional<DpnInterfaces> dpnInElanInterfaces = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
+            List<String> elanInterfaceList;
+            DpnInterfaces dpnInterface;
+            if (!dpnInElanInterfaces.isPresent()) {
+                elanInterfaceList = new ArrayList<>();
+            } else {
+                dpnInterface = dpnInElanInterfaces.get();
+                elanInterfaceList = dpnInterface.getInterfaces();
+            }
+            if (!elanInterfaceList.contains(pseudoPortId)) {
+                elanInterfaceList.add(pseudoPortId);
+                dpnInterface = new DpnInterfacesBuilder().setDpId(dpnId).setInterfaces(elanInterfaceList)
+                        .withKey(new DpnInterfacesKey(dpnId)).build();
+                SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    elanDpnInterfaceId, dpnInterface);
             }
         } catch (ReadFailedException e) {
             LOG.warn("Failed to read elanDpnInterface with error {}", e.getMessage());
         } catch (TransactionCommitFailedException e) {
             LOG.warn("Failed to add elanDpnInterface with error {}", e.getMessage());
+        } finally {
+            lock.unlock();
         }
     }
 
     public static void removePseudoPortFromElanDpn(String elanInstanceName, String pseudoPortId,
             BigInteger dpnId, DataBroker dataBroker) {
         InstanceIdentifier<DpnInterfaces> elanDpnInterfaceId = getElanDpnInterfaceOperationalDataPath(
-                elanInstanceName,dpnId);
+                elanInstanceName, dpnId);
+        // FIXME: separate this out?
+        final ReentrantLock lock = JvmGlobalLocks.getLockForString(elanInstanceName);
+        lock.lock();
         try {
-            synchronized (elanInstanceName.intern()) {
                 Optional<DpnInterfaces> dpnInElanInterfaces = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                         LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
                 List<String> elanInterfaceList;
@@ -2325,10 +2331,10 @@ public final class NatUtil {
                 if (!dpnInElanInterfaces.isPresent()) {
                     LOG.info("No interface in any dpn for {}", elanInstanceName);
                     return;
-                } else {
-                    dpnInterface = dpnInElanInterfaces.get();
-                    elanInterfaceList = dpnInterface.getInterfaces();
                 }
+
+                dpnInterface = dpnInElanInterfaces.get();
+                elanInterfaceList = dpnInterface.getInterfaces();
                 if (!elanInterfaceList.contains(pseudoPortId)) {
                     LOG.info("Router port not present in DPN {} for VPN {}", dpnId, elanInstanceName);
                     return;
@@ -2338,13 +2344,13 @@ public final class NatUtil {
                         .withKey(new DpnInterfacesKey(dpnId)).build();
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
                         elanDpnInterfaceId, dpnInterface);
-            }
         } catch (ReadFailedException e) {
             LOG.warn("Failed to read elanDpnInterface with error {}", e.getMessage());
         } catch (TransactionCommitFailedException e) {
             LOG.warn("Failed to remove elanDpnInterface with error {}", e.getMessage());
+        } finally {
+            lock.unlock();
         }
-
     }
 
     public static DpnInterfaces getElanInterfaceInfoByElanDpn(String elanInstanceName, BigInteger dpId,
@@ -2569,5 +2575,10 @@ public final class NatUtil {
 
     public static String getDefaultFibRouteToSNATForSubnetJobKey(String subnetName, BigInteger dpnId) {
         return NatConstants.NAT_DJC_PREFIX + subnetName + dpnId;
+    }
+
+    static ReentrantLock lockForNat(final BigInteger dataPath) {
+        // FIXME: wrap this in an Identifier
+        return JvmGlobalLocks.getLockForString(NatConstants.NAT_DJC_PREFIX + dataPath);
     }
 }

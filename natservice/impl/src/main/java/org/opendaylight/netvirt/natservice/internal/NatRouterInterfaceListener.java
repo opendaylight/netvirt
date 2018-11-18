@@ -11,6 +11,7 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import java.math.BigInteger;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -91,13 +92,16 @@ public class NatRouterInterfaceListener
                         interfaceName, routerId);
                 return;
             }
-            String dpnLock = NatConstants.NAT_DJC_PREFIX + dpId;
-            synchronized (dpnLock.intern()) {
+            final ReentrantLock lock = NatUtil.lockForNat(dpId);
+            lock.lock();
+            try {
                 ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL,
                     operTx -> {
                         NatUtil.addToNeutronRouterDpnsMap(routerId, interfaceName, dpId, operTx);
                         NatUtil.addToDpnRoutersMap(routerId, interfaceName, dpId, operTx);
                     }), LOG, "Error processing NAT router interface addition");
+            } finally {
+                lock.unlock();
             }
         } else {
             LOG.info("add : Interface {} not yet operational to handle router interface add event in router {}",
@@ -122,14 +126,18 @@ public class NatRouterInterfaceListener
                     interfaceName, routerId);
             return;
         }
-        String dpnLock = NatConstants.NAT_DJC_PREFIX + dpId;
-        synchronized (dpnLock.intern()) {
+
+        final ReentrantLock lock = NatUtil.lockForNat(dpId);
+        lock.lock();
+        try {
             ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
                 //Delete the NeutronRouterDpnMap from the ODL:L3VPN operational model
                 NatUtil.removeFromNeutronRouterDpnsMap(routerId, interfaceName, dpId, operTx);
                 //Delete the DpnRouterMap from the ODL:L3VPN operational model
                 NatUtil.removeFromDpnRoutersMap(dataBroker, routerId, interfaceName, dpId, interfaceManager, operTx);
             }), LOG, "Error handling NAT router interface removal");
+        } finally {
+            lock.unlock();
         }
     }
 
