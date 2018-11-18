@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -37,6 +38,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
@@ -202,8 +204,13 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                                 String prefix = destPrefix.getDestPrefix();
                                 String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(opData.getVpnInstanceName(),
                                         prefix);
-                                synchronized (vpnPrefixKey.intern()) {
+                                // FIXME: separate out to somehow?
+                                final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnPrefixKey);
+                                lock.lock();
+                                try {
                                     fibManager.refreshVrfEntry(opData.getVrfId(), prefix);
+                                } finally {
+                                    lock.unlock();
                                 }
                             }
                         });

@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -57,6 +58,7 @@ import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.cache.InstanceIdDataObjectCache;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.caches.CacheProvider;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
@@ -220,12 +222,17 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     private boolean canHandleNewVpnInterface(final InstanceIdentifier<VpnInterface> identifier,
                           final VpnInterface vpnInterface, String vpnName) {
-        synchronized (vpnName.intern()) {
+        // FIXME: separate this out somehow?
+        final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName);
+        lock.lock();
+        try {
             if (isVpnInstanceReady(vpnName)) {
                 return true;
             }
             addToUnprocessedVpnInterfaces(identifier, vpnInterface, vpnName);
             return false;
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -851,7 +858,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 //Extra route adjacency
                 String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
                 String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
-                synchronized (vpnPrefixKey.intern()) {
+                // FIXME: separate this out somehow?
+                final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnPrefixKey);
+                lock.lock();
+                try {
                     java.util.Optional<String> rdToAllocate = vpnUtil
                             .allocateRdForExtraRouteAndUpdateUsedRdsMap(vpnId, null, prefix, vpnName,
                                     nextHop.getNextHopIpList().get(0), dpnId);
@@ -863,6 +873,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         LOG.error("processVpnInterfaceAdjacencies: No rds to allocate extraroute {}", prefix);
                         continue;
                     }
+                } finally {
+                    lock.unlock();
                 }
                 LOG.info("processVpnInterfaceAdjacencies: Added prefix {} and nextHopList {} as extra-route for vpn{}"
                         + " interface {} on dpn {}", nextHop.getIpAddress(), nextHop.getNextHopIpList(), vpnName,
@@ -1473,7 +1485,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             String vpnNamePrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
             LOG.info("remove adjacencies for nexthop {} vpnName {} interfaceName {} dpnId {}",
                     nextHop, vpnName, interfaceName, dpnId);
-            synchronized (vpnNamePrefixKey.intern()) {
+            // FIXME: separate this out somehow?
+            final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnNamePrefixKey);
+            lock.lock();
+            try {
                 if (vpnUtil.removeOrUpdateDSForExtraRoute(vpnName, primaryRd, dpnId.toString(), interfaceName,
                         prefix, nextHop.getNextHopIpList().get(0), nh, writeOperTx)) {
                     //If extra-route is present behind at least one VM, then do not remove or update
@@ -1483,6 +1498,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 }
                 fibManager.removeOrUpdateFibEntry(vpnName, nextHop.getIpAddress(), nh,
                         writeConfigTxn);
+            } finally {
+                lock.unlock();
             }
             LOG.info("removeAdjacenciesFromVpn: removed/updated FIB with rd {} prefix {}"
                             + " nexthop {} for interface {} on dpn {} for internal vpn {}",
@@ -1641,7 +1658,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             isVpnInstanceUpdate = true;
             if (VpnUtil.isDualRouterVpnUpdate(oldVpnListCopy, newVpnListCopy)) {
                 if ((oldVpnListCopy.size() == 2 || oldVpnListCopy.size() == 3)
-                        && oldVpnList.size() == 1 && newVpnList.size() == 0) {
+                        && oldVpnList.size() == 1 && newVpnList.isEmpty()) {
                     //Identify the external BGP-VPN Instance and pass that value as newVpnList
                     List<String> externalBgpVpnList = new ArrayList<>();
                     for (String newVpnName : newVpnListCopy) {
@@ -1658,7 +1675,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             externalBgpVpnList, oldVpnListCopy, futures);
 
                 } else if ((oldVpnListCopy.size() == 2 || oldVpnListCopy.size() == 3)
-                        && oldVpnList.size() == 0 && newVpnList.size() == 1) {
+                        && oldVpnList.isEmpty() && newVpnList.size() == 1) {
                     //Identify the router VPN Instance and pass that value as oldVpnList
                     List<String> routerVpnList = new ArrayList<>();
                     for (String newVpnName : newVpnListCopy) {
@@ -1838,19 +1855,21 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     private void updateLabelMapper(Long label, List<String> nextHopIpList) {
+        final String labelStr = Preconditions.checkNotNull(label, "updateLabelMapper: label cannot be null or empty!")
+                .toString();
+        // FIXME: separate this out somehow?
+        final ReentrantLock lock = JvmGlobalLocks.getLockForString(labelStr);
+        lock.lock();
         try {
-            Preconditions.checkNotNull(label, "updateLabelMapper: label cannot be null or empty!");
-            synchronized (label.toString().intern()) {
-                InstanceIdentifier<LabelRouteInfo> lriIid = InstanceIdentifier.builder(LabelRouteMap.class)
-                        .child(LabelRouteInfo.class, new LabelRouteInfoKey(label)).build();
-                Optional<LabelRouteInfo> opResult = SingleTransactionDataBroker.syncReadOptional(dataBroker,
-                        LogicalDatastoreType.OPERATIONAL, lriIid);
-                if (opResult.isPresent()) {
-                    LabelRouteInfo labelRouteInfo =
-                            new LabelRouteInfoBuilder(opResult.get()).setNextHopIpList(nextHopIpList).build();
-                    SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, lriIid,
-                            labelRouteInfo, VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
-                }
+            InstanceIdentifier<LabelRouteInfo> lriIid = InstanceIdentifier.builder(LabelRouteMap.class)
+                    .child(LabelRouteInfo.class, new LabelRouteInfoKey(label)).build();
+            Optional<LabelRouteInfo> opResult = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                LogicalDatastoreType.OPERATIONAL, lriIid);
+            if (opResult.isPresent()) {
+                LabelRouteInfo labelRouteInfo =
+                        new LabelRouteInfoBuilder(opResult.get()).setNextHopIpList(nextHopIpList).build();
+                SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, lriIid,
+                    labelRouteInfo, VpnUtil.SINGLE_TRANSACTION_BROKER_NO_RETRY);
             }
             LOG.info("updateLabelMapper: Updated label rotue info for label {} with nextHopList {}", label,
                     nextHopIpList);
@@ -1860,6 +1879,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         } catch (TransactionCommitFailedException e) {
             LOG.error("updateLabelMapper: Failed to commit to data store for label {} nexthopList {}", label,
                     nextHopIpList);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -1933,7 +1954,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             : RouteOrigin.STATIC;
                     String nh = adj.getNextHopIpList().get(0);
                     String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
-                    synchronized (vpnPrefixKey.intern()) {
+                    // FIXME: separate out to somehow?
+                    final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnPrefixKey);
+                    lock.lock();
+                    try {
                         java.util.Optional<String> rdToAllocate = vpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
                                 vpnId, null, prefix, vpnName, nh, dpnId);
                         if (rdToAllocate.isPresent()) {
@@ -1971,6 +1995,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 }
                             });
                         }
+                    } finally {
+                        lock.unlock();
                     }
                 } else if (adj.isPhysNetworkFunc()) { // PNF adjacency.
                     LOG.trace("addNewAdjToVpnInterface: Adding prefix {} to interface {} for vpn {}", prefix,
@@ -2189,7 +2215,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     public void processSavedInterfaces(String vpnInstanceName, boolean hasVpnInstanceCreatedSuccessfully) {
-        synchronized (vpnInstanceName.intern()) {
+        // FIXME: separate out to somehow?
+        final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnInstanceName);
+        lock.lock();
+        try {
             ConcurrentLinkedQueue<UnprocessedVpnInterfaceData> vpnInterfaces =
                     unprocessedVpnInterfaces.get(vpnInstanceName);
             if (vpnInterfaces != null) {
@@ -2207,24 +2236,30 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             } else {
                 LOG.info("processSavedInterfaces: No interfaces in queue for VPN {}", vpnInstanceName);
             }
+        } finally {
+            lock.unlock();
         }
     }
 
     private void removeInterfaceFromUnprocessedList(InstanceIdentifier<VpnInterface> identifier,
             VpnInterface vpnInterface) {
-        synchronized (VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface).intern()) {
+        // FIXME: use VpnInstanceNamesKey perhaps? What about nulls?
+        final String firstVpnName = VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface);
+        final ReentrantLock lock = JvmGlobalLocks.getLockForString(firstVpnName);
+        lock.lock();
+        try {
             ConcurrentLinkedQueue<UnprocessedVpnInterfaceData> vpnInterfaces =
-                unprocessedVpnInterfaces.get(VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
+                    unprocessedVpnInterfaces.get(firstVpnName);
             if (vpnInterfaces != null) {
                 if (vpnInterfaces.remove(new UnprocessedVpnInterfaceData(identifier, vpnInterface))) {
                     LOG.info("removeInterfaceFromUnprocessedList: Removed vpn interface {} in vpn instance {} from "
-                            + "unprocessed list", vpnInterface.getName(),
-                            VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
+                            + "unprocessed list", vpnInterface.getName(), firstVpnName);
                 }
             } else {
-                LOG.info("removeInterfaceFromUnprocessedList: No interfaces in queue for VPN {}",
-                        VpnHelper.getFirstVpnNameFromVpnInterface(vpnInterface));
+                LOG.info("removeInterfaceFromUnprocessedList: No interfaces in queue for VPN {}", firstVpnName);
             }
+        } finally {
+            lock.unlock();
         }
     }
 

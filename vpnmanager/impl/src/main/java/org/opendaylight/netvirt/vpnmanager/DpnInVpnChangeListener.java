@@ -14,6 +14,7 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.locks.ReentrantLock;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -24,6 +25,7 @@ import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
+import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddInterfaceToDpnOnVpnEvent;
@@ -63,34 +65,37 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
         BigInteger dpnId = eventData.getDpnId();
 
         LOG.trace("Remove Dpn Event notification received for rd {} VpnName {} DpnId {}", rd, vpnName, dpnId);
+        // FIXME: separate out to somehow?
+        final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName);
+        lock.lock();
         try {
-            synchronized (vpnName.intern()) {
-                InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
-                Optional<VpnInstanceOpDataEntry> vpnOpValue =
-                        SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-                if (vpnOpValue.isPresent()) {
-                    VpnInstanceOpDataEntry vpnInstOpData = vpnOpValue.get();
-                    List<VpnToDpnList> vpnToDpnList = vpnInstOpData.nonnullVpnToDpnList();
-                    boolean flushDpnsOnVpn = true;
-                    for (VpnToDpnList dpn : vpnToDpnList) {
-                        if (dpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                            flushDpnsOnVpn = false;
-                            break;
-                        }
+            InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
+            Optional<VpnInstanceOpDataEntry> vpnOpValue =
+                    SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+            if (vpnOpValue.isPresent()) {
+                VpnInstanceOpDataEntry vpnInstOpData = vpnOpValue.get();
+                List<VpnToDpnList> vpnToDpnList = vpnInstOpData.nonnullVpnToDpnList();
+                boolean flushDpnsOnVpn = true;
+                for (VpnToDpnList dpn : vpnToDpnList) {
+                    if (dpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                        flushDpnsOnVpn = false;
+                        break;
                     }
-                    if (flushDpnsOnVpn) {
-                        try {
-                            txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
-                                tx -> deleteDpn(vpnToDpnList, rd, tx)).get();
-                        } catch (InterruptedException | ExecutionException e) {
-                            LOG.error("Error removing dpnToVpnList for vpn {} ", vpnName);
-                            throw new RuntimeException(e.getMessage(), e);
-                        }
+                }
+                if (flushDpnsOnVpn) {
+                    try {
+                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
+                            tx -> deleteDpn(vpnToDpnList, rd, tx)).get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        LOG.error("Error removing dpnToVpnList for vpn {} ", vpnName);
+                        throw new RuntimeException(e.getMessage(), e);
                     }
                 }
             }
         } catch (ReadFailedException e) {
             LOG.error("onRemoveDpnEvent: Failed to read data store for rd {} vpn {} dpn {}", rd, vpnName, dpnId);
+        } finally {
+            lock.unlock();
         }
     }
 

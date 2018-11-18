@@ -15,9 +15,11 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.genius.mdsalutil.NWUtil;
+import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
@@ -63,7 +65,7 @@ public abstract class AbstractIpLearnNotificationHandler {
     protected void validateAndProcessIpLearning(String srcInterface, IpAddress srcIP, MacAddress srcMac,
             IpAddress targetIP, BigInteger metadata) {
         List<Adjacency> adjacencies = vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(srcInterface);
-        IpVersionChoice srcIpVersion = vpnUtil.getIpVersionFromString(srcIP.stringValue());
+        IpVersionChoice srcIpVersion = VpnUtil.getIpVersionFromString(srcIP.stringValue());
         boolean isSrcIpVersionPartOfVpn = false;
         if (adjacencies != null && !adjacencies.isEmpty()) {
             for (Adjacency adj : adjacencies) {
@@ -72,7 +74,7 @@ public abstract class AbstractIpLearnNotificationHandler {
                 if (NWUtil.isIpAddressInRange(srcIP, ipPrefix)) {
                     return;
                 }
-                IpVersionChoice currentAdjIpVersion = vpnUtil.getIpVersionFromString(adj.getIpAddress());
+                IpVersionChoice currentAdjIpVersion = VpnUtil.getIpVersionFromString(adj.getIpAddress());
                 if (srcIpVersion.isIpVersionChosen(currentAdjIpVersion)) {
                     isSrcIpVersionPartOfVpn = true;
                 }
@@ -111,7 +113,9 @@ public abstract class AbstractIpLearnNotificationHandler {
         for (String vpnName : vpnList.get()) {
             LOG.info("Received ARP/NA for sender MAC {} and sender IP {} via interface {}", srcMac.getValue(),
                     srcIpToQuery, srcInterface);
-            synchronized ((vpnName + srcIpToQuery).intern()) {
+            final ReentrantLock lock = lockFor(vpnName, srcIpToQuery);
+            lock.lock();
+            try {
                 VpnPortipToPort vpnPortipToPort = vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, srcIpToQuery);
                 // Check if this IP belongs to  external network
                 if (vpnPortipToPort == null) {
@@ -174,6 +178,8 @@ public abstract class AbstractIpLearnNotificationHandler {
                     }
                     learnMacFromIncomingPacket(vpnName, srcInterface, srcIP, srcMac, dstIP);
                 }
+            } finally {
+                lock.unlock();
             }
         }
     }
@@ -182,9 +188,13 @@ public abstract class AbstractIpLearnNotificationHandler {
             IpAddress dstIP) {
         String srcIpToQuery = srcIP.stringValue();
         String destIpToQuery = dstIP.stringValue();
-        synchronized ((vpnName + srcIpToQuery).intern()) {
+        final ReentrantLock lock = lockFor(vpnName, srcIpToQuery);
+        lock.lock();
+        try {
             vpnUtil.createLearntVpnVipToPortEvent(vpnName, srcIpToQuery, destIpToQuery, srcInterface,
                     srcMac.getValue(), LearntVpnVipToPortEventAction.Add, null);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -219,5 +229,10 @@ public abstract class AbstractIpLearnNotificationHandler {
         LOG.debug("IP_MIGRATE_CACHE: younger than timeout value - ignore learning IP {} vpnName {}",
                 ipToQuery, vpnName);
         return true;
+    }
+
+    private static ReentrantLock lockFor(String vpnName, String srcIpToQuery) {
+        // FIXME: form an Identifier? That would side-step string concat here
+        return JvmGlobalLocks.getLockForString(vpnName + srcIpToQuery);
     }
 }
