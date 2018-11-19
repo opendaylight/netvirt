@@ -1568,7 +1568,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private boolean handleVpnInstanceUpdateForVpnInterface(InstanceIdentifier<VpnInterface> identifier,
                                                            VpnInterface original, VpnInterface update,
                                                            List<ListenableFuture<Void>> futures) {
-        boolean isVpnInstanceUpdate = Boolean.FALSE;
+        boolean isVpnInstanceUpdate = false;
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class);
         final String interfaceName = key.getName();
         List<String> oldVpnList = VpnUtil.getVpnListForVpnInterface(original);
@@ -1620,7 +1620,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
              *
              *
              */
-            isVpnInstanceUpdate = Boolean.TRUE;
+            isVpnInstanceUpdate = true;
             if (VpnUtil.isDualRouterVpnUpdate(oldVpnListCopy, newVpnListCopy)) {
                 if ((oldVpnListCopy.size() == 2 || oldVpnListCopy.size() == 3)
                         && (oldVpnList.size() == 1 && newVpnList.size() == 0)) {
