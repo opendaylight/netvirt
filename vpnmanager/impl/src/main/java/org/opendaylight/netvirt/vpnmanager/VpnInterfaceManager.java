@@ -1571,10 +1571,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         boolean isVpnInstanceUpdate = Boolean.FALSE;
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class);
         final String interfaceName = key.getName();
-        List<String> oldVpnList = vpnUtil.getVpnListForVpnInterface(original);
+        List<String> oldVpnList = VpnUtil.getVpnListForVpnInterface(original);
         List<String> oldVpnListCopy = new ArrayList<>();
         oldVpnListCopy.addAll(oldVpnList);
-        List<String> newVpnList = vpnUtil.getVpnListForVpnInterface(update);
+        List<String> newVpnList = VpnUtil.getVpnListForVpnInterface(update);
         List<String> newVpnListCopy = new ArrayList<>();
         newVpnListCopy.addAll(newVpnList);
 

@@ -2300,7 +2300,7 @@ public final class VpnUtil {
         return VpnConstants.IP_MONITOR_JOB_PREFIX_KEY + "-" + vpnName + "-" + ip;
     }
 
-    public List<String> getVpnListForVpnInterface(VpnInterface vpnInter) {
+    public static List<String> getVpnListForVpnInterface(VpnInterface vpnInter) {
         return requireNonNullElse(vpnInter.getVpnInstanceNames(), Collections.<VpnInstanceNames>emptyList()).stream()
                 .map(VpnInstanceNames::getVpnName).collect(Collectors.toList());
     }
