@@ -1621,7 +1621,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
              *
              */
             isVpnInstanceUpdate = Boolean.TRUE;
-            if (vpnUtil.isDualRouterVpnUpdate(oldVpnListCopy, newVpnListCopy)) {
+            if (VpnUtil.isDualRouterVpnUpdate(oldVpnListCopy, newVpnListCopy)) {
                 if ((oldVpnListCopy.size() == 2 || oldVpnListCopy.size() == 3)
                         && (oldVpnList.size() == 1 && newVpnList.size() == 0)) {
                     //Identify the external BGP-VPN Instance and pass that value as newVpnList

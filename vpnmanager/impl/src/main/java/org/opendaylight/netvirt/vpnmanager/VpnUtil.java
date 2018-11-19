@@ -2333,11 +2333,8 @@ public final class VpnUtil {
         return obj != null ? obj : requireNonNull(defaultObj);
     }
 
-    public boolean isDualRouterVpnUpdate(List<String> oldVpnListCopy, List<String> newVpnListCopy) {
-        if (oldVpnListCopy.size() == 2 && newVpnListCopy.size() == 3
-                || oldVpnListCopy.size() == 3 && newVpnListCopy.size() == 2) {
-            return true;
-        }
-        return false;
+    public static boolean isDualRouterVpnUpdate(List<String> oldVpnListCopy, List<String> newVpnListCopy) {
+        return oldVpnListCopy.size() == 2 && newVpnListCopy.size() == 3
+                || oldVpnListCopy.size() == 3 && newVpnListCopy.size() == 2;
     }
 }
