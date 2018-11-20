@@ -869,7 +869,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             String gwMacAddress = vrfEntry.getGatewayMacAddress();
             //The loadbalancing group is created only if the extra route has multiple nexthops
             //to avoid loadbalancing the discovered routes
-            if (vpnExtraRoutes != null && routes != null) {
+            if (RouteOrigin.STATIC.getValue().equals(vrfEntry.getOrigin()) && vpnExtraRoutes != null
+                    && routes != null) {
                 if (vpnExtraRoutes.size() > 1) {
                     groupId = nextHopManager.createNextHopGroups(vpnId, rd, dpnId, vrfEntry, routes, vpnExtraRoutes);
                     localGroupId = nextHopManager.getLocalSelectGroup(vpnId, vrfEntry.getDestPrefix());
