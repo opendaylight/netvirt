@@ -25,8 +25,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency.AdjacencyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
@@ -58,11 +60,12 @@ public abstract class AbstractIpLearnNotificationHandler {
                         TimeUnit.MILLISECONDS).build();
     }
 
-    protected void validateAndProcessIpLearning(String srcInterface, IpAddress srcIP, MacAddress srcMac,
+    protected void handlePacketReceived(String srcInterface, IpAddress srcIP, MacAddress srcMac,
             IpAddress targetIP, BigInteger metadata) {
         List<Adjacency> adjacencies = vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(srcInterface);
-        IpVersionChoice srcIpVersion = vpnUtil.getIpVersionFromString(srcIP.stringValue());
+        IpVersionChoice srcIpVersion = VpnUtil.getIpVersionFromString(srcIP.stringValue());
         boolean isSrcIpVersionPartOfVpn = false;
+        Uuid srcSubnetId = null;
         if (adjacencies != null && !adjacencies.isEmpty()) {
             for (Adjacency adj : adjacencies) {
                 IpPrefix ipPrefix = IpPrefixBuilder.getDefaultInstance(adj.getIpAddress());
@@ -70,9 +73,11 @@ public abstract class AbstractIpLearnNotificationHandler {
                 if (NWUtil.isIpAddressInRange(srcIP, ipPrefix)) {
                     return;
                 }
-                IpVersionChoice currentAdjIpVersion = vpnUtil.getIpVersionFromString(adj.getIpAddress());
-                if (srcIpVersion.isIpVersionChosen(currentAdjIpVersion)) {
+                IpVersionChoice currentAdjIpVersion = VpnUtil.getIpVersionFromString(adj.getIpAddress());
+                if (adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency
+                        && srcIpVersion.isIpVersionChosen(currentAdjIpVersion)) {
                     isSrcIpVersionPartOfVpn = true;
+                    srcSubnetId = adj.getSubnetId();
                 }
             }
             //If srcIP version is not part of the srcInterface VPN Adjacency, ignore IpLearning process
@@ -81,68 +86,76 @@ public abstract class AbstractIpLearnNotificationHandler {
             }
         }
 
-        LOG.trace("ARP/NA Notification Response Received from interface {} and IP {} having MAC {}, learning MAC",
-                srcInterface, srcIP.stringValue(), srcMac.getValue());
-        processIpLearning(srcInterface, srcIP, srcMac, metadata, targetIP);
+        if (metadata == null || Objects.equals(metadata, BigInteger.ZERO)) {
+            LOG.debug(
+                    "Metadata is null or zero, ignoring IP learning for interface={}, srcIP={}, srcMAC={}, "
+                            + "srcSubnetId={}, targetIP={}",
+                    srcInterface, srcIP.stringValue(), srcMac.getValue(), srcSubnetId, targetIP.stringValue());
+            return;
+        }
+        Optional<Uuid> vpnIdOptional = vpnUtil.getVpnIdFromSubnetId(srcSubnetId);
+        if (!vpnIdOptional.isPresent()) {
+            LOG.debug(
+                    "IP LEARN NO_RESOLVE: VPN not configured, ignoring IP learning for interface={}, srcIP={},"
+                            + " srcMAC={}, srcSubnetId={}, targetIP={}",
+                    srcInterface, srcIP.stringValue(), srcMac.getValue(), srcSubnetId, targetIP.stringValue());
+            return;
+        }
+        String vpnName = vpnIdOptional.get().getValue();
+        String primaryRd = vpnUtil.getPrimaryRd(vpnName);
+        if (!VpnUtil.isBgpVpn(vpnName, primaryRd)) {
+            LOG.trace(
+                    "BGP-VPN not configured, ignoring IP learning for interface={}, srcIP={}, srcMAC={}, "
+                            + "srcSubnetId={}, targetIP={}, vpnName={}",
+                    srcInterface, srcIP.stringValue(), srcMac.getValue(), srcSubnetId, targetIP.stringValue(), vpnName);
+            return;
+        }
+        // proceed with IP learning
+        processIpLearning(srcInterface, srcIP, srcMac, targetIP, vpnName);
     }
 
-    protected void processIpLearning(String srcInterface, IpAddress srcIP, MacAddress srcMac, BigInteger metadata,
-                                     IpAddress dstIP) {
-
-        if (metadata == null || Objects.equals(metadata, BigInteger.ZERO)) {
-            return;
-        }
-
-        Optional<List<String>> vpnList = vpnUtil.getVpnHandlingIpv4AssociatedWithInterface(srcInterface);
-        if (!vpnList.isPresent()) {
-            LOG.info("IP LEARN NO_RESOLVE: VPN  not configured. Ignoring responding to ARP/NA requests from this"
-                    + " Interface {}.", srcInterface);
-            return;
-        }
-
+    private void processIpLearning(String srcInterface, IpAddress srcIP, MacAddress srcMac, IpAddress dstIP,
+            String vpnName) {
         String srcIpToQuery = srcIP.stringValue();
         String destIpToQuery = dstIP.stringValue();
-        for (String vpnName : vpnList.get()) {
-            LOG.info("Received ARP/NA for sender MAC {} and sender IP {} via interface {}",
-                      srcMac.getValue(), srcIpToQuery, srcInterface);
-            VpnPortipToPort vpnPortipToPort =
-                    vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, srcIpToQuery);
-            if (vpnPortipToPort != null) {
-                /* This is a well known neutron port and so should be ignored
-                 * from being discovered...unless it is an Octavia VIP
-                 */
-                String portName = vpnPortipToPort.getPortName();
-                Port neutronPort = neutronVpnManager.getNeutronPort(portName);
 
-                if (neutronPort == null) {
-                    LOG.warn("{} should have been a neutron port but could not retrieve it. Aborting processing",
-                             portName);
-                    continue;
-                }
+        LOG.info("Received ARP/IPv6-NA packet: srcMac={}, srcIP={}, dstIP={}, srcInterface={}, vpnName={}",
+                srcMac.getValue(), srcIpToQuery, srcInterface, destIpToQuery, vpnName);
+        VpnPortipToPort vpnPortipToPort = vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, srcIpToQuery);
+        if (vpnPortipToPort != null) {
+            /*
+             * This is a well known neutron port and so should be ignored from being discovered...unless it is
+             * an Octavia VIP
+             */
+            String portName = vpnPortipToPort.getPortName();
+            Port neutronPort = neutronVpnManager.getNeutronPort(portName);
 
-                if (!"Octavia".equals(neutronPort.getDeviceOwner())) {
-                    LOG.debug("Neutron port {} is not an Octavia port, ignoring", portName);
-                    continue;
-                }
+            if (neutronPort == null) {
+                LOG.warn("{} should have been a neutron port but could not retrieve it. Abort processing", portName);
+                return;
             }
 
-            LearntVpnVipToPort learntVpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, srcIpToQuery);
-            if (learntVpnVipToPort != null) {
-                String oldPortName = learntVpnVipToPort.getPortName();
-                String oldMac = learntVpnVipToPort.getMacAddress();
-                if (!oldMac.equalsIgnoreCase(srcMac.getValue())) {
-                    //MAC has changed for requested IP
-                    LOG.info("ARP/NA Source IP/MAC data modified for IP {} with MAC {} and Port {}",
-                            srcIpToQuery, srcMac, srcInterface);
-                    synchronized ((vpnName + srcIpToQuery).intern()) {
-                        vpnUtil.createLearntVpnVipToPortEvent(vpnName, srcIpToQuery, destIpToQuery,
-                                oldPortName, oldMac, LearntVpnVipToPortEventAction.Delete, null);
-                        putVpnIpToMigrateIpCache(vpnName, srcIpToQuery, srcMac);
-                    }
-                }
-            } else if (!isIpInMigrateCache(vpnName, srcIpToQuery)) {
-                learnMacFromIncomingPacket(vpnName, srcInterface, srcIP, srcMac, dstIP);
+            if (!"Octavia".equals(neutronPort.getDeviceOwner())) {
+                LOG.debug("Neutron port {} is not an Octavia port, ignoring", portName);
+                return;
             }
+        }
+        LearntVpnVipToPort learntVpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, srcIpToQuery);
+        if (learntVpnVipToPort != null) {
+            String oldPortName = learntVpnVipToPort.getPortName();
+            String oldMac = learntVpnVipToPort.getMacAddress();
+            if (!oldMac.equalsIgnoreCase(srcMac.getValue())) {
+                // MAC has changed for requested IP
+                LOG.info("ARP/NA Source IP/MAC data modified for IP {} with MAC {} and Port {}", srcIpToQuery, srcMac,
+                        srcInterface);
+                synchronized ((vpnName + srcIpToQuery).intern()) {
+                    vpnUtil.createLearntVpnVipToPortEvent(vpnName, srcIpToQuery, destIpToQuery, oldPortName, oldMac,
+                            LearntVpnVipToPortEventAction.Delete, null);
+                    putVpnIpToMigrateIpCache(vpnName, srcIpToQuery, srcMac);
+                }
+            }
+        } else if (!isIpInMigrateCache(vpnName, srcIpToQuery)) {
+            learnMacFromIncomingPacket(vpnName, srcInterface, srcIP, srcMac, dstIP);
         }
     }
 

@@ -188,7 +188,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             vpnManagerCounters.subnetRoutePacketIgnored();
             LOG.info("{} onPacketReceived: IP Packet received with Target IP {} source IP {} vpnId {} "
                     + "is a valid Neutron port,ignoring subnet route processing", LOGGING_PREFIX, dstIpStr,
-                    srcIp, vpnId);
+                    srcIpStr, vpnId);
             return;
         }
 
@@ -196,7 +196,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             vpnManagerCounters.subnetRoutePacketIgnored();
             LOG.info("{} onPacketReceived: IP Packet received with Target IP {} source Ip {} vpnId {}"
                     + " is an already discovered IPAddress, ignoring subnet route processing",
-                    LOGGING_PREFIX, dstIpStr, srcIp, vpnId);
+                    LOGGING_PREFIX, dstIpStr, srcIpStr, vpnId);
             return;
         }
 
@@ -205,7 +205,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             vpnManagerCounters.subnetRoutePacketFailed();
             LOG.error("{} onPacketReceived: elanTag value from metadata found to be 0, for IP "
                     + " Packet received with Target IP {} src Ip {} vpnId {}",
-                    LOGGING_PREFIX, dstIpStr, srcIp, vpnId);
+                    LOGGING_PREFIX, dstIpStr, srcIpStr, vpnId);
             return;
         }
 
