@@ -54,13 +54,6 @@ converting the COE related constructs to Netvirt constructs.
 Netvirt Changes
 ---------------
 
-DHCP Module
-^^^^^^^^^^^
-
-COE will be using DHCP dynamic allocation feature in Netvirt, which has some missing parts
-for the integration to work. DHCP module's bind service logic so far works only for neutron ports.
-This has to be enhanced to work for k8s pods as well.
-
 ARP Responder
 ^^^^^^^^^^^^^
 
@@ -135,13 +128,6 @@ No pipeline changes will be introduced as part of this feature.
 Workflow
 --------
 
-Configure DHCP Pool(Optional)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#. netvirt/dhcpmanager: For an immediate solution, a flat dhcp pool will be precreated
-   manually, and IPs will be allocated for PODs from this pool.
-#. netvirt/dhcpmanager: For an immediate solution, a flat service pool will be precreated
-   manually, and IPs will be allocated for SERVICEs from this pool.
-
 Create Pod
 ^^^^^^^^^^
 #. coe/coe-northbound: User created a POD
@@ -161,18 +147,6 @@ Create Pod
    populating all L2 related flows in OVS.
 #. netvirt/vpnmanager: Whenever interface-state is created, vpnmanager will take care of
    populating all L3 related flows in OVS.
-
-Create Service
-^^^^^^^^^^^^^^
-
-#. netvirt/coe: When a pod is attached to a service, floating-ip-info has to be populated
-#. netvirt/natmanager: Listens on floating-ip-changes and do the NATing as it is done currently.
-
-Delete Service
-^^^^^^^^^^^^^^
-
-#. netvirt/coe: When a pod is removed from a service, corresponding floating-ip-info will be removed.
-#. netvirt/natmanager: Listens on floating-ip-changes and remove the NAT rules approporiately.
 
 Delete Pod
 ^^^^^^^^^^
@@ -245,31 +219,6 @@ This feature add the below new feature :
 REST API
 --------
 
-Creating DHCP Pool
-^^^^^^^^^^^^^^^^^^
-
-**URL:** restconf/config/dhcp_allocation_pool:dhcp_allocation_pool/
-
-**Sample JSON data**
-
-.. code-block:: json
-
-  {
-    "dhcp_allocation_pool:network": [
-     {
-        "dhcp_allocation_pool:allocation-pool": [
-          {
-            "dhcp_allocation_pool:subnet": "192.168.10.0/24",
-            "dhcp_allocation_pool:allocate-to": "192.168.10.50",
-            "dhcp_allocation_pool:gateway": "192.168.10.2",
-            "dhcp_allocation_pool:allocate-from": "192.168.10.3"
-           }
-        ],
-        "dhcp_allocation_pool:network-id": "pod-namespace"
-      }
-    ]
-  }
-
 Creating POD directly in COE
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -295,29 +244,6 @@ Creating POD directly in COE
         ]
       }
     ]
-  }
-
-Creating SERVICE directly in COE
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-**URL:** restconf/config/service:service-information
-
-**Sample JSON data**
-
-.. code-block:: json
-
-  {
-    "service:service-information": {
-      "service:services": [
-        {
-          "service:uid": "EeafFFB7-D9Fc-aAeD-FBc9-8Af8BFaacDD9",
-          "service:cluster-ip-address": "5.21.5.0",
-          "service:endpoints": [
-            "AFbcF0EB-Fc3f-acea-A438-5CFDfCEfbcb0"
-          ]
-        }
-      ]
-    }
   }
 
 Assignee(s)
@@ -346,9 +272,8 @@ Junits
 This feature will support following use cases:
 
 * TC 1: Create a POD within a node under a namespace
-* TC 2: Attach a POD to service
-* TC 3: Remove a POD from service
-* TC 4: Delete a POD from a namespace
+* TC 2: Delete a POD from a namespace
+* TC 3: All pods under the same namespace should be able to communicate with each other
 
 CSIT
 ----
