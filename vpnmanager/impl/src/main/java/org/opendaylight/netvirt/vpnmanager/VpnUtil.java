@@ -757,23 +757,9 @@ public final class VpnUtil {
         return read(LogicalDatastoreType.CONFIGURATION, interfaceId).isPresent();
     }
 
-    public Optional<List<String>> getVpnHandlingIpv4AssociatedWithInterface(String interfaceName) {
-        InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
-        Optional<List<String>> vpnOptional = Optional.absent();
-        Optional<VpnInterface> optConfiguredVpnInterface = read(LogicalDatastoreType.CONFIGURATION, interfaceId);
-        if (optConfiguredVpnInterface.isPresent()) {
-            VpnInterface cfgVpnInterface = optConfiguredVpnInterface.get();
-            java.util.Optional<List<VpnInstanceNames>> optVpnInstanceList =
-                 java.util.Optional.ofNullable(cfgVpnInterface.getVpnInstanceNames());
-            if (optVpnInstanceList.isPresent()) {
-                List<String> vpnList = new ArrayList<>();
-                for (VpnInstanceNames vpnInstance : optVpnInstanceList.get()) {
-                    vpnList.add(vpnInstance.getVpnName());
-                }
-                vpnOptional = Optional.of(vpnList);
-            }
-        }
-        return vpnOptional;
+    public Optional<Uuid> getVpnIdFromSubnetId(Uuid srcSubnetId) {
+        Subnetmap subnetMap = getSubnetmapFromItsUuid(srcSubnetId);
+        return subnetMap == null ? Optional.absent() : Optional.of(subnetMap.getVpnId());
     }
 
     public static String getIpPrefix(String prefix) {
@@ -1426,7 +1412,7 @@ public final class VpnUtil {
         return rds == null || rds.isEmpty() ? vpnInstance.getVpnInstanceName() : rds.get(0);
     }
 
-    static boolean isBgpVpn(String vpnName, String primaryRd) {
+    public static boolean isBgpVpn(String vpnName, String primaryRd) {
         return !vpnName.equals(primaryRd);
     }
 
