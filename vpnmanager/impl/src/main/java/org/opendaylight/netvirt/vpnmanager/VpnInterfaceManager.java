@@ -1393,7 +1393,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     interfaceName, writeInvTxn);
                         }
                         if (!nhList.isEmpty()) {
-                            if (rd.equals(vpnName)) {
+                            if (primaryRd.equals(vpnName)) {
                                 //this is an internal vpn - the rd is assigned to the vpn instance name;
                                 //remove from FIB directly
                                 nhList.forEach(removeAdjacencyFromInternalVpn(nextHop, vpnName,
@@ -1900,7 +1900,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 }
                 if (adj.getNextHopIpList() != null && !adj.getNextHopIpList().isEmpty()
                         && adj.getAdjacencyType() != AdjacencyType.PrimaryAdjacency) {
-                    RouteOrigin origin = adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency ? RouteOrigin.LOCAL
+                    RouteOrigin origin = adj.getAdjacencyType() == AdjacencyType.LearntIp ? RouteOrigin.DYNAMIC
                             : RouteOrigin.STATIC;
                     String nh = adj.getNextHopIpList().get(0);
                     String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
