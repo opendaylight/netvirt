@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import javax.inject.Inject;
@@ -189,7 +190,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     confTx -> vpnManager.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd,
                             null /* routerId */, vpnOpEntry.getL3vni(), RouteOrigin.STATIC, null /* intfName */,
-                        null /*Adjacency*/, encapType, confTx)).get();
+                        null /*Adjacency*/, encapType, new HashSet<>() /*prefixListForRefreshFib*/,confTx)).get();
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error adding static route {}", input, e);
                 result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(ErrorType.APPLICATION,
