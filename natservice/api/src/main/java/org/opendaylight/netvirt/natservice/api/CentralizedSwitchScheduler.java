@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.natservice.api;
 
 import java.math.BigInteger;
+import java.util.Set;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 
@@ -64,5 +65,7 @@ public interface CentralizedSwitchScheduler {
      * @return whether connected to provider network or not.
      */
     boolean isSwitchConnectedToExternal(BigInteger dpnId, String providerNet);
+
+    Set<BigInteger> getSwitchesConnectedToExternal(String providerNet);
 
 }
