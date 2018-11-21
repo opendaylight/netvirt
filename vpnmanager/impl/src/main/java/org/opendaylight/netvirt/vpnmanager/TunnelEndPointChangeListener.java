@@ -11,20 +11,23 @@ package org.opendaylight.netvirt.vpnmanager;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import com.google.common.util.concurrent.MoreExecutors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -46,16 +49,18 @@ public class TunnelEndPointChangeListener
     private final VpnInterfaceManager vpnInterfaceManager;
     private final JobCoordinator jobCoordinator;
     private final VpnUtil vpnUtil;
+    private final IFibManager fibManager;
 
     @Inject
     public TunnelEndPointChangeListener(final DataBroker broker, final VpnInterfaceManager vpnInterfaceManager,
-            final JobCoordinator jobCoordinator, VpnUtil vpnUtil) {
+            final JobCoordinator jobCoordinator, VpnUtil vpnUtil, final IFibManager fibManager) {
         super(TunnelEndPoints.class, TunnelEndPointChangeListener.class);
         this.broker = broker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.jobCoordinator = jobCoordinator;
         this.vpnUtil = vpnUtil;
+        this.fibManager = fibManager;
     }
 
     @PostConstruct
@@ -116,15 +121,33 @@ public class TunnelEndPointChangeListener
                                 }
                                 final int lPortTag = interfaceState.getIfIndex();
                                 List<ListenableFuture<Void>> futures = new ArrayList<>();
-                                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-                                    writeConfigTxn -> futures.add(
-                                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
-                                            writeOperTxn -> futures.add(
-                                                txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                                                    writeInvTxn -> vpnInterfaceManager.processVpnInterfaceAdjacencies(
-                                                        dpnId, lPortTag, vpnName, primaryRd, vpnInterfaceName, vpnId,
-                                                        writeConfigTxn, writeOperTxn, writeInvTxn,
-                                                        interfaceState)))))));
+                                Set<String> prefixesForRefreshFib = new HashSet<>();
+                                ListenableFuture<Void> writeConfigFuture =
+                                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                                        writeConfigTxn -> futures.add(
+                                            txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
+                                                writeOperTxn -> futures.add(
+                                                    txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                                                        writeInvTxn ->
+                                                            vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId,
+                                                                lPortTag, vpnName, primaryRd, vpnInterfaceName, vpnId,
+                                                                writeConfigTxn, writeOperTxn, writeInvTxn,
+                                                                interfaceState, prefixesForRefreshFib)
+                                                    )))));
+                                Futures.addCallback(writeConfigFuture, new FutureCallback<Void>() {
+                                    @Override
+                                    public void onSuccess(Void voidObj) {
+                                        prefixesForRefreshFib.forEach(prefix -> {
+                                            fibManager.refreshVrfEntry(primaryRd, prefix);
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onFailure(Throwable throwable) {
+                                        LOG.debug("addVpnInterface: write Tx config execution failed {}", throwable);
+                                    }
+                                }, MoreExecutors.directExecutor());
+                                futures.add(writeConfigFuture);
                                 LOG.trace("add: Handled TEP {} add for VPN instance {} VPN interface {}",
                                         tep.getInterfaceName(), vpnName, vpnInterfaceName);
                                 return futures;

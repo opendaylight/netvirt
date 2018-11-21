@@ -10,6 +10,10 @@ package org.opendaylight.netvirt.vpnmanager;
 import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -196,7 +200,9 @@ public class VpnManagerImpl implements IVpnManager {
     @Override
     public void addExtraRoute(String vpnName, String destination, String nextHop, String rd, @Nullable String routerID,
         Long l3vni, RouteOrigin origin, @Nullable String intfName, @Nullable Adjacency operationalAdj,
-        VrfEntry.EncapType encapType, @Nonnull TypedWriteTransaction<Configuration> confTx) {
+        VrfEntry.EncapType encapType, Set<String> prefixListForRefreshFib,
+        @Nonnull TypedWriteTransaction<Configuration> confTx) {
+        Boolean writeConfigTxnPresent = true;
         //add extra route to vpn mapping; advertise with nexthop as tunnel ip
         vpnUtil.syncUpdate(LogicalDatastoreType.OPERATIONAL,
                 VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, rd != null ? rd : routerID,
@@ -246,7 +252,7 @@ public class VpnManagerImpl implements IVpnManager {
                 List<String> nhList = optVpnExtraRoutes.get().getNexthopIpList();
                 if (nhList != null && nhList.size() > 1) {
                     // If nhList is greater than one for vpnextraroute, a call to populatefib doesn't update vrfentry.
-                    fibManager.refreshVrfEntry(primaryRd, destination);
+                    prefixListForRefreshFib.add(destination);
                 } else {
                     L3vpnInput input = new L3vpnInput().setNextHop(operationalAdj).setNextHopIp(nextHop).setL3vni(l3vni)
                             .setPrimaryRd(primaryRd).setVpnName(vpnName).setDpnId(dpnId)
@@ -254,6 +260,22 @@ public class VpnManagerImpl implements IVpnManager {
                     L3vpnRegistry.getRegisteredPopulator(encapType).populateFib(input, confTx);
                 }
             }
+        }
+        if (!writeConfigTxnPresent) {
+            ListenableFuture<Void> writeTxConfigFuture = confTx;
+            Futures.addCallback(writeTxConfigFuture, new FutureCallback<Void>() {
+                @Override
+                public void onSuccess(Void voidObj) {
+                    prefixListForRefreshFib.forEach(prefix -> {
+                        fibManager.refreshVrfEntry(primaryRd, prefix);
+                    });
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    LOG.debug("addExtraRoute: write Tx config execution failed {}", throwable);
+                }
+            }, MoreExecutors.directExecutor());
         }
     }
 
