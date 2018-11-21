@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
@@ -353,6 +354,15 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             return switchWeightMap.containsKey(dpnId);
         }
         return false;
+    }
+
+    @Override
+    public Set<BigInteger> getSwitchesConnectedToExternal(String providerNet) {
+        Map<BigInteger,Integer> switchWeightMap = providerSwitchWeightsMap.get(providerNet);
+        if (switchWeightMap != null) {
+            return switchWeightMap.keySet();
+        }
+        return null;
     }
 
     public static List<Uuid> getUpdatedSubnetIds(
