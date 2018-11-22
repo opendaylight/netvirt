@@ -171,12 +171,12 @@ public class PodListener implements DataTreeChangeListener<Pods> {
         @Override
         public List<ListenableFuture<Void>> call() {
             LOG.trace("Adding Pod : {}", podInterface);
-            String interfaceName = CoeUtils.buildInterfaceName(pods.getNetworkNS(), pods.getName());
+            String interfaceName = CoeUtils.buildInterfaceName(pods.getClusterUuid().toString(), pods.getName());
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx ->  {
                 String nodeIp = pods.getHostIpAddress().stringValue();
                 ElanInstance elanInstance = CoeUtils.createElanInstanceForTheFirstPodInTheNetwork(
-                        pods.getNetworkNS(), nodeIp, podInterface, tx);
+                        pods.getClusterUuid().toString(), nodeIp, podInterface, tx);
                 LOG.info("interface creation for pod {}", interfaceName);
                 String portInterfaceName = CoeUtils.createOfPortInterface(interfaceName, tx);
                 LOG.debug("Creating ELAN Interface for pod {}", interfaceName);
@@ -184,7 +184,7 @@ public class PodListener implements DataTreeChangeListener<Pods> {
                         elanInstance.getElanInstanceName(), tx);
                 LOG.debug("Creating VPN instance for namespace {}", pods.getNetworkNS());
                 List<String> rd = Arrays.asList("100:1");
-                CoeUtils.createVpnInstance(pods.getNetworkNS(), rd, null, null,
+                CoeUtils.createVpnInstance(pods.getClusterUuid().toString(), rd, null, null,
                         VpnInstance.Type.L3, 0, IpVersionChoice.IPV4, tx);
             }));
             if (podInterface.getIpAddress() != null) {
@@ -210,7 +210,7 @@ public class PodListener implements DataTreeChangeListener<Pods> {
         @Override
         public List<ListenableFuture<Void>> call() {
             List<ListenableFuture<Void>> futures = new ArrayList<>();
-            String podInterfaceName = CoeUtils.buildInterfaceName(pods.getNetworkNS(), pods.getName());
+            String podInterfaceName = CoeUtils.buildInterfaceName(pods.getClusterUuid().toString(), pods.getName());
             futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 LOG.trace("Deleting Pod : {}", podInterfaceName);
                 LOG.debug("Deleting VPN Interface for pod {}", podInterfaceName);

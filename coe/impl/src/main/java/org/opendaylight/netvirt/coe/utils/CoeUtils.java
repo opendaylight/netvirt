@@ -251,12 +251,12 @@ public final class CoeUtils {
     }
 
     public static ElanInstance
-        createElanInstanceForTheFirstPodInTheNetwork(String networkNS, String nodeIp,
+        createElanInstanceForTheFirstPodInTheNetwork(String clusterId, String nodeIp,
                                                  org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod
                                                          .rev170611.pod_attributes.Interface podInterface,
                                                  TypedReadWriteTransaction<Datastore.Configuration> wrtConfigTxn)
             throws ExecutionException, InterruptedException {
-        String elanInstanceName = buildElanInstanceName(nodeIp, networkNS);
+        String elanInstanceName = buildElanInstanceName(nodeIp, clusterId);
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
         ElanInstance existingElanInstance = wrtConfigTxn.read(id).get().orNull();
         if (existingElanInstance != null) {
