@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
@@ -26,7 +27,7 @@ public class IpMonitorStopTask implements Callable<List<ListenableFuture<Void>>>
     private final VpnUtil vpnUtil;
 
     public IpMonitorStopTask(MacEntry macEntry, boolean removeMipAdjAndLearntIp, VpnUtil vpnUtil,
-                              AlivenessMonitorUtils alivenessMonitorUtils) {
+                             AlivenessMonitorUtils alivenessMonitorUtils) {
         this.macEntry = macEntry;
         this.alivenessMonitorUtils = alivenessMonitorUtils;
         this.isRemoveMipAdjAndLearntIp = removeMipAdjAndLearntIp;
@@ -48,7 +49,9 @@ public class IpMonitorStopTask implements Callable<List<ListenableFuture<Void>>>
                         + "Ignoring this remove event.", learntIp, vpnName);
                 return futures;
             }
-            vpnUtil.removeMipAdjAndLearntIp(vpnName, macEntry.getInterfaceName(), learntIp);
+            vpnUtil.removeLearntVpnVipToPort(macEntry.getVpnName(), macEntry.getIpAddress().getHostAddress(), null);
+            vpnUtil.removeVpnPortFixedIpToPort(macEntry.getVpnName(), macEntry.getIpAddress().getHostAddress(), null);
+            vpnUtil.removeMipAdjacency(macEntry.getInterfaceName(), macEntry.getIpAddress().getHostAddress());
         } else {
             // Delete only MIP adjacency
             vpnUtil.removeMipAdjacency(macEntry.getInterfaceName(), learntIp);
