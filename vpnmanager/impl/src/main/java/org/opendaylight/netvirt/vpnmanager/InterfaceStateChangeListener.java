@@ -37,6 +37,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -218,6 +220,7 @@ public class InterfaceStateChangeListener
                                                     + " triggered by northbound agent. ignoring.", ifName, vpnName);
                                                 continue;
                                             }
+                                            handleMipAdjRemoval(cfgVpnInterface, vpnName);
                                             final VpnInterfaceOpDataEntry vpnInterface = optVpnInterface.get();
                                             String gwMac = intrf.getPhysAddress() != null ? intrf.getPhysAddress()
                                                 .getValue() : vpnInterface.getGatewayMacAddress();
@@ -316,6 +319,7 @@ public class InterfaceStateChangeListener
                                                         vpnUtil.getVpnInterfaceOpDataEntry(vpnIf.getName(), vpnName);
                                                     if (optVpnInterface.isPresent()) {
                                                         VpnInterfaceOpDataEntry vpnOpInterface = optVpnInterface.get();
+                                                        handleMipAdjRemoval(vpnIf, vpnName);
                                                         vpnInterfaceManager.processVpnInterfaceDown(dpnId,
                                                             vpnIf.getName(),
                                                             ifIndex, update.getPhysAddress().getValue(), vpnOpInterface,
@@ -339,6 +343,27 @@ public class InterfaceStateChangeListener
             LOG.error("Exception observed in handling updation of VPN Interface {}. ", update.getName(), e);
         }
     }
+
+    private void handleMipAdjRemoval(VpnInterface cfgVpnInterface, String vpnName) {
+        String interfaceName = cfgVpnInterface.getName();
+        List<Adjacency> adjacencyList = vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(interfaceName);
+        if (!adjacencyList.isEmpty()) {
+            for (Adjacency adj : adjacencyList) {
+                if (adj.getAdjacencyType() != Adjacency.AdjacencyType.PrimaryAdjacency) {
+                    String ipAddress = adj.getIpAddress();
+                    String prefix = ipAddress.split("/")[0];
+                    LearntVpnVipToPort vpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, prefix);
+                    if (vpnVipToPort != null && vpnVipToPort.getPortName().equals(interfaceName)) {
+                        vpnUtil.removeMipAdjacency(interfaceName, ipAddress);
+                    } else {
+                        LOG.debug("IP {} could be extra-route or learnt-ip on different interface"
+                                + "than oper-vpn-interface {}", ipAddress, interfaceName);
+                    }
+                }
+            }
+        }
+    }
+
 
     private class PostVpnInterfaceThreadWorker implements FutureCallback<Void> {
         private final String interfaceName;
