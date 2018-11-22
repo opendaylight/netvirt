@@ -16,6 +16,24 @@
       "revId": "d4f606b2e88ab18e85235706d2bbe3a1a26e14b0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b5fa3232_65f714f1",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-11-22T09:03:05Z",
+      "side": 1,
+      "message": "Michael as you can see, configureFeatures() is called during the blueprint initialization, and this method gets invoked on all 3 nodes in a cluster which can result in OptimisticLockFailedException, and I think that is the reason why this is a LOG.warn. If we propagate this, there will be bundle bringup issues. you can see that existing line 251 has a similar implementation. How do we go about it?",
+      "parentUuid": "6c190b69_b10c96ac",
+      "revId": "d4f606b2e88ab18e85235706d2bbe3a1a26e14b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
