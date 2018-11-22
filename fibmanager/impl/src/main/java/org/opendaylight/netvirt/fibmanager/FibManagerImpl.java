@@ -199,6 +199,10 @@ public class FibManagerImpl implements IFibManager {
         vrfEntryListener.removeInterVPNLinkRouteFlows(interVpnLink, vpnName, vrfEntry);
     }
 
+    public boolean checkFibEntryExist(String rd, String prefix, String nextHopIp) {
+        return fibUtil.checkFibEntryExist(rd, prefix, nextHopIp);
+    }
+
     @Override
     public void programDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId, String destinationIp,
                                               int addRemoveOrUpdate, boolean isTunnelUp,
