@@ -891,6 +891,30 @@ public class FibUtil {
         }
     }
 
+    public  boolean checkFibEntryExist(String rd, String prefix, String nextHopIp) {
+        InstanceIdentifier<VrfEntry> vrfEntryId =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
+                        .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+        try {
+            Optional<VrfEntry> entry = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+            if (entry.isPresent()) {
+                List<RoutePaths> routePaths = entry.get().getRoutePaths();
+                java.util.Optional<RoutePaths> optRoutePath =
+                        routePaths.stream()
+                                .filter(routePath -> Objects.equals(routePath.getNexthopAddress(), nextHopIp))
+                                .findFirst();
+                if (optRoutePath.isPresent()) {
+                    return true;
+                }
+            }
+        } catch (ReadFailedException e) {
+            LOG.error("Exception occurred while reading fib entry for rd {} prefix {} nextHopIp {} ",
+                    rd, prefix, nextHopIp, e);
+        }
+        return false;
+    }
+
     public boolean isInterfacePresentInDpn(String vpnName, BigInteger dpnId) {
         InstanceIdentifier<VpnToDpnList> vpnToDpnListId = InstanceIdentifier.builder(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(vpnName))
