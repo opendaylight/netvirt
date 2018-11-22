@@ -957,7 +957,7 @@ public final class VpnUtil {
                 new LearntVpnVipToPortKey(fixedIp, vpnName)).build();
     }
 
-    void removeLearntVpnVipToPort(String vpnName, String fixedIp,
+    public void removeLearntVpnVipToPort(String vpnName, String fixedIp,
                                   @Nullable TypedWriteTransaction<Operational> writeOperTxn) {
         synchronized ((vpnName + fixedIp).intern()) {
             InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
@@ -971,14 +971,19 @@ public final class VpnUtil {
         }
     }
 
-    protected static void removeVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp,
-                                                     @Nullable TypedWriteTransaction<Configuration> writeConfigTxn) {
+    public void removeVpnPortFixedIpToPort(String vpnName, String fixedIp,
+                                                  @Nullable TypedWriteTransaction<Configuration> writeConfigTxn) {
         synchronized ((vpnName + fixedIp).intern()) {
             InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
             if (writeConfigTxn != null) {
                 writeConfigTxn.delete(id);
             } else {
-                MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
+                try {
+                    SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+                } catch(TransactionCommitFailedException e) {
+                    LOG.warn("removeVpnPortFixedIpToPort: Failed to delete fixedIp {} with error {}",
+                            fixedIp, e.getMessage());
+                }
             }
             LOG.debug("removeVpnPortFixedIpToPort: Deleted VpnPortipToPort entry for fixedIp: {}, vpn {}",
                 fixedIp, vpnName);
