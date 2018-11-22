@@ -79,6 +79,8 @@ public interface IFibManager {
                                       boolean isVpnFirstEndPoint,
                                       VrfEntry vrfEntry);
 
+    boolean checkFibEntryExist(String rd, String prefix, String nextHopIp);
+
     void programDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId, String destinationIp,
                                        int addRemoveOrUpdate, boolean isTunnelUp,
                                        Class<? extends TunnelTypeBase> tunnelType);
