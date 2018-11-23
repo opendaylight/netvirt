@@ -16,6 +16,24 @@
       "revId": "01f8948ca42e4f35e2926de9523f4aa11c749af7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baf11443_a33c0b63",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/RouterInterfaceVrfEntryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-11-23T15:46:01Z",
+      "side": 1,
+      "message": "Yes, but that should be a separate step, done by someone who understands how netvirt works.",
+      "parentUuid": "6e871c03_0235e547",
+      "revId": "01f8948ca42e4f35e2926de9523f4aa11c749af7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
