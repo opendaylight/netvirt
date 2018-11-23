@@ -23,6 +23,11 @@ module vpn-config {
             type uint32;
             default 2000;
         }
+        leaf boot-delay-arp-learning {
+            description "Boot delay (in seconds) to be enforced for arp learning";
+            type uint32;
+            default 300;
+        }
         leaf subnet-route-punt-timeout {
             description "hard timeout value for learnt flows for subnet route punts (unit - seconds).
                 To turn off the rate limiting and installation of learnt flows, it should be set to 0";
