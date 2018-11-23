@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e871c03_0235e547",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/RouterInterfaceVrfEntryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-11-23T11:19:42Z",
+      "side": 1,
+      "message": "As Dhiman was pointing at https://git.opendaylight.org/gerrit/#/c/77912/, should we add module prefix to these lock strings?",
+      "revId": "01f8948ca42e4f35e2926de9523f4aa11c749af7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
