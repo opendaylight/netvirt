@@ -87,4 +87,19 @@ module vpn-rpc {
             }
         }
     }
+
+    rpc apply-arp-config {
+        description "To apply ARP/GARP related configuration per PL";
+        input {
+            leaf enable-arp-learning {
+                description "Enable (or) Disable arp based learning dynamically";
+                type boolean;
+            }
+        }
+        output {
+            leaf enable-arp-learning {
+                type boolean;
+            }
+        }
+    }    
 }
