@@ -57,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
@@ -98,6 +99,10 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
 
         short tableId = notification.getTableId().getValue();
         LOG.trace("{} onPacketReceived: Packet punted from table {}", LOGGING_PREFIX, tableId);
+        if (!vpnUtil.isArpLearningEnabled()) {
+            LOG.trace("Not handling packet as ARP Based Learning is disabled");
+            return;
+        }
         byte[] data = notification.getPayload();
         if (notification.getMatch() == null || notification.getMatch().getMetadata() == null) {
             LOG.error("{} onPacketReceived: Received from table {} where the match or metadata are null",
@@ -184,7 +189,9 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         }
 
         String vpnIdVpnInstanceName = vpnIdsOptional.get().getVpnInstanceName();
-        if (vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnIdVpnInstanceName, dstIpStr) != null) {
+        VpnPortipToPort persistedIP =
+                vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnIdVpnInstanceName, dstIpStr);
+        if (persistedIP != null && !persistedIP.isLearntIp()) {
             vpnManagerCounters.subnetRoutePacketIgnored();
             LOG.info("{} onPacketReceived: IP Packet received with Target IP {} source IP {} vpnId {} "
                     + "is a valid Neutron port,ignoring subnet route processing", LOGGING_PREFIX, dstIpStr,

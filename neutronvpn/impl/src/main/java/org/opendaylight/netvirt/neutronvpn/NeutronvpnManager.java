@@ -142,6 +142,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.createl3vpn.input.L3vpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.getl3vpn.output.L3vpnInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.getl3vpn.output.L3vpnInstancesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces;
@@ -1098,13 +1099,23 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         Optional<LearntVpnVipToPort> optionalVpnVipToPort =
                                 SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                         LogicalDatastoreType.OPERATIONAL, id);
-                        if (optionalVpnVipToPort.isPresent()) {
+                        if (optionalVpnVipToPort.isPresent()
+                                && optionalVpnVipToPort.get().getPortName().equals(infName)) {
                             LOG.trace("Removing adjacencies from vpninterface {} upon dissociation of router {} "
                                 + "from VPN {}", infName, vpnId, oldVpnId);
                             adjacencyIter.remove();
                             neutronvpnUtils.removeLearntVpnVipToPort(oldVpnId.getValue(), mipToQuery);
                             LOG.trace(
-                                    "Entry for fixedIP {} for port {} on VPN {} removed from VpnPortFixedIPToPortData",
+                                    "Entry for fixedIP {} for port {} on VPN {} removed from LearntVpnVipToPort",
+                                    mipToQuery, infName, vpnId.getValue());
+                        }
+                        InstanceIdentifier<VpnPortipToPort> build =
+                                neutronvpnUtils.buildVpnPortipToPortIdentifier(oldVpnId.getValue(), mipToQuery);
+                        Optional<VpnPortipToPort> persistedIp = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                LogicalDatastoreType.OPERATIONAL, build);
+                        if (persistedIp.isPresent() && persistedIp.get().getPortName().equals(infName)) {
+                            neutronvpnUtils.removeVpnPortFixedIpToPort(oldVpnId.getValue(), mipToQuery, null);
+                            LOG.trace("Entry for fixedIP {} for port {} on VPN {} removed from VpnPortipToPort",
                                     mipToQuery, infName, vpnId.getValue());
                         }
                     }
