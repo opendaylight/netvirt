@@ -36,8 +36,13 @@ public class IpMonitorStopTask implements Callable<List<ListenableFuture<Void>>>
     @Override
     public List<ListenableFuture<Void>> call() {
         final List<ListenableFuture<Void>> futures = new ArrayList<>();
-        java.util.Optional<Long> monitorIdOptional = AlivenessMonitorUtils.getMonitorIdFromInterface(macEntry);
-        monitorIdOptional.ifPresent(alivenessMonitorUtils::stopIpMonitoring);
+        java.util.Optional<Long> monitorIdOptional = alivenessMonitorUtils.getMonitorIdFromInterface(macEntry);
+        if (monitorIdOptional.isPresent()) {
+            alivenessMonitorUtils.stopIpMonitoring(monitorIdOptional.get());
+        } else {
+            LOG.warn("MonitorId not available for IP {} interface {}. IpMonitoring not stopped",
+                    macEntry.getIpAddress(), macEntry.getInterfaceName());
+        }
 
         String learntIp = macEntry.getIpAddress().getHostAddress();
         if (this.isRemoveMipAdjAndLearntIp) {
