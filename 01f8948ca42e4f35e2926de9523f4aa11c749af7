@@ -34,6 +34,24 @@
       "revId": "01f8948ca42e4f35e2926de9523f4aa11c749af7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "13f86a8c_bed73c22",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/RouterInterfaceVrfEntryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-11-23T16:19:02Z",
+      "side": 1,
+      "message": "Agree",
+      "parentUuid": "baf11443_a33c0b63",
+      "revId": "01f8948ca42e4f35e2926de9523f4aa11c749af7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
