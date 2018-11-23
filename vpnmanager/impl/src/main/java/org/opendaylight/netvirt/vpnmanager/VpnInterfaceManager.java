@@ -1373,6 +1373,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             InstanceIdentifier<AdjacenciesOp> path = identifier.augmentation(AdjacenciesOp.class);
             Optional<AdjacenciesOp> adjacencies = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, path);
+            boolean isNonPrimaryAdjIp = Boolean.FALSE;
             String primaryRd = vpnUtil.getVpnRd(vpnName);
             LOG.info("removeAdjacenciesFromVpn: For interface {} on dpn {} RD recovered for vpn {} as rd {}",
                     interfaceName, dpnId, vpnName, primaryRd);
@@ -1392,6 +1393,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         List<String> nhList;
                         if (nextHop.getAdjacencyType() != AdjacencyType.PrimaryAdjacency) {
                             nhList = getNextHopForNonPrimaryAdjacency(nextHop, vpnName, dpnId, interfaceName);
+                            isNonPrimaryAdjIp = Boolean.TRUE;
                         } else {
                             // This is a primary adjacency
                             nhList = nextHop.getNextHopIpList() != null ? nextHop.getNextHopIpList()
@@ -1419,11 +1421,23 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     }
                     String ip = nextHop.getIpAddress().split("/")[0];
                     LearntVpnVipToPort vpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, ip);
-                    if (vpnVipToPort != null) {
+                    if (vpnVipToPort != null && vpnVipToPort.getPortName().equals(interfaceName)) {
                         vpnUtil.removeLearntVpnVipToPort(vpnName, ip, null);
                         LOG.info("removeAdjacenciesFromVpn: VpnInterfaceManager removed LearntVpnVipToPort entry"
                                  + " for Interface {} ip {} on dpn {} for vpn {}",
                                 vpnVipToPort.getPortName(), ip, dpnId, vpnName);
+                    }
+                    // Remove the MIP-IP from VpnPortIpToPort.
+                    if (isNonPrimaryAdjIp) {
+                        VpnPortipToPort persistedIp = vpnUtil.getVpnPortipToPort(vpnName, ip);
+                        if (persistedIp != null && persistedIp.isLearntIp()
+                                && persistedIp.getPortName().equals(interfaceName)) {
+                            VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ip, null);
+                            LOG.info(
+                                    "removeAdjacenciesFromVpn: Learnt-IP: {} interface {} of vpn {} removed "
+                                            + "from VpnPortipToPort",
+                                    persistedIp.getPortFixedip(), persistedIp.getPortName(), vpnName);
+                        }
                     }
                     VpnPortipToPort vpnPortipToPort = vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, ip);
                     if (vpnPortipToPort != null) {

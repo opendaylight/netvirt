@@ -227,6 +227,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
@@ -254,6 +255,7 @@ public final class VpnUtil {
     private static final Logger LOG = LoggerFactory.getLogger(VpnUtil.class);
 
     public static final int SINGLE_TRANSACTION_BROKER_NO_RETRY = 1;
+    private static Boolean arpLearningEnabled = Boolean.TRUE;
 
     private final DataBroker dataBroker;
     private final IdManagerService idManager;
@@ -1022,25 +1024,33 @@ public final class VpnUtil {
 
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void removeMipAdjAndLearntIp(String vpnName, String vpnInterface, String prefix) {
         synchronized ((vpnName + prefix).intern()) {
-            InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, prefix);
-            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-            LOG.info("removeMipAdjAndLearntIp: Delete learned ARP for fixedIp: {}, vpn {} removed from"
-                            + "VpnPortipToPort DS", prefix, vpnName);
-            String ip = VpnUtil.getIpPrefix(prefix);
-            InstanceIdentifier<VpnInterfaceOpDataEntry> vpnInterfaceOpId = VpnUtil
-                    .getVpnInterfaceOpDataEntryIdentifier(vpnInterface, vpnName);
-            InstanceIdentifier<AdjacenciesOp> path = vpnInterfaceOpId.augmentation(AdjacenciesOp.class);
-            Optional<AdjacenciesOp> adjacenciesOp = read(LogicalDatastoreType.OPERATIONAL, path);
-            if (adjacenciesOp.isPresent()) {
-                InstanceIdentifier<Adjacency> adjacencyIdentifier = InstanceIdentifier.builder(VpnInterfaces.class)
-                        .child(VpnInterface.class, new VpnInterfaceKey(vpnInterface)).augmentation(Adjacencies.class)
-                        .child(Adjacency.class, new AdjacencyKey(ip)).build();
-                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, adjacencyIdentifier);
-                LOG.info("removeMipAdjAndLearntIp: Successfully Deleted Adjacency {} from interface {} vpn {}", ip,
-                        vpnInterface, vpnName);
+            try {
+                String ip = VpnUtil.getIpPrefix(prefix);
+                InstanceIdentifier<VpnInterfaceOpDataEntry> vpnInterfaceOpId = VpnUtil
+                        .getVpnInterfaceOpDataEntryIdentifier(vpnInterface, vpnName);
+                InstanceIdentifier<AdjacenciesOp> path = vpnInterfaceOpId.augmentation(AdjacenciesOp.class);
+                Optional<AdjacenciesOp> adjacenciesOp = read(LogicalDatastoreType.OPERATIONAL, path);
+                if (adjacenciesOp.isPresent()) {
+                    InstanceIdentifier<Adjacency> adjacencyIdentifier = InstanceIdentifier.builder(VpnInterfaces.class)
+                            .child(VpnInterface.class, new VpnInterfaceKey(vpnInterface))
+                            .augmentation(Adjacencies.class).child(Adjacency.class, new AdjacencyKey(ip)).build();
+                    MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, adjacencyIdentifier);
+                    LOG.info("removeMipAdjAndLearntIp: Successfully Deleted Adjacency {} from interface {} vpn {}", ip,
+                            vpnInterface, vpnName);
+                }
+                InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, prefix);
+                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+                LOG.info("removeMipAdjAndLearntIp: Delete learned ARP for fixedIp: {}, vpn {} removed from"
+                        + "VpnPortipToPort DS", prefix, vpnName);
+            } catch (Exception e) {
+                LOG.error("removeMipAdjAndLearntIp: Exception Deleting learned Ip: {} interface {} vpn {} from "
+                        + "LearntVpnPortipToPort DS", prefix, vpnInterface, vpnName, e);
             }
+            VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, prefix, null);
         }
     }
 
@@ -2337,5 +2347,46 @@ public final class VpnUtil {
             return true;
         }
         return false;
+    }
+
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void createVpnPortFixedIpToPort(String vpnName, String fixedIp,
+                                                     String portName, boolean isLearntIp, String macAddress,
+                                                     WriteTransaction writeConfigTxn) {
+        InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
+        VpnPortipToPortBuilder builder = new VpnPortipToPortBuilder().withKey(new VpnPortipToPortKey(fixedIp, vpnName))
+                .setVpnName(vpnName).setPortFixedip(fixedIp).setPortName(portName)
+                .setLearntIp(isLearntIp).setSubnetIp(false).setMacAddress(macAddress.toLowerCase(Locale.getDefault()));
+        try {
+            if (writeConfigTxn != null) {
+                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, id, builder.build());
+            } else {
+                syncWrite(LogicalDatastoreType.CONFIGURATION, id, builder.build());
+            }
+            LOG.trace("Port with Ip: {}, vpn {}, interface {}, learntIp {} added to VpnPortipToPort DS",
+                    fixedIp, vpnName, portName, isLearntIp);
+        } catch (Exception e) {
+            LOG.error("Failure while creating VpnPortIpToPort map for vpn {} learnIp{}", vpnName, fixedIp, e);
+        }
+    }
+
+    protected VpnPortipToPort getVpnPortipToPort(String vpnName, String fixedIp) {
+        InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
+        Optional<VpnPortipToPort> vpnPortipToPortData = read(LogicalDatastoreType.CONFIGURATION, id);
+        if (vpnPortipToPortData.isPresent()) {
+            return vpnPortipToPortData.get();
+        }
+        LOG.error("getVpnPortipToPort: Failed as vpnPortipToPortData DS is absent for VPN {} and fixed IP {}",
+                vpnName, fixedIp);
+        return null;
+    }
+
+    public static void enableArpLearning(Boolean isArpLearningEnabled) {
+        arpLearningEnabled = isArpLearningEnabled;
+    }
+
+    public static Boolean isArpLearningEnabled() {
+        return arpLearningEnabled;
     }
 }

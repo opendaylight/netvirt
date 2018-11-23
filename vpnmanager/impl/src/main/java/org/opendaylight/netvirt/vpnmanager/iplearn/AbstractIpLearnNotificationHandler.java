@@ -44,6 +44,7 @@ public abstract class AbstractIpLearnNotificationHandler {
     protected final VpnConfig config;
     protected final VpnUtil vpnUtil;
     protected final INeutronVpnManager neutronVpnManager;
+    private long bootupTime = 0L;
 
     public AbstractIpLearnNotificationHandler(VpnConfig vpnConfig, VpnUtil vpnUtil,
             INeutronVpnManager neutronVpnManager) {
@@ -56,6 +57,7 @@ public abstract class AbstractIpLearnNotificationHandler {
         migrateIpCache =
                 CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(duration,
                         TimeUnit.MILLISECONDS).build();
+        this.bootupTime = System.currentTimeMillis();
     }
 
     protected void validateAndProcessIpLearning(String srcInterface, IpAddress srcIP, MacAddress srcMac,
@@ -89,6 +91,10 @@ public abstract class AbstractIpLearnNotificationHandler {
     protected void processIpLearning(String srcInterface, IpAddress srcIP, MacAddress srcMac, BigInteger metadata,
                                      IpAddress dstIP) {
 
+        if (!VpnUtil.isArpLearningEnabled()) {
+            LOG.trace("Not handling packet as ARP Based Learning is disabled");
+            return;
+        }
         if (metadata == null || Objects.equals(metadata, BigInteger.ZERO)) {
             return;
         }
@@ -103,45 +109,63 @@ public abstract class AbstractIpLearnNotificationHandler {
         String srcIpToQuery = srcIP.stringValue();
         String destIpToQuery = dstIP.stringValue();
         for (String vpnName : vpnList.get()) {
-            LOG.info("Received ARP/NA for sender MAC {} and sender IP {} via interface {}",
-                      srcMac.getValue(), srcIpToQuery, srcInterface);
-            VpnPortipToPort vpnPortipToPort =
-                    vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, srcIpToQuery);
-            if (vpnPortipToPort != null) {
-                /* This is a well known neutron port and so should be ignored
-                 * from being discovered...unless it is an Octavia VIP
-                 */
-                String portName = vpnPortipToPort.getPortName();
-                Port neutronPort = neutronVpnManager.getNeutronPort(portName);
+            LOG.info("Received ARP/NA for sender MAC {} and sender IP {} via interface {}", srcMac.getValue(),
+                    srcIpToQuery, srcInterface);
+            synchronized ((vpnName + srcIpToQuery).intern()) {
+                VpnPortipToPort vpnPortipToPort = vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, srcIpToQuery);
+                if (vpnPortipToPort != null && !vpnPortipToPort.isLearntIp()) {
+                    /*
+                     * This is a well known neutron port and so should be ignored from being
+                     * discovered...unless it is an Octavia VIP
+                     */
+                    String portName = vpnPortipToPort.getPortName();
+                    Port neutronPort = neutronVpnManager.getNeutronPort(portName);
 
-                if (neutronPort == null) {
-                    LOG.warn("{} should have been a neutron port but could not retrieve it. Aborting processing",
-                             portName);
-                    continue;
-                }
+                    if (neutronPort == null) {
+                        LOG.warn("{} should have been a neutron port but could not retrieve it. Aborting processing",
+                                portName);
+                        continue;
+                    }
 
-                if (!"Octavia".equals(neutronPort.getDeviceOwner())) {
-                    LOG.debug("Neutron port {} is not an Octavia port, ignoring", portName);
-                    continue;
-                }
-            }
-
-            LearntVpnVipToPort learntVpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, srcIpToQuery);
-            if (learntVpnVipToPort != null) {
-                String oldPortName = learntVpnVipToPort.getPortName();
-                String oldMac = learntVpnVipToPort.getMacAddress();
-                if (!oldMac.equalsIgnoreCase(srcMac.getValue())) {
-                    //MAC has changed for requested IP
-                    LOG.info("ARP/NA Source IP/MAC data modified for IP {} with MAC {} and Port {}",
-                            srcIpToQuery, srcMac, srcInterface);
-                    synchronized ((vpnName + srcIpToQuery).intern()) {
-                        vpnUtil.createLearntVpnVipToPortEvent(vpnName, srcIpToQuery, destIpToQuery,
-                                oldPortName, oldMac, LearntVpnVipToPortEventAction.Delete, null);
-                        putVpnIpToMigrateIpCache(vpnName, srcIpToQuery, srcMac);
+                    if (!"Octavia".equals(neutronPort.getDeviceOwner())) {
+                        LOG.debug("Neutron port {} is not an Octavia port, ignoring", portName);
+                        continue;
                     }
                 }
-            } else if (!isIpInMigrateCache(vpnName, srcIpToQuery)) {
-                learnMacFromIncomingPacket(vpnName, srcInterface, srcIP, srcMac, dstIP);
+                // For IPs learnt before cluster-reboot/upgrade, GARP/ArpResponse is received
+                // within 300sec
+                // after reboot, it would be ignored.
+                if (vpnPortipToPort != null && vpnPortipToPort.isLearntIp()) {
+                    if (System.currentTimeMillis() < this.bootupTime + config.getBootDelayArpLearning() * 1000) {
+                        LOG.trace("GARP/Arp Response not handled for IP {} vpnName {} for time {}s",
+                                vpnPortipToPort.getPortFixedip(), vpnName, config.getBootDelayArpLearning());
+                        continue;
+                    }
+                }
+                LearntVpnVipToPort learntVpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, srcIpToQuery);
+                if (learntVpnVipToPort != null) {
+                    String oldPortName = learntVpnVipToPort.getPortName();
+                    String oldMac = learntVpnVipToPort.getMacAddress();
+                    if (!oldMac.equalsIgnoreCase(srcMac.getValue())) {
+                        // MAC has changed for requested IP
+                        LOG.info("ARP/NA Source IP/MAC data modified for IP {} with MAC {} and Port {}", srcIpToQuery,
+                                srcMac, srcInterface);
+                        vpnUtil.createLearntVpnVipToPortEvent(vpnName, srcIpToQuery, destIpToQuery, oldPortName, oldMac,
+                                LearntVpnVipToPortEventAction.Delete, null);
+                        putVpnIpToMigrateIpCache(vpnName, srcIpToQuery, srcMac);
+                    }
+                } else if (!isIpInMigrateCache(vpnName, srcIpToQuery)) {
+                    if (vpnPortipToPort != null && !vpnPortipToPort.getPortName().equals(srcInterface)) {
+                        LOG.trace(
+                                "LearntIp: {} vpnName {} is already present in VpnPortIpToPort with " + "PortName {} ",
+                                srcIpToQuery, vpnName, vpnPortipToPort.getPortName());
+                        vpnUtil.createLearntVpnVipToPortEvent(vpnName, srcIpToQuery, destIpToQuery,
+                                vpnPortipToPort.getPortName(), vpnPortipToPort.getMacAddress(),
+                                LearntVpnVipToPortEventAction.Delete, null);
+                        continue;
+                    }
+                    learnMacFromIncomingPacket(vpnName, srcInterface, srcIP, srcMac, dstIP);
+                }
             }
         }
     }

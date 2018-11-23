@@ -898,7 +898,7 @@ public class NeutronvpnUtils {
             } else {
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
             }
-            LOG.trace("Neutron router port with fixedIp: {}, vpn {} removed from LearntVpnPortipToPort DS", fixedIp,
+            LOG.trace("Neutron router port with fixedIp: {}, vpn {} removed from VpnPortipToPort DS", fixedIp,
                     vpnName);
         } catch (Exception e) {
             LOG.error("Failure while removing VPNPortFixedIpToPort map for vpn {} - fixedIP {}", vpnName, fixedIp,
