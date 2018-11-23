@@ -33,6 +33,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.ApplyArpConfigInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.ApplyArpConfigOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.ApplyArpConfigOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutputBuilder;
@@ -274,5 +277,17 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String message = tuple.getMessage();
         logger.accept(message);
         return message;
+    }
+
+    @Override
+    public ListenableFuture<RpcResult<ApplyArpConfigOutput>> applyArpConfig(ApplyArpConfigInput input) {
+        Boolean isArpLearningEnabled = input.isEnableArpLearning();
+        LOG.info("isArpLearningEnabled {}", isArpLearningEnabled);
+        SettableFuture<RpcResult<ApplyArpConfigOutput>> result = SettableFuture.create();
+        ApplyArpConfigOutputBuilder output = new ApplyArpConfigOutputBuilder();
+        VpnUtil.enableArpLearning(isArpLearningEnabled);
+        output.setEnableArpLearning(VpnUtil.isArpLearningEnabled());
+        result.set(RpcResultBuilder.success(output).build());
+        return result;
     }
 }

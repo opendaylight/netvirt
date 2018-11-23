@@ -169,6 +169,8 @@ public class LearntVpnVipToPortEventProcessor
             return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                                                                         Datastore.OPERATIONAL, operTx -> {
                     addMipAdjacency(vpnName, interfaceName, srcIpAddress, macAddress, destIpAddress);
+                    vpnUtil.createVpnPortFixedIpToPort(vpnName, srcIpAddress,
+                            interfaceName, Boolean.TRUE, macAddress, null);
                     vpnUtil.createLearntVpnVipToPort(vpnName, srcIpAddress, interfaceName, macAddress, operTx);
                 }));
         }
