@@ -416,7 +416,7 @@ public class DHCP extends Packet {
 
         // Deserialize the payload now
         int payloadStart = startOffset + numBits;
-        int payloadSize = data.length * NetUtils.NUM_BITS_IN_A_BYTE - payloadStart;
+        int payloadSize = data.length * Byte.SIZE - payloadStart;
 
         if (payloadClass != null) {
             try {
@@ -432,8 +432,8 @@ public class DHCP extends Packet {
              *  The payload class was not set, it means no class for parsing
              *  this payload is present. Let's store the raw payload if any.
              */
-            int start = payloadStart / NetUtils.NUM_BITS_IN_A_BYTE;
-            int stop = start + payloadSize / NetUtils.NUM_BITS_IN_A_BYTE;
+            int start = payloadStart / Byte.SIZE;
+            int stop = start + payloadSize / Byte.SIZE;
             rawPayload = Arrays.copyOfRange(data, start, stop);
         }
         // Take care of computation that can be done only after deserialization
@@ -474,7 +474,7 @@ public class DHCP extends Packet {
     public int getfieldnumBits(String fieldName) {
         if (fieldName.equals(OPTIONS)) {
             byte[] barr = fieldValues.get(OPTIONS);
-            return (barr.length) * NetUtils.NUM_BITS_IN_A_BYTE;
+            return (barr.length) * Byte.SIZE;
         }
         return hdrFieldCoordMap.get(fieldName).getRight();
     }

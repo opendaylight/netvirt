@@ -23,7 +23,6 @@ import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.TCP;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
-import org.opendaylight.openflowplugin.libraries.liblldp.NetUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yangtools.util.concurrent.SpecialExecutors;
@@ -73,7 +72,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
             Ethernet ethPkt = new Ethernet();
             if (inPayload != null) {
                 try {
-                    ethPkt.deserialize(inPayload, 0, inPayload.length * NetUtils.NUM_BITS_IN_A_BYTE);
+                    ethPkt.deserialize(inPayload, 0, inPayload.length * Byte.SIZE);
                 } catch (Exception e) {
                     LOG.warn("onPacketReceived: Failed to decode Packet", e);
                     return;
