@@ -150,7 +150,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         Ethernet ethPkt = new Ethernet();
         try {
             byte[] inPayload = packet.getPayload();
-            ethPkt.deserialize(inPayload, 0, inPayload.length * NetUtils.NUM_BITS_IN_A_BYTE);
+            ethPkt.deserialize(inPayload, 0, inPayload.length * Byte.SIZE);
             return DHCPUtils.byteArrayToString(ethPkt.getSourceMACAddress());
         } catch (PacketException pktException) {
             LOG.error("Failed to parse the packet {}", packet);
@@ -169,7 +169,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
             byte[] inPayload = packet.getPayload();
             Ethernet ethPkt = new Ethernet();
             try {
-                ethPkt.deserialize(inPayload, 0, inPayload.length * NetUtils.NUM_BITS_IN_A_BYTE);
+                ethPkt.deserialize(inPayload, 0, inPayload.length * Byte.SIZE);
             } catch (PacketException e) {
                 pktDropCounter.label(UNKNOWN_LABEL).label(UNKNOWN_LABEL).label(
                         PktDropReason.PKT_DESERIALIZATION_ERROR.name()).increment();

@@ -12,7 +12,6 @@ import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,7 +19,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -37,7 +35,6 @@ import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
-import org.opendaylight.openflowplugin.libraries.liblldp.NetUtils;
 import org.opendaylight.openflowplugin.libraries.liblldp.PacketException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -94,7 +91,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 byte[] data = notification.getPayload();
                 Ethernet res = new Ethernet();
 
-                res.deserialize(data, 0, data.length * NetUtils.NUM_BITS_IN_A_BYTE);
+                res.deserialize(data, 0, data.length * Byte.SIZE);
 
                 byte[] srcMac = res.getSourceMACAddress();
                 final String macAddress = NWUtil.toStringMacAddress(srcMac);

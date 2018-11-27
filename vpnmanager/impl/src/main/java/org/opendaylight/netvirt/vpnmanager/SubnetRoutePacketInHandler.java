@@ -34,7 +34,6 @@ import org.opendaylight.netvirt.vpnmanager.utilities.VpnManagerCounters;
 import org.opendaylight.openflowplugin.libraries.liblldp.BitBufferHelper;
 import org.opendaylight.openflowplugin.libraries.liblldp.BufferException;
 import org.opendaylight.openflowplugin.libraries.liblldp.HexEncode;
-import org.opendaylight.openflowplugin.libraries.liblldp.NetUtils;
 import org.opendaylight.openflowplugin.libraries.liblldp.Packet;
 import org.opendaylight.openflowplugin.libraries.liblldp.PacketException;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
@@ -106,7 +105,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         if (tableId == NwConstants.L3_SUBNET_ROUTE_TABLE) {
             LOG.trace("{} onPacketReceived: Some packet received as {}", LOGGING_PREFIX, notification);
             try {
-                res.deserialize(data, 0, data.length * NetUtils.NUM_BITS_IN_A_BYTE);
+                res.deserialize(data, 0, data.length * Byte.SIZE);
             } catch (PacketException e) {
                 LOG.error("{} onPacketReceived: Failed to decode Packet ", LOGGING_PREFIX, e);
                 vpnManagerCounters.subnetRoutePacketFailed();
