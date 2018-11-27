@@ -69,7 +69,6 @@ import org.opendaylight.genius.mdsalutil.packet.UDP;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.natservice.internal.NaptPacketInHandler.NatPacketProcessingState;
-import org.opendaylight.openflowplugin.libraries.liblldp.NetUtils;
 import org.opendaylight.openflowplugin.libraries.liblldp.PacketException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -335,7 +334,7 @@ public class NaptEventHandler {
         Ethernet ethPkt = new Ethernet();
         if (inPayload != null) {
             try {
-                ethPkt.deserialize(inPayload, 0, inPayload.length * NetUtils.NUM_BITS_IN_A_BYTE);
+                ethPkt.deserialize(inPayload, 0, inPayload.length * Byte.SIZE);
             } catch (PacketException e) {
                 LOG.error("prepareAndSendPacketOut : Failed to decode Packet", e);
                 return;
