@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -179,7 +180,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         } else {
             vpnManager.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd, null /* routerId */,
                     vpnOpEntry.getL3vni(), RouteOrigin.STATIC, null /* intfName */,
-                            null /*Adjacency*/, encapType, null);
+                            null /*Adjacency*/, encapType, new HashSet<>() /*prefixListForRefreshFib*/, null);
         }
 
         AddStaticRouteOutput labelOutput = new AddStaticRouteOutputBuilder().setLabel(label).build();
