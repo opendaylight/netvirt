@@ -209,13 +209,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 portBefore.getSecurityGroups());
         List<Uuid> deletedAcls = AclServiceUtils.getUpdatedAclList(portBefore.getSecurityGroups(),
                 portAfter.getSecurityGroups());
-        if (deletedAcls.isEmpty() && addedAcls.isEmpty()) {
-            LOG.trace("No change w.r.t ACL list for port={}", portAfter.getInterfaceId());
-            return;
+        if (!deletedAcls.isEmpty() || !addedAcls.isEmpty()) {
+            handleAclChange(deleteFlowEntries, portBefore, deletedAcls, NwConstants.DEL_FLOW);
+            handleAclChange(addFlowEntries, portAfter, addedAcls, NwConstants.ADD_FLOW);
         }
 
-        handleAclChange(deleteFlowEntries, portBefore, deletedAcls, NwConstants.DEL_FLOW);
-        handleAclChange(addFlowEntries, portAfter, addedAcls, NwConstants.ADD_FLOW);
         programFlows(AclConstants.ACL_JOB_KEY_PREFIX + portAfter.getInterfaceId(), deleteFlowEntries,
                 NwConstants.DEL_FLOW);
         programFlows(AclConstants.ACL_JOB_KEY_PREFIX + portAfter.getInterfaceId(), addFlowEntries,
