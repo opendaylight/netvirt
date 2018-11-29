@@ -34,6 +34,24 @@
       "revId": "d4f606b2e88ab18e85235706d2bbe3a1a26e14b0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ff8067f_be14b033",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-11-29T12:05:24Z",
+      "side": 1,
+      "message": "Then how about at least being more fine grained  and just catch (OptimisticLockFailedException e) instead of TransactionCommitFailedException?  And if you \"expect\" this OptimisticLockFailedException, then I would probably only LOG.debug it, not LOG.warn it (because what are you \"warning\" an operator about - there is nothing \"to do\", in this case?).  And I would let the TransactionCommitFailedException propagate, because if that and not a OptimisticLockFailedException ever happens, that would be a \"real\" problem, which should fail the blueprint initialization.",
+      "parentUuid": "b5fa3232_65f714f1",
+      "revId": "d4f606b2e88ab18e85235706d2bbe3a1a26e14b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
