@@ -46,6 +46,30 @@
       "revId": "74b7d31795f56addce17be3cb78bd5519ce22952",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c96e8e7_e9680701",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-11-30T14:29:42Z",
+      "side": 1,
+      "message": "Actually there\u0027s also an info log on line 706 if it\u0027s actually removed. So is it really necessary to also announce that it\u0027s attempting to remove?",
+      "parentUuid": "2d762465_af558c24",
+      "range": {
+        "startLine": 685,
+        "startChar": 12,
+        "endLine": 685,
+        "endChar": 17
+      },
+      "revId": "74b7d31795f56addce17be3cb78bd5519ce22952",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
