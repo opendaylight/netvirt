@@ -22,6 +22,30 @@
       "revId": "74b7d31795f56addce17be3cb78bd5519ce22952",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d762465_af558c24",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-11-30T05:40:58Z",
+      "side": 1,
+      "message": "sure if it\u0027s useful and doesn\u0027t normally flood the logs.",
+      "parentUuid": "b1667f2a_b2b7b15d",
+      "range": {
+        "startLine": 685,
+        "startChar": 12,
+        "endLine": 685,
+        "endChar": 17
+      },
+      "revId": "74b7d31795f56addce17be3cb78bd5519ce22952",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
