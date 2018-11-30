@@ -1730,12 +1730,12 @@ public final class VpnUtil {
         List<String> rts = new ArrayList<>();
         VpnTargets targets = vpnInstance.getVpnTargets();
         if (targets == null) {
-            LOG.info("getRts: vpn targets not available for {}", name);
+            LOG.debug("getRts: vpn targets not available for {}", name);
             return rts;
         }
         List<VpnTarget> vpnTargets = targets.getVpnTarget();
         if (vpnTargets == null) {
-            LOG.info("getRts: vpnTarget values not available for {}", name);
+            LOG.debug("getRts: vpnTarget values not available for {}", name);
             return rts;
         }
         for (VpnTarget target : vpnTargets) {
