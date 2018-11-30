@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1667f2a_b2b7b15d",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-11-30T05:28:52Z",
+      "side": 1,
+      "message": "Can we keep this as info please? This is an important piece of information to debug L3 failures, and we usually dont get debug in production.",
+      "range": {
+        "startLine": 685,
+        "startChar": 12,
+        "endLine": 685,
+        "endChar": 17
+      },
+      "revId": "74b7d31795f56addce17be3cb78bd5519ce22952",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
