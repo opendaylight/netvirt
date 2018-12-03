@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
-import static org.opendaylight.netvirt.dhcpservice.api.DHCPUtils.nullToEmpty;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
@@ -276,7 +275,7 @@ public final class DhcpServiceUtils {
     @Nonnull
     private static List<BigInteger> extractDpnsFromNodes(Optional<Nodes> optionalNodes) {
         return optionalNodes.toJavaUtil().map(
-            nodes -> nullToEmpty(nodes.getNode()).stream().map(Node::getId).filter(Objects::nonNull).map(
+            nodes -> nodes.nonnullNode().stream().map(Node::getId).filter(Objects::nonNull).map(
                     MDSALUtil::getDpnIdFromNodeName).collect(
                     Collectors.toList())).orElse(Collections.emptyList());
     }
@@ -290,7 +289,7 @@ public final class DhcpServiceUtils {
         Optional<ElanDpnInterfacesList> elanDpnOptional =
                 MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInstanceIdentifier);
         if (elanDpnOptional.isPresent()) {
-            List<DpnInterfaces> dpns = nullToEmpty(elanDpnOptional.get().getDpnInterfaces());
+            List<DpnInterfaces> dpns = elanDpnOptional.get().nonnullDpnInterfaces();
             for (DpnInterfaces dpnInterfaces : dpns) {
                 elanDpns.add(dpnInterfaces.getDpId());
             }
@@ -528,14 +527,17 @@ public final class DhcpServiceUtils {
         return null;
     }
 
-    @Nullable
+    @Nonnull
     public static List<Uuid> getSubnetIdsFromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier id = buildNetworkMapIdentifier(networkId);
         Optional<NetworkMap> optionalNetworkMap = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (optionalNetworkMap.isPresent()) {
-            return optionalNetworkMap.get().getSubnetIdList();
+            @Nullable List<Uuid> subnetIdList = optionalNetworkMap.get().getSubnetIdList();
+            if (subnetIdList != null) {
+                return subnetIdList;
+            }
         }
-        return null;
+        return Collections.emptyList();
     }
 
     static InstanceIdentifier<NetworkMap> buildNetworkMapIdentifier(Uuid networkId) {

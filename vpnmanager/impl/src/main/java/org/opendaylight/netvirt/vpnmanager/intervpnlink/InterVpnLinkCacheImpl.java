@@ -8,11 +8,8 @@
 
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
-import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -71,8 +68,7 @@ public class InterVpnLinkCacheImpl implements InterVpnLinkCache {
             return; // Nothing to be added to cache
         }
         InterVpnLinks interVpnLinks = optIVpnLinksOpData.get();
-        for (InterVpnLink interVpnLink : requireNonNullElse(interVpnLinks.getInterVpnLink(),
-                Collections.<InterVpnLink>emptyList())) {
+        for (InterVpnLink interVpnLink : interVpnLinks.nonnullInterVpnLink()) {
             addInterVpnLinkToCaches(interVpnLink);
         }
 
@@ -86,8 +82,7 @@ public class InterVpnLinkCacheImpl implements InterVpnLinkCache {
             return;
         }
         InterVpnLinkStates interVpnLinkStates = optIVpnLinkStateOpData.get();
-        for (InterVpnLinkState interVpnLinkState : requireNonNullElse(interVpnLinkStates.getInterVpnLinkState(),
-                Collections.<InterVpnLinkState>emptyList())) {
+        for (InterVpnLinkState interVpnLinkState : interVpnLinkStates.nonnullInterVpnLinkState()) {
             addInterVpnLinkStateToCaches(interVpnLinkState);
         }
     }

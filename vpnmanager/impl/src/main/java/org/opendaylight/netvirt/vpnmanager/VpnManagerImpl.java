@@ -7,8 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
-
 import com.google.common.base.Optional;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
@@ -26,7 +24,6 @@ import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -473,11 +470,13 @@ public class VpnManagerImpl implements IVpnManager {
             }
 
             String extIfc = null;
-            for (String dpnInterface : requireNonNullElse(dpnInterfaces.getInterfaces(),
-                    Collections.<String>emptyList())) {
-                if (interfaceManager.isExternalInterface(dpnInterface)) {
-                    extIfc = dpnInterface;
-                    break;
+            @Nullable List<String> interfaces = dpnInterfaces.getInterfaces();
+            if (interfaces != null) {
+                for (String dpnInterface : interfaces) {
+                    if (interfaceManager.isExternalInterface(dpnInterface)) {
+                        extIfc = dpnInterface;
+                        break;
+                    }
                 }
             }
 
