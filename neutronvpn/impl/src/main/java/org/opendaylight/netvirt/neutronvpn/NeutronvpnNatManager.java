@@ -7,12 +7,9 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
-import static org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils.requireNonNullElse;
-
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -431,8 +428,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             builder.setEnableSnat(update.getExternalGatewayInfo().isEnableSnat());
 
             ArrayList<ExternalIps> externalIps = new ArrayList<>();
-            for (ExternalFixedIps fixedIps : requireNonNullElse(update.getExternalGatewayInfo().getExternalFixedIps(),
-                    Collections.<ExternalFixedIps>emptyList())) {
+            for (ExternalFixedIps fixedIps : update.getExternalGatewayInfo().nonnullExternalFixedIps()) {
                 addExternalFixedIpToExternalIpsList(externalIps, fixedIps);
             }
             builder.setExternalIps(externalIps);

@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
+import static org.opendaylight.yangtools.yang.binding.CodeHelpers.nonnull;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.HashBasedTable;
@@ -24,12 +24,10 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -319,7 +317,7 @@ public class NatSouthboundEventHandlers {
                     + "and port name {}", routerId, portName);
             return Collections.emptyList();
         }
-        return requireNonNullElse(port.get().getInternalToExternalPortMap(), Collections.emptyList());
+        return port.get().nonnullInternalToExternalPortMap();
     }
 
     @Nullable
@@ -422,10 +420,9 @@ public class NatSouthboundEventHandlers {
                 continue;
             }
 
-            for (IntIpProtoType protoType : requireNonNullElse(ipPort.getIntIpProtoType(),
-                    Collections.<IntIpProtoType>emptyList())) {
+            for (IntIpProtoType protoType : ipPort.nonnullIntIpProtoType()) {
                 ProtocolTypes protocol = protoType.getProtocol();
-                for (Integer portnum : requireNonNullElse(protoType.getPorts(), Collections.<Integer>emptyList())) {
+                for (Integer portnum : nonnull(protoType.getPorts())) {
                     //build and remove the flow in outbound table
                     try {
                         removeNatFlow(naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE, routerId, internalIp, portnum);

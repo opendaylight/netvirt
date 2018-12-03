@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.fibmanager;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
-import static org.opendaylight.netvirt.fibmanager.FibUtil.nullToEmpty;
+import static org.opendaylight.yangtools.yang.binding.CodeHelpers.nonnull;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -271,7 +271,7 @@ public class NexthopManager implements AutoCloseable {
                             ifName, rpcResult.getErrors());
                     return Collections.emptyList();
                 } else {
-                    actions = rpcResult.getResult().getAction();
+                    actions = rpcResult.getResult().nonnullAction();
                 }
             } else {
                 RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = odlInterfaceRpcService
@@ -282,11 +282,11 @@ public class NexthopManager implements AutoCloseable {
                             ifName, rpcResult.getErrors());
                     return Collections.emptyList();
                 } else {
-                    actions = rpcResult.getResult().getAction();
+                    actions = rpcResult.getResult().nonnullAction();
                 }
             }
             List<ActionInfo> listActionInfo = new ArrayList<>();
-            for (Action action : nullToEmpty(actions)) {
+            for (Action action : actions) {
                 actionKey = action.key().getOrder() + actionKey;
                 org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action
                     actionClass = action.getAction();
@@ -536,7 +536,7 @@ public class NexthopManager implements AutoCloseable {
         Optional<VpnNexthops> vpnNexthops = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (vpnNexthops.isPresent()) {
             // get nexthops list for vpn
-            List<VpnNexthop> nexthops = nullToEmpty(vpnNexthops.get().getVpnNexthop());
+            List<VpnNexthop> nexthops = vpnNexthops.get().nonnullVpnNexthop();
             for (VpnNexthop nexthop : nexthops) {
                 if (Objects.equals(nexthop.getIpAddress(), ipAddress)) {
                     // return nexthop
@@ -600,12 +600,12 @@ public class NexthopManager implements AutoCloseable {
             if (FibUtil.lockCluster(lockManager, nextHopLockStr, WAIT_TIME_TO_ACQUIRE_LOCK)) {
                 VpnNexthop nh = getVpnNexthop(vpnId, primaryIpAddress);
                 if (nh != null) {
-                    List<IpAdjacencies> prefixesList = new ArrayList<>(nullToEmpty(nh.getIpAdjacencies()));
+                    List<IpAdjacencies> prefixesList = new ArrayList<>(nh.nonnullIpAdjacencies());
                     IpAdjacencies prefix = new IpAdjacenciesBuilder().setIpAdjacency(currDestIpPrefix).build();
                     prefixesList.remove(prefix);
                     if (prefixesList.isEmpty()) { //remove the group only if there are no more flows using this group
                         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, nh.getEgressPointer(),
-                                primaryIpAddress, GroupTypes.GroupAll, Collections.EMPTY_LIST);
+                                primaryIpAddress, GroupTypes.GroupAll, Collections.emptyList());
                         // remove Group ...
                         mdsalApiManager.removeGroup(groupEntity);
                         //update MD-SAL DS
@@ -931,7 +931,7 @@ public class NexthopManager implements AutoCloseable {
                     routes.getNexthopIpList());
         }
         List<BucketInfo> listBucketInfo = new CopyOnWriteArrayList<>();
-        nullToEmpty(routes.getNexthopIpList()).parallelStream().forEach(nextHopIp -> {
+        nonnull(routes.getNexthopIpList()).parallelStream().forEach(nextHopIp -> {
             String localNextHopIP;
             if (isIpv4Address(nextHopIp)) {
                 localNextHopIP = nextHopIp + NwConstants.IPV4PREFIX;
@@ -961,7 +961,7 @@ public class NexthopManager implements AutoCloseable {
             List<Routes> vpnExtraRoutes) {
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         Map<String, List<ActionInfo>> egressActionMap = new HashMap<>();
-        vpnExtraRoutes.forEach(vpnExtraRoute -> nullToEmpty(vpnExtraRoute.getNexthopIpList()).forEach(nextHopIp -> {
+        vpnExtraRoutes.forEach(vpnExtraRoute -> nonnull(vpnExtraRoute.getNexthopIpList()).forEach(nextHopIp -> {
             String nextHopPrefixIp;
             if (isIpv4Address(nextHopIp)) {
                 nextHopPrefixIp = nextHopIp + NwConstants.IPV4PREFIX;
@@ -1097,7 +1097,7 @@ public class NexthopManager implements AutoCloseable {
                 LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
                         interfaceName, rpcResult.getErrors());
             } else {
-                actions = nullToEmpty(rpcResult.getResult().getAction());
+                actions = rpcResult.getResult().nonnullAction();
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when egress actions for interface {}", interfaceName, e);
@@ -1127,7 +1127,7 @@ public class NexthopManager implements AutoCloseable {
                 if (!dpnLbNextHops.isPresent()) {
                     return;
                 }
-                List<String> nextHopKeys = nullToEmpty(dpnLbNextHops.get().getNexthopKey());
+                List<String> nextHopKeys = nonnull(dpnLbNextHops.get().getNexthopKey());
                 for (String nextHopKey : nextHopKeys) {
                     Optional<Nexthops> optionalNextHops = fibUtil.getNexthops(nextHopKey);
                     if (!optionalNextHops.isPresent()) {
@@ -1167,7 +1167,7 @@ public class NexthopManager implements AutoCloseable {
             if (!dpnLbNextHops.isPresent()) {
                 return;
             }
-            List<String> nextHopKeys = nullToEmpty(dpnLbNextHops.get().getNexthopKey());
+            List<String> nextHopKeys = nonnull(dpnLbNextHops.get().getNexthopKey());
             for (String nextHopKey : nextHopKeys) {
                 Optional<Nexthops> optionalNextHops = fibUtil.getNexthops(nextHopKey);
                 if (!optionalNextHops.isPresent()) {

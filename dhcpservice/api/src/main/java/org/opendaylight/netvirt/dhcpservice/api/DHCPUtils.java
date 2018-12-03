@@ -8,14 +8,11 @@
 
 package org.opendaylight.netvirt.dhcpservice.api;
 
-import static java.util.Collections.emptyList;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public abstract class DHCPUtils {
@@ -93,11 +90,5 @@ public abstract class DHCPUtils {
         }
         str.deleteCharAt(str.lastIndexOf(":"));
         return str.toString();
-    }
-
-    // TODO Replace this with mdsal's DataObjectUtils.nullToEmpty when upgrading to mdsal 3
-    @Nonnull
-    public static <T> List<T> nullToEmpty(final @Nullable List<T> input) {
-        return input != null ? input : emptyList();
     }
 }

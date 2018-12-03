@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.HashBasedTable;
@@ -19,7 +18,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -126,8 +124,7 @@ public class InterfaceStateChangeListener
                                         final VpnInterface vpnIf = vpnUtil.getConfiguredVpnInterface(interfaceName);
                                         if (vpnIf != null) {
                                             for (VpnInstanceNames vpnInterfaceVpnInstance :
-                                                    requireNonNullElse(vpnIf.getVpnInstanceNames(),
-                                                        Collections.<VpnInstanceNames>emptyList())) {
+                                                    vpnIf.nonnullVpnInstanceNames()) {
                                                 String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                                 String primaryRd = vpnUtil.getPrimaryRd(vpnName);
                                                 if (!vpnInterfaceManager.isVpnInstanceReady(vpnName)) {
@@ -208,8 +205,7 @@ public class InterfaceStateChangeListener
                                             return;
                                         }
                                         for (VpnInstanceNames vpnInterfaceVpnInstance :
-                                                requireNonNullElse(cfgVpnInterface.getVpnInstanceNames(),
-                                                    Collections.<VpnInstanceNames>emptyList())) {
+                                                cfgVpnInterface.nonnullVpnInstanceNames()) {
                                             String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                             Optional<VpnInterfaceOpDataEntry> optVpnInterface =
                                                 vpnUtil.getVpnInterfaceOpDataEntry(ifName, vpnName);
@@ -285,8 +281,7 @@ public class InterfaceStateChangeListener
                                             }
                                             if (state.equals(IntfTransitionState.STATE_UP)) {
                                                 for (VpnInstanceNames vpnInterfaceVpnInstance :
-                                                        requireNonNullElse(vpnIf.getVpnInstanceNames(),
-                                                            Collections.<VpnInstanceNames>emptyList())) {
+                                                        vpnIf.nonnullVpnInstanceNames()) {
                                                     String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                                     String primaryRd = vpnUtil.getPrimaryRd(vpnName);
                                                     if (!vpnInterfaceManager.isVpnInstanceReady(vpnName)) {
@@ -307,8 +302,7 @@ public class InterfaceStateChangeListener
                                                 }
                                             } else if (state.equals(IntfTransitionState.STATE_DOWN)) {
                                                 for (VpnInstanceNames vpnInterfaceVpnInstance :
-                                                        requireNonNullElse(vpnIf.getVpnInstanceNames(),
-                                                            Collections.<VpnInstanceNames>emptyList())) {
+                                                        vpnIf.nonnullVpnInstanceNames()) {
                                                     String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                                     LOG.info("VPN Interface update event - intfName {} onto vpnName {}"
                                                         + " running oper-driven DOWN", vpnIf.getName(), vpnName);

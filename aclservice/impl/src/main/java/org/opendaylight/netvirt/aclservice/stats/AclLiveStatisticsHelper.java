@@ -8,9 +8,10 @@
 
 package org.opendaylight.netvirt.aclservice.stats;
 
+import static org.opendaylight.yangtools.yang.binding.CodeHelpers.nonnull;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -19,7 +20,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
-import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetFlowStatisticsInputBuilder;
@@ -79,7 +79,7 @@ public final class AclLiveStatisticsHelper {
 
         FlowCookie aclDropFlowCookieMask = new FlowCookie(COOKIE_ACL_DROP_FLOW_MASK);
 
-        for (String interfaceName : AclDataUtil.requireNonNullElse(interfaceNames, Collections.<String>emptyList())) {
+        for (String interfaceName : nonnull(interfaceNames)) {
             AclPortStatsBuilder aclStatsBuilder = new AclPortStatsBuilder().setInterfaceName(interfaceName);
 
             Interface interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, interfaceName);

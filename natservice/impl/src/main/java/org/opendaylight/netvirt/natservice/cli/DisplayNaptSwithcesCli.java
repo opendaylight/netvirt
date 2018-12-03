@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.natservice.cli;
 import com.google.common.base.Optional;
 import java.io.PrintStream;
 import java.math.BigInteger;
-import java.util.Collections;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Command;
@@ -49,8 +48,7 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
         ps.printf(String.format(" %-36s  %-20s  %-20s %n", "Router Id ", "Datapath Node Id", "Managment Ip Address"));
         ps.printf("-------------------------------------------------------------------------------------------%n");
         if (npatSwitches.isPresent()) {
-            for (RouterToNaptSwitch routerToNaptSwitch : NatUtil.requireNonNullElse(
-                    npatSwitches.get().getRouterToNaptSwitch(), Collections.<RouterToNaptSwitch>emptyList())) {
+            for (RouterToNaptSwitch routerToNaptSwitch : npatSwitches.get().nonnullRouterToNaptSwitch()) {
                 ps.printf(String.format(" %-36s  %-20s  %-20s %n", routerToNaptSwitch.getRouterName(),
                      routerToNaptSwitch.getPrimarySwitchId(), getDpnLocalIp(routerToNaptSwitch.getPrimarySwitchId())));
             }

@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -76,7 +75,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.TransportZones;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.TransportZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.DeviceVteps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.AddL2GwDeviceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.AddL2GwDeviceOutput;
@@ -1010,8 +1008,7 @@ public class ElanL2GatewayUtils {
                 return;
             }
             String psNodeId = globalNodeId + HwvtepHAUtil.PHYSICALSWITCH + psName;
-            requireNonNullElse(tzonesoptional.get().getTransportZone(),
-                Collections.<TransportZone>emptyList()).stream()
+            tzonesoptional.get().nonnullTransportZone().stream()
                 .filter(transportZone -> transportZone.getSubnets() != null)
                 .flatMap(transportZone -> transportZone.getSubnets().stream())
                 .filter(subnet -> subnet.getDeviceVteps() != null)
@@ -1053,10 +1050,8 @@ public class ElanL2GatewayUtils {
             }
             JdkFutures.addErrorLogging(
                 new ManagedNewTransactionRunnerImpl(dataBroker).callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                    tx -> requireNonNullElse(optionalElan.get().getElanInstance(),
-                        Collections.<ElanInstance>emptyList()).stream()
-                        .flatMap(elan -> requireNonNullElse(elan.getExternalTeps(),
-                            Collections.<ExternalTeps>emptyList()).stream()
+                    tx -> optionalElan.get().nonnullElanInstance().stream()
+                        .flatMap(elan -> elan.nonnullExternalTeps().stream()
                             .map(externalTep -> ElanL2GatewayMulticastUtils.buildExternalTepPath(
                                 elan.getElanInstanceName(), externalTep.getTepIp())))
                         .filter(externalTepIid -> Objects.equals(

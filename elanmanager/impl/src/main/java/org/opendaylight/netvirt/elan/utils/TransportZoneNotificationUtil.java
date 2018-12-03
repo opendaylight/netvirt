@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.utils;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.MapDifference;
@@ -396,7 +395,7 @@ public class TransportZoneNotificationUtil {
         }
 
         Subnets subnets = getOrAddSubnet(zoneSubnets, subnetIp);
-        for (Vteps existingVtep : requireNonNullElse(subnets.getVteps(), Collections.<Vteps>emptyList())) {
+        for (Vteps existingVtep : subnets.nonnullVteps()) {
             if (Objects.equals(existingVtep.getDpnId(), dpnId)) {
                 return false;
             }

@@ -628,8 +628,7 @@ public final class VpnUtil {
             ListenableFutures.addErrorLogging(
                     new ManagedNewTransactionRunnerImpl(dataBroker).callWithNewWriteOnlyTransactionAndSubmit(
                                                                             Datastore.CONFIGURATION, tx -> {
-                            for (VrfEntry vrfEntry : requireNonNullElse(vrfTables.getVrfEntry(),
-                                    Collections.<VrfEntry>emptyList())) {
+                            for (VrfEntry vrfEntry : vrfTables.nonnullVrfEntry()) {
                                 if (origin == RouteOrigin.value(vrfEntry.getOrigin())) {
                                     tx.delete(vpnVrfTableIid.child(VrfEntry.class, vrfEntry.key()));
                                 }
@@ -645,8 +644,8 @@ public final class VpnUtil {
         List<VrfEntry> matches = new ArrayList<>();
         if (vrfTablesOpc.isPresent()) {
             VrfTables vrfTables = vrfTablesOpc.get();
-            for (VrfEntry vrfEntry : requireNonNullElse(vrfTables.getVrfEntry(), Collections.<VrfEntry>emptyList())) {
-                requireNonNullElse(vrfEntry.getRoutePaths(), Collections.<RoutePaths>emptyList()).stream()
+            for (VrfEntry vrfEntry : vrfTables.nonnullVrfEntry()) {
+                vrfEntry.nonnullRoutePaths().stream()
                         .filter(routePath -> routePath.getNexthopAddress() != null && routePath.getNexthopAddress()
                                 .equals(nexthop)).findFirst().ifPresent(routePath -> matches.add(vrfEntry));
             }
@@ -1142,9 +1141,8 @@ public final class VpnUtil {
 
         String routerName = null;
 
-        for (Routers routerData : requireNonNullElse(extRouterData.get().getRouters(),
-                Collections.<Routers>emptyList())) {
-            List<ExternalIps> externalIps = requireNonNullElse(routerData.getExternalIps(), emptyList());
+        for (Routers routerData : extRouterData.get().nonnullRouters()) {
+            List<ExternalIps> externalIps = routerData.nonnullExternalIps();
             for (ExternalIps externalIp : externalIps) {
                 if (Objects.equals(externalIp.getIpAddress(), extIp)) {
                     routerName = routerData.getRouterName();
@@ -1157,9 +1155,8 @@ public final class VpnUtil {
             return routerName;
         }
 
-        for (Routers routerData : requireNonNullElse(extRouterData.get().getRouters(),
-                Collections.<Routers>emptyList())) {
-            List<ExternalIps> externalIps = requireNonNullElse(routerData.getExternalIps(), emptyList());
+        for (Routers routerData : extRouterData.get().nonnullRouters()) {
+            List<ExternalIps> externalIps = routerData.nonnullExternalIps();
             for (ExternalIps externalIp : externalIps) {
                 Subnet neutronSubnet = neutronVpnService.getNeutronSubnet(externalIp.getSubnetId());
                 if (neutronSubnet == null) {
@@ -1931,8 +1928,7 @@ public final class VpnUtil {
             Optional<ElanDpnInterfacesList> dpnInElanInterfaces = read(LogicalDatastoreType.OPERATIONAL,
                     elanDpnInterfaceId);
             if (dpnInElanInterfaces.isPresent()) {
-                List<DpnInterfaces> dpnInterfaces =
-                    requireNonNullElse(dpnInElanInterfaces.get().getDpnInterfaces(), emptyList());
+                List<DpnInterfaces> dpnInterfaces = dpnInElanInterfaces.get().nonnullDpnInterfaces();
                 for (DpnInterfaces dpnInterface : dpnInterfaces) {
                     dpnIdSet.add(dpnInterface.getDpId());
                 }
@@ -2301,7 +2297,7 @@ public final class VpnUtil {
     }
 
     public static List<String> getVpnListForVpnInterface(VpnInterface vpnInter) {
-        return requireNonNullElse(vpnInter.getVpnInstanceNames(), Collections.<VpnInstanceNames>emptyList()).stream()
+        return vpnInter.nonnullVpnInstanceNames().stream()
                 .map(VpnInstanceNames::getVpnName).collect(Collectors.toList());
     }
 
@@ -2325,12 +2321,6 @@ public final class VpnUtil {
                             vpnName, updatedRdList);
                 }));
         });
-    }
-
-    // Use Objects.requireNonNullElse instead with JDK9+
-    @Nonnull
-    public static <T> T requireNonNullElse(@Nullable T obj, @Nonnull T defaultObj) {
-        return obj != null ? obj : requireNonNull(defaultObj);
     }
 
     public static boolean isDualRouterVpnUpdate(List<String> oldVpnListCopy, List<String> newVpnListCopy) {

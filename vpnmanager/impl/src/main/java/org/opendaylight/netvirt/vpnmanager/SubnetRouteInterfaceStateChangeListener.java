@@ -7,13 +7,10 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
-
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
@@ -165,9 +162,8 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 return futures;
                             }
                             boolean interfaceDownEligible = false;
-                            for (VpnInstanceNames vpnInterfaceVpnInstance : requireNonNullElse(
-                                    cfgVpnInterface.get().getVpnInstanceNames(),
-                                    Collections.<VpnInstanceNames>emptyList())) {
+                            for (VpnInstanceNames vpnInterfaceVpnInstance :
+                                    cfgVpnInterface.get().nonnullVpnInstanceNames()) {
                                 String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                 InstanceIdentifier<VpnInterfaceOpDataEntry> idOper = VpnUtil
                                         .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
@@ -232,9 +228,8 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 return futures;
                             }
                             boolean interfaceChangeEligible = false;
-                            for (VpnInstanceNames vpnInterfaceVpnInstance : requireNonNullElse(
-                                    cfgVpnInterface.get().getVpnInstanceNames(),
-                                    Collections.<VpnInstanceNames>emptyList())) {
+                            for (VpnInstanceNames vpnInterfaceVpnInstance :
+                                    cfgVpnInterface.get().nonnullVpnInstanceNames()) {
                                 String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                 InstanceIdentifier<VpnInterfaceOpDataEntry> idOper = VpnUtil
                                         .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);

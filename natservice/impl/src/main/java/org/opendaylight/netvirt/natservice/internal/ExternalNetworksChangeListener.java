@@ -8,7 +8,7 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
+import static org.opendaylight.yangtools.yang.binding.CodeHelpers.nonnull;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
@@ -135,7 +135,7 @@ public class ExternalNetworksChangeListener
     }
 
     private void removeSnatEntries(Networks original, Uuid networkUuid) {
-        for (Uuid routerUuid : requireNonNullElse(original.getRouterIds(), Collections.<Uuid>emptyList())) {
+        for (Uuid routerUuid : nonnull(original.getRouterIds())) {
             long routerId = NatUtil.getVpnId(dataBroker, routerUuid.getValue());
             if (routerId == NatConstants.INVALID_ID) {
                 LOG.error("removeSnatEntries : Invalid routerId returned for routerName {}", routerUuid.getValue());
@@ -153,7 +153,7 @@ public class ExternalNetworksChangeListener
     }
 
     private void associateExternalNetworkWithVPN(Networks network) {
-        List<Uuid> routerIds = requireNonNullElse(network.getRouterIds(), Collections.emptyList());
+        List<Uuid> routerIds = nonnull(network.getRouterIds());
         for (Uuid routerId : routerIds) {
             //long router = NatUtil.getVpnId(dataBroker, routerId.getValue());
 
@@ -166,7 +166,7 @@ public class ExternalNetworksChangeListener
                 continue;
             }
             RouterPorts routerPorts = optRouterPorts.get();
-            for (Ports port : requireNonNullElse(routerPorts.getPorts(), Collections.<Ports>emptyList())) {
+            for (Ports port : routerPorts.nonnullPorts()) {
                 String portName = port.getPortName();
                 BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
                 if (dpnId.equals(BigInteger.ZERO)) {
@@ -174,8 +174,7 @@ public class ExternalNetworksChangeListener
                             + "skip handling of ext nw {} association", portName, network.getId());
                     continue;
                 }
-                for (InternalToExternalPortMap ipMap : requireNonNullElse(port.getInternalToExternalPortMap(),
-                        Collections.<InternalToExternalPortMap>emptyList())) {
+                for (InternalToExternalPortMap ipMap : port.nonnullInternalToExternalPortMap()) {
                     // remove all VPN related entries
                     coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + ipMap.key(),
                         () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
@@ -232,8 +231,7 @@ public class ExternalNetworksChangeListener
                             .intext.ip.map.IpMapping> ipMapping = MDSALUtil.read(dataBroker,
                                     LogicalDatastoreType.OPERATIONAL, id);
                         if (ipMapping.isPresent()) {
-                            for (IpMap ipMap : requireNonNullElse(ipMapping.get().getIpMap(),
-                                    Collections.<IpMap>emptyList())) {
+                            for (IpMap ipMap : ipMapping.get().nonnullIpMap()) {
                                 String externalIp = ipMap.getExternalIp();
                                 LOG.debug("associateExternalNetworkWithVPN : Calling advToBgpAndInstallFibAndTsFlows "
                                     + "for dpnId {},vpnName {} and externalIp {}", finalDpnId, vpnName, externalIp);
@@ -265,7 +263,7 @@ public class ExternalNetworksChangeListener
     }
 
     private void disassociateExternalNetworkFromVPN(Networks network, String vpnName) {
-        for (Uuid routerId : requireNonNullElse(network.getRouterIds(), Collections.<Uuid>emptyList())) {
+        for (Uuid routerId : nonnull(network.getRouterIds())) {
             InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerId.getValue());
             Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 routerPortsId);
@@ -275,7 +273,7 @@ public class ExternalNetworksChangeListener
                 continue;
             }
             RouterPorts routerPorts = optRouterPorts.get();
-            for (Ports port : requireNonNullElse(routerPorts.getPorts(), Collections.<Ports>emptyList())) {
+            for (Ports port : routerPorts.nonnullPorts()) {
                 String portName = port.getPortName();
                 BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
                 if (dpnId.equals(BigInteger.ZERO)) {
@@ -283,8 +281,7 @@ public class ExternalNetworksChangeListener
                             + "skip handling of ext nw {} disassociation", portName, network.getId());
                     continue;
                 }
-                for (InternalToExternalPortMap intExtPortMap : requireNonNullElse(port.getInternalToExternalPortMap(),
-                        Collections.<InternalToExternalPortMap>emptyList())) {
+                for (InternalToExternalPortMap intExtPortMap : port.nonnullInternalToExternalPortMap()) {
                     coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + intExtPortMap.key(),
                         () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                             tx -> floatingIpListener.removeNATFlowEntries(dpnId, portName, vpnName, routerId.getValue(),

@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.sfc.translator.portchain;
 
-import static org.opendaylight.netvirt.sfc.translator.SfcTranslatorUtils.nullToEmpty;
+import static org.opendaylight.yangtools.yang.binding.CodeHelpers.nonnull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,8 +79,8 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
      */
     @Override
     public void update(PortChain origPortChain, PortChain updatePortChain) {
-        List<Uuid> oldFcList = new ArrayList<>(nullToEmpty(origPortChain.getFlowClassifiers()));
-        oldFcList.removeAll(nullToEmpty(updatePortChain.getFlowClassifiers()));
+        List<Uuid> oldFcList = new ArrayList<>(nonnull(origPortChain.getFlowClassifiers()));
+        oldFcList.removeAll(nonnull(updatePortChain.getFlowClassifiers()));
         if (!oldFcList.isEmpty()) {
             LOG.debug("Removing old list {}", oldFcList);
             processFlowClassifiers(origPortChain, oldFcList, null, false);
@@ -109,12 +109,12 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
         List<ServiceFunction> portChainServiceFunctionList = new ArrayList<>();
 
         //Read chain related port pair group from neutron data store
-        for (Uuid ppgUuid : nullToEmpty(newPortChain.getPortPairGroups())) {
+        for (Uuid ppgUuid : nonnull(newPortChain.getPortPairGroups())) {
             PortPairGroup ppg = neutronMdsalHelper.getNeutronPortPairGroup(ppgUuid);
             if (ppg != null) {
                 List<PortPair> portPairList = new ArrayList<>();
                 portPairGroupList.add(ppg);
-                for (Uuid ppUuid : nullToEmpty(ppg.getPortPairs())) {
+                for (Uuid ppUuid : nonnull(ppg.getPortPairs())) {
                     PortPair pp = neutronMdsalHelper.getNeutronPortPair(ppUuid);
                     if (pp == null) {
                         LOG.error("Port pair {} does not exist in the neutron data store", ppUuid);
@@ -173,7 +173,7 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
         // The RSP will automatically be created from the SFP added above.
 
         // Add ACLs from flow classifiers
-        processFlowClassifiers(newPortChain, nullToEmpty(newPortChain.getFlowClassifiers()), sfp.getName().getValue(),
+        processFlowClassifiers(newPortChain, nonnull(newPortChain.getFlowClassifiers()), sfp.getName().getValue(),
             true);
     }
 

@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
+import static org.opendaylight.yangtools.yang.binding.CodeHelpers.nonnull;
 
 import com.google.common.base.Optional;
 import java.util.ArrayList;
@@ -153,8 +153,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                             prefixToInterfaceLocal.add(prefix.get());
                         }
                         if (prefixToInterfaceLocal.isEmpty()) {
-                            for (String nh : requireNonNullElse(adjacency.getNextHopIpList(),
-                                    Collections.<String>emptyList())) {
+                            for (String nh : nonnull(adjacency.getNextHopIpList())) {
                                 prefix = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                         LogicalDatastoreType.OPERATIONAL, VpnUtil.getPrefixToInterfaceIdentifier(
                                                 vpnInstOp.getVpnId(), VpnUtil.getIpPrefix(nh)));

@@ -9,19 +9,15 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -105,8 +101,7 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
             if (original.isUpgradeInProgress() && !updated.isUpgradeInProgress()) {
                 Optional<NaptSwitches> npatSwitches = NatUtil.getAllPrimaryNaptSwitches(dataBroker);
                 if (npatSwitches.isPresent()) {
-                    for (RouterToNaptSwitch routerToNaptSwitch : requireNonNullElse(
-                            npatSwitches.get().getRouterToNaptSwitch(), Collections.<RouterToNaptSwitch>emptyList())) {
+                    for (RouterToNaptSwitch routerToNaptSwitch : npatSwitches.get().nonnullRouterToNaptSwitch()) {
                         BigInteger primaryNaptDpnId = routerToNaptSwitch.getPrimarySwitchId();
                         if (!NatUtil.getSwitchStatus(dataBroker, routerToNaptSwitch.getPrimarySwitchId())) {
                             String routerUuid = routerToNaptSwitch.getRouterName();
@@ -137,7 +132,7 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
             return;
         }
 
-        for (Routers router : requireNonNullElse(routers.getRouters(), Collections.<Routers>emptyList())) {
+        for (Routers router : routers.nonnullRouters()) {
             List<ExternalIps> externalIps = router.getExternalIps();
             if (router.isEnableSnat() && externalIps != null && !externalIps.isEmpty()) {
                 centralizedSwitchScheduler.scheduleCentralizedSwitch(router);
