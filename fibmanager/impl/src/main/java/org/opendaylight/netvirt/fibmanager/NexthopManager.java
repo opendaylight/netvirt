@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.fibmanager;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
-import static org.opendaylight.netvirt.fibmanager.FibUtil.nullToEmpty;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -271,7 +270,7 @@ public class NexthopManager implements AutoCloseable {
                             ifName, rpcResult.getErrors());
                     return Collections.emptyList();
                 } else {
-                    actions = rpcResult.getResult().getAction();
+                    actions = rpcResult.getResult().nonnullAction();
                 }
             } else {
                 RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = odlInterfaceRpcService
@@ -282,11 +281,11 @@ public class NexthopManager implements AutoCloseable {
                             ifName, rpcResult.getErrors());
                     return Collections.emptyList();
                 } else {
-                    actions = rpcResult.getResult().getAction();
+                    actions = rpcResult.getResult().nonnullAction();
                 }
             }
             List<ActionInfo> listActionInfo = new ArrayList<>();
-            for (Action action : nullToEmpty(actions)) {
+            for (Action action : actions) {
                 actionKey = action.key().getOrder() + actionKey;
                 org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action
                     actionClass = action.getAction();
@@ -536,7 +535,7 @@ public class NexthopManager implements AutoCloseable {
         Optional<VpnNexthops> vpnNexthops = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (vpnNexthops.isPresent()) {
             // get nexthops list for vpn
-            List<VpnNexthop> nexthops = nullToEmpty(vpnNexthops.get().getVpnNexthop());
+            List<VpnNexthop> nexthops = vpnNexthops.get().nonnullVpnNexthop();
             for (VpnNexthop nexthop : nexthops) {
                 if (Objects.equals(nexthop.getIpAddress(), ipAddress)) {
                     // return nexthop
@@ -600,12 +599,12 @@ public class NexthopManager implements AutoCloseable {
             if (FibUtil.lockCluster(lockManager, nextHopLockStr, WAIT_TIME_TO_ACQUIRE_LOCK)) {
                 VpnNexthop nh = getVpnNexthop(vpnId, primaryIpAddress);
                 if (nh != null) {
-                    List<IpAdjacencies> prefixesList = new ArrayList<>(nullToEmpty(nh.getIpAdjacencies()));
+                    List<IpAdjacencies> prefixesList = new ArrayList<>(nh.nonnullIpAdjacencies());
                     IpAdjacencies prefix = new IpAdjacenciesBuilder().setIpAdjacency(currDestIpPrefix).build();
                     prefixesList.remove(prefix);
                     if (prefixesList.isEmpty()) { //remove the group only if there are no more flows using this group
                         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, nh.getEgressPointer(),
-                                primaryIpAddress, GroupTypes.GroupAll, Collections.EMPTY_LIST);
+                                primaryIpAddress, GroupTypes.GroupAll, Collections.emptyList());
                         // remove Group ...
                         mdsalApiManager.removeGroup(groupEntity);
                         //update MD-SAL DS
@@ -925,34 +924,37 @@ public class NexthopManager implements AutoCloseable {
 
     private List<BucketInfo> getBucketsForLocalNexthop(Long vpnId, BigInteger dpnId,
             VrfEntry vrfEntry, Routes routes) {
+        @Nullable List<String> nexthopIpList = routes.getNexthopIpList();
         if (LOG.isDebugEnabled()) {
             LOG.debug("NexthopManager.getBucketsForLocalNexthop invoked with vpnId {} dpnId {} "
                             + " vrfEntry.routePaths {}, routes.nexthopList {}", vpnId, dpnId, vrfEntry.getRoutePaths(),
-                    routes.getNexthopIpList());
+                nexthopIpList);
         }
         List<BucketInfo> listBucketInfo = new CopyOnWriteArrayList<>();
-        nullToEmpty(routes.getNexthopIpList()).parallelStream().forEach(nextHopIp -> {
-            String localNextHopIP;
-            if (isIpv4Address(nextHopIp)) {
-                localNextHopIP = nextHopIp + NwConstants.IPV4PREFIX;
-            } else {
-                localNextHopIP = nextHopIp + NwConstants.IPV6PREFIX;
-            }
-            Prefixes localNextHopInfo = fibUtil.getPrefixToInterface(vpnId, localNextHopIP);
-            if (localNextHopInfo != null) {
-                long groupId = getLocalNextHopGroup(vpnId, localNextHopIP);
-                if (groupId == FibConstants.INVALID_GROUP_ID) {
-                    LOG.error("Unable to allocate groupId for vpnId {} , prefix {} , interface {}", vpnId,
-                            vrfEntry.getDestPrefix(), localNextHopInfo.getVpnInterfaceName());
-                    return;
+        if (nexthopIpList != null) {
+            nexthopIpList.parallelStream().forEach(nextHopIp -> {
+                String localNextHopIP;
+                if (isIpv4Address(nextHopIp)) {
+                    localNextHopIP = nextHopIp + NwConstants.IPV4PREFIX;
+                } else {
+                    localNextHopIP = nextHopIp + NwConstants.IPV6PREFIX;
                 }
-                List<ActionInfo> actionsInfos =
+                Prefixes localNextHopInfo = fibUtil.getPrefixToInterface(vpnId, localNextHopIP);
+                if (localNextHopInfo != null) {
+                    long groupId = getLocalNextHopGroup(vpnId, localNextHopIP);
+                    if (groupId == FibConstants.INVALID_GROUP_ID) {
+                        LOG.error("Unable to allocate groupId for vpnId {} , prefix {} , interface {}", vpnId,
+                            vrfEntry.getDestPrefix(), localNextHopInfo.getVpnInterfaceName());
+                        return;
+                    }
+                    List<ActionInfo> actionsInfos =
                         Collections.singletonList(new ActionGroup(groupId));
-                BucketInfo bucket = new BucketInfo(actionsInfos);
-                bucket.setWeight(1);
-                listBucketInfo.add(bucket);
-            }
-        });
+                    BucketInfo bucket = new BucketInfo(actionsInfos);
+                    bucket.setWeight(1);
+                    listBucketInfo.add(bucket);
+                }
+            });
+        }
         LOG.trace("LOCAL: listbucket {}, vpnId {}, dpnId {}, routes {}", listBucketInfo, vpnId, dpnId, routes);
         return listBucketInfo;
     }
@@ -961,86 +963,88 @@ public class NexthopManager implements AutoCloseable {
             List<Routes> vpnExtraRoutes) {
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         Map<String, List<ActionInfo>> egressActionMap = new HashMap<>();
-        vpnExtraRoutes.forEach(vpnExtraRoute -> nullToEmpty(vpnExtraRoute.getNexthopIpList()).forEach(nextHopIp -> {
-            String nextHopPrefixIp;
-            if (isIpv4Address(nextHopIp)) {
-                nextHopPrefixIp = nextHopIp + NwConstants.IPV4PREFIX;
-            } else {
-                nextHopPrefixIp = nextHopIp + NwConstants.IPV6PREFIX;
-            }
-            List<String> tepIpAddresses = fibUtil.getNextHopAddresses(rd, nextHopPrefixIp);
-            if (tepIpAddresses.isEmpty()) {
-                return;
-            }
-            // There would be only one nexthop address for a VM ip which would be the tep Ip
-            String tepIp = tepIpAddresses.get(0);
-            AdjacencyResult adjacencyResult = getRemoteNextHopPointer(dpnId, vpnId,
-                    vrfEntry.getDestPrefix(), tepIp, TunnelTypeVxlan.class);
-            if (adjacencyResult == null) {
-                return;
-            }
-            String egressInterface = adjacencyResult.getInterfaceName();
-            if (!FibUtil.isTunnelInterface(adjacencyResult)) {
-                return;
-            }
-            Class<? extends TunnelTypeBase> tunnelType = VpnExtraRouteHelper.getTunnelType(itmManager, egressInterface);
-            StateTunnelList ifState = null;
-            try {
-                ifState = fibUtil.getTunnelState(egressInterface);
-                if (ifState == null || ifState.getOperState() != TunnelOperStatus.Up) {
-                    LOG.trace("Tunnel is not up for interface {}", egressInterface);
+        vpnExtraRoutes.stream().filter(vpnExtraRoute -> vpnExtraRoute.getNexthopIpList() != null).forEach(
+            vpnExtraRoute -> vpnExtraRoute.getNexthopIpList().forEach(nextHopIp -> {
+                String nextHopPrefixIp;
+                if (isIpv4Address(nextHopIp)) {
+                    nextHopPrefixIp = nextHopIp + NwConstants.IPV4PREFIX;
+                } else {
+                    nextHopPrefixIp = nextHopIp + NwConstants.IPV6PREFIX;
+                }
+                List<String> tepIpAddresses = fibUtil.getNextHopAddresses(rd, nextHopPrefixIp);
+                if (tepIpAddresses.isEmpty()) {
                     return;
                 }
-            } catch (ReadFailedException e) {
-                LOG.error("getBucketsForRemoteNexthop: error in fetching tunnel state for interface {}",
+                // There would be only one nexthop address for a VM ip which would be the tep Ip
+                String tepIp = tepIpAddresses.get(0);
+                AdjacencyResult adjacencyResult = getRemoteNextHopPointer(dpnId, vpnId,
+                    vrfEntry.getDestPrefix(), tepIp, TunnelTypeVxlan.class);
+                if (adjacencyResult == null) {
+                    return;
+                }
+                String egressInterface = adjacencyResult.getInterfaceName();
+                if (!FibUtil.isTunnelInterface(adjacencyResult)) {
+                    return;
+                }
+                Class<? extends TunnelTypeBase> tunnelType =
+                    VpnExtraRouteHelper.getTunnelType(itmManager, egressInterface);
+                StateTunnelList ifState = null;
+                try {
+                    ifState = fibUtil.getTunnelState(egressInterface);
+                    if (ifState == null || ifState.getOperState() != TunnelOperStatus.Up) {
+                        LOG.trace("Tunnel is not up for interface {}", egressInterface);
+                        return;
+                    }
+                } catch (ReadFailedException e) {
+                    LOG.error("getBucketsForRemoteNexthop: error in fetching tunnel state for interface {}",
                         egressInterface, e);
-                return;
-            }
-            if (!TunnelTypeVxlan.class.equals(tunnelType)) {
-                return;
-            }
-            Long label = FibUtil.getLabelFromRoutePaths(vrfEntry).get();
-            Prefixes prefixInfo = fibUtil.getPrefixToInterface(vpnId, nextHopPrefixIp);
-            if (prefixInfo == null) {
-                LOG.error("No prefix info found for prefix {} in rd {} for VPN {}", nextHopPrefixIp, rd,
+                    return;
+                }
+                if (!TunnelTypeVxlan.class.equals(tunnelType)) {
+                    return;
+                }
+                Long label = FibUtil.getLabelFromRoutePaths(vrfEntry).get();
+                Prefixes prefixInfo = fibUtil.getPrefixToInterface(vpnId, nextHopPrefixIp);
+                if (prefixInfo == null) {
+                    LOG.error("No prefix info found for prefix {} in rd {} for VPN {}", nextHopPrefixIp, rd,
                         vpnId);
-                return;
-            }
-            BigInteger tunnelId;
-            if (FibUtil.isVxlanNetwork(prefixInfo.getNetworkType())) {
-                tunnelId = BigInteger.valueOf(prefixInfo.getSegmentationId());
-            } else {
-                LOG.warn("Network is not of type VXLAN for prefix {}."
+                    return;
+                }
+                BigInteger tunnelId;
+                if (FibUtil.isVxlanNetwork(prefixInfo.getNetworkType())) {
+                    tunnelId = BigInteger.valueOf(prefixInfo.getSegmentationId());
+                } else {
+                    LOG.warn("Network is not of type VXLAN for prefix {}."
                         + "Going with default Lport Tag.", prefixInfo.toString());
-                tunnelId = BigInteger.valueOf(label);
-            }
-            List<ActionInfo> actionInfos = new ArrayList<>();
-            actionInfos.add(new ActionSetFieldTunnelId(tunnelId));
-            String ifName = prefixInfo.getVpnInterfaceName();
-            String vpnName = fibUtil.getVpnNameFromId(vpnId);
-            if (vpnName == null) {
-                return;
-            }
-            String macAddress = fibUtil.getMacAddressFromPrefix(ifName, vpnName, nextHopPrefixIp);
-            actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
+                    tunnelId = BigInteger.valueOf(label);
+                }
+                List<ActionInfo> actionInfos = new ArrayList<>();
+                actionInfos.add(new ActionSetFieldTunnelId(tunnelId));
+                String ifName = prefixInfo.getVpnInterfaceName();
+                String vpnName = fibUtil.getVpnNameFromId(vpnId);
+                if (vpnName == null) {
+                    return;
+                }
+                String macAddress = fibUtil.getMacAddressFromPrefix(ifName, vpnName, nextHopPrefixIp);
+                actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
                     new MacAddress(macAddress)));
-            List<ActionInfo> egressActions;
-            if (egressActionMap.containsKey(egressInterface)) {
-                egressActions = egressActionMap.get(egressInterface);
-            } else {
-                egressActions = getEgressActionsForInterface(egressInterface, actionInfos.size(), true);
-                egressActionMap.put(egressInterface, egressActions);
-            }
-            if (egressActions.isEmpty()) {
-                LOG.error("Failed to retrieve egress action for prefix {} route-paths {}"
-                        + " interface {}." + " Aborting remote FIB entry creation.",
+                List<ActionInfo> egressActions;
+                if (egressActionMap.containsKey(egressInterface)) {
+                    egressActions = egressActionMap.get(egressInterface);
+                } else {
+                    egressActions = getEgressActionsForInterface(egressInterface, actionInfos.size(), true);
+                    egressActionMap.put(egressInterface, egressActions);
+                }
+                if (egressActions.isEmpty()) {
+                    LOG.error("Failed to retrieve egress action for prefix {} route-paths {}"
+                            + " interface {}." + " Aborting remote FIB entry creation.",
                         vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths(), egressInterface);
-            }
-            actionInfos.addAll(egressActions);
-            BucketInfo bucket = new BucketInfo(actionInfos);
-            bucket.setWeight(1);
-            listBucketInfo.add(bucket);
-        }));
+                }
+                actionInfos.addAll(egressActions);
+                BucketInfo bucket = new BucketInfo(actionInfos);
+                bucket.setWeight(1);
+                listBucketInfo.add(bucket);
+            }));
         LOG.trace("LOCAL: listbucket {}, rd {}, dpnId {}, routes {}", listBucketInfo, rd, dpnId, vpnExtraRoutes);
         return listBucketInfo;
     }
@@ -1097,7 +1101,7 @@ public class NexthopManager implements AutoCloseable {
                 LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
                         interfaceName, rpcResult.getErrors());
             } else {
-                actions = nullToEmpty(rpcResult.getResult().getAction());
+                actions = rpcResult.getResult().nonnullAction();
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when egress actions for interface {}", interfaceName, e);
@@ -1127,25 +1131,27 @@ public class NexthopManager implements AutoCloseable {
                 if (!dpnLbNextHops.isPresent()) {
                     return;
                 }
-                List<String> nextHopKeys = nullToEmpty(dpnLbNextHops.get().getNexthopKey());
-                for (String nextHopKey : nextHopKeys) {
-                    Optional<Nexthops> optionalNextHops = fibUtil.getNexthops(nextHopKey);
-                    if (!optionalNextHops.isPresent()) {
-                        return;
-                    }
-                    Nexthops nexthops = optionalNextHops.get();
-                    final String groupId = nexthops.getGroupId();
-                    final long groupIdValue = Long.parseLong(groupId);
-                    if (noOfDcGws > 1) {
-                        mdsalApiManager.removeBucket(confTx, dpnId, groupIdValue, bucketId);
-                    } else {
-                        LOG.trace("Removed LB group {} on dpn {}", groupIdValue, dpnId);
-                        mdsalApiManager.removeGroup(confTx, dpnId, groupIdValue);
-                        removeNextHopPointer(nextHopKey);
-                    }
-                    // When the DC-GW is removed from configuration.
-                    if (noOfDcGws != availableDcGws.size()) {
-                        FibUtil.removeOrUpdateNextHopInfo(dpnId, nextHopKey, groupId, nexthops, operTx);
+                List<String> nextHopKeys = dpnLbNextHops.get().getNexthopKey();
+                if (nextHopKeys != null) {
+                    for (String nextHopKey : nextHopKeys) {
+                        Optional<Nexthops> optionalNextHops = fibUtil.getNexthops(nextHopKey);
+                        if (!optionalNextHops.isPresent()) {
+                            return;
+                        }
+                        Nexthops nexthops = optionalNextHops.get();
+                        final String groupId = nexthops.getGroupId();
+                        final long groupIdValue = Long.parseLong(groupId);
+                        if (noOfDcGws > 1) {
+                            mdsalApiManager.removeBucket(confTx, dpnId, groupIdValue, bucketId);
+                        } else {
+                            LOG.trace("Removed LB group {} on dpn {}", groupIdValue, dpnId);
+                            mdsalApiManager.removeGroup(confTx, dpnId, groupIdValue);
+                            removeNextHopPointer(nextHopKey);
+                        }
+                        // When the DC-GW is removed from configuration.
+                        if (noOfDcGws != availableDcGws.size()) {
+                            FibUtil.removeOrUpdateNextHopInfo(dpnId, nextHopKey, groupId, nexthops, operTx);
+                        }
                     }
                 }
                 FibUtil.removeDpnIdToNextHopInfo(destinationIp, dpnId, operTx);
@@ -1167,22 +1173,24 @@ public class NexthopManager implements AutoCloseable {
             if (!dpnLbNextHops.isPresent()) {
                 return;
             }
-            List<String> nextHopKeys = nullToEmpty(dpnLbNextHops.get().getNexthopKey());
-            for (String nextHopKey : nextHopKeys) {
-                Optional<Nexthops> optionalNextHops = fibUtil.getNexthops(nextHopKey);
-                if (!optionalNextHops.isPresent()) {
-                    return;
-                }
-                Nexthops nexthops = optionalNextHops.get();
-                final String groupId = nexthops.getGroupId();
-                final long groupIdValue = Long.parseLong(groupId);
-                if (isTunnelUp) {
-                    Bucket bucket = buildBucketForDcGwLbGroup(destinationIp, dpnId, bucketId, tunnelType);
-                    LOG.trace("Added bucket {} to group {} on dpn {}.", bucket, groupId, dpnId);
-                    mdsalApiManager.addBucket(confTx, dpnId, groupIdValue, bucket);
-                } else {
-                    LOG.trace("Removed bucketId {} from group {} on dpn {}.", bucketId, groupId, dpnId);
-                    mdsalApiManager.removeBucket(confTx, dpnId, groupIdValue, bucketId);
+            List<String> nextHopKeys = dpnLbNextHops.get().getNexthopKey();
+            if (nextHopKeys != null) {
+                for (String nextHopKey : nextHopKeys) {
+                    Optional<Nexthops> optionalNextHops = fibUtil.getNexthops(nextHopKey);
+                    if (!optionalNextHops.isPresent()) {
+                        return;
+                    }
+                    Nexthops nexthops = optionalNextHops.get();
+                    final String groupId = nexthops.getGroupId();
+                    final long groupIdValue = Long.parseLong(groupId);
+                    if (isTunnelUp) {
+                        Bucket bucket = buildBucketForDcGwLbGroup(destinationIp, dpnId, bucketId, tunnelType);
+                        LOG.trace("Added bucket {} to group {} on dpn {}.", bucket, groupId, dpnId);
+                        mdsalApiManager.addBucket(confTx, dpnId, groupIdValue, bucket);
+                    } else {
+                        LOG.trace("Removed bucketId {} from group {} on dpn {}.", bucketId, groupId, dpnId);
+                        mdsalApiManager.removeBucket(confTx, dpnId, groupIdValue, bucketId);
+                    }
                 }
             }
         }), LOG, "Error updating load-balancing group");

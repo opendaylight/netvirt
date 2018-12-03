@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.qosservice;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.netvirt.qosservice.QosNeutronUtils.nullToEmpty;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -21,6 +20,7 @@ import java.util.Map.Entry;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -252,15 +252,17 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
             return;
         }
 
-        if (!nullToEmpty(qosNeutronUtils.getQosPolicyMap().get(policyUuid).getBandwidthLimitRules()).isEmpty()) {
-            BandwidthLimitRules bandwidthLimitRules =
-                    qosNeutronUtils.getQosPolicyMap().get(policyUuid).getBandwidthLimitRules().get(0);
+        @NonNull List<BandwidthLimitRules> nonnullBandwidthLimitRules =
+            qosNeutronUtils.getQosPolicyMap().get(policyUuid).nonnullBandwidthLimitRules();
+        if (!nonnullBandwidthLimitRules.isEmpty()) {
+            BandwidthLimitRules bandwidthLimitRules = nonnullBandwidthLimitRules.get(0);
             update(policyUuid, bandwidthLimitRules);
         }
 
-        if (!nullToEmpty(qosNeutronUtils.getQosPolicyMap().get(policyUuid).getDscpmarkingRules()).isEmpty()) {
-            DscpmarkingRules dscpmarkingRules =
-                    qosNeutronUtils.getQosPolicyMap().get(policyUuid).getDscpmarkingRules().get(0);
+        @NonNull List<DscpmarkingRules> nonnullDscpmarkingRules =
+            qosNeutronUtils.getQosPolicyMap().get(policyUuid).nonnullDscpmarkingRules();
+        if (!nonnullDscpmarkingRules.isEmpty()) {
+            DscpmarkingRules dscpmarkingRules = nonnullDscpmarkingRules.get(0);
             update(policyUuid, dscpmarkingRules);
         }
     }

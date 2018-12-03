@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.fibmanager;
 
 import static java.util.stream.Collectors.toList;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
-import static org.opendaylight.netvirt.fibmanager.FibUtil.nullToEmpty;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
@@ -159,7 +158,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     @Nonnull
     protected List<AdjacencyResult> resolveAdjacency(final BigInteger remoteDpnId, final long vpnId,
                                                      final VrfEntry vrfEntry, String rd) {
-        List<RoutePaths> routePaths = nullToEmpty(vrfEntry.getRoutePaths());
+        List<RoutePaths> routePaths = vrfEntry.nonnullRoutePaths();
         FibHelper.sortIpAddress(routePaths);
         List<AdjacencyResult> adjacencyList = new ArrayList<>();
         List<String> prefixIpList;
@@ -187,15 +186,16 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                     prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
                 } else {
                     List<String> prefixIpListLocal = new ArrayList<>();
-                    vpnExtraRoutes.forEach(route -> nullToEmpty(route.getNexthopIpList()).forEach(extraRouteIp -> {
-                        String ipPrefix;
-                        if (isIpv4Address(extraRouteIp)) {
-                            ipPrefix = extraRouteIp + NwConstants.IPV4PREFIX;
-                        } else {
-                            ipPrefix = extraRouteIp + NwConstants.IPV6PREFIX;
-                        }
-                        prefixIpListLocal.add(ipPrefix);
-                    }));
+                    vpnExtraRoutes.stream().filter(route -> route.getNexthopIpList() != null).forEach(
+                        route -> route.getNexthopIpList().forEach(extraRouteIp -> {
+                            String ipPrefix;
+                            if (isIpv4Address(extraRouteIp)) {
+                                ipPrefix = extraRouteIp + NwConstants.IPV4PREFIX;
+                            } else {
+                                ipPrefix = extraRouteIp + NwConstants.IPV6PREFIX;
+                            }
+                            prefixIpListLocal.add(ipPrefix);
+                        }));
                     prefixIpList = prefixIpListLocal;
                 }
             } else {

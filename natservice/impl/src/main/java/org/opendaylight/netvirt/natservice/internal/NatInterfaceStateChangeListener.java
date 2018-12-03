@@ -7,12 +7,8 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
-
 import com.google.common.base.Optional;
 import java.math.BigInteger;
-
-import java.util.Collections;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -119,8 +115,7 @@ public class NatInterfaceStateChangeListener
                 LOG.warn("remove : Interface {} is not a VPN Interface, ignoring.", interfaceName);
                 return;
             }
-            for (VpnInstanceNames vpnInterfaceVpnInstance : requireNonNullElse(
-                    cfgVpnInterface.get().getVpnInstanceNames(), Collections.<VpnInstanceNames>emptyList())) {
+            for (VpnInstanceNames vpnInterfaceVpnInstance : cfgVpnInterface.get().nonnullVpnInstanceNames()) {
                 String vpnName  = vpnInterfaceVpnInstance.getVpnName();
                 InstanceIdentifier<VpnInterfaceOpDataEntry> idOper = NatUtil
                       .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
@@ -168,8 +163,7 @@ public class NatInterfaceStateChangeListener
                 LOG.warn("update : Interface {} is not a VPN Interface, ignoring.", interfaceName);
                 return;
             }
-            for (VpnInstanceNames vpnInterfaceVpnInstance : requireNonNullElse(
-                    cfgVpnInterface.get().getVpnInstanceNames(), Collections.<VpnInstanceNames>emptyList())) {
+            for (VpnInstanceNames vpnInterfaceVpnInstance : cfgVpnInterface.get().nonnullVpnInstanceNames()) {
                 String vpnName  = vpnInterfaceVpnInstance.getVpnName();
                 InstanceIdentifier<VpnInterfaceOpDataEntry> idOper = NatUtil
                       .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);

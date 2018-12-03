@@ -106,7 +106,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         }
 
         List<L2GatewayDevice> allDevices = ElanL2GwCacheUtils.getAllElanDevicesFromCache();
-        if (allDevices == null || allDevices.isEmpty()) {
+        if (allDevices.isEmpty()) {
             LOG.trace("no elan devices present in cache {}", update.key().getGroupId());
             return;
         }

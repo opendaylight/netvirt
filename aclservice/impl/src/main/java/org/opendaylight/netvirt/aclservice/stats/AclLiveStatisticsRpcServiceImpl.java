@@ -10,9 +10,11 @@ package org.opendaylight.netvirt.aclservice.stats;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics.rev161129.AclLiveStatisticsService;
@@ -74,8 +76,10 @@ public class AclLiveStatisticsRpcServiceImpl implements AclLiveStatisticsService
         // Default direction is Both
         Direction direction = input.getDirection() == null ? Direction.Both : input.getDirection();
 
-        List<AclPortStats> lstAclInterfaceStats = AclLiveStatisticsHelper.getAclPortStats(direction,
-                input.getInterfaceNames(), this.odlDirectStatsService, this.dataBroker);
+        @Nullable List<String> interfaceNames = input.getInterfaceNames();
+        List<AclPortStats> lstAclInterfaceStats =
+            interfaceNames != null ? AclLiveStatisticsHelper.getAclPortStats(direction, interfaceNames,
+                this.odlDirectStatsService, this.dataBroker) : new ArrayList<>();
 
         GetAclPortStatisticsOutputBuilder output =
                 new GetAclPortStatisticsOutputBuilder().setAclPortStats(lstAclInterfaceStats);

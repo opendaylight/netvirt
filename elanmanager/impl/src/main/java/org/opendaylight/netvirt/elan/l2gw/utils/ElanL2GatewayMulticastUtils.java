@@ -10,14 +10,12 @@ package org.opendaylight.netvirt.elan.l2gw.utils;
 import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
-import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
@@ -286,8 +284,7 @@ public class ElanL2GatewayMulticastUtils {
     @Nullable
     private DpnInterfaces getDpnInterfaces(ElanDpnInterfacesList elanDpns, BigInteger dpnId) {
         if (elanDpns != null) {
-            for (DpnInterfaces dpnInterface : requireNonNullElse(elanDpns.getDpnInterfaces(),
-                    Collections.<DpnInterfaces>emptyList())) {
+            for (DpnInterfaces dpnInterface : elanDpns.nonnullDpnInterfaces()) {
                 if (Objects.equals(dpnInterface.getDpId(), dpnId)) {
                     return dpnInterface;
                 }
@@ -401,8 +398,7 @@ public class ElanL2GatewayMulticastUtils {
             long elanTagOrVni) {
         List<Bucket> listBucketInfo = new ArrayList<>();
         if (elanDpns != null) {
-            for (DpnInterfaces dpnInterface : requireNonNullElse(elanDpns.getDpnInterfaces(),
-                    Collections.<DpnInterfaces>emptyList())) {
+            for (DpnInterfaces dpnInterface : elanDpns.nonnullDpnInterfaces()) {
                 if (elanUtils.isDpnPresent(dpnInterface.getDpId()) && !Objects.equals(dpnInterface.getDpId(), dpnId)
                         && dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty()) {
                     try {

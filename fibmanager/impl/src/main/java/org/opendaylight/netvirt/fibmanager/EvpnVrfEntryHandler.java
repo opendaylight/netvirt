@@ -8,16 +8,13 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.netvirt.fibmanager.FibUtil.nullToEmpty;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import java.util.Objects;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -149,8 +146,8 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
         if (localNextHopInfo == null) {
             //Handle extra routes and imported routes
             Routes extraRoute = getVpnToExtraroute(vpnId, rd, vrfEntry.getDestPrefix());
-            if (extraRoute != null) {
-                for (String nextHopIp : nullToEmpty(extraRoute.getNexthopIpList())) {
+            if (extraRoute != null && extraRoute.getNexthopIpList() != null) {
+                for (String nextHopIp : extraRoute.getNexthopIpList()) {
                     LOG.info("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
                     if (nextHopIp != null) {
                         localNextHopInfo = getFibUtil().getPrefixToInterface(vpnId, nextHopIp + "/32");

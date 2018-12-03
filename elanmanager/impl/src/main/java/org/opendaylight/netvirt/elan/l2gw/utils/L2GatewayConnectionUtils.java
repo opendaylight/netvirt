@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import static java.util.Collections.emptyList;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
-import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -228,8 +227,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
 
     private void disAssociateHwvtepsFromElan(String elanName, L2gatewayConnection input) {
         Integer defaultVlan = input.getSegmentId();
-        List<L2GatewayDevice> l2Devices =
-            requireNonNullElse(ElanL2GwCacheUtils.getAllElanDevicesFromCache(), emptyList());
+        List<L2GatewayDevice> l2Devices = ElanL2GwCacheUtils.getAllElanDevicesFromCache();
         List<Devices> l2gwDevicesToBeDeleted = new ArrayList<>();
         for (L2GatewayDevice elanL2gwDevice : l2Devices) {
             if (elanL2gwDevice.getL2GatewayIds().contains(input.key().getUuid())) {
@@ -283,10 +281,14 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         String elanName = elanInstance.getElanInstanceName();
         Integer defaultVlan = input.getSegmentId();
         Uuid l2GwConnId = input.key().getUuid();
-        List<Devices> l2Devices = requireNonNullElse(l2Gateway.getDevices(), emptyList());
+        List<Devices> l2Devices = l2Gateway.getDevices();
 
         LOG.trace("Associating ELAN {} with L2Gw Conn Id {} having below L2Gw devices {}", elanName, l2GwConnId,
                 l2Devices);
+
+        if (l2Devices == null) {
+            return;
+        }
 
         for (Devices l2Device : l2Devices) {
             String l2DeviceName = l2Device.getDeviceName();

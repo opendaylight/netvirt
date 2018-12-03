@@ -9,9 +9,11 @@
 package org.opendaylight.netvirt.elanmanager.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.genius.utils.cache.CacheUtil;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -85,13 +87,13 @@ public final class ElanL2GwCacheUtils {
         return result;
     }
 
-    @Nullable
+    @Nonnull
     public static List<L2GatewayDevice> getAllElanDevicesFromCache() {
         ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap =
                 (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil.getCache(
                         ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
         if (cachedMap == null || cachedMap.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
 
         List<L2GatewayDevice> l2GwDevices = new ArrayList<>();

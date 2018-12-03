@@ -8,9 +8,6 @@
 
 package org.opendaylight.netvirt.elan.cli.l2gw;
 
-import static java.util.Collections.emptyList;
-import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
-
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
@@ -137,15 +134,13 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             Optional<Topology> configTopoOptional = tx.read(LogicalDatastoreType.CONFIGURATION, topoId).checkedGet();
 
             if (operationalTopoOptional.isPresent()) {
-                for (Node node : requireNonNullElse(operationalTopoOptional.get().getNode(),
-                        Collections.<Node>emptyList())) {
+                for (Node node : operationalTopoOptional.get().nonnullNode()) {
                     InstanceIdentifier<Node> nodeIid = topoId.child(Node.class, node.key());
                     operationalNodes.put(nodeIid, node);
                 }
             }
             if (configTopoOptional.isPresent()) {
-                for (Node node : requireNonNullElse(configTopoOptional.get().getNode(),
-                        Collections.<Node>emptyList())) {
+                for (Node node : configTopoOptional.get().nonnullNode()) {
                     InstanceIdentifier<Node> nodeIid = topoId.child(Node.class, node.key());
                     configNodes.put(nodeIid, node);
                 }
@@ -393,7 +388,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
 
             L2gateway l2gateway = uuidToL2Gateway.get(l2gatewayConnection.getL2gatewayId());
             String logicalSwitchName = l2gatewayConnection.getNetworkId().getValue();
-            List<Devices> devices = requireNonNullElse(l2gateway.getDevices(), emptyList());
+            List<Devices> devices = l2gateway.nonnullDevices();
 
             for (Devices device : devices) {
 
@@ -557,8 +552,8 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             }
             VlanBindings expectedBindings = !expectedVlans.isEmpty() ? expectedVlans.get(0) : null;
             boolean foundBindings = false;
-            List<VlanBindings> vlanBindingses = requireNonNullElse(configTerminationPoint.augmentation(
-                    HwvtepPhysicalPortAugmentation.class).getVlanBindings(), emptyList());
+            List<VlanBindings> vlanBindingses = configTerminationPoint.augmentation(
+                    HwvtepPhysicalPortAugmentation.class).nonnullVlanBindings();
             for (VlanBindings actual : vlanBindingses) {
                 if (actual.equals(expectedBindings)) {
                     foundBindings = true;

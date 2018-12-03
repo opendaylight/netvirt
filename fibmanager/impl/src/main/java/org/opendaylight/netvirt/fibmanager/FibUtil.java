@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.fibmanager;
 
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
@@ -24,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -723,7 +721,8 @@ public class FibUtil {
     public static void removeOrUpdateNextHopInfo(BigInteger dpnId, String nextHopKey, String groupId,
             Nexthops nexthops, TypedWriteTransaction<Operational> tx) {
         InstanceIdentifier<Nexthops> nextHopsId = getNextHopsIdentifier(nextHopKey);
-        List<String> targetDeviceIds = new ArrayList<>(nullToEmpty(nexthops.getTargetDeviceId()));
+        List<String> targetDeviceIds =
+            nexthops.getTargetDeviceId() != null ? new ArrayList<>(nexthops.getTargetDeviceId()) : new ArrayList<>();
         targetDeviceIds.remove(dpnId.toString());
         if (targetDeviceIds.isEmpty()) {
             tx.delete(nextHopsId);
@@ -900,11 +899,5 @@ public class FibUtil {
             LOG.warn("Failed to read interfaces with error {}", e.getMessage());
         }
         return false;
-    }
-
-    // TODO Replace this with mdsal's DataObjectUtils.nullToEmpty when upgrading to mdsal 3
-    @Nonnull
-    public static <T> List<T> nullToEmpty(final @Nullable List<T> input) {
-        return input != null ? input : emptyList();
     }
 }

@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.natservice.internal;
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
@@ -228,8 +227,7 @@ public class EvpnDnatFlowProgrammer {
                         LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
         if (optionalVpnInterface.isPresent()) {
             ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
-                for (VpnInstanceNames vpnInstance : requireNonNullElse(optionalVpnInterface.get().getVpnInstanceNames(),
-                        Collections.<VpnInstanceNames>emptyList())) {
+                for (VpnInstanceNames vpnInstance : optionalVpnInterface.get().nonnullVpnInstanceNames()) {
                     if (!vpnName.equals(vpnInstance.getVpnName())) {
                         continue;
                     }
@@ -348,8 +346,7 @@ public class EvpnDnatFlowProgrammer {
                         LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
         if (optionalVpnInterface.isPresent()) {
             ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
-                for (VpnInstanceNames vpnInstance : requireNonNullElse(optionalVpnInterface.get().getVpnInstanceNames(),
-                        Collections.<VpnInstanceNames>emptyList())) {
+                for (VpnInstanceNames vpnInstance : optionalVpnInterface.get().nonnullVpnInstanceNames()) {
                     if (!vpnName.equals(vpnInstance.getVpnName())) {
                         continue;
                     }

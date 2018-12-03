@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.neutronvpn;
 import static java.util.Collections.singletonList;
 import static org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker.syncReadOptional;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -800,7 +799,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
         String infName = port.getUuid().getValue();
         LOG.trace("neutronVpnManager: create config adjacencies for Port: {}", infName);
-        for (FixedIps ip : requireNonNullElse(port.getFixedIps(), Collections.<FixedIps>emptyList())) {
+        for (FixedIps ip : port.nonnullFixedIps()) {
             String ipValue = ip.getIpAddress().stringValue();
             String ipPrefix = ip.getIpAddress().getIpv4Address() != null ? ipValue + "/32" : ipValue + "/128";
             if (sn != null && !FibHelper.doesPrefixBelongToSubnet(ipPrefix, sn.getSubnetIp(), false)) {
@@ -875,9 +874,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
         LOG.trace("withdraw adjacencies for Port: {} subnet {}", port.getUuid().getValue(),
                 sn != null ? sn.getSubnetIp() : "null");
-        List<Adjacency> vpnAdjsList =
-            requireNonNullElse(optionalVpnInterface.get().augmentation(Adjacencies.class).getAdjacency(),
-                Collections.emptyList());
+        List<Adjacency> vpnAdjsList = optionalVpnInterface.get().augmentation(Adjacencies.class).nonnullAdjacency();
         List<Adjacency> updatedAdjsList = new ArrayList<>();
         boolean isIpFromAnotherSubnet = false;
         for (Adjacency adj : vpnAdjsList) {
@@ -1030,7 +1027,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 mipToQuery, infName, vpnId.getValue());
                     }
                 }
-                for (FixedIps ip : requireNonNullElse(port.getFixedIps(), Collections.<FixedIps>emptyList())) {
+                for (FixedIps ip : port.nonnullFixedIps()) {
                     String ipValue = ip.getIpAddress().stringValue();
                     //skip IPv4 address
                     if (!NeutronvpnUtils.getIpVersionFromString(ipValue).isIpVersionChosen(IpVersionChoice.IPV6)) {
@@ -1111,7 +1108,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     Adjacencies adjacencies = new AdjacenciesBuilder().setAdjacency(adjacencyList).build();
                     vpnIfBuilder.addAugmentation(Adjacencies.class, adjacencies);
                 }
-                for (FixedIps ip : requireNonNullElse(port.getFixedIps(), Collections.<FixedIps>emptyList())) {
+                for (FixedIps ip : port.nonnullFixedIps()) {
                     String ipValue = ip.getIpAddress().stringValue();
                     if (oldVpnId != null) {
                         neutronvpnUtils.removeVpnPortFixedIpToPort(oldVpnId.getValue(),
@@ -1387,8 +1384,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
                                 vpnsIdentifier);
                 if (optionalVpns.isPresent() && !optionalVpns.get().getVpnInstance().isEmpty()) {
-                    for (VpnInstance vpn : requireNonNullElse(optionalVpns.get().getVpnInstance(),
-                            Collections.<VpnInstance>emptyList())) {
+                    for (VpnInstance vpn : optionalVpns.get().nonnullVpnInstance()) {
                         // eliminating implicitly created (router and VLAN provider external network specific) VPNs
                         // from getL3VPN output
                         if (vpn.getIpv4Family().getRouteDistinguisher() != null) {
@@ -1509,7 +1505,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
         int failurecount = 0;
         int warningcount = 0;
-        List<Uuid> vpns = requireNonNullElse(input.getId(), Collections.emptyList());
+        List<Uuid> vpns = input.getId() != null ? input.getId() : Collections.emptyList();
         for (Uuid vpn : vpns) {
             try {
                 LOG.debug("L3VPN delete RPC: VpnID {}", vpn.getValue());
@@ -2758,7 +2754,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             List<String> fixedIPList = new ArrayList<>();
             Port port = neutronvpnUtils.getNeutronPort(portId);
             if (port != null) {
-                for (FixedIps ip : requireNonNullElse(port.getFixedIps(), Collections.<FixedIps>emptyList())) {
+                for (FixedIps ip : port.nonnullFixedIps()) {
                     fixedIPList.add(ip.getIpAddress().stringValue());
                 }
             } else {
@@ -2966,7 +2962,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
         Optional<Ports> ports = syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION, portidentifier);
         if (ports.isPresent() && ports.get().getPort() != null) {
-            for (Port port : requireNonNullElse(ports.get().getPort(), Collections.<Port>emptyList())) {
+            for (Port port : ports.get().nonnullPort()) {
                 List<FixedIps> fixedIPs = port.getFixedIps();
                 if (fixedIPs != null && !fixedIPs.isEmpty()) {
                     List<String> ipList = new ArrayList<>();
@@ -3021,9 +3017,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             result.add("------------------------------------------------------------------------------------");
             result.add("");
             for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnInstance vpn :
-                    requireNonNullElse(rpcResult.getResult().getL3vpnInstances(),
-                        Collections.<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602
-                            .VpnInstance>emptyList())) {
+                    rpcResult.getResult().nonnullL3vpnInstances()) {
                 String tenantId = vpn.getTenantId() != null ? vpn.getTenantId().getValue()
                         : "\"                 " + "                  \"";
                 result.add(String.format(" %-37s %-37s %-7s ", vpn.getId().getValue(), tenantId,

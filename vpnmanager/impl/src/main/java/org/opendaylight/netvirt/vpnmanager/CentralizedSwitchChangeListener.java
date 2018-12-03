@@ -9,10 +9,8 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
 
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -141,7 +139,7 @@ public class CentralizedSwitchChangeListener
             return;
         }
 
-        for (ExternalIps extIp : requireNonNullElse(router.getExternalIps(), Collections.<ExternalIps>emptyList())) {
+        for (ExternalIps extIp : router.nonnullExternalIps()) {
             Uuid subnetVpnName = extIp.getSubnetId();
             if (addOrRemove == NwConstants.ADD_FLOW) {
                 vpnManager.addRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId,

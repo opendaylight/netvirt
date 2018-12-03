@@ -7,13 +7,10 @@
  */
 package org.opendaylight.netvirt.neutronvpn.evpn.manager;
 
-import static org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils.requireNonNullElse;
-
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -72,7 +69,7 @@ public class NeutronEvpnManager {
         int failurecount = 0;
         List<String> existingRDs = neutronvpnUtils.getExistingRDs();
 
-        for (Evpn vpn : requireNonNullElse(input.getEvpn(), Collections.<Evpn>emptyList())) {
+        for (Evpn vpn : input.nonnullEvpn()) {
             if (vpn.getRouteDistinguisher() == null || vpn.getImportRT() == null || vpn.getExportRT() == null) {
                 errorList.add(RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input",
                         formatAndLog(LOG::warn, "Creation of EVPN failed for VPN {} due to absence of RD/iRT/eRT input",
@@ -163,8 +160,7 @@ public class NeutronEvpnManager {
             List<String> rd = vpnInstance.getIpv4Family().getRouteDistinguisher();
             List<String> ertList = new ArrayList<>();
             List<String> irtList = new ArrayList<>();
-            for (VpnTarget vpnTarget : requireNonNullElse(vpnInstance.getIpv4Family().getVpnTargets().getVpnTarget(),
-                    Collections.<VpnTarget>emptyList())) {
+            for (VpnTarget vpnTarget : vpnInstance.getIpv4Family().getVpnTargets().nonnullVpnTarget()) {
                 if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
                     ertList.add(vpnTarget.getVrfRTValue());
                 }
@@ -202,13 +198,15 @@ public class NeutronEvpnManager {
     public ListenableFuture<RpcResult<DeleteEVPNOutput>> deleteEVPN(DeleteEVPNInput input) {
         List<RpcError> errorList = new ArrayList<>();
 
-        for (Uuid vpn : requireNonNullElse(input.getId(), Collections.<Uuid>emptyList())) {
-            VpnInstance vpnInstance = VpnHelper.getVpnInstance(dataBroker, vpn.getValue());
-            if (vpnInstance != null) {
-                neutronvpnManager.removeVpn(vpn);
-            } else {
-                errorList.add(RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-value",
+        if (input.getId() != null) {
+            for (Uuid vpn : input.getId()) {
+                VpnInstance vpnInstance = VpnHelper.getVpnInstance(dataBroker, vpn.getValue());
+                if (vpnInstance != null) {
+                    neutronvpnManager.removeVpn(vpn);
+                } else {
+                    errorList.add(RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-value",
                         formatAndLog(LOG::warn, "EVPN with vpnid: {} does not exist", vpn.getValue())));
+                }
             }
         }
         List<String> errorResponseList = new ArrayList<>();

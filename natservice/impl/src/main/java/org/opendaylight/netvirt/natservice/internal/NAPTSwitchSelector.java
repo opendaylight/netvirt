@@ -7,11 +7,8 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
-
 import com.google.common.base.Optional;
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,8 +90,7 @@ public class NAPTSwitchSelector {
         if (optNaptSwitches.isPresent()) {
             NaptSwitches naptSwitches = optNaptSwitches.get();
 
-            for (RouterToNaptSwitch naptSwitch : requireNonNullElse(naptSwitches.getRouterToNaptSwitch(),
-                    Collections.<RouterToNaptSwitch>emptyList())) {
+            for (RouterToNaptSwitch naptSwitch : naptSwitches.nonnullRouterToNaptSwitch()) {
                 BigInteger primarySwitch = naptSwitch.getPrimarySwitchId();
                 //update weight
                 Integer weight = switchWeights.get(primarySwitch);
