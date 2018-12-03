@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import static java.util.Collections.emptyList;
-import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
 
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -123,9 +122,9 @@ public class ElanDpnInterfaceClusteredListener
     @Override
     protected void update(InstanceIdentifier<DpnInterfaces> identifier, DpnInterfaces original,
                           final DpnInterfaces dpnInterfaces) {
-        List<String> interfaces = requireNonNullElse(dpnInterfaces.getInterfaces(), emptyList());
-        LOG.debug("dpninterfaces update fired new size {}", interfaces.size());
-        if (interfaces.isEmpty()) {
+        List<String> interfaces = dpnInterfaces.getInterfaces();
+        if (interfaces != null && !interfaces.isEmpty()) {
+            LOG.debug("dpninterfaces update fired new size {}", interfaces.size());
             elanInstanceDpnsCache.remove(getElanName(identifier), dpnInterfaces);
             LOG.debug("dpninterfaces last dpn interface on this elan {} ", dpnInterfaces.key());
             // this is the last dpn interface on this elan

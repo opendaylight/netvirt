@@ -7,16 +7,16 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import static org.opendaylight.netvirt.dhcpservice.api.DHCPUtils.nullToEmpty;
-
 import com.google.common.base.Optional;
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -132,7 +132,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
         }
     }
 
-    @Nullable
+    @Nonnull
     public Map<BigInteger, List<String>> getElanDpnInterfacesByName(DataBroker broker, String elanInstanceName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnIfacesIid = InstanceIdentifier.builder(ElanDpnInterfaces.class)
                 .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName)).build();
@@ -140,11 +140,12 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
                 elanDpnIfacesIid);
         if (!elanDpnIfacesOpc.isPresent()) {
             LOG.warn("Could not find DpnInterfaces for elan {}", elanInstanceName);
-            return null;
+            return Collections.emptyMap();
         }
 
-        return nullToEmpty(elanDpnIfacesOpc.get().getDpnInterfaces()).stream()
-                .collect(Collectors.toMap(DpnInterfaces::getDpId, value -> nullToEmpty(value.getInterfaces())));
+        return elanDpnIfacesOpc.get().nonnullDpnInterfaces().stream()
+            .collect(Collectors.toMap(DpnInterfaces::getDpId,
+                value -> value.getInterfaces() != null ? value.getInterfaces() : Collections.emptyList()));
     }
 
     @Nullable

@@ -187,7 +187,8 @@ public class QosNeutronUtils {
                 .child(NetworkMap.class, new NetworkMapKey(networkId)).build();
         Optional<NetworkMap> optionalNetworkMap = MDSALUtil.read(LogicalDatastoreType.CONFIGURATION,
                 networkMapId, dataBroker);
-        return optionalNetworkMap.isPresent() ? nullToEmpty(optionalNetworkMap.get().getSubnetIdList()) : emptyList();
+        return (optionalNetworkMap.isPresent() && optionalNetworkMap.get().getSubnetIdList() != null)
+            ? optionalNetworkMap.get().getSubnetIdList() : emptyList();
     }
 
     @Nonnull
@@ -197,7 +198,8 @@ public class QosNeutronUtils {
                 .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
         Optional<Subnetmap> optionalSubnetmap = MDSALUtil.read(LogicalDatastoreType.CONFIGURATION,
                 subnetMapId,dataBroker);
-        return optionalSubnetmap.isPresent() ? nullToEmpty(optionalSubnetmap.get().getPortList()) : emptyList();
+        return (optionalSubnetmap.isPresent() && optionalSubnetmap.get().getPortList() != null)
+            ? optionalSubnetmap.get().getPortList() : emptyList();
     }
 
     public void handleNeutronPortQosAdd(Port port, Uuid qosUuid) {
@@ -879,11 +881,5 @@ public class QosNeutronUtils {
 
     public boolean hasIpv6Addr(int versions) {
         return (versions & (1 << QosConstants.IPV6_ADDR_MASK_BIT)) != 0;
-    }
-
-    // TODO Replace this with mdsal's DataObjectUtils.nullToEmpty when upgrading to mdsal 3
-    @Nonnull
-    public static <T> List<T> nullToEmpty(final @Nullable List<T> input) {
-        return input != null ? input : emptyList();
     }
 }

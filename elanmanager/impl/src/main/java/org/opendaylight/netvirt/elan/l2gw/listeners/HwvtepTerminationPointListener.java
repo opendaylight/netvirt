@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
@@ -167,12 +166,11 @@ public class HwvtepTerminationPointListener
             } else {
                 String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(
                         l2GwConn.getNetworkId().getValue());
-                List<Devices> l2Devices = requireNonNullElse(l2Gateway.getDevices(), emptyList());
+                List<Devices> l2Devices = l2Gateway.nonnullDevices();
                 for (Devices l2Device : l2Devices) {
                     String l2DeviceName = l2Device.getDeviceName();
                     if (l2DeviceName != null && l2DeviceName.equals(psName)) {
-                        for (Interfaces deviceInterface : requireNonNullElse(l2Device.getInterfaces(),
-                                Collections.<Interfaces>emptyList())) {
+                        for (Interfaces deviceInterface : l2Device.nonnullInterfaces()) {
                             if (Objects.equals(deviceInterface.getInterfaceName(), newPortId)) {
                                 if (deviceInterface.getSegmentationIds() != null
                                         && !deviceInterface.getSegmentationIds().isEmpty()) {

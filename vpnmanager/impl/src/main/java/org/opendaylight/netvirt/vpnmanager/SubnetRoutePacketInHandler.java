@@ -7,9 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import static java.util.Collections.emptyList;
-import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
-
 import com.google.common.base.Optional;
 import com.google.common.primitives.Ints;
 import java.math.BigInteger;
@@ -398,33 +395,35 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                         elanInfo.getName());
                 return null;
             }
-            List<Uuid> subnetList = requireNonNullElse(optionalNetworkMap.get().getSubnetIdList(), emptyList());
+            List<Uuid> subnetList = optionalNetworkMap.get().getSubnetIdList();
             LOG.debug("{} getTargetDpnForPacketOut: Obtained subnetList as {} for network {}", LOGGING_PREFIX,
                     subnetList, elanInfo.getName());
-            for (Uuid subnetId : subnetList) {
-                String vpnName = null;
-                Subnetmap sn = vpnUtil.getSubnetmapFromItsUuid(subnetId);
-                if (sn != null && sn.getVpnId() != null) {
-                    vpnName = sn.getVpnId().getValue();
-                }
-                if (vpnName == null) {
-                    continue;
-                }
-                Optional<SubnetOpDataEntry> optionalSubs;
-                optionalSubs = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+            if (subnetList != null) {
+                for (Uuid subnetId : subnetList) {
+                    String vpnName = null;
+                    Subnetmap sn = vpnUtil.getSubnetmapFromItsUuid(subnetId);
+                    if (sn != null && sn.getVpnId() != null) {
+                        vpnName = sn.getVpnId().getValue();
+                    }
+                    if (vpnName == null) {
+                        continue;
+                    }
+                    Optional<SubnetOpDataEntry> optionalSubs = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                         LogicalDatastoreType.OPERATIONAL, VpnUtil.buildSubnetOpDataEntryInstanceIdentifier(subnetId));
-                if (!optionalSubs.isPresent()) {
-                    continue;
-                }
-                SubnetOpDataEntry subOpEntry = optionalSubs.get();
-                if (subOpEntry.getNhDpnId() != null) {
-                    LOG.trace("{} getTargetDpnForPacketOut: Viewing Subnet {}", LOGGING_PREFIX, subnetId.getValue());
-                    IpPrefix cidr = IpPrefixBuilder.getDefaultInstance(subOpEntry.getSubnetCidr());
-                    boolean match = NWUtil.isIpAddressInRange(IpAddressBuilder.getDefaultInstance(ipAddress), cidr);
-                    LOG.trace("{} getTargetDpnForPacketOut: Viewing Subnet {} matching {}", LOGGING_PREFIX,
+                    if (!optionalSubs.isPresent()) {
+                        continue;
+                    }
+                    SubnetOpDataEntry subOpEntry = optionalSubs.get();
+                    if (subOpEntry.getNhDpnId() != null) {
+                        LOG.trace("{} getTargetDpnForPacketOut: Viewing Subnet {}", LOGGING_PREFIX,
+                            subnetId.getValue());
+                        IpPrefix cidr = IpPrefixBuilder.getDefaultInstance(subOpEntry.getSubnetCidr());
+                        boolean match = NWUtil.isIpAddressInRange(IpAddressBuilder.getDefaultInstance(ipAddress), cidr);
+                        LOG.trace("{} getTargetDpnForPacketOut: Viewing Subnet {} matching {}", LOGGING_PREFIX,
                             subnetId.getValue(), match);
-                    if (match) {
-                        return subOpEntry;
+                        if (match) {
+                            return subOpEntry;
+                        }
                     }
                 }
             }

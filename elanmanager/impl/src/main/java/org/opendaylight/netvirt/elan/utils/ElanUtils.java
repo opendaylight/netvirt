@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.utils;
 
 import static java.util.Collections.emptyList;
-import static java.util.Objects.requireNonNull;
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
@@ -22,7 +21,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,13 +29,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -534,8 +530,7 @@ public class ElanUtils {
         if (!existingElanDpnInterfaces.isPresent()) {
             return dpIds;
         }
-        List<DpnInterfaces> dpnInterfaces =
-            requireNonNullElse(existingElanDpnInterfaces.get().getDpnInterfaces(), emptyList());
+        List<DpnInterfaces> dpnInterfaces = existingElanDpnInterfaces.get().nonnullDpnInterfaces();
         for (DpnInterfaces dpnInterface : dpnInterfaces) {
             dpIds.add(dpnInterface.getDpId());
         }
@@ -560,8 +555,7 @@ public class ElanUtils {
         if (!existingElanDpnInterfaces.isPresent()) {
             return false;
         }
-        List<DpnInterfaces> dpnInterfaces =
-            requireNonNullElse(existingElanDpnInterfaces.get().getDpnInterfaces(), emptyList());
+        List<DpnInterfaces> dpnInterfaces = existingElanDpnInterfaces.get().nonnullDpnInterfaces();
         for (DpnInterfaces dpnInterface : dpnInterfaces) {
             if (Objects.equals(dpnInterface.getDpId(), dpId)) {
                 return true;
@@ -816,7 +810,7 @@ public class ElanUtils {
                 LOG.debug("RPC Call to Get egress actions for interface {} returned with Errors {}", ifName,
                         rpcResult.getErrors());
             } else {
-                listAction = requireNonNullElse(rpcResult.getResult().getAction(), emptyList());
+                listAction = rpcResult.getResult().nonnullAction();
             }
         } catch (Exception e) {
             LOG.warn("Exception when egress actions for interface {}", ifName, e);
@@ -1737,11 +1731,5 @@ public class ElanUtils {
     public static InstanceIdentifier<Group> getGroupInstanceid(BigInteger dpnId, long groupId) {
         return InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:" + dpnId)))
                 .augmentation(FlowCapableNode.class).child(Group.class, new GroupKey(new GroupId(groupId))).build();
-    }
-
-    // Use Objects.requireNonNullElse instead with JDK9+
-    @Nonnull
-    public static <T> T requireNonNullElse(@Nullable T obj, @Nonnull T defaultObj) {
-        return obj != null ? obj : requireNonNull(defaultObj);
     }
 }
