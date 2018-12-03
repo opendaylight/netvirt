@@ -8,8 +8,6 @@
 
 package org.opendaylight.netvirt.ipv6service.utils;
 
-import static java.util.Collections.emptyList;
-
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -18,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -435,11 +432,5 @@ public class Ipv6ServiceUtils {
             return false;
         }
         return subnet.getIpVersion().equals(Ipv6ServiceConstants.IP_VERSION_V6) ? true : false;
-    }
-
-    // TODO Replace this with mdsal's DataObjectUtils.nullToEmpty when upgrading to mdsal 3
-    @Nonnull
-    public static <T> List<T> nullToEmpty(final @Nullable List<T> input) {
-        return input != null ? input : emptyList();
     }
 }

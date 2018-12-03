@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import static java.util.Collections.emptyList;
-import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
@@ -109,7 +108,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 && vpnFootprintService.isVpnFootPrintCleared(update)) {
             //Cleanup VPN data
             final String vpnName = update.getVpnInstanceName();
-            final List<String> rds = requireNonNullElse(update.getRd(), emptyList());
+            final List<String> rds = update.getRd();
             String primaryRd = update.getVrfId();
             final long vpnId = vpnUtil.getVpnId(vpnName);
             jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
@@ -118,7 +117,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 ListenableFuture<Void> operationalFuture = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                                                                                 Datastore.OPERATIONAL, operTx -> {
                         // Clean up VPNExtraRoutes Operational DS
-                        if (VpnUtil.isBgpVpn(vpnName, primaryRd)) {
+                        if (rds != null && VpnUtil.isBgpVpn(vpnName, primaryRd)) {
                             if (update.getType() == VpnInstanceOpDataEntry.Type.L2) {
                                 rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(
                                         rd, false, AddressFamily.L2VPN));
