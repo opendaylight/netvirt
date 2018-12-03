@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableBiMap;
@@ -239,8 +238,7 @@ public class NeutronvpnUtils {
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
         Optional<VpnMaps> optionalVpnMaps = read(LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
-            for (VpnMap vpnMap : requireNonNullElse(optionalVpnMaps.get().getVpnMap(),
-                    Collections.<VpnMap>emptyList())) {
+            for (VpnMap vpnMap : optionalVpnMaps.get().nonnullVpnMap()) {
                 List<Uuid> netIds = vpnMap.getNetworkIds();
                 if (netIds != null && netIds.contains(network)) {
                     return vpnMap.getVpnId();
@@ -285,8 +283,7 @@ public class NeutronvpnUtils {
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
         Optional<VpnMaps> optionalVpnMaps = read(LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
-            for (VpnMap vpnMap : requireNonNullElse(optionalVpnMaps.get().getVpnMap(),
-                    Collections.<VpnMap>emptyList())) {
+            for (VpnMap vpnMap : optionalVpnMaps.get().nonnullVpnMap()) {
                 List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.vpnmap
                     .RouterIds> routerIdsList = vpnMap.getRouterIds();
                 if (routerIdsList == null || routerIdsList.isEmpty()) {
@@ -1187,8 +1184,7 @@ public class NeutronvpnUtils {
         Optional<InterVpnLinks> interVpnLinksOpData = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 interVpnLinksIid);
         if (interVpnLinksOpData.isPresent()) {
-            for (InterVpnLink interVpnLink : requireNonNullElse(interVpnLinksOpData.get().getInterVpnLink(),
-                    Collections.<InterVpnLink>emptyList())) {
+            for (InterVpnLink interVpnLink : interVpnLinksOpData.get().nonnullInterVpnLink()) {
                 if (interVpnLink.getFirstEndpoint().getIpAddress().getValue().equals(endpointIp)
                         || interVpnLink.getSecondEndpoint().getIpAddress().getValue().equals(endpointIp)) {
                     return Optional.of(interVpnLink);
@@ -1206,8 +1202,7 @@ public class NeutronvpnUtils {
             MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, routerDpnId);
         if (neutronRouterDpnsOpt.isPresent()) {
             NeutronRouterDpns neutronRouterDpns = neutronRouterDpnsOpt.get();
-            for (RouterDpnList routerDpnList : requireNonNullElse(neutronRouterDpns.getRouterDpnList(),
-                    Collections.<RouterDpnList>emptyList())) {
+            for (RouterDpnList routerDpnList : neutronRouterDpns.nonnullRouterDpnList()) {
                 if (routerDpnList.getDpnVpninterfacesList() != null) {
                     for (DpnVpninterfacesList dpnInterfaceList : routerDpnList.getDpnVpninterfacesList()) {
                         if (dpnInterfaceList.getDpnId().equals(dpid)) {
@@ -1514,8 +1509,7 @@ public class NeutronvpnUtils {
         Optional<Subnetmaps> allSubnetMaps = read(LogicalDatastoreType.CONFIGURATION, subnetMapsId);
         // calculate and store in list IpVersion for each subnetMap, belonging to current VpnInstance
         List<IpVersionChoice> snIpVersions = new ArrayList<>();
-        for (Subnetmap snMap : requireNonNullElse(allSubnetMaps.get().getSubnetmap(),
-                Collections.<Subnetmap>emptyList())) {
+        for (Subnetmap snMap : allSubnetMaps.get().nonnullSubnetmap()) {
             if (snMap.getId().equals(sm.getId())) {
                 continue;
             }
@@ -1830,8 +1824,7 @@ public class NeutronvpnUtils {
                         LogicalDatastoreType.OPERATIONAL, id);
         List<BigInteger> dpns = new ArrayList<>();
         if (routerDpnListData.isPresent()) {
-            for (DpnVpninterfacesList dpnVpnInterface : requireNonNullElse(
-                    routerDpnListData.get().getDpnVpninterfacesList(), Collections.<DpnVpninterfacesList>emptyList())) {
+            for (DpnVpninterfacesList dpnVpnInterface : routerDpnListData.get().nonnullDpnVpninterfacesList()) {
                 dpns.add(dpnVpnInterface.getDpnId());
             }
         }

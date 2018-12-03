@@ -7,12 +7,9 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
-
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -98,8 +95,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
 
         String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterName(confTx, routerName);
         addOutboundTblTrackEntry(confTx, dpnId, routerId, extGwMacAddress);
-        for (ExternalIps externalIp : requireNonNullElse(routers.getExternalIps(),
-                Collections.<ExternalIps>emptyList())) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -142,8 +138,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         removeSnatMissEntryForPrimrySwch(confTx, dpnId, routerId);
 
         removeOutboundTblTrackEntry(confTx, dpnId, routerId);
-        for (ExternalIps externalIp : requireNonNullElse(routers.getExternalIps(),
-                Collections.<ExternalIps>emptyList())) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;

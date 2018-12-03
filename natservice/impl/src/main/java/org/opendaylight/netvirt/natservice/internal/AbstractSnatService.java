@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
 
 import java.math.BigInteger;
 import java.time.Duration;
@@ -292,8 +291,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         addDefaultFibRouteForSNAT(confTx, dpnId, routerId);
         int elanId = NatUtil.getElanInstanceByName(routers.getNetworkId().getValue(), getDataBroker())
                 .getElanTag().intValue();
-        for (ExternalIps externalIp : requireNonNullElse(routers.getExternalIps(),
-                Collections.<ExternalIps>emptyList())) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -311,8 +309,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         removeDefaultFibRouteForSNAT(confTx, dpnId, routerId);
-        for (ExternalIps externalIp : requireNonNullElse(routers.getExternalIps(),
-                Collections.<ExternalIps>emptyList())) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -328,8 +325,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         String externalGwMac = routers.getExtGwMacAddress();
-        for (ExternalIps externalIp : requireNonNullElse(routers.getExternalIps(),
-                Collections.<ExternalIps>emptyList())) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -346,8 +342,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             Routers routers, BigInteger dpnId) throws ExecutionException, InterruptedException {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(confTx, routerName);
-        for (ExternalIps externalIp : requireNonNullElse(routers.getExternalIps(),
-                Collections.<ExternalIps>emptyList())) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -678,8 +673,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected void removeMipAdjacencies(Routers routers) {
         LOG.info("removeMipAdjacencies for router {}", routers.getRouterName());
         String externalSubNetId  = null;
-        for (ExternalIps externalIp : requireNonNullElse(routers.getExternalIps(),
-                Collections.<ExternalIps>emptyList())) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps()) {
             if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                 // In this class we handle only IPv4 use-cases.
                 continue;
@@ -698,13 +692,11 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             VpnInterfaces vpnInterfaces = SingleTransactionDataBroker.syncRead(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, vpnInterfacesId);
             List<VpnInterface> updatedVpnInterface = new ArrayList<>();
-            for (VpnInterface vpnInterface : requireNonNullElse(vpnInterfaces.getVpnInterface(),
-                    Collections.<VpnInterface>emptyList())) {
+            for (VpnInterface vpnInterface : vpnInterfaces.nonnullVpnInterface()) {
                 List<Adjacency> updatedAdjacencies = new ArrayList<>();
                 Adjacencies adjacencies = vpnInterface.augmentation(Adjacencies.class);
                 if (null != adjacencies) {
-                    for (Adjacency adjacency : requireNonNullElse(adjacencies.getAdjacency(),
-                            Collections.<Adjacency>emptyList())) {
+                    for (Adjacency adjacency : adjacencies.nonnullAdjacency()) {
                         if (!adjacency.getSubnetId().getValue().equals(externalSubNetId)) {
                             updatedAdjacencies.add(adjacency);
                         }
@@ -738,15 +730,13 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         }
         LearntVpnVipToPortDataBuilder learntVpnVipToPortDataBuilder = new LearntVpnVipToPortDataBuilder();
         List<LearntVpnVipToPort> learntVpnVipToPortList = new ArrayList<>();
-        for (LearntVpnVipToPort learntVpnVipToPort : requireNonNullElse(learntVpnVipToPortData.getLearntVpnVipToPort(),
-                Collections.<LearntVpnVipToPort>emptyList())) {
+        for (LearntVpnVipToPort learntVpnVipToPort : learntVpnVipToPortData.nonnullLearntVpnVipToPort()) {
             if (!networkId.equals(learntVpnVipToPort.getVpnName())) {
                 LOG.info("The learned port belongs to Vpn {} hence not removing", learntVpnVipToPort.getVpnName());
                 learntVpnVipToPortList.add(learntVpnVipToPort);
             } else {
                 String externalSubNetId = null;
-                for (ExternalIps externalIp : requireNonNullElse(routers.getExternalIps(),
-                        Collections.<ExternalIps>emptyList())) {
+                for (ExternalIps externalIp : routers.nonnullExternalIps()) {
                     if (!NWUtil.isIpv4Address(externalIp.getIpAddress())) {
                         // In this class we handle only IPv4 use-cases.
                         continue;

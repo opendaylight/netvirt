@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import static java.util.Objects.requireNonNull;
-import static org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils.nullToEmpty;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -226,7 +225,7 @@ public class Ipv6RouterAdvt {
         buf.put((byte)pdu.getSourceAddrLength().shortValue());
         buf.put(Ipv6Util.bytesFromHexString(pdu.getSourceLlAddress().getValue()));
 
-        for (PrefixList prefix : nullToEmpty(pdu.getPrefixList())) {
+        for (PrefixList prefix : pdu.nonnullPrefixList()) {
             buf.put((byte)prefix.getOptionType().shortValue());
             buf.put((byte)prefix.getOptionLength().shortValue());
             buf.put((byte)prefix.getPrefixLength().shortValue());
