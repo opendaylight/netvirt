@@ -7,8 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager.iplearn;
 
-import static java.util.Collections.emptyList;
-import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
+import static org.opendaylight.yangtools.yang.binding.CodeHelpers.nonnull;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -197,8 +196,8 @@ public class LearntVpnVipToPortEventProcessor
                                 .withKey(new AdjacencyKey(ip)).setAdjacencyType(AdjacencyType.PrimaryAdjacency)
                                 .setMacAddress(mipMacAddress).setSubnetId(new Uuid(subnetId)).setPhysNetworkFunc(true);
 
-                        List<Adjacency> adjacencyList = new ArrayList<>(requireNonNullElse(
-                            adjacencies.toJavaUtil().map(AdjacencyList::getAdjacency).orElse(null), emptyList()));
+                        List<Adjacency> adjacencyList = new ArrayList<>(nonnull(
+                            adjacencies.toJavaUtil().map(AdjacencyList::getAdjacency).orElse(null)));
 
                         adjacencyList.add(newAdjBuilder.build());
 
@@ -219,8 +218,7 @@ public class LearntVpnVipToPortEventProcessor
                     }
 
                     if (adjacencies.isPresent()) {
-                        List<Adjacency> adjacencyList =
-                            requireNonNullElse(adjacencies.get().getAdjacency(), emptyList());
+                        List<Adjacency> adjacencyList = adjacencies.get().nonnullAdjacency();
                         ip = VpnUtil.getIpPrefix(ip);
                         for (Adjacency adjacs : adjacencyList) {
                             if (adjacs.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
@@ -285,8 +283,8 @@ public class LearntVpnVipToPortEventProcessor
             VpnPortipToPort vpnPortipToPort =
                     vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnInstName, ip);
             if (vpnPortipToPort != null && vpnPortipToPort.isSubnetIp()) {
-                List<Adjacency> adjacencies = requireNonNullElse(vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(
-                        vpnPortipToPort.getPortName()), emptyList());
+                List<Adjacency> adjacencies = nonnull(vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(
+                        vpnPortipToPort.getPortName()));
                 for (Adjacency adjacency : adjacencies) {
                     if (adjacency.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
                         return adjacency.getSubnetId().getValue();

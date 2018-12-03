@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import static org.opendaylight.netvirt.dhcpservice.api.DHCPUtils.nullToEmpty;
+import static org.opendaylight.yangtools.yang.binding.CodeHelpers.nonnull;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
@@ -143,8 +143,8 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
             return null;
         }
 
-        return nullToEmpty(elanDpnIfacesOpc.get().getDpnInterfaces()).stream()
-                .collect(Collectors.toMap(DpnInterfaces::getDpId, value -> nullToEmpty(value.getInterfaces())));
+        return elanDpnIfacesOpc.get().nonnullDpnInterfaces().stream()
+                .collect(Collectors.toMap(DpnInterfaces::getDpId, value -> nonnull(value.getInterfaces())));
     }
 
     @Nullable

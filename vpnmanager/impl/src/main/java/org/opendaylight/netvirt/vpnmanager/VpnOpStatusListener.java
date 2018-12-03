@@ -8,7 +8,7 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import static java.util.Collections.emptyList;
-import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
+import static org.opendaylight.yangtools.yang.binding.CodeHelpers.nonnull;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
@@ -109,7 +109,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 && vpnFootprintService.isVpnFootPrintCleared(update)) {
             //Cleanup VPN data
             final String vpnName = update.getVpnInstanceName();
-            final List<String> rds = requireNonNullElse(update.getRd(), emptyList());
+            final List<String> rds = nonnull(update.getRd());
             String primaryRd = update.getVrfId();
             final long vpnId = vpnUtil.getVpnId(vpnName);
             jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {

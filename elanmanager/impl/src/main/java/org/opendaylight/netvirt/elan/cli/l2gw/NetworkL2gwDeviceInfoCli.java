@@ -8,12 +8,8 @@
 
 package org.opendaylight.netvirt.elan.cli.l2gw;
 
-import static java.util.Collections.emptyList;
-import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
-
 import com.google.common.base.Optional;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -103,7 +99,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
             Optional<Topology> topologyOptional = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     createHwvtepTopologyInstanceIdentifier());
             if (topologyOptional.isPresent()) {
-                nodes = requireNonNullElse(topologyOptional.get().getNode(), emptyList());
+                nodes.addAll(topologyOptional.get().nonnullNode());
             }
         } else {
             Optional<Node> nodeOptional = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
@@ -257,8 +253,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
             if (elanName.equals(lsFromLocalMac)) {
                 String mac = localMac.getMacEntryKey().getValue();
                 List<String> locatorsets = new ArrayList<>();
-                for (LocatorSet locatorSet : requireNonNullElse(localMac.getLocatorSet(),
-                        Collections.<LocatorSet>emptyList())) {
+                for (LocatorSet locatorSet : localMac.nonnullLocatorSet()) {
                     locatorsets.add(getLocatorValue(locatorSet.getLocatorRef()));
                 }
                 session.getConsole().println(mac + GAP + locatorsets.toString());
@@ -285,8 +280,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
             if (elanName.equals(lsFromremoteMac)) {
                 String mac = remoteMac.getMacEntryKey().getValue();
                 List<String> locatorsets = new ArrayList<>();
-                for (LocatorSet locatorSet : requireNonNullElse(remoteMac.getLocatorSet(),
-                        Collections.<LocatorSet>emptyList())) {
+                for (LocatorSet locatorSet : remoteMac.nonnullLocatorSet()) {
                     locatorsets.add(getLocatorValue(locatorSet.getLocatorRef()));
                 }
                 session.getConsole().println(mac + GAP + locatorsets.toString());

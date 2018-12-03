@@ -9,15 +9,14 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import static java.util.Collections.emptyList;
-import static java.util.Objects.requireNonNull;
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.yangtools.yang.binding.CodeHelpers.nonnull;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -718,8 +717,7 @@ public final class NatUtil {
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                         LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
-            for (VpnMap vpnMap : requireNonNullElse(optionalVpnMaps.get().getVpnMap(),
-                    Collections.<VpnMap>emptyList())) {
+            for (VpnMap vpnMap : optionalVpnMaps.get().nonnullVpnMap()) {
                 if (routerId.equals(vpnMap.getVpnId().getValue())) {
                     continue;
                 }
@@ -975,7 +973,7 @@ public final class NatUtil {
         // Ensure there are no duplicates
         Collection<String> externalIps = new HashSet<>();
         if (ipMappingOptional.isPresent()) {
-            for (IpMap ipMap : requireNonNullElse(ipMappingOptional.get().getIpMap(), Collections.<IpMap>emptyList())) {
+            for (IpMap ipMap : ipMappingOptional.get().nonnullIpMap()) {
                 externalIps.add(ipMap.getExternalIp());
             }
         }
@@ -1000,7 +998,7 @@ public final class NatUtil {
                         LogicalDatastoreType.OPERATIONAL, getIpMappingBuilder(routerId));
         Map<String, Long> externalIpsLabel = new HashMap<>();
         if (ipMappingOptional.isPresent()) {
-            for (IpMap ipMap : requireNonNullElse(ipMappingOptional.get().getIpMap(), Collections.<IpMap>emptyList())) {
+            for (IpMap ipMap : ipMappingOptional.get().nonnullIpMap()) {
                 externalIpsLabel.put(ipMap.getExternalIp(), ipMap.getLabel());
             }
         }
@@ -1018,8 +1016,7 @@ public final class NatUtil {
         if (externalCountersData.isPresent()) {
             ExternalCounters externalCounter = externalCountersData.get();
             short countOfLstLoadExtIp = 32767;
-            for (ExternalIpCounter externalIpCounter : requireNonNullElse(externalCounter.getExternalIpCounter(),
-                    Collections.<ExternalIpCounter>emptyList())) {
+            for (ExternalIpCounter externalIpCounter : externalCounter.nonnullExternalIpCounter()) {
                 String curExternalIp = externalIpCounter.getExternalIp();
                 short countOfCurExtIp = externalIpCounter.getCounter();
                 if (countOfCurExtIp < countOfLstLoadExtIp) {
@@ -1082,8 +1079,7 @@ public final class NatUtil {
                         LogicalDatastoreType.OPERATIONAL, id);
         List<BigInteger> dpns = new ArrayList<>();
         if (routerDpnListData.isPresent()) {
-            for (DpnVpninterfacesList dpnVpnInterface : requireNonNullElse(
-                    routerDpnListData.get().getDpnVpninterfacesList(), Collections.<DpnVpninterfacesList>emptyList())) {
+            for (DpnVpninterfacesList dpnVpnInterface : routerDpnListData.get().nonnullDpnVpninterfacesList()) {
                 dpns.add(dpnVpnInterface.getDpnId());
             }
         }
@@ -1173,8 +1169,7 @@ public final class NatUtil {
         if (optionalDpnRoutersList.isPresent()) {
             RoutersList routersList = new RoutersListBuilder().withKey(new RoutersListKey(routerName))
                     .setRouter(routerName).build();
-            List<RoutersList> routersListFromDs = requireNonNullElse(optionalDpnRoutersList.get().getRoutersList(),
-                emptyList());
+            List<RoutersList> routersListFromDs = optionalDpnRoutersList.get().nonnullRoutersList();
             if (!routersListFromDs.contains(routersList)) {
                 LOG.debug("addToDpnRoutersMap : Router {} not present for the DPN {}"
                         + " in the ODL-L3VPN : DPNRouters map", routerName, dpId);
@@ -1403,7 +1398,7 @@ public final class NatUtil {
                     LOG.error("getEgressActionsForTunnels : RPC Call to Get egress actions for Tunnels {} "
                             + "returned with Errors {}", ifName, rpcResult.getErrors());
                 } else {
-                    actions = rpcResult.getResult().getAction();
+                    actions = rpcResult.getResult().nonnullAction();
                 }
             } else {
                 RpcResult<GetEgressActionsForInterfaceOutput> rpcResult =
@@ -1412,11 +1407,11 @@ public final class NatUtil {
                     LOG.error("getEgressActionsForInterface : RPC Call to Get egress actions for interface {} "
                             + "returned with Errors {}", ifName, rpcResult.getErrors());
                 } else {
-                    actions = rpcResult.getResult().getAction();
+                    actions = rpcResult.getResult().nonnullAction();
                 }
             }
             List<ActionInfo> listActionInfo = new ArrayList<>();
-            for (Action action : requireNonNullElse(actions, Collections.<Action>emptyList())) {
+            for (Action action : actions) {
                 org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action
                     actionClass = action.getAction();
                 if (actionClass instanceof OutputActionCase) {
@@ -1495,7 +1490,7 @@ public final class NatUtil {
             LOG.error("getSubnetIdForFloatingIp : port is null");
             return null;
         }
-        for (FixedIps ip : requireNonNullElse(port.getFixedIps(), Collections.<FixedIps>emptyList())) {
+        for (FixedIps ip : port.nonnullFixedIps()) {
             if (Objects.equals(ip.getIpAddress(), targetIP)) {
                 return ip.getSubnetId();
             }
@@ -1768,10 +1763,9 @@ public final class NatUtil {
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                         LogicalDatastoreType.CONFIGURATION, externalNwIdentifier);
         if (externalNwData.isPresent()) {
-            for (Networks externalNw : requireNonNullElse(externalNwData.get().getNetworks(),
-                    Collections.<Networks>emptyList())) {
+            for (Networks externalNw : externalNwData.get().nonnullNetworks()) {
                 if (externalNw.getVpnid() != null && externalNw.getVpnid().equals(vpnUuid)) {
-                    return requireNonNullElse(externalNw.getRouterIds(), emptyList());
+                    return nonnull(externalNw.getRouterIds());
                 }
             }
         }
@@ -1892,7 +1886,7 @@ public final class NatUtil {
     @Nullable
     protected static Uuid getExternalSubnetForRouterExternalIp(String externalIpAddress, Routers router) {
         externalIpAddress = validateAndAddNetworkMask(externalIpAddress);
-        for (ExternalIps extIp : requireNonNullElse(router.getExternalIps(), Collections.<ExternalIps>emptyList())) {
+        for (ExternalIps extIp : router.nonnullExternalIps()) {
             String extIpString = validateAndAddNetworkMask(extIp.getIpAddress());
             if (extIpString.equals(externalIpAddress)) {
                 return extIp.getSubnetId();
@@ -2559,12 +2553,6 @@ public final class NatUtil {
             return null;
         }
         return node.augmentation(OvsdbBridgeAugmentation.class);
-    }
-
-    // Use Objects.requireNonNullElse instead with JDK9+
-    @Nonnull
-    public static <T> T requireNonNullElse(@Nullable T obj, @Nonnull T defaultObj) {
-        return obj != null ? obj : requireNonNull(defaultObj);
     }
 
     public static String getDefaultFibRouteToSNATForSubnetJobKey(String subnetName, BigInteger dpnId) {

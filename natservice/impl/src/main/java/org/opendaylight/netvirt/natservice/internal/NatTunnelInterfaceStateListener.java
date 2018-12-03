@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -20,7 +19,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -854,7 +852,7 @@ public class NatTunnelInterfaceStateListener
                 l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
             }
         }
-        for (Ports port : requireNonNullElse(routerPorts.getPorts(), Collections.<Ports>emptyList())) {
+        for (Ports port : routerPorts.nonnullPorts()) {
             //Get the DPN on which this interface resides
             final String interfaceName = port.getPortName();
             final BigInteger fipCfgdDpnId = NatUtil.getDpnForInterface(interfaceService, interfaceName);
@@ -869,8 +867,7 @@ public class NatTunnelInterfaceStateListener
                     tepAddedDpnId, fipCfgdDpnId, interfaceName);
                 continue;
             }
-            for (InternalToExternalPortMap intExtPortMap : requireNonNullElse(port.getInternalToExternalPortMap(),
-                    Collections.<InternalToExternalPortMap>emptyList())) {
+            for (InternalToExternalPortMap intExtPortMap : port.nonnullInternalToExternalPortMap()) {
                 final String internalIp = intExtPortMap.getInternalIp();
                 final String externalIp = intExtPortMap.getExternalIp();
                 LOG.debug("hndlTepAddForDnatInEachRtr : DNAT -> Advertising the FIB route to the floating IP {} "
@@ -1081,7 +1078,7 @@ public class NatTunnelInterfaceStateListener
                 l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
             }
         }
-        for (Ports port : requireNonNullElse(routerPorts.getPorts(), Collections.<Ports>emptyList())) {
+        for (Ports port : routerPorts.nonnullPorts()) {
             //Get the DPN on which this interface resides
             String interfaceName = port.getPortName();
             BigInteger fipCfgdDpnId = NatUtil.getDpnForInterface(interfaceService, interfaceName);
@@ -1096,8 +1093,7 @@ public class NatTunnelInterfaceStateListener
                     tepDeletedDpnId, fipCfgdDpnId, interfaceName);
                 continue;
             }
-            for (InternalToExternalPortMap intExtPortMap : requireNonNullElse(port.getInternalToExternalPortMap(),
-                    Collections.<InternalToExternalPortMap>emptyList())) {
+            for (InternalToExternalPortMap intExtPortMap : port.nonnullInternalToExternalPortMap()) {
                 String internalIp = intExtPortMap.getInternalIp();
                 String externalIp = intExtPortMap.getExternalIp();
                 externalIp = NatUtil.validateAndAddNetworkMask(externalIp);

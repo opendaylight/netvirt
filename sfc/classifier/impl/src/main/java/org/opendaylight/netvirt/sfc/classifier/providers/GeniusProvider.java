@@ -8,8 +8,6 @@
 
 package org.opendaylight.netvirt.sfc.classifier.providers;
 
-import static org.opendaylight.netvirt.sfc.classifier.utils.SfcUtils.nullToEmpty;
-
 import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.util.Collections;
@@ -274,7 +272,7 @@ public class GeniusProvider {
 
             Class<? extends InterfaceTypeBase> ifType = tp.getInterfaceType();
             if (InterfaceTypeVxlan.class.equals(ifType)) {
-                for (Options tpOption : nullToEmpty(tp.getOptions())) {
+                for (Options tpOption : tp.nonnullOptions()) {
                     // From the VXLAN Tunnels, we want the one with the GPE option set
                     if (OPTION_KEY_REMOTE_IP.equals(tpOption.key().getOption())) {
                         if (OPTION_VALUE_FLOW.equals(tpOption.getValue()) && tp.getOfport() != null) {

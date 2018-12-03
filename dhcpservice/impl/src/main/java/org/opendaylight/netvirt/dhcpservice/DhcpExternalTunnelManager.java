@@ -8,7 +8,7 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.netvirt.dhcpservice.api.DHCPUtils.nullToEmpty;
+import static org.opendaylight.yangtools.yang.binding.CodeHelpers.nonnull;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -177,8 +177,8 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         Optional<DesignatedSwitchesForExternalTunnels> designatedSwitchForTunnelOptional =
                 MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
         if (designatedSwitchForTunnelOptional.isPresent()) {
-            List<DesignatedSwitchForTunnel> list = nullToEmpty(
-                    designatedSwitchForTunnelOptional.get().getDesignatedSwitchForTunnel());
+            List<DesignatedSwitchForTunnel> list =
+                designatedSwitchForTunnelOptional.get().nonnullDesignatedSwitchForTunnel();
             for (DesignatedSwitchForTunnel designatedSwitchForTunnel : list) {
                 Set<Pair<IpAddress, String>> setOfTunnelIpElanNamePair =
                         designatedDpnsToTunnelIpElanNameCache
@@ -198,7 +198,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         InstanceIdentifier<Ports> inst = InstanceIdentifier.builder(Neutron.class).child(Ports.class).build();
         Optional<Ports> optionalPorts = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
         if (optionalPorts.isPresent()) {
-            List<Port> list = nullToEmpty(optionalPorts.get().getPort());
+            List<Port> list = optionalPorts.get().nonnullPort();
             for (Port port : list) {
                 if (NeutronUtils.isPortVnicTypeNormal(port)) {
                     continue;
@@ -353,7 +353,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
                 MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
         if (designatedSwitchForTunnelOptional.isPresent()) {
             List<DesignatedSwitchForTunnel> list =
-                    nullToEmpty(designatedSwitchForTunnelOptional.get().getDesignatedSwitchForTunnel());
+                    designatedSwitchForTunnelOptional.get().nonnullDesignatedSwitchForTunnel();
             for (DesignatedSwitchForTunnel designatedSwitchForTunnel : list) {
                 if (dpId.equals(BigInteger.valueOf(designatedSwitchForTunnel.getDpId()))) {
                     return true;
@@ -603,7 +603,7 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
     public  java.util.Optional<SubnetToDhcpPort> getSubnetDhcpPortData(String elanInstanceName) {
         java.util.Optional<SubnetToDhcpPort> optSubnetDhcp = java.util.Optional.empty();
         Uuid nwUuid = new Uuid(elanInstanceName);
-        List<Uuid> subnets = nullToEmpty(DhcpServiceUtils.getSubnetIdsFromNetworkId(broker, nwUuid));
+        List<Uuid> subnets = nonnull(DhcpServiceUtils.getSubnetIdsFromNetworkId(broker, nwUuid));
         for (Uuid subnet : subnets) {
             if (DhcpServiceUtils.isIpv4Subnet(broker, subnet)) {
                 optSubnetDhcp = DhcpServiceUtils.getSubnetDhcpPortData(broker, subnet.getValue());

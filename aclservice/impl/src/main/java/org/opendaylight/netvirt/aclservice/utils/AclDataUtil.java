@@ -8,8 +8,6 @@
 
 package org.opendaylight.netvirt.aclservice.utils;
 
-import static java.util.Objects.requireNonNull;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import java.math.BigInteger;
@@ -246,11 +244,5 @@ public class AclDataUtil implements AclDataCache {
     @Override
     public Map<String, Acl> getAclMap() {
         return ImmutableMap.copyOf(aclMap);
-    }
-
-    // Use Objects.requireNonNullElse instead with JDK9+
-    @Nonnull
-    public static <T> T requireNonNullElse(@Nullable T obj, @Nonnull T defaultObj) {
-        return obj != null ? obj : requireNonNull(defaultObj);
     }
 }

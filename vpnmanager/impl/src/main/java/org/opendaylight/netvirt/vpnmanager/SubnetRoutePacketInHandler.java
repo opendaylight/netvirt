@@ -7,8 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import static java.util.Collections.emptyList;
-import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
+import static org.opendaylight.yangtools.yang.binding.CodeHelpers.nonnull;
 
 import com.google.common.base.Optional;
 import com.google.common.primitives.Ints;
@@ -398,7 +397,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                         elanInfo.getName());
                 return null;
             }
-            List<Uuid> subnetList = requireNonNullElse(optionalNetworkMap.get().getSubnetIdList(), emptyList());
+            List<Uuid> subnetList = nonnull(optionalNetworkMap.get().getSubnetIdList());
             LOG.debug("{} getTargetDpnForPacketOut: Obtained subnetList as {} for network {}", LOGGING_PREFIX,
                     subnetList, elanInfo.getName());
             for (Uuid subnetId : subnetList) {

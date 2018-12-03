@@ -11,7 +11,6 @@ import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -305,7 +304,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                                     + " destTepIP {} returned with Errors {}", srcDpnId, srcTepIp, destTepIp,
                             rpcResult.getErrors());
                 } else {
-                    srcDpninterfacelist = requireNonNullElse(rpcResult.getResult().getInterfaces(), emptyList());
+                    srcDpninterfacelist = rpcResult.getResult().nonnullInterfaces();
                 }
             } catch (Exception e) {
                 LOG.error("handleTunnelEventForDPN: Exception when querying for GetDpnInterfaceList for srcDpnid {}"
@@ -323,7 +322,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                                         + " srcTepIP {} destTepIp {} returned with Errors {}", remoteDpnId, srcTepIp,
                                 destTepIp, rpcResult.getErrors());
                     } else {
-                        destDpninterfacelist = requireNonNullElse(rpcResult.getResult().getInterfaces(), emptyList());
+                        destDpninterfacelist = rpcResult.getResult().nonnullInterfaces();
                     }
                 } catch (Exception e) {
                     LOG.error("handleTunnelEventForDPN: Exception when querying for GetDpnInterfaceList"

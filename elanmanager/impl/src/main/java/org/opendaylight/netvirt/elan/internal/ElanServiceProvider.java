@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import static java.util.Collections.emptyList;
-import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -449,8 +448,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         if (!elanInterfacesOptional.isPresent()) {
             return elanInterfaces;
         }
-        List<ElanInterface> elanInterfaceList =
-            requireNonNullElse(elanInterfacesOptional.get().getElanInterface(), emptyList());
+        List<ElanInterface> elanInterfaceList = elanInterfacesOptional.get().nonnullElanInterface();
         for (ElanInterface elanInterface : elanInterfaceList) {
             if (Objects.equals(elanInterface.getElanInstanceName(), elanInstanceName)) {
                 elanInterfaces.add(elanInterface.getName());
