@@ -52,6 +52,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.natservice.api.CentralizedSwitchScheduler;
+import org.opendaylight.netvirt.natservice.api.NatSwitchCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -82,6 +83,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     private final SNATDefaultRouteProgrammer defaultRouteProgrammer;
     private final JobCoordinator coordinator;
     private final CentralizedSwitchScheduler centralizedSwitchScheduler;
+    private final NatSwitchCache natSwitchCache;
 
     @Inject
     public FloatingIPListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -89,7 +91,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                               final FloatingIPHandler floatingIPHandler,
                               final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
                               final JobCoordinator coordinator,
-                              final CentralizedSwitchScheduler centralizedSwitchScheduler) {
+                              final CentralizedSwitchScheduler centralizedSwitchScheduler,
+                              final NatSwitchCache natSwitchCache) {
         super(InternalToExternalPortMap.class, FloatingIPListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -99,6 +102,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         this.defaultRouteProgrammer = snatDefaultRouteProgrammer;
         this.coordinator = coordinator;
         this.centralizedSwitchScheduler = centralizedSwitchScheduler;
+        this.natSwitchCache = natSwitchCache;
     }
 
     @Override
@@ -457,7 +461,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         // mappings) and then sent out on the external Network.
         if (providerType == ProviderTypes.FLAT || providerType == ProviderTypes.VLAN) {
             String providerNet = NatUtil.getElanInstancePhysicalNetwok(extNwId.getValue(), dataBroker);
-            boolean isDpnConnected = centralizedSwitchScheduler.isSwitchConnectedToExternal(updatedDpnId, providerNet);
+            boolean isDpnConnected = natSwitchCache.isSwitchConnectedToExternal(updatedDpnId, providerNet);
             if (!isDpnConnected) {
                 updatedDpnId = centralizedSwitchScheduler.getCentralizedSwitch(routerName);
             }
