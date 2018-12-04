@@ -2305,4 +2305,21 @@ public final class NatUtil {
         }
         return node.getAugmentation(OvsdbBridgeAugmentation.class);
     }
+
+    public static ExternalSubnets getExternalSubnets(DataBroker dataBroker) {
+        InstanceIdentifier<ExternalSubnets> subnetsIdentifier =
+                InstanceIdentifier.builder(ExternalSubnets.class)
+                .build();
+        try {
+            Optional<ExternalSubnets> optionalExternalSubnets  = SingleTransactionDataBroker
+                    .syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetsIdentifier);
+            if (optionalExternalSubnets.isPresent()) {
+                return optionalExternalSubnets.get();
+            }
+        } catch (ReadFailedException e) {
+            LOG.error("Failed to read the subnets from the datastore.");
+        }
+        return null;
+
+    }
 }
