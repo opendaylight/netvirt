@@ -36,6 +36,9 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.natservice.api.CentralizedSwitchScheduler;
+import org.opendaylight.netvirt.natservice.api.NatSwitchCache;
+import org.opendaylight.netvirt.natservice.api.NatSwitchCacheListener;
+import org.opendaylight.netvirt.natservice.api.SwitchInfo;
 import org.opendaylight.netvirt.natservice.internal.NatUtil;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -57,7 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchScheduler {
+public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchScheduler, NatSwitchCacheListener {
     private static final Logger LOG = LoggerFactory.getLogger(WeightedCentralizedSwitchScheduler.class);
     private static final Integer INITIAL_SWITCH_WEIGHT = Integer.valueOf(0);
 
@@ -71,8 +74,10 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     private final NatserviceConfig.NatMode natMode;
 
     @Inject
-    public WeightedCentralizedSwitchScheduler(DataBroker dataBroker, OdlInterfaceRpcService interfaceManager,
-            IVpnFootprintService vpnFootprintService, final NatserviceConfig config) {
+    public WeightedCentralizedSwitchScheduler(final DataBroker dataBroker,
+            final OdlInterfaceRpcService interfaceManager,
+            final IVpnFootprintService vpnFootprintService, final NatserviceConfig config,
+            final NatSwitchCache natSwitchCache) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.interfaceManager = interfaceManager;
@@ -82,6 +87,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         } else {
             this.natMode = NatserviceConfig.NatMode.Controller;
         }
+        natSwitchCache.register(this);
     }
 
     @Override
@@ -206,8 +212,6 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         }
     }
 
-
-
     private void deleteFromDpnMaps(String routerName, List<Uuid> deletedSubnetIds, BigInteger primarySwitchId) {
         if (deletedSubnetIds == null || deletedSubnetIds.isEmpty()) {
             LOG.debug("deleteFromDpnMaps no subnets associated with {}", routerName);
@@ -241,19 +245,17 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     }
 
     @Override
-    public boolean addSwitch(BigInteger dpnId) {
-        /* Initialize the switch in the map with weight 0 */
-        LOG.info("addSwitch: Retrieving the provider config for {}", dpnId);
+    public void switchAddedToCache(SwitchInfo switchInfo) {
         boolean scheduleRouters = (providerSwitchWeightsMap.size() == 0) ? true : false;
-        Map<String, String> providerMappingsMap = NatUtil.getOpenvswitchOtherConfigMap(dpnId, dataBroker);
-        for (String providerNet : providerMappingsMap.keySet()) {
+        for (String providerNet : switchInfo.getProviderNet()) {
             Map<BigInteger,Integer> switchWeightMap = providerSwitchWeightsMap.get(providerNet);
             if (providerSwitchWeightsMap.get(providerNet) == null) {
                 switchWeightMap = new ConcurrentHashMap<>();
                 providerSwitchWeightsMap.put(providerNet, switchWeightMap);
             }
-            LOG.info("addSwitch: Adding {} dpnId with provider mapping {} to switchWeightsMap", dpnId, providerNet);
-            switchWeightMap.put(dpnId, INITIAL_SWITCH_WEIGHT);
+            LOG.info("addSwitch: Adding {} dpnId with provider mapping {} to switchWeightsMap",
+                    switchInfo.getDpnId(), providerNet);
+            switchWeightMap.put(switchInfo.getDpnId(), INITIAL_SWITCH_WEIGHT);
         }
         if (natMode == NatserviceConfig.NatMode.Conntrack && scheduleRouters) {
             Optional<ExtRouters> optRouters;
@@ -262,7 +264,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                         LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(ExtRouters.class));
             } catch (ReadFailedException e) {
                 LOG.error("addSwitch: Error reading external routers", e);
-                return false;
+                return;
             }
 
             if (optRouters.isPresent()) {
@@ -278,7 +280,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 }
             }
         }
-        return true;
+        return;
     }
 
     private boolean isPrimarySwitchAllocatedForRouter(String routerName) {
@@ -299,7 +301,8 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     }
 
     @Override
-    public boolean removeSwitch(BigInteger dpnId) {
+    public void switchRemovedFromCache(SwitchInfo switchInfo) {
+        BigInteger dpnId = switchInfo.getDpnId();
         LOG.info("removeSwitch: Removing {} dpnId to switchWeightsMap", dpnId);
         for (Map.Entry<String,Map<BigInteger,Integer>> providerNet : providerSwitchWeightsMap.entrySet()) {
             Map<BigInteger,Integer> switchWeightMap = providerNet.getValue();
@@ -317,7 +320,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             }
             switchWeightMap.remove(dpnId);
         }
-        return true;
+        return;
     }
 
     private NaptSwitches getNaptSwitches() {
@@ -374,17 +377,8 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         }
     }
 
-    @Override
-    public boolean isSwitchConnectedToExternal(BigInteger dpnId, String providerNet) {
-        Map<BigInteger,Integer> switchWeightMap = providerSwitchWeightsMap.get(providerNet);
-        if (switchWeightMap != null) {
-            return switchWeightMap.containsKey(dpnId);
-        }
-        return false;
-    }
-
     @Nullable
-    public static List<Uuid> getUpdatedSubnetIds(List<Uuid> updatedSubnetIds, List<Uuid> currentSubnetIds) {
+    private static List<Uuid> getUpdatedSubnetIds(List<Uuid> updatedSubnetIds, List<Uuid> currentSubnetIds) {
         if (updatedSubnetIds == null) {
             return null;
         }
