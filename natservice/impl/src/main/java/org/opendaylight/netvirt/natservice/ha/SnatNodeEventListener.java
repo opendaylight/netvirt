@@ -17,7 +17,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.netvirt.natservice.api.CentralizedSwitchScheduler;
+import org.opendaylight.netvirt.natservice.api.NatSwitchCache;
 import org.opendaylight.serviceutils.tools.mdsal.listener.AbstractClusteredAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -33,16 +33,16 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class SnatNodeEventListener  extends AbstractClusteredAsyncDataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(SnatNodeEventListener.class);
-    private final CentralizedSwitchScheduler  centralizedSwitchScheduler;
+    private final NatSwitchCache  centralizedSwitchCache;
 
     @Inject
     public SnatNodeEventListener(final DataBroker dataBroker,
-            final CentralizedSwitchScheduler centralizedSwitchScheduler) {
+            final NatSwitchCache centralizedSwitchCache) {
 
         super(dataBroker,new DataTreeIdentifier<>(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier
                 .create(Nodes.class).child(Node.class)),
                 Executors.newSingleThreadExecutor());
-        this.centralizedSwitchScheduler = centralizedSwitchScheduler;
+        this.centralizedSwitchCache = centralizedSwitchCache;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class SnatNodeEventListener  extends AbstractClusteredAsyncDataTreeChange
         NodeKey nodeKey = dataObjectModification.getKey();
         BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         LOG.info("Dpn removed {}", dpnId);
-        centralizedSwitchScheduler.removeSwitch(dpnId);
+        centralizedSwitchCache.removeSwitch(dpnId);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class SnatNodeEventListener  extends AbstractClusteredAsyncDataTreeChange
         NodeKey nodeKey = dataObjectModification.getKey();
         BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         LOG.info("Dpn added {}", dpnId);
-        centralizedSwitchScheduler.addSwitch(dpnId);
+        centralizedSwitchCache.addSwitch(dpnId);
 
     }
 }
