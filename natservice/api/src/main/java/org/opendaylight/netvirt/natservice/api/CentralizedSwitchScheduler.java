@@ -42,27 +42,4 @@ public interface CentralizedSwitchScheduler {
      * @return success/failure
      */
     BigInteger getCentralizedSwitch(String routerName);
-
-    /**
-     * Adds a switch to the scheduler pool.
-     * @param dpnId the switch id.
-     * @return success/failure
-     */
-    boolean addSwitch(BigInteger dpnId);
-
-    /**
-     * Removes a switch from the scheduler pool.
-     * @param dpnId the switch id.
-     * @return success/failure
-     */
-    boolean removeSwitch(BigInteger dpnId);
-
-    /**
-     * Check whether the switch has external bridge mappings.
-     * @param dpnId the switch id.
-     * @param providerNet the provider network.
-     * @return whether connected to provider network or not.
-     */
-    boolean isSwitchConnectedToExternal(BigInteger dpnId, String providerNet);
-
 }

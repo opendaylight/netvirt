@@ -7,22 +7,19 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
@@ -37,12 +34,10 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.natservice.api.NatSwitchCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,17 +51,20 @@ public class SNATDefaultRouteProgrammer {
     private final ExternalNetworkGroupInstaller extNetGroupInstaller;
     private final NatServiceCounters natServiceCounters;
     private final JobCoordinator jobCoordinator;
+    private final NatSwitchCache natSwitchCache;
 
     @Inject
     public SNATDefaultRouteProgrammer(final IMdsalApiManager mdsalManager, final DataBroker dataBroker,
             final IdManagerService idManager, final ExternalNetworkGroupInstaller extNetGroupInstaller,
-            NatServiceCounters natServiceCounters, final JobCoordinator jobCoordinator) {
+            NatServiceCounters natServiceCounters, final JobCoordinator jobCoordinator,
+            final NatSwitchCache natSwitchCache) {
         this.mdsalManager = mdsalManager;
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.extNetGroupInstaller = extNetGroupInstaller;
         this.natServiceCounters = natServiceCounters;
         this.jobCoordinator = jobCoordinator;
+        this.natSwitchCache = natSwitchCache;
     }
 
     @Nullable
@@ -137,7 +135,7 @@ public class SNATDefaultRouteProgrammer {
 
     }
 
-    void installDefNATRouteInDPN(BigInteger dpnId, long vpnId, TypedWriteTransaction<Configuration> confTx) {
+    public void installDefNATRouteInDPN(BigInteger dpnId, long vpnId, TypedWriteTransaction<Configuration> confTx) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
         if (flowEntity == null) {
             LOG.error("installDefNATRouteInDPN : Flow entity received is NULL."
@@ -148,7 +146,7 @@ public class SNATDefaultRouteProgrammer {
         mdsalManager.addFlow(confTx, flowEntity);
     }
 
-    void installDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId,
+    public void installDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId,
         TypedWriteTransaction<Configuration> confTx) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, bgpVpnId, routerId);
         if (flowEntity == null) {
@@ -160,7 +158,7 @@ public class SNATDefaultRouteProgrammer {
         mdsalManager.addFlow(confTx, flowEntity);
     }
 
-    void installDefNATRouteInDPN(BigInteger dpnId, long vpnId, String subnetId) {
+    public void installDefNATRouteInDPN(BigInteger dpnId, long vpnId, String subnetId) {
         FlowEntity flowEntity = NatUtil.buildDefaultNATFlowEntityForExternalSubnet(dpnId, vpnId, subnetId, idManager);
         if (flowEntity == null) {
             LOG.error("installDefNATRouteInDPN : Flow entity received is NULL."
@@ -171,7 +169,7 @@ public class SNATDefaultRouteProgrammer {
         mdsalManager.installFlow(flowEntity);
     }
 
-    void removeDefNATRouteInDPN(BigInteger dpnId, long vpnId, TypedReadWriteTransaction<Configuration> confTx)
+    public void removeDefNATRouteInDPN(BigInteger dpnId, long vpnId, TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
         if (flowEntity == null) {
@@ -183,7 +181,7 @@ public class SNATDefaultRouteProgrammer {
         mdsalManager.removeFlow(confTx, flowEntity);
     }
 
-    void removeDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId,
+    public void removeDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId,
             TypedReadWriteTransaction<Configuration> confTx) throws ExecutionException, InterruptedException {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, bgpVpnId, routerId);
         if (flowEntity == null) {
@@ -195,46 +193,33 @@ public class SNATDefaultRouteProgrammer {
         mdsalManager.removeFlow(confTx, flowEntity);
     }
 
-    void addOrDelDefaultFibRouteToSNATForSubnet(Subnets subnet, String networkId, int flowAction, long vpnId) {
+    public void addOrDelDefaultFibRouteToSNATForSubnet(Subnets subnet, String networkId, int flowAction, long vpnId) {
+        String providerNet = NatUtil.getElanInstancePhysicalNetwok(networkId, dataBroker);
+        Set<BigInteger> dpnList = natSwitchCache.getSwitchesConnectedToExternal(providerNet);
+
+        for (BigInteger dpn : dpnList) {
+            addOrDelDefaultFibRouteToSNATForSubnetInDpn(subnet, networkId, flowAction, vpnId, dpn);
+        }
+    }
+
+    public void addOrDelDefaultFibRouteToSNATForSubnetInDpn(Subnets subnet, String networkId, int flowAction,
+            long vpnId, BigInteger dpn) {
         String subnetId = subnet.getId().getValue();
-        InstanceIdentifier<VpnInstanceOpDataEntry> networkVpnInstanceIdentifier =
-            NatUtil.getVpnInstanceOpDataIdentifier(networkId);
-        Optional<VpnInstanceOpDataEntry> networkVpnInstanceOp =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                        LogicalDatastoreType.OPERATIONAL, networkVpnInstanceIdentifier);
-
-        if (!networkVpnInstanceOp.isPresent()) {
-            LOG.debug("addOrDelDefaultFibRouteToSNATForSubnet : Cannot create/remove default FIB route to SNAT flow "
-                            + "for subnet {} vpn-instance-op-data entry for network {} does not exist",
-                    subnetId, networkId);
-            return;
-        }
-
-        List<VpnToDpnList> dpnListInVpn = networkVpnInstanceOp.get().getVpnToDpnList();
-        if (dpnListInVpn == null) {
-            LOG.debug("addOrDelDefaultFibRouteToSNATForSubnet : Will not add/remove default NAT flow for subnet {} "
-                    + "no dpn set for vpn instance {}", subnetId, networkVpnInstanceOp.get());
-
-            return;
-        }
-
-        for (VpnToDpnList dpn : dpnListInVpn) {
-            String macAddress = NatUtil.getSubnetGwMac(dataBroker, subnet.getId(), networkId);
-            extNetGroupInstaller.installExtNetGroupEntry(new Uuid(networkId), subnet.getId(),
-                    dpn.getDpnId(), macAddress);
-            FlowEntity flowEntity = NatUtil.buildDefaultNATFlowEntityForExternalSubnet(dpn.getDpnId(),
-                    vpnId, subnetId, idManager);
-            if (flowAction == NwConstants.ADD_FLOW || flowAction == NwConstants.MOD_FLOW) {
-                LOG.info("addOrDelDefaultFibRouteToSNATForSubnet : Installing flow {} for subnetId {},"
-                        + "vpnId {} on dpn {}", flowEntity, subnetId, vpnId, dpn.getDpnId());
-                jobCoordinator.enqueueJob(NatUtil.getDefaultFibRouteToSNATForSubnetJobKey(subnetId, dpn.getDpnId()),
-                    () -> Collections.singletonList(mdsalManager.installFlow(flowEntity)));
-            } else {
-                LOG.info("addOrDelDefaultFibRouteToSNATForSubnet : Removing flow for subnetId {},"
-                        + "vpnId {} with dpn {}", subnetId, vpnId, dpn);
-                jobCoordinator.enqueueJob(NatUtil.getDefaultFibRouteToSNATForSubnetJobKey(subnetId, dpn.getDpnId()),
-                    () -> Collections.singletonList(mdsalManager.removeFlow(flowEntity)));
-            }
+        String macAddress = NatUtil.getSubnetGwMac(dataBroker, subnet.getId(), networkId);
+        extNetGroupInstaller.installExtNetGroupEntry(new Uuid(networkId), subnet.getId(),
+                dpn, macAddress);
+        FlowEntity flowEntity = NatUtil.buildDefaultNATFlowEntityForExternalSubnet(dpn,
+                vpnId, subnetId, idManager);
+        if (flowAction == NwConstants.ADD_FLOW || flowAction == NwConstants.MOD_FLOW) {
+            LOG.info("addOrDelDefaultFibRouteToSNATForSubnet : Installing flow {} for subnetId {},"
+                    + "vpnId {} on dpn {}", flowEntity, subnetId, vpnId, dpn);
+            jobCoordinator.enqueueJob(NatUtil.getDefaultFibRouteToSNATForSubnetJobKey(subnetId, dpn),
+                () -> Collections.singletonList(mdsalManager.installFlow(flowEntity)));
+        } else {
+            LOG.info("addOrDelDefaultFibRouteToSNATForSubnet : Removing flow for subnetId {},"
+                    + "vpnId {} with dpn {}", subnetId, vpnId, dpn);
+            jobCoordinator.enqueueJob(NatUtil.getDefaultFibRouteToSNATForSubnetJobKey(subnetId, dpn),
+                () -> Collections.singletonList(mdsalManager.removeFlow(flowEntity)));
         }
     }
 }
