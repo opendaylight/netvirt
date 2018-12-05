@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4251cad_6cbbb076",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-12-05T12:03:24Z",
+      "side": 1,
+      "message": "it would IMHO be better to just let this @Singleton constructor throws TransactionCommitFailedException instead of catch LOG.error ... because, if this happens, then the datastore is in real bad shape, you didn\u0027t manage to do your configureFeatures() and thus other things will be broken?  In that case, it\u0027s probably best to just let BP completely fail.  (An exception thrown by a @Singleton constructor will be caught by Blueprint and infrautils.ready will log report the overall boot as having failed.)",
+      "revId": "4979ac54163dea960d12c679e9cd3872d030d032",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7ee9415_9997d1b8",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-12-05T12:03:24Z",
+      "side": 1,
+      "message": "as this bgpvpnVniIid \u0026 bgpvpnVniFeature are only used in the second syncWrite it would perhaps be more logical to move these two lines down after the syncWrite of the iid \u0026 feature?",
+      "revId": "4979ac54163dea960d12c679e9cd3872d030d032",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6423a09b_3075e5e5",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-12-05T12:03:24Z",
+      "side": 1,
+      "message": "remove this catch (TransactionCommitFailedException e), now that you have added throws TransactionCommitFailedException, it\u0027s inconsistent to catch it here but let it propagate below.",
+      "revId": "4979ac54163dea960d12c679e9cd3872d030d032",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a6a37dc0_b66ddbd9",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-12-05T12:03:24Z",
+      "side": 1,
+      "message": "from what I understood of this issue, this debug log message is now wrong?  If this happens, it\u0027s actually NOT really an \"Error configuring feature {}\", is it?  Perhaps something like \"OptimisticLockFailedException while configuring feature {}, but that\u0027s OK, because it probably already just got configured on another node; ignore.\" ?",
+      "revId": "4979ac54163dea960d12c679e9cd3872d030d032",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
