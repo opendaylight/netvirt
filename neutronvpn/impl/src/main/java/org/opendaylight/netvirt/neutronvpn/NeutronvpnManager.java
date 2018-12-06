@@ -1057,7 +1057,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     protected void updateVpnInterface(Uuid vpnId, @Nullable Uuid oldVpnId, Port port, boolean isBeingAssociated,
                                       boolean isSubnetIp,
-                                      TypedWriteTransaction<Configuration> writeConfigTxn) {
+                                      TypedWriteTransaction<Configuration> writeConfigTxn,
+                                      boolean isInternetVpn) {
         if (vpnId == null || port == null) {
             return;
         }
@@ -1117,6 +1118,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         neutronvpnUtils.removeVpnPortFixedIpToPort(oldVpnId.getValue(),
                                 ipValue, writeConfigTxn);
                     }
+                    
+                    if ((NeutronvpnUtils.getIpVersionFromString(ipValue) != IpVersionChoice.IPV6) &&
+                          (isInternetVpn == true)) {
+                       continue;
+                    }
+
                     neutronvpnUtils.createVpnPortFixedIpToPort(vpnId.getValue(), ipValue, infName, port
                             .getMacAddress().getValue(), isSubnetIp, writeConfigTxn);
                 }
@@ -1739,7 +1746,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, wrtConfigTxn -> {
                 if (isBeingAssociated) {
                     updateVpnInterface(vpn, null, neutronvpnUtils.getNeutronPort(
-                            sm.getRouterInterfacePortId()), true, true, wrtConfigTxn);
+                            sm.getRouterInterfacePortId()), true, true, wrtConfigTxn, true);
                 } else {
                     removeInternetVpnFromVpnInterface(vpn,
                             neutronvpnUtils.getNeutronPort(sm.getRouterInterfacePortId()), wrtConfigTxn, sm);
@@ -1759,7 +1766,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         tx -> {
                             if (isBeingAssociated) {
                                 updateVpnInterface(vpn, null, neutronvpnUtils.getNeutronPort(port),
-                                        true, false, tx);
+                                        true, false, tx, true);
                             } else {
                                 removeInternetVpnFromVpnInterface(vpn, neutronvpnUtils.getNeutronPort(port), tx, sm);
                             }
@@ -1802,7 +1809,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     tx -> updateVpnInterface(newVpnId, oldVpnId,
                         neutronvpnUtils.getNeutronPort(sn.getRouterInterfacePortId()),
-                        isBeingAssociated, true, tx));
+                        isBeingAssociated, true, tx, false));
         Futures.addCallback(future, new FutureCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
@@ -1817,7 +1824,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                                     tx -> updateVpnInterface(newVpnId, oldVpnId,
                                             neutronvpnUtils.getNeutronPort(port), isBeingAssociated, false,
-                                            tx))));
+                                            tx, false))));
                     }
                 }
             }
