@@ -54,7 +54,9 @@ import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Actions;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -409,8 +411,16 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             return;
         }
         MatchInfoBase lportTagMatch = AclServiceUtils.buildLPortTagMatch(port.getLPortTag(), serviceMode);
-        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclCommitterTable());
-        Integer flowPriority = this.aclServiceUtils.getAceFlowPriority(aclName);
+        Actions actions = ace.getActions();
+        List<InstructionInfo> instructions = null;
+        Integer flowPriority;
+        if (actions != null && actions.getPacketHandling() instanceof Permit) {
+            instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclCommitterTable());
+            flowPriority = this.aclServiceUtils.getAceFlowPriority(aclName, AclConstants.ACE_DROP_DEFAULT_PRIORITY);
+        } else {
+            flowPriority = this.aclServiceUtils.getAceFlowPriority(aclName, AclConstants.ACE_DEFAULT_PRIORITY);
+        }
+
 
         for (Entry<String, List<MatchInfoBase>> entry : flowMap.entrySet()) {
             String flowName = entry.getKey();
@@ -441,9 +451,15 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
         List<MatchInfoBase> lportAndAclMatches =
                 AclServiceUtils.buildMatchesForLPortTagAndRemoteAclTag(port.getLPortTag(), remoteAclTag, serviceMode);
-        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclRemoteAclTable());
-        Integer flowPriority = this.aclServiceUtils.getAceFlowPriority(aclName);
-
+        Actions actions = ace.getActions();
+        List<InstructionInfo> instructions = null;
+        Integer flowPriority;
+        if (actions != null && actions.getPacketHandling() instanceof Permit) {
+            instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclRemoteAclTable());
+            flowPriority = this.aclServiceUtils.getAceFlowPriority(aclName, AclConstants.ACE_DROP_DEFAULT_PRIORITY);
+        } else {
+            flowPriority = this.aclServiceUtils.getAceFlowPriority(aclName, AclConstants.ACE_DEFAULT_PRIORITY);
+        }
         for (Entry<String, List<MatchInfoBase>> entry : flowMap.entrySet()) {
             String flowName = entry.getKey();
             List<MatchInfoBase> matches = entry.getValue();

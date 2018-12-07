@@ -1232,8 +1232,7 @@ public final class AclServiceUtils {
      * @param aclName the acl name
      * @return the ace flow priority
      */
-    public Integer getAceFlowPriority(String aclName) {
-        Integer priority = AclConstants.ACE_DEFAULT_PRIORITY;
+    public Integer getAceFlowPriority(String aclName, Integer priority) {
         Integer aclTag = getAclTag(new Uuid(aclName));
         if (aclTag != null && aclTag != AclConstants.INVALID_ACL_TAG) {
             // To handle overlapping rules, aclTag is added to priority
