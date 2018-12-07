@@ -36,6 +36,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetDestinationIp;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
@@ -167,6 +168,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         List<ActionInfo> actionsInfos = new ArrayList<>();
         String internalIp = mapping.getInternalIp();
         actionsInfos.add(new ActionSetDestinationIp(internalIp, "32"));
+        actionsInfos.add(new ActionNxLoadInPort(BigInteger.ZERO));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(segmentId),
@@ -271,6 +273,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         matches.add(new MatchIpv4Source(externalIp, "32"));
 
         List<ActionInfo> actionsInfo = new ArrayList<>();
+        actionsInfo.add(new ActionNxLoadInPort(BigInteger.ZERO));
         Uuid floatingIpId = mapping.getExternalId();
         String macAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
         if (macAddress != null) {
