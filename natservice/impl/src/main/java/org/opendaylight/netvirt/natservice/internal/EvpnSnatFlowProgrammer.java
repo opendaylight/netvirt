@@ -65,13 +65,15 @@ public class EvpnSnatFlowProgrammer {
     private final IFibManager fibManager;
     private final FibRpcService fibService;
     private final IdManagerService idManager;
+    private final NatOverVxlanUtil natOverVxlanUtil;
 
     @Inject
     public EvpnSnatFlowProgrammer(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                            final IBgpManager bgpManager,
                            final IFibManager fibManager,
                            final FibRpcService fibService,
-                           final IdManagerService idManager) {
+                           final IdManagerService idManager,
+                           final NatOverVxlanUtil natOverVxlanUtil) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
@@ -79,6 +81,7 @@ public class EvpnSnatFlowProgrammer {
         this.fibManager = fibManager;
         this.fibService = fibService;
         this.idManager = idManager;
+        this.natOverVxlanUtil = natOverVxlanUtil;
     }
 
     public void evpnAdvToBgpAndInstallFibAndTsFlows(final BigInteger dpnId, final short tableId,
@@ -115,7 +118,7 @@ public class EvpnSnatFlowProgrammer {
             LOG.debug("evpnAdvToBgpAndInstallFibAndTsFlows : L3VNI value is not configured in Internet VPN {}"
                     + " and RD {} Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with "
                     + "installing SNAT flows for External Fixed IP {}", vpnName, rd, externalIp);
-            l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
+            l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId).longValue();
         }
 
         long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
@@ -220,7 +223,7 @@ public class EvpnSnatFlowProgrammer {
             LOG.debug("evpnDelFibTsAndReverseTraffic : L3VNI value is not configured in Internet VPN {} and RD {} "
                     + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
                     + "SNAT flows for External Fixed IP {}", vpnName, rd, externalIp);
-            l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
+            l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId).longValue();
         }
 
         final String externalFixedIp = NatUtil.validateAndAddNetworkMask(externalIp);

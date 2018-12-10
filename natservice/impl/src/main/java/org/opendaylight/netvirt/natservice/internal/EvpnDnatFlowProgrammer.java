@@ -92,6 +92,7 @@ public class EvpnDnatFlowProgrammer {
     private final FibRpcService fibService;
     private final IVpnManager vpnManager;
     private final IdManagerService idManager;
+    private final NatOverVxlanUtil natOverVxlanUtil;
 
     @Inject
     public EvpnDnatFlowProgrammer(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -99,7 +100,8 @@ public class EvpnDnatFlowProgrammer {
                            final IFibManager fibManager,
                            final FibRpcService fibService,
                            final IVpnManager vpnManager,
-                           final IdManagerService idManager) {
+                           final IdManagerService idManager,
+                           final NatOverVxlanUtil natOverVxlanUtil) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
@@ -108,6 +110,7 @@ public class EvpnDnatFlowProgrammer {
         this.fibService = fibService;
         this.vpnManager = vpnManager;
         this.idManager = idManager;
+        this.natOverVxlanUtil = natOverVxlanUtil;
     }
 
     public void onAddFloatingIp(final BigInteger dpnId, final String routerName, final long routerId,
@@ -139,7 +142,7 @@ public class EvpnDnatFlowProgrammer {
             LOG.debug("onAddFloatingIp : L3VNI value is not configured in Internet VPN {} and RD {} "
                     + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
                     + "DNAT flows for FloatingIp {}", vpnName, rd, externalIp);
-            l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
+            l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId).longValue();
         }
         FloatingIPListener.updateOperationalDS(dataBroker, routerName, interfaceName, NatConstants.DEFAULT_LABEL_VALUE,
                 internalIp, externalIp);
@@ -295,7 +298,7 @@ public class EvpnDnatFlowProgrammer {
             LOG.debug("onRemoveFloatingIp : L3VNI value is not configured in Internet VPN {} and RD {} "
                     + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
                     + "DNAT flows for FloatingIp {}", vpnName, rd, externalIp);
-            l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
+            l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId).longValue();
         }
         String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
 
