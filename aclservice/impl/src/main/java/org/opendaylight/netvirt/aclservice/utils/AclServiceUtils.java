@@ -70,7 +70,10 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
@@ -750,6 +753,13 @@ public final class AclServiceUtils {
                 .child(PortSubnet.class, new PortSubnetKey(portId)).build();
         ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 OPERATIONAL, tx -> tx.delete(id)), LOG, "Failed to delete subnet info for port: " + portId);
+    }
+
+    public void deleteAceFromConfigDS(String aclName, Ace ace) {
+        InstanceIdentifier<Ace> id = InstanceIdentifier.builder(AccessLists.class).child(Acl.class, new AclKey(aclName,
+                Ipv4Acl.class)).child(AccessListEntries.class).child(Ace.class, ace.key()).build();
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            OPERATIONAL, tx -> tx.delete(id)), LOG, "Failed to delete Ace from Oper DS: " + ace.getRuleName());
     }
 
     public static Integer allocateId(IdManagerService idManager, String poolName, String idKey, Integer defaultId) {
