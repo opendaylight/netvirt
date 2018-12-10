@@ -743,6 +743,13 @@ public final class AclServiceUtils {
                 OPERATIONAL, tx -> tx.delete(id)), LOG, "Failed to delete subnet info for port: " + portId);
     }
 
+    public void deleteAceFromConfigDS(String aclName, Ace ace) {
+        InstanceIdentifier<Ace> id = InstanceIdentifier.builder(AccessLists.class).child(Acl.class, new AclKey(aclName,
+                Ipv4Acl.class)).child(AccessListEntries.class).child(Ace.class, ace.getKey()).build();
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            OPERATIONAL, tx -> tx.delete(id)), LOG, "Failed to delete Ace from Oper DS: " + ace.getRuleName());
+    }
+
     public static Integer allocateId(IdManagerService idManager, String poolName, String idKey, Integer defaultId) {
         AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
         try {
