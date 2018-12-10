@@ -110,6 +110,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     private final INeutronVpnManager nvpnManager;
     private final IdManagerService idManager;
     private final NatServiceCounters natServiceCounters;
+    private final NatOverVxlanUtil natOverVxlanUtil;
 
     @Inject
     public VpnFloatingIpHandler(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -123,6 +124,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                                 final EvpnDnatFlowProgrammer evpnDnatFlowProgrammer,
                                 final INeutronVpnManager nvpnManager,
                                 final IdManagerService idManager,
+                                final NatOverVxlanUtil natOverVxlanUtil,
                                 NatServiceCounters natServiceCounters) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -138,6 +140,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         this.nvpnManager = nvpnManager;
         this.idManager = idManager;
         this.natServiceCounters = natServiceCounters;
+        this.natOverVxlanUtil = natOverVxlanUtil;
     }
 
     @Override
@@ -184,10 +187,6 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
          *  datapath for traffic forwarding for ``SNAT-to-DNAT`` and ``DNAT-to-DNAT`` cases within the
          *  DataCenter.
         */
-        if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanService, provType)) {
-            NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
-                    NatConstants.ODL_VNI_POOL_NAME);
-        }
         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
         LOG.debug("onAddFloatingIp: Nexthop ip for prefix {} is {}", externalIp, nextHopIp);
         if (provType == ProviderTypes.VXLAN) {
@@ -219,7 +218,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                  */
                 long l3vni = 0;
                 if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanService, provType)) {
-                    l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
+                    l3vni = natOverVxlanUtil.getInternetVpnVni(vpnName, l3vni).longValue();
                 }
                 String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
                 //Inform BGP
@@ -431,7 +430,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         // DPN, then the traffic will be hijacked to DNAT and if there are no DNAT match,
         // then handled back to using using flow 25->44(which will be installed as part of SNAT)
         if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanService, provType)) {
-            mkMatches.add(new MatchTunnelId(NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, serviceId)));
+            mkMatches.add(new MatchTunnelId(natOverVxlanUtil.getInternetVpnVni(vpnName, serviceId)));
             flowPriority = 6;
         } else {
             mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
