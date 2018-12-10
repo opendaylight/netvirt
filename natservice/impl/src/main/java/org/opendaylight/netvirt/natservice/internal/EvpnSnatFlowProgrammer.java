@@ -40,7 +40,6 @@ import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryOutput;
@@ -64,21 +63,21 @@ public class EvpnSnatFlowProgrammer {
     private final IBgpManager bgpManager;
     private final IFibManager fibManager;
     private final FibRpcService fibService;
-    private final IdManagerService idManager;
+    private final NatOverVxlanUtil natOverVxlanUtil;
 
     @Inject
     public EvpnSnatFlowProgrammer(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                            final IBgpManager bgpManager,
                            final IFibManager fibManager,
                            final FibRpcService fibService,
-                           final IdManagerService idManager) {
+                           final NatOverVxlanUtil natOverVxlanUtil) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
         this.bgpManager = bgpManager;
         this.fibManager = fibManager;
         this.fibService = fibService;
-        this.idManager = idManager;
+        this.natOverVxlanUtil = natOverVxlanUtil;
     }
 
     public void evpnAdvToBgpAndInstallFibAndTsFlows(final BigInteger dpnId, final short tableId,
@@ -115,7 +114,7 @@ public class EvpnSnatFlowProgrammer {
             LOG.debug("evpnAdvToBgpAndInstallFibAndTsFlows : L3VNI value is not configured in Internet VPN {}"
                     + " and RD {} Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with "
                     + "installing SNAT flows for External Fixed IP {}", vpnName, rd, externalIp);
-            l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
+            l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId).longValue();
         }
 
         long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
@@ -220,7 +219,7 @@ public class EvpnSnatFlowProgrammer {
             LOG.debug("evpnDelFibTsAndReverseTraffic : L3VNI value is not configured in Internet VPN {} and RD {} "
                     + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
                     + "SNAT flows for External Fixed IP {}", vpnName, rd, externalIp);
-            l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
+            l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId).longValue();
         }
 
         final String externalFixedIp = NatUtil.validateAndAddNetworkMask(externalIp);

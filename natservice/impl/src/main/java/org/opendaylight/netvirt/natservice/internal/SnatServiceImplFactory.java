@@ -48,6 +48,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     private final IFibManager fibManager;
     private final NatDataUtil natDataUtil;
     private final DataTreeEventCallbackRegistrar eventCallbacks;
+    private final NatOverVxlanUtil natOverVxlanUtil;
 
     @Inject
     public SnatServiceImplFactory(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -63,7 +64,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
                                   final IVpnFootprintService vpnFootprintService,
                                   final IFibManager fibManager,
                                   final NatDataUtil natDataUtil,
-                                  final DataTreeEventCallbackRegistrar eventCallbacks) {
+                                  final DataTreeEventCallbackRegistrar eventCallbacks,
+                                  final NatOverVxlanUtil natOverVxlanUtil) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
@@ -83,6 +85,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         this.fibManager = fibManager;
         this.natDataUtil = natDataUtil;
         this.eventCallbacks = eventCallbacks;
+        this.natOverVxlanUtil = natOverVxlanUtil;
     }
 
     @Override
@@ -108,11 +111,9 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     @Nullable
     public AbstractSnatService createVxlanGreSnatServiceImpl() {
         if (natMode == NatMode.Conntrack) {
-            NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
-                    NatConstants.ODL_VNI_POOL_NAME);
             return new VxlanGreConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, odlInterfaceRpcService,
                     idManager, naptSwitchSelector, externalRouterListener, elanManager, interfaceManager,
-                    vpnFootprintService, fibManager, natDataUtil, eventCallbacks);
+                    vpnFootprintService, fibManager, natDataUtil, eventCallbacks, natOverVxlanUtil);
         }
         return null;
     }

@@ -57,7 +57,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryOutput;
@@ -91,7 +90,7 @@ public class EvpnDnatFlowProgrammer {
     private final IFibManager fibManager;
     private final FibRpcService fibService;
     private final IVpnManager vpnManager;
-    private final IdManagerService idManager;
+    private final NatOverVxlanUtil natOverVxlanUtil;
 
     @Inject
     public EvpnDnatFlowProgrammer(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -99,7 +98,7 @@ public class EvpnDnatFlowProgrammer {
                            final IFibManager fibManager,
                            final FibRpcService fibService,
                            final IVpnManager vpnManager,
-                           final IdManagerService idManager) {
+                           final NatOverVxlanUtil natOverVxlanUtil) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
@@ -107,7 +106,7 @@ public class EvpnDnatFlowProgrammer {
         this.fibManager = fibManager;
         this.fibService = fibService;
         this.vpnManager = vpnManager;
-        this.idManager = idManager;
+        this.natOverVxlanUtil = natOverVxlanUtil;
     }
 
     public void onAddFloatingIp(final BigInteger dpnId, final String routerName, final long routerId,
@@ -139,7 +138,7 @@ public class EvpnDnatFlowProgrammer {
             LOG.debug("onAddFloatingIp : L3VNI value is not configured in Internet VPN {} and RD {} "
                     + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
                     + "DNAT flows for FloatingIp {}", vpnName, rd, externalIp);
-            l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
+            l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId).longValue();
         }
         FloatingIPListener.updateOperationalDS(dataBroker, routerName, interfaceName, NatConstants.DEFAULT_LABEL_VALUE,
                 internalIp, externalIp);
@@ -295,7 +294,7 @@ public class EvpnDnatFlowProgrammer {
             LOG.debug("onRemoveFloatingIp : L3VNI value is not configured in Internet VPN {} and RD {} "
                     + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
                     + "DNAT flows for FloatingIp {}", vpnName, rd, externalIp);
-            l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
+            l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId).longValue();
         }
         String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
 
