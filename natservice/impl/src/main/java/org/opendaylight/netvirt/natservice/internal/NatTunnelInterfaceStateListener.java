@@ -106,6 +106,7 @@ public class NatTunnelInterfaceStateListener
     private final FibRpcService fibRpcService;
     private final IElanService elanManager;
     private final IInterfaceManager interfaceManager;
+    private final NatOverVxlanUtil natOverVxlanUtils;
     private final NatMode natMode;
 
     protected enum TunnelAction {
@@ -132,6 +133,7 @@ public class NatTunnelInterfaceStateListener
      * @param config                 - Nat Service Config
      * @param elanManager            - Elan Manager
      * @param interfaceManager       - Interface Manager
+     * @param natOverVxlanUtils      - Nat Over Vxlan Utility
      */
     @Inject
     public NatTunnelInterfaceStateListener(final DataBroker dataBroker,
@@ -148,7 +150,8 @@ public class NatTunnelInterfaceStateListener
                                            final FibRpcService fibRpcService,
                                            final NatserviceConfig config,
                                            final IElanService elanManager,
-                                           final IInterfaceManager interfaceManager) {
+                                           final IInterfaceManager interfaceManager,
+                                           final NatOverVxlanUtil natOverVxlanUtils) {
         super(StateTunnelList.class, NatTunnelInterfaceStateListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -165,6 +168,7 @@ public class NatTunnelInterfaceStateListener
         this.fibRpcService = fibRpcService;
         this.elanManager = elanManager;
         this.interfaceManager = interfaceManager;
+        this.natOverVxlanUtils = natOverVxlanUtils;
         if (config != null) {
             this.natMode = config.getNatMode();
         } else {
@@ -724,7 +728,7 @@ public class NatTunnelInterfaceStateListener
                 LOG.debug("hndlTepAddOnNaptSwitch : L3VNI value is not configured in Internet VPN {} and RD {} "
                         + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue to installing "
                         + "NAT flows", vpnName, rd);
-                l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, externalVpnName, routerId).longValue();
+                l3Vni = natOverVxlanUtils.getInternetVpnVni(externalVpnName, routerId).longValue();
             }
         }
 
@@ -751,7 +755,7 @@ public class NatTunnelInterfaceStateListener
                         + "having nextHopIp {}", externalIp, nextHopIp);
                 long l3vni = 0;
                 if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanManager, extNwProvType)) {
-                    l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, externalVpnName, l3vni).longValue();
+                    l3vni = natOverVxlanUtils.getInternetVpnVni(externalVpnName, l3vni).longValue();
                 }
                 NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd,
                     fibExternalIp, nextHopIp, networkId.getValue(), null /* mac-address */, label, l3vni,
@@ -851,7 +855,7 @@ public class NatTunnelInterfaceStateListener
                 LOG.debug("hndlTepAddForDnatInEachRtr : L3VNI value is not configured in Internet VPN {} and RD {} "
                         + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue to installing "
                         + "NAT flows", vpnName, rd);
-                l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
+                l3Vni = natOverVxlanUtils.getInternetVpnVni(vpnName, routerId).longValue();
             }
         }
         for (Ports port : requireNonNullElse(routerPorts.getPorts(), Collections.<Ports>emptyList())) {
@@ -896,7 +900,7 @@ public class NatTunnelInterfaceStateListener
                             + "having nextHopIp {}", externalIp, nextHopIp);
                     long l3vni = 0;
                     if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanManager, extNwProvType)) {
-                        l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
+                        l3vni = natOverVxlanUtils.getInternetVpnVni(vpnName, l3vni).longValue();
                     }
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd,
                         fibExternalIp, nextHopIp, null, null, label, l3vni, RouteOrigin.STATIC,
@@ -1078,7 +1082,7 @@ public class NatTunnelInterfaceStateListener
                 LOG.debug("hndlTepDelForDnatInEachRtr : L3VNI value is not configured in Internet VPN {} and RD {} "
                         + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue to installing "
                         + "NAT flows", vpnName, rd);
-                l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
+                l3Vni = natOverVxlanUtils.getInternetVpnVni(vpnName, routerId).longValue();
             }
         }
         for (Ports port : requireNonNullElse(routerPorts.getPorts(), Collections.<Ports>emptyList())) {
