@@ -91,7 +91,7 @@ public class NeutronSecurityRuleListener
     protected void add(InstanceIdentifier<SecurityRule> instanceIdentifier, SecurityRule securityRule) {
         LOG.trace("added securityRule: {}", securityRule);
         try {
-            Ace ace = toAceBuilder(securityRule).build();
+            Ace ace = toAceBuilder(securityRule, false).build();
             InstanceIdentifier<Ace> identifier = getAceInstanceIdentifier(securityRule);
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, identifier, ace);
         } catch (Exception ex) {
@@ -110,7 +110,7 @@ public class NeutronSecurityRuleListener
                 .build();
     }
 
-    private AceBuilder toAceBuilder(SecurityRule securityRule) {
+    private AceBuilder toAceBuilder(SecurityRule securityRule, boolean isDeleted) {
         AceIpBuilder aceIpBuilder = new AceIpBuilder();
         SecurityRuleAttrBuilder securityRuleAttrBuilder = new SecurityRuleAttrBuilder();
         DestinationPortRangeBuilder destinationPortRangeBuilder = new DestinationPortRangeBuilder();
@@ -142,6 +142,7 @@ public class NeutronSecurityRuleListener
                 aceIpBuilder.setProtocol(PROTOCOL_MAP.get(protocol.getIdentityref()));
             }
         }
+        securityRuleAttrBuilder.setDeleted(isDeleted);
 
         MatchesBuilder matchesBuilder = new MatchesBuilder();
         matchesBuilder.setAceType(aceIpBuilder.build());
@@ -216,9 +217,10 @@ public class NeutronSecurityRuleListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void remove(InstanceIdentifier<SecurityRule> instanceIdentifier, SecurityRule securityRule) {
         LOG.trace("removed securityRule: {}", securityRule);
+        InstanceIdentifier<Ace> identifier = getAceInstanceIdentifier(securityRule);
         try {
-            InstanceIdentifier<Ace> identifier = getAceInstanceIdentifier(securityRule);
-            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, identifier);
+            Ace ace = toAceBuilder(securityRule, true).build();
+            MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, identifier, ace);
         } catch (Exception ex) {
             LOG.error("Exception occured while removing acl for security rule: {}. ", securityRule, ex);
         }
