@@ -341,13 +341,6 @@ public class RouterDpnChangeListener
                     return;
                 }
                 LOG.debug("handleSNATForDPN : Switch {} is elected as NaptSwitch for router {}", dpnId, routerName);
-
-                // When NAPT switch is elected during first VM comes up for the given Router
-                if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanManager, extNwProvType)) {
-                    NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager,
-                            idManager, NatConstants.ODL_VNI_POOL_NAME);
-                }
-
                 Routers extRouters = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
                 if (extRouters != null) {
                     NatUtil.createRouterIdsConfigDS(dataBroker, routerId, routerName);

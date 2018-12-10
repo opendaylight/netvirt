@@ -28,6 +28,8 @@
              interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator"/>
   <reference id="upgradeState"
              interface="org.opendaylight.serviceutils.upgrade.UpgradeState"/>
+  <reference id="vniUtils"
+             interface="org.opendaylight.genius.networkutils.VniUtils"/>
   <reference id="dataTreeEventCallbackRegistrar"
              interface="org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar"/>
   <reference id="metricProvider"
