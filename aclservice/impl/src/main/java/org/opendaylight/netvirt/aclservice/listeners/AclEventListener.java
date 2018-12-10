@@ -123,11 +123,14 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         List<Ace> addedAceRules = getChangedAceList(aclAfter, aclBefore);
 
         // Find and update deleted ace rules in acl
-        List<Ace> deletedAceRules = getChangedAceList(aclBefore, aclAfter);
+        List<Ace> deletedAceRules = getDeletedAceList(aclAfter);
 
         if (aclClusterUtil.isEntityOwner()) {
             LOG.debug("On update event, remove Ace rules: {} for ACL: {}", deletedAceRules, aclName);
             updateAceRules(interfacesBefore, aclName, deletedAceRules, AclServiceManager.Action.REMOVE);
+            if (null != deletedAceRules && !deletedAceRules.isEmpty()) {
+                aclServiceUtils.deleteAcesFromConfigDS(aclName, deletedAceRules);
+            }
         }
         updateAclCaches(aclBefore, aclAfter, interfacesBefore);
 
@@ -280,5 +283,19 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
             }
         }
         return updatedAceList;
+    }
+
+    private List<Ace> getDeletedAceList(Acl acl) {
+        if (acl == null || acl.getAccessListEntries() == null || acl.getAccessListEntries().getAce() == null) {
+            return null;
+        }
+        List<Ace> aceList = acl.getAccessListEntries().getAce();
+        List<Ace> deletedAceList = new ArrayList<>();
+        for (Ace ace: aceList) {
+            if (ace.augmentation(SecurityRuleAttr.class).isDeleted()) {
+                deletedAceList.add(ace);
+            }
+        }
+        return deletedAceList;
     }
 }
