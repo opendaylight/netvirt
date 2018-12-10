@@ -1944,11 +1944,12 @@ public final class NatUtil {
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
     }
 
-    public static long getTunnelIdForNonNaptToNaptFlow(DataBroker dataBroker, IElanService elanManager,
-            IdManagerService idManager, long routerId, String routerName) {
+    public static long getTunnelIdForNonNaptToNaptFlow(DataBroker dataBroker, NatOverVxlanUtil natOverVxlanUtil,
+                                                       IElanService elanManager, IdManagerService idManager,
+                                                       long routerId, String routerName) {
         if (elanManager.isOpenStackVniSemanticsEnforced()) {
             // Router VNI will be set as tun_id if OpenStackSemantics is enabled
-            return NatOverVxlanUtil.getRouterVni(idManager, routerName, routerId).longValue();
+            return natOverVxlanUtil.getRouterVni(routerName, routerId).longValue();
         } else {
             return NatEvpnUtil.getTunnelIdForRouter(idManager, dataBroker, routerName, routerId);
         }

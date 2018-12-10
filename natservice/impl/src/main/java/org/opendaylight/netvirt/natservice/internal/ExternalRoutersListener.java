@@ -185,6 +185,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private final JobCoordinator coordinator;
     private final UpgradeState upgradeState;
     private final IInterfaceManager interfaceManager;
+    private final NatOverVxlanUtil natOverVxlanUtil;
     private final int snatPuntTimeout;
 
     @Inject
@@ -209,6 +210,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                    final IElanService elanManager,
                                    final JobCoordinator coordinator,
                                    final UpgradeState upgradeState,
+                                   final NatOverVxlanUtil natOverVxlanUtil,
                                    final IInterfaceManager interfaceManager) {
         super(Routers.class, ExternalRoutersListener.class);
         this.dataBroker = dataBroker;
@@ -234,6 +236,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         this.coordinator = coordinator;
         this.upgradeState = upgradeState;
         this.interfaceManager = interfaceManager;
+        this.natOverVxlanUtil = natOverVxlanUtil;
         if (config != null) {
             this.natMode = config.getNatMode();
             this.snatPuntTimeout = config.getSnatPuntTimeout().intValue();
@@ -358,12 +361,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 primarySwitchId, routerName);
             return primarySwitchId;
         }
-        // Validating and creating VNI pool during when NAPT switch is selected.
-        // With Assumption this might be the first NAT service comes up.
-        NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
-                NatConstants.ODL_VNI_POOL_NAME);
         // Allocated an id from VNI pool for the Router.
-        NatOverVxlanUtil.getRouterVni(idManager, routerName, NatConstants.INVALID_ID);
+        natOverVxlanUtil.getRouterVni(routerName, NatConstants.INVALID_ID);
         primarySwitchId = naptSwitchSelector.selectNewNAPTSwitch(routerName);
         LOG.debug("handleEnableSnat : Primary NAPT switch DPN ID {}", primarySwitchId);
 
@@ -801,8 +800,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
 
         List<ActionInfo> actionsInfo = new ArrayList<>();
-        long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, routerId,
-                routerName);
+        long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, natOverVxlanUtil, elanManager, idManager,
+                routerId, routerName);
         actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(tunnelId)));
         LOG.debug("buildSnatFlowEntity : Setting the tunnel to the list of action infos {}", actionsInfo);
         actionsInfo.add(new ActionGroup(groupId));
@@ -858,8 +857,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private FlowEntity buildTsFlowEntity(BigInteger dpId, String routerName, long routerId) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
-        long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, routerId,
-                routerName);
+        long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, natOverVxlanUtil, elanManager,
+                idManager, routerId, routerName);
         matches.add(new MatchTunnelId(BigInteger.valueOf(tunnelId)));
         String flowRef = getFlowRefTs(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, tunnelId);
         List<InstructionInfo> instructions = new ArrayList<>();
@@ -1118,7 +1117,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 //Inform BGP
                 long l3vni = 0;
                 if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanManager, extNwProvType)) {
-                    l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
+                    l3vni = natOverVxlanUtil.getInternetVpnVni(vpnName, l3vni).longValue();
                 }
                 Routers extRouter = router != null ? router :
                     NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
@@ -1761,7 +1760,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     handleDisableSnat(router, networkUuid, externalIps, true, null, primarySwitchId,
                             routerId, tx);
                 }
-                NatOverVxlanUtil.releaseVNI(routerName, idManager);
+                natOverVxlanUtil.releaseVNI(routerName);
             })), NatConstants.NAT_DJC_MAX_RETRIES);
     }
 
@@ -1857,7 +1856,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 LOG.error("handleDisableSnatInternetVpn : Failed to remove fib entries for routerId {} "
                         + "in naptSwitchDpnId {}", routerId, naptSwitchDpnId, ex);
             }
-            NatOverVxlanUtil.releaseVNI(vpnId, idManager);
+            natOverVxlanUtil.releaseVNI(vpnId);
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("handleDisableSnatInternetVpn: Exception while handling disableSNATInternetVpn for router {} "
                     + "with internet vpn {}", routerName, vpnId, e);
@@ -1916,8 +1915,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         //Remove the Terminating Service table entry which forwards the packet to Outbound NAPT Table (For the
         // traffic which comes from the VMs of the non NAPT switches)
-        long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, routerId,
-            routerName);
+        long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, natOverVxlanUtil,
+                elanManager, idManager, routerId, routerName);
         String tsFlowRef = getFlowRefTs(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, tunnelId);
         FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, tsFlowRef);
         LOG.info(
@@ -2739,8 +2738,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
         List<ActionInfo> actionsInfo = new ArrayList<>();
-        long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, changedVpnId,
-                routerName);
+        long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, natOverVxlanUtil,
+                elanManager, idManager, changedVpnId, routerName);
         actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(tunnelId)));
         LOG.debug("buildSnatFlowEntityWithUpdatedVpnId : Setting the tunnel to the list of action infos {}",
                 actionsInfo);
@@ -2797,7 +2796,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         BigInteger tunnelId = BigInteger.valueOf(changedVpnId);
         if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanManager, extNwProvType)) {
-            tunnelId = NatOverVxlanUtil.getRouterVni(idManager, routerName, changedVpnId);
+            tunnelId = natOverVxlanUtil.getRouterVni(routerName, changedVpnId);
         }
         matches.add(new MatchTunnelId(tunnelId));
 

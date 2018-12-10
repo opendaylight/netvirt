@@ -100,6 +100,7 @@ public class NaptSwitchHA {
     private final SnatServiceManager natServiceManager;
     private final NatMode natMode;
     private final IInterfaceManager interfaceManager;
+    private final NatOverVxlanUtil natOverVxlanUtil;
 
     private volatile Collection<String> externalIpsCache;
 
@@ -116,7 +117,8 @@ public class NaptSwitchHA {
                         final SnatServiceManager natServiceManager,
                         final NatserviceConfig config,
                         final NaptEventHandler naptEventHandler,
-                        final IInterfaceManager interfaceManager) {
+                        final IInterfaceManager interfaceManager,
+                        final NatOverVxlanUtil natOverVxlanUtil) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.externalRouterListener = externalRouterListener;
@@ -135,6 +137,7 @@ public class NaptSwitchHA {
         } else {
             this.natMode = NatMode.Controller;
         }
+        this.natOverVxlanUtil = natOverVxlanUtil;
     }
 
     protected void removeSnatFlowsInOldNaptSwitch(String routerName, Long routerId, BigInteger naptSwitch,
@@ -160,8 +163,8 @@ public class NaptSwitchHA {
             evpnNaptSwitchHA.evpnRemoveSnatFlowsInOldNaptSwitch(routerName, routerId, vpnName, naptSwitch, confTx);
         } else {
             //Remove the Terminating Service table entry which forwards the packet to Outbound NAPT Table
-            long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, routerId,
-                routerName);
+            long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, natOverVxlanUtil, elanManager,
+                    idManager, routerId, routerName);
             String tsFlowRef = externalRouterListener.getFlowRefTs(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE,
                 tunnelId);
             FlowEntity tsNatFlowEntity = NatUtil.buildFlowEntity(naptSwitch, NwConstants.INTERNAL_TUNNEL_TABLE,
@@ -805,8 +808,8 @@ public class NaptSwitchHA {
 
         if (addordel == NatConstants.ADD_FLOW) {
             List<ActionInfo> actionsInfo = new ArrayList<>();
-            long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, routerVpnId,
-                    routerName);
+            long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, natOverVxlanUtil, elanManager,
+                    idManager, routerVpnId, routerName);
             actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(tunnelId)));
             LOG.debug("buildSnatFlowEntity : Setting the tunnel to the list of action infos {}", actionsInfo);
             actionsInfo.add(new ActionGroup(groupId));
