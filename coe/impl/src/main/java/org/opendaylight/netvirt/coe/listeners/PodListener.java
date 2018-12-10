@@ -50,12 +50,14 @@ public class PodListener implements DataTreeChangeListener<Pods> {
     private ListenerRegistration<PodListener> listenerRegistration;
     private final JobCoordinator jobCoordinator;
     private final ManagedNewTransactionRunner txRunner;
+    private final CoeUtils coeUtils;
 
     @Inject
-    public PodListener(final DataBroker dataBroker, JobCoordinator jobCoordinator) {
+    public PodListener(final DataBroker dataBroker, JobCoordinator jobCoordinator, CoeUtils coeUtils) {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.jobCoordinator = jobCoordinator;
+        this.coeUtils = coeUtils;
     }
 
     protected InstanceIdentifier<Pods> getWildCardPath() {
@@ -125,8 +127,8 @@ public class PodListener implements DataTreeChangeListener<Pods> {
             LOG.warn("pod {} added with insufficient information to process", pods.getName());
             return;
         }
-        jobCoordinator.enqueueJob(pods.getName(), new PodConfigAddWorker(txRunner, instanceIdentifier,
-                pods, podInterface));
+        jobCoordinator.enqueueJob(pods.getName(), new PodConfigAddWorker(txRunner, coeUtils,
+                instanceIdentifier, pods, podInterface));
     }
 
     private void update(InstanceIdentifier<Pods> instanceIdentifier, Pods podsAfter, Pods podsBefore,
@@ -139,8 +141,8 @@ public class PodListener implements DataTreeChangeListener<Pods> {
                 // issue a delete of all previous configuration, and add the new one.
                 //jobCoordinator.enqueueJob(podsAfter.getName(), new PodConfigRemoveWorker(txRunner, podsBefore));
             //}
-            jobCoordinator.enqueueJob(podsAfter.getName(), new PodConfigAddWorker(txRunner, instanceIdentifier,
-                    podsAfter, podInterfaceAfter));
+            jobCoordinator.enqueueJob(podsAfter.getName(), new PodConfigAddWorker(txRunner, coeUtils,
+                    instanceIdentifier, podsAfter, podInterfaceAfter));
         }
     }
 
@@ -151,7 +153,7 @@ public class PodListener implements DataTreeChangeListener<Pods> {
             return;
         }
 
-        jobCoordinator.enqueueJob(pods.getName(), new PodConfigRemoveWorker(txRunner, pods));
+        jobCoordinator.enqueueJob(pods.getName(), new PodConfigRemoveWorker(txRunner, coeUtils, pods));
     }
 
     private static class PodConfigAddWorker implements Callable<List<ListenableFuture<Void>>> {
@@ -159,37 +161,40 @@ public class PodListener implements DataTreeChangeListener<Pods> {
         private final Pods pods;
         private final Interface podInterface;
         private final ManagedNewTransactionRunner txRunner;
+        private final CoeUtils coeUtils;
 
-        PodConfigAddWorker(ManagedNewTransactionRunner txRunner, InstanceIdentifier<Pods> podsInstanceIdentifier,
+        PodConfigAddWorker(ManagedNewTransactionRunner txRunner, CoeUtils coeUtils,
+                           InstanceIdentifier<Pods> podsInstanceIdentifier,
                            Pods pods, Interface podInterface) {
             this.pods = pods;
             this.podInterface = podInterface;
             this.txRunner = txRunner;
             this.podsInstanceIdentifier = podsInstanceIdentifier;
+            this.coeUtils = coeUtils;
         }
 
         @Override
         public List<ListenableFuture<Void>> call() {
             LOG.trace("Adding Pod : {}", podInterface);
-            String interfaceName = CoeUtils.buildInterfaceName(pods.getClusterId().getValue(), pods.getName());
+            String interfaceName = coeUtils.buildInterfaceName(pods.getClusterId().getValue(), pods.getName());
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx ->  {
                 String nodeIp = pods.getHostIpAddress().stringValue();
-                ElanInstance elanInstance = CoeUtils.createElanInstanceForTheFirstPodInTheNetwork(
+                ElanInstance elanInstance = coeUtils.createElanInstanceForTheFirstPodInTheNetwork(
                         pods.getClusterId().getValue(), nodeIp, podInterface, tx);
                 LOG.info("interface creation for pod {}", interfaceName);
-                String portInterfaceName = CoeUtils.createOfPortInterface(interfaceName, tx);
+                String portInterfaceName = coeUtils.createOfPortInterface(interfaceName, tx);
                 LOG.debug("Creating ELAN Interface for pod {}", interfaceName);
-                CoeUtils.createElanInterface(portInterfaceName,
+                coeUtils.createElanInterface(portInterfaceName,
                         elanInstance.getElanInstanceName(), tx);
                 LOG.debug("Creating VPN instance for namespace {}", pods.getNetworkNS());
                 List<String> rd = Arrays.asList("100:1");
-                CoeUtils.createVpnInstance(pods.getClusterId().getValue(), rd, null, null,
+                coeUtils.createVpnInstance(pods.getClusterId().getValue(), rd, null, null,
                         VpnInstance.Type.L3, 0, IpVersionChoice.IPV4, tx);
             }));
             if (podInterface.getIpAddress() != null) {
                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
-                    CoeUtils.createPodNameToPodUuidMap(interfaceName, podsInstanceIdentifier, tx);
+                    coeUtils.createPodNameToPodUuidMap(interfaceName, podsInstanceIdentifier, tx);
                 }));
             }
             return futures;
@@ -199,32 +204,33 @@ public class PodListener implements DataTreeChangeListener<Pods> {
     private static class PodConfigRemoveWorker implements Callable<List<ListenableFuture<Void>>> {
         private final Pods pods;
         private final ManagedNewTransactionRunner txRunner;
+        private final CoeUtils coeUtils;
 
-
-        PodConfigRemoveWorker(ManagedNewTransactionRunner txRunner,
+        PodConfigRemoveWorker(ManagedNewTransactionRunner txRunner, CoeUtils coeUtils,
                               Pods pods) {
             this.pods = pods;
             this.txRunner = txRunner;
+            this.coeUtils = coeUtils;
         }
 
         @Override
         public List<ListenableFuture<Void>> call() {
             List<ListenableFuture<Void>> futures = new ArrayList<>();
-            String podInterfaceName = CoeUtils.buildInterfaceName(pods.getClusterId().getValue(), pods.getName());
+            String podInterfaceName = coeUtils.buildInterfaceName(pods.getClusterId().getValue(), pods.getName());
             futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 LOG.trace("Deleting Pod : {}", podInterfaceName);
                 LOG.debug("Deleting VPN Interface for pod {}", podInterfaceName);
-                CoeUtils.deleteVpnInterface(podInterfaceName, tx);
+                coeUtils.deleteVpnInterface(podInterfaceName, tx);
                 LOG.debug("Deleting ELAN Interface for pod {}", podInterfaceName);
-                CoeUtils.deleteElanInterface(podInterfaceName, tx);
+                coeUtils.deleteElanInterface(podInterfaceName, tx);
                 LOG.info("interface deletion for pod {}", podInterfaceName);
-                CoeUtils.deleteOfPortInterface(podInterfaceName, tx);
-                CoeUtils.unbindKubeProxyService(podInterfaceName, tx);
+                coeUtils.deleteOfPortInterface(podInterfaceName, tx);
+                coeUtils.unbindKubeProxyService(podInterfaceName, tx);
                 // TODO delete elan-instance if this is the last pod in the host
                 // TODO delete vpn-instance if this is the last pod in the network
             }));
             futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
-                CoeUtils.deletePodNameToPodUuidMap(podInterfaceName, tx);
+                coeUtils.deletePodNameToPodUuidMap(podInterfaceName, tx);
             }));
             return futures;
         }
