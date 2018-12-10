@@ -120,6 +120,7 @@ public class NaptEventHandler {
     private final IdManagerService idManager;
     private final IInterfaceManager interfaceManager;
     private final SalFlowService salFlowServiceRpc;
+    private final NatOverVxlanUtil natOverVxlanUtil;
 
     @Inject
     public NaptEventHandler(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -129,7 +130,8 @@ public class NaptEventHandler {
                             final IInterfaceManager interfaceManager,
                             final IElanService elanManager,
                             final IdManagerService idManager,
-                            final SalFlowService salFlowServiceRpc) {
+                            final SalFlowService salFlowServiceRpc,
+                            final NatOverVxlanUtil natOverVxlanUtil) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.naptManager = naptManager;
@@ -139,6 +141,7 @@ public class NaptEventHandler {
         this.elanManager = elanManager;
         this.idManager = idManager;
         this.salFlowServiceRpc = salFlowServiceRpc;
+        this.natOverVxlanUtil = natOverVxlanUtil;
     }
 
     // TODO Clean up the exception handling
@@ -407,8 +410,8 @@ public class NaptEventHandler {
 
         if (pktOut != null) {
             String routerName = NatUtil.getRouterName(dataBroker, routerId);
-            long tunId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, routerId,
-                    routerName);
+            long tunId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, natOverVxlanUtil, elanManager,
+                    idManager, routerId, routerName);
             LOG.info("sendNaptPacketOut for ({}:{}) on dpnId {} portNum {} tunId {}",
                 naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), dpnID, portNum, tunId);
             sendNaptPacketOut(pktOut, dpnID, portNum, actionInfos, tunId);

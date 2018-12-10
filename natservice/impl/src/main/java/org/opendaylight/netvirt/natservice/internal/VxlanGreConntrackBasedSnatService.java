@@ -64,6 +64,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
     private static final Logger LOG = LoggerFactory.getLogger(VxlanGreConntrackBasedSnatService.class);
     private final ExternalRoutersListener externalRouterListener;
     private final IElanService elanManager;
+    private final NatOverVxlanUtil natOverVxlanUtil;
 
     public VxlanGreConntrackBasedSnatService(DataBroker dataBroker, IMdsalApiManager mdsalManager,
                                              ItmRpcService itmManager, OdlInterfaceRpcService odlInterfaceRpcService,
@@ -72,11 +73,13 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
                                              IInterfaceManager interfaceManager,
                                              IVpnFootprintService vpnFootprintService,
                                              IFibManager fibManager, NatDataUtil natDataUtil,
-                                             DataTreeEventCallbackRegistrar eventCallbacks) {
+                                             DataTreeEventCallbackRegistrar eventCallbacks,
+                                             NatOverVxlanUtil natOverVxlanUtil) {
         super(dataBroker, mdsalManager, itmManager, idManager, naptSwitchSelector, odlInterfaceRpcService,
                 interfaceManager, vpnFootprintService, fibManager, natDataUtil, eventCallbacks);
         this.externalRouterListener = externalRouterListener;
         this.elanManager = elanManager;
+        this.natOverVxlanUtil = natOverVxlanUtil;
     }
 
     @Override
@@ -419,7 +422,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
 
         BigInteger tunnelId = BigInteger.valueOf(routerId);
         if (elanManager.isOpenStackVniSemanticsEnforced()) {
-            tunnelId = NatOverVxlanUtil.getRouterVni(idManager, routerName, routerId);
+            tunnelId = natOverVxlanUtil.getRouterVni(routerName, routerId);
         }
         matches.add(new MatchTunnelId(tunnelId));
 
@@ -484,7 +487,7 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
 
         BigInteger tunnelId = BigInteger.valueOf(routerId);
         if (elanManager.isOpenStackVniSemanticsEnforced()) {
-            tunnelId = NatOverVxlanUtil.getRouterVni(idManager, routerName, routerId);
+            tunnelId = natOverVxlanUtil.getRouterVni(routerName, routerId);
         }
 
         actionsInfo.add(new ActionSetFieldTunnelId(tunnelId));

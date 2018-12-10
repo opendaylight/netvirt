@@ -31,15 +31,17 @@ public class EvpnNaptSwitchHA {
     private final IMdsalApiManager mdsalManager;
     private final IdManagerService idManager;
     private final EvpnSnatFlowProgrammer evpnSnatFlowProgrammer;
+    private final NatOverVxlanUtil natOverVxlanUtil;
 
     @Inject
     public EvpnNaptSwitchHA(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                         final EvpnSnatFlowProgrammer evpnSnatFlowProgrammer,
-                        final IdManagerService idManager) {
+                        final IdManagerService idManager, final NatOverVxlanUtil natOverVxlanUtil) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.evpnSnatFlowProgrammer = evpnSnatFlowProgrammer;
         this.idManager = idManager;
+        this.natOverVxlanUtil = natOverVxlanUtil;
     }
 
     public void evpnRemoveSnatFlowsInOldNaptSwitch(String routerName, long routerId, String vpnName,
@@ -61,7 +63,7 @@ public class EvpnNaptSwitchHA {
             LOG.debug("evpnRemoveSnatFlowsInOldNaptSwitch : L3VNI value is not configured in Internet VPN {} and RD {} "
                     + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue to installing "
                     + "NAT flows", vpnName, rd);
-            l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
+            l3Vni = natOverVxlanUtil.getInternetVpnVni(vpnName, routerId).longValue();
         }
         String gwMacAddress = NatUtil.getExtGwMacAddFromRouterName(dataBroker, routerName);
         if (gwMacAddress == null) {
