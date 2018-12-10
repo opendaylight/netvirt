@@ -874,6 +874,15 @@ public final class AclServiceUtils {
                 ("Failed to delete subnet info for port: " + portId));
     }
 
+    public void deleteAceFromConfigDS(String aclName, Ace ace) {
+        InstanceIdentifier<Ace> id = InstanceIdentifier.builder(AccessLists.class).child(Acl.class, new AclKey(aclName,
+                Ipv4Acl.class)).child(AccessListEntries.class).child(Ace.class, ace.getKey()).build();
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, id)), LOG,
+                ("Failed to delete Ace from Oper DS: " + ace.getRuleName()));
+    }
+
+
     private static List<MatchInfoBase> updateAAPMatches(boolean isSourceIpMacMatch, List<MatchInfoBase> flows,
                                                         AllowedAddressPairs aap) {
         List<MatchInfoBase> matchInfoBaseList;
