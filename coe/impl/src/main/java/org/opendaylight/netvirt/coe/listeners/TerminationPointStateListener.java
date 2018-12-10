@@ -57,16 +57,18 @@ public class TerminationPointStateListener extends
     private final PodsCache  podsCache;
     private final DataTreeEventCallbackRegistrar eventCallbacks;
     private final ManagedNewTransactionRunner txRunner;
+    private final CoeUtils coeUtils;
 
     @Inject
     public TerminationPointStateListener(DataBroker dataBroker,
-        PodsCache podsCache, DataTreeEventCallbackRegistrar eventCallbacks) {
+        PodsCache podsCache, DataTreeEventCallbackRegistrar eventCallbacks, CoeUtils coeUtils) {
         super(dataBroker, LogicalDatastoreType.OPERATIONAL,
                 InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(Node.class)
                         .child(TerminationPoint.class).augmentation(OvsdbTerminationPointAugmentation.class).build());
         this.podsCache = podsCache;
         this.eventCallbacks = eventCallbacks;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
+        this.coeUtils = coeUtils;
     }
 
     @Override
@@ -78,8 +80,8 @@ public class TerminationPointStateListener extends
     public void update(@Nullable OvsdbTerminationPointAugmentation tpOld, OvsdbTerminationPointAugmentation tpNew) {
         LOG.debug("Received Update DataChange Notification for ovsdb termination point {}", tpNew.getName());
 
-        SouthboundInterfaceInfo tpNewDetails = CoeUtils.getSouthboundInterfaceDetails(tpNew);
-        SouthboundInterfaceInfo tpOldDetails = CoeUtils.getSouthboundInterfaceDetails(tpOld);
+        SouthboundInterfaceInfo tpNewDetails = coeUtils.getSouthboundInterfaceDetails(tpNew);
+        SouthboundInterfaceInfo tpOldDetails = coeUtils.getSouthboundInterfaceDetails(tpOld);
 
         if (!Objects.equals(tpNewDetails, tpOldDetails)) {
             Optional<String> interfaceNameOptional = tpNewDetails.getInterfaceName();
@@ -91,20 +93,20 @@ public class TerminationPointStateListener extends
                 LOG.debug("Detected external interface-id {} and attached mac address {} for {}", interfaceName,
                         macAddress, tpNew.getName());
                 eventCallbacks.onAddOrUpdate(LogicalDatastoreType.OPERATIONAL,
-                        CoeUtils.getPodMetaInstanceId(interfaceName), (unused, alsoUnused) -> {
+                        coeUtils.getPodMetaInstanceId(interfaceName), (unused, alsoUnused) -> {
                         LOG.info("Pod configuration {} detected for termination-point {},"
                                     + "proceeding with l2 and l3 configurations", interfaceName, tpNew.getName());
                         ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(
                                 CONFIGURATION, tx -> {
-                                InstanceIdentifier<Pods> instanceIdentifier = CoeUtils.getPodUUIDforPodName(
+                                InstanceIdentifier<Pods> instanceIdentifier = coeUtils.getPodUUIDforPodName(
                                         interfaceName, getDataBroker());
                                 Pods pods = podsCache.get(instanceIdentifier).get();
                                 if (pods != null) {
                                     IpAddress podIpAddress = pods.getInterface().get(0).getIpAddress();
-                                    CoeUtils.updateElanInterfaceWithStaticMac(macAddress, podIpAddress,
+                                    coeUtils.updateElanInterfaceWithStaticMac(macAddress, podIpAddress,
                                             interfaceName, tx);
                                     if (!isServiceGateway) {
-                                        CoeUtils.createVpnInterface(pods.getNetworkNS(), pods, interfaceName,
+                                        coeUtils.createVpnInterface(pods.getNetworkNS(), pods, interfaceName,
                                                 macAddress,false, tx);
                                         LOG.debug("Bind Kube Proxy Service for {}", interfaceName);
                                         bindKubeProxyService(tx, interfaceName);
@@ -122,7 +124,7 @@ public class TerminationPointStateListener extends
         update(null, tpNew);
     }
 
-    private static void bindKubeProxyService(TypedReadWriteTransaction<Datastore.Configuration> tx,
+    private void bindKubeProxyService(TypedReadWriteTransaction<Datastore.Configuration> tx,
                                              String interfaceName) {
         int priority = ServiceIndex.getIndex(NwConstants.COE_KUBE_PROXY_SERVICE_NAME,
                 NwConstants.COE_KUBE_PROXY_SERVICE_INDEX);
@@ -136,7 +138,7 @@ public class TerminationPointStateListener extends
                                 NwConstants.COE_KUBE_PROXY_SERVICE_INDEX),
                         priority, NwConstants.COOKIE_COE_KUBE_PROXY_TABLE, instructions);
         InstanceIdentifier<BoundServices> boundServicesInstanceIdentifier =
-                CoeUtils.buildKubeProxyServicesIId(interfaceName);
+                coeUtils.buildKubeProxyServicesIId(interfaceName);
         tx.put(boundServicesInstanceIdentifier, serviceInfo,true);
     }
 
