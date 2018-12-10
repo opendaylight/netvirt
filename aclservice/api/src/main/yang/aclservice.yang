@@ -96,6 +96,11 @@ module aclservice {
                 applied to incoming (ingress) traffic for that instance.
                 An egress rule is applied to traffic leaving the instance.";
         }
+        leaf deleted {
+            type boolean;
+            default false;
+            description "True when ACE is deleted; false otherwise.";
+        }
     }
 
     augment "/ietf-if:interfaces/ietf-if:interface" {
