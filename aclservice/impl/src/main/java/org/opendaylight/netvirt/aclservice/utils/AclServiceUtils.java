@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Optional;
@@ -70,7 +71,10 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
@@ -750,6 +754,22 @@ public final class AclServiceUtils {
                 .child(PortSubnet.class, new PortSubnetKey(portId)).build();
         ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 OPERATIONAL, tx -> tx.delete(id)), LOG, "Failed to delete subnet info for port: " + portId);
+    }
+
+    public void deleteAcesFromConfigDS(String aclName, List<Ace> deletedAceRules) {
+        List<List<Ace>> acesParts = Lists.partition(deletedAceRules, AclConstants.ACES_PER_TRANSACTION);
+        for (List<Ace> acePart : acesParts) {
+            jobCoordinator.enqueueJob(aclName,
+                () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                    tx -> {
+                        for (Ace ace: acePart) {
+                            InstanceIdentifier<Ace> id = InstanceIdentifier.builder(AccessLists.class)
+                                    .child(Acl.class, new AclKey(aclName, Ipv4Acl.class)).child(AccessListEntries.class)
+                                    .child(Ace.class, ace.key()).build();
+                            tx.delete(id);
+                        }
+                    })), AclConstants.ACEDELETE_MAX_RETRIES);
+        }
     }
 
     public static Integer allocateId(IdManagerService idManager, String poolName, String idKey, Integer defaultId) {
