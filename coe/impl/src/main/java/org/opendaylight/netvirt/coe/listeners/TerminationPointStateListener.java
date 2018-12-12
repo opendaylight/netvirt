@@ -104,7 +104,7 @@ public class TerminationPointStateListener extends
                                     CoeUtils.updateElanInterfaceWithStaticMac(macAddress, podIpAddress,
                                             interfaceName, tx);
                                     if (!isServiceGateway) {
-                                        CoeUtils.createVpnInterface(pods.getNetworkNS(), pods, interfaceName,
+                                        CoeUtils.createVpnInterface(pods.getClusterId().getValue(), pods, interfaceName,
                                                 macAddress,false, tx);
                                         LOG.debug("Bind Kube Proxy Service for {}", interfaceName);
                                         bindKubeProxyService(tx, interfaceName);
