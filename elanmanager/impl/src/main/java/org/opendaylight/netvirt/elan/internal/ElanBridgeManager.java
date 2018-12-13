@@ -20,13 +20,15 @@ import java.util.Optional;
 import java.util.Random;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanBridgeManager;
-import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathId;
@@ -68,7 +70,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
     private static final String OTHER_CONFIG_HWADDR = "hwaddr";
     private static final String OTHER_CONFIG_DISABLE_IN_BAND = "disable-in-band";
 
-    private final MdsalUtils mdsalUtils;
+    private final DataBroker dataBroker;
     private final IInterfaceManager interfaceManager;
     private final SouthboundUtils southboundUtils;
     private final Random random;
@@ -81,13 +83,13 @@ public class ElanBridgeManager implements IElanBridgeManager {
      * @param elanConfig the elan configuration
      * @param interfaceManager InterfaceManager
      * @param southboundUtils southboutUtils
-     * @param mdsalUtils mdsalUtils
+     * @param dataBroker DataBroker
      */
     @Inject
     public ElanBridgeManager(ElanConfig elanConfig, IInterfaceManager interfaceManager,
-            SouthboundUtils southboundUtils, MdsalUtils mdsalUtils) {
+            SouthboundUtils southboundUtils, DataBroker dataBroker) {
         //TODO: ClusterAware!!!??
-        this.mdsalUtils = mdsalUtils;
+        this.dataBroker = dataBroker;
         this.interfaceManager = interfaceManager;
         this.southboundUtils = southboundUtils;
         this.random = new Random(System.currentTimeMillis());
@@ -260,7 +262,12 @@ public class ElanBridgeManager implements IElanBridgeManager {
         NodeBuilder bridgeNodeBuilder = new NodeBuilder(brIntNode);
         bridgeNodeBuilder.setTerminationPoint(null);
         InstanceIdentifier<Node> brNodeIid = SouthboundUtils.createInstanceIdentifier(brIntNode.getNodeId());
-        this.mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, brNodeIid, bridgeNodeBuilder.build());
+        try {
+            SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                brNodeIid, bridgeNodeBuilder.build());
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("Failed to copy Bridge {} to config", brNodeIid, e);
+        }
     }
 
     private void patchBridgeToBrInt(Node intBridgeNode, Node exBridgeNode, String physnetBridgeName) {
