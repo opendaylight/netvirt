@@ -227,7 +227,12 @@ public class ElanBridgeManager implements IElanBridgeManager {
 
     private void prepareIntegrationBridge(Node ovsdbNode, Node brIntNode) {
         if (southboundUtils.getBridgeFromConfig(ovsdbNode, INTEGRATION_BRIDGE) == null) {
-            LOG.debug("br-int in operational but not config, copying into config");
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                LOG.debug("Not the logs you're looking for");
+            }
+            LOG.warn("br-int in operational but not config, copying into config");
             copyBridgeToConfig(brIntNode);
         }
 
