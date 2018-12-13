@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: Karthika Panneer <r.p.karthika@ericsson.com>
+Code-Review+2: Vishal Thapar <vthapar@redhat.com>
+Submitted-by: Vishal Thapar <vthapar@redhat.com>
+Submitted-at: Thu, 13 Dec 2018 07:20:48 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/78671
+Project: netvirt
+Branch: refs/heads/master
