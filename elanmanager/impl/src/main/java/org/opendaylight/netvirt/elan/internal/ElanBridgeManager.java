@@ -262,7 +262,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
         NodeBuilder bridgeNodeBuilder = new NodeBuilder(brIntNode);
         bridgeNodeBuilder.setTerminationPoint(null);
         InstanceIdentifier<Node> brNodeIid = SouthboundUtils.createInstanceIdentifier(brIntNode.getNodeId());
-        this.mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, brNodeIid, bridgeNodeBuilder.build());
+        this.mdsalUtils.merge(LogicalDatastoreType.CONFIGURATION, brNodeIid, bridgeNodeBuilder.build());
     }
 
     private void patchBridgeToBrInt(Node intBridgeNode, Node exBridgeNode, String physnetBridgeName) {
