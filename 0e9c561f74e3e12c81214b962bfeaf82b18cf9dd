@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ab331da_9fc36b88",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 8015
+      },
+      "writtenOn": "2018-12-13T13:52:39Z",
+      "side": 1,
+      "message": "where is the VNI returned? you are returning -1 only all the time",
+      "range": {
+        "startLine": 65,
+        "startChar": 8,
+        "endLine": 65,
+        "endChar": 38
+      },
+      "revId": "0e9c561f74e3e12c81214b962bfeaf82b18cf9dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
