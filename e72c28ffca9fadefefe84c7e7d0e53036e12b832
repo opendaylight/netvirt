@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "504d3c1b_0aed6a3b",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-12-14T11:15:23Z",
+      "side": 1,
+      "message": "will this end up showing ConflictingModificationExceptions?",
+      "revId": "e72c28ffca9fadefefe84c7e7d0e53036e12b832",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
