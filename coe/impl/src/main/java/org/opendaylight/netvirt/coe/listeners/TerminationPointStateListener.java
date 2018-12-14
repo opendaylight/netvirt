@@ -104,10 +104,13 @@ public class TerminationPointStateListener extends
                                 Pods pods = podsCache.get(instanceIdentifier).get();
                                 if (pods != null) {
                                     IpAddress podIpAddress = pods.getInterface().get(0).getIpAddress();
-                                    coeUtils.updateElanInterfaceWithStaticMac(macAddress, podIpAddress,
-                                            interfaceName, tx);
+                                    String clusterId = pods.getClusterId().getValue();
+                                    String elanInstanceName = CoeUtils.buildElanInstanceName(
+                                            pods.getHostIpAddress().stringValue(), clusterId);
+                                    CoeUtils.updateElanInterfaceWithStaticMac(macAddress, podIpAddress,
+                                            interfaceName, elanInstanceName, tx);
                                     if (!isServiceGateway) {
-                                        coeUtils.createVpnInterface(pods.getClusterId().getValue(), pods, interfaceName,
+                                        CoeUtils.createVpnInterface(clusterId, pods, interfaceName,
                                                 macAddress,false, tx);
                                         LOG.debug("Bind Kube Proxy Service for {}", interfaceName);
                                         bindKubeProxyService(tx, interfaceName);

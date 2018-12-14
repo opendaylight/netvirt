@@ -200,8 +200,8 @@ public final class CoeUtils {
         LOG.debug("Creating new ELAN Interface {}", elanInterface);
     }
 
-    public void updateElanInterfaceWithStaticMac(String macAddress, IpAddress ipAddress,
-                                                        String elanInterfaceName,
+    public static void updateElanInterfaceWithStaticMac(String macAddress, IpAddress ipAddress,
+                                                        String elanInterfaceName, String elanInstanceName,
                                                         TypedReadWriteTransaction<Datastore.Configuration>
                                                                 wrtConfigTxn) {
         InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
@@ -212,7 +212,8 @@ public final class CoeUtils {
                 physAddress)).setMacAddress(physAddress).setIpPrefix(ipAddress).build();
         staticMacEntriesList.add(staticMacEntries);
         ElanInterface elanInterface = new ElanInterfaceBuilder().setName(elanInterfaceName)
-                .withKey(new ElanInterfaceKey(elanInterfaceName)).setStaticMacEntries(staticMacEntriesList).build();
+                .setElanInstanceName(elanInstanceName).withKey(
+                        new ElanInterfaceKey(elanInterfaceName)).setStaticMacEntries(staticMacEntriesList).build();
         wrtConfigTxn.merge(id, elanInterface);
         LOG.debug("Updating ELAN Interface with static mac {}", elanInterface);
     }
