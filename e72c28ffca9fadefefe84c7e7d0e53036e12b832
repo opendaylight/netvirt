@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "f8fca7d5_06a8c364",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2018-12-14T18:15:28Z",
+      "side": 1,
+      "message": "Vishal, are you going to move the jira to netvirt? if so,\nchange this.",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 16
+      },
+      "revId": "e72c28ffca9fadefefe84c7e7d0e53036e12b832",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "504d3c1b_0aed6a3b",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
         "patchSetId": 2
