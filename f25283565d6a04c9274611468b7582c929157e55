@@ -22,6 +22,30 @@
       "revId": "f25283565d6a04c9274611468b7582c929157e55",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d2cb755f_04ae7841",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-12-14T07:14:05Z",
+      "side": 1,
+      "message": "Thanks for the detailed review! sure let me do it",
+      "parentUuid": "452b4e2f_d1fe45a0",
+      "range": {
+        "startLine": 109,
+        "startChar": 35,
+        "endLine": 109,
+        "endChar": 52
+      },
+      "revId": "f25283565d6a04c9274611468b7582c929157e55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
