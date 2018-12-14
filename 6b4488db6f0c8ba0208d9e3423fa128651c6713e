@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "418d6b54_3a101122",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-12-14T16:56:05Z",
+      "side": 1,
+      "message": "Michael, this is already caught here in the previous code. I am not sure why it is done though. If I remove it, I will get stuck with this patch, in case CSIT starts failing :( Can I finish the migration, and then we ask the owners of the module on how to remove all these catches? :(",
+      "parentUuid": "53815459_33486f2a",
+      "revId": "6b4488db6f0c8ba0208d9e3423fa128651c6713e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dfacd9b5_d6b5faa5",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
         "patchSetId": 7
