@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53815459_33486f2a",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-12-14T16:13:23Z",
+      "side": 1,
+      "message": "NullPointerException should never be caught.  I know it\u0027s there in the original, but could we use this as the opportunity to clean this up and remove this from the catch?",
+      "revId": "6b4488db6f0c8ba0208d9e3423fa128651c6713e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dfacd9b5_d6b5faa5",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-12-14T16:13:23Z",
+      "side": 1,
+      "message": "separately from the catch NPE, it would also be better to not have to catch InterruptedException | ExecutionException e and let those propagate, but that\u0027s less critical in the short term (to me)",
+      "revId": "6b4488db6f0c8ba0208d9e3423fa128651c6713e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "63f09b1b_1a8ae2b0",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatOverVxlanUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-12-14T16:13:23Z",
+      "side": 1,
+      "message": "as above, please do not catch (NullPointerException",
+      "revId": "6b4488db6f0c8ba0208d9e3423fa128651c6713e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
