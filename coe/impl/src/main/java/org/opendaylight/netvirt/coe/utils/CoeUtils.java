@@ -201,9 +201,8 @@ public final class CoeUtils {
     }
 
     public void updateElanInterfaceWithStaticMac(String macAddress, IpAddress ipAddress,
-                                                        String elanInterfaceName,
-                                                        TypedReadWriteTransaction<Datastore.Configuration>
-                                                                wrtConfigTxn) {
+                                                 String elanInterfaceName, String elanInstanceName,
+                                                 TypedReadWriteTransaction<Datastore.Configuration> wrtConfigTxn) {
         InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
                 .class, new ElanInterfaceKey(elanInterfaceName)).build();
         PhysAddress physAddress = PhysAddress.getDefaultInstance(macAddress);
@@ -212,7 +211,8 @@ public final class CoeUtils {
                 physAddress)).setMacAddress(physAddress).setIpPrefix(ipAddress).build();
         staticMacEntriesList.add(staticMacEntries);
         ElanInterface elanInterface = new ElanInterfaceBuilder().setName(elanInterfaceName)
-                .withKey(new ElanInterfaceKey(elanInterfaceName)).setStaticMacEntries(staticMacEntriesList).build();
+                .setElanInstanceName(elanInstanceName).withKey(
+                        new ElanInterfaceKey(elanInterfaceName)).setStaticMacEntries(staticMacEntriesList).build();
         wrtConfigTxn.merge(id, elanInterface);
         LOG.debug("Updating ELAN Interface with static mac {}", elanInterface);
     }
