@@ -35,7 +35,6 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
-import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.serviceutils.upgrade.UpgradeState;
@@ -66,7 +65,6 @@ public class RouterDpnChangeListener
     private final IdManagerService idManager;
     private final INeutronVpnManager nvpnManager;
     private final ExternalNetworkGroupInstaller extNetGroupInstaller;
-    private final IElanService elanManager;
     private final JobCoordinator coordinator;
     private final SnatServiceManager natServiceManager;
     private final NatMode natMode;
@@ -81,7 +79,6 @@ public class RouterDpnChangeListener
                                    final INeutronVpnManager nvpnManager,
                                    final SnatServiceManager natServiceManager,
                                    final NatserviceConfig config,
-                                   final IElanService elanManager,
                                    final JobCoordinator coordinator,
                                    final UpgradeState upgradeState) {
         super(DpnVpninterfacesList.class, RouterDpnChangeListener.class);
@@ -93,7 +90,6 @@ public class RouterDpnChangeListener
         this.idManager = idManager;
         this.extNetGroupInstaller = extNetGroupInstaller;
         this.nvpnManager = nvpnManager;
-        this.elanManager = elanManager;
         this.natServiceManager = natServiceManager;
         this.coordinator = coordinator;
         this.natMode = config != null ? config.getNatMode() : NatMode.Controller;
