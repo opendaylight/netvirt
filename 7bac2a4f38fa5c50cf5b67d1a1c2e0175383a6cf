@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74364e5e_8969f924",
+        "filename": "natservice/api/src/main/java/org/opendaylight/netvirt/natservice/api/SwitchInfo.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-12-16T07:28:18Z",
+      "side": 1,
+      "message": "Nit: Shouldn\u0027t this be ProviderNets, plural?",
+      "revId": "7bac2a4f38fa5c50cf5b67d1a1c2e0175383a6cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a3e351f4_3cd4060a",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/NatSwitchCacheImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-12-16T07:28:18Z",
+      "side": 1,
+      "message": "Why does this and removeSwitch return boolean?",
+      "revId": "7bac2a4f38fa5c50cf5b67d1a1c2e0175383a6cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "994491c9_1d2be85d",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/NatSwitchCacheImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-12-16T07:28:18Z",
+      "side": 1,
+      "message": "I don\u0027t see any code that relates to the weight of the switch in here. Am I missing something?",
+      "revId": "7bac2a4f38fa5c50cf5b67d1a1c2e0175383a6cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1632e8aa_24abca1e",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/NatSwitchCacheImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-12-16T07:28:18Z",
+      "side": 1,
+      "message": "Can\u0027t the provider mappings have other key\u003dvalues other than provider networks? I\u0027m pretty sure they can.",
+      "revId": "7bac2a4f38fa5c50cf5b67d1a1c2e0175383a6cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "897b5ab7_581294f1",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatSwitchCacheListenerImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-12-16T07:28:18Z",
+      "side": 1,
+      "message": "Misspelling of network",
+      "revId": "7bac2a4f38fa5c50cf5b67d1a1c2e0175383a6cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
