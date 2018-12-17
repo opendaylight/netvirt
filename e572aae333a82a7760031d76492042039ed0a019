@@ -16,6 +16,24 @@
       "revId": "e572aae333a82a7760031d76492042039ed0a019",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "099a5fbc_47bf16e6",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-12-17T15:45:52Z",
+      "side": 1,
+      "message": "Why? Probability of ConflictingModification isn\u0027t impacted by this change, it is same as earlier. Genius code adds termination point while this adds augmentation. So if you look at parts of subtree being modified, they\u0027re different.",
+      "parentUuid": "c82aca63_2766e870",
+      "revId": "e572aae333a82a7760031d76492042039ed0a019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
