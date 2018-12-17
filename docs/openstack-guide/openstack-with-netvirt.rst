@@ -54,7 +54,7 @@ Optional - Advanced OpenDaylight Installation - Configurations and Clustering
 
     .. code-block:: bash
 
-       crudini --set /etc/neutron/plugins/dhcp_agent.ini ml2 extension_drivers port_security
+       crudini --set /etc/neutron/plugins/ml2/ml2_conf.ini ml2 extension_drivers port_security
 
        openstack port create --network=net1 --disable-port-security port1
        openstack server create --flavor m1.tiny --image cirros --port port1 vm1
