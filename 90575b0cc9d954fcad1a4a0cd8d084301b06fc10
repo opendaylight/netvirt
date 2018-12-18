@@ -34,6 +34,24 @@
       "revId": "90575b0cc9d954fcad1a4a0cd8d084301b06fc10",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b89d6bab_bf9e5159",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-12-18T13:35:45Z",
+      "side": 1,
+      "message": "Agree that pattern is bad and should replace it, but am not sure if caller code is written well enough to handle propagation. Would prefer it taken up in a separate patch/Jira/activity that makes sure don\u0027t end up breaking anything by propagating exception. IIRC, early days there were issues where listener threads just crashed if there was an uncaught exception.",
+      "parentUuid": "3aacf6e2_066c552d",
+      "revId": "90575b0cc9d954fcad1a4a0cd8d084301b06fc10",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
