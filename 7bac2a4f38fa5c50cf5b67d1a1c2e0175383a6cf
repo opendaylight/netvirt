@@ -142,6 +142,24 @@
     },
     {
       "key": {
+        "uuid": "c7fb2ee7_e8bd7ba3",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/NatSwitchCacheImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-12-19T12:50:57Z",
+      "side": 1,
+      "message": "Oh, now I see. That is a really horribly named method but it\u0027s not from so I won\u0027t make you change it :-)",
+      "parentUuid": "b2065a25_321fb4e9",
+      "revId": "7bac2a4f38fa5c50cf5b67d1a1c2e0175383a6cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "897b5ab7_581294f1",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatSwitchCacheListenerImpl.java",
         "patchSetId": 6
