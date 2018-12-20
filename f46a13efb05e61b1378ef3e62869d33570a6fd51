@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ecdaefcb_9f9368ec",
+        "filename": "coe/impl/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-12-20T15:01:57Z",
+      "side": 1,
+      "message": "This is the default, and it\u0027s perhaps confusing to add it explicitly, we don\u0027t do this anywhere else - so remove?",
+      "revId": "f46a13efb05e61b1378ef3e62869d33570a6fd51",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
