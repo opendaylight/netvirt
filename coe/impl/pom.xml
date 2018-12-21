@@ -20,6 +20,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <packaging>bundle</packaging>
     <modelVersion>4.0.0</modelVersion>
 
+    <properties>
+        <maven.test.skip>true</maven.test.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>javax.inject</groupId>
