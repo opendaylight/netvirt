@@ -20,6 +20,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <packaging>bundle</packaging>
     <modelVersion>4.0.0</modelVersion>
 
+    <properties>
+        <maven.test.skip>true</maven.test.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -194,7 +198,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+            <!--plugin>
                 <groupId>org.eclipse.xtend</groupId>
                 <artifactId>xtend-maven-plugin</artifactId>
                 <dependencies>
@@ -204,7 +208,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                         <version>3.10.0</version>
                     </dependency>
                 </dependencies>
-            </plugin>
+            </plugin-->
         </plugins>
     </build>
 </project>
