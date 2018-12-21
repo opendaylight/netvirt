@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Stephen Kitt <skitt@redhat.com>
+Submitted-by: Stephen Kitt <skitt@redhat.com>
+Submitted-at: Fri, 21 Dec 2018 09:29:15 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/78903
+Project: netvirt
+Branch: refs/heads/stable/fluorine
