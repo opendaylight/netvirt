@@ -30,6 +30,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <neutron.version>0.12.0-SNAPSHOT</neutron.version>
     <openflowplugin.version>0.8.0-SNAPSHOT</openflowplugin.version>
     <ovsdb.version>1.8.0-SNAPSHOT</ovsdb.version>
+    <serviceutils.version>0.3.0-SNAPSHOT</serviceutils.version>
   </properties>
 
   <dependencyManagement>
@@ -38,6 +39,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <groupId>org.opendaylight.controller</groupId>
         <artifactId>mdsal-artifacts</artifactId>
         <version>${controller.mdsal.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.opendaylight.serviceutils</groupId>
+        <artifactId>serviceutils-artifacts</artifactId>
+        <version>${serviceutils.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
