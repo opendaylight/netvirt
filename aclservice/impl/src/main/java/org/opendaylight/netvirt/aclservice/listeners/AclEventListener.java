@@ -124,9 +124,9 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         if (interfacesBefore != null && aclClusterUtil.isEntityOwner()) {
             LOG.debug("On update event, remove Ace rules: {} for ACL: {}", deletedAceRules, aclName);
             updateAceRules(interfacesBefore, aclName, deletedAceRules, AclServiceManager.Action.REMOVE);
-            for (Ace ace: deletedAceRules) {
-                aclServiceUtils.deleteAceFromConfigDS(aclName, ace);
-            }
+        }
+        if (null != deletedAceRules && !deletedAceRules.isEmpty() && aclClusterUtil.isEntityOwner()) {
+            aclServiceUtils.deleteAcesFromConfigDS(aclName, deletedAceRules);
         }
         updateAclCaches(aclBefore, aclAfter, interfacesBefore);
 
@@ -277,7 +277,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
     }
 
     private List<Ace> getDeletedAceList(Acl acl) {
-        if (acl == null || acl.getAccessListEntries() == null) {
+        if (acl == null || acl.getAccessListEntries() == null || acl.getAccessListEntries().getAce() == null) {
             return null;
         }
         List<Ace> aceList = acl.getAccessListEntries().getAce();

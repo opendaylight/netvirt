@@ -122,7 +122,9 @@ public interface AclConstants {
 
     String ACL_SYNC_KEY_EXT = "-acl";
     int JOB_MAX_RETRIES = 3;
+    int ACEDELETE_MAX_RETRIES = 3;
     int FLOWS_PER_TRANSACTION = 30;
+    int ACES_PER_TRANSACTION = 40;
 
     String ACL_JOB_KEY_PREFIX = "ACL-";
 
