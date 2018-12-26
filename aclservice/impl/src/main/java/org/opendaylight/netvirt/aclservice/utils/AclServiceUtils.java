@@ -874,12 +874,20 @@ public final class AclServiceUtils {
                 ("Failed to delete subnet info for port: " + portId));
     }
 
-    public void deleteAceFromConfigDS(String aclName, Ace ace) {
-        InstanceIdentifier<Ace> id = InstanceIdentifier.builder(AccessLists.class).child(Acl.class, new AclKey(aclName,
-                Ipv4Acl.class)).child(AccessListEntries.class).child(Ace.class, ace.getKey()).build();
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, id)), LOG,
-                ("Failed to delete Ace from Oper DS: " + ace.getRuleName()));
+    public void deleteAcesFromConfigDS(String aclName, List<Ace> deletedAceRules) {
+        List<List<Ace>> acesParts = Lists.partition(deletedAceRules, AclConstants.ACES_PER_TRANSACTION);
+        for (List<Ace> acePart : acesParts) {
+            jobCoordinator.enqueueJob(aclName,
+                () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(
+                    tx -> {
+                        for (Ace ace: acePart) {
+                            InstanceIdentifier<Ace> id = InstanceIdentifier.builder(AccessLists.class)
+                                    .child(Acl.class, new AclKey(aclName, Ipv4Acl.class))
+                                    .child(AccessListEntries.class).child(Ace.class, ace.getKey()).build();
+                            tx.delete(LogicalDatastoreType.CONFIGURATION, id);
+                        }
+                    })), AclConstants.ACEDELETE_MAX_RETRIES);
+        }
     }
 
 
