@@ -20,10 +20,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <packaging>bundle</packaging>
     <modelVersion>4.0.0</modelVersion>
 
-    <properties>
-        <maven.test.skip>true</maven.test.skip>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>javax.inject</groupId>
@@ -94,17 +90,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                     </instructions>
                 </configuration>
             </plugin>
-            <!--plugin>
+            <plugin>
                 <groupId>org.eclipse.xtend</groupId>
                 <artifactId>xtend-maven-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.eclipse.platform</groupId>
-                        <artifactId>org.eclipse.equinox.common</artifactId>
-                        <version>3.10.0</version>
-                    </dependency>
-                </dependencies>
-            </plugin-->
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
