@@ -7,14 +7,22 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import com.google.common.collect.ImmutableBiMap;
+
+import java.util.Collections;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
@@ -66,11 +74,15 @@ public class NeutronSecurityRuleListener
             ProtocolIcmpV6.class, NeutronSecurityRuleConstants.PROTOCOL_ICMPV6);
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
-    public NeutronSecurityRuleListener(final DataBroker dataBroker) {
+    public NeutronSecurityRuleListener(final DataBroker dataBroker, JobCoordinator jobCoordinator) {
         super(SecurityRule.class, NeutronSecurityRuleListener.class);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -93,7 +105,11 @@ public class NeutronSecurityRuleListener
         try {
             Ace ace = toAceBuilder(securityRule, false).build();
             InstanceIdentifier<Ace> identifier = getAceInstanceIdentifier(securityRule);
-            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, identifier, ace);
+            String jobKey = securityRule.getSecurityGroupId().getValue();
+            jobCoordinator.enqueueJob(jobKey,
+                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                    tx -> tx.put(identifier, ace, CREATE_MISSING_PARENTS))),
+                    NeutronSecurityRuleConstants.DJC_MAX_RETRIES);
         } catch (Exception ex) {
             LOG.error("Exception occured while adding acl for security rule: {}. ", securityRule, ex);
         }
@@ -220,9 +236,18 @@ public class NeutronSecurityRuleListener
         InstanceIdentifier<Ace> identifier = getAceInstanceIdentifier(securityRule);
         try {
             Ace ace = toAceBuilder(securityRule, true).build();
-            MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, identifier, ace);
+            String jobKey = securityRule.getSecurityGroupId().getValue();
+            jobCoordinator.enqueueJob(jobKey,
+                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                    tx -> tx.merge(identifier, ace, CREATE_MISSING_PARENTS))),
+                    NeutronSecurityRuleConstants.DJC_MAX_RETRIES);
         } catch (Exception ex) {
-            LOG.error("Exception occured while removing acl for security rule: {}. ", securityRule, ex);
+            /*
+            If there are out of sequence events where-in Sg-Rule delete could occur after SecurityGroup delete.
+            we would hit with exception here, trying to delete a child-node, after it's parent has got deleted.
+            Logging it as Warn, because if such event occur we are handling it in the AclEventListeners' Remove method.
+             */
+            LOG.warn("Exception occured while removing acl for security rule: {}. ", securityRule, ex);
         }
     }
 

@@ -30,6 +30,7 @@ public interface NeutronSecurityRuleConstants {
     Short PROTOCOL_TCP = 6;
     Short PROTOCOL_UDP = 17;
     Short PROTOCOL_ICMPV6 = 58;
+    int DJC_MAX_RETRIES = 3;
 
     Class<EthertypeV4> ETHERTYPE_IPV4 = EthertypeV4.class;
 
