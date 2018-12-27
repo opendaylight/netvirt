@@ -1092,12 +1092,6 @@ public class NeutronvpnUtils {
                 FloatingIpIdToPortMappingKey(floatingIpId)).build();
     }
 
-    /*static InstanceIdentifier<PortSubnet> buildPortSubnetIdentifier(String portId) {
-        InstanceIdentifier<PortSubnet> id = InstanceIdentifier.builder(PortSubnets.class)
-                .child(PortSubnet.class, new PortSubnetKey(portId)).build();
-        return id;
-    }*/
-
     // TODO Remove this method entirely
     @SuppressWarnings("checkstyle:IllegalCatch")
     private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
