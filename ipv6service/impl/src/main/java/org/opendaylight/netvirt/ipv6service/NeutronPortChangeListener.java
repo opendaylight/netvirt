@@ -9,6 +9,8 @@ package org.opendaylight.netvirt.ipv6service;
 
 import static org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils.nullToEmpty;
 
+import com.google.common.base.Strings;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -63,6 +65,10 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
         }
         if (Ipv6ServiceConstants.DEVICE_OWNER_DHCP.equalsIgnoreCase(port.getDeviceOwner())) {
             LOG.info("IPv6Service: Skipping network_dhcp port {} for add event", port);
+            return;
+        }
+        if (Strings.isNullOrEmpty(port.getDeviceOwner()) || Strings.isNullOrEmpty(port.getDeviceId())) {
+            LOG.info("IPv6Service: Skipping empty device owner port {} for add event", port);
             return;
         }
 
@@ -130,6 +136,16 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
                         deletedIps);
             } else {
                 ifMgr.updateHostIntf(update.getUuid(), portIncludesV6Address);
+            }
+        }
+        //Neutron Port update with proper device owner information
+        if ((Strings.isNullOrEmpty(original.getDeviceOwner()) || Strings.isNullOrEmpty(original.getDeviceId()))
+                && !Strings.isNullOrEmpty(update.getDeviceOwner()) && !Strings.isNullOrEmpty(update.getDeviceId())) {
+            for (FixedIps fixedip : nullToEmpty(update.getFixedIps())) {
+                if (fixedip.getIpAddress().getIpv4Address() != null) {
+                    continue;
+                }
+                addInterfaceInfo(update, fixedip);
             }
         }
     }
