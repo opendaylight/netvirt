@@ -2121,12 +2121,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 LOG.info("createFibEntryForRouterInterface: Router interface {} for vpn {} rd {} prefix {} label {}"
                         + " macAddress {} processed successfully;", interfaceName, vpnName, primaryRd, prefix, label,
                         macAddress);
-                return;
+            } else {
+                LOG.error("createFibEntryForRouterInterface: VPN Interface {} of router addition failed as primary"
+                                + " adjacency for this vpn interface could not be obtained. rd {} vpnName {}",
+                        interfaceName, primaryRd, vpnName);
             }
         }
-        LOG.error("createFibEntryForRouterInterface: VPN Interface {} of router addition failed as primary"
-                + " adjacency for this vpn interface could not be obtained. rd {} vpnName {}", interfaceName,
-                primaryRd, vpnName);
     }
 
     protected void deleteFibEntryForRouterInterface(VpnInterface vpnInterface,
