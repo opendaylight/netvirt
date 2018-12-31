@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.ipv6service;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.net.InetAddresses;
@@ -240,7 +241,17 @@ public class IfMgr implements ElementCache, AutoCloseable {
         Ipv6Address addr = new Ipv6Address(InetAddresses
                 .forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
         fixedIp = new IpAddress(addr);
-
+        /* Added the below logic for supporting neutron router interface creation.
+         * Since when neutron port is created with fixed Ipv6 address, that time it will be
+         * treated as a host port and it will be added into the vintfs map through
+         * NeutronPortChangeListener ADD() event.
+         * Later the same neutron port is added to router this time it will be treated as
+         * a router_interface through NeutronPortChangeListener UPDATE() event.
+         */
+        VirtualPort vinterface = vintfs.get(portId);
+        if (vinterface != null && Strings.isNullOrEmpty(vinterface.getDeviceOwner())) {
+            vintfs.remove(portId);
+        }
         VirtualPort intf = VirtualPort.builder().intfUUID(portId).networkID(networkId).macAddress(macAddress)
                 .routerIntfFlag(true).deviceOwner(deviceOwner).build();
         intf.setSubnetInfo(snetId, fixedIp);
