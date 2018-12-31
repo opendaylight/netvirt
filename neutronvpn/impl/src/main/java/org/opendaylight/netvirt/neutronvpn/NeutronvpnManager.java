@@ -812,10 +812,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         for (FixedIps ip : requireNonNullElse(port.getFixedIps(), Collections.<FixedIps>emptyList())) {
             String ipValue = ip.getIpAddress().stringValue();
             String ipPrefix = ip.getIpAddress().getIpv4Address() != null ? ipValue + "/32" : ipValue + "/128";
-            if (sn != null && !FibHelper.doesPrefixBelongToSubnet(ipPrefix, sn.getSubnetIp(), false)) {
+            Subnetmap snTemp = neutronvpnUtils.getSubnetmap(ip.getSubnetId());
+            if (snTemp != null && !FibHelper.doesPrefixBelongToSubnet(ipPrefix,
+                    snTemp.getSubnetIp(), false)) {
                 continue;
             }
-            Subnetmap snTemp = sn != null ? sn : neutronvpnUtils.getSubnetmap(ip.getSubnetId());
             Uuid vpnId = snTemp != null ? snTemp.getVpnId() : null;
             if (vpnId != null) {
                 neutronvpnUtils.createVpnPortFixedIpToPort(vpnId.getValue(), ipValue,
