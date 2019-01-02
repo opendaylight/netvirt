@@ -36,11 +36,14 @@ public class ArpMonitorStopTask implements Callable<List<ListenableFuture<Void>>
     @Override
     public List<ListenableFuture<Void>> call() {
         final List<ListenableFuture<Void>> futures = new ArrayList<>();
-        java.util.Optional<Long> monitorIdOptional = AlivenessMonitorUtils.getMonitorIdFromInterface(macEntry);
-        monitorIdOptional.ifPresent(monitorId -> {
-            AlivenessMonitorUtils.stopArpMonitoring(alivenessManager, monitorId);
-        });
-
+        java.util.Optional<Long> monitorIdOptional = AlivenessMonitorUtils.getMonitorIdFromInterface(dataBroker,
+            macEntry);
+        if (monitorIdOptional.isPresent()) {
+            AlivenessMonitorUtils.stopArpMonitoring(alivenessManager, monitorIdOptional.get());
+        } else {
+            LOG.warn("MonitorId not available for IP {} interface {}. ArpMonitoring not stopped",
+                    macEntry.getIpAddress(), macEntry.getInterfaceName());
+        }
         if (this.isRemoveMipAdjAndLearntIp) {
             String vpnName =  macEntry.getVpnName();
             String learntIp = macEntry.getIpAddress().getHostAddress();
