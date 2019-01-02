@@ -13,8 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -22,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.EtherTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.InterfaceMonitorMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorProfileCreateInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorProfileCreateInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorProfileCreateOutput;
@@ -34,6 +37,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorStopInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitorStopInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.MonitoringMode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411._interface.monitor.map.InterfaceMonitorEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411._interface.monitor.map.InterfaceMonitorEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.endpoint.endpoint.type.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.endpoint.endpoint.type.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.params.DestinationBuilder;
@@ -41,7 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.profile.create.input.Profile;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.profile.create.input.ProfileBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.start.input.ConfigBuilder;
-
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -206,12 +211,20 @@ public final class AlivenessMonitorUtils {
             .endpoint.endpoint.type.IpAddressBuilder().setIpAddress(ip).build();
     }
 
-    public static java.util.Optional<Long> getMonitorIdFromInterface(MacEntry macEntry) {
-        java.util.Optional<Long> monitorId = alivenessCache.entrySet().parallelStream()
-            .filter(map -> macEntry.equals(map.getValue()))
-            .map(Map.Entry::getKey)
-            .findFirst();
+    public static java.util.Optional<Long> getMonitorIdFromInterface(DataBroker dataBroker, MacEntry macEntry) {
+        String interfaceName = macEntry.getInterfaceName();
+        java.util.Optional<Long> monitorId = java.util.Optional.empty();
+        Optional<InterfaceMonitorEntry> interfaceMonitorEntryOptional =
+            MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, getInterfaceMonitorMapId(interfaceName));
+        if (interfaceMonitorEntryOptional.isPresent()) {
+            return java.util.Optional.of(interfaceMonitorEntryOptional.get().getMonitorIds().get(0));
+        }
         return monitorId;
+    }
+
+    static InstanceIdentifier<InterfaceMonitorEntry> getInterfaceMonitorMapId(String interfaceName) {
+        return InstanceIdentifier.builder(InterfaceMonitorMap.class)
+                .child(InterfaceMonitorEntry.class, new InterfaceMonitorEntryKey(interfaceName)).build();
     }
 
 }
