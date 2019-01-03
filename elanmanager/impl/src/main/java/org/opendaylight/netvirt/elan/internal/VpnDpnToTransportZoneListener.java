@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 HPE and others.  All rights reserved.
+ * Copyright (c) 2017, 2019 HPE and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -42,10 +42,10 @@ public class VpnDpnToTransportZoneListener
 
     @PostConstruct
     public void start() {
-        LOG.info("{} start", getClass().getSimpleName());
 
         if (useTransportZone) {
             registerListener(LogicalDatastoreType.OPERATIONAL, dbx);
+            LOG.info("{} registered", getClass().getSimpleName());
         }
     }
 
