@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Vishal Thapar <vthapar@redhat.com>
+Submitted-by: Vishal Thapar <vthapar@redhat.com>
+Submitted-at: Fri, 04 Jan 2019 08:34:54 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/79221
+Project: netvirt
+Branch: refs/heads/stable/fluorine
