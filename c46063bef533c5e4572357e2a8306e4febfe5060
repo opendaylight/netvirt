@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "514808cf_39b7226f",
+        "filename": "coe/impl/src/test/java/org/opendaylight/netvirt/coe/listeners/NetworkPolicyListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2019-01-09T16:47:58Z",
+      "side": 1,
+      "message": "You need to call\n\n    networkPolicyListener.register();\n\nand\n\n    k8sListener.register();\n\nto register the listeners. (This is handled by @PostConstruct in production code, but not in tests if you don\u0027t use Guice modules.)",
+      "revId": "c46063bef533c5e4572357e2a8306e4febfe5060",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e2da1b01_34b1069e",
+        "filename": "coe/impl/src/test/java/org/opendaylight/netvirt/coe/listeners/NetworkPolicyListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2019-01-09T16:47:58Z",
+      "side": 1,
+      "message": "Don\u0027t log the future, add logging to the future:\n\n    LoggingFutures.addErrorLogging(future, ...);",
+      "revId": "c46063bef533c5e4572357e2a8306e4febfe5060",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
