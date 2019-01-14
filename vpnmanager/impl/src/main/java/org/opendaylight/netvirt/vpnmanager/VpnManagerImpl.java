@@ -192,7 +192,7 @@ public class VpnManagerImpl implements IVpnManager {
     @Override
     public void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
         Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj, VrfEntry.EncapType encapType,
-        @Nonnull TypedWriteTransaction<Configuration> confTx) {
+        Set<String> prefixListForRefreshFib, @Nonnull TypedWriteTransaction<Configuration> confTx) {
         //add extra route to vpn mapping; advertise with nexthop as tunnel ip
         vpnUtil.syncUpdate(LogicalDatastoreType.OPERATIONAL,
                 VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, rd != null ? rd : routerID,
@@ -242,7 +242,7 @@ public class VpnManagerImpl implements IVpnManager {
                 List<String> nhList = optVpnExtraRoutes.get().getNexthopIpList();
                 if (nhList != null && nhList.size() > 1) {
                     // If nhList is greater than one for vpnextraroute, a call to populatefib doesn't update vrfentry.
-                    fibManager.refreshVrfEntry(primaryRd, destination);
+                    prefixListForRefreshFib.add(destination);
                 } else {
                     L3vpnInput input = new L3vpnInput().setNextHop(operationalAdj).setNextHopIp(nextHop).setL3vni(l3vni)
                             .setPrimaryRd(primaryRd).setVpnName(vpnName).setDpnId(dpnId)

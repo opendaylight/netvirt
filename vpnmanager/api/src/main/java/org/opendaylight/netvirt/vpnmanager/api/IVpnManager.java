@@ -33,7 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 public interface IVpnManager {
     void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
         Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
-        VrfEntry.EncapType encapType, TypedWriteTransaction<Configuration> confTx);
+        VrfEntry.EncapType encapType, Set<String> prefixListForRefreshFib, TypedWriteTransaction<Configuration> confTx);
 
     void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
         String intfName, TypedWriteTransaction<Configuration> confTx, TypedWriteTransaction<Operational> operTx);
