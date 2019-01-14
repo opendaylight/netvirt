@@ -873,8 +873,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             // Please note that primary adjacency will use a subnet-gateway-mac-address that
             // can be different from the gateway-mac-address within the VRFEntry as the
             // gateway-mac-address is a superset.
-            RouteOrigin origin = nextHop.getAdjacencyType() == AdjacencyType.PrimaryAdjacency ? RouteOrigin.LOCAL
-                    : RouteOrigin.STATIC;
+            RouteOrigin origin = VpnUtil.getRouteOrigin(nextHop.getAdjacencyType());
             L3vpnInput input = new L3vpnInput().setNextHop(nextHop).setRd(rd).setVpnName(vpnName)
                 .setInterfaceName(interfaceName).setNextHopIp(nextHopIp).setPrimaryRd(primaryRd)
                 .setSubnetGatewayMacAddress(vpnInterfaceSubnetGwMacAddress).setRouteOrigin(origin);
@@ -905,8 +904,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         for (Adjacency nextHop : aug.getAdjacency()) {
             // Adjacencies other than primary Adjacencies are handled in the addExtraRoute call above.
             if (nextHop.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
-                RouteOrigin origin = nextHop.getAdjacencyType() == AdjacencyType.PrimaryAdjacency ? RouteOrigin.LOCAL
-                        : RouteOrigin.STATIC;
+                RouteOrigin origin = VpnUtil.getRouteOrigin(nextHop.getAdjacencyType());
                 input.setNextHop(nextHop).setRd(nextHop.getVrfId()).setRouteOrigin(origin);
                 registeredPopulator.populateFib(input, writeConfigTxn);
             }
