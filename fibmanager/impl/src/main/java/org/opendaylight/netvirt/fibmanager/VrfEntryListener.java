@@ -14,6 +14,7 @@ import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -1164,45 +1165,37 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
 
         String vpnName = fibUtil.getVpnNameFromId(vpnId);
-        LOG.debug("createremotefibentry: adding route {} for rd {} on remoteDpnId {}",
-                vrfEntry.getDestPrefix(), rd, remoteDpnId);
+        LOG.debug("createremotefibentry: adding route {} for rd {} on remoteDpnId {}", vrfEntry.getDestPrefix(), rd,
+                remoteDpnId);
 
-        List<AdjacencyResult> adjacencyResults = baseVrfEntryHandler.resolveAdjacency(remoteDpnId, vpnId, vrfEntry, rd);
-        if (adjacencyResults.isEmpty()) {
-            LOG.error("Could not get interface for route-paths: {} in vpn {} on DPN {}",
-                    vrfEntry.getRoutePaths(), rd, remoteDpnId);
-            LOG.error("Failed to add Route: {} in vpn: {}", vrfEntry.getDestPrefix(), rd);
-            return;
-        }
-
-        List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
-        List<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
-                vpnName, usedRds, vrfEntry.getDestPrefix());
         // create loadbalancing groups for extra routes only when the extra route is present behind
         // multiple VMs
-        if (!vpnExtraRoutes.isEmpty()) {
-            List<InstructionInfo> instructions = new ArrayList<>();
+        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.STATIC) {
+            List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
+            List<Routes> vpnExtraRoutes =
+                    VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker, vpnName, usedRds, vrfEntry.getDestPrefix());
+            if (vpnExtraRoutes.isEmpty()) {
+                return;
+            }
+
             // Obtain the local routes for this particular dpn.
-            java.util.Optional<Routes> routes = vpnExtraRoutes
-                    .stream()
-                    .filter(route -> {
-                        Prefixes prefixToInterface = fibUtil.getPrefixToInterface(vpnId,
-                                fibUtil.getIpPrefix(route.getNexthopIpList().get(0)));
-                        if (prefixToInterface == null) {
-                            return false;
-                        }
-                        return remoteDpnId.equals(prefixToInterface.getDpnId());
-                    }).findFirst();
+            java.util.Optional<Routes> routes = vpnExtraRoutes.stream().filter(route -> {
+                Prefixes prefixToInterface =
+                        fibUtil.getPrefixToInterface(vpnId, FibUtil.getIpPrefix(route.getNexthopIpList().get(0)));
+                if (prefixToInterface == null) {
+                    return false;
+                }
+                return remoteDpnId.equals(prefixToInterface.getDpnId());
+            }).findFirst();
             long groupId = nextHopManager.createNextHopGroups(vpnId, rd, remoteDpnId, vrfEntry,
                     routes.isPresent() ? routes.get() : null, vpnExtraRoutes);
             if (groupId == FibConstants.INVALID_GROUP_ID) {
-                LOG.error("Unable to create Group for local prefix {} on rd {} on Node {}",
-                        vrfEntry.getDestPrefix(), rd, remoteDpnId.toString());
+                LOG.error("Unable to create Group for local prefix {} on rd {} on Node {}", vrfEntry.getDestPrefix(),
+                        rd, remoteDpnId);
                 return;
             }
-            List<ActionInfo> actionInfos =
-                    Collections.singletonList(new ActionGroup(groupId));
-            instructions.add(new InstructionApplyActions(actionInfos));
+            List<ActionInfo> actionInfos = Collections.singletonList(new ActionGroup(groupId));
+            List<InstructionInfo> instructions = Lists.newArrayList(new InstructionApplyActions(actionInfos));
             String jobKey = FibUtil.getCreateRemoteNextHopJobKey(vpnId, remoteDpnId, vrfEntry.getDestPrefix());
             jobCoordinator.enqueueJob(jobKey,
                 () ->  Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(txn -> {
@@ -1210,8 +1203,16 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             NwConstants.ADD_FLOW, txn, null);
                 })));
         } else {
+            List<AdjacencyResult> adjacencyResults =
+                    baseVrfEntryHandler.resolveAdjacency(remoteDpnId, vpnId, vrfEntry, rd);
+            if (adjacencyResults.isEmpty()) {
+                LOG.error("Could not get interface for route-paths: {} in vpn {} on DPN {}", vrfEntry.getRoutePaths(),
+                        rd, remoteDpnId);
+                LOG.error("Failed to add Route: {} in vpn: {}", vrfEntry.getDestPrefix(), rd);
+                return;
+            }
             baseVrfEntryHandler.programRemoteFib(remoteDpnId, vpnId, vrfEntry,
-                TransactionAdapter.toWriteTransaction(tx), rd, adjacencyResults, null);
+                    TransactionAdapter.toWriteTransaction(tx), rd, adjacencyResults, null);
         }
 
         LOG.debug("Successfully added FIB entry for prefix {} in vpnId {}", vrfEntry.getDestPrefix(), vpnId);
@@ -1771,7 +1772,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         //Is this fib route an extra route? If yes, get the nexthop which would be
                         //an adjacency in the vpn
                         Optional<Routes> extraRouteOptional = Optional.absent();
-                        if (usedRds.size() != 0) {
+                        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.STATIC && usedRds.size() != 0) {
                             extraRouteOptional = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker,
                                     fibUtil.getVpnNameFromId(vpnInstance.getVpnId()),
                                     usedRds.get(0), vrfEntry.getDestPrefix());
