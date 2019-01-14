@@ -171,6 +171,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInterfaceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency.AdjacencyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortBuilder;
@@ -2357,6 +2358,24 @@ public final class VpnUtil {
                             vpnName, updatedRdList);
                 }));
         });
+    }
+
+    public static RouteOrigin getRouteOrigin(AdjacencyType adjacencyType) {
+        RouteOrigin origin = RouteOrigin.LOCAL;
+        switch (adjacencyType) {
+            case PrimaryAdjacency:
+                origin = RouteOrigin.LOCAL;
+                break;
+            case ExtraRoute:
+                origin = RouteOrigin.STATIC;
+                break;
+            case LearntIp:
+                origin = RouteOrigin.DYNAMIC;
+                break;
+            default:
+                LOG.warn("Unknown adjacencyType={}", adjacencyType);
+        }
+        return origin;
     }
 
     public static boolean isDualRouterVpnUpdate(List<String> oldVpnListCopy, List<String> newVpnListCopy) {
