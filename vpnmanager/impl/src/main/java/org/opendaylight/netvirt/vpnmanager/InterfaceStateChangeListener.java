@@ -16,18 +16,26 @@ import com.google.common.collect.Table;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames;
@@ -51,6 +59,7 @@ public class InterfaceStateChangeListener
     private final VpnInterfaceManager vpnInterfaceManager;
     private final VpnUtil vpnUtil;
     private final JobCoordinator jobCoordinator;
+    private final IFibManager fibManager;
 
     Table<OperStatus, OperStatus, IntfTransitionState> stateTable = HashBasedTable.create();
 
@@ -76,13 +85,14 @@ public class InterfaceStateChangeListener
 
     @Inject
     public InterfaceStateChangeListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager,
-            final VpnUtil vpnUtil, final JobCoordinator jobCoordinator) {
+            final VpnUtil vpnUtil, final JobCoordinator jobCoordinator, final IFibManager fibManager) {
         super(Interface.class, InterfaceStateChangeListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnUtil = vpnUtil;
         this.jobCoordinator = jobCoordinator;
+        this.fibManager = fibManager;
         initialize();
     }
 
@@ -115,6 +125,10 @@ public class InterfaceStateChangeListener
                 jobCoordinator.enqueueJob("VPNINTERFACE-" + intrf.getName(), () -> {
                     List<ListenableFuture<Void>> futures = new ArrayList<>(3);
                     futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, writeInvTxn -> {
+                        //map of prefix and vpn name used, as entry in prefix-to-interface datastore
+                        // is prerequisite for refresh Fib to avoid race condition leading to missing remote next hop
+                        // in bucket actions on bgp-vpn delete
+                        Map<String, Set<String>> mapOfRdAndPrefixesForRefreshFib = new HashMap<>();
                         ListenableFuture<Void> configFuture
                             = txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, writeConfigTxn -> {
                                 ListenableFuture<Void> operFuture
@@ -149,9 +163,11 @@ public class InterfaceStateChangeListener
                                                     final int ifIndex = intrf.getIfIndex();
                                                     LOG.info("VPN Interface add event - intfName {} onto vpnName {}"
                                                             + " running oper-driven", vpnIf.getName(), vpnName);
+                                                    Set<String> prefixes = new HashSet<>();
                                                     vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnIf, primaryRd,
                                                             ifIndex, false, writeConfigTxn, writeOperTxn, writeInvTxn,
-                                                            intrf, vpnName);
+                                                            intrf, vpnName, prefixes);
+                                                    mapOfRdAndPrefixesForRefreshFib.put(primaryRd, prefixes);
 
                                                 }
                                             }
@@ -161,6 +177,9 @@ public class InterfaceStateChangeListener
                                 futures.add(operFuture);
                                 operFuture.get(); //Synchronous submit of operTxn
                             });
+                        Futures.addCallback(configFuture,
+                                new VpnInterfaceCallBackHandler(mapOfRdAndPrefixesForRefreshFib),
+                                MoreExecutors.directExecutor());
                         futures.add(configFuture);
                         //TODO: Allow immediateFailedFuture from writeCfgTxn to cancel writeInvTxn as well.
                         Futures.addCallback(configFuture, new PostVpnInterfaceThreadWorker(intrf.getName(), true,
@@ -254,11 +273,15 @@ public class InterfaceStateChangeListener
                         update.getName());
                 jobCoordinator.enqueueJob("VPNINTERFACE-" + ifName, () -> {
                     List<ListenableFuture<Void>> futures = new ArrayList<>(3);
-                    futures.add(
-                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, writeOperTxn -> futures.add(
-                            txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-                                writeConfigTxn -> futures.add(
-                                    txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, writeInvTxn -> {
+                    futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, writeOperTxn -> {
+                        //map of prefix and vpn name used, as entry in prefix-to-interface datastore
+                        // is prerequisite for refresh Fib to avoid race condition leading to missing remote
+                        // next hop in bucket actions on bgp-vpn delete
+                        Map<String, Set<String>> mapOfRdAndPrefixesForRefreshFib = new HashMap<>();
+                        ListenableFuture<Void> configTxFuture =
+                            txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, writeConfigTxn ->
+                                futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                                    writeInvTxn -> {
                                         final VpnInterface vpnIf =
                                             vpnUtil.getConfiguredVpnInterface(ifName);
                                         if (vpnIf != null) {
@@ -284,6 +307,7 @@ public class InterfaceStateChangeListener
                                                     vpnIf.getVpnInstanceNames()) {
                                                     String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                                     String primaryRd = vpnUtil.getPrimaryRd(vpnName);
+                                                    Set<String> prefixes = new HashSet<>();
                                                     if (!vpnInterfaceManager.isVpnInstanceReady(vpnName)) {
                                                         LOG.error(
                                                             "VPN Interface update event - intfName {} onto vpnName {} "
@@ -295,9 +319,9 @@ public class InterfaceStateChangeListener
                                                             + " deletion", vpnIf.getName(), vpnName, primaryRd);
                                                     } else {
                                                         vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnIf,
-                                                            primaryRd,
-                                                            ifIndex, true, writeConfigTxn, writeOperTxn, writeInvTxn,
-                                                            update, vpnName);
+                                                            primaryRd, ifIndex, true, writeConfigTxn, writeOperTxn,
+                                                            writeInvTxn, update, vpnName, prefixes);
+                                                        mapOfRdAndPrefixesForRefreshFib.put(primaryRd, prefixes);
                                                     }
                                                 }
                                             } else if (state.equals(IntfTransitionState.STATE_DOWN)) {
@@ -325,7 +349,12 @@ public class InterfaceStateChangeListener
                                         } else {
                                             LOG.debug("Interface {} is not a vpninterface, ignoring.", ifName);
                                         }
-                                    }))))));
+                                    })));
+                        Futures.addCallback(configTxFuture,
+                            new VpnInterfaceCallBackHandler(mapOfRdAndPrefixesForRefreshFib),
+                            MoreExecutors.directExecutor());
+                        futures.add(configTxFuture);
+                    }));
                     return futures;
                 });
             }
@@ -374,5 +403,27 @@ public class InterfaceStateChangeListener
             return IntfTransitionState.STATE_IGNORE;
         }
         return transitionState;
+    }
+
+    private class VpnInterfaceCallBackHandler implements FutureCallback<Void> {
+        private final Map<String, Set<String>> mapOfRdAndPrefixesForRefreshFib;
+
+        VpnInterfaceCallBackHandler(Map<String, Set<String>> mapOfRdAndPrefixesForRefreshFib) {
+            this.mapOfRdAndPrefixesForRefreshFib = mapOfRdAndPrefixesForRefreshFib;
+        }
+
+        @Override
+        public void onSuccess(Void voidObj) {
+            mapOfRdAndPrefixesForRefreshFib.forEach((primaryRd, prefixes) -> {
+                prefixes.forEach(prefix -> {
+                    fibManager.refreshVrfEntry(primaryRd, prefix);
+                });
+            });
+        }
+
+        @Override
+        public void onFailure(Throwable throwable) {
+            LOG.debug("write Tx config operation failed {}", throwable);
+        }
     }
 }
