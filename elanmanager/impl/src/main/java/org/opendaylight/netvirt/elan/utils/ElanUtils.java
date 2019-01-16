@@ -685,7 +685,7 @@ public class ElanUtils {
         return new FlowEntityBuilder()
             .setDpnId(dpId)
             .setTableId(NwConstants.ELAN_SMAC_TABLE)
-            .setFlowId(getKnownDynamicmacFlowRef(NwConstants.ELAN_SMAC_TABLE, dpId, lportTag, macAddress, elanTag))
+            .setFlowId(getKnownDynamicmacFlowRef(elanTag, macAddress))
             .setPriority(20)
             .setFlowName(elanInfo.getDescription())
             .setIdleTimeOut((int) macTimeout)
@@ -907,6 +907,11 @@ public class ElanUtils {
         }
     }
 
+    public static String getKnownDynamicmacFlowRef(long elanTag, String macAddress) {
+        return new StringBuffer().append(elanTag).append(macAddress)
+                .toString();
+    }
+
     public static String getKnownDynamicmacFlowRef(short tableId, BigInteger dpId, long lporTag, String macAddress,
             long elanTag) {
         return String.valueOf(tableId) + elanTag + dpId + lporTag + macAddress;
@@ -959,7 +964,7 @@ public class ElanUtils {
         List<Action> actions = getEgressActionsForInterface(ifName, /* tunnelKey */ null);
         mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
-                getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, ifTag, macAddress, elanTag), 20,
+                getKnownDynamicmacFlowRef(elanTag, macAddress), 20,
                 elanInfo.getElanInstanceName(), 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(
                         BigInteger.valueOf(elanTag)), mkMatches, mkInstructions);
 
@@ -1056,7 +1061,7 @@ public class ElanUtils {
         }
 
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
-                getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, srcDpId, destDpId, macAddress, elanTag),
+                getKnownDynamicmacFlowRef(elanTag, macAddress),
                 20, /* prio */
                 displayName, 0, /* idleTimeout */
                 0, /* hardTimeout */
@@ -1120,8 +1125,7 @@ public class ElanUtils {
         } else if (isDpnPresent(dstDpId)) {
             mdsalManager
                 .removeFlow(flowTx, dstDpId,
-                    MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE, getKnownDynamicmacFlowRef(
-                        NwConstants.ELAN_DMAC_TABLE, dstDpId, srcdpId, macAddress, elanTag)));
+                    MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE, getKnownDynamicmacFlowRef(elanTag, macAddress)));
             LOG.debug("Dmac flow entry deleted for elan:{}, logical interface port:{} and mac address:{} on dpn:{}",
                     elanInstanceName, interfaceInfo.getPortName(), macAddress, dstDpId);
         }
@@ -1132,18 +1136,16 @@ public class ElanUtils {
             boolean deleteSmac, TypedReadWriteTransaction<Configuration> flowTx)
             throws ExecutionException, InterruptedException {
         String elanInstanceName = elanInfo.getElanInstanceName();
-        long ifTag = interfaceInfo.getInterfaceTag();
         BigInteger srcdpId = interfaceInfo.getDpId();
         Long elanTag = elanInfo.getElanTag();
         if (deleteSmac) {
             mdsalManager
                     .removeFlow(flowTx, srcdpId,
                             MDSALUtil.buildFlow(NwConstants.ELAN_SMAC_TABLE, getKnownDynamicmacFlowRef(
-                                    NwConstants.ELAN_SMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)));
+                                    elanTag, macAddress)));
         }
         mdsalManager.removeFlow(flowTx, srcdpId,
-            MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE,
-                getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)));
+            MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE, getKnownDynamicmacFlowRef(elanTag, macAddress)));
         LOG.debug("All the required flows deleted for elan:{}, logical Interface port:{} and MAC address:{} on dpn:{}",
                 elanInstanceName, interfaceInfo.getPortName(), macAddress, srcdpId);
     }
