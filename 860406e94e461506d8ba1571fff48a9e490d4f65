@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b53671d2_3b26b74a",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityGroupListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2019-01-17T17:43:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0db3423_3b6a09c7",
+      "revId": "860406e94e461506d8ba1571fff48a9e490d4f65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d3fd11e5_212af74b",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityGroupListener.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2019-01-17T13:16:50Z",
       "side": 1,
       "message": "No need for a block:\n\n    tx -\u003e tx.delete(identifier);",
+      "revId": "860406e94e461506d8ba1571fff48a9e490d4f65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6299cab9_4a1f96b0",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityGroupListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2019-01-17T17:43:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3fd11e5_212af74b",
       "revId": "860406e94e461506d8ba1571fff48a9e490d4f65",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +123,24 @@
     },
     {
       "key": {
+        "uuid": "54895648_f3106cd3",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2019-01-17T17:43:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f4d318f_10372018",
+      "revId": "860406e94e461506d8ba1571fff48a9e490d4f65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "51c8c88d_bcf12964",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleListener.java",
         "patchSetId": 1
@@ -98,6 +152,24 @@
       "writtenOn": "2019-01-17T13:16:50Z",
       "side": 1,
       "message": "As above.",
+      "revId": "860406e94e461506d8ba1571fff48a9e490d4f65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e9097b32_8e90f69a",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSecurityRuleListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 7304
+      },
+      "writtenOn": "2019-01-17T17:43:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "51c8c88d_bcf12964",
       "revId": "860406e94e461506d8ba1571fff48a9e490d4f65",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
