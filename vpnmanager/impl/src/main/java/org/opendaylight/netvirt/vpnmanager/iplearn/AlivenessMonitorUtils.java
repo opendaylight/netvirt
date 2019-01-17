@@ -253,7 +253,9 @@ public final class AlivenessMonitorUtils {
         Optional<InterfaceMonitorEntry> interfaceMonitorEntryOptional = MDSALUtil.read(dataBroker,
                 LogicalDatastoreType.OPERATIONAL, getInterfaceMonitorMapId(interfaceName));
         if (interfaceMonitorEntryOptional.isPresent()) {
-            return java.util.Optional.of(interfaceMonitorEntryOptional.get().getMonitorIds().get(0));
+            if (!interfaceMonitorEntryOptional.get().getMonitorIds().isEmpty()) {
+                return java.util.Optional.of(interfaceMonitorEntryOptional.get().getMonitorIds().get(0));
+            }
         }
         return monitorId;
     }
