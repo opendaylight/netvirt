@@ -20,15 +20,20 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.thrift.TException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmErrorCodes;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
+import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouterException;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.TcpMd5SignaturePasswordType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Networks;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksKey;
@@ -64,6 +69,39 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
+    public BgpConfigurationManager getBgpConfigurationManager() {
+        return bcm;
+    }
+
+    public void configureGR(int stalepathTime) {
+        bcm.addGracefulRestart(stalepathTime);
+    }
+
+    public void delGracefulRestart() {
+        bcm.delGracefulRestart();
+    }
+
+    public void addNeighbor(String ipAddress, long asNum,
+            @Nullable final TcpMd5SignaturePasswordType md5Password) {
+        bcm.addNeighbor(ipAddress, asNum, md5Password);
+    }
+
+    public void addEbgpMultihop(String ipAddress, int nhops) {
+        bcm.addEbgpMultihop(ipAddress, nhops);
+    }
+
+    public void addUpdateSource(String ipAddress, String srcIp) {
+        bcm.addUpdateSource(ipAddress, srcIp);
+    }
+
+    public void addAddressFamily(String ipAddress, af_afi afi, af_safi safi) {
+        bcm.addAddressFamily(ipAddress, afi.getValue(), safi.getValue());
+    }
+
+    public void deleteNeighbor(String ipAddress) {
+        bcm.delNeighbor(ipAddress);
+    }
+
     @Override
     public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts,
             AddressFamily addressFamily) {
@@ -72,12 +110,48 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     @Override
       public void deleteVrf(String rd, boolean removeFibTable, AddressFamily addressFamily) {
+        boolean ret = false;
         if (removeFibTable) {
             LOG.info("deleteVrf: suppressing FIB from rd {} with {}", rd, addressFamily);
             fibDSWriter.removeVrfSubFamilyFromDS(rd, addressFamily);
         }
-        if (bcm.delVrf(rd, addressFamily) && removeFibTable) {
+        ret = bcm.delVrf(rd, addressFamily);
+        if (ret && removeFibTable) {
             fibDSWriter.removeVrfFromDS(rd);
+        }
+    }
+
+    public  void getAllPeerStatus() {
+        List<Neighbors> nbrList = null;
+        if (getConfig() != null) {
+            nbrList = getConfig().getNeighbors();
+        } else {
+            LOG.error("BGP configuration NOT exist");
+            return;
+        }
+        if (nbrList == null) {
+            return;
+        }
+
+        for (Neighbors nbr : nbrList) {
+            try {
+                LOG.trace("nbr {} checking status, AS num: {}", nbr.getAddress().getValue(), nbr.getRemoteAs());
+                bcm.getPeerStatus(nbr.getAddress().getValue(), nbr.getRemoteAs());
+                LOG.trace("nbr {} status is: PEER UP", nbr.getAddress().getValue());
+            } catch (BgpRouterException bre) {
+                if (bre.getErrorCode() == BgpRouterException.BGP_PEER_DOWN) {
+                    LOG.trace("nbr {} status is: DOWN", nbr.getAddress().getValue());
+                } else if (bre.getErrorCode() == BgpRouterException.BGP_PEER_NOTCONFIGURED) {
+                    LOG.trace("nbr {} status is: NOT CONFIGURED", nbr.getAddress().getValue());
+                } else if (bre.getErrorCode() == BgpRouterException.BGP_PEER_UNKNOWN) {
+                    LOG.info("nbr {} status is: Unknown", nbr.getAddress().getValue());
+                } else {
+                    LOG.info("nbr {} status is: Unknown, invalid BgpRouterException:",
+                            nbr.getAddress().getValue(), bre);
+                }
+            } catch (TException tae) {
+                LOG.error("nbr {} status is: Unknown, received TException ", nbr.getAddress().getValue(), tae);
+            }
         }
     }
 
@@ -164,6 +238,63 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     @Override
+    public void setQbgpLog(String fileName, String debugLevel) {
+        bcm.addLogging(fileName, debugLevel);
+    }
+
+    public void delLogging() {
+        bcm.delLogging();
+    }
+
+    public void startBgp(long asn, String routerId, int spt, boolean fbit) {
+        bcm.startBgp(asn, routerId, spt, fbit);
+    }
+
+    public void stopBgp() {
+        bcm.stopBgp();
+    }
+
+    public void startConfig(String host, int port) {
+        bcm.startConfig(host, port);
+    }
+
+    public void stopConfig() {
+        bcm.stopConfig();
+    }
+
+    public Bgp getConfig() {
+        return bcm.getConfig();
+    }
+
+    public void startBfd(int detectMult, int minRx, int minTx, boolean multiHop) {
+        bcm.startBfd(detectMult, minRx, minTx, multiHop);
+    }
+
+    public void stopBfd() {
+        bcm.stopBfd();
+    }
+
+    public void addDcgwTep(String dcgwIp, String tepIp) {
+        bcm.addDcgwTep(dcgwIp, tepIp);
+    }
+
+    public void delDcgwTep(String dcgwIp, String tepIp) {
+        bcm.delDcgwTep(dcgwIp, tepIp);
+    }
+
+    public void enableMultipath(af_afi afi, af_safi safi) {
+        bcm.setMultipathStatus(afi, safi,true);
+    }
+
+    public void disableMultipath(af_afi afi, af_safi safi) {
+        bcm.setMultipathStatus(afi, safi, false);
+    }
+
+    public void setMultipaths(String rd, int maxpath) {
+        bcm.setMultipaths(rd, maxpath);
+    }
+
+    @Override
     public String getDCGwIP() {
         Bgp conf = bcm.getConfig();
         if (conf == null) {
@@ -194,9 +325,42 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         }
     }
 
+    public FibDSWriter getFibWriter() {
+        return fibDSWriter;
+    }
+
+    public String getConfigHost() {
+        return bcm.getConfigHost();
+    }
+
+    public int getConfigPort() {
+        return bcm.getConfigPort();
+    }
+
+
     @Override
     public void bgpRestarted() {
         bcm.bgpRestarted();
+    }
+
+    public BgpManager getBgpManager() {
+        return this;
+    }
+
+    public boolean isBgpConnected() {
+        return bcm.isBgpConnected();
+    }
+
+    public long getLastConnectedTS() {
+        return bcm.getLastConnectedTS();
+    }
+
+    public long getConnectTS() {
+        return bcm.getConnectTS();
+    }
+
+    public long getStartTS() {
+        return bcm.getStartTS();
     }
 
     public long getQbgprestartTS() {
@@ -207,4 +371,26 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     public void setQbgprestartTS(long qbgprestartTS) {
         this.qbgprestartTS = qbgprestartTS;
     }
+
+    public long getStaleStartTime() {
+        return bcm.getStaleStartTime();
+    }
+
+    public long getStaleEndTime() {
+        return bcm.getStaleEndTime();
+    }
+
+    public long getCfgReplayStartTime() {
+        return bcm.getCfgReplayStartTime();
+    }
+
+    public long getCfgReplayEndTime() {
+        return bcm.getCfgReplayEndTime();
+    }
+
+    public long getStaleCleanupTime() {
+        return bcm.getStaleCleanupTime();
+    }
+
+
 }

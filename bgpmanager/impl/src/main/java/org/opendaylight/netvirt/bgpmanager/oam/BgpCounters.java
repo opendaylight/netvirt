@@ -49,6 +49,13 @@ public class BgpCounters implements Runnable, AutoCloseable {
     public static final String BGP_VPNV6_SUMMARY_FILE = "cmd_ip_bgp_vpnv6_all_summary.txt";
     public static final String BGP_VPNV4_SUMMARY_FILE = "cmd_ip_bgp_vpnv4_all_summary.txt";
     public static final String BGP_EVPN_SUMMARY_FILE = "cmd_bgp_evpn_all_summary.txt";
+    public static final String BFD_NBR_DETAIL_FILE = "cmd_bfd_neighbors_details.txt";
+
+    // BFD related constants
+    public static final int LINE = 1; // line where the ip address of neigbor present after "NeighbroAddr"
+    public static final int NBR_IP_WORD_INDEX = 1; // word where the ip address is present (count start from 0)
+    public static final int RX_COUNT_WORD_INDEX = 1; // word where the Rx Count is present after split :
+    public static final int TX_COUNT_WORD_INDEX = 1; // word where the Tx Count is present after split :
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpCounters.class);
 
@@ -76,10 +83,13 @@ public class BgpCounters implements Runnable, AutoCloseable {
         fetchCmdOutputs(BGP_VPNV4_FILE, "show ip bgp vpnv4 all");
         fetchCmdOutputs(BGP_VPNV6_FILE, "show ip bgp vpnv6 all");
         fetchCmdOutputs(BGP_EVPN_FILE, "show bgp l2vpn evpn all");
+        fetchCmdOutputs(BFD_NBR_DETAIL_FILE, "show bgp bfd neighbors details");
+
         parseIpBgpSummary();
         parseIpBgpVpnv4All();
         parseIpBgpVpnv6All();
         parseBgpL2vpnEvpnAll();
+        parseBfdNbrsDetails();
         LOG.debug("Finished updating the counters from BGP");
     }
 
@@ -221,11 +231,11 @@ public class BgpCounters implements Runnable, AutoCloseable {
                     final String tx = result[4];
 
                     Counter counter = getCounter(BgpConstants.BGP_COUNTER_NBR_PKTS_RX, as,
-                            rx, null, strIp, null);
+                            rx, null, strIp, null, "bgp-peer");
                     updateCounter(counter, Long.parseLong(rx));
 
                     counter = getCounter(BgpConstants.BGP_COUNTER_NBR_PKTS_TX, as,
-                            null, tx, strIp, null);
+                            null, tx, strIp, null, "bgp-peer");
                     updateCounter(counter, Long.parseLong(tx));
                 }
             }
@@ -339,8 +349,67 @@ public class BgpCounters implements Runnable, AutoCloseable {
         long bgpTotalPfxs = calculateBgpTotalPrefixes();
         LOG.trace("BGP Total Prefixes:{}",bgpTotalPfxs);
         Counter counter = getCounter(BgpConstants.BGP_COUNTER_TOTAL_PFX, null, null, null,
-                null, null);
+                null, null, "bgp-peer");
         updateCounter(counter, bgpTotalPfxs);
+    }
+
+    private void parseBfdNbrsDetails() {
+        File file = new File(BFD_NBR_DETAIL_FILE);
+        List<String> inputStrs = new ArrayList<>();
+
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                inputStrs.add(scanner.nextLine());
+            }
+        } catch (IOException e) {
+            LOG.error("Could not process the file {}", file.getAbsolutePath());
+            return;
+        }
+        String neighborIPstr = null;
+        for (int i = 0; i < inputStrs.size(); i++) {
+            String instr = inputStrs.get(i);
+            if (instr.contains("NeighAddr") && instr.contains("State")) {
+                neighborIPstr = inputStrs.get(i + LINE).split("\\s+")[NBR_IP_WORD_INDEX];
+                if (!validate(neighborIPstr, af_afi.AFI_IP)) {
+                    LOG.error("Invalid neighbor IP {}", neighborIPstr);
+                    return;
+                }
+            }
+            if ((neighborIPstr != null) && inputStrs.get(i).contains("Rx Count:")
+                    && inputStrs.get(i + 1).contains("Tx Count:")) {
+                //Rx Count:
+                long rxCount = 0;
+                try {
+                    rxCount = Long.parseLong(inputStrs.get(i).split(":")[RX_COUNT_WORD_INDEX].trim());
+                }
+                catch (NumberFormatException e) {
+                    LOG.error("Rx count Number format exception: {}",
+                        inputStrs.get(i + 1).split(":")[RX_COUNT_WORD_INDEX].trim());
+                    rxCount = 0;
+                }
+
+                //Tx Count:
+                long txCount = 0;
+                try {
+                    txCount = Long.parseLong(inputStrs.get(i + 1).split(":")
+                                  [TX_COUNT_WORD_INDEX].trim());
+                } catch (NumberFormatException e) {
+                    LOG.error("Tx count Number format exception: {}",
+                        inputStrs.get(i + 1).split(":")[TX_COUNT_WORD_INDEX].trim());
+                    txCount = 0;
+                }
+                Counter counter = getCounter(BgpConstants.BFD_COUNTER_NBR_PKTS_RX, null,
+                        Long.toString(rxCount), null, neighborIPstr, null, "bfd-peer");
+                updateCounter(counter, rxCount);
+
+                counter = getCounter(BgpConstants.BFD_COUNTER_NBR_PKTS_TX, null,
+                        null, Long.toString(txCount), neighborIPstr, null, "bfd-peer");
+                updateCounter(counter, txCount);
+
+                //Counter fetching is done, search for next BFD Neighbor IP
+                neighborIPstr = null;
+            }
+        }
     }
 
     private int processRouteCount(String rd, int startIndex, List<String> inputStrs) {
@@ -349,7 +418,7 @@ public class BgpCounters implements Runnable, AutoCloseable {
 
         String bgpRdRouteCountKey = BgpConstants.BGP_COUNTER_RD_ROUTE_COUNT + rd;
         Counter counter = getCounter(BgpConstants.BGP_COUNTER_RD_ROUTE_COUNT, null, null, null,
-                null, rd);
+                null, rd, "bgp-peer");
 
         for (String str = inputStrs.get(num); str != null && !str.trim().equals("")
                 && num < inputStrs.size();
@@ -388,6 +457,7 @@ public class BgpCounters implements Runnable, AutoCloseable {
         resetFile(BGP_VPNV4_FILE);
         resetFile(BGP_VPNV6_FILE);
         resetFile(BGP_EVPN_FILE);
+        resetFile(BFD_NBR_DETAIL_FILE);
     }
 
     static void resetFile(String fileName) {
@@ -417,7 +487,7 @@ public class BgpCounters implements Runnable, AutoCloseable {
                     String[] result = str.split("\\s+");
                     if (result.length > 9) {
                         String strIp = result[0].trim();
-                        LOG.trace("strIp {}", strIp);
+                        LOG.trace("strIp {} ", strIp);
 
                         if (!validate(strIp, afi)) {
                             break;
@@ -482,11 +552,11 @@ public class BgpCounters implements Runnable, AutoCloseable {
      * @return counter object.
      */
     private Counter getCounter(String counterName, String asValue,
-            String rxValue, String txValue, String neighborIp, String rdValue) {
+            String rxValue, String txValue, String neighborIp, String rdValue, String peerType) {
         String counterTypeEntityCounter = "entitycounter";
         String labelKeyEntityType = "entitytype";
 
-        String labelValEntityTypeBgpPeer = "bgp-peer";
+        String labelValEntityTypeBgpPeer = null;
         String labelKeyAsId = "asid";
         String labelKeyNeighborIp = "neighborip";
 
@@ -497,6 +567,15 @@ public class BgpCounters implements Runnable, AutoCloseable {
         String labelKeyCounterName = "name";
 
         Counter counter = null;
+
+        if (peerType.equals("bgp-peer")) {
+            labelValEntityTypeBgpPeer = "bgp-peer";
+        } else if (peerType.equals("bfd-peer")) {
+            labelValEntityTypeBgpPeer = "bfd-peer";
+        } else {
+            //nothing defined, default to "bgp-peer"
+            labelValEntityTypeBgpPeer = "bgp-peer";
+        }
 
         if (rxValue != null) {
             /*
@@ -546,6 +625,16 @@ public class BgpCounters implements Runnable, AutoCloseable {
             counter = labeledCounter.label(counterName);
         }
         return counter;
+    }
+
+    public void clearBfdNbrCounters(String neighborIPstr) {
+        Counter bfdRxCounter = getCounter(BgpConstants.BFD_COUNTER_NBR_PKTS_RX, null,
+                Long.toString(0), null, neighborIPstr, null, "bfd-peer");
+        updateCounter(bfdRxCounter, 0);
+
+        Counter bfdTxCounter = getCounter(BgpConstants.BFD_COUNTER_NBR_PKTS_TX, null,
+                    null, Long.toString(0), neighborIPstr, null, "bfd-peer");
+        updateCounter(bfdTxCounter, 0);
     }
 
 }

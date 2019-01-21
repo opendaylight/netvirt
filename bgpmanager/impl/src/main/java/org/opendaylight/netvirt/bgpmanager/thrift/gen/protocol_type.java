@@ -4,7 +4,9 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
- package org.opendaylight.netvirt.bgpmanager.thrift.gen;
+package org.opendaylight.netvirt.bgpmanager.thrift.gen;
+
+
 import java.util.Map;
 import java.util.HashMap;
 import org.apache.thrift.TEnum;
@@ -32,7 +34,7 @@ public enum protocol_type implements org.apache.thrift.TEnum {
    * Find a the enum type by its integer value, as defined in the Thrift IDL.
    * @return null if the value is not found.
    */
-  public static protocol_type findByValue(int value) { 
+  public static protocol_type findByValue(int value) {
     switch (value) {
       case 1:
         return PROTOCOL_LU;

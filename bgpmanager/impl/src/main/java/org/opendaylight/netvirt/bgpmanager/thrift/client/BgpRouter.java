@@ -21,6 +21,7 @@ import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
 import org.opendaylight.netvirt.bgpmanager.RetryOnException;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.BfdConfigData;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.BgpConfigurator;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.Routes;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
@@ -42,7 +43,7 @@ public final class BgpRouter {
     private static final int CONNECTION_TIMEOUT = 60000;
 
     private enum Optype {
-        START, STOP, NBR, VRF, PFX, SRC, MHOP, LOG, AF, GR, MP, VRFMP, EOR, DELAY_EOR
+        START, STOP, NBR, VRF, PFX, SRC, MHOP, LOG, AF, GR, MP, VRFMP, EOR, DELAY_EOR, BFD, PEER_STATUS
     }
 
     private static class BgpOp {
@@ -50,6 +51,7 @@ public final class BgpRouter {
 
         Optype type;
         boolean add;
+        boolean multiHop;
         String[] strs;
         int[] ints;
         List<String> irts;
@@ -70,7 +72,7 @@ public final class BgpRouter {
 
         BgpOp() {
             strs = new String[3];
-            ints = new int[2];
+            ints = new int[3];
         }
     }
 
@@ -349,6 +351,22 @@ public final class BgpRouter {
             case DELAY_EOR:
                 bgpClient.send_enableEORDelay(op.delayEOR);
                 break;
+            case BFD:
+                BfdConfigData bfdConfigData = new BfdConfigData();
+                bfdConfigData.setBfdConfigDataVersion((byte)1);
+                bfdConfigData.setBfdDebounceDown(0);
+                bfdConfigData.setBfdDebounceUp(0);
+                bfdConfigData.setBfdFailureThreshold((byte)op.ints[0]);
+                bfdConfigData.setBfdRxInterval(op.ints[1]);
+                bfdConfigData.setBfdTxInterval(op.ints[2]);
+                bfdConfigData.setBfdMultihop(op.multiHop);
+                result = bop.add
+                        ? bgpClient.enableBFDFailover(bfdConfigData)
+                        : bgpClient.disableBFDFailover();
+                break;
+            case PEER_STATUS:
+                result = bgpClient.getPeerStatus(op.strs[0], op.asNumber).getValue();
+                break;
             default:
                 break;
         }
@@ -467,6 +485,25 @@ public final class BgpRouter {
         bop.strs[0] = rd;
         bop.strs[1] = prefix;
         LOG.debug("Deleting BGP route - rd:{} prefix:{} ", rd, prefix);
+        dispatch(bop);
+    }
+
+    public synchronized void addBfd(int detectMult, int minRx, int minTx, boolean multiHop)
+            throws TException, BgpRouterException {
+        bop.type = Optype.BFD;
+        bop.add = true;
+        bop.ints[0] = detectMult;
+        bop.ints[1] = minRx;
+        bop.ints[2] = minTx;
+        bop.multiHop = multiHop;
+        LOG.debug("Adding BFD config {} {} {} {}", detectMult, minRx, minTx, multiHop);
+        dispatch(bop);
+    }
+
+    public synchronized void delBfd() throws TException, BgpRouterException {
+        bop.type = Optype.BFD;
+        bop.add = false;
+        LOG.debug("Deleting BFD Config ");
         dispatch(bop);
     }
 
@@ -647,5 +684,14 @@ public final class BgpRouter {
         LOG.debug("EOR delay time in Seconds sent");
         dispatch(bop);
     }
+
+    public synchronized void getPeerStatus(String nbrIp, long nbrAsNum)
+            throws TException, BgpRouterException {
+        bop.type = Optype.PEER_STATUS;
+        bop.strs[0] = nbrIp;
+        bop.asNumber = nbrAsNum;
+        dispatch(bop);
+    } // public getPeerStatus( nbrIp, nbrAsNum )
+
 }
 
