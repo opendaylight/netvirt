@@ -4,13 +4,15 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
- package org.opendaylight.netvirt.bgpmanager.thrift.gen;
+package org.opendaylight.netvirt.bgpmanager.thrift.gen;
+
+
 import java.util.Map;
 import java.util.HashMap;
 import org.apache.thrift.TEnum;
 
 public enum af_safi implements org.apache.thrift.TEnum {
-  SAFI_IPV4_LABELED_UNICAST(4),
+  SAFI_IP_LABELED_UNICAST(4),
   SAFI_MPLS_VPN(5),
   SAFI_EVPN(6);
 
@@ -31,10 +33,10 @@ public enum af_safi implements org.apache.thrift.TEnum {
    * Find a the enum type by its integer value, as defined in the Thrift IDL.
    * @return null if the value is not found.
    */
-  public static af_safi findByValue(int value) { 
+  public static af_safi findByValue(int value) {
     switch (value) {
       case 4:
-        return SAFI_IPV4_LABELED_UNICAST;
+        return SAFI_IP_LABELED_UNICAST;
       case 5:
         return SAFI_MPLS_VPN;
       case 6:

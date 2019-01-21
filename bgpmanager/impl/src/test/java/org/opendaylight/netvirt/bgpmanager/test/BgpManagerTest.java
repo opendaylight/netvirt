@@ -19,6 +19,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.netvirt.bgpmanager.BgpUtil;
 import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 
@@ -28,11 +29,12 @@ public class BgpManagerTest extends AbstractConcurrentDataBrokerTest {
     private DataBroker dataBroker;
     private FibDSWriter bgpFibWriter = null;
     private MockFibManager fibManager = null;
+    private IFibManager ifibManager = null;
 
     @Before
     public void setUp() {
         dataBroker = getDataBroker();
-        bgpFibWriter = new FibDSWriter(dataBroker, new BgpUtil(dataBroker));
+        bgpFibWriter = new FibDSWriter(dataBroker, new BgpUtil(dataBroker, ifibManager));
         fibManager = new MockFibManager(dataBroker);
     }
 

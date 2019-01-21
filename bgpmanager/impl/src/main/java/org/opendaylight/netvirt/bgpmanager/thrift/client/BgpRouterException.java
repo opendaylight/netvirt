@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.bgpmanager.thrift.client;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.peer_status_type;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 
 public class BgpRouterException extends Exception {
@@ -29,6 +30,11 @@ public class BgpRouterException extends Exception {
     public static final int BGP_ERR_NOT_ITER = qbgpConstants.BGP_ERR_NOT_ITER;
     public static final int BGP_ERR_PARAM = qbgpConstants.BGP_ERR_PARAM;
     public static final int BGP_ERR_NOT_SUPPORTED = qbgpConstants.BGP_ERR_NOT_SUPPORTED;
+    public static final int BGP_ERR_PEER_EXISTS = qbgpConstants.BGP_ERR_PEER_EXISTS;
+    public static final int BGP_PEER_DOWN = peer_status_type.PEER_DOWN.getValue();
+    public static final int BGP_PEER_NOTCONFIGURED = peer_status_type.PEER_NOTCONFIGURED.getValue();
+    public static final int BGP_PEER_UNKNOWN = peer_status_type.PEER_UNKNOWN.getValue();
+
 
     private static final Map<Integer, String> MESSAGES = ImmutableBiMap.<Integer, String>builder()
             .put(BGP_ERR_INITED, "(" + BGP_ERR_INITED + ") Attempt to reinitialize BgpRouter thrift client")

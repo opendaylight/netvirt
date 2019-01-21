@@ -4,7 +4,8 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
- package org.opendaylight.netvirt.bgpmanager.thrift.gen;
+package org.opendaylight.netvirt.bgpmanager.thrift.gen;
+
 import org.apache.thrift.scheme.IScheme;
 import org.apache.thrift.scheme.SchemeFactory;
 import org.apache.thrift.scheme.StandardScheme;
@@ -55,8 +56,12 @@ public class qbgpConstants {
 
   public static final int BGP_ERR_NOT_ITER = 15;
 
+  public static final int BGP_ERR_PEER_EXISTS = 19;
+
   public static final int BGP_ERR_PARAM = 100;
 
   public static final int BGP_ERR_NOT_SUPPORTED = 200;
+
+  public static final int BGP_ETHTAG_MAX_ET = 268435455;
 
 }
