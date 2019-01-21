@@ -135,7 +135,7 @@ public class BgpThriftService {
                                       String prefix,
                                       int plen,
                                       String nexthop,
-                                      int ethtag,
+                                      long ethtag,
                                       String esi,
                                       String macaddress,
                                       int l3label,
@@ -164,7 +164,7 @@ public class BgpThriftService {
                                           String prefix,
                                           int plen,
                                           String nexthop,
-                                          int ethtag,
+                                          long ethtag,
                                           String esi,
                                           String macaddress,
                                           int l3label,
@@ -178,6 +178,18 @@ public class BgpThriftService {
                     plen,
                     nexthop,
                     macaddress);
+        }
+
+        @Override
+        public void peerDown(String ipAddress, long asNumber) {
+            LOG.info("PeerDown {} : {} From BGP", ipAddress, asNumber);
+            bgpConfigManager.peerDown(ipAddress, asNumber);
+        }
+
+        @Override
+        public void peerUp(String ipAddress, long asNumber) {
+            LOG.info("PeerUp {} : {} from BGP", ipAddress, asNumber);
+            bgpConfigManager.peerUp(ipAddress, asNumber);
         }
 
         @Override
@@ -195,6 +207,9 @@ public class BgpThriftService {
     }
 
     public synchronized void start() {
+        if (isBgpThriftServiceStarted()) {
+            stop();
+        }
         ft = threadPool.submit(new BgpUpdateServer());
     }
 

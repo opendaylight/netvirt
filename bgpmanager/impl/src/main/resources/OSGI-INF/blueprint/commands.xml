@@ -86,6 +86,27 @@
     </command-bundle>
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.BfdCache">
+                <argument ref="bgpUtil"/>
+            </action>
+        </command>
+    </command-bundle>
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
+        <command>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Bfd">
+                <argument ref="bgpManager"/>
+            </action>
+        </command>
+    </command-bundle>
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
+        <command>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.DcgwTep">
+                <argument ref="bgpManager"/>
+            </action>
+        </command>
+    </command-bundle>
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
+        <command>
             <action class="org.opendaylight.netvirt.bgpmanager.commands.Multipath">
                 <argument ref="bgpConfigurationManager"/>
             </action>

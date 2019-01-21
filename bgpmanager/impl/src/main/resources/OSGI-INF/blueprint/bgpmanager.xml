@@ -8,6 +8,8 @@
              odl:type="default" />
   <reference id="entityOwnershipService"
              interface="org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService" />
+  <reference id="iFibManager"
+             interface="org.opendaylight.netvirt.fibmanager.api.IFibManager" />
   <reference id="iVpnLinkService"
              interface="org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService"
              availability="optional" />
