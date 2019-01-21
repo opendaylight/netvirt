@@ -7,10 +7,15 @@
  */
 package org.opendaylight.netvirt.bgpmanager;
 
+import static java.util.stream.Collectors.toList;
+
 import com.google.common.base.Optional;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import javax.annotation.PostConstruct;
@@ -20,6 +25,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.batching.ActionableResource;
 import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
 import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
@@ -28,15 +34,25 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.encap_type;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebfd.rev190219.BfdConfig;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EncapType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.DcgwTepList;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Vrfs;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.VrfsKey;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.dcgw.tep.list.DcgwTep;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.dcgw.tep.list.DcgwTepKey;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfs.AddressFamiliesVrf;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeMplsOverGre;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.DcGatewayIpList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
@@ -66,14 +82,18 @@ public class BgpUtil implements AutoCloseable {
     private static final String RESOURCE_TYPE = "BGP-RESOURCES";
     private static final int DEFAULT_BATCH_SIZE = 1000;
     private static final int DEFAULT_BATCH_INTERVAL = 500;
+    private int enableBfdFlag = -1;
 
     private final DataBroker dataBroker;
+    private final IFibManager fibManager;
+
 
     private final BlockingQueue<ActionableResource> bgpResourcesBufferQ = new LinkedBlockingQueue<>();
 
     @Inject
-    public BgpUtil(DataBroker dataBroker) {
+    public BgpUtil(DataBroker dataBroker, final IFibManager fibManager) {
         this.dataBroker = dataBroker;
+        this.fibManager = fibManager;
     }
 
     @PostConstruct
@@ -102,7 +122,7 @@ public class BgpUtil implements AutoCloseable {
     public static int getAFItranslatedfromPrefix(String argPrefix) {
         int retValue = af_afi.AFI_IP.getValue();//default afiValue is 1 (= ipv4)
         String prefixOnly;
-        if (!argPrefix.contains("/")) {
+        if (argPrefix.indexOf("/") == -1) {
             prefixOnly = argPrefix;
         } else {
             prefixOnly = argPrefix.substring(0, argPrefix.indexOf("/"));
@@ -221,7 +241,6 @@ public class BgpUtil implements AutoCloseable {
         InstanceIdentifier<ExternalTeps> externalTepsId = getExternalTepsIdentifier(elanName, tepIp);
         ExternalTepsBuilder externalTepsBuilder = new ExternalTepsBuilder();
         ExternalTepsKey externalTepsKey = externalTepsId.firstKeyOf(ExternalTeps.class);
-        externalTepsBuilder.withKey(externalTepsKey);
         externalTepsBuilder.setTepIp(externalTepsKey.getTepIp());
         update(externalTepsId, externalTepsBuilder.build());
     }
@@ -242,7 +261,7 @@ public class BgpUtil implements AutoCloseable {
     }
 
     private static InstanceIdentifier<ExternalTeps> getExternalTepsIdentifier(String elanInstanceName, String tepIp) {
-        IpAddress tepAdress = tepIp == null ? null : IpAddressBuilder.getDefaultInstance(tepIp);
+        IpAddress tepAdress = tepIp == null ? null : new IpAddress(new Ipv4Address(tepIp));
         return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class,
                 new ElanInstanceKey(elanInstanceName)).child(ExternalTeps.class,
                 new ExternalTepsKey(tepAdress)).build();
@@ -289,5 +308,103 @@ public class BgpUtil implements AutoCloseable {
                    .child(VrfTables.class, new VrfTablesKey(rd))
                    .child(VrfEntry.class, new VrfEntryKey(vrfEntry.getDestPrefix())).build();
         delete(vrfEntryId);
+    }
+
+    public void enableBfdFlag() {
+        enableBfdFlag = 1;
+    }
+
+    public void disableBfdFlag() {
+        enableBfdFlag = 0;
+    }
+
+    public boolean isBfdEnabled() {
+        if (enableBfdFlag == 1) {
+            return true;
+        } else if (enableBfdFlag == 0) {
+            return false;
+        }
+        BfdConfig bfdConfig = getBfdConfig();
+        if (bfdConfig != null) {
+            return bfdConfig.isBfdEnabled();
+        }
+        return false;
+    }
+
+    public BfdConfig getBfdConfig() {
+        InstanceIdentifier<BfdConfig> id =
+                InstanceIdentifier.builder(BfdConfig.class).build();
+        Optional<BfdConfig> bfdConfigOptional = MDSALUtil.read(dataBroker,
+                LogicalDatastoreType.CONFIGURATION, id);
+        if (bfdConfigOptional.isPresent()) {
+            return bfdConfigOptional.get();
+        }
+        return null;
+    }
+
+    public DcgwTepList getDcgwTepConfig() {
+        InstanceIdentifier<DcgwTepList> id =
+                InstanceIdentifier.builder(Bgp.class).child(DcgwTepList.class).build();
+        Optional<DcgwTepList> dcgwTepListOptional = MDSALUtil.read(dataBroker,
+                LogicalDatastoreType.CONFIGURATION, id);
+        if (dcgwTepListOptional.isPresent()) {
+            return dcgwTepListOptional.get();
+        }
+        return null;
+    }
+
+    public List<String> getDcgwTepConfig(String dcgwIp) {
+        InstanceIdentifier<DcgwTep> id =
+                InstanceIdentifier.builder(Bgp.class)
+                        .child(DcgwTepList.class)
+                        .child(DcgwTep.class, new DcgwTepKey(dcgwIp)).build();
+        Optional<DcgwTep> tepListOptional = MDSALUtil.read(dataBroker,
+                LogicalDatastoreType.CONFIGURATION, id);
+        if (tepListOptional.isPresent()) {
+            return tepListOptional.get().getTepIps();
+        }
+        LOG.debug("No tep configured for DCGW {}", dcgwIp);
+        return null;
+    }
+
+    public static List<DPNTEPsInfo> getDpnTEPsInfos(DataBroker dataBroker) {
+        InstanceIdentifier<DpnEndpoints> iid = InstanceIdentifier.builder(DpnEndpoints.class).build();
+        Optional<DpnEndpoints> dpnEndpoints = MDSALUtil.read(LogicalDatastoreType.CONFIGURATION, iid, dataBroker);
+        if (dpnEndpoints.isPresent()) {
+            return dpnEndpoints.get().getDPNTEPsInfo();
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    private List<String> getDcGwIps() {
+        InstanceIdentifier<DcGatewayIpList> dcGatewayIpListid =
+                InstanceIdentifier.builder(DcGatewayIpList.class).build();
+        DcGatewayIpList dcGatewayIpListConfig =
+                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, dcGatewayIpListid).orNull();
+        if (dcGatewayIpListConfig == null) {
+            return Collections.EMPTY_LIST;
+        }
+        return dcGatewayIpListConfig.getDcGatewayIp()
+                .stream()
+                .filter(dcGwIp -> dcGwIp.getTunnnelType().equals(TunnelTypeMplsOverGre.class))
+                .map(dcGwIp -> String.valueOf(dcGwIp.getIpAddress().getIpv4Address())).sorted()
+                .collect(toList());
+    }
+
+
+    public void removeOrUpdateLBGroups(String tepIp, int addRemoveOrUpdate, boolean isTunnelUp) {
+        LOG.debug("removing bucket towards DCGW {}", tepIp);
+        List<String> availableDcGws = getDcGwIps();
+        getDpnTEPsInfos(dataBroker).forEach(dpnInfo -> {
+            if (NwConstants.MOD_FLOW == addRemoveOrUpdate) {
+                LOG.debug("Updating bucket in DPN {}", dpnInfo.getDPNID());
+            } else if (NwConstants.DEL_FLOW == addRemoveOrUpdate) {
+                LOG.debug("Deleting groups in DPN {}", dpnInfo.getDPNID());
+            }
+            Class<? extends TunnelTypeBase> tunType = TunnelTypeMplsOverGre.class;
+            fibManager.programDcGwLoadBalancingGroup(availableDcGws, dpnInfo.getDPNID(),
+                    tepIp, addRemoveOrUpdate, isTunnelUp, tunType);
+        });
     }
 }

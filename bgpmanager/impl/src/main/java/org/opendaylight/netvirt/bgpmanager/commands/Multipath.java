@@ -102,7 +102,7 @@ public class Multipath extends OsgiCommandSupport {
                     break;
                 case "setmaxpath":
                     if (rd != null && maxpath != null) {
-                        bgpConfigurationManager.multipaths(rd, Integer.parseInt(maxpath));
+                        bgpConfigurationManager.setMultipaths(rd, Integer.parseInt(maxpath));
                     }
                     break;
 

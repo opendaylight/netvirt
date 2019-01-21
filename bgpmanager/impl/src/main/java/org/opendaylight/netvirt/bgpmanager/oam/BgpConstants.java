@@ -22,6 +22,20 @@ public interface BgpConstants {
     String BGP_COUNTER_RD_ROUTE_COUNT = "BgpRdRouteCount";
     String BGP_COUNTER_TOTAL_PFX = "BgpTotalPrefixes:Bgp_Total_Prefixes";
     String BGP_DEF_LOG_LEVEL = "debugging";
-    String BGP_DEF_LOG_FILE = "/opt/quagga/var/log/quagga/zrpc.init.log";
+    String BGP_DEF_LOG_FILE = "/opt/quagga/var/log/quagga/zrpcd.init.log";
+    String BFD_COUNTER_NBR_PKTS_RX = "BfdNeighborPacketsReceived";
+    String BFD_COUNTER_NBR_PKTS_TX = "BfdNeighborPacketsSent";
     long DEFAULT_ETH_TAG = 0L;
+    int BGP_DEFAULT_MULTIPATH = 2;
+    int BFD_DEFAULT_DETECT_MULT = 3;
+    int BFD_DEFAULT_MIN_RX = 500;
+    int BFD_DEFAULT_MIN_TX = 6000;
+    int MIN_RX_MIN = 50;
+    int MIN_RX_MAX = 50000;
+    int MIN_TX_MIN = 1000;
+    int MIN_TX_MAX = 60000;
+    int MIN_DETECT_MULT = 2;
+    int MAX_DETECT_MULT = 255;
+    int BFD_DEFAULT_FAILURE_THRESHOLD = 0;
+    int BFD_DEFAULT_SUCCESS_THRESHOLD = 0;
 }
