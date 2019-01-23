@@ -10,19 +10,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
            odl:use-default-for-reference-types="true">
 
-    <reference id="dataBroker"
-               interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" />
-    <reference id="jobCoordinator"
-               interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator" />
-    <reference id="dataTreeEventCallbackRegistrar"
-               interface="org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar"/>
-    <reference id="cacheProvider"
-               interface="org.opendaylight.infrautils.caches.CacheProvider"/>
-    <reference id="iMdsalApiManager"
-               interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager"/>
-    <reference id="vniUtils"
-               interface="org.opendaylight.genius.networkutils.VniUtils"/>
-
     <odl:clustered-app-config id="coeConfig"
                               binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.config.rev180703.CoeConfig"
                               default-config-file-name="netvirt-coe-config.xml"

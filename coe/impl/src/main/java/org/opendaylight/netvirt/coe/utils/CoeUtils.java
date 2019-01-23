@@ -18,6 +18,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.aries.blueprint.annotation.service.Reference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -114,7 +115,7 @@ public final class CoeUtils {
     private final VniUtils vniUtils;
 
     @Inject
-    public CoeUtils(VniUtils vniUtils) {
+    public CoeUtils(@Reference VniUtils vniUtils) {
         this.vniUtils = vniUtils;
     }
 

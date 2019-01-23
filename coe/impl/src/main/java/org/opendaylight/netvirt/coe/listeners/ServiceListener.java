@@ -13,6 +13,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.aries.blueprint.annotation.service.Reference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -33,7 +34,7 @@ public class ServiceListener implements DataTreeChangeListener<Services> {
     private ListenerRegistration<ServiceListener> listenerRegistration;
 
     @Inject
-    public ServiceListener(final DataBroker dataBroker) {
+    public ServiceListener(@Reference final DataBroker dataBroker) {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 

@@ -17,6 +17,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.aries.blueprint.annotation.service.Reference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
@@ -60,8 +61,8 @@ public class TerminationPointStateListener extends
     private final CoeUtils coeUtils;
 
     @Inject
-    public TerminationPointStateListener(DataBroker dataBroker,
-        PodsCache podsCache, DataTreeEventCallbackRegistrar eventCallbacks, CoeUtils coeUtils) {
+    public TerminationPointStateListener(@Reference DataBroker dataBroker, PodsCache podsCache,
+                                         @Reference DataTreeEventCallbackRegistrar eventCallbacks, CoeUtils coeUtils) {
         super(dataBroker, LogicalDatastoreType.OPERATIONAL,
                 InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(Node.class)
                         .child(TerminationPoint.class).augmentation(OvsdbTerminationPointAugmentation.class).build());
