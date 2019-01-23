@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.coe.caches;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.aries.blueprint.annotation.service.Reference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.cache.InstanceIdDataObjectCache;
@@ -21,7 +22,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 @Singleton
 public class PodsCache extends InstanceIdDataObjectCache<Pods> {
     @Inject
-    public PodsCache(DataBroker dataBroker, CacheProvider cacheProvider) {
+    public PodsCache(@Reference DataBroker dataBroker, @Reference CacheProvider cacheProvider) {
         super(Pods.class, dataBroker, LogicalDatastoreType.CONFIGURATION,
                 InstanceIdentifier.create(Coe.class).child(Pods.class), cacheProvider);
     }

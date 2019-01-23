@@ -22,6 +22,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.apache.aries.blueprint.annotation.service.Reference;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -53,7 +54,8 @@ public class PodListener implements DataTreeChangeListener<Pods> {
     private final CoeUtils coeUtils;
 
     @Inject
-    public PodListener(final DataBroker dataBroker, JobCoordinator jobCoordinator, CoeUtils coeUtils) {
+    public PodListener(@Reference final DataBroker dataBroker, @Reference JobCoordinator jobCoordinator,
+                       CoeUtils coeUtils) {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.jobCoordinator = jobCoordinator;
