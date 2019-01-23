@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c55ab7ac_721e88a7",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/ClusterListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2019-01-23T04:41:16Z",
+      "side": 1,
+      "message": "2019",
+      "revId": "c5397b5521376745e64444aa9f6fe8e232edcf73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8585cc18_962c7898",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/ClusterListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2019-01-23T04:41:16Z",
+      "side": 1,
+      "message": "new line after static decalarations",
+      "revId": "c5397b5521376745e64444aa9f6fe8e232edcf73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8f3f4833_7c98e9f0",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/ClusterListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2019-01-23T04:41:16Z",
+      "side": 1,
+      "message": "what is this listenerRegistration used for?",
+      "revId": "c5397b5521376745e64444aa9f6fe8e232edcf73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd06b75e_375f1db9",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/PodListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2019-01-23T04:41:16Z",
+      "side": 1,
+      "message": "remove this TODO?",
+      "revId": "c5397b5521376745e64444aa9f6fe8e232edcf73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
