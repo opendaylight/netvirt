@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c19cd900_eb67682f",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/ClusterListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2019-01-24T11:56:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c55ab7ac_721e88a7",
+      "revId": "c5397b5521376745e64444aa9f6fe8e232edcf73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8585cc18_962c7898",
         "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/ClusterListener.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2019-01-23T04:41:16Z",
       "side": 1,
       "message": "new line after static decalarations",
+      "revId": "c5397b5521376745e64444aa9f6fe8e232edcf73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cae6c4f3_739d08ee",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/ClusterListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2019-01-24T11:56:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8585cc18_962c7898",
       "revId": "c5397b5521376745e64444aa9f6fe8e232edcf73",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ce66f682_5df796c7",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/ClusterListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2019-01-24T11:56:57Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "8f3f4833_7c98e9f0",
+      "revId": "c5397b5521376745e64444aa9f6fe8e232edcf73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cd06b75e_375f1db9",
         "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/PodListener.java",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2019-01-23T04:41:16Z",
       "side": 1,
       "message": "remove this TODO?",
+      "revId": "c5397b5521376745e64444aa9f6fe8e232edcf73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d304c811_4316c3a6",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/PodListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2019-01-24T11:56:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd06b75e_375f1db9",
       "revId": "c5397b5521376745e64444aa9f6fe8e232edcf73",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
