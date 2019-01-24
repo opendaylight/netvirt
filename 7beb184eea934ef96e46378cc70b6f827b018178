@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "18e13989_e63268b8",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 8015
+      },
+      "writtenOn": "2019-01-24T10:33:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a98bada9_07a5fab2",
+      "revId": "7beb184eea934ef96e46378cc70b6f827b018178",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "20e69cc5_777af1af",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 10
@@ -30,6 +48,24 @@
       "writtenOn": "2019-01-23T13:28:28Z",
       "side": 1,
       "message": "please a) include the e here, and b) use error not just warn, so like this:\n\n    LOG.error(\"Failed to read ipPortMapping for router id {}\", routerId, e);",
+      "revId": "7beb184eea934ef96e46378cc70b6f827b018178",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cea3553e_43d0dfc1",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1419,
+      "author": {
+        "id": 8015
+      },
+      "writtenOn": "2019-01-24T10:33:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "20e69cc5_777af1af",
       "revId": "7beb184eea934ef96e46378cc70b6f827b018178",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "dddaa810_f4b2245a",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1610,
+      "author": {
+        "id": 8015
+      },
+      "writtenOn": "2019-01-24T10:33:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36a56b75_db95d958",
+      "revId": "7beb184eea934ef96e46378cc70b6f827b018178",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d960027d_9b2f0d9e",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 10
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "d90eb57d_381e22bd",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1846,
+      "author": {
+        "id": 8015
+      },
+      "writtenOn": "2019-01-24T10:33:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d960027d_9b2f0d9e",
+      "revId": "7beb184eea934ef96e46378cc70b6f827b018178",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a4b2248d_38af506c",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 10
@@ -81,6 +153,24 @@
       "writtenOn": "2019-01-23T13:28:28Z",
       "side": 1,
       "message": "again",
+      "revId": "7beb184eea934ef96e46378cc70b6f827b018178",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a4948013_313cc9fd",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2616,
+      "author": {
+        "id": 8015
+      },
+      "writtenOn": "2019-01-24T10:33:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4b2248d_38af506c",
       "revId": "7beb184eea934ef96e46378cc70b6f827b018178",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
