@@ -7,9 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager.iplearn;
 
-import static java.util.Collections.emptyList;
-import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -264,11 +261,13 @@ public class LearntVpnVipToPortEventProcessor
             VpnPortipToPort vpnPortipToPort =
                     vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnInstName, ip);
             if (vpnPortipToPort != null && vpnPortipToPort.isSubnetIp()) {
-                List<Adjacency> adjacencies = requireNonNullElse(vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(
-                        vpnPortipToPort.getPortName()), emptyList());
-                for (Adjacency adjacency : adjacencies) {
-                    if (adjacency.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
-                        return adjacency.getSubnetId().getValue();
+                List<Adjacency> adjacencies =
+                    vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(vpnPortipToPort.getPortName());
+                if (adjacencies != null) {
+                    for (Adjacency adjacency : adjacencies) {
+                        if (adjacency.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
+                            return adjacency.getSubnetId().getValue();
+                        }
                     }
                 }
             }
