@@ -7,10 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
-import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
@@ -61,7 +58,7 @@ public class LocalMcastCmd
     public LocalMcastMacs transform(InstanceIdentifier<Node> nodePath, LocalMcastMacs src) {
         LocalMcastMacsBuilder ucmlBuilder = new LocalMcastMacsBuilder(src);
         List<LocatorSet> locatorSet = new ArrayList<>();
-        for (LocatorSet locator : requireNonNullElse(src.getLocatorSet(), Collections.<LocatorSet>emptyList())) {
+        for (LocatorSet locator : src.nonnullLocatorSet()) {
             locatorSet.add(new LocatorSetBuilder().setLocatorRef(HwvtepHAUtil.buildLocatorRef(nodePath,
                     HwvtepHAUtil.getTepIpVal(locator.getLocatorRef()))).build());
         }
