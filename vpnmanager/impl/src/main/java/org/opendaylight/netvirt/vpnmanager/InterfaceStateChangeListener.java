@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.netvirt.vpnmanager.VpnUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.HashBasedTable;
@@ -18,10 +17,8 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,7 +27,6 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -140,8 +136,7 @@ public class InterfaceStateChangeListener
                                         final VpnInterface vpnIf = vpnUtil.getConfiguredVpnInterface(interfaceName);
                                         if (vpnIf != null) {
                                             for (VpnInstanceNames vpnInterfaceVpnInstance :
-                                                    requireNonNullElse(vpnIf.getVpnInstanceNames(),
-                                                        Collections.<VpnInstanceNames>emptyList())) {
+                                                    vpnIf.nonnullVpnInstanceNames()) {
                                                 String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                                 String primaryRd = vpnUtil.getPrimaryRd(vpnName);
                                                 if (!vpnInterfaceManager.isVpnInstanceReady(vpnName)) {
@@ -226,8 +221,7 @@ public class InterfaceStateChangeListener
                                             return;
                                         }
                                         for (VpnInstanceNames vpnInterfaceVpnInstance :
-                                                requireNonNullElse(cfgVpnInterface.getVpnInstanceNames(),
-                                                    Collections.<VpnInstanceNames>emptyList())) {
+                                                cfgVpnInterface.nonnullVpnInstanceNames()) {
                                             String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                             Optional<VpnInterfaceOpDataEntry> optVpnInterface =
                                                 vpnUtil.getVpnInterfaceOpDataEntry(ifName, vpnName);
@@ -304,10 +298,10 @@ public class InterfaceStateChangeListener
                                                          original.getOperStatus(), update.getOperStatus());
                                                     return;
                                                 }
-                                                if (state.equals(IntfTransitionState.STATE_UP)) {
+                                                if (state.equals(IntfTransitionState.STATE_UP)
+                                                        && vpnIf.getVpnInstanceNames() != null) {
                                                     for (VpnInstanceNames vpnInterfaceVpnInstance :
-                                                        requireNonNullElse(vpnIf.getVpnInstanceNames(),
-                                                        Collections.<VpnInstanceNames>emptyList())) {
+                                                            vpnIf.getVpnInstanceNames()) {
                                                         String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                                         String primaryRd = vpnUtil.getPrimaryRd(vpnName);
                                                         Set<String> prefixes = new HashSet<>();
@@ -328,10 +322,10 @@ public class InterfaceStateChangeListener
                                                             mapOfRdAndPrefixesForRefreshFib.put(primaryRd, prefixes);
                                                         }
                                                     }
-                                                } else if (state.equals(IntfTransitionState.STATE_DOWN)) {
+                                                } else if (state.equals(IntfTransitionState.STATE_DOWN)
+                                                        && vpnIf.getVpnInstanceNames() != null) {
                                                     for (VpnInstanceNames vpnInterfaceVpnInstance :
-                                                        requireNonNullElse(vpnIf.getVpnInstanceNames(),
-                                                        Collections.<VpnInstanceNames>emptyList())) {
+                                                            vpnIf.getVpnInstanceNames()) {
                                                         String vpnName = vpnInterfaceVpnInstance.getVpnName();
                                                         LOG.info("VPN Interface update event - intfName {} "
                                                             + " onto vpnName {} running oper-driven DOWN",
