@@ -7,10 +7,7 @@
  */
 package org.opendaylight.netvirt.ipv6service;
 
-import static org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils.nullToEmpty;
-
 import com.google.common.base.Strings;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -69,7 +66,7 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
         }
 
         LOG.debug("Add port notification handler is invoked for port {} ", port);
-        for (FixedIps fixedip : nullToEmpty(port.getFixedIps())) {
+        for (FixedIps fixedip : port.nonnullFixedIps()) {
             if (fixedip.getIpAddress().getIpv4Address() != null) {
                 continue;
             }
@@ -137,7 +134,7 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
         //Neutron Port update with proper device owner information
         if ((Strings.isNullOrEmpty(original.getDeviceOwner()) || Strings.isNullOrEmpty(original.getDeviceId()))
                 && !Strings.isNullOrEmpty(update.getDeviceOwner()) && !Strings.isNullOrEmpty(update.getDeviceId())) {
-            for (FixedIps fixedip : nullToEmpty(update.getFixedIps())) {
+            for (FixedIps fixedip : update.nonnullFixedIps()) {
                 if (fixedip.getIpAddress().getIpv4Address() != null) {
                     continue;
                 }
