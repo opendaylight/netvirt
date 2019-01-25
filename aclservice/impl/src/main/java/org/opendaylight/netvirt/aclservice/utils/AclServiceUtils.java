@@ -68,7 +68,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
@@ -120,7 +119,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpVersionV6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.PortSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.AclPortsByIp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.AclPortsByIpKey;
@@ -130,9 +128,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.acl.ports.by.ip.acl.ip.prefixes.PortIdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.acl.ports.by.ip.acl.ip.prefixes.PortIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.PortSubnet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.PortSubnetKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.port.subnet.SubnetInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.SubnetInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -735,25 +731,6 @@ public final class AclServiceUtils {
     public static InstanceIdentifier<ElanInstance> getElanInstanceConfigurationDataPath(String elanInstanceName) {
         return InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
-    }
-
-    @Nullable
-    public List<SubnetInfo> getSubnetInfo(String portId) {
-        InstanceIdentifier<PortSubnet> id = InstanceIdentifier.builder(PortSubnets.class)
-                .child(PortSubnet.class, new PortSubnetKey(portId)).build();
-
-        Optional<PortSubnet> portSubnet = read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-        if (portSubnet.isPresent()) {
-            return portSubnet.get().getSubnetInfo();
-        }
-        return null;
-    }
-
-    public void deleteSubnetInfo(String portId) {
-        InstanceIdentifier<PortSubnet> id = InstanceIdentifier.builder(PortSubnets.class)
-                .child(PortSubnet.class, new PortSubnetKey(portId)).build();
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                OPERATIONAL, tx -> tx.delete(id)), LOG, "Failed to delete subnet info for port: " + portId);
     }
 
     public void deleteAcesFromConfigDS(String aclName, List<Ace> deletedAceRules) {
