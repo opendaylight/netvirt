@@ -7,9 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.evpn.utils;
 
-import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.netvirt.elan.utils.ElanUtils.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
@@ -353,18 +351,16 @@ public class EvpnUtils {
             LOG.info("No DC gateways configured while programming the l2vni table.");
             return tunnelInterfaceNameList;
         }
-        List<DcGatewayIp> dcGatewayIps = dcGatewayIpListOptional.get().getDcGatewayIp();
+        List<DcGatewayIp> dcGatewayIps = dcGatewayIpListOptional.get().nonnullDcGatewayIp();
 
         Optional<ExternalTunnelList> externalTunnelListOptional = getExternalTunnelList();
         if (!externalTunnelListOptional.isPresent()) {
             LOG.info("No External Tunnel Configured while programming the l2vni table.");
             return tunnelInterfaceNameList;
         }
-        List<ExternalTunnel> externalTunnels =
-            requireNonNullElse(externalTunnelListOptional.get().getExternalTunnel(), emptyList());
+        List<ExternalTunnel> externalTunnels = externalTunnelListOptional.get().nonnullExternalTunnel();
 
-        requireNonNullElse(dcGatewayIps, Collections.<DcGatewayIp>emptyList())
-                .forEach(dcIp -> externalTunnels
+        dcGatewayIps.forEach(dcIp -> externalTunnels
                 .stream()
                 .filter(externalTunnel -> externalTunnel.getDestinationDevice()
                         .contains(dcIp.getIpAddress().getIpv4Address().toString()))
