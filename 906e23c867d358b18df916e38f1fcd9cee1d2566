@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "55628641_0066cb38",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2019-01-25T13:07:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85babb0a_338c5643",
+      "range": {
+        "startLine": 251,
+        "startChar": 20,
+        "endLine": 251,
+        "endChar": 30
+      },
+      "revId": "906e23c867d358b18df916e38f1fcd9cee1d2566",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "628f7575_418d1b85",
         "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
         "patchSetId": 7
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "85d38b46_30d98eab",
+        "filename": "ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2019-01-25T13:07:11Z",
+      "side": 1,
+      "message": "vintfs concurrent map is declared as a private. Better we can keep all the ipv6 related cache in IfMgr calss itself. So i keep all this logic in IfMgr class itself.",
+      "parentUuid": "628f7575_418d1b85",
+      "range": {
+        "startLine": 253,
+        "startChar": 18,
+        "endLine": 253,
+        "endChar": 21
+      },
+      "revId": "906e23c867d358b18df916e38f1fcd9cee1d2566",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c8eef68_7c60657d",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 7
@@ -59,6 +107,30 @@
       "writtenOn": "2019-01-25T12:15:10Z",
       "side": 1,
       "message": "why is the if condition removed?",
+      "range": {
+        "startLine": 815,
+        "startChar": 25,
+        "endLine": 815,
+        "endChar": 43
+      },
+      "revId": "906e23c867d358b18df916e38f1fcd9cee1d2566",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d46ea955_e5560ffb",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 815,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2019-01-25T13:07:11Z",
+      "side": 1,
+      "message": "Actually ipPrefix is V4 and subnetIp is V6 like this earlier logic is executed. With this router interface is populating the fib entry is either V4 or V6 only not on the both. Hence changed the subnetmap creation logic from neutron port object instead of what we passed in the caller.\n\nAnyway i have added the if condition back. but only change in the subnetmap creation.",
+      "parentUuid": "6c8eef68_7c60657d",
       "range": {
         "startLine": 815,
         "startChar": 25,
