@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
-import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.HashBasedTable;
@@ -322,7 +321,7 @@ public class NatSouthboundEventHandlers {
                     + "and port name {}", routerId, portName);
             return Collections.emptyList();
         }
-        return requireNonNullElse(port.get().getInternalToExternalPortMap(), Collections.emptyList());
+        return port.get().nonnullInternalToExternalPortMap();
     }
 
     @Nullable
@@ -425,10 +424,10 @@ public class NatSouthboundEventHandlers {
                 continue;
             }
 
-            for (IntIpProtoType protoType : requireNonNullElse(ipPort.getIntIpProtoType(),
-                    Collections.<IntIpProtoType>emptyList())) {
+            for (IntIpProtoType protoType : ipPort.nonnullIntIpProtoType()) {
                 ProtocolTypes protocol = protoType.getProtocol();
-                for (Integer portnum : requireNonNullElse(protoType.getPorts(), Collections.<Integer>emptyList())) {
+                @Nullable List<Integer> ports = protoType.getPorts();
+                for (Integer portnum : (ports != null ? ports : Collections.<Integer>emptyList())) {
                     //build and remove the flow in outbound table
                     try {
                         removeNatFlow(naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE, routerId, internalIp, portnum);

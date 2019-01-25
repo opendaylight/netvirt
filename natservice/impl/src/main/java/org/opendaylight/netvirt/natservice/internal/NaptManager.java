@@ -11,8 +11,6 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
-
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import java.util.ArrayList;
@@ -569,7 +567,7 @@ public class NaptManager {
         InstanceIdentifier<IpMapping> id = idBuilder.build();
         Optional<IpMapping> ipMapping = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (ipMapping.isPresent()) {
-            for (IpMap ipMap : requireNonNullElse(ipMapping.get().getIpMap(), Collections.<IpMap>emptyList())) {
+            for (IpMap ipMap : ipMapping.get().nonnullIpMap()) {
                 if (Objects.equals(ipMap.getInternalIp(), internalIp)) {
                     LOG.debug("checkIpMap : IpMap : {}", ipMap);
                     externalIp = ipMap.getExternalIp();
@@ -706,7 +704,7 @@ public class NaptManager {
         // Get all externalIps and decrement their counters before deleting the ipmap
         Optional<IpMapping> ipMapping = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (ipMapping.isPresent()) {
-            for (IpMap ipMap : requireNonNullElse(ipMapping.get().getIpMap(), Collections.<IpMap>emptyList())) {
+            for (IpMap ipMap : ipMapping.get().nonnullIpMap()) {
                 String externalIp = ipMap.getExternalIp();
                 LOG.debug("removeIpMappingForRouterID : externalIP is {}", externalIp);
                 if (externalIp != null) {
@@ -765,8 +763,7 @@ public class NaptManager {
         LOG.debug("initialiseExternalCounter : Initialise External IPs counter");
 
         //update the new counter value for this externalIp
-        for (ExternalIps externalIp : requireNonNullElse(routers.getExternalIps(),
-                Collections.<ExternalIps>emptyList())) {
+        for (ExternalIps externalIp : routers.nonnullExternalIps()) {
             String[] ipSplit = externalIp.getIpAddress().split("/");
             String extIp = ipSplit[0];
             String extPrefix = Short.toString(NatConstants.DEFAULT_PREFIX);
