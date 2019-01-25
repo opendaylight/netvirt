@@ -7,8 +7,6 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import static org.opendaylight.netvirt.dhcpservice.api.DHCPUtils.nullToEmpty;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -385,7 +383,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     @Nullable
     private static String getIpv4Address(Port port) {
 
-        for (FixedIps fixedIp : nullToEmpty(port.getFixedIps())) {
+        for (FixedIps fixedIp : port.nonnullFixedIps()) {
             if (isIpv4Address(fixedIp.getIpAddress())) {
                 return fixedIp.getIpAddress().getIpv4Address().getValue();
             }

@@ -52,7 +52,8 @@ public class DhcpAllocationPoolListener
     protected void add(InstanceIdentifier<AllocationPool> key, AllocationPool dataObjectModification) {
         String networkId = key.firstKeyOf(Network.class).getNetworkId();
         dhcpAllocationPoolManager.createIdAllocationPool(networkId, dataObjectModification);
-        Map<BigInteger, List<String>> elanDpnInterfacesByName = getDpnInterfacesByNetwork(networkId);
+        Map<BigInteger, List<String>> elanDpnInterfacesByName =
+            dhcpAllocationPoolManager.getElanDpnInterfacesByName(dataBroker, networkId);
         for (Entry<BigInteger, List<String>> entry : elanDpnInterfacesByName.entrySet()) {
             BigInteger dpnId = entry.getKey();
             for (String interfaceName : entry.getValue()) {
@@ -79,7 +80,8 @@ public class DhcpAllocationPoolListener
     protected void remove(InstanceIdentifier<AllocationPool> key, AllocationPool dataObjectModification) {
         String networkId = key.firstKeyOf(Network.class).getNetworkId();
         dhcpAllocationPoolManager.releaseIdAllocationPool(networkId, dataObjectModification);
-        Map<BigInteger, List<String>> elanDpnInterfacesByName = getDpnInterfacesByNetwork(networkId);
+        Map<BigInteger, List<String>> elanDpnInterfacesByName =
+            dhcpAllocationPoolManager.getElanDpnInterfacesByName(dataBroker, networkId);
         elanDpnInterfacesByName.values().forEach(interfaceNames -> interfaceNames.forEach(interfaceName -> {
             DhcpAllocationPoolRemoveJob job = new DhcpAllocationPoolRemoveJob(txRunner, interfaceName);
             jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job,
@@ -92,11 +94,5 @@ public class DhcpAllocationPoolListener
             AllocationPool dataObjectModificationAfter) {
         // TODO Auto-generated method stub
 
-    }
-
-    private Map<BigInteger, List<String>> getDpnInterfacesByNetwork(String networkId) {
-        Map<BigInteger, List<String>> elanDpnInterfacesByName = dhcpAllocationPoolManager
-                .getElanDpnInterfacesByName(dataBroker, networkId);
-        return elanDpnInterfacesByName;
     }
 }
