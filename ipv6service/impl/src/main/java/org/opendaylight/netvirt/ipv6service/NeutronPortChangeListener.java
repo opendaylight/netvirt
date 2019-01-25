@@ -7,8 +7,6 @@
  */
 package org.opendaylight.netvirt.ipv6service;
 
-import static org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils.nullToEmpty;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -67,7 +65,7 @@ public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListe
         }
 
         LOG.debug("Add port notification handler is invoked for port {} ", port);
-        for (FixedIps fixedip : nullToEmpty(port.getFixedIps())) {
+        for (FixedIps fixedip : port.nonnullFixedIps()) {
             if (fixedip.getIpAddress().getIpv4Address() != null) {
                 continue;
             }
