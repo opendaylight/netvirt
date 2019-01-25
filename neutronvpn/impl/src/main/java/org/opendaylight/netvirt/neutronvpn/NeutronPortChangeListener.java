@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
@@ -298,8 +297,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 Uuid internetVpnId = neutronvpnUtils.getInternetvpnUuidBoundToRouterId(routerId);
                 List<Subnetmap> subnetMapList = new ArrayList<>();
                 boolean portIsIpv6 = false;
-                for (FixedIps portIP : requireNonNullElse(routerPort.getFixedIps(),
-                        Collections.<FixedIps>emptyList())) {
+                for (FixedIps portIP : routerPort.nonnullFixedIps()) {
                     // NOTE:  Please donot change the order of calls to updateSubnetNodeWithFixedIP
                     // and addSubnetToVpn here
                     if (internetVpnId != null
@@ -326,8 +324,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     nvpnManager.createVpnInterface(listVpnIds, routerPort, null);
                 }
                 IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
-                for (FixedIps portIP : requireNonNullElse(routerPort.getFixedIps(),
-                        Collections.<FixedIps>emptyList())) {
+                for (FixedIps portIP : routerPort.nonnullFixedIps()) {
                     String ipValue = portIP.getIpAddress().stringValue();
                     ipVersion = NeutronvpnUtils.getIpVersionFromString(ipValue);
                     if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
@@ -370,7 +367,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             elanService.removeKnownL3DmacAddress(routerPort.getMacAddress().getValue(), infNetworkId.getValue());
             Uuid vpnId = ObjectUtils.defaultIfNull(neutronvpnUtils.getVpnForRouter(routerId, true),
                     routerId);
-            List<FixedIps> portIps = requireNonNullElse(routerPort.getFixedIps(), Collections.emptyList());
+            List<FixedIps> portIps = routerPort.nonnullFixedIps();
             boolean vpnInstanceInternetIpVersionRemoved = false;
             Uuid vpnInstanceInternetUuid = null;
             for (FixedIps portIP : portIps) {
@@ -608,7 +605,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private void handleNeutronPortCreated(final Port port) {
         final String portName = port.getUuid().getValue();
         final Uuid portId = port.getUuid();
-        final List<FixedIps> portIpAddrsList = requireNonNullElse(port.getFixedIps(), Collections.emptyList());
+        final List<FixedIps> portIpAddrsList = port.nonnullFixedIps();
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(port)) {
             return;
         }
@@ -669,7 +666,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private void handleNeutronPortDeleted(final Port port) {
         final String portName = port.getUuid().getValue();
         final Uuid portId = port.getUuid();
-        final List<FixedIps> portIpsList = requireNonNullElse(port.getFixedIps(), Collections.emptyList());
+        final List<FixedIps> portIpsList = port.nonnullFixedIps();
         jobCoordinator.enqueueJob("PORT- " + portName,
             () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, confTx -> {
                 if (!(NeutronUtils.isPortVnicTypeNormal(port) || isPortTypeSwitchdev(port))) {
