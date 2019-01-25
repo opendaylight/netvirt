@@ -50,7 +50,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -87,15 +86,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpVersionBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.PortSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.PortSubnet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.PortSubnetBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.PortSubnetKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.port.subnet.SubnetInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.port.subnet.SubnetInfoBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.port.subnet.SubnetInfoKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.SubnetInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.SubnetInfoBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.SubnetInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeFlat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeGre;
@@ -737,7 +732,7 @@ public class NeutronvpnUtils {
      * @param interfaceAclBuilder the interface acl builder
      * @param port the port
      */
-    protected static void populateInterfaceAclBuilder(InterfaceAclBuilder interfaceAclBuilder, Port port) {
+    protected void populateInterfaceAclBuilder(InterfaceAclBuilder interfaceAclBuilder, Port port) {
         // Handle security group enabled
         List<Uuid> securityGroups = port.getSecurityGroups();
         if (securityGroups != null) {
@@ -753,23 +748,14 @@ public class NeutronvpnUtils {
             aclAllowedAddressPairs.addAll(NeutronvpnUtils.getAllowedAddressPairsForAclService(portAllowedAddressPairs));
         }
         interfaceAclBuilder.setAllowedAddressPairs(aclAllowedAddressPairs);
+
+        populateSubnetInfo(interfaceAclBuilder, port);
     }
 
-    protected void populateSubnetInfo(Port port) {
+    protected void populateSubnetInfo(InterfaceAclBuilder interfaceAclBuilder, Port port) {
         List<SubnetInfo> portSubnetInfo = getSubnetInfo(port);
         if (portSubnetInfo != null) {
-            String portId = port.getUuid().getValue();
-            InstanceIdentifier<PortSubnet> portSubnetIdentifier = buildPortSubnetIdentifier(portId);
-
-            PortSubnetBuilder portSubnetBuilder = new PortSubnetBuilder().withKey(new PortSubnetKey(portId))
-                    .setPortId(portId).setSubnetInfo(portSubnetInfo);
-            try {
-                SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                        portSubnetIdentifier, portSubnetBuilder.build());
-            } catch (TransactionCommitFailedException e) {
-                LOG.error("Failed to populate subnet info for port={}", portId, e);
-            }
-            LOG.debug("Created Subnet info for port={}", portId);
+            interfaceAclBuilder.setSubnetInfo(portSubnetInfo);
         }
     }
 
@@ -1109,11 +1095,11 @@ public class NeutronvpnUtils {
                 FloatingIpIdToPortMappingKey(floatingIpId)).build();
     }
 
-    static InstanceIdentifier<PortSubnet> buildPortSubnetIdentifier(String portId) {
+    /*static InstanceIdentifier<PortSubnet> buildPortSubnetIdentifier(String portId) {
         InstanceIdentifier<PortSubnet> id = InstanceIdentifier.builder(PortSubnets.class)
                 .child(PortSubnet.class, new PortSubnetKey(portId)).build();
         return id;
-    }
+    }*/
 
     // TODO Remove this method entirely
     @SuppressWarnings("checkstyle:IllegalCatch")
