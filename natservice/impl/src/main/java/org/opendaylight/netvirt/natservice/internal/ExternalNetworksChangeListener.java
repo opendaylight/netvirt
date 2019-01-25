@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
@@ -135,160 +134,169 @@ public class ExternalNetworksChangeListener
     }
 
     private void removeSnatEntries(Networks original, Uuid networkUuid) {
-        for (Uuid routerUuid : requireNonNullElse(original.getRouterIds(), Collections.<Uuid>emptyList())) {
-            long routerId = NatUtil.getVpnId(dataBroker, routerUuid.getValue());
-            if (routerId == NatConstants.INVALID_ID) {
-                LOG.error("removeSnatEntries : Invalid routerId returned for routerName {}", routerUuid.getValue());
-                return;
-            }
-            Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
-            if (natMode == NatMode.Controller) {
-                coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routerUuid.getValue(),
-                    () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                        tx -> externalRouterListener.handleDisableSnatInternetVpn(routerUuid.getValue(), routerId,
-                            networkUuid, externalIps, original.getVpnid().getValue(), tx))),
-                    NatConstants.NAT_DJC_MAX_RETRIES);
+        if (original.getRouterIds() != null) {
+            for (Uuid routerUuid : original.getRouterIds()) {
+                long routerId = NatUtil.getVpnId(dataBroker, routerUuid.getValue());
+                if (routerId == NatConstants.INVALID_ID) {
+                    LOG.error("removeSnatEntries : Invalid routerId returned for routerName {}", routerUuid.getValue());
+                    return;
+                }
+                Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
+                if (natMode == NatMode.Controller) {
+                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routerUuid.getValue(),
+                        () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                            tx -> externalRouterListener.handleDisableSnatInternetVpn(routerUuid.getValue(), routerId,
+                                networkUuid, externalIps, original.getVpnid().getValue(), tx))),
+                        NatConstants.NAT_DJC_MAX_RETRIES);
+                }
             }
         }
     }
 
     private void associateExternalNetworkWithVPN(Networks network) {
-        List<Uuid> routerIds = requireNonNullElse(network.getRouterIds(), Collections.emptyList());
-        for (Uuid routerId : routerIds) {
-            //long router = NatUtil.getVpnId(dataBroker, routerId.getValue());
+        if (network.getRouterIds() != null) {
+            List<Uuid> routerIds = network.getRouterIds();
+            for (Uuid routerId : routerIds) {
+                //long router = NatUtil.getVpnId(dataBroker, routerId.getValue());
 
-            InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerId.getValue());
-            Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                routerPortsId);
-            if (!optRouterPorts.isPresent()) {
-                LOG.debug("associateExternalNetworkWithVPN : Could not read Router Ports data object with id: {} "
+                InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerId.getValue());
+                Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    routerPortsId);
+                if (!optRouterPorts.isPresent()) {
+                    LOG.debug("associateExternalNetworkWithVPN : Could not read Router Ports data object with id: {} "
                         + "to handle associate ext nw {}", routerId, network.getId());
-                continue;
-            }
-            RouterPorts routerPorts = optRouterPorts.get();
-            for (Ports port : requireNonNullElse(routerPorts.getPorts(), Collections.<Ports>emptyList())) {
-                String portName = port.getPortName();
-                BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
-                if (dpnId.equals(BigInteger.ZERO)) {
-                    LOG.debug("associateExternalNetworkWithVPN : DPN not found for {}, "
-                            + "skip handling of ext nw {} association", portName, network.getId());
                     continue;
                 }
-                for (InternalToExternalPortMap ipMap : requireNonNullElse(port.getInternalToExternalPortMap(),
-                        Collections.<InternalToExternalPortMap>emptyList())) {
-                    // remove all VPN related entries
-                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + ipMap.key(),
-                        () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                            tx -> floatingIpListener.createNATFlowEntries(dpnId, portName, routerId.getValue(),
-                                network.getId(), ipMap, tx))), NatConstants.NAT_DJC_MAX_RETRIES);
+                RouterPorts routerPorts = optRouterPorts.get();
+                for (Ports port : routerPorts.nonnullPorts()) {
+                    String portName = port.getPortName();
+                    BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
+                    if (dpnId.equals(BigInteger.ZERO)) {
+                        LOG.debug("associateExternalNetworkWithVPN : DPN not found for {}, "
+                            + "skip handling of ext nw {} association", portName, network.getId());
+                        continue;
+                    }
+                    for (InternalToExternalPortMap ipMap : port.nonnullInternalToExternalPortMap()) {
+                        // remove all VPN related entries
+                        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + ipMap.key(),
+                            () -> Collections.singletonList(
+                                txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                                    tx -> floatingIpListener.createNATFlowEntries(dpnId, portName, routerId.getValue(),
+                                        network.getId(), ipMap, tx))), NatConstants.NAT_DJC_MAX_RETRIES);
+                    }
                 }
             }
-        }
 
-        // SNAT
-        for (Uuid routerId : routerIds) {
-            LOG.debug("associateExternalNetworkWithVPN() : for routerId {}",  routerId);
-            Uuid networkId = network.getId();
-            if (networkId == null) {
-                LOG.error("associateExternalNetworkWithVPN : networkId is null for the router ID {}", routerId);
-                return;
-            }
-            final String vpnName = network.getVpnid().getValue();
-            if (vpnName == null) {
-                LOG.error("associateExternalNetworkWithVPN : No VPN associated with ext nw {} for router {}",
+            // SNAT
+            for (Uuid routerId : routerIds) {
+                LOG.debug("associateExternalNetworkWithVPN() : for routerId {}", routerId);
+                Uuid networkId = network.getId();
+                if (networkId == null) {
+                    LOG.error("associateExternalNetworkWithVPN : networkId is null for the router ID {}", routerId);
+                    return;
+                }
+                final String vpnName = network.getVpnid().getValue();
+                if (vpnName == null) {
+                    LOG.error("associateExternalNetworkWithVPN : No VPN associated with ext nw {} for router {}",
                         networkId, routerId);
-                return;
-            }
+                    return;
+                }
 
-            BigInteger dpnId = new BigInteger("0");
-            InstanceIdentifier<RouterToNaptSwitch> routerToNaptSwitch =
-                NatUtil.buildNaptSwitchRouterIdentifier(routerId.getValue());
-            Optional<RouterToNaptSwitch> rtrToNapt =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
-            if (rtrToNapt.isPresent()) {
-                dpnId = rtrToNapt.get().getPrimarySwitchId();
-            }
-            LOG.debug("associateExternalNetworkWithVPN : got primarySwitch as dpnId{} ", dpnId);
-            if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
-                LOG.warn("associateExternalNetworkWithVPN : primary napt Switch not found for router {} on dpn: {}",
-                    routerId, dpnId);
-                return;
-            }
-            final BigInteger finalDpnId = dpnId;
-            coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routerId.getValue(),
-                () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                    confTx -> {
-                        Long routerIdentifier = NatUtil.getVpnId(dataBroker, routerId.getValue());
-                        InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice
-                            .rev160111.intext.ip.map.IpMapping> idBuilder =
-                            InstanceIdentifier.builder(IntextIpMap.class)
-                                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
-                                    .intext.ip.map.IpMapping.class,
-                                    new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
-                                        .intext.ip.map.IpMappingKey(routerIdentifier));
-                        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
-                            .intext.ip.map.IpMapping> id = idBuilder.build();
-                        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
-                            .intext.ip.map.IpMapping> ipMapping = MDSALUtil.read(dataBroker,
-                                    LogicalDatastoreType.OPERATIONAL, id);
-                        if (ipMapping.isPresent()) {
-                            for (IpMap ipMap : requireNonNullElse(ipMapping.get().getIpMap(),
-                                    Collections.<IpMap>emptyList())) {
-                                String externalIp = ipMap.getExternalIp();
-                                LOG.debug("associateExternalNetworkWithVPN : Calling advToBgpAndInstallFibAndTsFlows "
-                                    + "for dpnId {},vpnName {} and externalIp {}", finalDpnId, vpnName, externalIp);
-                                if (natMode == NatMode.Controller) {
-                                    externalRouterListener.advToBgpAndInstallFibAndTsFlows(finalDpnId,
+                BigInteger dpnId = new BigInteger("0");
+                InstanceIdentifier<RouterToNaptSwitch> routerToNaptSwitch =
+                    NatUtil.buildNaptSwitchRouterIdentifier(routerId.getValue());
+                Optional<RouterToNaptSwitch> rtrToNapt =
+                    MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
+                if (rtrToNapt.isPresent()) {
+                    dpnId = rtrToNapt.get().getPrimarySwitchId();
+                }
+                LOG.debug("associateExternalNetworkWithVPN : got primarySwitch as dpnId{} ", dpnId);
+                if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
+                    LOG.warn("associateExternalNetworkWithVPN : primary napt Switch not found for router {} on dpn: {}",
+                        routerId, dpnId);
+                    return;
+                }
+                final BigInteger finalDpnId = dpnId;
+                coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routerId.getValue(),
+                    () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                        confTx -> {
+                            Long routerIdentifier = NatUtil.getVpnId(dataBroker, routerId.getValue());
+                            InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice
+                                .rev160111.intext.ip.map.IpMapping> idBuilder =
+                                InstanceIdentifier.builder(IntextIpMap.class)
+                                    .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
+                                            .intext.ip.map.IpMapping.class,
+                                        new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
+                                            .intext.ip.map.IpMappingKey(routerIdentifier));
+                            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice
+                                .rev160111.intext.ip.map.IpMapping> id = idBuilder.build();
+                            Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
+                                .intext.ip.map.IpMapping> ipMapping = MDSALUtil.read(dataBroker,
+                                LogicalDatastoreType.OPERATIONAL, id);
+                            if (ipMapping.isPresent()) {
+                                for (IpMap ipMap : ipMapping.get().nonnullIpMap()) {
+                                    String externalIp = ipMap.getExternalIp();
+                                    LOG.debug(
+                                        "associateExternalNetworkWithVPN : Calling advToBgpAndInstallFibAndTsFlows "
+                                            + "for dpnId {},vpnName {} and externalIp {}", finalDpnId, vpnName,
+                                        externalIp);
+                                    if (natMode == NatMode.Controller) {
+                                        externalRouterListener.advToBgpAndInstallFibAndTsFlows(finalDpnId,
                                             NwConstants.INBOUND_NAPT_TABLE, vpnName, routerIdentifier,
                                             routerId.getValue(), externalIp, network.getId(),
                                             null /* external-router */, confTx);
+                                    }
+                                }
+                            } else {
+                                LOG.warn("associateExternalNetworkWithVPN: No ipMapping present fot the routerId {}",
+                                    routerId);
+                            }
+
+                            long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
+                            // Install 47 entry to point to 21
+                            if (natMode == NatMode.Controller) {
+                                externalRouterListener.installNaptPfibEntriesForExternalSubnets(routerId.getValue(),
+                                    finalDpnId, confTx);
+                                if (vpnId != -1) {
+                                    LOG.debug("associateExternalNetworkWithVPN : Calling externalRouterListener "
+                                        + "installNaptPfibEntry for dpnId {} and vpnId {}", finalDpnId, vpnId);
+                                    externalRouterListener.installNaptPfibEntry(finalDpnId, vpnId, confTx);
                                 }
                             }
-                        } else {
-                            LOG.warn("associateExternalNetworkWithVPN: No ipMapping present fot the routerId {}",
-                                    routerId);
-                        }
-
-                        long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
-                        // Install 47 entry to point to 21
-                        if (natMode == NatMode.Controller) {
-                            externalRouterListener.installNaptPfibEntriesForExternalSubnets(routerId.getValue(),
-                                    finalDpnId, confTx);
-                            if (vpnId != -1) {
-                                LOG.debug("associateExternalNetworkWithVPN : Calling externalRouterListener "
-                                        + "installNaptPfibEntry for dpnId {} and vpnId {}", finalDpnId, vpnId);
-                                externalRouterListener.installNaptPfibEntry(finalDpnId, vpnId, confTx);
-                            }
-                        }
-                    })), NatConstants.NAT_DJC_MAX_RETRIES);
+                        })), NatConstants.NAT_DJC_MAX_RETRIES);
+            }
         }
     }
 
     private void disassociateExternalNetworkFromVPN(Networks network, String vpnName) {
-        for (Uuid routerId : requireNonNullElse(network.getRouterIds(), Collections.<Uuid>emptyList())) {
-            InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerId.getValue());
-            Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                routerPortsId);
-            if (!optRouterPorts.isPresent()) {
-                LOG.debug("disassociateExternalNetworkFromVPN : Could not read Router Ports data object with id: {} "
-                        + "to handle disassociate ext nw {}", routerId, network.getId());
-                continue;
-            }
-            RouterPorts routerPorts = optRouterPorts.get();
-            for (Ports port : requireNonNullElse(routerPorts.getPorts(), Collections.<Ports>emptyList())) {
-                String portName = port.getPortName();
-                BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
-                if (dpnId.equals(BigInteger.ZERO)) {
-                    LOG.debug("disassociateExternalNetworkFromVPN : DPN not found for {},"
-                            + "skip handling of ext nw {} disassociation", portName, network.getId());
+        if (network.getRouterIds() != null) {
+            for (Uuid routerId : network.getRouterIds()) {
+                InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerId.getValue());
+                Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    routerPortsId);
+                if (!optRouterPorts.isPresent()) {
+                    LOG.debug(
+                        "disassociateExternalNetworkFromVPN : Could not read Router Ports data object with id: {} "
+                            + "to handle disassociate ext nw {}", routerId, network.getId());
                     continue;
                 }
-                for (InternalToExternalPortMap intExtPortMap : requireNonNullElse(port.getInternalToExternalPortMap(),
-                        Collections.<InternalToExternalPortMap>emptyList())) {
-                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + intExtPortMap.key(),
-                        () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                            tx -> floatingIpListener.removeNATFlowEntries(dpnId, portName, vpnName, routerId.getValue(),
-                                intExtPortMap, tx))), NatConstants.NAT_DJC_MAX_RETRIES);
+                RouterPorts routerPorts = optRouterPorts.get();
+                for (Ports port : routerPorts.nonnullPorts()) {
+                    String portName = port.getPortName();
+                    BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
+                    if (dpnId.equals(BigInteger.ZERO)) {
+                        LOG.debug("disassociateExternalNetworkFromVPN : DPN not found for {},"
+                            + "skip handling of ext nw {} disassociation", portName, network.getId());
+                        continue;
+                    }
+                    for (InternalToExternalPortMap intExtPortMap : port.nonnullInternalToExternalPortMap()) {
+                        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + intExtPortMap.key(),
+                            () -> Collections.singletonList(
+                                txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                                    tx -> floatingIpListener.removeNATFlowEntries(dpnId, portName, vpnName,
+                                        routerId.getValue(),
+                                        intExtPortMap, tx))), NatConstants.NAT_DJC_MAX_RETRIES);
+                    }
                 }
             }
         }
