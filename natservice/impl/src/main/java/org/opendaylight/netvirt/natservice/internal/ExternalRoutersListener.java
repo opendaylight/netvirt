@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-import static org.opendaylight.netvirt.natservice.internal.NatUtil.requireNonNullElse;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
@@ -416,7 +415,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         int extIpCounter = externalIps.size();
         LOG.debug("subnetRegisterMapping : counter values before looping counter {} and extIpCounter {}",
                 counter, extIpCounter);
-        for (Uuid subnet : requireNonNullElse(routerEntry.getSubnetIds(), Collections.<Uuid>emptyList())) {
+        @Nullable List<Uuid> subnetIds = routerEntry.getSubnetIds();
+        if (subnetIds == null) {
+            return;
+        }
+        for (Uuid subnet : subnetIds) {
             LOG.debug("subnetRegisterMapping : Looping internal subnets for subnet {}", subnet);
             InstanceIdentifier<Subnetmap> subnetmapId = InstanceIdentifier
                 .builder(Subnetmaps.class)
@@ -1428,12 +1431,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             }
 
                             if (ipPortMapping.isPresent()) {
-                                for (IntextIpProtocolType intextIpProtocolType : requireNonNullElse(
-                                        ipPortMapping.get().getIntextIpProtocolType(),
-                                        Collections.<IntextIpProtocolType>emptyList())) {
+                                for (IntextIpProtocolType intextIpProtocolType :
+                                        ipPortMapping.get().nonnullIntextIpProtocolType()) {
                                     ProtocolTypes protoType = intextIpProtocolType.getProtocol();
-                                    for (IpPortMap ipPortMap : requireNonNullElse(intextIpProtocolType.getIpPortMap(),
-                                            Collections.<IpPortMap>emptyList())) {
+                                    for (IpPortMap ipPortMap : intextIpProtocolType.nonnullIpPortMap()) {
                                         IpPortExternal ipPortExternal = ipPortMap.getIpPortExternal();
                                         if (ipPortExternal.getIpAddress().equals(externalIp)) {
                                             externalPorts.add(ipPortExternal.getPortNum());
@@ -1619,10 +1620,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
         if (externalCountersData.isPresent()) {
             ExternalIpsCounter externalIpsCounters = externalCountersData.get();
-            for (ExternalCounters ext : requireNonNullElse(externalIpsCounters.getExternalCounters(),
-                    Collections.<ExternalCounters>emptyList())) {
-                for (ExternalIpCounter externalIpCount : requireNonNullElse(ext.getExternalIpCounter(),
-                        Collections.<ExternalIpCounter>emptyList())) {
+            for (ExternalCounters ext : externalIpsCounters.nonnullExternalCounters()) {
+                for (ExternalIpCounter externalIpCount : ext.nonnullExternalIpCounter()) {
                     if (externalIpCount.getExternalIp().equals(externalIp)) {
                         if (externalIpCount.getCounter() != 0) {
                             return true;
@@ -2042,10 +2041,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             return;
         }
 
-        for (IntextIpProtocolType intextIpProtocolType : requireNonNullElse(ipPortMapping.getIntextIpProtocolType(),
-                Collections.<IntextIpProtocolType>emptyList())) {
-            for (IpPortMap ipPortMap : requireNonNullElse(intextIpProtocolType.getIpPortMap(),
-                    Collections.<IpPortMap>emptyList())) {
+        for (IntextIpProtocolType intextIpProtocolType : ipPortMapping.nonnullIntextIpProtocolType()) {
+            for (IpPortMap ipPortMap : intextIpProtocolType.nonnullIpPortMap()) {
                 String ipPortInternal = ipPortMap.getIpPortInternal();
                 String[] ipPortParts = ipPortInternal.split(":");
                 if (ipPortParts.length != 2) {
@@ -2158,10 +2155,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 LOG.error("removeNaptFlowsFromActiveSwitchInternetVpn : Unable to retrieve the IpPortMapping");
                 return;
             }
-            for (IntextIpProtocolType intextIpProtocolType : requireNonNullElse(ipPortMapping.getIntextIpProtocolType(),
-                    Collections.<IntextIpProtocolType>emptyList())) {
-                for (IpPortMap ipPortMap : requireNonNullElse(intextIpProtocolType.getIpPortMap(),
-                        Collections.<IpPortMap>emptyList())) {
+            for (IntextIpProtocolType intextIpProtocolType : ipPortMapping.nonnullIntextIpProtocolType()) {
+                for (IpPortMap ipPortMap : intextIpProtocolType.nonnullIpPortMap()) {
                     String ipPortInternal = ipPortMap.getIpPortInternal();
                     String[] ipPortParts = ipPortInternal.split(":");
                     if (ipPortParts.length != 2) {
@@ -2730,10 +2725,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     routerId);
             return;
         }
-        for (IntextIpProtocolType intextIpProtocolType : requireNonNullElse(ipPortMapping.getIntextIpProtocolType(),
-                Collections.<IntextIpProtocolType>emptyList())) {
-            for (IpPortMap ipPortMap : requireNonNullElse(intextIpProtocolType.getIpPortMap(),
-                    Collections.<IpPortMap>emptyList())) {
+        for (IntextIpProtocolType intextIpProtocolType : ipPortMapping.nonnullIntextIpProtocolType()) {
+            for (IpPortMap ipPortMap : intextIpProtocolType.nonnullIpPortMap()) {
                 String ipPortInternal = ipPortMap.getIpPortInternal();
                 String[] ipPortParts = ipPortInternal.split(":");
                 if (ipPortParts.length != 2) {
