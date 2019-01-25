@@ -93,7 +93,6 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                 if (aclInterface.getDpId() != null) {
                     aclServiceManager.notify(aclInterface, null, Action.REMOVE);
                 }
-                aclServiceUtils.deleteSubnetInfo(interfaceId);
             }
         }
     }
@@ -209,7 +208,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
             if (aclInPort != null) {
                 sgs = aclInPort.getSecurityGroups();
                 builder.portSecurityEnabled(aclInPort.isPortSecurityEnabled()).securityGroups(sgs)
-                        .allowedAddressPairs(aclInPort.getAllowedAddressPairs());
+                        .allowedAddressPairs(aclInPort.getAllowedAddressPairs()).subnetInfo(aclInPort.getSubnetInfo());
             }
 
             if ((prevAclInterface == null || prevAclInterface.getLPortTag() == null) && interfaceState != null) {
@@ -217,7 +216,6 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                         .lPortTag(interfaceState.getIfIndex()).isMarkedForDelete(false);
             }
 
-            builder.subnetInfo(aclServiceUtils.getSubnetInfo(interfaceId));
             if (prevAclInterface == null || prevAclInterface.getElanId() == null) {
                 builder.elanId(AclServiceUtils.getElanIdFromInterface(interfaceId, dataBroker));
             }

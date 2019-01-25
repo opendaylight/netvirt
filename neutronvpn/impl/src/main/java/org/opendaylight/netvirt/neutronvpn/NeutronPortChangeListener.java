@@ -819,12 +819,12 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             interfaceAclBuilder.setPortSecurityEnabled(updatedSecurityEnabled);
             if (updatedSecurityEnabled) {
                 // Handle security group enabled
-                NeutronvpnUtils.populateInterfaceAclBuilder(interfaceAclBuilder, portUpdated);
-                neutronvpnUtils.populateSubnetInfo(portUpdated);
+                neutronvpnUtils.populateInterfaceAclBuilder(interfaceAclBuilder, portUpdated);
             } else {
                 // Handle security group disabled
                 interfaceAclBuilder.setSecurityGroups(new ArrayList<>());
                 interfaceAclBuilder.setAllowedAddressPairs(new ArrayList<>());
+                interfaceAclBuilder.setSubnetInfo(new ArrayList<>());
             }
         } else {
             if (updatedSecurityEnabled) {
@@ -843,7 +843,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
                 if (portOriginal.getFixedIps() != null
                         && !portOriginal.getFixedIps().equals(portUpdated.getFixedIps())) {
-                    neutronvpnUtils.populateSubnetInfo(portUpdated);
+                    neutronvpnUtils.populateSubnetInfo(interfaceAclBuilder, portUpdated);
                 }
             }
         }
@@ -890,9 +890,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         if (NeutronvpnUtils.getPortSecurityEnabled(port)) {
             InterfaceAclBuilder interfaceAclBuilder = new InterfaceAclBuilder();
             interfaceAclBuilder.setPortSecurityEnabled(true);
-            NeutronvpnUtils.populateInterfaceAclBuilder(interfaceAclBuilder, port);
+            neutronvpnUtils.populateInterfaceAclBuilder(interfaceAclBuilder, port);
             interfaceBuilder.addAugmentation(InterfaceAcl.class, interfaceAclBuilder.build());
-            neutronvpnUtils.populateSubnetInfo(port);
         }
         return interfaceBuilder.build();
     }

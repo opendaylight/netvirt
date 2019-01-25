@@ -23,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.SubnetInfo;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @NotThreadSafe
@@ -32,6 +33,7 @@ public class IdentifiedInterfaceWithAclBuilder implements DataTreeIdentifierData
     private Boolean portSecurity;
     private final List<Uuid> newSecurityGroups = new ArrayList<>();
     private final List<AllowedAddressPairs> ifAllowedAddressPairs = new ArrayList<>();
+    private final List<SubnetInfo> ifSubnetInfo = new ArrayList<>();
 
     @Override
     public LogicalDatastoreType type() {
@@ -51,6 +53,7 @@ public class IdentifiedInterfaceWithAclBuilder implements DataTreeIdentifierData
                 .setPortSecurityEnabled(portSecurity)
                 .setSecurityGroups(newSecurityGroups)
                 .setAllowedAddressPairs(ifAllowedAddressPairs)
+                .setSubnetInfo(ifSubnetInfo)
                 .build())
             .setName(interfaceName)
             .setType(L2vlan.class)
@@ -80,4 +83,8 @@ public class IdentifiedInterfaceWithAclBuilder implements DataTreeIdentifierData
         return this;
     }
 
+    public IdentifiedInterfaceWithAclBuilder addAllIfSubnetInfo(List<SubnetInfo> addToIfSubnetInfo) {
+        this.ifSubnetInfo.addAll(addToIfSubnetInfo);
+        return this;
+    }
 }
