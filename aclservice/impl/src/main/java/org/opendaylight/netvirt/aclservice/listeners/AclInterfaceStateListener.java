@@ -35,7 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.port.subnets.port.subnet.SubnetInfo;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,28 +139,9 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
             return;
         }
 
-        AclInterface aclInterface = aclInterfaceCache.addOrUpdate(added.getName(), (prevAclInterface, builder) -> {
-            builder.dpId(AclServiceUtils.getDpIdFromIterfaceState(added)).lPortTag(added.getIfIndex())
-                .isMarkedForDelete(false);
-
-            if (AclServiceUtils.isOfInterest(prevAclInterface)) {
-                if (prevAclInterface.getSubnetInfo() == null) {
-                    // For upgrades
-                    List<SubnetInfo> subnetInfo = aclServiceUtils.getSubnetInfo(added.getName());
-                    builder.subnetInfo(subnetInfo);
-                }
-                SortedSet<Integer> ingressRemoteAclTags =
-                        aclServiceUtils.getRemoteAclTags(prevAclInterface.getSecurityGroups(), DirectionIngress.class);
-                SortedSet<Integer> egressRemoteAclTags =
-                        aclServiceUtils.getRemoteAclTags(prevAclInterface.getSecurityGroups(), DirectionEgress.class);
-                builder.ingressRemoteAclTags(ingressRemoteAclTags).egressRemoteAclTags(egressRemoteAclTags);
-            }
-        });
-
-        List<Uuid> aclList = aclInterface.getSecurityGroups();
-        if (aclList == null) {
+        if (aclInterfaceCache.get(added.getName()) == null) {
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-                    .Interface iface = interfaceManager.getInterfaceInfoFromConfigDataStore(added.getName());
+                        .Interface iface = interfaceManager.getInterfaceInfoFromConfigDataStore(added.getName());
             if (iface == null) {
                 LOG.error("No interface with name {} available in interfaceConfig, servicing interfaceState ADD"
                         + "for ACL failed", added.getName());
@@ -173,9 +153,26 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                         added.getName());
                 return;
             }
+            aclInterfaceCache.addOrUpdate(added.getName(), (prevAclInterface, builder) -> {
+                builder.portSecurityEnabled(aclInPort.isPortSecurityEnabled())
+                    .securityGroups(aclInPort.getSecurityGroups())
+                    .allowedAddressPairs(aclInPort.getAllowedAddressPairs()).subnetInfo(aclInPort.getSubnetInfo());
+            });
         }
+        AclInterface aclInterface = aclInterfaceCache.addOrUpdate(added.getName(), (prevAclInterface, builder) -> {
+            builder.dpId(AclServiceUtils.getDpIdFromIterfaceState(added)).lPortTag(added.getIfIndex())
+                .isMarkedForDelete(false);
+            if (AclServiceUtils.isOfInterest(prevAclInterface)) {
+                SortedSet<Integer> ingressRemoteAclTags =
+                        aclServiceUtils.getRemoteAclTags(prevAclInterface.getSecurityGroups(), DirectionIngress.class);
+                SortedSet<Integer> egressRemoteAclTags =
+                        aclServiceUtils.getRemoteAclTags(prevAclInterface.getSecurityGroups(), DirectionEgress.class);
+                builder.ingressRemoteAclTags(ingressRemoteAclTags).egressRemoteAclTags(egressRemoteAclTags);
+            }
+        });
 
         if (AclServiceUtils.isOfInterest(aclInterface)) {
+            List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclList != null) {
                 aclDataUtil.addAclInterfaceMap(aclList, aclInterface);
             }

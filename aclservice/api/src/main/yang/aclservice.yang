@@ -124,42 +124,31 @@ module aclservice {
                 type ip-prefix-or-address;
             }
         }
-    }
-
-    container port-subnets {
-        config false;
-        list port-subnet {
-            key port-id;
-            leaf port-id {
-                type string;
-                description "Port ID";
+        list subnet-info {
+            key subnet-id;
+            leaf subnet-id {
+                type yang:uuid;
+                description "Subnet ID";
             }
-            list subnet-info {
-                key subnet-id;
-                leaf subnet-id {
-                    type yang:uuid;
-                    description "Subnet ID";
+            leaf ip-version {
+                description "IP version";
+                type identityref {
+                    base "ip-version-base";
                 }
-                leaf ip-version {
-                    description "IP version";
-                    type identityref {
-                        base "ip-version-base";
-                    }
+            }
+            leaf ip-prefix {
+                type ip-prefix-or-address;
+                description "Subnet IP prefix.";
+            }
+            leaf ipv6-ra-mode {
+                description "IPv6 RA mode";
+                type identityref {
+                    base "dhcpv6-base";
                 }
-                leaf ip-prefix {
-                    type ip-prefix-or-address;
-                    description "Subnet IP prefix.";
-                }
-                leaf ipv6-ra-mode {
-                    description "IPv6 RA mode";
-                    type identityref {
-                        base "dhcpv6-base";
-                    }
-                }
-                leaf gateway-ip {
-                    type inet:ip-address;
-                    description "default gateway used by devices in this subnet";
-                }
+            }
+            leaf gateway-ip {
+                type inet:ip-address;
+                description "default gateway used by devices in this subnet";
             }
         }
     }
