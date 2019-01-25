@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import static java.util.stream.Collectors.toList;
-import static org.opendaylight.netvirt.fibmanager.FibUtil.nullToEmpty;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
@@ -255,7 +254,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
                                              String rd,
                                              List<NexthopManager.AdjacencyResult> adjacencyResults,
                                              List<SubTransaction> subTxns) {
-        if (nullToEmpty(vrfEntry.getRoutePaths()).size() > 2) {
+        if (vrfEntry.nonnullRoutePaths().size() > 2) {
             LOG.error("DC-GW can advertise only 2 bestPaths for prefix {}", vrfEntry.getDestPrefix());
             return;
         }
@@ -370,7 +369,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
             final BigInteger dpnId, final long vpnId, final String rd,
             final String remoteNextHopIp, final Optional<VrfTables> vrfTable,
             WriteTransaction writeCfgTxn, List<SubTransaction> subTxns) {
-        return vrfEntry -> nullToEmpty(vrfEntry.getRoutePaths()).stream()
+        return vrfEntry -> vrfEntry.nonnullRoutePaths().stream()
                 .filter(routes -> !routes.getNexthopAddress().isEmpty()
                         && remoteNextHopIp.trim().equals(routes.getNexthopAddress().trim()))
                 .findFirst()
@@ -386,7 +385,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
             final BigInteger dpnId, final long vpnId,
             final String remoteNextHopIp, final Optional<VrfTables> vrfTable,
             WriteTransaction writeCfgTxn, List<SubTransaction> subTxns) {
-        return vrfEntry -> nullToEmpty(vrfEntry.getRoutePaths()).stream()
+        return vrfEntry -> vrfEntry.nonnullRoutePaths().stream()
                 .filter(routes -> !routes.getNexthopAddress().isEmpty()
                         && remoteNextHopIp.trim().equals(routes.getNexthopAddress().trim()))
                 .findFirst()
