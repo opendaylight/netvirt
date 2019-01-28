@@ -2142,7 +2142,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     fibManager.removeFibEntry(rd, prefix, writeConfigTxn);
                     LOG.info("deleteFibEntryForRouterInterface: FIB for router interface {} deleted for vpn {} rd {}"
                             + " prefix {}", vpnInterface.getName(), vpnName, rd, prefix);
-                    return;
                 }
             }
         } else {
