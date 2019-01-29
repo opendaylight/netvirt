@@ -34,6 +34,23 @@
       "revId": "80232aad799e602e9fa8b4f4a3baeb5ba013f19f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4db9eab8_6197a36d",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/PodListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2019-01-29T06:33:18Z",
+      "side": 0,
+      "message": "The first TODO is still not handled right? so retain?",
+      "revId": "80232aad799e602e9fa8b4f4a3baeb5ba013f19f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
