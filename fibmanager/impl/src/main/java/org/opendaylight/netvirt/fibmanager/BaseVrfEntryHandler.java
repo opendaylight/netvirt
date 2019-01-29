@@ -158,7 +158,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     @Nonnull
     protected List<AdjacencyResult> resolveAdjacency(final BigInteger remoteDpnId, final long vpnId,
                                                      final VrfEntry vrfEntry, String rd) {
-        List<RoutePaths> routePaths = vrfEntry.nonnullRoutePaths();
+        List<RoutePaths> routePaths = new ArrayList<>(vrfEntry.nonnullRoutePaths());
         FibHelper.sortIpAddress(routePaths);
         List<AdjacencyResult> adjacencyList = new ArrayList<>();
         List<String> prefixIpList;
