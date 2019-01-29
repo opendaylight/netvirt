@@ -16,6 +16,24 @@
       "revId": "5ac0637f8da0091ebbdaeee435893da192c1c364",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0c8d4a8e_0daae566",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/TerminationPointStateListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2019-01-29T07:28:03Z",
+      "side": 1,
+      "message": "right..will remove this check. vpnengine will handle out of order events as well now",
+      "parentUuid": "dc8e83ae_83f75365",
+      "revId": "5ac0637f8da0091ebbdaeee435893da192c1c364",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }

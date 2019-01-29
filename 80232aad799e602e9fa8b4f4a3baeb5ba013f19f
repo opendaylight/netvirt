@@ -51,6 +51,24 @@
       "revId": "80232aad799e602e9fa8b4f4a3baeb5ba013f19f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1533dead_d1b55f6f",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/PodListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2019-01-29T07:28:03Z",
+      "side": 0,
+      "message": "this will be handled in the next patch set for nodelisterner",
+      "parentUuid": "4db9eab8_6197a36d",
+      "revId": "80232aad799e602e9fa8b4f4a3baeb5ba013f19f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
