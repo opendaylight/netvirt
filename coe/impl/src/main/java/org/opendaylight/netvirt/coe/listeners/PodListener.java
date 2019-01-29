@@ -13,7 +13,6 @@ import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -33,8 +32,6 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.coe.utils.CoeUtils;
-import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.Coe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.coe.Pods;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.pod_attributes.Interface;
@@ -189,10 +186,6 @@ public class PodListener implements DataTreeChangeListener<Pods> {
                 LOG.debug("Creating ELAN Interface for pod {}", interfaceName);
                 coeUtils.createElanInterface(portInterfaceName,
                         elanInstance.getElanInstanceName(), tx);
-                LOG.debug("Creating VPN instance for namespace {}", pods.getNetworkNS());
-                List<String> rd = Arrays.asList("100:1");
-                coeUtils.createVpnInstance(pods.getClusterId().getValue(), rd, null, null,
-                        VpnInstance.Type.L3, 0, IpVersionChoice.IPV4, tx);
             }));
             if (podInterface.getIpAddress() != null) {
                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
@@ -228,8 +221,6 @@ public class PodListener implements DataTreeChangeListener<Pods> {
                 LOG.info("interface deletion for pod {}", podInterfaceName);
                 coeUtils.deleteOfPortInterface(podInterfaceName, tx);
                 coeUtils.unbindKubeProxyService(podInterfaceName, tx);
-                // TODO delete elan-instance if this is the last pod in the host
-                // TODO delete vpn-instance if this is the last pod in the network
             }));
             futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                 coeUtils.deletePodNameToPodUuidMap(podInterfaceName, tx);
