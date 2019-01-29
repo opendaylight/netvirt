@@ -232,9 +232,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
         if (deletedSubnets != null && !deletedSubnets.isEmpty()) {
             programIcmpv6RARule(deleteFlowEntries, portAfter, deletedSubnets, NwConstants.DEL_FLOW);
+            programSubnetBroadcastRules(deleteFlowEntries, portAfter, deletedSubnets, NwConstants.DEL_FLOW);
         }
         if (addedSubnets != null && !addedSubnets.isEmpty()) {
             programIcmpv6RARule(addFlowEntries, portAfter, addedSubnets, NwConstants.ADD_FLOW);
+            programSubnetBroadcastRules(addFlowEntries, portAfter, addedSubnets, NwConstants.ADD_FLOW);
         }
     }
 
@@ -560,6 +562,17 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param addOrRemove whether to delete or add flow
      */
     protected abstract void programBroadcastRules(List<FlowEntity> flowEntries, AclInterface port, int addOrRemove);
+
+    /**
+     * Programs broadcast rules.
+     *
+     * @param flowEntries the flow entries
+     * @param port the Acl Interface port
+     * @param subnetInfoList the port subnet info list
+     * @param addOrRemove whether to delete or add flow
+     */
+    protected abstract void programSubnetBroadcastRules(List<FlowEntity> flowEntries, AclInterface port,
+            List<SubnetInfo> subnetInfoList, int addOrRemove);
 
     protected abstract void programIcmpv6RARule(List<FlowEntity> flowEntries, AclInterface port,
             List<SubnetInfo> subnets, int addOrRemove);
