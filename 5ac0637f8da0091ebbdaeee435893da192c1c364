@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc8e83ae_83f75365",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/TerminationPointStateListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2019-01-29T06:37:20Z",
+      "side": 1,
+      "message": "just confirmed that netvirt/vpnservice works even if we create vpn-instance and vpn-interface out of order. so, is this check required then?",
+      "revId": "5ac0637f8da0091ebbdaeee435893da192c1c364",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
