@@ -143,7 +143,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             programIcmpv6RARule(flowEntries, port, port.getSubnetInfo(), addOrRemove);
 
             programArpRule(flowEntries, dpid, lportTag, addOrRemove);
-            programIpv4BroadcastRule(flowEntries, port, addOrRemove);
+            programIpv4BroadcastRule(flowEntries, port, port.getSubnetInfo(), addOrRemove);
         }
     }
 
@@ -334,7 +334,20 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      */
     @Override
     protected void programBroadcastRules(List<FlowEntity> flowEntries, AclInterface port, int addOrRemove) {
-        programIpv4BroadcastRule(flowEntries, port, addOrRemove);
+        programIpv4BroadcastRule(flowEntries, port, port.getSubnetInfo(), addOrRemove);
+    }
+
+    /**
+     * Programs broadcast rules.
+     *
+     * @param flowEntries the flow entries
+     * @param port the Acl Interface port
+     * @param subnetInfoList the port subnet info list
+     * @param addOrRemove whether to delete or add flow
+     */
+    protected void programSubnetBroadcastRules(List<FlowEntity> flowEntries, AclInterface port,
+            List<SubnetInfo> subnetInfoList, int addOrRemove) {
+        programIpv4BroadcastRule(flowEntries, port, subnetInfoList, addOrRemove);
     }
 
     /**
@@ -342,13 +355,14 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      *
      * @param flowEntries the flow entries
      * @param port the Acl Interface port
+     * @param subnetInfoList Port subnet list
      * @param addOrRemove whether to delete or add flow
      */
-    private void programIpv4BroadcastRule(List<FlowEntity> flowEntries, AclInterface port, int addOrRemove) {
+    private void programIpv4BroadcastRule(List<FlowEntity> flowEntries, AclInterface port,
+            List<SubnetInfo> subnetInfoList, int addOrRemove) {
         BigInteger dpId = port.getDpId();
         int lportTag = port.getLPortTag();
         MatchInfoBase lportMatchInfo = AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode);
-        List<SubnetInfo> subnetInfoList = port.getSubnetInfo();
         if (subnetInfoList != null) {
             List<String> broadcastAddresses = AclServiceUtils.getIpBroadcastAddresses(subnetInfoList);
             for (String broadcastAddress : broadcastAddresses) {

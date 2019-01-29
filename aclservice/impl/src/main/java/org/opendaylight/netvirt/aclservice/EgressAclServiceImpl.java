@@ -336,6 +336,19 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     }
 
     /**
+     * Programs broadcast rules.
+     *
+     * @param flowEntries the flow entries
+     * @param port the Acl Interface port
+     * @param subnetInfoList the port subnet info list
+     * @param addOrRemove whether to delete or add flow
+     */
+    protected void programSubnetBroadcastRules(List<FlowEntity> flowEntries, AclInterface port,
+            List<SubnetInfo> subnetInfoList, int addOrRemove) {
+        // No action required on egress.
+    }
+
+    /**
      * Programs Non-IP broadcast rules.
      *
      * @param flowEntries the flow entries
