@@ -42,7 +42,7 @@ import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.internal.ElanBridgeManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
-import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
+import org.opendaylight.ovsdb.utils.mdsal.utils.ControllerMdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
@@ -102,7 +102,7 @@ public class TransportZoneNotificationUtil {
         this.elanConfig = elanConfig;
         this.elanBridgeManager = elanBridgeManager;
         this.elanInstanceCache = elanInstanceCache;
-        southBoundUtils = new SouthboundUtils(new MdsalUtils(dbx));
+        southBoundUtils = new SouthboundUtils(new ControllerMdsalUtils(dbx));
     }
 
     public boolean shouldCreateVtep(List<VpnInterfaces> vpnInterfaces) {

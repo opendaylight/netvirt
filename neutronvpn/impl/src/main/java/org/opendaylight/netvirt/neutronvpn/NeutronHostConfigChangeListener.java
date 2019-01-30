@@ -17,7 +17,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
+import org.opendaylight.ovsdb.utils.mdsal.utils.ControllerMdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.Hostconfigs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.hostconfigs.Hostconfig;
@@ -49,13 +49,13 @@ public class NeutronHostConfigChangeListener
 
     private final DataBroker dataBroker;
     private final SouthboundUtils southboundUtils;
-    private final MdsalUtils mdsalUtils;
+    private final ControllerMdsalUtils mdsalUtils;
 
     @Inject
     public NeutronHostConfigChangeListener(final DataBroker dataBroker) {
         super(Node.class,NeutronHostConfigChangeListener.class);
         this.dataBroker = dataBroker;
-        this.mdsalUtils = new MdsalUtils(dataBroker);
+        this.mdsalUtils = new ControllerMdsalUtils(dataBroker);
         this.southboundUtils = new SouthboundUtils(mdsalUtils);
     }
 
