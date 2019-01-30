@@ -88,6 +88,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>org.apache.aries.blueprint</groupId>
             <artifactId>blueprint-maven-plugin-annotation</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
