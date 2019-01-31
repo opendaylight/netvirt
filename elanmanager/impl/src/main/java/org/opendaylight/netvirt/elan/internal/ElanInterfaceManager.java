@@ -381,6 +381,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             tx.delete(ElanUtils.getElanInstanceOperationalDataPath(elanName));
             tx.delete(ElanUtils.getElanMacTableOperationalDataPath(elanName));
             tx.delete(ElanUtils.getElanInfoEntriesOperationalDataPath(elanInfo.getElanTag()));
+            tx.delete(ElanUtils.getElanDpnOperationDataPath(elanName));
         } else {
             Elan updateElanState = new ElanBuilder().setElanInterfaces(elanInterfaces).setName(elanName)
                     .withKey(new ElanKey(elanName)).build();
