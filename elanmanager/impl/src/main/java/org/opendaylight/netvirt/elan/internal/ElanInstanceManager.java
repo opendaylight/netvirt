@@ -84,39 +84,45 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     protected void remove(InstanceIdentifier<ElanInstance> identifier, ElanInstance deletedElan) {
         LOG.trace("Remove ElanInstance - Key: {}, value: {}", identifier, deletedElan);
         String elanName = deletedElan.getElanInstanceName();
-        // check the elan Instance present in the Operational DataStore
-        Elan existingElan = ElanUtils.getElanByName(broker, elanName);
-        long elanTag = deletedElan.getElanTag();
-        // Cleaning up the existing Elan Instance
-        if (existingElan != null) {
-            List<String> elanInterfaces = existingElan.getElanInterfaces();
-            if (elanInterfaces != null && !elanInterfaces.isEmpty()) {
-                List<ListenableFuture<Void>> futureList = new ArrayList<>();
-                elanInterfaces.forEach(elanInterfaceName -> {
-                    jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(elanInterfaceName), () -> {
-                        InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
-                                .getElanInterfaceConfigurationDataPathId(elanInterfaceName);
-                        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(elanInterfaceName);
-                        futureList.addAll(elanInterfaceManager.removeElanInterface(deletedElan, elanInterfaceName,
-                                interfaceInfo));
-                        ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
-                                elanInterfaceId);
-                        return futureList;
-                    },ElanConstants.JOB_MAX_RETRIES);
-                });
-            }
-            ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
-                    ElanUtils.getElanInstanceOperationalDataPath(elanName));
-            Optional<ElanDpnInterfacesList> elanDpnInterfaceList = MDSALUtil.read(broker,
-                    LogicalDatastoreType.OPERATIONAL,
-                    ElanUtils.getElanDpnOperationDataPath(elanName));
-            if (elanDpnInterfaceList.isPresent()) {
-                ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
-                        getElanDpnOperationDataPath(elanName));
-            }
-            ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
-                    ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag));
-        }
+
+        /*
+         * THE BELOW CODE BLOCK IS COMMENTED OUT SINCE OPENSTACK DOESN'T ALLOW
+         * DELETION OF NETWORK UNLESS ALL PORTS ARE DELETED
+        */
+
+//        // check the elan Instance present in the Operational DataStore
+//        Elan existingElan = ElanUtils.getElanByName(broker, elanName);
+//        long elanTag = deletedElan.getElanTag();
+//        // Cleaning up the existing Elan Instance
+//        if (existingElan != null) {
+//            List<String> elanInterfaces = existingElan.getElanInterfaces();
+//            if (elanInterfaces != null && !elanInterfaces.isEmpty()) {
+//                List<ListenableFuture<Void>> futureList = new ArrayList<>();
+//                elanInterfaces.forEach(elanInterfaceName -> {
+//                    jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(elanInterfaceName), () -> {
+//                        InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
+//                                .getElanInterfaceConfigurationDataPathId(elanInterfaceName);
+//                        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(elanInterfaceName);
+//                        futureList.addAll(elanInterfaceManager.removeElanInterface(deletedElan, elanInterfaceName,
+//                                interfaceInfo));
+//                        ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
+//                                elanInterfaceId);
+//                        return futureList;
+//                    },ElanConstants.JOB_MAX_RETRIES);
+//                });
+//            }
+//            ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
+//                    ElanUtils.getElanInstanceOperationalDataPath(elanName));
+//            Optional<ElanDpnInterfacesList> elanDpnInterfaceList = MDSALUtil.read(broker,
+//                    LogicalDatastoreType.OPERATIONAL,
+//                    ElanUtils.getElanDpnOperationDataPath(elanName));
+//            if (elanDpnInterfaceList.isPresent()) {
+//                ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
+//                        getElanDpnOperationDataPath(elanName));
+//            }
+//            ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
+//                    ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag));
+//        }
         elanInterfaceCache.getInterfaceNames(elanName).forEach(
             elanInterfaceName -> jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(elanInterfaceName),
                 () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
