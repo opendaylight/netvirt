@@ -11,11 +11,8 @@ package org.opendaylight.netvirt.elan.internal;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,9 +22,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
@@ -35,12 +30,8 @@ import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.Elan;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -84,39 +75,6 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     protected void remove(InstanceIdentifier<ElanInstance> identifier, ElanInstance deletedElan) {
         LOG.trace("Remove ElanInstance - Key: {}, value: {}", identifier, deletedElan);
         String elanName = deletedElan.getElanInstanceName();
-        // check the elan Instance present in the Operational DataStore
-        Elan existingElan = ElanUtils.getElanByName(broker, elanName);
-        long elanTag = deletedElan.getElanTag();
-        // Cleaning up the existing Elan Instance
-        if (existingElan != null) {
-            List<String> elanInterfaces = existingElan.getElanInterfaces();
-            if (elanInterfaces != null && !elanInterfaces.isEmpty()) {
-                List<ListenableFuture<Void>> futureList = new ArrayList<>();
-                elanInterfaces.forEach(elanInterfaceName -> {
-                    jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(elanInterfaceName), () -> {
-                        InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
-                                .getElanInterfaceConfigurationDataPathId(elanInterfaceName);
-                        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(elanInterfaceName);
-                        futureList.addAll(elanInterfaceManager.removeElanInterface(deletedElan, elanInterfaceName,
-                                interfaceInfo));
-                        ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
-                                elanInterfaceId);
-                        return futureList;
-                    },ElanConstants.JOB_MAX_RETRIES);
-                });
-            }
-            ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
-                    ElanUtils.getElanInstanceOperationalDataPath(elanName));
-            Optional<ElanDpnInterfacesList> elanDpnInterfaceList = MDSALUtil.read(broker,
-                    LogicalDatastoreType.OPERATIONAL,
-                    ElanUtils.getElanDpnOperationDataPath(elanName));
-            if (elanDpnInterfaceList.isPresent()) {
-                ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
-                        getElanDpnOperationDataPath(elanName));
-            }
-            ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
-                    ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag));
-        }
         elanInterfaceCache.getInterfaceNames(elanName).forEach(
             elanInterfaceName -> jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(elanInterfaceName),
                 () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
@@ -173,11 +131,6 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                         confTx, operTx)), LOG, "Error adding an ELAN instance");
             }
         }), LOG, "Error adding an ELAN instance");
-    }
-
-    private static InstanceIdentifier<ElanDpnInterfacesList> getElanDpnOperationDataPath(String elanInstanceName) {
-        return InstanceIdentifier.builder(ElanDpnInterfaces.class)
-                .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName)).build();
     }
 
     @Override
