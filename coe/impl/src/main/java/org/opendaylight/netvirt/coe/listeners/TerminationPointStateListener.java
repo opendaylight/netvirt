@@ -109,11 +109,15 @@ public class TerminationPointStateListener extends
                                             pods.getHostIpAddress().stringValue(), clusterId);
                                     coeUtils.updateElanInterfaceWithStaticMac(macAddress, podIpAddress,
                                             interfaceName, elanInstanceName, tx);
-                                    if (!isServiceGateway) {
-                                        coeUtils.createVpnInterface(clusterId, pods, interfaceName,
-                                                macAddress,false, tx);
-                                        LOG.debug("Bind Kube Proxy Service for {}", interfaceName);
-                                        bindKubeProxyService(tx, interfaceName);
+                                    coeUtils.createVpnInterface(pods.getClusterId().getValue(), pods, interfaceName,
+                                            macAddress,false, tx);
+                                    LOG.debug("Bind Kube Proxy Service for {}", interfaceName);
+                                    bindKubeProxyService(tx, interfaceName);
+                                    if (isServiceGateway) {
+                                        String ipValue = podIpAddress.getIpv4Address() != null
+                                                ? podIpAddress.getIpv4Address().getValue() :
+                                                podIpAddress.getIpv6Address().getValue();
+                                        coeUtils.updateServiceGatewayList(tx, interfaceName, ipValue, macAddress);
                                     }
                                 }
                             }), LOG, "Error handling pod configuration for termination-point");
