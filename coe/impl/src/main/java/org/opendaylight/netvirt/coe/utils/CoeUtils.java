@@ -8,11 +8,13 @@
 
 package org.opendaylight.netvirt.coe.utils;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableBiMap;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -60,6 +62,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.NetworkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.coe.Pods;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.service.rev170611.service.information.Services;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
@@ -72,6 +75,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.meta.rev180118.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.meta.rev180118.podidentifier.info.PodIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.meta.rev180118.podidentifier.info.PodIdentifierBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.meta.rev180118.podidentifier.info.PodIdentifierKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.service.meta.rev190123.ServiceGatewayInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.service.meta.rev190123.service.gateway.info.ServiceGateway;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.service.meta.rev190123.service.gateway.info.ServiceGatewayBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.service.meta.rev190123.service.gateway.info.ServiceGatewayKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeBase;
@@ -462,21 +469,63 @@ public final class CoeUtils {
         if (!adjList.contains(vmAdj)) {
             adjList.add(vmAdj);
         }
-
-        //if (isRouterInterface) {
-            // TODO
-            // create extraroute Adjacence for each ipValue,
-            // because router can have IPv4 and IPv6 subnet ports, or can have
-            // more that one IPv4 subnet port or more than one IPv6 subnet port
-            //List<Adjacency> erAdjList = getAdjacencyforExtraRoute(vpnId, routeList, ipValue);
-            //if (!erAdjList.isEmpty()) {
-            //    adjList.addAll(erAdjList);
-            //}
-        //}
         return new AdjacenciesBuilder().setAdjacency(adjList).build();
     }
 
     public void unbindKubeProxyService(String interfaceName, TypedWriteTransaction<Datastore.Configuration> tx) {
         tx.delete(buildKubeProxyServicesIId(interfaceName));
+    }
+
+    public void updateServiceGatewayList(TypedWriteTransaction<Datastore.Configuration> tx, String serviceGatewayPod,
+                                         String serviceGatewayIp,  String serviceGatewayMac) {
+        InstanceIdentifier<ServiceGateway> serviceGatewayInstanceIdentifier =
+                InstanceIdentifier.builder(ServiceGatewayInfo.class).child(
+                        ServiceGateway.class, new ServiceGatewayKey(serviceGatewayPod)).build();
+        ServiceGateway serviceGateway = new ServiceGatewayBuilder().setGatewayPodName(serviceGatewayPod)
+                .setGatewayPodIpAddress(serviceGatewayIp).setGatewayPodMacAddress(serviceGatewayMac).build();
+        tx.put(serviceGatewayInstanceIdentifier, serviceGateway);
+    }
+
+    private InstanceIdentifier<ServiceGatewayInfo> buildServiceGatewayInstanceIndentifier() {
+        return InstanceIdentifier.builder(ServiceGatewayInfo.class).build();
+    }
+
+    public void updateVpnInterfaceWithExtraRouteAdjacency(TypedReadWriteTransaction<Datastore.Configuration> tx,
+                                                          Services services) throws ExecutionException,
+            InterruptedException {
+        if (services.getClusterIpAddress() == null) {
+            LOG.error("Incorrect input received for extra route. {}", services.getName());
+        } else {
+            LOG.info("update vpn-interface with extra route adjacencies for {}", services.getName());
+            Optional<ServiceGatewayInfo> serviceGatewayList = tx.read(buildServiceGatewayInstanceIndentifier()).get();
+            if (serviceGatewayList.isPresent() && serviceGatewayList.get() != null) {
+                for (ServiceGateway serviceGateway : serviceGatewayList.get().nonnullServiceGateway()) {
+                    String nextHop = serviceGateway.getGatewayPodIpAddress();
+                    IpAddress destination = services.getClusterIpAddress();
+                    String destinationIpValue = destination.getIpv4Address() != null
+                            ? destination.getIpv4Address().getValue() :
+                            destination.getIpv6Address().getValue();
+                    String destinationIpPrefix = destination.getIpv4Address() != null ? destinationIpValue + "/32"
+                            : destinationIpValue + "/128";
+                    String infName = serviceGateway.getGatewayPodName();
+                    if (infName != null) {
+                        LOG.info("Updating extra route for destination {} onto vpn {} with nexthop {} and infName {}",
+                                destination, services.getClusterId(), nextHop, infName);
+                        InstanceIdentifier<Adjacency> path = InstanceIdentifier.builder(VpnInterfaces.class)
+                                .child(VpnInterface.class, new VpnInterfaceKey(infName)).build()
+                                .augmentation(Adjacencies.class).child(Adjacency.class,
+                                        new AdjacencyKey(destinationIpPrefix));
+                        Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destinationIpPrefix)
+                                .setNextHopIpList(Collections.singletonList(nextHop))
+                                .setAdjacencyType(Adjacency.AdjacencyType.ExtraRoute).build();
+                        tx.put(path, erAdj);
+
+                    } else {
+                        LOG.error("Unable to find VPN NextHop interface to apply extra-route destination {} on VPN {} "
+                                + "with nexthop {}", destination, services.getClusterId(), nextHop);
+                    }
+                }
+            }
+        }
     }
 }

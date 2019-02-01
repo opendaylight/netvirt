@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.coe.listeners;
 
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+
 import java.util.Collection;
 import javax.annotation.Nonnull;
 import javax.annotation.PreDestroy;
@@ -20,6 +22,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.netvirt.coe.utils.CoeUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.service.rev170611.ServiceInformation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.service.rev170611.service.information.Services;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -31,11 +36,17 @@ import org.slf4j.LoggerFactory;
 public class ServiceListener implements DataTreeChangeListener<Services> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServiceListener.class);
+
+    private final CoeUtils coeUtils;
+    private final ManagedNewTransactionRunner txRunner;
+
     private ListenerRegistration<ServiceListener> listenerRegistration;
 
     @Inject
-    public ServiceListener(@Reference final DataBroker dataBroker) {
+    public ServiceListener(@Reference final DataBroker dataBroker, final CoeUtils coeUtils) {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+        this.coeUtils = coeUtils;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
     protected InstanceIdentifier<Services> getWildCardPath() {
@@ -69,6 +80,7 @@ public class ServiceListener implements DataTreeChangeListener<Services> {
                     break;
                 case SUBTREE_MODIFIED:
                     LOG.info("Service updated old : {}, new : {}", mod.getDataBefore(), mod.getDataAfter());
+                    add(mod.getDataAfter());
                     break;
                 case WRITE:
                     if (mod.getDataBefore() == null) {
@@ -76,11 +88,17 @@ public class ServiceListener implements DataTreeChangeListener<Services> {
                     } else {
                         LOG.info("Service updated old : {}, new : {}", mod.getDataBefore(), mod.getDataAfter());
                     }
+                    add(mod.getDataAfter());
                     break;
                 default:
                     // FIXME: May be not a good idea to throw.
                     throw new IllegalArgumentException("Unhandled modification type " + mod.getModificationType());
             }
         }
+    }
+
+    void add(Services services) {
+        txRunner.callWithNewReadWriteTransactionAndSubmit(
+                CONFIGURATION, tx -> coeUtils.updateVpnInterfaceWithExtraRouteAdjacency(tx, services));
     }
 }
