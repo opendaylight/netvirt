@@ -1,3 +1,4 @@
 <neutronvpn-config xmlns="urn:opendaylight:netvirt:neutronvpn:config">
   <opendaylight-vni-ranges>70000:99999</opendaylight-vni-ranges>
+  <limit-bumtraffic-to-dhcpserver>false</limit-bumtraffic-to-dhcpserver>
 </neutronvpn-config>

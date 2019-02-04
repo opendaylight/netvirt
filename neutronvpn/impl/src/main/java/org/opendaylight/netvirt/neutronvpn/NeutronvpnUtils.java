@@ -75,6 +75,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.Dhcpv6Base;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpVersionBase;
@@ -429,15 +430,18 @@ public class NeutronvpnUtils {
         return prt;
     }
 
-    public PortIdToSubport getPortIdToSubport(Uuid portId) {
-        InstanceIdentifier<PortIdToSubport> portIdToSubportIdentifier = buildPortIdSubportMappingIdentifier(portId);
-        Optional<PortIdToSubport> optionalPortIdToSubport = read(LogicalDatastoreType.CONFIGURATION,
-                portIdToSubportIdentifier);
-        if (optionalPortIdToSubport.isPresent()) {
-            return optionalPortIdToSubport.get();
-        }
-        LOG.error("getPortIdToSubport failed, PortIdToSubport {} not present", portId.getValue());
-        return null;
+    protected static boolean isDhcpServerPort(Port port) {
+        return port.getDeviceOwner().equals("network:dhcp");
+    }
+
+    protected InterfaceAcl getDhcpInterfaceAcl(Port port) {
+        InterfaceAclBuilder interfaceAclBuilder = new InterfaceAclBuilder();
+        interfaceAclBuilder.setPortSecurityEnabled(false);
+        interfaceAclBuilder.setInterfaceType(InterfaceAcl.InterfaceType.DhcpService);
+        List<AllowedAddressPairs> aclAllowedAddressPairs = NeutronvpnUtils.getAllowedAddressPairsForAclService(
+                port.getMacAddress(), port.getFixedIps());
+        interfaceAclBuilder.setAllowedAddressPairs(aclAllowedAddressPairs);
+        return interfaceAclBuilder.build();
     }
 
     /**
@@ -738,7 +742,7 @@ public class NeutronvpnUtils {
             aclAllowedAddressPairs.addAll(NeutronvpnUtils.getAllowedAddressPairsForAclService(portAllowedAddressPairs));
         }
         interfaceAclBuilder.setAllowedAddressPairs(aclAllowedAddressPairs);
-
+        interfaceAclBuilder.setInterfaceType(InterfaceAcl.InterfaceType.AccessPort);
         populateSubnetInfo(interfaceAclBuilder, port);
     }
 
