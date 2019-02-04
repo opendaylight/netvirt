@@ -45,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.SubnetInfo;
@@ -81,6 +82,11 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     @Override
     public void bindService(AclInterface aclInterface) {
         String interfaceName = aclInterface.getInterfaceId();
+        LOG.debug("Binding ACL service for interface {}", interfaceName);
+        if (aclInterface.getInterfaceType() == InterfaceType.DhcpService) {
+            LOG.debug("{} is a DHCP serice port. No binding needed", interfaceName);
+            return;
+        }
         jobCoordinator.enqueueJob(interfaceName, () -> {
             int instructionKey = 0;
             List<Instruction> instructions = new ArrayList<>();
@@ -114,6 +120,34 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         LOG.debug("UnBinding ACL service for interface {}", interfaceName);
         jobCoordinator.enqueueJob(interfaceName, () -> Collections.singletonList(txRunner
                 .callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> tx.delete(path))));
+    }
+
+    /**
+     * Programs DHCP Service flows.
+     *
+     * @param flowEntries the flow entries
+     * @param port the acl interface
+     * @param action add/modify/remove action
+     * @param addOrRemove addorRemove
+     */
+    @Override
+    protected void programDhcpService(List<FlowEntity> flowEntries, AclInterface port,
+            Action action, int addOrRemove) {
+        // No action required on egress.
+    }
+
+    /**
+     * Programs DHCP service flows.
+     *
+     * @param flowEntries the flow entries
+     * @param port the acl interface
+     * @param allowedAddresses the allowed addresses
+     * @param addOrRemove addorRemove
+     */
+    @Override
+    protected void processDhcpServiceUpdate(List<FlowEntity> flowEntries, AclInterface port,
+            List<AllowedAddressPairs> allowedAddresses, int addOrRemove) {
+        // No action required on egress.
     }
 
     @Override
