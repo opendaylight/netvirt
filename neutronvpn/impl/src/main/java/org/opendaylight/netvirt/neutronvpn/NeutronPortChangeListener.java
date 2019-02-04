@@ -246,8 +246,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         // check if port security enabled/disabled as part of port update
         boolean origSecurityEnabled = NeutronvpnUtils.getPortSecurityEnabled(original);
         boolean updatedSecurityEnabled = NeutronvpnUtils.getPortSecurityEnabled(update);
+        boolean isDhcpServerPort = NeutronvpnUtils.isDhcpServerPort(update);
 
-        if (origSecurityEnabled || updatedSecurityEnabled) {
+        if (origSecurityEnabled || updatedSecurityEnabled || isDhcpServerPort) {
             InstanceIdentifier<Interface>  interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(portName);
             jobCoordinator.enqueueJob("PORT- " + portName,
                 () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
@@ -256,9 +257,18 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                                 confTx.read(interfaceIdentifier).get();
                         if (optionalInf.isPresent()) {
                             InterfaceBuilder interfaceBuilder = new InterfaceBuilder(optionalInf.get());
-                            InterfaceAcl infAcl = handlePortSecurityUpdated(original, update,
-                                    origSecurityEnabled, updatedSecurityEnabled, interfaceBuilder).build();
-                            interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
+                            if (origSecurityEnabled || updatedSecurityEnabled) {
+                                InterfaceAcl infAcl = handlePortSecurityUpdated(original, update, origSecurityEnabled,
+                                        updatedSecurityEnabled, interfaceBuilder).build();
+                                interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
+                            } else if (isDhcpServerPort) {
+                                Set<FixedIps> oldIPs = getFixedIpSet(original.getFixedIps());
+                                Set<FixedIps> newIPs = getFixedIpSet(update.getFixedIps());
+                                if (!oldIPs.equals(newIPs)) {
+                                    InterfaceAcl infAcl = neutronvpnUtils.getDhcpInterfaceAcl(update);
+                                    interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
+                                }
+                            }
                             LOG.info("update: Of-port-interface updation for port {}", portName);
                             // Update OFPort interface for this neutron port
                             confTx.put(interfaceIdentifier, interfaceBuilder.build());
@@ -892,6 +902,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             interfaceAclBuilder.setPortSecurityEnabled(true);
             neutronvpnUtils.populateInterfaceAclBuilder(interfaceAclBuilder, port);
             interfaceBuilder.addAugmentation(InterfaceAcl.class, interfaceAclBuilder.build());
+        } else if (NeutronvpnUtils.isDhcpServerPort(port)) {
+            interfaceBuilder.addAugmentation(InterfaceAcl.class, neutronvpnUtils.getDhcpInterfaceAcl(port));
         }
         return interfaceBuilder.build();
     }

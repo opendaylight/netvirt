@@ -118,8 +118,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
             // port-security-enable=false
             aclInterfaceBefore = addOrUpdateAclInterfaceCache(interfaceId, aclInPortBefore, true, interfaceState);
         }
-        if (aclInPortAfter != null && aclInPortAfter.isPortSecurityEnabled()
-                || aclInPortBefore != null && aclInPortBefore.isPortSecurityEnabled()) {
+        if (AclServiceUtils.isOfInterest(aclInPortAfter) || AclServiceUtils.isOfInterest(aclInPortBefore)) {
             List<Uuid> sgsBefore = null;
             if (aclInPortBefore != null) {
                 sgsBefore = aclInPortBefore.getSecurityGroups();
@@ -207,7 +206,8 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
             List<Uuid> sgs = new ArrayList<>();
             if (aclInPort != null) {
                 sgs = aclInPort.getSecurityGroups();
-                builder.portSecurityEnabled(aclInPort.isPortSecurityEnabled()).securityGroups(sgs)
+                builder.portSecurityEnabled(aclInPort.isPortSecurityEnabled())
+                        .interfaceType(aclInPort.getInterfaceType()).securityGroups(sgs)
                         .allowedAddressPairs(aclInPort.getAllowedAddressPairs()).subnetInfo(aclInPort.getSubnetInfo());
             }
 
@@ -232,7 +232,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     public void add(InstanceIdentifier<Interface> key, Interface port) {
         LOG.trace("Received AclInterface add event, port={}", port);
         InterfaceAcl aclInPort = port.augmentation(InterfaceAcl.class);
-        if (aclInPort != null && aclInPort.isPortSecurityEnabled()) {
+        if (AclServiceUtils.isOfInterest(aclInPort)) {
             String interfaceId = port.getName();
             AclInterface aclInterface = addOrUpdateAclInterfaceCache(interfaceId, aclInPort);
 
