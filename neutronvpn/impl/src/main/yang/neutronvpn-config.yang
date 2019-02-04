@@ -17,5 +17,11 @@ module neutronvpn-config {
             type string;
             default "70000:99999";
         }
+
+        leaf limit-bumtraffic-to-dhcpserver {
+            description "If false, limit bumtraffic to dhcpserver";
+            type boolean;
+            default false;
+        }
     }
 }
