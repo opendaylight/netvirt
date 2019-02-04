@@ -124,6 +124,14 @@ module aclservice {
                 type ip-prefix-or-address;
             }
         }
+        leaf interface-type {
+            type enumeration {
+                enum "access-port";
+                enum "dhcp-service";
+            }
+            default "access-port";
+            description "Interface type.";
+        }
         list subnet-info {
             key subnet-id;
             leaf subnet-id {
