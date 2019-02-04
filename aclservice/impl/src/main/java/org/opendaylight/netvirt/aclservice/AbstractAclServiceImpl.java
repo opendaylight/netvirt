@@ -63,6 +63,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.SubnetInfo;
@@ -117,27 +118,32 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             LOG.error("port cannot be null");
             return false;
         }
-        if (port.getSecurityGroups() == null) {
-            LOG.info("Port {} without SGs", port.getInterfaceId());
-            return false;
-        }
         BigInteger dpId = port.getDpId();
         if (dpId == null || port.getLPortTag() == null) {
             LOG.error("Unable to find DpId from ACL interface with id {}", port.getInterfaceId());
             return false;
         }
+
         LOG.debug("Applying ACL on port {} with DpId {}", port, dpId);
         List<FlowEntity> flowEntries = new ArrayList<>();
-        programAcl(flowEntries, port, Action.ADD, NwConstants.ADD_FLOW);
-        updateRemoteAclFilterTable(flowEntries, port, NwConstants.ADD_FLOW);
+        if (port.getInterfaceType() == InterfaceType.DhcpService) {
+            programDhcpService(flowEntries, port, Action.ADD, NwConstants.ADD_FLOW);
+        } else {
+            if (port.getSecurityGroups() == null) {
+                LOG.info("Port {} without SGs", port.getInterfaceId());
+                return false;
+            }
+            programAcl(flowEntries, port, Action.ADD, NwConstants.ADD_FLOW);
+            updateRemoteAclFilterTable(flowEntries, port, NwConstants.ADD_FLOW);
+        }
         programFlows(AclConstants.ACL_JOB_KEY_PREFIX + port.getInterfaceId(), flowEntries, NwConstants.ADD_FLOW);
         return true;
     }
 
     @Override
     public boolean bindAcl(AclInterface port) {
-        if (port == null || port.getSecurityGroups() == null) {
-            LOG.error("Port and port security groups cannot be null for binding ACL service, port={}", port);
+        if (port == null) {
+            LOG.error("Port cannot be null for binding ACL service");
             return false;
         }
         bindService(port);
@@ -180,9 +186,30 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             // Acls has been updated, find added/removed Acls and act accordingly.
             processInterfaceUpdate(portBefore, portAfter);
             LOG.debug("On ACL update, ACL has been updated for {}", portAfter.getInterfaceId());
+        } else if (portAfter.getInterfaceType() == InterfaceType.DhcpService) {
+            processDhcpServiceInterfaceUpdate(portBefore, portAfter);
         }
 
         return result;
+    }
+
+    private void processDhcpServiceInterfaceUpdate(AclInterface portBefore, AclInterface portAfter) {
+        List<FlowEntity> addFlowEntries = new ArrayList<>();
+        List<FlowEntity> deleteFlowEntries = new ArrayList<>();
+        List<AllowedAddressPairs> addedAaps = AclServiceUtils
+                .getUpdatedAllowedAddressPairs(portAfter.getAllowedAddressPairs(), portBefore.getAllowedAddressPairs());
+        List<AllowedAddressPairs> deletedAaps = AclServiceUtils
+                .getUpdatedAllowedAddressPairs(portBefore.getAllowedAddressPairs(), portAfter.getAllowedAddressPairs());
+        if (deletedAaps != null && !deletedAaps.isEmpty()) {
+            processDhcpServiceUpdate(deleteFlowEntries, portBefore, deletedAaps, NwConstants.DEL_FLOW);
+        }
+        if (addedAaps != null && !addedAaps.isEmpty()) {
+            processDhcpServiceUpdate(addFlowEntries, portAfter, addedAaps, NwConstants.ADD_FLOW);
+        }
+        programFlows(AclConstants.ACL_JOB_KEY_PREFIX + portAfter.getInterfaceId(), deleteFlowEntries,
+                NwConstants.DEL_FLOW);
+        programFlows(AclConstants.ACL_JOB_KEY_PREFIX + portAfter.getInterfaceId(), addFlowEntries,
+                NwConstants.ADD_FLOW);
     }
 
     private void processInterfaceUpdate(AclInterface portBefore, AclInterface portAfter) {
@@ -500,8 +527,12 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             return false;
         }
         List<FlowEntity> flowEntries = new ArrayList<>();
-        programAcl(flowEntries, port, Action.REMOVE, NwConstants.DEL_FLOW);
-        updateRemoteAclFilterTable(flowEntries, port, NwConstants.DEL_FLOW);
+        if (port.getInterfaceType() == InterfaceType.DhcpService) {
+            programDhcpService(flowEntries, port, Action.REMOVE, NwConstants.DEL_FLOW);
+        } else {
+            programAcl(flowEntries, port, Action.REMOVE, NwConstants.DEL_FLOW);
+            updateRemoteAclFilterTable(flowEntries, port, NwConstants.DEL_FLOW);
+        }
         programFlows(AclConstants.ACL_JOB_KEY_PREFIX + port.getInterfaceId(), flowEntries, NwConstants.DEL_FLOW);
         return true;
     }
@@ -546,6 +577,28 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param aclInterface the acl interface
      */
     protected abstract void unbindService(AclInterface aclInterface);
+
+    /**
+     * Programs DHCP Service flows.
+     *
+     * @param flowEntries the flow entries
+     * @param port the acl interface
+     * @param action add/modify/remove action
+     * @param addOrRemove addorRemove
+     */
+    protected abstract void programDhcpService(List<FlowEntity> flowEntries, AclInterface port,
+            Action action, int addOrRemove);
+
+    /**
+     * Programs DHCP service flows.
+     *
+     * @param flowEntries the flow entries
+     * @param port the acl interface
+     * @param allowedAddresses the allowed addresses
+     * @param addOrRemove addorRemove
+     */
+    protected abstract void processDhcpServiceUpdate(List<FlowEntity> flowEntries, AclInterface port,
+            List<AllowedAddressPairs> allowedAddresses, int addOrRemove);
 
     /**
      * Programs the anti-spoofing rules.
