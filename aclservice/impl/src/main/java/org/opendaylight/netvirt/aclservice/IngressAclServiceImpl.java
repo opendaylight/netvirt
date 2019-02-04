@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.aclservice;
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
+import com.google.common.collect.Lists;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,6 +20,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -25,6 +28,9 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4;
+import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.genius.utils.ServiceIndex;
@@ -45,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.SubnetInfo;
@@ -127,6 +134,44 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
                 .callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> tx.delete(path))));
     }
 
+    /**
+     * Programs DHCP Service flows.
+     *
+     * @param flowEntries the flow entries
+     * @param port the acl interface
+     * @param action add/modify/remove action
+     * @param addOrRemove addorRemove
+     */
+    @Override
+    protected void programDhcpService(List<FlowEntity> flowEntries, AclInterface port,
+            Action action, int addOrRemove) {
+        LOG.info("{} programDhcpService for port {}, action={}, addOrRemove={}", this.directionString,
+                port.getInterfaceId(), action, addOrRemove);
+        BigInteger dpid = port.getDpId();
+        int lportTag = port.getLPortTag();
+        allowDhcpClientTraffic(flowEntries, dpid, lportTag, addOrRemove);
+        allowDhcpv6ClientTraffic(flowEntries, dpid, lportTag, addOrRemove);
+        programArpRule(flowEntries, dpid, lportTag, addOrRemove);
+        ingressAclIcmpv6AllowedTraffic(flowEntries, port, InterfaceType.DhcpService, addOrRemove);
+        allowIcmpTrafficToDhcpServer(flowEntries, port, port.getAllowedAddressPairs(), addOrRemove);
+        dropTrafficToDhcpServer(flowEntries, dpid, lportTag, addOrRemove);
+        programCommitterDropFlow(flowEntries, dpid, lportTag, addOrRemove);
+    }
+
+    /**
+     * Programs DHCP service flows.
+     *
+     * @param flowEntries the flow entries
+     * @param port the acl interface
+     * @param allowedAddresses the allowed addresses
+     * @param addOrRemove addorRemove
+     */
+    @Override
+    protected void processDhcpServiceUpdate(List<FlowEntity> flowEntries, AclInterface port,
+            List<AllowedAddressPairs> allowedAddresses, int addOrRemove) {
+        allowIcmpTrafficToDhcpServer(flowEntries, port, allowedAddresses, addOrRemove);
+    }
+
     @Override
     protected void programAntiSpoofingRules(List<FlowEntity> flowEntries, AclInterface port,
             List<AllowedAddressPairs> allowedAddresses, Action action, int addOrRemove) {
@@ -139,7 +184,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
             programCommitterDropFlow(flowEntries, dpid, lportTag, addOrRemove);
             ingressAclDhcpAllowServerTraffic(flowEntries, dpid, lportTag, addOrRemove);
             ingressAclDhcpv6AllowServerTraffic(flowEntries, dpid, lportTag, addOrRemove);
-            ingressAclIcmpv6AllowedTraffic(flowEntries, port, addOrRemove);
+            ingressAclIcmpv6AllowedTraffic(flowEntries, port, InterfaceType.AccessPort, addOrRemove);
             programIcmpv6RARule(flowEntries, port, port.getSubnetInfo(), addOrRemove);
 
             programArpRule(flowEntries, dpid, lportTag, addOrRemove);
@@ -248,27 +293,33 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      *
      * @param flowEntries the flow entries
      * @param port the port
+     * @param port type
      * @param addOrRemove is write or delete
      */
-    private void ingressAclIcmpv6AllowedTraffic(List<FlowEntity> flowEntries, AclInterface port, int addOrRemove) {
+    private void ingressAclIcmpv6AllowedTraffic(List<FlowEntity> flowEntries, AclInterface port,
+            InterfaceType interfaceType, int addOrRemove) {
         BigInteger dpId = port.getDpId();
         int lportTag = port.getLPortTag();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
 
-        // Allow ICMPv6 Multicast Listener Query packets.
-        List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_MLD_QUERY, 0,
-                lportTag, serviceMode);
-
         final short tableId = getAclAntiSpoofingTable();
-        String flowName =
-                "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_MLD_QUERY + "_Permit_";
-        addFlowEntryToList(flowEntries, dpId, tableId, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, 0, 0,
-                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+
+        if (interfaceType != InterfaceType.DhcpService) {
+            // Allow ICMPv6 Multicast Listener Query packets.
+            List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_MLD_QUERY, 0,
+                    lportTag, serviceMode);
+            String flowName = "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_"
+                    + AclConstants.ICMPV6_TYPE_MLD_QUERY + "_Permit_";
+            addFlowEntryToList(flowEntries, dpId, tableId, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, 0, 0,
+                    AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        }
 
         // Allow ICMPv6 Neighbor Solicitation packets.
-        matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_NS, 0, lportTag, serviceMode);
+        List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(AclConstants.ICMPV6_TYPE_NS, 0, lportTag,
+                serviceMode);
 
-        flowName = "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_NS + "_Permit_";
+        String flowName = "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_"
+                + AclConstants.ICMPV6_TYPE_NS + "_Permit_";
         addFlowEntryToList(flowEntries, dpId, tableId, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
 
@@ -380,6 +431,117 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         } else {
             LOG.warn("IP Broadcast CIDRs are missing for port {}", port.getInterfaceId());
         }
+    }
+
+    /**
+     * Add rule to ensure only DHCP client traffic is allowed.
+     *
+     * @param flowEntries the flow entries
+     * @param dpId the dpid
+     * @param lportTag the lport tag
+     * @param addOrRemove is write or delete
+     */
+    protected void allowDhcpClientTraffic(List<FlowEntity> flowEntries, BigInteger dpId, int lportTag,
+            int addOrRemove) {
+        final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_CLIENT_PORT_IPV4,
+                AclConstants.DHCP_SERVER_PORT_IPV4, lportTag, serviceMode);
+        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
+
+        String flowName = "Ingress_DHCP_Service_v4" + dpId + "_" + lportTag + "_Permit_";
+        addFlowEntryToList(flowEntries, dpId, getAclAntiSpoofingTable(), flowName,
+                AclConstants.PROTO_DHCP_SERVER_MATCH_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
+                instructions, addOrRemove);
+    }
+
+    /**
+     * Add rule to ensure only DHCPv6 client traffic is allowed.
+     *
+     * @param flowEntries the flow entries
+     * @param dpId the dpid
+     * @param lportTag the lport tag
+     * @param addOrRemove is write or delete
+     */
+    protected void allowDhcpv6ClientTraffic(List<FlowEntity> flowEntries, BigInteger dpId, int lportTag,
+            int addOrRemove) {
+        final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_CLIENT_PORT_IPV6,
+                AclConstants.DHCP_SERVER_PORT_IPV6, lportTag, serviceMode);
+        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
+
+        String flowName = "Ingress_DHCP_Service_v6" + "_" + dpId + "_" + lportTag + "_Permit_";
+        addFlowEntryToList(flowEntries, dpId, getAclAntiSpoofingTable(), flowName,
+                AclConstants.PROTO_DHCP_SERVER_MATCH_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
+                instructions, addOrRemove);
+    }
+
+    /**
+     * Add rules to allow ICMP traffic for DHCP server.
+     * @param flowEntries the flow entries
+     * @param port the Acl Interface port
+     * @param allowedAddresses the allowed addresses
+     * @param addOrRemove the lport tag
+     */
+    protected void allowIcmpTrafficToDhcpServer(List<FlowEntity> flowEntries, AclInterface port,
+            List<AllowedAddressPairs> allowedAddresses, int addOrRemove) {
+        BigInteger dpId = port.getDpId();
+        int lportTag = port.getLPortTag();
+        for (AllowedAddressPairs allowedAddress : allowedAddresses) {
+            if (AclServiceUtils.isIPv4Address(allowedAddress)) {
+                MatchInfo reqMatchInfo = new MatchIcmpv4((short) AclConstants.ICMPV4_TYPE_ECHO_REQUEST, (short) 0);
+                programIcmpFlow(flowEntries, dpId, lportTag, allowedAddress, MatchIpProtocol.ICMP, reqMatchInfo,
+                        AclConstants.ICMPV4_TYPE_ECHO_REQUEST, addOrRemove);
+                MatchInfo replyMatchInfo = new MatchIcmpv4((short) AclConstants.ICMPV4_TYPE_ECHO_REPLY, (short) 0);
+                programIcmpFlow(flowEntries, dpId, lportTag, allowedAddress, MatchIpProtocol.ICMP, replyMatchInfo,
+                        AclConstants.ICMPV4_TYPE_ECHO_REPLY, addOrRemove);
+            } else {
+                MatchInfo reqMatchInfo = new MatchIcmpv6((short) AclConstants.ICMPV6_TYPE_ECHO_REQUEST, (short) 0);
+                programIcmpFlow(flowEntries, dpId, lportTag, allowedAddress, MatchIpProtocol.ICMPV6, reqMatchInfo,
+                        AclConstants.ICMPV6_TYPE_ECHO_REQUEST, addOrRemove);
+                MatchInfo replyMatchInfo = new MatchIcmpv6((short) AclConstants.ICMPV6_TYPE_ECHO_REPLY, (short) 0);
+                programIcmpFlow(flowEntries, dpId, lportTag, allowedAddress, MatchIpProtocol.ICMPV6, replyMatchInfo,
+                        AclConstants.ICMPV6_TYPE_ECHO_REPLY, addOrRemove);
+            }
+        }
+    }
+
+    private void programIcmpFlow(List<FlowEntity> flowEntries, BigInteger dpId, int lportTag,
+            AllowedAddressPairs allowedAddress, MatchIpProtocol protocol, MatchInfo icmpTypeMatchInfo,
+            int icmpType, int addOrRemove) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(protocol);
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
+        matches.add(new MatchEthernetDestination(allowedAddress.getMacAddress()));
+        matches.addAll(AclServiceUtils.buildIpMatches(allowedAddress.getIpAddress(), MatchCriteria.MATCH_DESTINATION));
+        matches.add(icmpTypeMatchInfo);
+
+        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
+        String flowName = "Ingress_DHCP_Service_ICMP_" + dpId + "_" + lportTag + "_" + icmpType + "_Permit_";
+        addFlowEntryToList(flowEntries, dpId, getAclAntiSpoofingTable(), flowName,
+                AclConstants.PROTO_DHCP_SERVER_MATCH_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
+                instructions, addOrRemove);
+    }
+
+    /**
+     * Add rule to drop BUM traffic to DHCP Server.
+     *
+     * @param flowEntries the flow entries
+     * @param dpId the dpid
+     * @param lportTag the lport tag
+     * @param addOrRemove is write or delete
+     */
+    protected void dropTrafficToDhcpServer(List<FlowEntity> flowEntries, BigInteger dpId, int lportTag,
+            int addOrRemove) {
+        InstructionInfo writeMetatdata = AclServiceUtils.getWriteMetadataForDropFlag();
+        List<InstructionInfo> instructions = Lists.newArrayList(writeMetatdata);
+        instructions.addAll(AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclCommitterTable()));
+
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(new NxMatchRegister(NxmNxReg6.class, MetaDataUtil.getLportTagForReg6(lportTag).longValue(),
+                MetaDataUtil.getLportTagMaskForReg6()));
+
+        String flowName = "Ingress_DHCP_Service_" + dpId + "_" + lportTag + "_Drop";
+        addFlowEntryToList(flowEntries, dpId, getAclAntiSpoofingTable(), flowName,
+                AclConstants.PROTO_DHCP_SERVER_DROP_PRIORITY, 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
+                instructions, addOrRemove);
     }
 
     @Override
