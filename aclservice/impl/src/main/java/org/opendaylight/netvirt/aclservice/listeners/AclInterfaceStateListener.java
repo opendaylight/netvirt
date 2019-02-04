@@ -155,7 +155,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
             }
             aclInterfaceCache.addOrUpdate(added.getName(), (prevAclInterface, builder) -> {
                 builder.portSecurityEnabled(aclInPort.isPortSecurityEnabled())
-                    .securityGroups(aclInPort.getSecurityGroups())
+                    .interfaceType(aclInPort.getInterfaceType()).securityGroups(aclInPort.getSecurityGroups())
                     .allowedAddressPairs(aclInPort.getAllowedAddressPairs()).subnetInfo(aclInPort.getSubnetInfo());
             });
         }
