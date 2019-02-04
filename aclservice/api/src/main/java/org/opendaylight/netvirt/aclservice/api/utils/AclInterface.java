@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.SortedSet;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.SubnetInfo;
 
@@ -36,6 +37,9 @@ public final class AclInterface {
 
     /** The port security enabled. */
     private final boolean portSecurityEnabled;
+
+    /** Interface type. */
+    private final InterfaceType interfaceType;
 
     /** The security groups. */
     private final List<Uuid> securityGroups;
@@ -61,6 +65,7 @@ public final class AclInterface {
         this.dpId = builder.dpId;
         this.elanId = builder.elanId;
         this.portSecurityEnabled = builder.portSecurityEnabled;
+        this.interfaceType = builder.interfaceType;
         this.securityGroups = builder.securityGroups;
         this.allowedAddressPairs = builder.allowedAddressPairs;
         this.subnetInfo = builder.subnetInfo;
@@ -76,6 +81,15 @@ public final class AclInterface {
      */
     public boolean isPortSecurityEnabled() {
         return portSecurityEnabled;
+    }
+
+    /**
+     * Gets the interface type.
+     *
+     * @return the interface type
+     */
+    public InterfaceType getInterfaceType() {
+        return interfaceType;
     }
 
     /**
@@ -183,6 +197,7 @@ public final class AclInterface {
         final int prime = 31;
         int result = 1;
         result = prime * result + Boolean.hashCode(portSecurityEnabled);
+        result = prime * result + (interfaceType == null ? 0 : interfaceType.hashCode());
         result = prime * result + (dpId == null ? 0 : dpId.hashCode());
         result = prime * result + (interfaceId == null ? 0 : interfaceId.hashCode());
         result = prime * result + (lportTag == null ? 0 : lportTag.hashCode());
@@ -208,6 +223,9 @@ public final class AclInterface {
         }
         AclInterface other = (AclInterface) obj;
         if (portSecurityEnabled != other.portSecurityEnabled) {
+            return false;
+        }
+        if (interfaceType != other.interfaceType) {
             return false;
         }
         if (dpId == null) {
@@ -254,10 +272,10 @@ public final class AclInterface {
     @Override
     public String toString() {
         return "AclInterface [interfaceId=" + interfaceId + ", lportTag=" + lportTag + ", dpId=" + dpId + ", elanId="
-                + elanId + ", portSecurityEnabled=" + portSecurityEnabled + ", securityGroups=" + securityGroups
-                + ", allowedAddressPairs=" + allowedAddressPairs + ", subnetInfo=" + subnetInfo
-                + ", ingressRemoteAclTags=" + ingressRemoteAclTags + ", egressRemoteAclTags=" + egressRemoteAclTags
-                + ", isMarkedForDelete=" + isMarkedForDelete + "]";
+                + elanId + ", portSecurityEnabled=" + portSecurityEnabled + ", interfaceType=" + interfaceType
+                + ", securityGroups=" + securityGroups + ", allowedAddressPairs=" + allowedAddressPairs
+                + ", subnetInfo=" + subnetInfo + ", ingressRemoteAclTags=" + ingressRemoteAclTags
+                + ", egressRemoteAclTags=" + egressRemoteAclTags + ", isMarkedForDelete=" + isMarkedForDelete + "]";
     }
 
     public static Builder builder() {
@@ -274,6 +292,7 @@ public final class AclInterface {
         private BigInteger dpId;
         private Long elanId;
         private boolean portSecurityEnabled;
+        private @Nullable InterfaceType interfaceType;
         private @Nullable List<Uuid> securityGroups;
         private @Nullable List<AllowedAddressPairs> allowedAddressPairs;
         private @Nullable List<SubnetInfo> subnetInfo;
@@ -296,10 +315,16 @@ public final class AclInterface {
             this.ingressRemoteAclTags = from.ingressRemoteAclTags;
             this.egressRemoteAclTags = from.egressRemoteAclTags;
             this.isMarkedForDelete = from.isMarkedForDelete;
+            this.interfaceType = from.interfaceType;
         }
 
         public Builder portSecurityEnabled(boolean value) {
             this.portSecurityEnabled = value;
+            return this;
+        }
+
+        public Builder interfaceType(InterfaceType value) {
+            this.interfaceType = value;
             return this;
         }
 
