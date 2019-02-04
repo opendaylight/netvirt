@@ -116,6 +116,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.AclPortsLookup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpVersionV6;
@@ -822,13 +823,25 @@ public final class AclServiceUtils {
     }
 
     /**
-     * Indicates whether the interface has port security enabled.
+     * Indicates whether the interface has port security enabled or interface is DHCP service port.
      *
      * @param aclInterface the interface.
-     * @return true if port is security enabled.
+     * @return true if port is security enabled or is a DHCP service port.
      */
     public static boolean isOfInterest(AclInterface aclInterface) {
-        return aclInterface != null && aclInterface.isPortSecurityEnabled();
+        return aclInterface != null && (aclInterface.isPortSecurityEnabled()
+                || aclInterface.getInterfaceType() == InterfaceAcl.InterfaceType.DhcpService);
+    }
+
+    /**
+     * Indicates whether the interface has port security enabled or interface is DHCP service port.
+     *
+     * @param aclInterface the interface.
+     * @return true if port is security enabled or is a DHCP service port.
+     */
+    public static boolean isOfInterest(InterfaceAcl aclInterface) {
+        return aclInterface != null && (aclInterface.isPortSecurityEnabled()
+                || aclInterface.getInterfaceType() == InterfaceAcl.InterfaceType.DhcpService);
     }
 
     /**

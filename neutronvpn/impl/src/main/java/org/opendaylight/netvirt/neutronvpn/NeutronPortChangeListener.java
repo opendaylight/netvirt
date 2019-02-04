@@ -69,6 +69,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.port.id.subport.data.PortIdToSubport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
@@ -96,6 +97,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private final NeutronvpnUtils neutronvpnUtils;
     private final HostConfigCache hostConfigCache;
     private final DataTreeEventCallbackRegistrar eventCallbacks;
+    private final NeutronvpnConfig neutronvpnConfig;
 
     public NeutronPortChangeListener(final DataBroker dataBroker,
                                      final NeutronvpnManager neutronvpnManager,
@@ -105,7 +107,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                                      final JobCoordinator jobCoordinator,
                                      final NeutronvpnUtils neutronvpnUtils,
                                      final HostConfigCache hostConfigCache,
-                                     final DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar) {
+                                     final DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar,
+                                     final NeutronvpnConfig neutronvpnConfig) {
         super(Port.class, NeutronPortChangeListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -117,6 +120,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         this.neutronvpnUtils = neutronvpnUtils;
         this.hostConfigCache = hostConfigCache;
         this.eventCallbacks = dataTreeEventCallbackRegistrar;
+        this.neutronvpnConfig = neutronvpnConfig;
+
     }
 
     @Override
@@ -252,8 +257,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         // check if port security enabled/disabled as part of port update
         boolean origSecurityEnabled = NeutronvpnUtils.getPortSecurityEnabled(original);
         boolean updatedSecurityEnabled = NeutronvpnUtils.getPortSecurityEnabled(update);
-
-        if (origSecurityEnabled || updatedSecurityEnabled) {
+        boolean isDhcpServerPort = neutronvpnConfig.isLimitBumtrafficToDhcpserver()
+                               && NeutronvpnUtils.isDhcpServerPort(update);
+        if (origSecurityEnabled || updatedSecurityEnabled || isDhcpServerPort) {
             InstanceIdentifier<Interface>  interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(portName);
             jobCoordinator.enqueueJob("PORT- " + portName,
                 () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
@@ -262,9 +268,18 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                                 confTx.read(interfaceIdentifier).get();
                         if (optionalInf.isPresent()) {
                             InterfaceBuilder interfaceBuilder = new InterfaceBuilder(optionalInf.get());
-                            InterfaceAcl infAcl = handlePortSecurityUpdated(original, update,
-                                    origSecurityEnabled, updatedSecurityEnabled, interfaceBuilder).build();
-                            interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
+                            if (origSecurityEnabled || updatedSecurityEnabled) {
+                                InterfaceAcl infAcl = handlePortSecurityUpdated(original, update, origSecurityEnabled,
+                                        updatedSecurityEnabled, interfaceBuilder).build();
+                                interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
+                            } else if (isDhcpServerPort) {
+                                Set<FixedIps> oldIPs = getFixedIpSet(original.getFixedIps());
+                                Set<FixedIps> newIPs = getFixedIpSet(update.getFixedIps());
+                                if (!oldIPs.equals(newIPs)) {
+                                    InterfaceAcl infAcl = neutronvpnUtils.getDhcpInterfaceAcl(update);
+                                    interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
+                                }
+                            }
                             LOG.info("update: Of-port-interface updation for port {}", portName);
                             // Update OFPort interface for this neutron port
                             confTx.put(interfaceIdentifier, interfaceBuilder.build());
@@ -910,6 +925,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             interfaceAclBuilder.setPortSecurityEnabled(true);
             neutronvpnUtils.populateInterfaceAclBuilder(interfaceAclBuilder, port);
             interfaceBuilder.addAugmentation(InterfaceAcl.class, interfaceAclBuilder.build());
+        } else if (neutronvpnConfig.isLimitBumtrafficToDhcpserver() && NeutronvpnUtils.isDhcpServerPort(port)) {
+            interfaceBuilder.addAugmentation(InterfaceAcl.class, neutronvpnUtils.getDhcpInterfaceAcl(port));
         }
         return interfaceBuilder.build();
     }

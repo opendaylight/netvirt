@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIpsBuilder;
@@ -78,6 +79,9 @@ public class NeutronPortChangeListenerTest {
     IPV6InternetDefaultRouteProgrammer ipV6InternetDefRt;
     @Mock
     DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar;
+    @Mock
+    NeutronvpnConfig neutronvpnConfig;
+
 
     MetricProvider metricProvider = new TestMetricProviderImpl();
 
@@ -92,7 +96,7 @@ public class NeutronPortChangeListenerTest {
                 gwMacResolver, elanService, jobCoordinator, new NeutronvpnUtils(dataBroker, idManager, jobCoordinator,
                         ipV6InternetDefRt),
                 new HostConfigCache(dataBroker, new GuavaCacheProvider(new CacheManagersRegistryImpl())),
-                dataTreeEventCallbackRegistrar);
+                dataTreeEventCallbackRegistrar,neutronvpnConfig);
         InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class,
                         new ElanInstanceKey(new Uuid("12345678-1234-1234-1234-123456789012").getValue())).build();
