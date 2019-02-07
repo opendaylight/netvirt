@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "28dd5bd5_37ba360e",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/utils/CoeUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2019-02-07T05:59:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb2a1f63_d79ac40c",
+      "range": {
+        "startLine": 499,
+        "startChar": 70,
+        "endLine": 499,
+        "endChar": 79
+      },
+      "revId": "ef4ac35b1fc45d529f6e521521d3236dab05ad52",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "27b917df_3424564f",
         "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/utils/CoeUtils.java",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-02-04T10:52:15Z",
       "side": 1,
       "message": "this is unrelated to the interation. can be moved outside before the iteration",
+      "range": {
+        "startLine": 500,
+        "startChar": 22,
+        "endLine": 501,
+        "endChar": 32
+      },
+      "revId": "ef4ac35b1fc45d529f6e521521d3236dab05ad52",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6190cb1e_e8a05165",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/utils/CoeUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2019-02-07T05:59:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27b917df_3424564f",
       "range": {
         "startLine": 500,
         "startChar": 22,
@@ -94,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "232a2b35_40014365",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/utils/CoeUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2019-02-07T05:59:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "105d183f_a1f55d94",
+      "range": {
+        "startLine": 520,
+        "startChar": 32,
+        "endLine": 520,
+        "endChar": 79
+      },
+      "revId": "ef4ac35b1fc45d529f6e521521d3236dab05ad52",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6ba7c317_0ffa5e3e",
         "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/utils/CoeUtils.java",
         "patchSetId": 2
@@ -105,6 +177,30 @@
       "writtenOn": "2019-02-04T10:52:15Z",
       "side": 1,
       "message": "Please ensure that this vpn-interface update happens only after the vpn interface create",
+      "range": {
+        "startLine": 522,
+        "startChar": 25,
+        "endLine": 522,
+        "endChar": 40
+      },
+      "revId": "ef4ac35b1fc45d529f6e521521d3236dab05ad52",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "45e32496_c6aa4fd6",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/utils/CoeUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2019-02-07T05:59:34Z",
+      "side": 1,
+      "message": "it is ensured",
+      "parentUuid": "6ba7c317_0ffa5e3e",
       "range": {
         "startLine": 522,
         "startChar": 25,
