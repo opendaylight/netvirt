@@ -109,6 +109,12 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     private final UpgradeState upgradeState;
     private final DataTreeEventCallbackRegistrar eventCallbacks;
 
+    protected enum PrefixInfoStatus {
+        READ_SUCCESS,
+        READ_FAILURE
+    }
+
+
     @Inject
     public BaseVrfEntryHandler(final DataBroker dataBroker,
                                final NexthopManager nexthopManager,
@@ -310,31 +316,31 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
     }
 
-    protected void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, @Nullable Prefixes prefixInfo,
+    protected PrefixInfoStatus addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, @Nullable Prefixes prefixInfo,
                                           List<ActionInfo> actionInfos) {
         if (vrfEntry.getMac() != null) {
             actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
                     new MacAddress(vrfEntry.getMac())));
-            return;
+            return PrefixInfoStatus.READ_SUCCESS;
         }
         if (prefixInfo == null) {
             prefixInfo = fibUtil.getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
             //Checking PrefixtoInterface again as it is populated later in some cases
             if (prefixInfo == null) {
                 LOG.debug("No prefix info found for prefix {}", vrfEntry.getDestPrefix());
-                return;
+                return PrefixInfoStatus.READ_FAILURE;
             }
         }
         String ipPrefix = prefixInfo.getIpAddress();
         String ifName = prefixInfo.getVpnInterfaceName();
         if (ifName == null) {
             LOG.debug("Failed to get VPN interface for prefix {}", ipPrefix);
-            return;
+            return PrefixInfoStatus.READ_FAILURE;
         }
         String vpnName = fibUtil.getVpnNameFromId(vpnId);
         if (vpnName == null) {
             LOG.debug("Failed to get VPN name for vpnId {}", vpnId);
-            return;
+            return PrefixInfoStatus.READ_FAILURE;
         }
         String macAddress = null;
         if (vrfEntry.getParentVpnRd() != null) {
@@ -351,18 +357,19 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
         if (macAddress == null) {
             LOG.warn("No MAC address found for VPN interface {} prefix {}", ifName, ipPrefix);
-            return;
+            return PrefixInfoStatus.READ_FAILURE;
         }
         actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(), new MacAddress(macAddress)));
+        return PrefixInfoStatus.READ_SUCCESS;
     }
 
-    protected void addTunnelInterfaceActions(AdjacencyResult adjacencyResult, long vpnId, VrfEntry vrfEntry,
+    protected PrefixInfoStatus addTunnelInterfaceActions(AdjacencyResult adjacencyResult, long vpnId, VrfEntry vrfEntry,
                                            List<ActionInfo> actionInfos, String rd) {
         Class<? extends TunnelTypeBase> tunnelType =
                 VpnExtraRouteHelper.getTunnelType(nextHopManager.getItmManager(), adjacencyResult.getInterfaceName());
         if (tunnelType == null) {
             LOG.debug("Tunnel type not found for vrfEntry {}", vrfEntry);
-            return;
+            return PrefixInfoStatus.READ_FAILURE;
         }
         // TODO - For now have added routePath into adjacencyResult so that we know for which
         // routePath this result is built for. If this is not possible construct a map which does
@@ -371,7 +378,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         java.util.Optional<Long> optionalLabel = FibUtil.getLabelForNextHop(vrfEntry, nextHopIp);
         if (!optionalLabel.isPresent()) {
             LOG.warn("NextHopIp {} not found in vrfEntry {}", nextHopIp, vrfEntry);
-            return;
+            return PrefixInfoStatus.READ_FAILURE;
         }
         long label = optionalLabel.get();
         BigInteger tunnelId = null;
@@ -409,7 +416,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
         LOG.debug("adding set tunnel id action for label {}", label);
         actionInfos.add(new ActionSetFieldTunnelId(tunnelId));
-        addRewriteDstMacAction(vpnId, vrfEntry, prefixInfo, actionInfos);
+        return addRewriteDstMacAction(vpnId, vrfEntry, prefixInfo, actionInfos);
     }
 
     @Nullable
@@ -426,7 +433,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         return res;
     }
 
-    public void programRemoteFib(final BigInteger remoteDpnId, final long vpnId,
+    public void programRemoteFib(final BigInteger remoteDpnId, final long parentVpnId,
                                  final VrfEntry vrfEntry, WriteTransaction tx, String rd,
                                  List<AdjacencyResult> adjacencyResults,
                                  @Nullable List<SubTransaction> subTxns) {
@@ -440,27 +447,39 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                     (before, after) -> {
                         LOG.info("programRemoteFib: waited for and got interface state {}", absentInterfaceStateIid);
                         txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                            (wtx) -> programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults, null));
+                            (wtx) -> programRemoteFib(remoteDpnId, parentVpnId, vrfEntry, wtx, rd,
+                                    adjacencyResults, null));
                         return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
                     },
                     Duration.of(15, ChronoUnit.MINUTES),
                     (iid) -> {
                         LOG.error("programRemoteFib: timed out waiting for {}", absentInterfaceStateIid);
                         txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                            (wtx) -> programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults, null));
+                            (wtx) -> programRemoteFib(remoteDpnId, parentVpnId, vrfEntry, wtx, rd,
+                                    adjacencyResults, null));
                     });
                 return;
             }
         }
 
         List<InstructionInfo> instructions = new ArrayList<>();
+        PrefixInfoStatus prefixInfoStatus;
+        Routes extraRoute = null;
+        if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
+            extraRoute = getVpnToExtraroute(parentVpnId, rd, vrfEntry.getDestPrefix());
+        }
         for (AdjacencyResult adjacencyResult : adjacencyResults) {
             List<ActionInfo> actionInfos = new ArrayList<>();
             String egressInterface = adjacencyResult.getInterfaceName();
             if (FibUtil.isTunnelInterface(adjacencyResult)) {
-                addTunnelInterfaceActions(adjacencyResult, vpnId, vrfEntry, actionInfos, rd);
+                prefixInfoStatus = addTunnelInterfaceActions(adjacencyResult, parentVpnId, vrfEntry, actionInfos, rd);
             } else {
-                addRewriteDstMacAction(vpnId, vrfEntry, null, actionInfos);
+                prefixInfoStatus = addRewriteDstMacAction(parentVpnId, vrfEntry, null, actionInfos);
+            }
+            if (extraRoute == null && prefixInfoStatus.equals(PrefixInfoStatus.READ_FAILURE)) {
+                LOG.error("createRemoteFibEntry: MacAddress read failed for Prefix {} VpnId {} rd {} remoteDpn {} "
+                        + "DestMac action not written", vrfEntry.getDestPrefix(), parentVpnId, rd, remoteDpnId);
+                return;
             }
             List<ActionInfo> egressActions = nextHopManager.getEgressActionsForInterface(egressInterface,
                     actionInfos.size(), true);
@@ -474,7 +493,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             actionInfos.addAll(egressActions);
             instructions.add(new InstructionApplyActions(actionInfos));
         }
-        makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx, subTxns);
+        makeConnectedRoute(remoteDpnId, parentVpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx, subTxns);
     }
 
     public boolean checkDpnDeleteFibEntry(VpnNexthop localNextHopInfo, BigInteger remoteDpnId, long vpnId,
