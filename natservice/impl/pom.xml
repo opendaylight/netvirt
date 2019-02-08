@@ -111,6 +111,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>model-flow-service</artifactId>
             <version>${openflowplugin.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.commands</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.console</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!-- FIXME: Upgrade to Mockito 2 -->
         <dependency>
             <groupId>org.powermock</groupId>
