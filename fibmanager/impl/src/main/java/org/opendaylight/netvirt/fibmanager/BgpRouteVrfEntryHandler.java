@@ -397,20 +397,20 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
     }
 
     @Override
-    protected void addTunnelInterfaceActions(NexthopManager.AdjacencyResult adjacencyResult, long vpnId,
+    protected PrefixInfoStatus addTunnelInterfaceActions(NexthopManager.AdjacencyResult adjacencyResult, long vpnId,
             VrfEntry vrfEntry, List<ActionInfo> actionInfos, String rd) {
         Class<? extends TunnelTypeBase> tunnelType = VpnExtraRouteHelper
                 .getTunnelType(getNextHopManager().getItmManager(), adjacencyResult.getInterfaceName());
         if (tunnelType == null) {
             LOG.debug("Tunnel type not found for vrfEntry {}", vrfEntry);
-            return;
+            return PrefixInfoStatus.READ_FAILURE;
         }
         String nextHopIp = adjacencyResult.getNextHopIp();
         if (tunnelType.equals(TunnelTypeMplsOverGre.class)) {
             java.util.Optional<Long> optionalLabel = FibUtil.getLabelForNextHop(vrfEntry, nextHopIp);
             if (!optionalLabel.isPresent()) {
                 LOG.warn("NextHopIp {} not found in vrfEntry {}", nextHopIp, vrfEntry);
-                return;
+                return PrefixInfoStatus.READ_FAILURE;
             }
             long label = optionalLabel.get();
             LOG.debug("addTunnelInterfaceActions: Push label action for prefix {} rd {} l3vni {} nextHop {}",
@@ -422,16 +422,20 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
             actionInfos.add(new ActionSetFieldTunnelId(BigInteger.valueOf(vrfEntry.getL3vni())));
             LOG.debug("addTunnelInterfaceActions: adding set tunnel id action for prefix {} rd {} l3vni {}"
                     + " nextHop {} ", vrfEntry.getDestPrefix(), rd, vrfEntry.getL3vni(), nextHopIp);
-            addRewriteDstMacAction(vpnId, vrfEntry, null /*prefixInfo*/, actionInfos);
+            return addRewriteDstMacAction(vpnId, vrfEntry, null /*prefixInfo*/, actionInfos);
         }
+        return PrefixInfoStatus.READ_SUCCESS;
     }
 
     @Override
-    protected void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, @Nullable Prefixes prefixInfo,
+    protected PrefixInfoStatus addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, @Nullable Prefixes prefixInfo,
                                           List<ActionInfo> actionInfos) {
         if (vrfEntry.getGatewayMacAddress() != null) {
             actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
                     new MacAddress(vrfEntry.getGatewayMacAddress())));
+            return PrefixInfoStatus.READ_SUCCESS;
+        } else {
+            return PrefixInfoStatus.READ_FAILURE;
         }
     }
 
