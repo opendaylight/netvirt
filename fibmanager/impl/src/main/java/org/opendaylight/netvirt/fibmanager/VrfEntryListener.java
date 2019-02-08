@@ -450,8 +450,22 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                                     TransactionAdapter.toWriteTransaction(tx),
                                                     txnObjects);
                                         } else {
+                                            Long parentVpnId = vpnId;
+                                            if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.SELF_IMPORTED) {
+                                                java.util.Optional<Long> optionalLabel = FibUtil
+                                                        .getLabelFromRoutePaths(vrfEntry);
+                                                if (optionalLabel.isPresent()) {
+                                                    List<String> nextHopList = FibHelper
+                                                            .getNextHopListFromRoutePaths(vrfEntry);
+                                                    LabelRouteInfo lri = getLabelRouteInfo(optionalLabel.get());
+                                                    if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(),
+                                                            nextHopList, lri)) {
+                                                        parentVpnId = lri.getParentVpnid();
+                                                    }
+                                                }
+                                            }
                                             createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(),
-                                                    vrfTableKey.getRouteDistinguisher(), vrfEntry, tx);
+                                                    parentVpnId, vrfTableKey.getRouteDistinguisher(), vrfEntry, tx);
                                         }
                                     } catch (NullPointerException e) {
                                         LOG.error("Failed to get create remote fib flows for prefix {} ",
@@ -1183,11 +1197,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         return BigInteger.ZERO;
     }
 
-    private void createRemoteFibEntry(final BigInteger remoteDpnId, final long vpnId, String rd,
+    private void createRemoteFibEntry(final BigInteger remoteDpnId, final long vpnId, final long parentVpnId, String rd,
             final VrfEntry vrfEntry, TypedWriteTransaction<Configuration> tx) {
         if (tx == null) {
             ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-                newTx -> createRemoteFibEntry(remoteDpnId, vpnId, rd, vrfEntry, newTx)), LOG,
+                newTx -> createRemoteFibEntry(remoteDpnId, vpnId, parentVpnId, rd, vrfEntry, newTx)), LOG,
                 "Error creating remote FIB entry");
             return;
         }
@@ -1201,14 +1215,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return;
         }
         // Handling static VRF entries
-        List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
+        List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, parentVpnId, vrfEntry.getDestPrefix());
         List<Routes> vpnExtraRoutes =
                 VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker, vpnName, usedRds, vrfEntry.getDestPrefix());
         if (!vpnExtraRoutes.isEmpty()) {
-            programRemoteFibWithLoadBalancingGroups(remoteDpnId, vpnId, rd, vrfEntry, vpnExtraRoutes);
+            programRemoteFibWithLoadBalancingGroups(remoteDpnId, parentVpnId, rd, vrfEntry, vpnExtraRoutes);
         } else {
             // Program in case of other static VRF entries like floating IPs
-            programRemoteFibEntry(remoteDpnId, vpnId, rd, vrfEntry, tx);
+            programRemoteFibEntry(remoteDpnId, parentVpnId, rd, vrfEntry, tx);
         }
     }
 
@@ -1712,12 +1726,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                 continue;
                             }
                             //Handle local flow creation for imports
+                            Long parentVpnId = vpnId;
                             if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.SELF_IMPORTED) {
                                 java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
                                 if (optionalLabel.isPresent()) {
                                     List<String> nextHopList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
                                     LabelRouteInfo lri = getLabelRouteInfo(optionalLabel.get());
                                     if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopList, lri)) {
+                                        parentVpnId =lri.getParentVpnid();
                                         if (Objects.equals(lri.getDpnId(), dpnId)) {
                                             try {
                                                 int etherType = NWUtil.getEtherTypeFromIpPrefix(
@@ -1742,8 +1758,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                             vrfTable.get().getRouteDistinguisher(), vrfEntry,
                                             TransactionAdapter.toWriteTransaction(tx), txnObjects);
                                 } else {
-                                    createRemoteFibEntry(dpnId, vpnId, vrfTable.get().getRouteDistinguisher(),
-                                            vrfEntry, tx);
+                                    createRemoteFibEntry(dpnId, vpnId, parentVpnId,
+                                            vrfTable.get().getRouteDistinguisher(), vrfEntry, tx);
                                 }
                             }
                         }
@@ -1822,7 +1838,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
                     if (action) {
                         LOG.trace("manageRemoteRouteOnDPN updated(add)  vrfEntry :: {}", modVrfEntry);
-                        createRemoteFibEntry(localDpnId, vpnId, vrfTablesKey.getRouteDistinguisher(),
+                        createRemoteFibEntry(localDpnId, vpnId, vpnId, vrfTablesKey.getRouteDistinguisher(),
                                 modVrfEntry, tx);
                     } else {
                         LOG.trace("manageRemoteRouteOnDPN updated(remove)  vrfEntry :: {}", modVrfEntry);

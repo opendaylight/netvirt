@@ -549,14 +549,14 @@ public class NexthopManager implements AutoCloseable {
     }
 
     @Nullable
-    public AdjacencyResult getRemoteNextHopPointer(BigInteger remoteDpnId, long vpnId, String prefixIp,
+    public AdjacencyResult getRemoteNextHopPointer(BigInteger remoteDpnId, long parentVpnId, String prefixIp,
             @Nullable String nextHopIp, Class<? extends TunnelTypeBase> tunnelType) {
         String egressIfName = null;
-        LOG.trace("getRemoteNextHopPointer: input [remoteDpnId {}, vpnId {}, prefixIp {}, nextHopIp {} ]", remoteDpnId,
-            vpnId, prefixIp, nextHopIp);
+        LOG.trace("getRemoteNextHopPointer: input [remoteDpnId {}, parentVpnId {}, prefixIp {}, nextHopIp {} ]", remoteDpnId,
+            parentVpnId, prefixIp, nextHopIp);
 
         Class<? extends InterfaceType> egressIfType;
-        ElanInstance elanInstance = getElanInstanceForPrefix(vpnId, prefixIp);
+        ElanInstance elanInstance = getElanInstanceForPrefix(parentVpnId, prefixIp);
         if (elanInstance != null) {
             egressIfType = getInterfaceType(elanInstance);
         } else {
@@ -570,7 +570,7 @@ public class NexthopManager implements AutoCloseable {
             egressIfName = getExtPortRemoteNextHopPointer(remoteDpnId, elanInstance);
         }
 
-        LOG.trace("NextHop pointer for prefixIp {} vpnId {} dpnId {} is {}", prefixIp, vpnId, remoteDpnId,
+        LOG.trace("NextHop pointer for prefixIp {} parentVpnId {} dpnId {} is {}", prefixIp, parentVpnId, remoteDpnId,
             egressIfName);
         return egressIfName != null ? new AdjacencyResult(egressIfName, egressIfType, nextHopIp,
                 prefixIp) : null;
