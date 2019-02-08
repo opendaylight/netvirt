@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99032dc6_927e84b4",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 901,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2019-02-08T09:43:09Z",
+      "side": 1,
+      "message": "move this within the if condition",
+      "range": {
+        "startLine": 901,
+        "startChar": 19,
+        "endLine": 901,
+        "endChar": 51
+      },
+      "revId": "08e976a177263134c548653c4cd07879569f1170",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d9dc17ff_1692672d",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 912,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2019-02-08T09:43:09Z",
+      "side": 1,
+      "message": "Exception occurred while reading fib entry for rd {} prefix {} nextHopIp {}",
+      "range": {
+        "startLine": 912,
+        "startChar": 35,
+        "endLine": 912,
+        "endChar": 49
+      },
+      "revId": "08e976a177263134c548653c4cd07879569f1170",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0f82673_1c13fdbb",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2019-02-08T09:43:09Z",
+      "side": 1,
+      "message": "not required. Remove this statement.",
+      "range": {
+        "startLine": 341,
+        "startChar": 60,
+        "endLine": 341,
+        "endChar": 96
+      },
+      "revId": "08e976a177263134c548653c4cd07879569f1170",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "063c12f0_64afbe73",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2019-02-08T09:43:09Z",
+      "side": 1,
+      "message": "get the adj list directly from cfgVpnInterface.augmentation()",
+      "range": {
+        "startLine": 373,
+        "startChar": 40,
+        "endLine": 373,
+        "endChar": 97
+      },
+      "revId": "08e976a177263134c548653c4cd07879569f1170",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6238e72b_c6e86485",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 980,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2019-02-08T09:43:09Z",
+      "side": 1,
+      "message": "print vpnName",
+      "range": {
+        "startLine": 980,
+        "startChar": 75,
+        "endLine": 980,
+        "endChar": 83
+      },
+      "revId": "08e976a177263134c548653c4cd07879569f1170",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
