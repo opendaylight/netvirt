@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed6b7f07_83f65bc2",
+        "filename": "dhcpservice/impl/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-02-13T08:39:15Z",
+      "side": 1,
+      "message": "this needs to be optional\u003dtrue, too",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 49
+      },
+      "revId": "b1a0041f57d730bf2dc433e6539836748f9c22cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
