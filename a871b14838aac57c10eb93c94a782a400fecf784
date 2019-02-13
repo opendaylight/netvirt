@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7bfc9eb3_5197d287",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/commands/Multipath.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-02-13T09:22:33Z",
+      "side": 0,
+      "message": "I always found \"org.omg\" a fitting package name for the corba implementation :)",
+      "range": {
+        "startLine": 15,
+        "startChar": 7,
+        "endLine": 15,
+        "endChar": 14
+      },
+      "revId": "a871b14838aac57c10eb93c94a782a400fecf784",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
