@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -269,12 +269,12 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         Futures.addCallback(future, new FutureCallback<RpcResult<CreateFibEntryOutput>>() {
 
             @Override
-            public void onFailure(@Nonnull Throwable error) {
+            public void onFailure(@NonNull Throwable error) {
                 LOG.error("onAddFloatingIp : Error in generate label or fib install process", error);
             }
 
             @Override
-            public void onSuccess(@Nonnull RpcResult<CreateFibEntryOutput> result) {
+            public void onSuccess(@NonNull RpcResult<CreateFibEntryOutput> result) {
                 if (result.isSuccessful()) {
                     LOG.info("onAddFloatingIp : Successfully installed custom FIB routes for prefix {}", externalIp);
                 } else {
@@ -383,12 +383,12 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         Futures.addCallback(labelFuture, new FutureCallback<RpcResult<RemoveVpnLabelOutput>>() {
 
             @Override
-            public void onFailure(@Nonnull Throwable error) {
+            public void onFailure(@NonNull Throwable error) {
                 LOG.error("onRemoveFloatingIp : Error in removing the label or custom fib entries", error);
             }
 
             @Override
-            public void onSuccess(@Nonnull RpcResult<RemoveVpnLabelOutput> result) {
+            public void onSuccess(@NonNull RpcResult<RemoveVpnLabelOutput> result) {
                 if (result.isSuccessful()) {
                     LOG.debug("onRemoveFloatingIp : Successfully removed the label for the prefix {} from VPN {}",
                             externalIp, vpnName);

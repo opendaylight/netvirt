@@ -31,13 +31,13 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -1121,7 +1121,7 @@ public class ElanL2GatewayUtils {
         }
     }
 
-    @Nonnull
+    @NonNull
     public Collection<DpnInterfaces> getElanDpns(String elanName) {
         Collection<DpnInterfaces> dpnInterfaces = elanInstanceDpnsCache.get(elanName);
         if (!dpnInterfaces.isEmpty()) {

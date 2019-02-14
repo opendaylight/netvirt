@@ -8,7 +8,7 @@
 package org.opendaylight.netvirt.coe.utils;
 
 import com.google.common.collect.ImmutableBiMap;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
@@ -31,23 +31,23 @@ public final class AclUtils {
 
     private AclUtils() {}
 
-    @Nonnull
-    public static InstanceIdentifier<Acl> getAclIid(@Nonnull String aclName) {
+    @NonNull
+    public static InstanceIdentifier<Acl> getAclIid(@NonNull String aclName) {
         return InstanceIdentifier
             .builder(AccessLists.class)
             .child(Acl.class, new AclKey(aclName, Ipv4Acl.class))
             .build();
     }
 
-    @Nonnull
-    public static InstanceIdentifier<Ace> getAceIid(@Nonnull String aclName, @Nonnull String ruleName) {
+    @NonNull
+    public static InstanceIdentifier<Ace> getAceIid(@NonNull String aclName, @NonNull String ruleName) {
         return getAclIid(aclName).builder()
             .child(AccessListEntries.class)
             .child(Ace.class, new AceKey(ruleName))
             .build();
     }
 
-    @Nonnull
+    @NonNull
     public static String buildName(String... args) {
         return String.join("_", args);
     }

@@ -14,9 +14,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -52,7 +52,7 @@ public class ClusterListener extends AbstractSyncDataTreeChangeListener<K8sClust
     }
 
     @Override
-    public void remove(@Nonnull InstanceIdentifier<K8sClusters> instanceIdentifier, @Nonnull K8sClusters clusters) {
+    public void remove(@NonNull InstanceIdentifier<K8sClusters> instanceIdentifier, @NonNull K8sClusters clusters) {
         LOG.trace("K8 Cluster deleted {}", clusters);
         if (clusters.getClusterId() == null) {
             LOG.error("K8 cluster {} deleted with null cluster-id");
@@ -64,14 +64,14 @@ public class ClusterListener extends AbstractSyncDataTreeChangeListener<K8sClust
     }
 
     @Override
-    public void update(@Nonnull InstanceIdentifier<K8sClusters> instanceIdentifier,
-                       @Nonnull K8sClusters originalClusters,
-                       @Nonnull final K8sClusters updatedClusters) {
+    public void update(@NonNull InstanceIdentifier<K8sClusters> instanceIdentifier,
+                       @NonNull K8sClusters originalClusters,
+                       @NonNull final K8sClusters updatedClusters) {
         LOG.trace("K8 Cluster updated {} to {} . doing nothing", originalClusters, updatedClusters);
     }
 
     @Override
-    public void add(@Nonnull InstanceIdentifier<K8sClusters> instanceIdentifier, @Nonnull K8sClusters clusters) {
+    public void add(@NonNull InstanceIdentifier<K8sClusters> instanceIdentifier, @NonNull K8sClusters clusters) {
         LOG.trace("K8 Cluster added {}", clusters);
         if (clusters.getClusterId() == null) {
             LOG.error("K8 cluster {} added with null cluster-id");

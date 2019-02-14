@@ -15,7 +15,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.ipv6util.api.Icmpv6Type;
 import org.opendaylight.genius.ipv6util.api.Ipv6Constants;
 import org.opendaylight.genius.ipv6util.api.Ipv6Constants.Ipv6RouterAdvertisementType;

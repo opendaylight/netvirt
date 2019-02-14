@@ -14,8 +14,8 @@ import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -87,7 +87,7 @@ public abstract class DelegatingDataTreeListener<T extends DataObject> implement
     }
 
     @Override
-    public void onDataTreeChanged(@Nonnull final Collection<DataTreeModification<T>> changes) {
+    public void onDataTreeChanged(@NonNull final Collection<DataTreeModification<T>> changes) {
         Preconditions.checkNotNull(changes, "Changes may not be null!");
         executorService.execute(() -> processChanges(changes));
     }

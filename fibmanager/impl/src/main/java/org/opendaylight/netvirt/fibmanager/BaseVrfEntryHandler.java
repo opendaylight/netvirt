@@ -20,10 +20,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -155,7 +155,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
     }
 
-    @Nonnull
+    @NonNull
     protected List<AdjacencyResult> resolveAdjacency(final BigInteger remoteDpnId, final long vpnId,
                                                      final VrfEntry vrfEntry, String rd) {
         List<RoutePaths> routePaths = new ArrayList<>(vrfEntry.nonnullRoutePaths());

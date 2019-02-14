@@ -13,9 +13,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -47,8 +47,8 @@ public class ElanInterfaceCache extends InstanceIdDataObjectCache<ElanInterface>
                 InstanceIdentifier.create(ElanInterfaces.class).child(ElanInterface.class), cacheProvider);
     }
 
-    @Nonnull
-    public Optional<ElanInterface> get(@Nonnull String interfaceName) {
+    @NonNull
+    public Optional<ElanInterface> get(@NonNull String interfaceName) {
         try {
             return get(ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName));
         } catch (ReadFailedException e) {
@@ -57,15 +57,15 @@ public class ElanInterfaceCache extends InstanceIdDataObjectCache<ElanInterface>
         }
     }
 
-    @Nonnull
-    public Optional<EtreeInterface> getEtreeInterface(@Nonnull String interfaceName) {
+    @NonNull
+    public Optional<EtreeInterface> getEtreeInterface(@NonNull String interfaceName) {
         Optional<ElanInterface> elanInterface = get(interfaceName);
         return elanInterface.isPresent() ? Optional.fromNullable(
                 elanInterface.get().augmentation(EtreeInterface.class)) : Optional.absent();
     }
 
-    @Nonnull
-    public Collection<String> getInterfaceNames(@Nonnull String elanInstanceName) {
+    @NonNull
+    public Collection<String> getInterfaceNames(@NonNull String elanInstanceName) {
         Set<String> removed = elanInstanceToInterfacesCache.remove(elanInstanceName);
         return removed != null ? Collections.unmodifiableCollection(removed) : Collections.emptySet();
     }

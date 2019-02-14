@@ -8,10 +8,10 @@
 package org.opendaylight.netvirt.elan.cli;
 
 import java.util.List;
-import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.elan.utils.ElanCLIUtils;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;

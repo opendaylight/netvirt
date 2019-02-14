@@ -17,11 +17,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -265,7 +265,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         return this;
     }
 
-    @Nonnull
+    @NonNull
     private List<Ace> getChangedAceList(Acl updatedAcl, Acl currentAcl) {
         if (updatedAcl == null) {
             return Collections.emptyList();
