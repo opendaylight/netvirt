@@ -18,8 +18,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
@@ -75,7 +75,7 @@ public class L2GatewayDevice {
      *
      * @return the tunnel ips
      */
-    @Nonnull
+    @NonNull
     public Set<IpAddress> getTunnelIps() {
         return tunnelIps;
     }
@@ -84,7 +84,7 @@ public class L2GatewayDevice {
         l2gwConnectionIdToDevices.computeIfAbsent(connectionId, key -> Sets.newConcurrentHashSet()).add(device);
     }
 
-    @Nonnull
+    @NonNull
     public Collection<Devices> getDevicesForL2gwConnectionId(Uuid connectionId) {
         final Set<Devices> devices = l2gwConnectionIdToDevices.get(connectionId);
         return devices != null ? devices : Collections.emptyList();
@@ -118,7 +118,7 @@ public class L2GatewayDevice {
      *
      * @return the l2 gateway ids
      */
-    @Nonnull
+    @NonNull
     public Set<Uuid> getL2GatewayIds() {
         return l2GatewayIds;
     }
@@ -167,7 +167,7 @@ public class L2GatewayDevice {
      *
      * @return the ucast local macs
      */
-    @Nonnull
+    @NonNull
     public Collection<LocalUcastMacs> getUcastLocalMacs() {
         return new ArrayList<>(ucastLocalMacs);
     }

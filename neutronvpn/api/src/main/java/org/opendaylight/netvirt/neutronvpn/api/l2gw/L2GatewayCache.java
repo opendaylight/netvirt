@@ -8,12 +8,12 @@
 package org.opendaylight.netvirt.neutronvpn.api.l2gw;
 
 import java.util.Collection;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 public interface L2GatewayCache {
-    @Nonnull
-    L2GatewayDevice addOrGet(@Nonnull String deviceName);
+    @NonNull
+    L2GatewayDevice addOrGet(@NonNull String deviceName);
 
     @Nullable
     L2GatewayDevice remove(String deviceName);
@@ -21,6 +21,6 @@ public interface L2GatewayCache {
     @Nullable
     L2GatewayDevice get(String deviceName);
 
-    @Nonnull
+    @NonNull
     Collection<L2GatewayDevice> getAll();
 }

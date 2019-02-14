@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.bgpmanager.oam;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -29,10 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
-
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.infrautils.metrics.Counter;
 import org.opendaylight.infrautils.metrics.Labeled;
 import org.opendaylight.infrautils.metrics.MetricDescriptor;
@@ -176,7 +173,7 @@ public class BgpCounters implements Runnable, AutoCloseable {
         }
     }
 
-    private static boolean validate(@Nonnull final String ip, af_afi afi) {
+    private static boolean validate(@NonNull final String ip, af_afi afi) {
         if (ip.equals("")) {
             return false;
         }

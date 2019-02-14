@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -176,13 +176,13 @@ public class EvpnDnatFlowProgrammer {
         Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<CreateFibEntryOutput>>() {
 
             @Override
-            public void onFailure(@Nonnull Throwable error) {
+            public void onFailure(@NonNull Throwable error) {
                 LOG.error("onAddFloatingIp : Error {} in custom fib routes install process for Floating "
                         + "IP Prefix {} on DPN {}", error, externalIp, dpnId);
             }
 
             @Override
-            public void onSuccess(@Nonnull RpcResult<CreateFibEntryOutput> result) {
+            public void onSuccess(@NonNull RpcResult<CreateFibEntryOutput> result) {
                 if (result.isSuccessful()) {
                     ListenableFutures.addErrorLogging(
                         txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, innerConfTx -> {
@@ -308,13 +308,13 @@ public class EvpnDnatFlowProgrammer {
         Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<RemoveFibEntryOutput>>() {
 
             @Override
-            public void onFailure(@Nonnull Throwable error) {
+            public void onFailure(@NonNull Throwable error) {
                 LOG.error("onRemoveFloatingIp : Error {} in custom fib routes remove process for Floating "
                         + "IP Prefix {} on DPN {}", error, externalIp, dpnId);
             }
 
             @Override
-            public void onSuccess(@Nonnull RpcResult<RemoveFibEntryOutput> result) {
+            public void onSuccess(@NonNull RpcResult<RemoveFibEntryOutput> result) {
                 if (result.isSuccessful()) {
                     ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                         innerConfTx -> {

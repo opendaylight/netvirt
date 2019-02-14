@@ -10,11 +10,11 @@ package org.opendaylight.netvirt.cloudservicechain.utils;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev160711.vpn.to.pseudo.port.list.VpnToPseudoPortData;
@@ -49,18 +49,18 @@ public class VpnPseudoPortCache {
         }
     }
 
-    public void add(@Nonnull String vrfId, long vpnPseudoLportTag) {
+    public void add(@NonNull String vrfId, long vpnPseudoLportTag) {
         LOG.debug("Adding vpn {} and vpnPseudoLportTag {} to VpnPseudoPortCache", vrfId, vpnPseudoLportTag);
         cache.put(vrfId, Long.valueOf(vpnPseudoLportTag));
     }
 
     @Nullable
-    public Long get(@Nonnull String vrfId) {
+    public Long get(@NonNull String vrfId) {
         return cache.get(vrfId);
     }
 
     @Nullable
-    public Long remove(@Nonnull String vrfId) {
+    public Long remove(@NonNull String vrfId) {
         LOG.debug("Removing vpn {} from VpnPseudoPortCache", vrfId);
         return cache.remove(vrfId);
     }

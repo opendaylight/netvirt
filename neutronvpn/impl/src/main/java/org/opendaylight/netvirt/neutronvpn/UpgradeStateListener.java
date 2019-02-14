@@ -7,10 +7,9 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -36,15 +35,15 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
     }
 
     @Override
-    public void add(@Nonnull Config newDataObject) {
+    public void add(@NonNull Config newDataObject) {
     }
 
     @Override
-    public void remove(@Nonnull Config removedDataObject) {
+    public void remove(@NonNull Config removedDataObject) {
     }
 
     @Override
-    public void update(@Nonnull Config original, Config updated) {
+    public void update(@NonNull Config original, Config updated) {
         LOG.info("UpgradeStateListener update from {} to {}", original, updated);
         neutronSubnetGwMacResolver.sendArpRequestsToExtGateways();
     }
