@@ -13,7 +13,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import java.math.BigInteger;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.TypedWriteTransaction;

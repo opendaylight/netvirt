@@ -12,7 +12,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableBiMap;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.netvirt.sfc.translator.SfcMdsalHelper;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfDataPlaneLocatorName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfName;
@@ -48,7 +48,7 @@ public final class PortPairTranslator {
 
     private PortPairTranslator() { }
 
-    @Nonnull
+    @NonNull
     public static ServiceFunction buildServiceFunction(
             PortPair portPair,
             PortPairGroup portPairGroup) {

@@ -30,7 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.ReentrantLock;
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -268,7 +267,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 return;
             }
             futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, flowTx -> {
-                @Nullable List<String> elanInterfaces = elanState.getElanInterfaces();
+                List<String> elanInterfaces = elanState.getElanInterfaces();
                 if (elanInterfaces == null || elanInterfaces.isEmpty()) {
                     holder.isLastElanInterface = true;
                 }
@@ -728,7 +727,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             holder.dpnInterfaces =
                                 createElanInterfacesList(elanInstanceName, interfaceName, holder.dpId, operTx);
                         } else {
-                            @Nullable List<String> existingInterfaces = existingElanDpnInterfaces.get().getInterfaces();
+                            List<String> existingInterfaces = existingElanDpnInterfaces.get().getInterfaces();
                             List<String> elanInterfaces =
                                 existingInterfaces != null ? new ArrayList<>(existingInterfaces) : new ArrayList<>();
                             elanInterfaces.add(interfaceName);
@@ -744,7 +743,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         elanL2GatewayUtils.installElanL2gwDevicesLocalMacsInDpn(holder.dpId, elanInstance,
                             interfaceName);
                     } else {
-                        @Nullable List<String> existingInterfaces = existingElanDpnInterfaces.get().getInterfaces();
+                        List<String> existingInterfaces = existingElanDpnInterfaces.get().getInterfaces();
                         List<String> elanInterfaces =
                             existingInterfaces != null ? new ArrayList<>(existingInterfaces) : new ArrayList<>();
                         elanInterfaces.add(interfaceName);

@@ -12,7 +12,7 @@ import static org.opendaylight.netvirt.coe.utils.AclUtils.buildName;
 import static org.opendaylight.netvirt.coe.utils.NetworkPolicyUtils.PROTOCOL_MAP;
 
 import java.util.ArrayList;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclBuilder;
@@ -50,8 +50,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 public final class AceNetworkPolicyUtils {
     private AceNetworkPolicyUtils() {}
 
-    @Nonnull
-    public static String getAclNameFromPolicy(@Nonnull NetworkPolicy policy) {
+    @NonNull
+    public static String getAclNameFromPolicy(@NonNull NetworkPolicy policy) {
         String aclName = "";
         if (policy.getUuid() != null) {
             aclName = policy.getUuid().getValue();
@@ -62,8 +62,8 @@ public final class AceNetworkPolicyUtils {
     // TODO map empty rules:
     // ingress:empty - no incoming allowed
     // egress:empty - no outgoing allowed
-    @Nonnull
-    public static Acl buildAcl(@Nonnull NetworkPolicy policy, boolean isDeleted) {
+    @NonNull
+    public static Acl buildAcl(@NonNull NetworkPolicy policy, boolean isDeleted) {
         String aclName = getAclNameFromPolicy(policy);
         ArrayList<Ace> aceList = new ArrayList<>();
 
@@ -129,10 +129,10 @@ public final class AceNetworkPolicyUtils {
         return aclBuilder.build();
     }
 
-    @Nonnull
+    @NonNull
     public static AceBuilder getAceBuilder(boolean isDeleted, String ruleName,
-                                           @Nonnull Class<? extends DirectionBase> direction,
-                                           @Nonnull AceIpBuilder aceIpBuilder) {
+                                           @NonNull Class<? extends DirectionBase> direction,
+                                           @NonNull AceIpBuilder aceIpBuilder) {
         MatchesBuilder matchesBuilder = new MatchesBuilder();
         matchesBuilder.setAceType(aceIpBuilder.build());
         ActionsBuilder actionsBuilder = new ActionsBuilder();
@@ -151,10 +151,10 @@ public final class AceNetworkPolicyUtils {
         return aceBuilder;
     }
 
-    @Nonnull
-    public static Ace buildPortAce(boolean isDeleted, @Nonnull String aclName,
-                                   @Nonnull Class<? extends DirectionBase> direction,
-                                   @Nonnull NetworkPolicyPort port) {
+    @NonNull
+    public static Ace buildPortAce(boolean isDeleted, @NonNull String aclName,
+                                   @NonNull Class<? extends DirectionBase> direction,
+                                   @NonNull NetworkPolicyPort port) {
         AceIpBuilder aceIpBuilder = new AceIpBuilder();
         String ruleName = AclUtils.buildName(aclName, DIRECTION_MAP.get(direction), "port");
         if (port.getProtocol() != null) {
@@ -177,10 +177,10 @@ public final class AceNetworkPolicyUtils {
         return aceBuilder.build();
     }
 
-    @Nonnull
-    public static Ace buildPolicyAce(boolean isDeleted, @Nonnull String aclName,
-                                     @Nonnull Class<? extends DirectionBase> direction,
-                                     @Nonnull NetworkPolicyPeer peer) {
+    @NonNull
+    public static Ace buildPolicyAce(boolean isDeleted, @NonNull String aclName,
+                                     @NonNull Class<? extends DirectionBase> direction,
+                                     @NonNull NetworkPolicyPeer peer) {
         AceIpBuilder aceIpBuilder = new AceIpBuilder();
         String ruleName = AclUtils.buildName(aclName, DIRECTION_MAP.get(direction), "peer");
 

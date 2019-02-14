@@ -13,8 +13,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -80,7 +80,7 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
     public void update(PortChain origPortChain, PortChain updatePortChain) {
         List<Uuid> oldFcList = origPortChain.getFlowClassifiers();
         oldFcList = oldFcList != null ? new ArrayList<>(oldFcList) : new ArrayList<>();
-        @Nullable List<Uuid> newFcList = updatePortChain.getFlowClassifiers();
+        List<Uuid> newFcList = updatePortChain.getFlowClassifiers();
         if (oldFcList != null && newFcList != null) {
             oldFcList.removeAll(newFcList);
             if (!oldFcList.isEmpty()) {
@@ -112,7 +112,7 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
         List<ServiceFunction> portChainServiceFunctionList = new ArrayList<>();
 
         //Read chain related port pair group from neutron data store
-        @Nullable List<Uuid> newPortPairGroups = newPortChain.getPortPairGroups();
+        List<Uuid> newPortPairGroups = newPortChain.getPortPairGroups();
         if (newPortPairGroups != null) {
             for (Uuid ppgUuid : newPortPairGroups) {
                 PortPairGroup ppg = neutronMdsalHelper.getNeutronPortPairGroup(ppgUuid);
@@ -182,12 +182,12 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
         // The RSP will automatically be created from the SFP added above.
 
         // Add ACLs from flow classifiers
-        @Nullable List<Uuid> newFlowClassifiers = newPortChain.getFlowClassifiers();
+        List<Uuid> newFlowClassifiers = newPortChain.getFlowClassifiers();
         processFlowClassifiers(newPortChain, newFlowClassifiers != null ? newFlowClassifiers : Collections.emptyList(),
             sfp.getName().getValue(), true);
     }
 
-    private void processFlowClassifiers(PortChain pc, @Nonnull List<Uuid> flowClassifiers, @Nullable String sfpName,
+    private void processFlowClassifiers(PortChain pc, @NonNull List<Uuid> flowClassifiers, @Nullable String sfpName,
             boolean added) {
         for (Uuid uuid : flowClassifiers) {
             SfcFlowClassifier fc = neutronMdsalHelper.getNeutronFlowClassifier(uuid);

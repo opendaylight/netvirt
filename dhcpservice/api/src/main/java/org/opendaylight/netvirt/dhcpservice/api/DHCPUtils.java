@@ -13,7 +13,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 public abstract class DHCPUtils {
 

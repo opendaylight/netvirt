@@ -38,11 +38,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -811,7 +811,7 @@ public class NeutronvpnUtils {
         return subnetMapList;
     }
 
-    @Nonnull
+    @NonNull
     protected List<Uuid> getNeutronRouterSubnetIds(Uuid routerId) {
         LOG.debug("getNeutronRouterSubnetIds for {}", routerId.getValue());
         List<Uuid> subnetIdList = new ArrayList<>();
@@ -1596,7 +1596,7 @@ public class NeutronvpnUtils {
      * @param routerId the Uuid of the router which you try to reach the external network
      * @return Uuid of externalNetwork or null if is not exist
      */
-    protected Uuid getExternalNetworkUuidAttachedFromRouterUuid(@Nonnull Uuid routerId) {
+    protected Uuid getExternalNetworkUuidAttachedFromRouterUuid(@NonNull Uuid routerId) {
         LOG.debug("getExternalNetworkUuidAttachedFromRouterUuid for {}", routerId.getValue());
         Uuid externalNetworkUuid = null;
         Router router = getNeutronRouter(routerId);
@@ -1606,7 +1606,7 @@ public class NeutronvpnUtils {
         return externalNetworkUuid;
     }
 
-    public Uuid getInternetvpnUuidBoundToRouterId(@Nonnull Uuid routerId) {
+    public Uuid getInternetvpnUuidBoundToRouterId(@NonNull Uuid routerId) {
         Uuid netId = getExternalNetworkUuidAttachedFromRouterUuid(routerId);
         if (netId == null) {
             return netId;
@@ -1622,7 +1622,7 @@ public class NeutronvpnUtils {
      * @return Uuid of externalVpn or null if it is not found
      */
     @Nullable
-    public Uuid getInternetvpnUuidBoundToSubnetRouter(@Nonnull Uuid subnetUuid) {
+    public Uuid getInternetvpnUuidBoundToSubnetRouter(@NonNull Uuid subnetUuid) {
         Subnetmap subnetmap = getSubnetmap(subnetUuid);
         Uuid routerUuid = subnetmap.getRouterId();
         LOG.debug("getInternetvpnUuidBoundToSubnetRouter for subnetUuid {}", subnetUuid.getValue());
@@ -1638,7 +1638,7 @@ public class NeutronvpnUtils {
      * @param extNet Provider Network, which has a port attached as external network gateway to router
      * @return a list of Private Subnetmap Ids of the router with external network gateway
      */
-    public @Nonnull List<Uuid> getPrivateSubnetsToExport(@Nonnull Network extNet, Uuid internetVpnId) {
+    public @NonNull List<Uuid> getPrivateSubnetsToExport(@NonNull Network extNet, Uuid internetVpnId) {
         List<Uuid> subList = new ArrayList<>();
         List<Uuid> rtrList = new ArrayList<>();
         if (internetVpnId != null) {
@@ -1723,7 +1723,7 @@ public class NeutronvpnUtils {
         }
     }
 
-    public void updateVpnInstanceOpWithType(VpnInstanceOpDataEntry.BgpvpnType choice, @Nonnull Uuid vpn) {
+    public void updateVpnInstanceOpWithType(VpnInstanceOpDataEntry.BgpvpnType choice, @NonNull Uuid vpn) {
         String primaryRd = getVpnRd(vpn.getValue());
         if (primaryRd == null) {
             LOG.debug("updateVpnInstanceOpWithType: Update BgpvpnType {} for {}."
@@ -1815,7 +1815,7 @@ public class NeutronvpnUtils {
         return listRouterIds;
     }
 
-    @Nonnull
+    @NonNull
     public List<BigInteger> getDpnsForRouter(String routerUuid) {
         InstanceIdentifier id = InstanceIdentifier.builder(NeutronRouterDpns.class)
             .child(RouterDpnList.class, new RouterDpnListKey(routerUuid)).build();

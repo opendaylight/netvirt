@@ -16,8 +16,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -56,7 +56,7 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
         return transform(nodePath, updatedSrc);
     }
 
-    @Nonnull
+    @NonNull
     public List<T> diffByKey(List<T> updated, final List<T> original) {
         if (updated == null) {
             return new ArrayList<>();

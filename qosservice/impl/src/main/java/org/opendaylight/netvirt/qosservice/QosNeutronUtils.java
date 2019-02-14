@@ -22,10 +22,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.Datastore;
@@ -175,13 +175,13 @@ public class QosNeutronUtils {
         }
     }
 
-    @Nonnull
+    @NonNull
     public Collection<Network> getQosNetworks(Uuid qosUuid) {
         final ConcurrentMap<Uuid, Network> networkMap = qosNetworksMap.get(qosUuid);
         return networkMap != null ? networkMap.values() : emptyList();
     }
 
-    @Nonnull
+    @NonNull
     public List<Uuid> getSubnetIdsFromNetworkId(Uuid networkId) {
         InstanceIdentifier<NetworkMap> networkMapId = InstanceIdentifier.builder(NetworkMaps.class)
                 .child(NetworkMap.class, new NetworkMapKey(networkId)).build();
@@ -191,7 +191,7 @@ public class QosNeutronUtils {
             ? optionalNetworkMap.get().getSubnetIdList() : emptyList();
     }
 
-    @Nonnull
+    @NonNull
     protected List<Uuid> getPortIdsFromSubnetId(Uuid subnetId) {
         InstanceIdentifier<Subnetmap> subnetMapId = InstanceIdentifier
                 .builder(Subnetmaps.class)
@@ -656,12 +656,12 @@ public class QosNeutronUtils {
         return bridgeRefEntry.getBridgeReference();
     }
 
-    @Nonnull
+    @NonNull
     private static InstanceIdentifier<BridgeRefEntry> getBridgeRefEntryIdentifier(BridgeRefEntryKey bridgeRefEntryKey) {
         return InstanceIdentifier.builder(BridgeRefInfo.class).child(BridgeRefEntry.class, bridgeRefEntryKey).build();
     }
 
-    @Nonnull
+    @NonNull
     private static InstanceIdentifier<BridgeEntry> getBridgeEntryIdentifier(BridgeEntryKey bridgeEntryKey) {
         return InstanceIdentifier.builder(BridgeInterfaceInfo.class).child(BridgeEntry.class, bridgeEntryKey).build();
     }
@@ -714,15 +714,13 @@ public class QosNeutronUtils {
                 new FlowId(getQosFlowId(NwConstants.QOS_DSCP_TABLE, dpnId, ifIndex, ethType)));
     }
 
-    @Nullable
-    public org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-            .ietf.interfaces.rev140508.interfaces.state.Interface getInterfaceStateFromOperDS(
-            String interfaceName) {
+    public org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
+            .@Nullable Interface getInterfaceStateFromOperDS(String interfaceName) {
         return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                 createInterfaceStateInstanceIdentifier(interfaceName)).orNull();
     }
 
-    @Nonnull
+    @NonNull
     public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
             .ietf.interfaces.rev140508.interfaces.state.Interface> createInterfaceStateInstanceIdentifier(
             String interfaceName) {
@@ -771,7 +769,7 @@ public class QosNeutronUtils {
                 .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
 
-    @Nonnull
+    @NonNull
     public static String getQosFlowId(short tableId, BigInteger dpId, int lportTag, int ethType) {
         return new StringBuilder().append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(dpId)
                 .append(NwConstants.FLOWID_SEPARATOR).append(lportTag)

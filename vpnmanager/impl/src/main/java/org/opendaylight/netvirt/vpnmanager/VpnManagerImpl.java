@@ -19,11 +19,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -194,7 +194,7 @@ public class VpnManagerImpl implements IVpnManager {
     public void addExtraRoute(String vpnName, String destination, String nextHop, String rd, @Nullable String routerID,
         Long l3vni, RouteOrigin origin, @Nullable String intfName, @Nullable Adjacency operationalAdj,
         VrfEntry.EncapType encapType, Set<String> prefixListForRefreshFib,
-        @Nonnull TypedWriteTransaction<Configuration> confTx) {
+        @NonNull TypedWriteTransaction<Configuration> confTx) {
         //add extra route to vpn mapping; advertise with nexthop as tunnel ip
         vpnUtil.syncUpdate(LogicalDatastoreType.OPERATIONAL,
                 VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, rd != null ? rd : routerID,
@@ -257,8 +257,8 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void delExtraRoute(String vpnName, String destination, String nextHop, String rd, @Nullable String routerID,
-                              @Nullable String intfName, @Nonnull TypedWriteTransaction<Configuration> confTx,
-                              @Nonnull TypedWriteTransaction<Operational> operTx) {
+                              @Nullable String intfName, @NonNull TypedWriteTransaction<Configuration> confTx,
+                              @NonNull TypedWriteTransaction<Operational> operTx) {
         BigInteger dpnId = null;
         String tunnelIp = nextHop;
         if (intfName != null && !intfName.isEmpty()) {

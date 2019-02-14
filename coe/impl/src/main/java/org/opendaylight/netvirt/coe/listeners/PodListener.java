@@ -17,11 +17,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
-import javax.annotation.Nonnull;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.aries.blueprint.annotation.service.Reference;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -80,7 +80,7 @@ public class PodListener implements DataTreeChangeListener<Pods> {
     }
 
     @Override
-    public void onDataTreeChanged(@Nonnull Collection<DataTreeModification<Pods>> collection) {
+    public void onDataTreeChanged(@NonNull Collection<DataTreeModification<Pods>> collection) {
         collection.forEach(
             podsDataTreeModification -> podsDataTreeModification.getRootNode().getModifiedChildren().stream()
                     .filter(

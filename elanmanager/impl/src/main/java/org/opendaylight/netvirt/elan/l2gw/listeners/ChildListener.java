@@ -11,8 +11,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -205,8 +205,7 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
         }
     }
 
-    @Nullable
-    protected DataObjectModification.ModificationType getModificationType(
+    protected DataObjectModification.@Nullable ModificationType getModificationType(
             final DataObjectModification<? extends DataObject> mod) {
         try {
             return mod.getModificationType();

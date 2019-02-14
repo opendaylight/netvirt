@@ -18,9 +18,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -149,14 +149,14 @@ public class EvpnSnatFlowProgrammer {
         final long finalL3Vni = l3Vni;
         Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<CreateFibEntryOutput>>() {
             @Override
-            public void onFailure(@Nonnull Throwable error) {
+            public void onFailure(@NonNull Throwable error) {
                 LOG.error("evpnAdvToBgpAndInstallFibAndTsFlows : Error in custom fib routes install process for "
                         + "External Fixed IP {} on DPN {} with l3Vni {}, ExternalVpnName {} for RouterId {}",
                         externalIp, dpnId, finalL3Vni, vpnName, routerId, error);
             }
 
             @Override
-            public void onSuccess(@Nonnull RpcResult<CreateFibEntryOutput> result) {
+            public void onSuccess(@NonNull RpcResult<CreateFibEntryOutput> result) {
                 if (result.isSuccessful()) {
                     LOG.info("evpnAdvToBgpAndInstallFibAndTsFlows : Successfully installed custom FIB routes for "
                             + "External Fixed IP {} on DPN {} with l3Vni {}, ExternalVpnName {} for RouterId {}",
@@ -234,14 +234,14 @@ public class EvpnSnatFlowProgrammer {
         final long finalL3Vni = l3Vni;
         Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<RemoveFibEntryOutput>>() {
             @Override
-            public void onFailure(@Nonnull Throwable error) {
+            public void onFailure(@NonNull Throwable error) {
                 LOG.error("evpnDelFibTsAndReverseTraffic : Error in custom fib routes remove process for "
                         + "External Fixed IP {} on DPN {} with l3Vni {}, ExternalVpnName {} for RouterId {}",
                         externalIp, dpnId, finalL3Vni, vpnName, routerId, error);
             }
 
             @Override
-            public void onSuccess(@Nonnull RpcResult<RemoveFibEntryOutput> result) {
+            public void onSuccess(@NonNull RpcResult<RemoveFibEntryOutput> result) {
                 if (result.isSuccessful()) {
                     ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                         innerConfTx -> {

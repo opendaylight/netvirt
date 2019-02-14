@@ -38,9 +38,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -432,7 +432,7 @@ public final class VpnUtil {
         return vpnInstance.isPresent() ? vpnInstance.get() : null;
     }
 
-    @Nonnull
+    @NonNull
     List<VpnInstanceOpDataEntry> getAllVpnInstanceOpData() {
         InstanceIdentifier<VpnInstanceOpData> id = InstanceIdentifier.builder(VpnInstanceOpData.class).build();
         Optional<VpnInstanceOpData> vpnInstanceOpDataOptional = read(LogicalDatastoreType.OPERATIONAL, id);
@@ -442,7 +442,7 @@ public final class VpnUtil {
                 : emptyList();
     }
 
-    @Nonnull
+    @NonNull
     List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
             .vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> getDpnVpnInterfaces(VpnInstance vpnInstance,
                                                                                            BigInteger dpnId) {
@@ -453,7 +453,7 @@ public final class VpnUtil {
             : emptyList();
     }
 
-    @Nonnull
+    @NonNull
     static List<String> getListOfRdsFromVpnInstance(VpnInstance vpnInstance) {
         VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
         LOG.trace("vpnConfig {}", vpnConfig);
@@ -882,32 +882,32 @@ public final class VpnUtil {
             new ElanTagNameKey(elanTag)).build();
     }
 
-    static void removePrefixToInterfaceForVpnId(long vpnId, @Nonnull TypedWriteTransaction<Operational> operTx) {
+    static void removePrefixToInterfaceForVpnId(long vpnId, @NonNull TypedWriteTransaction<Operational> operTx) {
         // Clean up PrefixToInterface Operational DS
         operTx.delete(InstanceIdentifier.builder(
                     PrefixToInterface.class).child(VpnIds.class, new VpnIdsKey(vpnId)).build());
     }
 
-    static void removeVpnExtraRouteForVpn(String vpnName, @Nonnull TypedWriteTransaction<Operational> operTx) {
+    static void removeVpnExtraRouteForVpn(String vpnName, @NonNull TypedWriteTransaction<Operational> operTx) {
         // Clean up VPNExtraRoutes Operational DS
         operTx.delete(InstanceIdentifier.builder(VpnToExtraroutes.class).child(Vpn.class, new VpnKey(vpnName)).build());
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    static void removeVpnOpInstance(String vpnName, @Nonnull TypedWriteTransaction<Operational> operTx) {
+    static void removeVpnOpInstance(String vpnName, @NonNull TypedWriteTransaction<Operational> operTx) {
         // Clean up VPNInstanceOpDataEntry
         operTx.delete(getVpnInstanceOpDataIdentifier(vpnName));
     }
 
-    static void removeVpnInstanceToVpnId(String vpnName, @Nonnull TypedWriteTransaction<Configuration> confTx) {
+    static void removeVpnInstanceToVpnId(String vpnName, @NonNull TypedWriteTransaction<Configuration> confTx) {
         confTx.delete(VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName));
     }
 
-    static void removeVpnIdToVpnInstance(long vpnId, @Nonnull TypedWriteTransaction<Configuration> confTx) {
+    static void removeVpnIdToVpnInstance(long vpnId, @NonNull TypedWriteTransaction<Configuration> confTx) {
         confTx.delete(getVpnIdToVpnInstanceIdentifier(vpnId));
     }
 
-    static void removeL3nexthopForVpnId(long vpnId, @Nonnull TypedWriteTransaction<Operational> operTx) {
+    static void removeL3nexthopForVpnId(long vpnId, @NonNull TypedWriteTransaction<Operational> operTx) {
         // Clean up L3NextHop Operational DS
         operTx.delete(InstanceIdentifier.builder(L3nexthop.class).child(
                                     VpnNexthops.class, new VpnNexthopsKey(vpnId)).build());
@@ -1108,7 +1108,7 @@ public final class VpnUtil {
         return null;
     }
 
-    @Nonnull
+    @NonNull
     List<BigInteger> getDpnsOnVpn(String vpnInstanceName) {
         List<BigInteger> result = new ArrayList<>();
         String rd = getVpnRd(vpnInstanceName);
@@ -1229,7 +1229,7 @@ public final class VpnUtil {
         return extNetwork != null ? extNetwork.getVpnid() : null;
     }
 
-    @Nonnull
+    @NonNull
     public List<Uuid> getExternalNetworkRouterIds(Uuid networkId) {
         Networks extNetwork = getExternalNetwork(networkId);
         return extNetwork != null && extNetwork.getRouterIds() != null ? extNetwork.getRouterIds() : emptyList();
@@ -1639,8 +1639,7 @@ public final class VpnUtil {
         return isVxLan ? VrfEntryBase.EncapType.Vxlan : VrfEntryBase.EncapType.Mplsgre;
     }
 
-    @Nullable
-    org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets
+    org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.@Nullable Subnets
         getExternalSubnet(Uuid subnetId) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets
             .Subnets> subnetsIdentifier = InstanceIdentifier.builder(ExternalSubnets.class)

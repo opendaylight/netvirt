@@ -11,10 +11,10 @@ package org.opendaylight.netvirt.natservice.cli;
 import com.google.common.base.Optional;
 import java.io.PrintStream;
 import java.math.BigInteger;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -101,7 +101,7 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
         return null;
     }
 
-    @Nonnull
+    @NonNull
     private Optional<Node> readOvsdbNode(Node bridgeNode) {
         OvsdbBridgeAugmentation bridgeAugmentation = extractBridgeAugmentation(bridgeNode);
         if (bridgeAugmentation != null) {

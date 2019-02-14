@@ -11,10 +11,10 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nonnull;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
@@ -63,13 +63,13 @@ public class DhcpMcastMacListener
     }
 
     @Override
-    public void update(@Nonnull InstanceIdentifier<RemoteMcastMacs> identifier, @Nonnull RemoteMcastMacs original,
-                       @Nonnull RemoteMcastMacs update) {
+    public void update(@NonNull InstanceIdentifier<RemoteMcastMacs> identifier, @NonNull RemoteMcastMacs original,
+                       @NonNull RemoteMcastMacs update) {
         // NOOP
     }
 
     @Override
-    public void add(@Nonnull InstanceIdentifier<RemoteMcastMacs> identifier, @Nonnull RemoteMcastMacs remoteMcastMacs) {
+    public void add(@NonNull InstanceIdentifier<RemoteMcastMacs> identifier, @NonNull RemoteMcastMacs remoteMcastMacs) {
         String elanInstanceName = getElanName(remoteMcastMacs);
         IpAddress tunnelIp = dhcpL2GwUtil.getHwvtepNodeTunnelIp(identifier.firstIdentifierOf(Node.class));
         if (tunnelIp == null) {
@@ -84,8 +84,8 @@ public class DhcpMcastMacListener
     }
 
     @Override
-    public void remove(@Nonnull InstanceIdentifier<RemoteMcastMacs> identifier,
-                       @Nonnull RemoteMcastMacs remoteMcastMacs) {
+    public void remove(@NonNull InstanceIdentifier<RemoteMcastMacs> identifier,
+                       @NonNull RemoteMcastMacs remoteMcastMacs) {
         String elanInstanceName = getElanName(remoteMcastMacs);
         IpAddress tunnelIp = dhcpL2GwUtil.getHwvtepNodeTunnelIp(identifier.firstIdentifierOf(Node.class));
         if (tunnelIp == null) {

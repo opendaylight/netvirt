@@ -12,11 +12,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -189,7 +189,7 @@ public class NeutronNetworkChangeListener
         }
     }
 
-    @Nonnull
+    @NonNull
     private List<ElanSegments> buildSegments(Network input) {
         NetworkProviderExtension providerExtension = input.augmentation(NetworkProviderExtension.class);
         if (providerExtension == null || providerExtension.getSegments() == null) {

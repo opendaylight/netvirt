@@ -33,9 +33,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.apache.commons.net.util.SubnetUtils;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -492,7 +492,7 @@ public final class NatUtil {
         }
     }
 
-    @Nonnull
+    @NonNull
     public static List<Uuid> getRouterIdsfromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
@@ -863,7 +863,7 @@ public final class NatUtil {
         return routerInstanceIndentifier;
     }
 
-    @Nonnull
+    @NonNull
     public static List<Integer> getInternalIpPortListInfo(DataBroker dataBroker, Long routerId,
                                                           String internalIpAddress, ProtocolTypes protocolType) {
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
@@ -970,7 +970,7 @@ public final class NatUtil {
             .build();
     }
 
-    @Nonnull
+    @NonNull
     public static Collection<String> getExternalIpsForRouter(DataBroker dataBroker, Long routerId) {
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext
             .ip.map.IpMapping> ipMappingOptional =
@@ -986,7 +986,7 @@ public final class NatUtil {
         return externalIps;
     }
 
-    @Nonnull
+    @NonNull
     public static List<String> getExternalIpsForRouter(DataBroker dataBroker, String routerName) {
         Routers routerData = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
         if (routerData != null) {
@@ -996,7 +996,7 @@ public final class NatUtil {
         return emptyList();
     }
 
-    @Nonnull
+    @NonNull
     public static Map<String, Long> getExternalIpsLabelForRouter(DataBroker dataBroker, Long routerId) {
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext
             .ip.map.IpMapping> ipMappingOptional =
@@ -1045,7 +1045,7 @@ public final class NatUtil {
         return null;
     }
 
-    @Nonnull
+    @NonNull
     public static String[] getSubnetIpAndPrefix(String subnetString) {
         String[] subnetSplit = subnetString.split("/");
         String subnetIp = subnetSplit[0];
@@ -1076,7 +1076,7 @@ public final class NatUtil {
         return new String[] {leastLoadedExtIp, leastLoadedExtIpPrefix};
     }
 
-    @Nonnull
+    @NonNull
     public static List<BigInteger> getDpnsForRouter(DataBroker dataBroker, String routerUuid) {
         InstanceIdentifier id = InstanceIdentifier.builder(NeutronRouterDpns.class)
             .child(RouterDpnList.class, new RouterDpnListKey(routerUuid)).build();
@@ -1101,9 +1101,8 @@ public final class NatUtil {
         return bgpVpnId;
     }
 
-    @Nullable
     static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces
-        .RouterInterface getConfiguredRouterInterface(DataBroker broker, String interfaceName) {
+            .@Nullable RouterInterface getConfiguredRouterInterface(DataBroker broker, String interfaceName) {
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                 LogicalDatastoreType.CONFIGURATION, NatUtil.getRouterInterfaceId(interfaceName)).orNull();
     }
@@ -1217,7 +1216,7 @@ public final class NatUtil {
     }
 
     public static void removeFromNeutronRouterDpnsMap(String routerName, String vpnInterfaceName,
-         BigInteger dpId, @Nonnull TypedReadWriteTransaction<Operational> operTx) {
+         BigInteger dpId, @NonNull TypedReadWriteTransaction<Operational> operTx) {
         InstanceIdentifier<DpnVpninterfacesList> routerDpnListIdentifier = getRouterDpnId(routerName, dpId);
         Optional<DpnVpninterfacesList> optionalRouterDpnList;
         try {
@@ -1370,7 +1369,7 @@ public final class NatUtil {
         return nodeId;
     }
 
-    @Nonnull
+    @NonNull
     public static List<ActionInfo> getEgressActionsForInterface(OdlInterfaceRpcService odlInterfaceRpcService,
                                                                 ItmRpcService itmRpcService,
                                                                 IInterfaceManager interfaceManager, String ifName,
@@ -1379,7 +1378,7 @@ public final class NatUtil {
                 ifName, tunnelKey, 0, internalTunnelInterface);
     }
 
-    @Nonnull
+    @NonNull
     public static List<ActionInfo> getEgressActionsForInterface(OdlInterfaceRpcService odlInterfaceRpcService,
                                                                 ItmRpcService itmRpcService,
                                                                 IInterfaceManager interfaceManager,
@@ -1454,7 +1453,7 @@ public final class NatUtil {
         return getNeutronPortForIp(broker, targetIP, NeutronConstants.DEVICE_OWNER_GATEWAY_INF);
     }
 
-    @Nonnull
+    @NonNull
     public static List<Port> getNeutronPorts(DataBroker broker) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports>
             portsIdentifier = InstanceIdentifier.create(Neutron.class)
@@ -1513,7 +1512,7 @@ public final class NatUtil {
                 LogicalDatastoreType.CONFIGURATION, subnetmapId).orNull();
     }
 
-    @Nonnull
+    @NonNull
     public static List<Uuid> getSubnetIdsFromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<NetworkMap> id = InstanceIdentifier.builder(NetworkMaps.class)
             .child(NetworkMap.class, new NetworkMapKey(networkId)).build();
@@ -1754,7 +1753,7 @@ public final class NatUtil {
                 null);
     }
 
-    @Nonnull
+    @NonNull
     public static List<Ports> getFloatingIpPortsForRouter(DataBroker broker, Uuid routerUuid) {
         InstanceIdentifier<RouterPorts> routerPortsIdentifier = getRouterPortsId(routerUuid.getValue());
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
@@ -1762,7 +1761,7 @@ public final class NatUtil {
                 routerPortsIdentifier).toJavaUtil().map(RouterPorts::getPorts).orElse(emptyList());
     }
 
-    @Nonnull
+    @NonNull
     public static List<Uuid> getRouterUuIdsForVpn(DataBroker broker, Uuid vpnUuid) {
         InstanceIdentifier<ExternalNetworks> externalNwIdentifier = InstanceIdentifier.create(ExternalNetworks.class);
         Optional<ExternalNetworks> externalNwData =
@@ -1792,7 +1791,7 @@ public final class NatUtil {
         }
     }
 
-    @Nonnull
+    @NonNull
     public static Collection<Uuid> getExternalSubnetIdsFromExternalIps(@Nullable List<ExternalIps> externalIps) {
         if (externalIps == null) {
             return Collections.emptySet();
@@ -1801,7 +1800,7 @@ public final class NatUtil {
         return externalIps.stream().map(ExternalIps::getSubnetId).collect(Collectors.toSet());
     }
 
-    @Nonnull
+    @NonNull
     public static Collection<Uuid> getExternalSubnetIdsForRouter(DataBroker dataBroker, @Nullable String routerName) {
         if (routerName == null) {
             LOG.error("getExternalSubnetIdsForRouter : empty routerName received");
@@ -1820,7 +1819,7 @@ public final class NatUtil {
         }
     }
 
-    @Nonnull
+    @NonNull
     protected static Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
         .subnets.Subnets> getOptionalExternalSubnets(DataBroker dataBroker, Uuid subnetId) {
         if (subnetId == null) {
@@ -1837,7 +1836,7 @@ public final class NatUtil {
                 LogicalDatastoreType.CONFIGURATION, subnetsIdentifier);
     }
 
-    @Nonnull
+    @NonNull
     protected static Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
         .subnets.Subnets> getOptionalExternalSubnets(TypedReadTransaction<Configuration> tx, Uuid subnetId) {
         if (subnetId == null) {
@@ -1913,7 +1912,7 @@ public final class NatUtil {
         return result;
     }
 
-    @Nonnull
+    @NonNull
     static List<String> getIpsListFromExternalIps(@Nullable List<ExternalIps> externalIps) {
         if (externalIps == null) {
             return emptyList();
@@ -2067,7 +2066,7 @@ public final class NatUtil {
             .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
     }
 
-    @Nonnull
+    @NonNull
     public static List<String> getListOfRdsFromVpnInstance(VpnInstance vpnInstance) {
         VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
         return vpnConfig.getRouteDistinguisher() != null ? new ArrayList<>(
@@ -2547,7 +2546,7 @@ public final class NatUtil {
         return null;
     }
 
-    @Nonnull
+    @NonNull
     public static Optional<Node> readOvsdbNode(Node bridgeNode, DataBroker dataBroker) {
         OvsdbBridgeAugmentation bridgeAugmentation = extractBridgeAugmentation(bridgeNode);
         if (bridgeAugmentation != null) {

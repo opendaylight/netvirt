@@ -31,11 +31,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -1164,12 +1164,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         Futures.addCallback(future, new FutureCallback<RpcResult<CreateFibEntryOutput>>() {
 
             @Override
-            public void onFailure(@Nonnull Throwable error) {
+            public void onFailure(@NonNull Throwable error) {
                 LOG.error("advToBgpAndInstallFibAndTsFlows : Error in generate label or fib install process", error);
             }
 
             @Override
-            public void onSuccess(@Nonnull RpcResult<CreateFibEntryOutput> result) {
+            public void onSuccess(@NonNull RpcResult<CreateFibEntryOutput> result) {
                 if (result.isSuccessful()) {
                     LOG.info("advToBgpAndInstallFibAndTsFlows : Successfully installed custom FIB routes for prefix {}",
                             externalIp);
@@ -1777,7 +1777,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             })), NatConstants.NAT_DJC_MAX_RETRIES);
     }
 
-    public void handleDisableSnat(Routers router, Uuid networkUuid, @Nonnull Collection<String> externalIps,
+    public void handleDisableSnat(Routers router, Uuid networkUuid, @NonNull Collection<String> externalIps,
                                   boolean routerFlag, @Nullable String vpnName, BigInteger naptSwitchDpnId,
                                   long routerId, TypedReadWriteTransaction<Configuration> removeFlowInvTx) {
         LOG.info("handleDisableSnat : Entry");
@@ -1836,7 +1836,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void handleDisableSnatInternetVpn(String routerName, long routerId, Uuid networkUuid,
-                                             @Nonnull Collection<String> externalIps,
+                                             @NonNull Collection<String> externalIps,
                                              String vpnId, TypedReadWriteTransaction<Configuration> writeFlowInvTx) {
         LOG.debug("handleDisableSnatInternetVpn: Started to process handle disable snat for router {} "
                 + "with internet vpn {}", routerName, vpnId);
@@ -1913,7 +1913,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     public void removeNaptFlowsFromActiveSwitch(long routerId, String routerName,
                                                 BigInteger dpnId, Uuid networkId, String vpnName,
-                                                @Nonnull Collection<String> externalIps,
+                                                @NonNull Collection<String> externalIps,
                                                 Collection<Uuid> externalSubnetList,
                                                 TypedReadWriteTransaction<Configuration> confTx,
                                                 ProviderTypes extNwProvType)
@@ -2082,7 +2082,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     protected void removeNaptFibExternalOutputFlows(long routerId, BigInteger dpnId, Uuid networkId,
-                                                    @Nonnull Collection<String> externalIps,
+                                                    @NonNull Collection<String> externalIps,
                                                     TypedReadWriteTransaction<Configuration> writeFlowInvTx)
             throws ExecutionException, InterruptedException {
         long extVpnId = NatConstants.INVALID_ID;
@@ -2245,7 +2245,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     public void clrRtsFromBgpAndDelFibTs(final BigInteger dpnId, Long routerId, @Nullable Uuid networkUuid,
-                                         @Nonnull Collection<String> externalIps, @Nullable String vpnName,
+                                         @NonNull Collection<String> externalIps, @Nullable String vpnName,
                                          String extGwMacAddress, TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
         //Withdraw the corresponding routes from the BGP.
@@ -2366,13 +2366,13 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             Futures.addCallback(labelFuture, new FutureCallback<RpcResult<RemoveVpnLabelOutput>>() {
 
                 @Override
-                public void onFailure(@Nonnull Throwable error) {
+                public void onFailure(@NonNull Throwable error) {
                     LOG.error("delFibTsAndReverseTraffic : Error in removing the label:{} or custom fib entries"
                         + "got external ip {}", label, extIp, error);
                 }
 
                 @Override
-                public void onSuccess(@Nonnull RpcResult<RemoveVpnLabelOutput> result) {
+                public void onSuccess(@NonNull RpcResult<RemoveVpnLabelOutput> result) {
                     if (result.isSuccessful()) {
                         LOG.debug("delFibTsAndReverseTraffic : Successfully removed the label for the prefix {} "
                             + "from VPN {}", externalIp, externalVpn);
@@ -2471,12 +2471,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             Futures.addCallback(labelFuture, new FutureCallback<RpcResult<RemoveVpnLabelOutput>>() {
 
                 @Override
-                public void onFailure(@Nonnull Throwable error) {
+                public void onFailure(@NonNull Throwable error) {
                     LOG.error("delFibTsAndReverseTraffic : Error in removing the label or custom fib entries", error);
                 }
 
                 @Override
-                public void onSuccess(@Nonnull RpcResult<RemoveVpnLabelOutput> result) {
+                public void onSuccess(@NonNull RpcResult<RemoveVpnLabelOutput> result) {
                     if (result.isSuccessful()) {
                         LOG.debug("delFibTsAndReverseTraffic : Successfully removed the label for the prefix {} "
                             + "from VPN {}", externalIp, vpnName);

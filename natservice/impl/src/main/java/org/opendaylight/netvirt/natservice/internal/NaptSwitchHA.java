@@ -18,10 +18,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -360,7 +360,7 @@ public class NaptSwitchHA {
         }
     }
 
-    @Nonnull
+    @NonNull
     private List<String> getRouterIdsForExtNetwork(Uuid extNetworkId) {
         List<String> routerUuidsAsString = new ArrayList<>();
         InstanceIdentifier<Networks> extNetwork = InstanceIdentifier.builder(ExternalNetworks.class)
@@ -695,7 +695,7 @@ public class NaptSwitchHA {
         return listBucketInfo;
     }
 
-    @Nonnull
+    @NonNull
     public List<BucketInfo> handleGroupInNeighborSwitches(BigInteger dpnId, String routerName, long routerId,
             BigInteger naptSwitch) {
         List<BucketInfo> listBucketInfo = new ArrayList<>();
