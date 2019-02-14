@@ -9,9 +9,9 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import java.math.BigInteger;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider;
 
 @Singleton

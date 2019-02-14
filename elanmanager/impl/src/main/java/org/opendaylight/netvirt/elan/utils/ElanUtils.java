@@ -30,11 +30,11 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -287,7 +287,7 @@ public class ElanUtils {
      */
     @Deprecated
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public static <T extends DataObject> Optional<T> read(@Nonnull DataBroker broker,
+    public static <T extends DataObject> Optional<T> read(@NonNull DataBroker broker,
             LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
         try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
             return tx.read(datastoreType, path).get();
@@ -521,7 +521,7 @@ public class ElanUtils {
      *            the elan instance name
      * @return list of dpIds
      */
-    @Nonnull
+    @NonNull
     public List<BigInteger> getParticipatingDpnsInElanInstance(String elanInstanceName) {
         List<BigInteger> dpIds = new ArrayList<>();
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationDataPath(elanInstanceName);
@@ -797,7 +797,7 @@ public class ElanUtils {
      * @return the egress actions for interface
      */
     @SuppressWarnings("checkstyle:IllegalCatch")
-    @Nonnull
+    @NonNull
     public List<Action> getEgressActionsForInterface(String ifName, @Nullable Long tunnelKey) {
         List<Action> listAction = new ArrayList<>();
         try {
@@ -865,12 +865,12 @@ public class ElanUtils {
         // TODO: Make sure that the same is performed against the ElanDevices.
     }
 
-    @Nonnull
+    @NonNull
     public List<DpnInterfaces> getInvolvedDpnsInElan(String elanName) {
         return getElanDPNByName(elanName);
     }
 
-    @Nonnull
+    @NonNull
     public List<DpnInterfaces> getElanDPNByName(String elanInstanceName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanIdentifier = getElanDpnOperationDataPath(elanInstanceName);
         return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanIdentifier).toJavaUtil().map(
@@ -1374,14 +1374,10 @@ public class ElanUtils {
      *            the data broker
      * @return the interface state from oper ds
      */
-    @Nullable
-    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-        .ietf.interfaces.rev140508.interfaces.state.Interface getInterfaceStateFromOperDS(
-            String interfaceName, DataBroker dataBroker) {
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-            .ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId = createInterfaceStateInstanceIdentifier(
-                interfaceName);
-        return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId).orNull();
+    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
+            .@Nullable Interface getInterfaceStateFromOperDS(String interfaceName, DataBroker dataBroker) {
+        return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+            createInterfaceStateInstanceIdentifier(interfaceName)).orNull();
     }
 
     /**

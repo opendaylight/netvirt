@@ -11,11 +11,11 @@ package org.opendaylight.netvirt.coe.listeners;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import java.util.Collection;
-import javax.annotation.Nonnull;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.aries.blueprint.annotation.service.Reference;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -70,7 +70,7 @@ public class ServiceListener implements DataTreeChangeListener<Services> {
     }
 
     @Override
-    public void onDataTreeChanged(@Nonnull Collection<DataTreeModification<Services>> changes) {
+    public void onDataTreeChanged(@NonNull Collection<DataTreeModification<Services>> changes) {
         for (DataTreeModification<Services> change : changes) {
             final DataObjectModification<Services> mod = change.getRootNode();
 

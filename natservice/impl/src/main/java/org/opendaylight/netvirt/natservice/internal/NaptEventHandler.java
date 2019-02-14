@@ -22,10 +22,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.common.util.Arguments;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
@@ -292,7 +292,7 @@ public class NaptEventHandler {
                                             }
 
                                             @Override
-                                            public void onFailure(@Nonnull Throwable throwable) {
+                                            public void onFailure(@NonNull Throwable throwable) {
                                                 LOG.error("handleEvent : Error configuring outbound "
                                                         + "SNAT flows using RPC for SNAT connection from {} to {}",
                                                                   internalAddress, externalAddress);
@@ -301,7 +301,7 @@ public class NaptEventHandler {
                                 }
 
                                 @Override
-                                public void onFailure(@Nonnull Throwable throwable) {
+                                public void onFailure(@NonNull Throwable throwable) {
                                     LOG.error("handleEvent : Error configuring inbound SNAT flows "
                                             + "using RPC for SNAT connection from {} to {}",
                                             internalAddress, externalAddress);
@@ -576,7 +576,7 @@ public class NaptEventHandler {
         return matchInfo;
     }
 
-    @Nonnull
+    @NonNull
     private static List<InstructionInfo> buildAndGetSetActionInstructionInfo(String ipAddress, int port,
                                                                              long segmentId, long vpnId,
                                                                              short tableId,

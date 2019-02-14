@@ -22,10 +22,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -787,13 +787,13 @@ public class NatTunnelInterfaceStateListener
             Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<CreateFibEntryOutput>>() {
 
                 @Override
-                public void onFailure(@Nonnull Throwable error) {
+                public void onFailure(@NonNull Throwable error) {
                     LOG.error("hndlTepAddOnNaptSwitch : SNAT->Error in generate label or fib install process",
                             error);
                 }
 
                 @Override
-                public void onSuccess(@Nonnull RpcResult<CreateFibEntryOutput> result) {
+                public void onSuccess(@NonNull RpcResult<CreateFibEntryOutput> result) {
                     if (result.isSuccessful()) {
                         LOG.info("hndlTepAddOnNaptSwitch : SNAT -> Successfully installed custom FIB routes "
                                 + "for prefix {}", externalIp);
@@ -919,13 +919,13 @@ public class NatTunnelInterfaceStateListener
                 Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<CreateFibEntryOutput>>() {
 
                     @Override
-                    public void onFailure(@Nonnull Throwable error) {
+                    public void onFailure(@NonNull Throwable error) {
                         LOG.error("hndlTepAddForDnatInEachRtr : DNAT -> Error in generate label or fib install process",
                                 error);
                     }
 
                     @Override
-                    public void onSuccess(@Nonnull RpcResult<CreateFibEntryOutput> result) {
+                    public void onSuccess(@NonNull RpcResult<CreateFibEntryOutput> result) {
                         if (result.isSuccessful()) {
                             LOG.info("hndlTepAddForDnatInEachRtr : DNAT -> Successfully installed custom FIB routes "
                                     + "for prefix {}", externalIp);
@@ -1127,13 +1127,13 @@ public class NatTunnelInterfaceStateListener
                 Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<RemoveFibEntryOutput>>() {
 
                     @Override
-                    public void onFailure(@Nonnull Throwable error) {
+                    public void onFailure(@NonNull Throwable error) {
                         LOG.error("hndlTepDelForDnatInEachRtr : DNAT -> Error in removing the table 21 entry pushing "
                             + "the MPLS label to the tunnel since label is invalid ", error);
                     }
 
                     @Override
-                    public void onSuccess(@Nonnull RpcResult<RemoveFibEntryOutput> result) {
+                    public void onSuccess(@NonNull RpcResult<RemoveFibEntryOutput> result) {
                         if (result.isSuccessful()) {
                             LOG.info("hndlTepDelForDnatInEachRtr : DNAT -> Successfully removed the entry pushing the "
                                 + "MPLS label to the tunnel");

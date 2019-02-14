@@ -37,11 +37,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -268,7 +268,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void createSubnetmapNode(Uuid subnetId, String subnetIp, Uuid tenantId, Uuid networkId,
-                                       @Nullable NetworkAttributes.NetworkType networkType, long segmentationId) {
+                                       NetworkAttributes.@Nullable NetworkType networkType, long segmentationId) {
         try {
             InstanceIdentifier<Subnetmap> subnetMapIdentifier = NeutronvpnUtils.buildSubnetMapIdentifier(subnetId);
             final ReentrantLock lock = lockForUuid(subnetId);
@@ -2024,7 +2024,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         && interVpnLink.getFirstEndpoint().getIpAddress().getValue().equals(nexthop));
     }
 
-    @Nonnull
+    @NonNull
     protected List<Adjacency> getAdjacencyforExtraRoute(List<Routes> routeList, String fixedIp) {
         List<Adjacency> adjList = new ArrayList<>();
         Map<String, List<String>> adjMap = new HashMap<>();
@@ -2384,8 +2384,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
      * @param networkList List list of network Ids (Uuid), which will be associated.
      * @return list of formatted strings with detailed error messages.
      */
-    @Nonnull
-    protected List<String> associateNetworksToVpn(@Nonnull Uuid vpnId, @Nonnull List<Uuid> networkList) {
+    @NonNull
+    protected List<String> associateNetworksToVpn(@NonNull Uuid vpnId, @NonNull List<Uuid> networkList) {
         List<String> failedNwList = new ArrayList<>();
         HashSet<Uuid> passedNwList = new HashSet<>();
         boolean isExternalNetwork = false;
@@ -2500,7 +2500,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         return failedNwList;
     }
 
-    private boolean associateExtNetworkToVpn(@Nonnull Uuid vpnId, @Nonnull Network extNet) {
+    private boolean associateExtNetworkToVpn(@NonNull Uuid vpnId, @NonNull Network extNet) {
         if (!addExternalNetworkToVpn(extNet, vpnId)) {
             return false;
         }
@@ -2549,8 +2549,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
      * @param networkList List list of network Ids (Uuid), which will be disassociated.
      * @return list of formatted strings with detailed error messages.
      */
-    @Nonnull
-    protected List<String> dissociateNetworksFromVpn(@Nonnull Uuid vpnId, @Nonnull List<Uuid> networkList) {
+    @NonNull
+    protected List<String> dissociateNetworksFromVpn(@NonNull Uuid vpnId, @NonNull List<Uuid> networkList) {
         List<String> failedNwList = new ArrayList<>();
         HashSet<Uuid> passedNwList = new HashSet<>();
         if (networkList.isEmpty()) {
@@ -2627,7 +2627,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         return failedNwList;
     }
 
-    private boolean disassociateExtNetworkFromVpn(@Nonnull Uuid vpnId, @Nonnull Network extNet) {
+    private boolean disassociateExtNetworkFromVpn(@NonNull Uuid vpnId, @NonNull Network extNet) {
         if (!removeExternalNetworkFromVpn(extNet)) {
             return false;
         }
@@ -3134,7 +3134,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void writeVpnInterfaceToDs(@Nonnull Collection<Uuid> vpnIdList, String infName,
+    private void writeVpnInterfaceToDs(@NonNull Collection<Uuid> vpnIdList, String infName,
             @Nullable Adjacencies adjacencies, Uuid networkUuid, Boolean isRouterInterface,
             TypedWriteTransaction<Configuration> wrtConfigTxn) {
         if (vpnIdList.isEmpty() || infName == null) {
@@ -3367,8 +3367,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         return message;
     }
 
-    protected void addV6PrivateSubnetToExtNetwork(@Nonnull Uuid routerId, @Nonnull Uuid internetVpnId,
-                                                  @Nonnull Subnetmap subnetMap) {
+    protected void addV6PrivateSubnetToExtNetwork(@NonNull Uuid routerId, @NonNull Uuid internetVpnId,
+                                                  @NonNull Subnetmap subnetMap) {
         updateVpnInternetForSubnet(subnetMap, internetVpnId, true);
         neutronvpnUtils.updateVpnInstanceWithFallback(routerId, internetVpnId, true);
         if (neutronvpnUtils.shouldVpnHandleIpVersionChoiceChange(IpVersionChoice.IPV6, routerId, true)) {
@@ -3378,8 +3378,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    protected void removeV6PrivateSubnetToExtNetwork(@Nonnull Uuid routerId, @Nonnull Uuid internetVpnId,
-                                                     @Nonnull Subnetmap subnetMap) {
+    protected void removeV6PrivateSubnetToExtNetwork(@NonNull Uuid routerId, @NonNull Uuid internetVpnId,
+                                                     @NonNull Subnetmap subnetMap) {
         updateVpnInternetForSubnet(subnetMap, internetVpnId, false);
         neutronvpnUtils.updateVpnInstanceWithFallback(routerId, internetVpnId, false);
     }

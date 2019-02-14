@@ -24,10 +24,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -138,7 +138,7 @@ public class TransportZoneNotificationUtil {
     }
 
     private void updateTransportZone(TransportZone zone, BigInteger dpnId,
-            @Nonnull TypedWriteTransaction<Configuration> tx) {
+            @NonNull TypedWriteTransaction<Configuration> tx) {
         InstanceIdentifier<TransportZone> path = InstanceIdentifier.builder(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zone.getZoneName())).build();
 
@@ -166,7 +166,7 @@ public class TransportZoneNotificationUtil {
 
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void updateTransportZone(String zoneName, BigInteger dpnId, @Nullable String localIp,
-            @Nonnull TypedReadWriteTransaction<Configuration> tx)
+            @NonNull TypedReadWriteTransaction<Configuration> tx)
             throws ExecutionException, InterruptedException {
         InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zoneName));
@@ -188,7 +188,7 @@ public class TransportZoneNotificationUtil {
     }
 
     private void deleteTransportZone(TransportZone zone, BigInteger dpnId,
-            @Nonnull TypedWriteTransaction<Configuration> tx) {
+            @NonNull TypedWriteTransaction<Configuration> tx) {
         InstanceIdentifier<TransportZone> path = InstanceIdentifier.builder(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zone.getZoneName())).build();
         tx.delete(path);
@@ -213,7 +213,7 @@ public class TransportZoneNotificationUtil {
 
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void deleteTransportZone(String zoneName, BigInteger dpnId,
-            @Nonnull TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
+            @NonNull TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zoneName));
 
@@ -311,7 +311,7 @@ public class TransportZoneNotificationUtil {
 
     private void handleChangedLocalIps(Map<String, ValueDifference<String>> changedEntries, BigInteger dpId,
             Set<String> zonePrefixes, Map<String, List<String>> tepTzMap,
-            @Nonnull TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
+            @NonNull TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         if (changedEntries == null || changedEntries.isEmpty()) {
             LOG.trace("No changed local_ips found for DPN {}", dpId);
             return;
@@ -340,7 +340,7 @@ public class TransportZoneNotificationUtil {
     }
 
     private void handleRemovedLocalIps(Map<String, String> removedEntries, BigInteger dpId, Set<String> zonePrefixes,
-            Map<String, List<String>> tepTzMap, @Nonnull TypedWriteTransaction<Configuration> tx) {
+            Map<String, List<String>> tepTzMap, @NonNull TypedWriteTransaction<Configuration> tx) {
         if (removedEntries == null || removedEntries.isEmpty()) {
             LOG.trace("No removed local_ips found on DPN {}", dpId);
             return;
@@ -412,7 +412,7 @@ public class TransportZoneNotificationUtil {
         return false;
     }
 
-    private void removeVtep(String zoneName, BigInteger dpId, @Nonnull TypedWriteTransaction<Configuration> tx) {
+    private void removeVtep(String zoneName, BigInteger dpId, @NonNull TypedWriteTransaction<Configuration> tx) {
         InstanceIdentifier<Vteps> path = InstanceIdentifier.builder(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zoneName))
                 .child(Subnets.class, new SubnetsKey(IpPrefixBuilder.getDefaultInstance(ALL_SUBNETS)))
@@ -422,7 +422,7 @@ public class TransportZoneNotificationUtil {
 
     // search for relevant subnets for the given subnetIP, add one if it is
     // necessary
-    private Subnets getOrAddSubnet(@Nonnull List<Subnets> subnets, @Nonnull String subnetIp) {
+    private Subnets getOrAddSubnet(@NonNull List<Subnets> subnets, @NonNull String subnetIp) {
         IpPrefix subnetPrefix = IpPrefixBuilder.getDefaultInstance(subnetIp);
 
         for (Subnets subnet : subnets) {
@@ -462,7 +462,7 @@ public class TransportZoneNotificationUtil {
         return null;
     }
 
-    @Nonnull
+    @NonNull
     private Map<String, String> getDpnLocalIps(BigInteger dpId) throws ReadFailedException {
         // Example of local IPs from other_config:
         // local_ips="10.0.43.159:MPLS,11.11.11.11:DSL,ip:underlay-network"

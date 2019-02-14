@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -964,7 +964,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
             }
 
             @Override
-            public void onSuccess(@Nonnull RpcResult<CreateIdPoolOutput> rpcResult) {
+            public void onSuccess(@NonNull RpcResult<CreateIdPoolOutput> rpcResult) {
                 if (rpcResult.isSuccessful()) {
                     LOG.debug("Created IdPool for tap");
                 } else {

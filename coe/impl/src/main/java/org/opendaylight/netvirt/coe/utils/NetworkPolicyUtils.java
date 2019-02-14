@@ -9,8 +9,8 @@ package org.opendaylight.netvirt.coe.utils;
 
 import com.google.common.collect.ImmutableBiMap;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.k8s.core.rev181205.Protocol;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.k8s.meta.v1.rev181205.label.selector.MatchLabels;
@@ -58,24 +58,24 @@ public final class NetworkPolicyUtils {
 
     private NetworkPolicyUtils() {}
 
-    @Nonnull
-    public static MatchLabels buildMatchLabels(@Nonnull String key, @Nonnull String value) {
+    @NonNull
+    public static MatchLabels buildMatchLabels(@NonNull String key, @NonNull String value) {
         return new MatchLabelsBuilder().setKey(key).setValue(value).build();
     }
 
-    @Nonnull
-    public static PodSelector buildPodSelector(@Nonnull List<MatchLabels> matchLabels) {
+    @NonNull
+    public static PodSelector buildPodSelector(@NonNull List<MatchLabels> matchLabels) {
         return new PodSelectorBuilder().setMatchLabels(matchLabels).build();
     }
 
-    @Nonnull
-    public static InstanceIdentifier<NetworkPolicy> getNetworkPolicyIid(@Nonnull String uuid) {
+    @NonNull
+    public static InstanceIdentifier<NetworkPolicy> getNetworkPolicyIid(@NonNull String uuid) {
         return InstanceIdentifier.create(K8s.class).child(NetworkPolicies.class)
             .child(NetworkPolicy.class, new NetworkPolicyKey(new Uuid(uuid)));
     }
 
-    @Nonnull
-    public static IpBlock buildIpBlock(@Nonnull String cidr, @Nullable List<String> except) {
+    @NonNull
+    public static IpBlock buildIpBlock(@NonNull String cidr, @Nullable List<String> except) {
         IpBlockBuilder ipBlockBuilder = new IpBlockBuilder().setCidr(cidr);
 
         if (except != null && !except.isEmpty()) {
@@ -86,37 +86,37 @@ public final class NetworkPolicyUtils {
     }
 
     // TODO add pod and namespace selector handling
-    @Nonnull
-    public static NetworkPolicyPeer buildNetworkPolicyPeer(@Nonnull IpBlock ipBlock) {
+    @NonNull
+    public static NetworkPolicyPeer buildNetworkPolicyPeer(@NonNull IpBlock ipBlock) {
         return new NetworkPolicyPeerBuilder().setIpBlock(ipBlock).build();
     }
 
-    @Nonnull
-    public static NetworkPolicyPort buildNetworkPolicyPort(@Nonnull String port, @Nonnull Protocol protocol) {
+    @NonNull
+    public static NetworkPolicyPort buildNetworkPolicyPort(@NonNull String port, @NonNull Protocol protocol) {
         return new NetworkPolicyPortBuilder().setPort(port).setProtocol(protocol).build();
     }
 
-    @Nonnull
-    public static IngressPorts buildIngressPorts(@Nonnull NetworkPolicyPort port) {
+    @NonNull
+    public static IngressPorts buildIngressPorts(@NonNull NetworkPolicyPort port) {
         return new IngressPortsBuilder().setNetworkPolicyPort(port).build();
     }
 
-    @Nonnull
-    public static From buildFrom(@Nonnull NetworkPolicyPeer peer) {
+    @NonNull
+    public static From buildFrom(@NonNull NetworkPolicyPeer peer) {
         return new FromBuilder().setNetworkPolicyPeer(peer).build();
     }
 
-    @Nonnull
-    public static EgressPorts buildEgressPorts(@Nonnull NetworkPolicyPort port) {
+    @NonNull
+    public static EgressPorts buildEgressPorts(@NonNull NetworkPolicyPort port) {
         return new EgressPortsBuilder().setNetworkPolicyPort(port).build();
     }
 
-    @Nonnull
-    public static To buildTo(@Nonnull NetworkPolicyPeer peer) {
+    @NonNull
+    public static To buildTo(@NonNull NetworkPolicyPeer peer) {
         return new ToBuilder().setNetworkPolicyPeer(peer).build();
     }
 
-    @Nonnull
+    @NonNull
     public static NetworkPolicyIngressRule buildNetworkPolicyIngressRule(@Nullable List<IngressPorts> ports,
                                                                          @Nullable List<From> fromList) {
 
@@ -132,7 +132,7 @@ public final class NetworkPolicyUtils {
         return networkPolicyIngressRuleBuilder.build();
     }
 
-    @Nonnull
+    @NonNull
     public static NetworkPolicyEgressRule buildNetworkPolicyEgressRule(@Nullable List<EgressPorts> ports,
                                                                        @Nullable List<To> toList) {
 
@@ -148,18 +148,18 @@ public final class NetworkPolicyUtils {
         return networkPolicyEgressRuleBuilder.build();
     }
 
-    @Nonnull
-    public static Ingress buildIngress(@Nonnull NetworkPolicyIngressRule rule) {
+    @NonNull
+    public static Ingress buildIngress(@NonNull NetworkPolicyIngressRule rule) {
         return new IngressBuilder().setNetworkPolicyIngressRule(rule).build();
     }
 
-    @Nonnull
-    public static Egress buildEgress(@Nonnull NetworkPolicyEgressRule rule) {
+    @NonNull
+    public static Egress buildEgress(@NonNull NetworkPolicyEgressRule rule) {
         return new EgressBuilder().setNetworkPolicyEgressRule(rule).build();
     }
 
-    @Nonnull
-    public static NetworkPolicySpec buildNetworkPolicySpec(@Nonnull PodSelector podSelector,
+    @NonNull
+    public static NetworkPolicySpec buildNetworkPolicySpec(@NonNull PodSelector podSelector,
                                                            @Nullable List<Ingress> ingress,
                                                            @Nullable List<Egress> egress,
                                                            @Nullable List<PolicyType> policyTypes) {
@@ -178,8 +178,8 @@ public final class NetworkPolicyUtils {
         return networkPolicySpecBuilder.build();
     }
 
-    @Nonnull
-    public static NetworkPolicy buildNetworkPolicy(@Nonnull String uuid, @Nullable String name,
+    @NonNull
+    public static NetworkPolicy buildNetworkPolicy(@NonNull String uuid, @Nullable String name,
                                                    @Nullable NetworkPolicySpec spec) {
         NetworkPolicyBuilder networkPolicyBuilder = new NetworkPolicyBuilder().setUuid(new Uuid(uuid));
         if (name != null) {

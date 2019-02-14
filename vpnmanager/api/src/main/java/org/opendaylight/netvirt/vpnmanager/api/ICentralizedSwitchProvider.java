@@ -9,7 +9,7 @@
 package org.opendaylight.netvirt.vpnmanager.api;
 
 import java.math.BigInteger;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * ICentralizedSwitchProvider allows to create or interrogate centralized

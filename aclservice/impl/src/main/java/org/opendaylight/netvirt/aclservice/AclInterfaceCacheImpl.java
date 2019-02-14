@@ -15,9 +15,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface.Builder;
@@ -36,7 +36,7 @@ public class AclInterfaceCacheImpl implements AclInterfaceCache {
     private final ConcurrentMap<String, AclInterface> cache = new ConcurrentHashMap<>();
 
     @Override
-    public AclInterface addOrUpdate(@Nonnull String interfaceId,
+    public AclInterface addOrUpdate(@NonNull String interfaceId,
             BiConsumer<AclInterface, AclInterface.Builder> updateFunction) {
         while (true) {
             // First try to update the existing instance in the cache if one exists.

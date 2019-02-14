@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -113,7 +113,7 @@ public class NAPTSwitchSelector {
             .child(RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerName)).build();
     }
 
-    @Nonnull
+    @NonNull
     public List<BigInteger> getDpnsForVpn(String routerName) {
         LOG.debug("getDpnsForVpn: called for RouterName {}", routerName);
         long bgpVpnId = NatUtil.getBgpVpnId(dataBroker, routerName);
@@ -176,7 +176,7 @@ public class NAPTSwitchSelector {
         }
 
         @Override
-        public int compareTo(@Nonnull SwitchWeight switchWeight) {
+        public int compareTo(@NonNull SwitchWeight switchWeight) {
             return weight - switchWeight.getWeight();
         }
     }
