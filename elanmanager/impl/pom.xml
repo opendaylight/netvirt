@@ -20,6 +20,14 @@ this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
     <packaging>bundle</packaging>
     <modelVersion>4.0.0</modelVersion>
 
+    <properties>
+        <!-- FindBugs crashes when analysing this module, because of invalid bytecode -->
+        <!-- https://github.com/spotbugs/spotbugs/issues/121 -->
+        <!-- Re-enable this (or SpotBugs) once the minimum required JDK is 10 or later -->
+        <findbugs.skip>true</findbugs.skip>
+        <spotbugs.skip>true</spotbugs.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

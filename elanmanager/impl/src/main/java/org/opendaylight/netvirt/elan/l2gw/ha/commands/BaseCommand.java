@@ -10,8 +10,8 @@ package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 public abstract class BaseCommand<T> {
 
@@ -54,7 +54,7 @@ public abstract class BaseCommand<T> {
      * @param original Origina list to be compared with
      * @return List of diff based
      */
-    @Nonnull
+    @NonNull
     public List<T> diffOf(List<T> updated, final List<T> original) {
         if (updated == null) {
             return new ArrayList<>();

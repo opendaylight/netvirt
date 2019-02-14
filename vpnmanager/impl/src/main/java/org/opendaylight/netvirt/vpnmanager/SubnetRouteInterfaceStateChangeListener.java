@@ -12,10 +12,10 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -274,7 +274,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
         LOG.info("{} update: Processed Interface {} update event", LOGGING_PREFIX, update.getName());
     }
 
-    @Nonnull
+    @NonNull
     protected List<Uuid> getSubnetId(Interface intrf) {
         List<Uuid> listSubnetIds = new ArrayList<>();
         if (!NeutronUtils.isUuid(intrf.getName())) {

@@ -16,8 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -129,7 +129,7 @@ public final class VpnHelper {
         }
     }
 
-    @Nonnull
+    @NonNull
     public static List<String> getVpnInterfaceVpnInstanceNamesString(@Nullable List<VpnInstanceNames> vpnInstanceList) {
         List<String> listVpn = new ArrayList<>();
         if (vpnInstanceList != null) {

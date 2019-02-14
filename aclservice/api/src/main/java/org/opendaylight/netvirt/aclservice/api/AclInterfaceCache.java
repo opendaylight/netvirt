@@ -11,8 +11,8 @@ import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 
 /**
@@ -32,9 +32,9 @@ public interface AclInterfaceCache {
      *                       the Builder is initially populated from the existing instance.
      * @return the new or updated AclInterface
      */
-    @Nonnull
-    AclInterface addOrUpdate(@Nonnull String interfaceId,
-            @Nonnull BiConsumer<AclInterface, AclInterface.Builder> updateFunction);
+    @NonNull
+    AclInterface addOrUpdate(@NonNull String interfaceId,
+            @NonNull BiConsumer<AclInterface, AclInterface.Builder> updateFunction);
 
     /**
      * Updates an existing AclInterface instance in the cache. The given updateFunction is used to build a new instance.
@@ -47,8 +47,8 @@ public interface AclInterfaceCache {
      * @return the updated AclInterface or null if no instance was present or no updates were made
      */
     @Nullable
-    AclInterface updateIfPresent(@Nonnull String interfaceId,
-            @Nonnull BiFunction<AclInterface, AclInterface.Builder, Boolean> updateFunction);
+    AclInterface updateIfPresent(@NonNull String interfaceId,
+            @NonNull BiFunction<AclInterface, AclInterface.Builder, Boolean> updateFunction);
 
     /**
      * Removes an AclInterface instance from the cache.
@@ -56,7 +56,7 @@ public interface AclInterfaceCache {
      * @param interfaceId the interface Id
      * @return the AclInterface if present, null oherwise
      */
-    AclInterface remove(@Nonnull String interfaceId);
+    AclInterface remove(@NonNull String interfaceId);
 
     /**
      * Gets an AclInterface instance from the cache if present.
@@ -65,8 +65,8 @@ public interface AclInterfaceCache {
      * @return the AclInterface instance if found, null otherwise
      */
     @Nullable
-    AclInterface get(@Nonnull String interfaceId);
+    AclInterface get(@NonNull String interfaceId);
 
-    @Nonnull
+    @NonNull
     Collection<Entry<String, AclInterface>> entries();
 }

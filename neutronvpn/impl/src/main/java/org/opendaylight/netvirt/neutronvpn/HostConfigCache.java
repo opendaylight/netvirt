@@ -9,9 +9,9 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -32,7 +32,7 @@ public class HostConfigCache extends InstanceIdDataObjectCache<Hostconfig> {
               cacheProvider);
     }
 
-    public Optional<Hostconfig> get(@Nonnull String hostId) throws ReadFailedException {
+    public Optional<Hostconfig> get(@NonNull String hostId) throws ReadFailedException {
         InstanceIdentifier<Hostconfig> hostConfigPath = InstanceIdentifier.builder(Neutron.class)
                                                  .child(Hostconfigs.class)
                                                  .child(Hostconfig.class, new HostconfigKey(hostId, "ODL L2"))

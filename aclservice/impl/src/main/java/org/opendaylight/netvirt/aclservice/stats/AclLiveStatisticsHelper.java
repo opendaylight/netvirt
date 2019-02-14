@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -71,7 +71,7 @@ public final class AclLiveStatisticsHelper {
      * @param dataBroker the data broker
      * @return the acl port stats
      */
-    public static List<AclPortStats> getAclPortStats(Direction direction, @Nonnull List<String> interfaceNames,
+    public static List<AclPortStats> getAclPortStats(Direction direction, @NonNull List<String> interfaceNames,
             OpendaylightDirectStatisticsService odlDirectStatsService, DataBroker dataBroker) {
         LOG.trace("Get ACL port stats for direction {} and interfaces {}", direction, interfaceNames);
         List<AclPortStats> lstAclPortStats = new ArrayList<>();

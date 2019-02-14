@@ -10,11 +10,10 @@ package org.opendaylight.netvirt.coe.listeners;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.apache.aries.blueprint.annotation.service.Reference;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.Datastore;
@@ -55,18 +54,18 @@ public class InventoryNodeListener extends AbstractSyncDataTreeChangeListener<No
     }
 
     @Override
-    public void remove(@Nonnull InstanceIdentifier<Node> instanceIdentifier, @Nonnull Node node) {
+    public void remove(@NonNull InstanceIdentifier<Node> instanceIdentifier, @NonNull Node node) {
         // Do nothing
     }
 
     @Override
-    public void update(@Nonnull InstanceIdentifier<Node> instanceIdentifier, @Nonnull Node originalNode,
-                       @Nonnull final Node updatedNode) {
+    public void update(@NonNull InstanceIdentifier<Node> instanceIdentifier, @NonNull Node originalNode,
+                       @NonNull final Node updatedNode) {
         // Nothing to do
     }
 
     @Override
-    public void add(@Nonnull InstanceIdentifier<Node> instanceIdentifier, @Nonnull Node node) {
+    public void add(@NonNull InstanceIdentifier<Node> instanceIdentifier, @NonNull Node node) {
         NodeId nodeId = node.getId();
         String[] nodeIdVal =  nodeId.getValue().split(":");
         if (nodeIdVal.length < 2) {

@@ -13,8 +13,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -187,7 +187,7 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
             sfp.getName().getValue(), true);
     }
 
-    private void processFlowClassifiers(PortChain pc, @Nonnull List<Uuid> flowClassifiers, @Nullable String sfpName,
+    private void processFlowClassifiers(PortChain pc, @NonNull List<Uuid> flowClassifiers, @Nullable String sfpName,
             boolean added) {
         for (Uuid uuid : flowClassifiers) {
             SfcFlowClassifier fc = neutronMdsalHelper.getNeutronFlowClassifier(uuid);

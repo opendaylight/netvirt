@@ -12,8 +12,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import javax.annotation.Nonnull;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 
 /**
@@ -25,20 +25,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 public class ElanInstanceDpnsCache {
     private final ConcurrentMap<String, Set<DpnInterfaces>> elanInstanceToDpnsCache = new ConcurrentHashMap<>();
 
-    public void add(@Nonnull String elanInstanceName, @Nonnull DpnInterfaces dpnInterfaces) {
+    public void add(@NonNull String elanInstanceName, @NonNull DpnInterfaces dpnInterfaces) {
         elanInstanceToDpnsCache.computeIfAbsent(elanInstanceName, key -> ConcurrentHashMap.newKeySet())
                 .add(dpnInterfaces);
     }
 
-    public void remove(@Nonnull String elanInstanceName, @Nonnull DpnInterfaces dpnInterfaces) {
+    public void remove(@NonNull String elanInstanceName, @NonNull DpnInterfaces dpnInterfaces) {
         elanInstanceToDpnsCache.computeIfPresent(elanInstanceName, (key, prevInterfacesSet) -> {
             prevInterfacesSet.remove(dpnInterfaces);
             return !prevInterfacesSet.isEmpty() ? prevInterfacesSet : null;
         });
     }
 
-    @Nonnull
-    public Collection<DpnInterfaces> get(@Nonnull String elanInstanceName) {
+    @NonNull
+    public Collection<DpnInterfaces> get(@NonNull String elanInstanceName) {
         Set<DpnInterfaces> dpns = elanInstanceToDpnsCache.get(elanInstanceName);
         return dpns != null ? Collections.unmodifiableCollection(dpns) : Collections.emptyList();
     }

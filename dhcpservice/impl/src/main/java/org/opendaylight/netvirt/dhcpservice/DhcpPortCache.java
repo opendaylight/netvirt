@@ -8,11 +8,10 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
-
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,17 +27,17 @@ public class DhcpPortCache {
         LOG.trace("Initialize DhcpPortCache. ");
     }
 
-    public  void put(@Nonnull  String interfaceName, Port port) {
+    public  void put(@NonNull  String interfaceName, Port port) {
         portMap.put(interfaceName, port);
         LOG.trace("Added the interface {} to DhcpPortCache",interfaceName);
     }
 
     @Nullable
-    public Port get(@Nonnull String interfaceName) {
+    public Port get(@NonNull String interfaceName) {
         return portMap.get(interfaceName);
     }
 
-    public void remove(@Nonnull String interfaceName) {
+    public void remove(@NonNull String interfaceName) {
         portMap.remove(interfaceName);
     }
 }

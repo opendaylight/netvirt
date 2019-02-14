@@ -27,8 +27,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -263,7 +263,7 @@ public final class DhcpServiceUtils {
                 InstanceIdentifier.builder(Nodes.class).build()));
     }
 
-    @Nonnull
+    @NonNull
     public static List<BigInteger> getListOfDpns(ReadTransaction tx) throws ReadFailedException {
         if (!connectedDpnIds.isEmpty()) {
             return connectedDpnIds;
@@ -272,7 +272,7 @@ public final class DhcpServiceUtils {
                 InstanceIdentifier.builder(Nodes.class).build()).checkedGet());
     }
 
-    @Nonnull
+    @NonNull
     private static List<BigInteger> extractDpnsFromNodes(Optional<Nodes> optionalNodes) {
         return optionalNodes.toJavaUtil().map(
             nodes -> nodes.nonnullNode().stream().map(Node::getId).filter(Objects::nonNull).map(
@@ -280,7 +280,7 @@ public final class DhcpServiceUtils {
                     Collectors.toList())).orElse(Collections.emptyList());
     }
 
-    @Nonnull
+    @NonNull
     public static List<BigInteger> getDpnsForElan(String elanInstanceName, DataBroker broker) {
         List<BigInteger> elanDpns = new LinkedList<>();
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnInstanceIdentifier =
@@ -297,9 +297,8 @@ public final class DhcpServiceUtils {
         return elanDpns;
     }
 
-    @Nullable
-    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-            .state.Interface getInterfaceFromOperationalDS(String interfaceName, DataBroker dataBroker) {
+    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
+            .@Nullable Interface getInterfaceFromOperationalDS(String interfaceName, DataBroker dataBroker) {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
                 .state.InterfaceKey interfaceKey =
                 new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
@@ -527,7 +526,7 @@ public final class DhcpServiceUtils {
         return null;
     }
 
-    @Nonnull
+    @NonNull
     public static List<Uuid> getSubnetIdsFromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier id = buildNetworkMapIdentifier(networkId);
         Optional<NetworkMap> optionalNetworkMap = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);

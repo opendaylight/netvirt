@@ -10,8 +10,8 @@ package org.opendaylight.netvirt.aclservice.api.utils;
 
 import java.util.Collection;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
@@ -30,19 +30,19 @@ public interface AclDataCache {
     @Nullable
     Integer getAclTag(String aclId);
 
-    @Nonnull
+    @NonNull
     Map<Uuid, Collection<AclInterface>> getAclInterfaceMap();
 
-    @Nonnull
+    @NonNull
     Map<Uuid, Collection<Uuid>> getEgressRemoteAclIdMap();
 
-    @Nonnull
+    @NonNull
     Map<Uuid, Collection<Uuid>> getIngressRemoteAclIdMap();
 
-    @Nonnull
+    @NonNull
     Map<String, Integer> getAclTagMap();
 
-    @Nonnull
+    @NonNull
     Map<String, Acl> getAclMap();
 
 }
