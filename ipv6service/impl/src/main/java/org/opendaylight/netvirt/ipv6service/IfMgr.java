@@ -25,10 +25,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.ipv6util.api.Ipv6Constants.Ipv6RouterAdvertisementType;
 import org.opendaylight.genius.ipv6util.api.Ipv6Util;
@@ -860,7 +860,6 @@ public class IfMgr implements ElementCache, AutoCloseable {
         return elanTag;
     }
 
-    @Nullable
     public void updateNetworkMtuInfo(Uuid networkId, int mtu) {
         VirtualNetwork net = getNetwork(networkId);
         if (null != net) {

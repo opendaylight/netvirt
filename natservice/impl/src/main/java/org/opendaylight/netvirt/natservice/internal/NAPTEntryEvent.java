@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.netvirt.natservice.internal.NaptPacketInHandler.NatPacketProcessingState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 

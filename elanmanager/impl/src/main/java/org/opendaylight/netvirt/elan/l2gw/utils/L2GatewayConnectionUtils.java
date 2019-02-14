@@ -21,11 +21,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -118,14 +118,14 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).orNull();
     }
 
-    @Nonnull
+    @NonNull
     public static List<L2gateway> getL2gatewayList(DataBroker broker) {
         InstanceIdentifier<L2gateways> inst = InstanceIdentifier.create(Neutron.class).child(L2gateways.class);
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).toJavaUtil().map(
                 L2gateways::getL2gateway).orElse(emptyList());
     }
 
-    @Nonnull
+    @NonNull
     public static List<L2gatewayConnection> getAllL2gatewayConnections(DataBroker broker) {
         InstanceIdentifier<L2gatewayConnections> inst = InstanceIdentifier.create(Neutron.class)
                 .child(L2gatewayConnections.class);
@@ -142,7 +142,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
      *            the l2 gateway ids
      * @return the associated l2 gw connections
      */
-    @Nonnull
+    @NonNull
     public static List<L2gatewayConnection> getAssociatedL2GwConnections(DataBroker broker, Set<Uuid> l2GatewayIds) {
         List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(broker);
         List<L2gatewayConnection> l2GwConnections = new ArrayList<>();
@@ -165,7 +165,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
      *            the elan Name
      * @return the associated l2 gw connection with elan
      */
-    @Nonnull
+    @NonNull
     public static List<L2gatewayConnection> getL2GwConnectionsByElanName(DataBroker broker, String elanName) {
         List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(broker);
         List<L2gatewayConnection> elanL2GateWayConnections = new ArrayList<>();
@@ -365,7 +365,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         return l2GwDevice != null && l2GwDevice.getHwvtepNodeId() != null;
     }
 
-    protected static boolean isLastL2GwConnBeingDeleted(@Nonnull L2GatewayDevice l2GwDevice) {
+    protected static boolean isLastL2GwConnBeingDeleted(@NonNull L2GatewayDevice l2GwDevice) {
         return l2GwDevice.getL2GatewayIds().size() == 1;
     }
 
@@ -377,7 +377,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
             Futures.addCallback(broker.newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL,
                     nodeIid), new SettableFutureCallback<Optional<Node>>(settableFuture) {
                         @Override
-                        public void onSuccess(@Nonnull Optional<Node> resultNode) {
+                        public void onSuccess(@NonNull Optional<Node> resultNode) {
                             LocalUcastMacListener localUcastMacListener =
                                     new LocalUcastMacListener(broker, haOpClusteredListener,
                                             elanL2GatewayUtils, jobCoordinator, elanInstanceCache, hwvtepNodeHACache);

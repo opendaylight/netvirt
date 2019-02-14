@@ -12,10 +12,10 @@ import static org.opendaylight.netvirt.coe.utils.AceNetworkPolicyUtils.buildAcl;
 import static org.opendaylight.netvirt.coe.utils.AceNetworkPolicyUtils.getAclNameFromPolicy;
 import static org.opendaylight.netvirt.coe.utils.AclUtils.getAclIid;
 
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.aries.blueprint.annotation.service.Reference;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.RetryingManagedNewTransactionRunner;
@@ -42,25 +42,25 @@ public class NetworkPolicyListener extends AbstractSyncDataTreeChangeListener<Ne
     }
 
     @Override
-    public void add(@Nonnull InstanceIdentifier<NetworkPolicy> instanceIdentifier, @Nonnull NetworkPolicy policy) {
+    public void add(@NonNull InstanceIdentifier<NetworkPolicy> instanceIdentifier, @NonNull NetworkPolicy policy) {
         LOG.info("add: id: {}\npolicy: {}", instanceIdentifier, policy);
         updateAcl(policy, false);
     }
 
     @Override
-    public void remove(@Nonnull InstanceIdentifier<NetworkPolicy> instanceIdentifier, @Nonnull NetworkPolicy policy) {
+    public void remove(@NonNull InstanceIdentifier<NetworkPolicy> instanceIdentifier, @NonNull NetworkPolicy policy) {
         LOG.info("remove: id: {}\npolicy: {}", instanceIdentifier, policy);
         updateAcl(policy, true);
     }
 
     @Override
-    public void update(@Nonnull InstanceIdentifier<NetworkPolicy> instanceIdentifier,
-                       @Nonnull NetworkPolicy oldPolicy, @Nonnull NetworkPolicy policy) {
+    public void update(@NonNull InstanceIdentifier<NetworkPolicy> instanceIdentifier,
+                       @NonNull NetworkPolicy oldPolicy, @NonNull NetworkPolicy policy) {
         LOG.info("update: id: {}\nold policy: {}\nnew policy: {}", instanceIdentifier, oldPolicy, policy);
         updateAcl(policy, false);
     }
 
-    private void updateAcl(@Nonnull NetworkPolicy policy, boolean isDeleted) {
+    private void updateAcl(@NonNull NetworkPolicy policy, boolean isDeleted) {
         LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
             String aclName = getAclNameFromPolicy(policy);
             Acl acl = buildAcl(policy, isDeleted);

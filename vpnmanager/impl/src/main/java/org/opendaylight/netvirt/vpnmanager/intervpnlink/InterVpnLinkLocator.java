@@ -16,9 +16,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
@@ -135,7 +135,7 @@ public class InterVpnLinkLocator {
      * @return the list of dpnIds where the specified InterVpnLink should not
      *     be installed
      */
-    @Nonnull
+    @NonNull
     private List<BigInteger> findDpnsWithSimilarIVpnLinks(InterVpnLink interVpnLink,
                                                           List<InterVpnLinkDataComposite> allInterVpnLinks) {
         List<InterVpnLinkDataComposite> sameGroupInterVpnLinks = findInterVpnLinksSameGroup(interVpnLink,

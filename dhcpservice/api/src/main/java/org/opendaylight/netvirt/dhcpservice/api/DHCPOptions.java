@@ -17,8 +17,8 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.apache.commons.lang3.ArrayUtils;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.openflowplugin.libraries.liblldp.HexEncode;
 import org.opendaylight.openflowplugin.libraries.liblldp.NetUtils;
 
