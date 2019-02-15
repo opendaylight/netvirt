@@ -40,6 +40,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>sal-binding-broker-impl</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.commands</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.console</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>arputil-api</artifactId>
             <version>${genius.version}</version>

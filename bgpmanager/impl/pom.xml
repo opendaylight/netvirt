@@ -42,6 +42,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <version>${genius.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.ovsdb</groupId>
+            <artifactId>utils.mdsal-utils</artifactId>
+            <version>${ovsdb.version}</version>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>model-bgp</artifactId>
             <version>${model.bgp.version}</version>
@@ -86,6 +91,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>metrics-api</artifactId>
             <version>${infrautils.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.ovsdb</groupId>
+            <artifactId>utils.mdsal-utils</artifactId>
+            <version>1.9.0-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
