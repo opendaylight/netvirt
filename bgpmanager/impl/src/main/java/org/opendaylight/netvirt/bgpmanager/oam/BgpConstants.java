@@ -34,6 +34,8 @@ public interface BgpConstants {
     int MIN_RX_MAX = 50000;
     int MIN_TX_MIN = 1000;
     int MIN_TX_MAX = 60000;
+    int HISTORY_LIMIT = 10000;
+    int HISTORY_THRESHOLD = 7500;
     int MIN_DETECT_MULT = 2;
     int MAX_DETECT_MULT = 255;
     int BFD_DEFAULT_FAILURE_THRESHOLD = 0;
