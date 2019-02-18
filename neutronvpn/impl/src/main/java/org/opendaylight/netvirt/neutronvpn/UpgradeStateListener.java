@@ -15,13 +15,13 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.serviceutils.tools.mdsal.listener.AbstractClusteredSyncDataTreeChangeListener;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.mdsalutil.rev170830.Config;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.serviceutils.upgrade.rev180702.UpgradeConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeListener<Config> {
+public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeListener<UpgradeConfig> {
     private static final Logger LOG = LoggerFactory.getLogger(UpgradeStateListener.class);
 
     private final NeutronSubnetGwMacResolver neutronSubnetGwMacResolver;
@@ -30,21 +30,21 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
     public UpgradeStateListener(final DataBroker dataBroker,
                                 final NeutronSubnetGwMacResolver neutronSubnetGwMacResolver) {
         super(dataBroker, new DataTreeIdentifier<>(
-                LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Config.class)));
+                LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(UpgradeConfig.class)));
         LOG.trace("UpgradeStateListener (neutronvpn) initialized");
         this.neutronSubnetGwMacResolver = neutronSubnetGwMacResolver;
     }
 
     @Override
-    public void add(@Nonnull Config newDataObject) {
+    public void add(@Nonnull UpgradeConfig newDataObject) {
     }
 
     @Override
-    public void remove(@Nonnull Config removedDataObject) {
+    public void remove(@Nonnull UpgradeConfig removedDataObject) {
     }
 
     @Override
-    public void update(@Nonnull Config original, Config updated) {
+    public void update(@Nonnull UpgradeConfig original, UpgradeConfig updated) {
         LOG.info("UpgradeStateListener update from {} to {}", original, updated);
         neutronSubnetGwMacResolver.sendArpRequestsToExtGateways();
     }
