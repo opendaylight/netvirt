@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47be8c4a_1338e37b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2019-02-18T14:56:49Z",
+      "side": 1,
+      "message": "Move this down to just above the Change-Id, as JIRA: NETVIRT-1564. Leave the rest of the text as the summary, but limit the first line to 50 chars. Then a space and more text.\n\nBGP Function calls logging\n\u003cspace\u003e\nThe logs have been added...\n\nJIRA: NETVIRT-1564",
+      "revId": "6f529fa6f2efa0683065a754fe1b1097d84ea389",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
