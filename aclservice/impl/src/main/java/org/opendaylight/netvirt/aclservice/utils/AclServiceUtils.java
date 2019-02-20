@@ -246,12 +246,10 @@ public final class AclServiceUtils {
     @Nullable
     public static SecurityRuleAttr getAccessListAttributes(Ace ace) {
         if (ace == null) {
-            LOG.error("Ace is Null");
             return null;
         }
         SecurityRuleAttr aceAttributes = ace.augmentation(SecurityRuleAttr.class);
         if (aceAttributes == null) {
-            LOG.error("Ace is null");
             return null;
         }
         return aceAttributes;
@@ -955,16 +953,6 @@ public final class AclServiceUtils {
         return flowMatches;
     }
 
-    public static boolean isOfAclInterest(Acl acl) {
-        if (acl.getAccessListEntries() != null) {
-            List<Ace> aceList = acl.getAccessListEntries().getAce();
-            if (aceList != null && !aceList.isEmpty()) {
-                return aceList.get(0).augmentation(SecurityRuleAttr.class) != null;
-            }
-        }
-        return false;
-    }
-
     /**
      * Builds the ip protocol matches.
      *
@@ -1021,7 +1009,8 @@ public final class AclServiceUtils {
         if (accessListEntries != null && accessListEntries.getAce() != null) {
             for (Ace ace : accessListEntries.getAce()) {
                 SecurityRuleAttr aceAttr = AclServiceUtils.getAccessListAttributes(ace);
-                if (Objects.equals(aceAttr.getDirection(), direction) && doesAceHaveRemoteGroupId(aceAttr)) {
+                if (aceAttr != null && Objects.equals(aceAttr.getDirection(), direction)
+                        && doesAceHaveRemoteGroupId(aceAttr)) {
                     remoteAclIds.add(aceAttr.getRemoteGroupId());
                 }
             }
