@@ -174,7 +174,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         if (AclServiceUtils.isOfInterest(aclInterface)) {
             List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclList != null) {
-                aclDataUtil.addAclInterfaceMap(aclList, aclInterface);
+                aclDataUtil.addOrUpdateAclInterfaceMap(aclList, aclInterface);
             }
             if (aclInterface.getElanId() == null) {
                 LOG.debug("On Add event, skip ADD since ElanId is not updated");
