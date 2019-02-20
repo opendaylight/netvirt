@@ -380,6 +380,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     protected void programAceRule(List<FlowEntity> flowEntries, AclInterface port, String aclName, Ace ace,
             int addOrRemove) {
         SecurityRuleAttr aceAttr = AclServiceUtils.getAccessListAttributes(ace);
+        if (aceAttr == null) {
+            LOG.error("Ace {} of Acl {} is either null or not having SecurityRuleAttr",
+                    ((ace == null) ? null : ace.getRuleName()), aclName);
+            return;
+        }
         if (addOrRemove == NwConstants.ADD_FLOW && aceAttr.isDeleted()) {
             LOG.trace("Ignoring {} rule which is already deleted", ace.getRuleName());
             return;

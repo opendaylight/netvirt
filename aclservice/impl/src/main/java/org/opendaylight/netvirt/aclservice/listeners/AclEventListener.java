@@ -93,21 +93,18 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     @Override
     protected void remove(InstanceIdentifier<Acl> key, Acl acl) {
-        String aclName = acl.getAclName();
-        if (!AclServiceUtils.isOfAclInterest(acl)) {
-            LOG.trace("{} does not have SecurityRuleAttr augmentation", aclName);
-            return;
-        }
-
         LOG.trace("On remove event, remove ACL: {}", acl);
+        String aclName = acl.getAclName();
         this.aclDataUtil.removeAcl(aclName);
         Integer aclTag = this.aclDataUtil.getAclTag(aclName);
         if (aclTag != null) {
             this.aclDataUtil.removeAclTag(aclName);
-            this.aclServiceUtils.releaseAclTag(aclName);
         }
         updateRemoteAclCache(acl.getAccessListEntries().getAce(), aclName, AclServiceManager.Action.REMOVE);
         if (aclClusterUtil.isEntityOwner()) {
+            if (aclTag != null) {
+                this.aclServiceUtils.releaseAclTag(aclName);
+            }
             // Handle Rule deletion If SG Remove event is received before SG Rule delete event
             List<Ace> aceList = acl.getAccessListEntries().getAce();
             Collection<AclInterface> aclInterfaces =
@@ -118,11 +115,6 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     @Override
     protected void update(InstanceIdentifier<Acl> key, Acl aclBefore, Acl aclAfter) {
-        if (!AclServiceUtils.isOfAclInterest(aclAfter) && !AclServiceUtils.isOfAclInterest(aclBefore)) {
-            LOG.trace("before {} and after {} does not have SecurityRuleAttr augmentation",
-                    aclBefore.getAclName(), aclAfter.getAclName());
-            return;
-        }
         String aclName = aclAfter.getAclName();
         Collection<AclInterface> interfacesBefore =
                 ImmutableSet.copyOf(aclDataUtil.getInterfaceList(new Uuid(aclName)));
@@ -163,15 +155,10 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     @Override
     protected void add(InstanceIdentifier<Acl> key, Acl acl) {
-        String aclName = acl.getAclName();
-        if (!AclServiceUtils.isOfAclInterest(acl)) {
-            LOG.trace("{} does not have SecurityRuleAttr augmentation", aclName);
-            return;
-        }
-
         LOG.trace("On add event, add ACL: {}", acl);
         this.aclDataUtil.addAcl(acl);
 
+        String aclName = acl.getAclName();
         Integer aclTag = this.aclServiceUtils.allocateAclTag(aclName);
         if (aclTag != null && aclTag != AclConstants.INVALID_ACL_TAG) {
             this.aclDataUtil.addAclTag(aclName, aclTag);

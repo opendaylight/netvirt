@@ -54,17 +54,17 @@ public class AclDataUtilTest {
         final BigInteger dpId = new BigInteger("123");
         assertFalse(aclDataUtil.doesDpnHaveAclInterface(dpId));
 
-        aclDataUtil.addAclInterfaceMap(Arrays.asList(ACL1, ACL2), PORT1);
+        aclDataUtil.addOrUpdateAclInterfaceMap(Arrays.asList(ACL1, ACL2), PORT1);
         assertAclInterfaces(ACL1, PORT1);
         assertAclInterfaces(ACL2, PORT1);
 
-        aclDataUtil.addAclInterfaceMap(Arrays.asList(ACL1), PORT2);
+        aclDataUtil.addOrUpdateAclInterfaceMap(Arrays.asList(ACL1), PORT2);
         assertAclInterfaces(ACL1, PORT1, PORT2);
         assertAclInterfaces(ACL2, PORT1);
 
         assertFalse(aclDataUtil.doesDpnHaveAclInterface(dpId));
 
-        aclDataUtil.addAclInterfaceMap(Arrays.asList(ACL1), PORT2);
+        aclDataUtil.addOrUpdateAclInterfaceMap(Arrays.asList(ACL1), PORT2);
         assertAclInterfaces(ACL1, PORT1, PORT2);
 
         aclDataUtil.addOrUpdateAclInterfaceMap(Arrays.asList(ACL1), PORT3);
@@ -118,13 +118,13 @@ public class AclDataUtilTest {
         assertNotNull(map);
         assertEquals(0, map.size());
 
-        aclDataUtil.addAclInterfaceMap(Arrays.asList(ACL2), PORT1);
-        aclDataUtil.addAclInterfaceMap(Arrays.asList(ACL2), PORT2);
+        aclDataUtil.addOrUpdateAclInterfaceMap(Arrays.asList(ACL2), PORT1);
+        aclDataUtil.addOrUpdateAclInterfaceMap(Arrays.asList(ACL2), PORT2);
         map = aclDataUtil.getRemoteAclInterfaces(ACL1, direction);
         assertEquals(1, map.size());
         assertAclInterfaces(map.get(ACL2.getValue()), PORT1, PORT2);
 
-        aclDataUtil.addAclInterfaceMap(Arrays.asList(ACL3), PORT3);
+        aclDataUtil.addOrUpdateAclInterfaceMap(Arrays.asList(ACL3), PORT3);
         map = aclDataUtil.getRemoteAclInterfaces(ACL1, direction);
         assertEquals(2, map.size());
         assertAclInterfaces(map.get(ACL2.getValue()), PORT1, PORT2);
