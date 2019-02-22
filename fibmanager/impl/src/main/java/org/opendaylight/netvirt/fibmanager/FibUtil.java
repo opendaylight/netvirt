@@ -626,7 +626,8 @@ public class FibUtil {
                     operTx.delete(FibUtil.getAdjacencyIdentifierOp(prefixToInterface.getVpnInterfaceName(),
                                     vpnName, prefix));
                     operTx.delete(VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, usedRd, prefix));
-                    confTx.delete(VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHopRemoved));
+                    MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, prefix, nextHopRemoved));
                     break;
                 }
             }
