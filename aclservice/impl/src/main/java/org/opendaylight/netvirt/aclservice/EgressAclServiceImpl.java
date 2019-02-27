@@ -129,10 +129,11 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             egressAclIcmpv6AllowedList(flowEntries, dpid, lportTag, addOrRemove);
         }
         List<AllowedAddressPairs> filteredAAPs = AclServiceUtils.excludeMulticastAAPs(allowedAddresses);
-        programL2BroadcastAllowRule(flowEntries, port, filteredAAPs, addOrRemove);
-
-        egressAclDhcpAllowClientTraffic(flowEntries, port, filteredAAPs, lportTag, addOrRemove);
-        egressAclDhcpv6AllowClientTraffic(flowEntries, port, filteredAAPs, lportTag, addOrRemove);
+        if (!hasDuplicateMac(port.getAllowedAddressPairs(), filteredAAPs, action)) {
+            programL2BroadcastAllowRule(flowEntries, port, filteredAAPs, addOrRemove);
+            egressAclDhcpAllowClientTraffic(flowEntries, port, filteredAAPs, lportTag, addOrRemove);
+            egressAclDhcpv6AllowClientTraffic(flowEntries, port, filteredAAPs, lportTag, addOrRemove);
+        }
         programArpRule(flowEntries, dpid, filteredAAPs, lportTag, addOrRemove);
     }
 
@@ -222,10 +223,6 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void egressAclDhcpAllowClientTraffic(List<FlowEntity> flowEntries, AclInterface port,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, int addOrRemove) {
-        // if there is a duplicate mac with different aap, do not delete the Dhcp Allow rule.
-        if (hasDuplicateMac(port.getAllowedAddressPairs(), allowedAddresses)) {
-            return;
-        }
         BigInteger dpId = port.getDpId();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
         for (AllowedAddressPairs aap : allowedAddresses) {
@@ -256,10 +253,6 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void egressAclDhcpv6AllowClientTraffic(List<FlowEntity> flowEntries, AclInterface port,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, int addOrRemove) {
-        // if there is a duplicate mac with different aap, do not delete the Dhcp Allow rule.
-        if (hasDuplicateMac(port.getAllowedAddressPairs(), allowedAddresses)) {
-            return;
-        }
         BigInteger dpId = port.getDpId();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
         for (AllowedAddressPairs aap : allowedAddresses) {
@@ -330,9 +323,13 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * @param addOrRemove whether to delete or add flow
      */
     @Override
-    protected void programBroadcastRules(List<FlowEntity> flowEntries, AclInterface port, int addOrRemove) {
-        programL2BroadcastAllowRule(flowEntries, port,
-                AclServiceUtils.excludeMulticastAAPs(port.getAllowedAddressPairs()), addOrRemove);
+    protected void programBroadcastRules(List<FlowEntity> flowEntries, AclInterface port, Action action,
+             int addOrRemove) {
+        List<AllowedAddressPairs> allowedAddressPairs = port.getAllowedAddressPairs();
+        List<AllowedAddressPairs> filteredAAPs = AclServiceUtils.excludeMulticastAAPs(allowedAddressPairs);
+        if (!hasDuplicateMac(allowedAddressPairs, filteredAAPs, action)) {
+            programL2BroadcastAllowRule(flowEntries, port, filteredAAPs, addOrRemove);
+        }
     }
 
     /**
@@ -358,10 +355,6 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      */
     private void programL2BroadcastAllowRule(List<FlowEntity> flowEntries, AclInterface port,
             List<AllowedAddressPairs> filteredAAPs, int addOrRemove) {
-        // if there is a duplicate mac with different aap, do not delete the Broadcast rule.
-        if (hasDuplicateMac(port.getAllowedAddressPairs(), filteredAAPs)) {
-            return;
-        }
         BigInteger dpId = port.getDpId();
         int lportTag = port.getLPortTag();
         Set<MacAddress> macs = filteredAAPs.stream().map(AllowedAddressPairs::getMacAddress)
@@ -381,18 +374,20 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     }
 
     private boolean hasDuplicateMac(List<AllowedAddressPairs> allowedAddresses,
-            List<AllowedAddressPairs> filteredAAPs) {
-        // Do not proceed further if VM delete or Port down event.
-        if (allowedAddresses.size() == filteredAAPs.size()) {
+            List<AllowedAddressPairs> filteredAAPs, Action action) {
+        // Do not proceed further if Port Up OR down event.
+        if (action != Action.UPDATE) {
             return false;
         }
-        //exclude filteredAAP entries from port's AAP's before comparison
-        List<AllowedAddressPairs> filteredAllowedAddressed = allowedAddresses.stream().filter(
+        // exclude multicastAAPs from PortBefore/PortAfter AAPs
+        List<AllowedAddressPairs> excludeMulticastAAPs = AclServiceUtils.excludeMulticastAAPs(allowedAddresses);
+        // GET Delta of ADDED/DELETED aaps with PortBefore/PortAfter-AAPs
+        List<AllowedAddressPairs> filteredAllowedAddresses = excludeMulticastAAPs.stream().filter(
             aap -> !filteredAAPs.contains(aap)).collect(Collectors.toList());
-        Set<MacAddress> macs = filteredAAPs.stream().map(AllowedAddressPairs::getMacAddress)
-                .collect(Collectors.toSet());
-        List<AllowedAddressPairs> aapWithDuplicateMac = filteredAllowedAddressed.stream()
+        Set<MacAddress> macs = filteredAAPs.stream().map(aap -> aap.getMacAddress()).collect(Collectors.toSet());
+        List<AllowedAddressPairs> aapWithDuplicateMac = filteredAllowedAddresses.stream()
             .filter(entry -> macs.contains(entry.getMacAddress())).collect(Collectors.toList());
+
         return !aapWithDuplicateMac.isEmpty();
     }
 

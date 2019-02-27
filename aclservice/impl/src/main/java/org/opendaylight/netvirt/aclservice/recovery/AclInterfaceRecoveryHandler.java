@@ -46,7 +46,6 @@ public class AclInterfaceRecoveryHandler implements ServiceRecoveryInterface {
         if (interfaceOp.isPresent()) {
             Interface aclInterface = interfaceOp.get();
             InstanceIdentifier<Interface> interfaceIdentifier = AclServiceUtils.getInterfaceIdentifier(entityId);
-            aclInterfaceListener.remove(interfaceIdentifier, aclInterface);
             aclInterfaceListener.add(interfaceIdentifier, aclInterface);
         } else {
             LOG.warn("{} is not valid ACL interface", entityId);

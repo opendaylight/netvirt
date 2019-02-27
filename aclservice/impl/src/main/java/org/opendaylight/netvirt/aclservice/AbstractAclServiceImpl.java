@@ -204,7 +204,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                     NwConstants.ADD_FLOW);
         }
         if (portAfter.getSubnetInfo() != null && portBefore.getSubnetInfo() == null) {
-            programBroadcastRules(addFlowEntries, portAfter, NwConstants.ADD_FLOW);
+            programBroadcastRules(addFlowEntries, portAfter, Action.UPDATE, NwConstants.ADD_FLOW);
         }
         handleSubnetChange(portBefore, portAfter, addFlowEntries, deleteFlowEntries);
 
@@ -561,7 +561,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param port the Acl Interface port
      * @param addOrRemove whether to delete or add flow
      */
-    protected abstract void programBroadcastRules(List<FlowEntity> flowEntries, AclInterface port, int addOrRemove);
+    protected abstract void programBroadcastRules(List<FlowEntity> flowEntries, AclInterface port, Action action,
+            int addOrRemove);
 
     /**
      * Programs broadcast rules.
