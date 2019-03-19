@@ -29,7 +29,6 @@ import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.netvirt.elanmanager.api.IElanBridgeManager;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathId;
@@ -57,7 +56,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 // Checkstyle expects the first sentence to end with a period, question marks don’t count
 @SuppressWarnings("checkstyle:SummaryJavadoc")
-public class ElanBridgeManager implements IElanBridgeManager {
+public class ElanBridgeManager {
     private static final Logger LOG = LoggerFactory.getLogger(ElanBridgeManager.class);
 
     public static final String PROVIDER_MAPPINGS_KEY = "provider_mappings";
@@ -395,7 +394,6 @@ public class ElanBridgeManager implements IElanBridgeManager {
     /**
      * {@inheritDoc}.
      */
-    @Override
     public Map<String, String> getOpenvswitchOtherConfigMap(Node node, String key) {
         String otherConfigVal = southboundUtils.getOpenvswitchOtherConfig(node, key);
         return getMultiValueMap(otherConfigVal);
@@ -515,7 +513,6 @@ public class ElanBridgeManager implements IElanBridgeManager {
         return rv;
     }
 
-    @Override
     public Optional<BigInteger> getDpIdFromManagerNodeId(String managerNodeId) {
         InstanceIdentifier<Node> identifier = getIntegrationBridgeIdentifier(managerNodeId);
         OvsdbBridgeAugmentation integrationBridgeAugmentation = interfaceManager.getOvsdbBridgeForNodeIid(identifier);
@@ -555,8 +552,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
         return stringBuilder.toString();
     }
 
-    @Override
-    public Map<String, String> getMultiValueMap(String multiKeyValueStr) {
+    private Map<String, String> getMultiValueMap(String multiKeyValueStr) {
         if (Strings.isNullOrEmpty(multiKeyValueStr)) {
             return Collections.emptyMap();
         }
@@ -576,9 +572,8 @@ public class ElanBridgeManager implements IElanBridgeManager {
     /**
      * {@inheritDoc}.
      */
-    @Override
     @Nullable
-    public Node getBridgeNode(BigInteger dpId) {
+    private Node getBridgeNode(BigInteger dpId) {
         List<Node> ovsdbNodes = southboundUtils.getOvsdbNodes();
         if (null == ovsdbNodes) {
             LOG.debug("Could not find any (?) ovsdb nodes");

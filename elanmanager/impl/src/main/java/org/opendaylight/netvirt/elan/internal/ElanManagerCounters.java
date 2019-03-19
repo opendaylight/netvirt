@@ -19,7 +19,6 @@ public final class ElanManagerCounters {
     private final Meter unknownSmacPktinForwardingEntriesRemovedMeter;
     private final Meter unknownSmacPktinRcvMeter;
     private final Meter unknownSmacPktinLearnedMeter;
-    private final Meter unknownSmacPktinIgnoredDueProtectionMeter;
     private final Meter unknownSmacPktinFlowsRemovedForRelearnedMeter;
     private final Meter unknownSmacPktinRemovedForRelearnedMeter;
     private final Meter unknownSmacPktinMacMigrationIgnoredDueToProtectionMeter;
@@ -30,8 +29,6 @@ public final class ElanManagerCounters {
             meter(metricProvider, "unknown_smac_pktin_forwarding_entries_removed");
         this.unknownSmacPktinRcvMeter = meter(metricProvider, "unknown_smac_pktin_rcv");
         this.unknownSmacPktinLearnedMeter = meter(metricProvider, "unknown_smac_pktin_learned");
-        this.unknownSmacPktinIgnoredDueProtectionMeter =
-            meter(metricProvider, "unknown_smac_pktin_ignored_due_protection");
         this.unknownSmacPktinFlowsRemovedForRelearnedMeter =
             meter(metricProvider, "unknown_smac_pktin_flows_removed_for_relearned");
         this.unknownSmacPktinRemovedForRelearnedMeter =
@@ -55,10 +52,6 @@ public final class ElanManagerCounters {
 
     public void unknownSmacPktinLearned() {
         unknownSmacPktinLearnedMeter.mark();
-    }
-
-    public void unknownSmacPktinIgnoredDueProtection() {
-        unknownSmacPktinIgnoredDueProtectionMeter.mark();
     }
 
     public void unknownSmacPktinFlowsRemovedForRelearned() {

@@ -11,8 +11,6 @@ package org.opendaylight.netvirt.elanmanager.api;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
-
-import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -77,8 +75,6 @@ public interface IElanService extends IEtreeService {
     void addKnownL3DmacAddress(String macAddress, String elanInstanceName);
 
     void removeKnownL3DmacAddress(String macAddress, String elanInstanceName);
-
-    List<MatchInfoBase> getEgressMatchesForElanInstance(String elanInstanceName);
 
     Boolean isOpenStackVniSemanticsEnforced();
 

@@ -59,18 +59,7 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
             return getFutureWithAppErrorMessage(rpcResultBuilder,
                     String.format("Interface %s is not a ELAN interface", interfaceName));
         }
-        String elanInstanceName = elanInterface.get().getElanInstanceName();
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
-        //FIXME [ELANBE] Get this API Later
-        short tableId = 0;
-//        try {
-//
-//            //tableId = interfaceManager.getTableIdForService(interfaceName, serviceInfo);
-//        } catch (InterfaceNotFoundException | InterfaceServiceNotFoundException e) {
-//            rpcResultBuilder = RpcResultBuilder.failed();
-//            return getFutureWithAppErrorMessage(rpcResultBuilder,
-//                String.format("Interface %s or Service %s doesn't exist", interfaceName, serviceInfo));
-//        }
         if (!interfaceInfo.isOperational()) {
             LOG.debug("interface {} is down and returning with no statistics", interfaceName);
             rpcResultBuilder = RpcResultBuilder.success();
@@ -81,44 +70,11 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
                             .build()).buildFuture();
         }
         rpcResultBuilder = RpcResultBuilder.success();
-        return Futures.immediateFuture(rpcResultBuilder
-                .withResult(queryforElanInterfaceStatistics(tableId, elanInstanceName, interfaceInfo)).build());
+        return Futures.immediateFuture(rpcResultBuilder.withResult(queryforElanInterfaceStatistics()).build());
     }
 
     @Nullable
-    private GetElanInterfaceStatisticsOutput queryforElanInterfaceStatistics(short tableId, String elanInstanceName,
-            InterfaceInfo interfaceInfo) {
-//        BigInteger dpId = interfaceInfo.getDpId();
-//        List<MatchInfo> matches;
-//        String interfaceName = interfaceInfo.getInterfaceName();
-//        if (interfaceInfo instanceof VlanInterfaceInfo) {
-//            VlanInterfaceInfo vlanInterfaceInfo = (VlanInterfaceInfo)interfaceInfo;
-//            matches = InterfaceServiceUtil.getMatchInfoForVlanLPort(dpId, interfaceInfo.getPortNo(),
-//                InterfaceServiceUtil.getVlanId(interfaceName, dataBroker), vlanInterfaceInfo.isVlanTransparent());
-//        } else {
-//            matches = InterfaceServiceUtil.getLPortDispatcherMatches(
-//                    ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX),
-//                    interfaceInfo.getInterfaceTag());
-//        }
-//        long groupId = interfaceInfo.getGroupId();
-//        Set<Object> statRequestKeys = InterfaceServiceUtil.getStatRequestKeys(dpId, tableId, matches,
-//                String.format("%s.%s", elanInstanceName, interfaceName), groupId);
-        // StatisticsInfo statsInfo = new StatisticsInfo(statRequestKeys);
-//        org.opendaylight.vpnservice.ericsson.mdsalutil.statistics.StatResult statResult
-//            = mdsalMgr.queryForStatistics(interfaceName, statsInfo);
-//        ResultCode resultCode = ResultCode.Success;
-//        if (!statResult.isComplete()) {
-//            resultCode = ResultCode.Incomplete;
-//        }
-
-        //StatValue ingressFlowStats = statResult.getStatResult(InterfaceServiceUtil
-//            .getFlowStatisticsKey(dpId, tableId, matches, elanInstanceName));
-        //StatValue groupStats = statResult.getStatResult(InterfaceServiceUtil.getGroupStatisticsKey(dpId, groupId));
-//      return new GetElanInterfaceStatisticsOutputBuilder().setStatResult(new
-//          StatResultBuilder().setStatResultCode(resultCode)
-//                .setByteRxCount(ingressFlowStats.getByteCount()).setPacketRxCount(ingressFlowStats.getPacketCount())
-//                .setByteTxCount(groupStats.getByteCount()).setPacketTxCount(groupStats.getPacketCount()).build())
-//                .build();
+    private GetElanInterfaceStatisticsOutput queryforElanInterfaceStatistics() {
         return null;
     }
 

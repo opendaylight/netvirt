@@ -44,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NodeCopier implements INodeCopier {
+public class NodeCopier {
 
     private static final Logger LOG = LoggerFactory.getLogger(NodeCopier.class);
 
@@ -59,7 +59,6 @@ public class NodeCopier implements INodeCopier {
         this.txRunner = new ManagedNewTransactionRunnerImpl(db);
     }
 
-    @Override
     public <D extends Datastore> void copyGlobalNode(Optional<Node> srcGlobalNodeOptional,
                                InstanceIdentifier<Node> srcPath,
                                InstanceIdentifier<Node> dstPath,
@@ -142,7 +141,6 @@ public class NodeCopier implements INodeCopier {
         }
     }
 
-    @Override
     public <D extends Datastore> void copyPSNode(Optional<Node> srcPsNodeOptional,
                            InstanceIdentifier<Node> srcPsPath,
                            InstanceIdentifier<Node> dstPsPath,

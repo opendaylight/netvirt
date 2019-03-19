@@ -7,11 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
-import com.google.common.base.Optional;
-
-import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
@@ -20,22 +16,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
 public interface IHAEventHandler {
-
-    void handleChildNodeConnected(Node connectedNode,
-                                  InstanceIdentifier<Node> connectedNodePath,
-                                  InstanceIdentifier<Node> haNodePath,
-                                  TypedReadWriteTransaction<Configuration> confTx,
-                                  TypedReadWriteTransaction<Operational> operTx)
-            throws ReadFailedException, ExecutionException, InterruptedException;
-
-    void handleChildNodeReConnected(Node connectedNode,
-                                    InstanceIdentifier<Node> connectedNodePath,
-                                    InstanceIdentifier<Node> haNodePath,
-                                    Optional<Node> haGlobalCfg,
-                                    Optional<Node> haPSCfg,
-                                    TypedReadWriteTransaction<Configuration> confTx,
-                                    TypedReadWriteTransaction<Operational> operTx)
-            throws ReadFailedException, ExecutionException, InterruptedException;
 
 
     void copyChildGlobalOpUpdateToHAParent(InstanceIdentifier<Node> haPath,

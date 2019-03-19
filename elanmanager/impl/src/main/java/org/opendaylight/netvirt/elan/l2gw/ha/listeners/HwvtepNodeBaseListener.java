@@ -163,7 +163,7 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
                     onGlobalNodeUpdate(key, updated, original, mod, tx);
                     subMod = change.getRootNode().getModifiedAugmentation(HwvtepGlobalAugmentation.class);
                 } else {
-                    onPsNodeUpdate(updated, original, mod, tx);
+                    onPsNodeUpdate(updated, mod, tx);
                     subMod = change.getRootNode().getModifiedAugmentation(PhysicalSwitchAugmentation.class);
                 }
                 if (subMod != null) {
@@ -291,7 +291,7 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
 
     }
 
-    void onPsNodeUpdate(Node updated, Node original,
+    void onPsNodeUpdate(Node updated,
                         DataObjectModification<Node> mod, TypedReadWriteTransaction<D> tx)
             throws ReadFailedException, InterruptedException, ExecutionException {
 

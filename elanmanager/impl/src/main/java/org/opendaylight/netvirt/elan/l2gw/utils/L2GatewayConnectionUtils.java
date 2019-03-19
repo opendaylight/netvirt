@@ -269,8 +269,8 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
 
             DisAssociateHwvtepFromElanJob disAssociateHwvtepToElanJob =
                     new DisAssociateHwvtepFromElanJob(elanL2GatewayUtils, elanL2GatewayMulticastUtils,
-                            elanL2GwDevice, elanName, () -> elanInstanceCache.get(elanName).orNull(),
-                            l2Device, defaultVlan, hwvtepNodeId, isLastL2GwConnDeleted);
+                            elanL2GwDevice, elanName,
+                        l2Device, defaultVlan, hwvtepNodeId, isLastL2GwConnDeleted);
             elanClusterUtils.runOnlyInOwnerNode(disAssociateHwvtepToElanJob.getJobKey(), "remove l2gw connection job",
                     disAssociateHwvtepToElanJob);
         }

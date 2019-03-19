@@ -809,7 +809,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
             futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
                 installEntriesForElanInterface(elanInstance, elanInterface, interfaceInfo,
-                    isFirstInterfaceInDpn, confTx, operTx);
+                    isFirstInterfaceInDpn, confTx);
 
                 List<StaticMacEntries> staticMacEntriesList = elanInterface.getStaticMacEntries();
                 List<PhysAddress> staticMacAddresses = Lists.newArrayList();
@@ -916,8 +916,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     private void installEntriesForElanInterface(ElanInstance elanInstance, ElanInterface elanInterface,
-            InterfaceInfo interfaceInfo, boolean isFirstInterfaceInDpn, TypedWriteTransaction<Configuration> confTx,
-            TypedWriteTransaction<Operational> operTx) {
+            InterfaceInfo interfaceInfo, boolean isFirstInterfaceInDpn, TypedWriteTransaction<Configuration> confTx) {
         if (!isOperational(interfaceInfo)) {
             return;
         }

@@ -143,7 +143,7 @@ public class HwvtepLogicalSwitchListener extends
 
             LogicalSwitchAddedJob logicalSwitchAddedWorker = new LogicalSwitchAddedJob(
                     elanL2GatewayUtils, elanL2GatewayMulticastUtils, logicalSwitchName, physicalDevice, elanDevice,
-                    defaultVlanId, () -> elanInstanceCache.get(logicalSwitchName).orNull());
+                    defaultVlanId);
             elanClusterUtils.runOnlyInOwnerNode(logicalSwitchAddedWorker.getJobKey(),
                     "create vlan mappings and mcast configurations", logicalSwitchAddedWorker);
         } catch (RuntimeException e) {
