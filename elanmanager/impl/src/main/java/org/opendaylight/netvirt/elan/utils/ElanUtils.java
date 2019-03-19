@@ -50,7 +50,6 @@ import org.opendaylight.genius.infra.TypedReadTransaction;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
-import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.api.IITMProvider;
 import org.opendaylight.genius.itm.globals.ITMConstants;
@@ -147,7 +146,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev16061
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeLeafTagNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanForwardingTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaceForwardingEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanState;
@@ -312,18 +310,6 @@ public class ElanUtils {
         Futures.addCallback(tx.submit(), DEFAULT_CALLBACK, MoreExecutors.directExecutor());
     }
 
-    @SuppressWarnings("checkstyle:ForbidCertainMethod")
-    public static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
-            InstanceIdentifier<T> path, FutureCallback<Void> callback) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.delete(datastoreType, path);
-        Futures.addCallback(tx.submit(), callback, MoreExecutors.directExecutor());
-    }
-
-    public static InstanceIdentifier<ElanInstance> getElanInstanceIdentifier() {
-        return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class).build();
-    }
-
     public static InstanceIdentifier<ElanInterface> getElanInterfaceConfigurationDataPathId(String interfaceName) {
         return InstanceIdentifier.builder(ElanInterfaces.class)
                 .child(ElanInterface.class, new ElanInterfaceKey(interfaceName)).build();
@@ -407,25 +393,6 @@ public class ElanUtils {
         InstanceIdentifier<ElanInterfaceMac> elanInterfaceId = getElanInterfaceMacEntriesOperationalDataPath(
                 interfaceName);
         return read(dataBroker, LogicalDatastoreType.OPERATIONAL, elanInterfaceId).orNull();
-    }
-
-    /**
-     * Gets the elan interface mac addresses.
-     *
-     * @param interfaceName
-     *            the interface name
-     * @return the elan interface mac addresses
-     */
-    public List<PhysAddress> getElanInterfaceMacAddresses(String interfaceName) {
-        List<PhysAddress> macAddresses = new ArrayList<>();
-        ElanInterfaceMac elanInterfaceMac = getElanInterfaceMacByInterfaceName(interfaceName);
-        if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null) {
-            List<MacEntry> macEntries = elanInterfaceMac.getMacEntry();
-            for (MacEntry macEntry : macEntries) {
-                macAddresses.add(macEntry.getMacAddress());
-            }
-        }
-        return macAddresses;
     }
 
     public static InstanceIdentifier<ElanInterfaceMac> getElanInterfaceMacEntriesOperationalDataPath(
@@ -535,40 +502,6 @@ public class ElanUtils {
             dpIds.add(dpnInterface.getDpId());
         }
         return dpIds;
-    }
-
-    /**
-     * To check given dpId is already present in Elan instance. This can be used
-     * to program flow entry in external tunnel table when a new access port
-     * added for first time into the ELAN instance
-     *
-     * @param dpId
-     *            the dp id
-     * @param elanInstanceName
-     *            the elan instance name
-     * @return true if dpId is already present, otherwise return false
-     */
-    public boolean isDpnAlreadyPresentInElanInstance(BigInteger dpId, String elanInstanceName) {
-        InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationDataPath(elanInstanceName);
-        Optional<ElanDpnInterfacesList> existingElanDpnInterfaces = read(broker,
-                LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
-        if (!existingElanDpnInterfaces.isPresent()) {
-            return false;
-        }
-        List<DpnInterfaces> dpnInterfaces = existingElanDpnInterfaces.get().nonnullDpnInterfaces();
-        for (DpnInterfaces dpnInterface : dpnInterfaces) {
-            if (Objects.equals(dpnInterface.getDpId(), dpId)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Nullable
-    public ElanForwardingTables getElanForwardingList() {
-        InstanceIdentifier<ElanForwardingTables> elanForwardingTableId = InstanceIdentifier
-                .builder(ElanForwardingTables.class).build();
-        return read(broker, LogicalDatastoreType.OPERATIONAL, elanForwardingTableId).orNull();
     }
 
     public static long getElanRemoteBroadCastGroupID(long elanTag) {
@@ -1230,11 +1163,6 @@ public class ElanUtils {
         return read(broker, LogicalDatastoreType.CONFIGURATION, node).isPresent();
     }
 
-    public static ServicesInfo getServiceInfo(String elanInstanceName, String interfaceName) {
-        return InterfaceServiceUtil.buildServiceInfo(elanInstanceName + "." + interfaceName,
-                ElanConstants.ELAN_SERVICE_PRIORITY);
-    }
-
     public static String getElanServiceName(String elanName, String interfaceName) {
         return "elan." + elanName + interfaceName;
     }
@@ -1403,19 +1331,6 @@ public class ElanUtils {
                             .ietf.interfaces.rev140508.interfaces.state.InterfaceKey(
                                 interfaceName));
         return idBuilder.build();
-    }
-
-    @CheckReturnValue
-    public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(
-            WriteTransaction tx) {
-        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
-        try {
-            futures.get();
-        } catch (InterruptedException | ExecutionException e) {
-            // NETVIRT-1215: Do not log.error() here, only debug(); but callers *MUST* @CheckReturnValue
-            LOG.debug("Error writing to datastore", e);
-        }
-        return futures;
     }
 
     @CheckReturnValue
@@ -1592,18 +1507,6 @@ public class ElanUtils {
                         new StaticMacEntriesKey(new PhysAddress(macAddress))).build();
     }
 
-    public static List<StaticMacEntries> getDeletedEntries(List<StaticMacEntries> originalStaticMacEntries,
-                                                           List<StaticMacEntries> updatedStaticMacEntries) {
-        if (isEmpty(originalStaticMacEntries)) {
-            return Collections.EMPTY_LIST;
-        }
-        List<StaticMacEntries> deleted = Lists.newArrayList(originalStaticMacEntries);
-        if (isNotEmpty(updatedStaticMacEntries)) {
-            deleted.removeAll(updatedStaticMacEntries);
-        }
-        return deleted;
-    }
-
     public static <T> List<T> diffOf(List<T> orig, List<T> updated) {
         if (isEmpty(orig)) {
             return Collections.EMPTY_LIST;
@@ -1613,18 +1516,6 @@ public class ElanUtils {
             diff.removeAll(updated);
         }
         return diff;
-    }
-
-    public static void segregateToBeDeletedAndAddEntries(List<StaticMacEntries> originalStaticMacEntries,
-                                                             List<StaticMacEntries> updatedStaticMacEntries) {
-        if (isNotEmpty(updatedStaticMacEntries)) {
-            List<StaticMacEntries> existingClonedStaticMacEntries = new ArrayList<>();
-            if (isNotEmpty(originalStaticMacEntries)) {
-                existingClonedStaticMacEntries.addAll(0, originalStaticMacEntries);
-                originalStaticMacEntries.removeAll(updatedStaticMacEntries);
-                updatedStaticMacEntries.removeAll(existingClonedStaticMacEntries);
-            }
-        }
     }
 
     public static boolean isEmpty(Collection collection) {

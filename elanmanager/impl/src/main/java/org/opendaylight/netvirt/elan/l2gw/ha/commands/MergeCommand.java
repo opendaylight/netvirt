@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
-import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 import static org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil.isEmptyList;
 
@@ -150,7 +149,6 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
         }
     }
 
-    @Override
     public void mergeConfigData(Y dst,
                                 Z src,
                                 InstanceIdentifier<Node> nodePath) {
@@ -161,18 +159,6 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
             String nodeId = nodePath.firstKeyOf(Node.class).getNodeId().getValue();
             LOG.trace("copying config {} to {} size {}",getDescription(), nodeId, data.size());
         }
-    }
-
-    @Override
-    public void mergeConfigUpdate(Z existing,
-                                  Z updated,
-                                  Z orig,
-                                  InstanceIdentifier<Node> nodePath,
-                                  ReadWriteTransaction tx) {
-        List<T> updatedData     = getData(updated);
-        List<T> origData        = getData(orig);
-        List<T> existingData    = getData(existing);
-        transformUpdate(existingData, updatedData, origData, nodePath, CONFIGURATION, tx);
     }
 
     @Override

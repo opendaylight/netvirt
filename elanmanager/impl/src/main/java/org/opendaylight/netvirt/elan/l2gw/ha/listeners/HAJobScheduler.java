@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -31,10 +30,6 @@ public final class HAJobScheduler implements Thread.UncaughtExceptionHandler {
 
     public static HAJobScheduler getInstance() {
         return instance;
-    }
-
-    public void setThreadPool(ExecutorService service) {
-        executorService = service;
     }
 
     public void submitJob(Runnable runnable) {
