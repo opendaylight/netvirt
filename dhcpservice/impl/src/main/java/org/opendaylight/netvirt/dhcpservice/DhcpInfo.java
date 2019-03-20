@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnet.attributes.HostRoutes;
 
@@ -47,11 +46,6 @@ public class DhcpInfo  {
 
     protected DhcpInfo setHostRoutes(List<HostRoutes> hostRoutes) {
         this.hostRoutes = hostRoutes;
-        return this;
-    }
-
-    protected DhcpInfo setDnsServers(List<String> dnsServers) {
-        this.dnsServers = dnsServers;
         return this;
     }
 
