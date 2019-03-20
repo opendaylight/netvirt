@@ -29,12 +29,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntryHandler {
+public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouterInterfaceVrfEntryHandler.class);
     private final IMdsalApiManager mdsalManager;
@@ -54,19 +53,12 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
         LOG.info("{} close", getClass().getSimpleName());
     }
 
-    @Override
-    public void createFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
+    void createFlows(VrfEntry vrfEntry, String rd) {
         RouterInterface routerInt = vrfEntry.augmentation(RouterInterface.class);
         installRouterFibEntries(vrfEntry, rd, NwConstants.ADD_FLOW, routerInt);
     }
 
-    @Override
-    public void updateFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update, String rd) {
-        // Not used
-    }
-
-    @Override
-    public void removeFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
+    void removeFlows(VrfEntry vrfEntry, String rd) {
         RouterInterface routerInt = vrfEntry.augmentation(RouterInterface.class);
         installRouterFibEntries(vrfEntry, rd, NwConstants.DEL_FLOW, routerInt);
     }

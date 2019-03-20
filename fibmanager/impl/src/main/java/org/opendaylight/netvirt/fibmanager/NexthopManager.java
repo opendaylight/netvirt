@@ -576,12 +576,6 @@ public class NexthopManager implements AutoCloseable {
                 prefixIp) : null;
     }
 
-    @Nullable
-    public BigInteger getDpnForPrefix(long vpnId, String prefixIp) {
-        VpnNexthop vpnNexthop = getVpnNexthop(vpnId, prefixIp);
-        return vpnNexthop == null ? null : vpnNexthop.getDpnId();
-    }
-
     private void removeVpnNexthopFromDS(long vpnId, String ipPrefix) {
 
         InstanceIdentifierBuilder<VpnNexthop> idBuilder = InstanceIdentifier.builder(L3nexthop.class)

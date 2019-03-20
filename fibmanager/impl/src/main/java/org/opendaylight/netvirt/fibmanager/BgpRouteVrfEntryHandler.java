@@ -64,8 +64,7 @@ import org.slf4j.LoggerFactory;
 
 
 @Singleton
-public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
-        implements ResourceHandler, IVrfEntryHandler {
+public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements ResourceHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpRouteVrfEntryHandler.class);
     private static final int BATCH_INTERVAL = 500;
@@ -146,8 +145,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         }
     }
 
-    @Override
-    public void createFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
+    void createFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         ActionableResource actResource = new ActionableResourceImpl(rd + vrfEntry.getDestPrefix());
         actResource.setAction(ActionableResource.CREATE);
         actResource.setInstanceIdentifier(identifier);
@@ -155,8 +153,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         vrfEntryBufferQ.add(actResource);
     }
 
-    @Override
-    public void removeFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
+    void removeFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         ActionableResource actResource = new ActionableResourceImpl(rd + vrfEntry.getDestPrefix());
         actResource.setAction(ActionableResource.DELETE);
         actResource.setInstanceIdentifier(identifier);
@@ -164,8 +161,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         vrfEntryBufferQ.add(actResource);
     }
 
-    @Override
-    public void updateFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update, String rd) {
+    void updateFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update, String rd) {
         ActionableResource actResource = new ActionableResourceImpl(rd + update.getDestPrefix());
         actResource.setAction(ActionableResource.UPDATE);
         actResource.setInstanceIdentifier(identifier);

@@ -231,7 +231,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (VrfEntry.EncapType.Vxlan.equals(vrfEntry.getEncapType())) {
             LOG.info("EVPN flows need to be programmed.");
             EvpnVrfEntryHandler evpnVrfEntryHandler = new EvpnVrfEntryHandler(dataBroker, this, bgpRouteVrfEntryHandler,
-                    nextHopManager, jobCoordinator, elanManager, fibUtil, upgradeState, eventCallbacks);
+                    nextHopManager, jobCoordinator, fibUtil, upgradeState, eventCallbacks);
             evpnVrfEntryHandler.createFlows(identifier, vrfEntry, rd);
             closeables.add(evpnVrfEntryHandler);
             return;
@@ -239,7 +239,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         RouterInterface routerInt = vrfEntry.augmentation(RouterInterface.class);
         if (routerInt != null) {
             // ping responder for router interfaces
-            routerInterfaceVrfEntryHandler.createFlows(identifier, vrfEntry, rd);
+            routerInterfaceVrfEntryHandler.createFlows(vrfEntry, rd);
             return;
         }
         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
@@ -265,7 +265,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (VrfEntry.EncapType.Vxlan.equals(vrfEntry.getEncapType())) {
             LOG.info("EVPN flows to be deleted");
             EvpnVrfEntryHandler evpnVrfEntryHandler = new EvpnVrfEntryHandler(dataBroker, this, bgpRouteVrfEntryHandler,
-                    nextHopManager, jobCoordinator, elanManager, fibUtil, upgradeState, eventCallbacks);
+                    nextHopManager, jobCoordinator, fibUtil, upgradeState, eventCallbacks);
             evpnVrfEntryHandler.removeFlows(identifier, vrfEntry, rd);
             closeables.add(evpnVrfEntryHandler);
             return;
@@ -273,7 +273,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         RouterInterface routerInt = vrfEntry.augmentation(RouterInterface.class);
         if (routerInt != null) {
             // ping responder for router interfaces
-            routerInterfaceVrfEntryHandler.removeFlows(identifier, vrfEntry, rd);
+            routerInterfaceVrfEntryHandler.removeFlows(vrfEntry, rd);
             return;
         }
         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
