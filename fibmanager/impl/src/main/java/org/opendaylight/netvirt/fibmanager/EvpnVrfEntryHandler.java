@@ -31,7 +31,6 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.serviceutils.upgrade.UpgradeState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -51,18 +50,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntryHandler {
+public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
     private static final Logger LOG = LoggerFactory.getLogger(EvpnVrfEntryHandler.class);
     private final ManagedNewTransactionRunner txRunner;
     private final VrfEntryListener vrfEntryListener;
     private final BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler;
     private final NexthopManager nexthopManager;
     private final JobCoordinator jobCoordinator;
-    private final IElanService elanManager;
 
     EvpnVrfEntryHandler(DataBroker broker, VrfEntryListener vrfEntryListener,
             BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler, NexthopManager nexthopManager,
-            JobCoordinator jobCoordinator, IElanService elanManager, FibUtil fibUtil,
+            JobCoordinator jobCoordinator, FibUtil fibUtil,
             final UpgradeState upgradeState, final DataTreeEventCallbackRegistrar eventCallbacks) {
         super(broker, nexthopManager, null, fibUtil, upgradeState, eventCallbacks);
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
@@ -70,11 +68,9 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
         this.bgpRouteVrfEntryHandler = bgpRouteVrfEntryHandler;
         this.nexthopManager = nexthopManager;
         this.jobCoordinator = jobCoordinator;
-        this.elanManager = elanManager;
     }
 
-    @Override
-    public void createFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
+    void createFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         LOG.info("Initiating creation of Evpn Flows");
         final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
         final VpnInstanceOpDataEntry vpnInstance = getFibUtil().getVpnInstanceOpData(
@@ -118,8 +114,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
         createRemoteEvpnFlows(rd, vrfEntry, vpnInstance, localDpnId, vrfTableKey, isNatPrefix);
     }
 
-    @Override
-    public void removeFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
+    void removeFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
         final VpnInstanceOpDataEntry vpnInstance = getFibUtil().getVpnInstanceOpData(
                 vrfTableKey.getRouteDistinguisher()).get();
@@ -132,11 +127,6 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
         List<BigInteger> localDpnId = checkDeleteLocalEvpnFLows(vpnInstance.getVpnId(), rd, vrfEntry, localNextHopInfo);
         deleteRemoteEvpnFlows(rd, vrfEntry, vpnInstance, vrfTableKey, localDpnId);
         vrfEntryListener.cleanUpOpDataForFib(vpnInstance.getVpnId(), rd, vrfEntry);
-    }
-
-    @Override
-    public void updateFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update, String rd) {
-        //Not used
     }
 
     private List<BigInteger> createLocalEvpnFlows(long vpnId, String rd, VrfEntry vrfEntry,

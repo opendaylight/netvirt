@@ -88,13 +88,6 @@ public final class FibHelper {
         return idBuilder.build();
     }
 
-    public static boolean isControllerManagedRoute(RouteOrigin routeOrigin) {
-        return routeOrigin == RouteOrigin.STATIC
-                || routeOrigin == RouteOrigin.CONNECTED
-                || routeOrigin == RouteOrigin.LOCAL
-                || routeOrigin == RouteOrigin.INTERVPN;
-    }
-
     public static boolean isControllerManagedNonInterVpnLinkRoute(RouteOrigin routeOrigin) {
         return routeOrigin == RouteOrigin.STATIC
                 || routeOrigin == RouteOrigin.CONNECTED
@@ -114,12 +107,6 @@ public final class FibHelper {
         if (routePathList != null) {
             routePathList.sort(comparing(RoutePaths::getNexthopAddress));
         }
-    }
-
-    public static InstanceIdentifier<RoutePaths> getRoutePathsIdentifier(String rd, String prefix, String nh) {
-        return InstanceIdentifier.builder(FibEntries.class)
-                .child(VrfTables.class,new VrfTablesKey(rd)).child(VrfEntry.class,new VrfEntryKey(prefix))
-                .child(RoutePaths.class, new RoutePathsKey(nh)).build();
     }
 
     public static List<String> getNextHopListFromRoutePaths(final VrfEntry vrfEntry) {
@@ -270,25 +257,6 @@ public final class FibHelper {
             val = val.add(BigInteger.valueOf(b & 0xff));
         }
         return val;
-    }
-
-    /**This methode return the bytes representation from an IP.
-     * @param ipBigInteger value integer of IP to convert
-     * @param isIpv4 if is ipv4 setup to true if ipv6 setup to false
-     * @return byte[] which contained the representation of bytes from th ip value
-     */
-    public static byte[] unpackBigInteger(BigInteger ipBigInteger, boolean isIpv4) {
-        int sizeBloc = 4;
-        if (!isIpv4) {
-            sizeBloc = 128 / 8;// if ipv6 size of dataIP is 128 bits
-        }
-        byte[] res = new byte[sizeBloc];
-        for (int i = 0 ; i < sizeBloc ; i++) {
-            BigInteger bigInt = ipBigInteger.shiftRight(i * 8);
-            bigInt = bigInt.and(BigInteger.valueOf(0xFF));
-            res[sizeBloc - 1 - i] = bigInt.byteValue();
-        }
-        return res;
     }
 
     /**get the bits cache mask of net for a ip version type.

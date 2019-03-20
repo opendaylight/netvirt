@@ -43,7 +43,6 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
-import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -92,7 +91,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.DpidL3vpnLbNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.L3vpnLbNexthops;
@@ -130,30 +128,14 @@ public class FibUtil {
     private static final String FLOWID_PREFIX = "L3.";
 
     private final DataBroker dataBroker;
-    private final IElanService elanManager;
     private final IdManagerService idManager;
     private final IITMProvider iitmProvider;
 
     @Inject
-    public FibUtil(DataBroker dataBroker, IElanService elanManager, IdManagerService idManager,
-           IITMProvider iitmProvider) {
+    public FibUtil(DataBroker dataBroker, IdManagerService idManager, IITMProvider iitmProvider) {
         this.dataBroker = dataBroker;
-        this.elanManager = elanManager;
         this.idManager = idManager;
         this.iitmProvider = iitmProvider;
-    }
-
-    static InstanceIdentifier<Adjacency> getAdjacencyIdentifier(String vpnInterfaceName, String ipAddress) {
-        return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang
-            .l3vpn.rev140815.VpnInterfaces.class)
-            .child(org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces
-                .VpnInterface.class,
-                new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces
-                    .VpnInterfaceKey(vpnInterfaceName))
-            .augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies.class)
-            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency.class,
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list
-                    .AdjacencyKey(ipAddress)).build();
     }
 
     static InstanceIdentifier<Adjacency> getAdjacencyIdentifierOp(String vpnInterfaceName,
@@ -164,17 +146,6 @@ public class FibUtil {
                           .netvirt.l3vpn.rev130911.adjacency.list.Adjacency.class,
                           new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list
                               .AdjacencyKey(ipAddress)).build();
-    }
-
-    static InstanceIdentifier<Adjacencies> getAdjListPath(String vpnInterfaceName) {
-        return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn
-            .rev140815.VpnInterfaces.class)
-            .child(org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces
-                .VpnInterface.class,
-                new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces
-                    .VpnInterfaceKey(vpnInterfaceName))
-            .augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies.class)
-            .build();
     }
 
     static InstanceIdentifier<AdjacenciesOp> getAdjListPathOp(String vpnInterfaceName, String vpnName) {

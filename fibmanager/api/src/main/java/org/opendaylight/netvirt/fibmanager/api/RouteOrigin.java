@@ -65,8 +65,4 @@ public enum RouteOrigin {
         return value;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
 }
