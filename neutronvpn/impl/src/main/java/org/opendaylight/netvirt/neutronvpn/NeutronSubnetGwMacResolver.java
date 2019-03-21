@@ -24,7 +24,6 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
@@ -58,7 +57,6 @@ public class NeutronSubnetGwMacResolver {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSubnetGwMacResolver.class);
     private static final long L3_INSTALL_DELAY_MILLIS = 5000;
 
-    private final DataBroker broker;
     private final OdlArputilService arpUtilService;
     private final IElanService elanService;
     private final ICentralizedSwitchProvider cswitchProvider;
@@ -68,11 +66,9 @@ public class NeutronSubnetGwMacResolver {
     private final Ipv6NdUtilService ipv6NdUtilService;
 
     @Inject
-    public NeutronSubnetGwMacResolver(final DataBroker broker,
-            final OdlArputilService arputilService, final IElanService elanService,
+    public NeutronSubnetGwMacResolver(final OdlArputilService arputilService, final IElanService elanService,
             final ICentralizedSwitchProvider cswitchProvider, final NeutronvpnUtils neutronvpnUtils,
             final Ipv6NdUtilService ipv6NdUtilService) {
-        this.broker = broker;
         this.arpUtilService = arputilService;
         this.elanService = elanService;
         this.cswitchProvider = cswitchProvider;

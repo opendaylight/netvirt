@@ -26,7 +26,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -35,9 +34,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
@@ -73,9 +70,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
@@ -150,7 +144,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.portsecurity.rev150712.PortSecurityExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -193,9 +186,6 @@ public class NeutronvpnUtils {
     private final ConcurrentMap<Uuid, Port> portMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Uuid, Subnet> subnetMap = new ConcurrentHashMap<>();
     private final Map<IpAddress, Set<Uuid>> subnetGwIpMap = new ConcurrentHashMap<>();
-    private final ConcurrentMap<Uuid, QosPolicy> qosPolicyMap = new ConcurrentHashMap<>();
-    private final ConcurrentMap<Uuid, HashMap<Uuid, Port>> qosPortsMap = new ConcurrentHashMap<>();
-    private final ConcurrentMap<Uuid, HashMap<Uuid, Network>> qosNetworksMap = new ConcurrentHashMap<>();
 
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -382,16 +372,6 @@ public class NeutronvpnUtils {
             return optionalNetworkMap.get().getSubnetIdList();
         }
         LOG.error("getSubnetIdsFromNetworkId: Failed as networkmap DS is absent for network {}", networkId.getValue());
-        return null;
-    }
-
-    @Nullable
-    protected List<Uuid> getPortIdsFromSubnetId(Uuid subnetId) {
-        InstanceIdentifier<Subnetmap> id = buildSubnetMapIdentifier(subnetId);
-        Optional<Subnetmap> optionalSubnetmap = read(LogicalDatastoreType.CONFIGURATION, id);
-        if (optionalSubnetmap.isPresent()) {
-            return optionalSubnetmap.get().getPortList();
-        }
         return null;
     }
 
@@ -1009,50 +989,6 @@ public class NeutronvpnUtils {
                 && network.augmentation(NetworkL3Extension.class).isExternal();
     }
 
-    public void addToQosPolicyCache(QosPolicy qosPolicy) {
-        qosPolicyMap.put(qosPolicy.getUuid(),qosPolicy);
-    }
-
-    public void removeFromQosPolicyCache(QosPolicy qosPolicy) {
-        qosPolicyMap.remove(qosPolicy.getUuid());
-    }
-
-    public void addToQosPortsCache(Uuid qosUuid, Port port) {
-        if (qosPortsMap.containsKey(qosUuid)) {
-            if (!qosPortsMap.get(qosUuid).containsKey(port.getUuid())) {
-                qosPortsMap.get(qosUuid).put(port.getUuid(), port);
-            }
-        } else {
-            HashMap<Uuid, Port> newPortMap = new HashMap<>();
-            newPortMap.put(port.getUuid(), port);
-            qosPortsMap.put(qosUuid, newPortMap);
-        }
-    }
-
-    public void removeFromQosPortsCache(Uuid qosUuid, Port port) {
-        if (qosPortsMap.containsKey(qosUuid) && qosPortsMap.get(qosUuid).containsKey(port.getUuid())) {
-            qosPortsMap.get(qosUuid).remove(port.getUuid(), port);
-        }
-    }
-
-    public void addToQosNetworksCache(Uuid qosUuid, Network network) {
-        if (qosNetworksMap.containsKey(qosUuid)) {
-            if (!qosNetworksMap.get(qosUuid).containsKey(network.getUuid())) {
-                qosNetworksMap.get(qosUuid).put(network.getUuid(), network);
-            }
-        } else {
-            HashMap<Uuid, Network> newNetworkMap = new HashMap<>();
-            newNetworkMap.put(network.getUuid(), network);
-            qosNetworksMap.put(qosUuid, newNetworkMap);
-        }
-    }
-
-    public void removeFromQosNetworksCache(Uuid qosUuid, Network network) {
-        if (qosNetworksMap.containsKey(qosUuid) && qosNetworksMap.get(qosUuid).containsKey(network.getUuid())) {
-            qosNetworksMap.get(qosUuid).remove(network.getUuid(), network);
-        }
-    }
-
     static InstanceIdentifier<NetworkMap> buildNetworkMapIdentifier(Uuid networkId) {
         InstanceIdentifier<NetworkMap> id = InstanceIdentifier.builder(NetworkMaps.class).child(NetworkMap.class, new
                 NetworkMapKey(networkId)).build();
@@ -1099,11 +1035,6 @@ public class NeutronvpnUtils {
         } catch (ReadFailedException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static Class<? extends NetworkTypeBase> getNetworkType(Network network) {
-        NetworkProviderExtension providerExtension = network.augmentation(NetworkProviderExtension.class);
-        return providerExtension != null ? providerExtension.getNetworkType() : null;
     }
 
     @Nullable
@@ -1185,46 +1116,6 @@ public class NeutronvpnUtils {
             }
         }
         return Optional.absent();
-    }
-
-    public Set<RouterDpnList> getAllRouterDpnList(BigInteger dpid) {
-        Set<RouterDpnList> ret = new HashSet<>();
-        InstanceIdentifier<NeutronRouterDpns> routerDpnId =
-                InstanceIdentifier.create(NeutronRouterDpns.class);
-        Optional<NeutronRouterDpns> neutronRouterDpnsOpt =
-            MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, routerDpnId);
-        if (neutronRouterDpnsOpt.isPresent()) {
-            NeutronRouterDpns neutronRouterDpns = neutronRouterDpnsOpt.get();
-            for (RouterDpnList routerDpnList : neutronRouterDpns.nonnullRouterDpnList()) {
-                if (routerDpnList.getDpnVpninterfacesList() != null) {
-                    for (DpnVpninterfacesList dpnInterfaceList : routerDpnList.getDpnVpninterfacesList()) {
-                        if (dpnInterfaceList.getDpnId().equals(dpid)) {
-                            ret.add(routerDpnList);
-                        }
-                    }
-                }
-            }
-        }
-        return ret;
-    }
-
-    @Nullable
-    protected Integer getUniqueRDId(String poolName, String idKey) {
-        AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
-        try {
-            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
-            RpcResult<AllocateIdOutput> rpcResult = result.get();
-            if (rpcResult.isSuccessful()) {
-                return rpcResult.getResult().getIdValue().intValue();
-            } else {
-                LOG.error("RPC call to get unique ID for pool name {} with ID key {} returned with errors {}",
-                        poolName, idKey, rpcResult.getErrors());
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Exception when getting Unique Id for poolname {} and ID Key {}", poolName, idKey, e);
-        }
-        LOG.error("getUniqueRdId: Failed to return ID for poolname {} and ID Key {}", poolName, idKey);
-        return null;
     }
 
     protected void releaseRDId(String poolName, String idKey) {
@@ -1754,54 +1645,6 @@ public class NeutronvpnUtils {
         }), LOG, "Error updating VPN instance op {} with type {}", vpn, choice);
     }
 
-    public List<Uuid> getAssociateRouterInputRouterIdsListUuid(List<RouterIds> routerIds) {
-        if (routerIds == null) {
-            return Collections.emptyList();
-        }
-        return routerIds.stream().map(
-            routerId -> routerId.getRouterId()).collect(Collectors.toList());
-    }
-
-    public List<Uuid> getDisassociateRouterInputRouterIdsListUuid(List<RouterIds> routerIds) {
-        if (routerIds == null) {
-            return Collections.emptyList();
-        }
-        return routerIds.stream().map(
-            routerId -> routerId.getRouterId()).collect(Collectors.toList());
-    }
-
-    public RouterIds getvpnMapRouterIds(Uuid routerId) {
-        return new RouterIdsBuilder().setRouterId(routerId).build();
-    }
-
-    public void removeVpnMapRouterIdsFromList(Uuid routerId, List<RouterIds> vpnRouterIds) {
-        Iterator<RouterIds> vpnRouterIdIter = vpnRouterIds.iterator();
-        while (vpnRouterIdIter.hasNext()) {
-            RouterIds vpnRouterId = vpnRouterIdIter.next();
-            if (vpnRouterId.getRouterId().getValue().equals(routerId.getValue())) {
-                vpnRouterIdIter.remove();
-                return;
-            }
-        }
-        return;
-    }
-
-    public boolean vpnMapRouterIdsContainsRouterId(Uuid routerId, List<RouterIds> vpnRouterIds) {
-        if (routerId == null) {
-            return false;
-        }
-        return vpnRouterIds.stream().anyMatch(vpnRouterId ->
-              vpnRouterId.getRouterId().getValue().equals(routerId.getValue()));
-    }
-
-    public List<Uuid> getVpnInstanceRouterIdsListUuid(List<RouterIds> routerIds) {
-        if (routerIds == null) {
-            return Collections.emptyList();
-        }
-        return routerIds.stream().map(
-            routerId -> routerId.getRouterId()).collect(Collectors.toList());
-    }
-
     public static RouterIds getvpnInstanceRouterIds(Uuid routerId) {
         return new RouterIdsBuilder().setRouterId(routerId).build();
     }
@@ -1829,30 +1672,6 @@ public class NeutronvpnUtils {
             }
         }
         return dpns;
-    }
-
-    @Nullable
-    public List<Uuid> getRouterIdsfromVpnInstance(String vpnName) {
-        // returns only router, attached to IPv4 networks
-        InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
-            .child(VpnMap.class, new VpnMapKey(new Uuid(vpnName))).build();
-        Optional<VpnMap> optionalVpnMap = SingleTransactionDataBroker
-                .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                        LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
-        if (!optionalVpnMap.isPresent()) {
-            LOG.error("getRouterIdsfromVpnInstance : Router not found for vpn : {}", vpnName);
-            return null;
-        }
-        List<Uuid> rtrIds = optionalVpnMap.get().getRouterIds().stream().map(routerIds -> routerIds.getRouterId())
-                .collect(Collectors.toList());
-        return rtrIds;
-
-    }
-
-    public InstanceIdentifier<Router> buildNeutronRouterIdentifier(Uuid routerUuid) {
-        InstanceIdentifier<Router> routerInstanceIdentifier = InstanceIdentifier.create(Neutron.class)
-             .child(Routers.class).child(Router.class, new RouterKey(routerUuid));
-        return routerInstanceIdentifier;
     }
 
     @Nullable

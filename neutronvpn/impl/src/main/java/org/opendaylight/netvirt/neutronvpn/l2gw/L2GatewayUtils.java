@@ -28,16 +28,8 @@ public final class L2GatewayUtils {
 
     private L2GatewayUtils() { }
 
-    protected static boolean isGatewayAssociatedToL2Device(L2GatewayDevice l2GwDevice) {
-        return l2GwDevice.getL2GatewayIds().size() > 0;
-    }
-
     protected static boolean isLastL2GatewayBeingDeleted(L2GatewayDevice l2GwDevice) {
         return l2GwDevice.getL2GatewayIds().size() == 1;
-    }
-
-    protected static boolean isItmTunnelsCreatedForL2Device(L2GatewayDevice l2GwDevice) {
-        return l2GwDevice.getHwvtepNodeId() != null && l2GwDevice.getL2GatewayIds().size() > 0;
     }
 
     protected static void createItmTunnels(ItmRpcService itmRpcService, String hwvtepId, String psName,

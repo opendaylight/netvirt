@@ -144,14 +144,6 @@ public class L2GatewayDevice {
     }
 
     /**
-     * Clear hwvtep node data.
-     */
-    public void clearHwvtepNodeData() {
-        tunnelIps.clear();
-        hwvtepNodeId = null;
-    }
-
-    /**
      * Sets the tunnel ips.
      *
      * @param tunnelIps
