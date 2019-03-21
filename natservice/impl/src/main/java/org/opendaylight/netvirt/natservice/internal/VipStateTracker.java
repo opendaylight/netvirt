@@ -13,7 +13,6 @@ import com.google.common.util.concurrent.FluentFuture;
 import java.math.BigInteger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -44,7 +43,7 @@ public class VipStateTracker extends DataObjectCache<String, VipState> {
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
-    public VipState buildVipState(String ip, String mac, BigInteger dpnId, String ifcName) {
+    public VipState buildVipState(String ip, BigInteger dpnId, String ifcName) {
         return new VipStateBuilder().setIp(ip).setDpnId(dpnId).setIfcName(ifcName).build();
     }
 

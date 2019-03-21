@@ -41,14 +41,8 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
         }
     }
 
-    @Override
-    public void addNatServiceListener(SnatServiceListener natServiceListner) {
+    private void addNatServiceListener(SnatServiceListener natServiceListner) {
         snatServiceListeners.add(natServiceListner);
-    }
-
-    @Override
-    public void removeNatServiceListener(SnatServiceListener natServiceListner) {
-        snatServiceListeners.remove(natServiceListner);
     }
 
     @Override

@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.natservice.api;
 
 import java.math.BigInteger;
-import java.util.Map;
 import java.util.Set;
 
 public interface NatSwitchCache {
@@ -41,22 +40,10 @@ public interface NatSwitchCache {
     Set<BigInteger> getSwitchesConnectedToExternal(String providerNet);
 
     /**
-     * Return the switches map with weight.
-     * @return the map of switches
-     */
-    Map<BigInteger,SwitchInfo>  getSwitches();
-
-    /**
      * Register for switch added notification.
      * @param centralizedSwitchCacheListener the instance of a listener
      */
     void register(NatSwitchCacheListener centralizedSwitchCacheListener);
-
-    /**
-     * Register for switch removed notification.
-     * @param centralizedSwitchCacheListener the instance of a listener
-     */
-    void deregister(NatSwitchCacheListener centralizedSwitchCacheListener);
 
 
 }

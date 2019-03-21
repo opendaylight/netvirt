@@ -10,10 +10,8 @@ package org.opendaylight.netvirt.natservice.internal;
 import java.math.BigInteger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowAdded;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowRemoved;
@@ -36,23 +34,12 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class NaptFlowRemovedEventHandler implements SalFlowListener {
     private static final Logger LOG = LoggerFactory.getLogger(NaptFlowRemovedEventHandler.class);
-    private final DataBroker dataBroker;
-    private final IMdsalApiManager mdsalManager;
+
     private final EventDispatcher naptEventdispatcher;
-    private final NaptPacketInHandler naptPacketInHandler;
-    private final NaptManager naptManager;
 
     @Inject
-    public NaptFlowRemovedEventHandler(final DataBroker dataBroker,
-                                       final IMdsalApiManager mdsalManager,
-                                       final EventDispatcher eventDispatcher,
-                                       final NaptPacketInHandler handler,
-                                       final NaptManager naptManager) {
-        this.dataBroker = dataBroker;
-        this.mdsalManager = mdsalManager;
+    public NaptFlowRemovedEventHandler(final EventDispatcher eventDispatcher) {
         this.naptEventdispatcher = eventDispatcher;
-        this.naptPacketInHandler = handler;
-        this.naptManager = naptManager;
     }
 
     @Override

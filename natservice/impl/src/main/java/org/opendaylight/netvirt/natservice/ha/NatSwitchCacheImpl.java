@@ -15,10 +15,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.natservice.api.NatSwitchCache;
 import org.opendaylight.netvirt.natservice.api.NatSwitchCacheListener;
@@ -91,14 +89,4 @@ public class NatSwitchCacheImpl implements NatSwitchCache {
         }
     }
 
-    public void deregister(NatSwitchCacheListener centralizedSwitchCacheListener) {
-        if (centralizedSwitchCacheListener != null) {
-            centralizedSwitchCacheListenerList.remove(centralizedSwitchCacheListener);
-        }
-    }
-
-    @Override
-    public Map<BigInteger,SwitchInfo> getSwitches() {
-        return switchMap;
-    }
 }
