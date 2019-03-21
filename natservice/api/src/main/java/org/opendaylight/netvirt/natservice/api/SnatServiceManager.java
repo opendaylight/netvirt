@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.natservice.api;
 
 import java.math.BigInteger;
-
 import java.util.concurrent.ExecutionException;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -28,10 +27,6 @@ public interface SnatServiceManager {
         CNT_ROUTER_ENBL,
         CNT_ROUTER_DISBL
     }
-
-    void addNatServiceListener(SnatServiceListener aclServiceListner);
-
-    void removeNatServiceListener(SnatServiceListener aclServiceListner);
 
     void notify(TypedReadWriteTransaction<Configuration> confTx, Routers router, @Nullable Routers oldRouter,
         BigInteger primarySwitchId, @Nullable BigInteger dpnId, Action action)

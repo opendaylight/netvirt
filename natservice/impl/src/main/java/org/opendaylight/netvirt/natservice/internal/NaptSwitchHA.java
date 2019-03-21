@@ -38,7 +38,6 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
-import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
@@ -684,15 +683,6 @@ public class NaptSwitchHA {
             LOG.error("getVpnIdForRouter : Exception while retrieving vpnId for router {}", routerId, ex);
         }
         return NatConstants.INVALID_ID;
-    }
-
-    public List<BucketInfo> handleGroupInPrimarySwitch() {
-        List<BucketInfo> listBucketInfo = new ArrayList<>();
-        List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
-        listActionInfoPrimary.add(new ActionNxResubmit(NwConstants.INTERNAL_TUNNEL_TABLE));
-        BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
-        listBucketInfo.add(bucketPrimary);
-        return listBucketInfo;
     }
 
     @NonNull

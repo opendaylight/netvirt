@@ -122,7 +122,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
 
                     NatPacketProcessingState state = INCOMING_PKT_MAP.get(sourceIPPortKey);
                     if (state == null) {
-                        state = new NatPacketProcessingState(System.currentTimeMillis(), -1);
+                        state = new NatPacketProcessingState(System.currentTimeMillis());
                         INCOMING_PKT_MAP.put(sourceIPPortKey, state);
                         LOG.trace("onPacketReceived : Processing new SNAT({}) Packet", sourceIPPortKey);
 
@@ -166,23 +166,16 @@ public class NaptPacketInHandler implements PacketProcessingListener {
 
     static class NatPacketProcessingState {
         private final long firstPacketInTime;
-        private volatile long flowInstalledTime;
 
-        NatPacketProcessingState(long firstPacketInTime, long flowInstalledTime) {
+        NatPacketProcessingState(long firstPacketInTime) {
             this.firstPacketInTime = firstPacketInTime;
-            this.flowInstalledTime = flowInstalledTime;
         }
 
         long getFirstPacketInTime() {
             return firstPacketInTime;
         }
 
-        long getFlowInstalledTime() {
-            return flowInstalledTime;
-        }
-
-        void setFlowInstalledTime(long flowInstalledTime) {
-            this.flowInstalledTime = flowInstalledTime;
+        void setFlowInstalledTime() {
         }
     }
 }

@@ -68,7 +68,6 @@ import org.opendaylight.genius.mdsalutil.packet.TCP;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
-import org.opendaylight.netvirt.natservice.internal.NaptPacketInHandler.NatPacketProcessingState;
 import org.opendaylight.openflowplugin.libraries.liblldp.PacketException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -307,11 +306,6 @@ public class NaptEventHandler {
                                             internalAddress, externalAddress);
                                 }
                             }, MoreExecutors.directExecutor());
-
-                    NatPacketProcessingState state = naptEntryEvent.getState();
-                    if (state != null) {
-                        state.setFlowInstalledTime(System.currentTimeMillis());
-                    }
                 } else {
                     prepareAndSendPacketOut(naptEntryEvent, routerId);
                 }
