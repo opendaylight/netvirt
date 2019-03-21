@@ -76,6 +76,8 @@ public class UpgradeStateListener extends AbstractClusteredSyncDataTreeChangeLis
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.centralizedSwitchScheduler = centralizedSwitchScheduler;
         this.defaultRouteProgrammer = defaultRouteProgrammer;
+        this.mdsalManager = mdsalManager;
+        this.idManager = idManager;
         this.coordinator = coordinator;
         this.naptSwitchHA = naptSwitchHA;
         if (config != null) {
