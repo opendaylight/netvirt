@@ -20,10 +20,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 
 public interface INeutronVpnManager {
 
-    void addSubnetToVpn(Uuid vpnId, Uuid subnet);
-
-    void removeSubnetFromVpn(Uuid vpnId, Uuid subnet);
-
     List<String> showVpnConfigCLI(Uuid vuuid) throws InterruptedException, ExecutionException;
 
     List<String> showNeutronPortsCLI() throws ReadFailedException;
@@ -32,19 +28,13 @@ public interface INeutronVpnManager {
 
     Port getNeutronPort(String name);
 
-    Port getNeutronPort(Uuid portId);
-
     Subnet getNeutronSubnet(Uuid subnetId);
-
-    IpAddress getNeutronSubnetGateway(Uuid subnetId);
 
     Collection<Uuid> getSubnetIdsForGatewayIp(IpAddress ipAddress);
 
     Uuid getNetworkForSubnet(Uuid subnetId);
 
     List<Uuid> getNetworksForVpn(Uuid vpnId);
-
-    String getOpenDaylightVniRangesConfig();
 
     void programV6InternetFallbackFlow(Uuid routerId, Uuid internetVpnId, int addOrRemove);
 
