@@ -265,7 +265,7 @@ public class EvpnDnatFlowProgrammer {
 
     public void onRemoveFloatingIp(final BigInteger dpnId, final String vpnName, final String externalIp,
                                    final String floatingIpInterface, final String floatingIpPortMacAddress,
-                                   final long routerId, TypedReadWriteTransaction<Configuration> confTx) {
+                                   final long routerId) {
     /*
      *  1) Remove the flow INTERNAL_TUNNEL_TABLE (table=36)-> PDNAT_TABLE (table=25) (SNAT VM on DPN1 is
      *     responding back to FIP VM on DPN2) {SNAT to DNAT traffic on different Hypervisor}

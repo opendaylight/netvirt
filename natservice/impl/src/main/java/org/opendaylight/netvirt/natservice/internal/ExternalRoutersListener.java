@@ -81,10 +81,7 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-import org.opendaylight.netvirt.natservice.api.CentralizedSwitchScheduler;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
-import org.opendaylight.serviceutils.upgrade.UpgradeState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -178,12 +175,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private final IFibManager fibManager;
     private final IVpnManager vpnManager;
     private final EvpnSnatFlowProgrammer evpnSnatFlowProgrammer;
-    private final CentralizedSwitchScheduler  centralizedSwitchScheduler;
     private final NatMode natMode;
-    private final INeutronVpnManager nvpnManager;
     private final IElanService elanManager;
     private final JobCoordinator coordinator;
-    private final UpgradeState upgradeState;
     private final IInterfaceManager interfaceManager;
     private final NatOverVxlanUtil natOverVxlanUtil;
     private final int snatPuntTimeout;
@@ -204,12 +198,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                    final IFibManager fibManager,
                                    final IVpnManager vpnManager,
                                    final EvpnSnatFlowProgrammer evpnSnatFlowProgrammer,
-                                   final INeutronVpnManager nvpnManager,
-                                   final CentralizedSwitchScheduler centralizedSwitchScheduler,
                                    final NatserviceConfig config,
                                    final IElanService elanManager,
                                    final JobCoordinator coordinator,
-                                   final UpgradeState upgradeState,
                                    final NatOverVxlanUtil natOverVxlanUtil,
                                    final IInterfaceManager interfaceManager) {
         super(Routers.class, ExternalRoutersListener.class);
@@ -230,11 +221,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         this.fibManager = fibManager;
         this.vpnManager = vpnManager;
         this.evpnSnatFlowProgrammer = evpnSnatFlowProgrammer;
-        this.nvpnManager = nvpnManager;
         this.elanManager = elanManager;
-        this.centralizedSwitchScheduler = centralizedSwitchScheduler;
         this.coordinator = coordinator;
-        this.upgradeState = upgradeState;
         this.interfaceManager = interfaceManager;
         this.natOverVxlanUtil = natOverVxlanUtil;
         if (config != null) {
@@ -988,15 +976,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         } else {
             LOG.warn("handlePrimaryNaptSwitch : External Network not available for router : {}", routerName);
         }
-    }
-
-    List<BucketInfo> getBucketInfoForPrimaryNaptSwitch() {
-        List<BucketInfo> listBucketInfo = new ArrayList<>();
-        List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
-        listActionInfoPrimary.add(new ActionNxResubmit(NwConstants.INTERNAL_TUNNEL_TABLE));
-        BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
-        listBucketInfo.add(0, bucketPrimary);
-        return listBucketInfo;
     }
 
     public void installNaptPfibEntry(BigInteger dpnId, long segmentId,

@@ -84,10 +84,6 @@ public class Ipv6ForwardingService implements SnatServiceListener {
         this.ipv6SubnetFlowProgrammer = ipv6SubnetFlowProgrammer;
     }
 
-    public void init() {
-        LOG.info("Ipv6ForwardingService: {} init", getClass().getSimpleName());
-    }
-
     @Override
     public boolean addCentralizedRouterAllSwitch(TypedReadWriteTransaction<Configuration> confTx,
             Routers routers, BigInteger primarySwitchId) {
@@ -329,42 +325,6 @@ public class Ipv6ForwardingService implements SnatServiceListener {
                 NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
                 NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
-
-    protected void removeIpv6PsNatMissEntryNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-            BigInteger dpnId, Long routerId, String routerName, BigInteger primarySwitchId)
-                    throws ExecutionException, InterruptedException {
-        LOG.debug("installIpv6PsNatMissEntryNonNaptSwitch : On Non-Napt Switch, installing SNAT miss entry in"
-                + " switch {} for router {}", dpnId, routerName);
-        List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
-        List<BucketInfo> listBucketInfo = new ArrayList<>();
-
-        String ifNamePrimary = NatUtil.getTunnelInterfaceName(dpnId, primarySwitchId, itmManager);
-        if (ifNamePrimary != null) {
-            LOG.debug("installIpv6PsNatMissEntryNonNaptSwitch : On Non-Napt Switch, Primary Tunnel interface is {}",
-                    ifNamePrimary);
-            listActionInfoPrimary = NatUtil.getEgressActionsForInterface(odlInterfaceRpcService, itmManager,
-                    interfaceManager, ifNamePrimary, routerId, true);
-        } else {
-            LOG.warn("installIpv6PsNatMissEntryNonNaptSwitch: could not get tunnelInterface for {} on Switch {}",
-                    primarySwitchId, dpnId);
-        }
-
-        BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
-        listBucketInfo.add(0, bucketPrimary);
-
-        LOG.debug("installIpv6PsNatMissEntryNonNaptSwitch : installSnatMissEntry called for dpnId {} with"
-                + " primaryBucket {} ", dpnId, listBucketInfo.get(0));
-
-        long groupId = createGroupIdForIpv6Router(getGroupIdKey(routerName + "IPv6"));
-        GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll,
-                listBucketInfo);
-        LOG.debug("removing the PSNAT to NAPTSwitch GroupEntity:{} with GroupId: {}", groupEntity, groupId);
-        mdsalManager.removeGroup(confTx, groupEntity);
-
-        String flowRef = NatUtil.getIpv6FlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
-        NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.PSNAT_TABLE, flowRef);
-    }
-
 
     protected void addIpv6SnatMissEntryForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
             BigInteger dpnId, Long routerId, BigInteger routerMetadata) {

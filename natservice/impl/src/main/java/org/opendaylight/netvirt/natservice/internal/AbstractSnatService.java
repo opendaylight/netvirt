@@ -92,22 +92,22 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected final ManagedNewTransactionRunner txRunner;
     protected final IMdsalApiManager mdsalManager;
     protected final IdManagerService idManager;
-    protected final NAPTSwitchSelector naptSwitchSelector;
-    protected final ItmRpcService itmManager;
+    private final NAPTSwitchSelector naptSwitchSelector;
+    final ItmRpcService itmManager;
     protected final OdlInterfaceRpcService odlInterfaceRpcService;
     protected final IInterfaceManager interfaceManager;
-    protected final IVpnFootprintService vpnFootprintService;
+    final IVpnFootprintService vpnFootprintService;
     protected final IFibManager fibManager;
-    protected final NatDataUtil natDataUtil;
-    protected final DataTreeEventCallbackRegistrar eventCallbacks;
+    private final NatDataUtil natDataUtil;
+    private final DataTreeEventCallbackRegistrar eventCallbacks;
 
-    protected AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
-                                  final ItmRpcService itmManager, final OdlInterfaceRpcService odlInterfaceRpcService,
-                                  final IdManagerService idManager, final NAPTSwitchSelector naptSwitchSelector,
-                                  final IInterfaceManager interfaceManager,
-                                  final IVpnFootprintService vpnFootprintService,
-                                  final IFibManager fibManager, final NatDataUtil natDataUtil,
-                                  final DataTreeEventCallbackRegistrar eventCallbacks) {
+    AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
+        final ItmRpcService itmManager, final OdlInterfaceRpcService odlInterfaceRpcService,
+        final IdManagerService idManager, final NAPTSwitchSelector naptSwitchSelector,
+        final IInterfaceManager interfaceManager,
+        final IVpnFootprintService vpnFootprintService,
+        final IFibManager fibManager, final NatDataUtil natDataUtil,
+        final DataTreeEventCallbackRegistrar eventCallbacks) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
@@ -124,14 +124,6 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
     protected DataBroker getDataBroker() {
         return dataBroker;
-    }
-
-    public void init() {
-        LOG.info("{} init", getClass().getSimpleName());
-    }
-
-    public void close() {
-        LOG.debug("AbstractSnatService Closed");
     }
 
     @Override
@@ -179,8 +171,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         // Handle non NAPT switches and NAPT switches separately
         if (!dpnId.equals(primarySwitchId)) {
             LOG.info("addSnat : Handle non NAPT switch {} for router {}", dpnId, routers.getRouterName());
-            addSnatCommonEntriesForNonNaptSwitch(confTx, routers, primarySwitchId, dpnId);
-            addSnatSpecificEntriesForNonNaptSwitch(confTx, routers, dpnId);
+            addSnatCommonEntriesForNonNaptSwitch();
+            addSnatSpecificEntriesForNonNaptSwitch();
         } else {
             LOG.info("addSnat : Handle NAPT switch {} for router {}", dpnId, routers.getRouterName());
             addSnatCommonEntriesForNaptSwitch(confTx, routers, dpnId);
@@ -196,8 +188,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         // Handle non NAPT switches and NAPT switches separately
         if (!dpnId.equals(primarySwitchId)) {
             LOG.info("removeSnat : Handle non NAPT switch {} for router {}", dpnId, routers.getRouterName());
-            removeSnatCommonEntriesForNonNaptSwitch(confTx, routers, dpnId);
-            removeSnatSpecificEntriesForNonNaptSwitch(confTx, routers, dpnId);
+            removeSnatCommonEntriesForNonNaptSwitch();
+            removeSnatSpecificEntriesForNonNaptSwitch();
         } else {
             LOG.info("removeSnat : Handle NAPT switch {} for router {}", dpnId, routers.getRouterName());
             removeSnatCommonEntriesForNaptSwitch(confTx, routers, dpnId);
@@ -268,7 +260,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         if (!dpnId.equals(primarySwitchId)) {
             LOG.info("removeCentralizedRouter : Handle non NAPT switch {} for router {}",
                     dpnId, routers.getRouterName());
-            removeCommonEntriesForNonNaptSwitch(confTx, routers, primarySwitchId, dpnId);
+            removeCommonEntriesForNonNaptSwitch(confTx, routers, dpnId);
         } else {
             LOG.info("removeCentralizedRouter : Handle NAPT switch {} for router {}", dpnId, routers.getRouterName());
             removeCommonEntriesForNaptSwitch(confTx, routers, dpnId);
@@ -282,8 +274,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         return true;
     }
 
-    protected void addCommonEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-            BigInteger dpnId) {
+    private void addCommonEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger dpnId) {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         addDefaultFibRouteForSNAT(confTx, dpnId, routerId);
@@ -297,13 +289,13 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             //The logic now handle only one external IP per router, others if present will be ignored.
             long extSubnetId = NatUtil.getExternalSubnetVpnId(dataBroker, externalIp.getSubnetId());
             addInboundTerminatingServiceTblEntry(confTx, dpnId, routerId, extSubnetId);
-            addTerminatingServiceTblEntry(confTx, dpnId, routerId, elanId);
+            addTerminatingServiceTblEntry(confTx, dpnId, routerId);
             break;
         }
     }
 
-    protected void removeCommonEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-            BigInteger dpnId) throws ExecutionException, InterruptedException {
+    private void removeCommonEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger dpnId) throws ExecutionException, InterruptedException {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         removeDefaultFibRouteForSNAT(confTx, dpnId, routerId);
@@ -318,7 +310,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         }
     }
 
-    protected void addSnatCommonEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+    private void addSnatCommonEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
         BigInteger dpnId) {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
@@ -336,8 +328,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         }
     }
 
-    protected void removeSnatCommonEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-            Routers routers, BigInteger dpnId) throws ExecutionException, InterruptedException {
+    private void removeSnatCommonEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
+        Routers routers, BigInteger dpnId) throws ExecutionException, InterruptedException {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(confTx, routerName);
         for (ExternalIps externalIp : routers.nonnullExternalIps()) {
@@ -353,29 +345,27 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     }
 
 
-    protected void addCommonEntriesForNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-            BigInteger primarySwitchId, BigInteger dpnId) {
+    private void addCommonEntriesForNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger primarySwitchId, BigInteger dpnId) {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         addSnatMissEntry(confTx, dpnId, routerId, routerName, primarySwitchId);
         addDefaultFibRouteForSNAT(confTx, dpnId, routerId);
     }
 
-    protected void removeCommonEntriesForNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
-            BigInteger primarySwitchId, BigInteger dpnId) throws ExecutionException, InterruptedException {
+    private void removeCommonEntriesForNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx, Routers routers,
+        BigInteger dpnId) throws ExecutionException, InterruptedException {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         removeSnatMissEntry(confTx, dpnId, routerId, routerName);
         removeDefaultFibRouteForSNAT(confTx, dpnId, routerId);
     }
 
-    protected void addSnatCommonEntriesForNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-        Routers routers, BigInteger primarySwitchId, BigInteger dpnId) {
+    private void addSnatCommonEntriesForNonNaptSwitch() {
         /* Nothing to do here*/
     }
 
-    protected void removeSnatCommonEntriesForNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-            Routers routers, BigInteger dpnId) throws ExecutionException, InterruptedException {
+    private void removeSnatCommonEntriesForNonNaptSwitch() {
         /* Nothing to do here*/
     }
 
@@ -385,13 +375,11 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected abstract void removeSnatSpecificEntriesForNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
         Routers routers, BigInteger dpnId) throws ExecutionException, InterruptedException;
 
-    protected abstract void addSnatSpecificEntriesForNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-        Routers routers, BigInteger dpnId);
+    protected abstract void addSnatSpecificEntriesForNonNaptSwitch();
 
-    protected abstract void removeSnatSpecificEntriesForNonNaptSwitch(TypedReadWriteTransaction<Configuration> confTx,
-        Routers routers, BigInteger dpnId);
+    protected abstract void removeSnatSpecificEntriesForNonNaptSwitch();
 
-    protected void addInboundFibEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId, String externalIp,
+    private void addInboundFibEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId, String externalIp,
         Long routerId, long extSubnetId, String externalNetId, String subNetId, String routerMac) {
 
         List<MatchInfo> matches = new ArrayList<>();
@@ -425,8 +413,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
                 0, null, externalNetId, RouteOrigin.STATIC, null);
     }
 
-    protected void removeInboundFibEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-            String externalIp, Long routerId, String subNetId) throws ExecutionException, InterruptedException {
+    private void removeInboundFibEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        String externalIp, Long routerId, String subNetId) throws ExecutionException, InterruptedException {
         String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, routerId);
         flowRef = flowRef + "inbound" + externalIp;
         NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.L3_FIB_TABLE, flowRef);
@@ -437,8 +425,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     }
 
 
-    protected void addTerminatingServiceTblEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId,
-        Long routerId, int elanId) {
+    private void addTerminatingServiceTblEntry(TypedWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        Long routerId) {
         LOG.info("addTerminatingServiceTblEntry : creating entry for Terminating Service Table "
                 + "for switch {}, routerId {}", dpnId, routerId);
         List<MatchInfo> matches = new ArrayList<>();
@@ -457,8 +445,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
                 NatConstants.DEFAULT_TS_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
-    protected void removeTerminatingServiceTblEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-            Long routerId) throws ExecutionException, InterruptedException {
+    private void removeTerminatingServiceTblEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        Long routerId) throws ExecutionException, InterruptedException {
         LOG.info("removeTerminatingServiceTblEntry : creating entry for Terminating Service Table "
             + "for switch {}, routerId {}", dpnId, routerId);
 
@@ -540,7 +528,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.PSNAT_TABLE, flowRef);
     }
 
-    protected void addInboundTerminatingServiceTblEntry(TypedReadWriteTransaction<Configuration> confTx,
+    private void addInboundTerminatingServiceTblEntry(TypedReadWriteTransaction<Configuration> confTx,
         BigInteger dpnId, Long routerId, long extSubnetId) {
 
         //Install the tunnel table entry in NAPT switch for inbound traffic to SNAT IP from a non a NAPT switch.
@@ -565,8 +553,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
                 NatConstants.SNAT_FIB_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions);
     }
 
-    protected void removeInboundTerminatingServiceTblEntry(TypedReadWriteTransaction<Configuration> confTx,
-            BigInteger dpnId, Long routerId) throws ExecutionException, InterruptedException {
+    private void removeInboundTerminatingServiceTblEntry(TypedReadWriteTransaction<Configuration> confTx,
+        BigInteger dpnId, Long routerId) throws ExecutionException, InterruptedException {
         //Install the tunnel table entry in NAPT switch for inbound traffic to SNAT IP from a non a NAPT switch.
         LOG.info("installInboundTerminatingServiceTblEntry : creating entry for Terminating Service Table "
             + "for switch {}, routerId {}", dpnId, routerId);
@@ -574,7 +562,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, flowRef);
     }
 
-    protected void addDefaultFibRouteForSNAT(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+    private void addDefaultFibRouteForSNAT(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
         Long extNetId) {
 
         List<MatchInfo> matches = new ArrayList<>();
@@ -591,8 +579,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
                 instructions);
     }
 
-    protected void removeDefaultFibRouteForSNAT(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
-            Long extNetId) throws ExecutionException, InterruptedException {
+    private void removeDefaultFibRouteForSNAT(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
+        Long extNetId) throws ExecutionException, InterruptedException {
         String flowRef = "DefaultFibRouteForSNAT" + getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, extNetId);
         NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.L3_FIB_TABLE, flowRef);
     }
@@ -620,7 +608,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         return "snatmiss." + routerName;
     }
 
-    protected void removeMipAdjacencies(Routers routers) {
+    private void removeMipAdjacencies(Routers routers) {
         LOG.info("removeMipAdjacencies for router {}", routers.getRouterName());
         String externalSubNetId  = null;
         for (ExternalIps externalIp : routers.nonnullExternalIps()) {
