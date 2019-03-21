@@ -12,7 +12,6 @@ import com.google.common.base.Preconditions;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
@@ -154,53 +153,6 @@ public final class NeutronUtils {
             Class<T> expectedNetworkType) {
         Class<? extends NetworkTypeBase> networkType = providerSegment.getNetworkType();
         return networkType != null && networkType.isAssignableFrom(expectedNetworkType);
-    }
-
-    public static <T extends NetworkTypeBase> boolean isNetworkSegmentType(Network network, Long index,
-                                                                           Class<T> expectedNetworkType) {
-        Class<? extends NetworkTypeBase> segmentType = null;
-        NetworkProviderExtension providerExtension = network.augmentation(NetworkProviderExtension.class);
-        if (providerExtension != null) {
-            List<Segments> providerSegments = providerExtension.getSegments();
-            if (providerSegments != null && providerSegments.size() > 0) {
-                for (Segments providerSegment : providerSegments) {
-                    if (Objects.equals(providerSegment.getSegmentationIndex(), index)) {
-                        segmentType = providerSegment.getNetworkType();
-                        break;
-                    }
-                }
-            }
-        }
-        return segmentType != null && segmentType.isAssignableFrom(expectedNetworkType);
-    }
-
-    public static Long getNumberSegmentsFromNeutronNetwork(Network network) {
-        NetworkProviderExtension providerExtension = network.augmentation(NetworkProviderExtension.class);
-        Integer numSegs = 0;
-        if (providerExtension != null) {
-            List<Segments> providerSegments = providerExtension.getSegments();
-            if (providerSegments != null) {
-                numSegs = providerSegments.size();
-            }
-        }
-        return Long.valueOf(numSegs);
-    }
-
-    public static String getSegmentationIdFromNeutronNetworkSegment(Network network, Long index) {
-        String segmentationId = null;
-        NetworkProviderExtension providerExtension = network.augmentation(NetworkProviderExtension.class);
-        if (providerExtension != null) {
-            List<Segments> providerSegments = providerExtension.getSegments();
-            if (providerSegments != null && providerSegments.size() > 0) {
-                for (Segments providerSegment : providerSegments) {
-                    if (Objects.equals(providerSegment.getSegmentationIndex(), index)) {
-                        segmentationId = providerSegment.getSegmentationId();
-                        break;
-                    }
-                }
-            }
-        }
-        return segmentationId;
     }
 
     public static boolean isUuid(String possibleUuid) {

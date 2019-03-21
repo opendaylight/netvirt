@@ -48,16 +48,6 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
     }
 
     @Override
-    public void addSubnetToVpn(Uuid vpnId, Uuid subnet) {
-        nvManager.addSubnetToVpn(vpnId, subnet, null /* internet-vpn-id */);
-    }
-
-    @Override
-    public void removeSubnetFromVpn(Uuid vpnId, Uuid subnet) {
-        nvManager.removeSubnetFromVpn(vpnId, subnet, null /* internet-vpn-id */);
-    }
-
-    @Override
     public Uuid getNetworkForSubnet(Uuid subnetId) {
         return nvManager.getNetworkForSubnet(subnetId);
     }
@@ -73,28 +63,13 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
     }
 
     @Override
-    public Port getNeutronPort(Uuid portId) {
-        return nvManager.getNeutronPort(portId);
-    }
-
-    @Override
     public Subnet getNeutronSubnet(Uuid subnetId) {
         return nvManager.getNeutronSubnet(subnetId);
     }
 
     @Override
-    public IpAddress getNeutronSubnetGateway(Uuid subnetId) {
-        return nvManager.getNeutronSubnetGateway(subnetId);
-    }
-
-    @Override
     public Collection<Uuid> getSubnetIdsForGatewayIp(IpAddress ipAddress) {
         return neutronvpnUtils.getSubnetIdsForGatewayIp(ipAddress);
-    }
-
-    @Override
-    public String getOpenDaylightVniRangesConfig() {
-        return nvManager.getOpenDaylightVniRangesConfig();
     }
 
     @Override

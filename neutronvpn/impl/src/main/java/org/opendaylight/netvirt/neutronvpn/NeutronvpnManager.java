@@ -43,7 +43,6 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.OptimisticLockFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -194,7 +193,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
-    private final NotificationPublishService notificationPublishService;
     private final VpnRpcService vpnRpcService;
     private final NeutronFloatingToFixedIpMappingChangeListener floatingIpMapListener;
     private final IElanService elanService;
@@ -211,7 +209,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     @Inject
     public NeutronvpnManager(
-            final DataBroker dataBroker, final NotificationPublishService notiPublishService,
+            final DataBroker dataBroker,
             final VpnRpcService vpnRpcSrv, final IElanService elanService,
             final NeutronFloatingToFixedIpMappingChangeListener neutronFloatingToFixedIpMappingChangeListener,
             final NeutronvpnConfig neutronvpnConfig, final IVpnManager vpnManager,
@@ -219,7 +217,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             final NeutronvpnUtils neutronvpnUtils) throws TransactionCommitFailedException {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
-        notificationPublishService = notiPublishService;
         vpnRpcService = vpnRpcSrv;
         this.elanService = elanService;
         floatingIpMapListener = neutronFloatingToFixedIpMappingChangeListener;
@@ -817,7 +814,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     protected Adjacencies createPortIpAdjacencies(Port port, Boolean isRouterInterface,
                                                   TypedWriteTransaction<Configuration> wrtConfigTxn,
-                                                  @Nullable Subnetmap sn, @Nullable VpnInterface vpnIface) {
+                                                  @Nullable VpnInterface vpnIface) {
         List<Adjacency> adjList = new ArrayList<>();
         if (vpnIface != null) {
             adjList = vpnIface.augmentation(Adjacencies.class).getAdjacency();
@@ -875,7 +872,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         String infName = port.getUuid().getValue();
         // Handling cluster reboot scenario where VpnInterface already exists in datastore.
         VpnInterface vpnIface = VpnHelper.getVpnInterface(dataBroker, infName);
-        Adjacencies adjs = createPortIpAdjacencies(port, isRouterInterface, wrtConfigTxn, null, vpnIface);
+        Adjacencies adjs = createPortIpAdjacencies(port, isRouterInterface, wrtConfigTxn, vpnIface);
         LOG.trace("createVpnInterface for Port: {}, isRouterInterface: {}", infName, isRouterInterface);
         writeVpnInterfaceToDs(vpnIds, infName, adjs, port.getNetworkId(), isRouterInterface, wrtConfigTxn);
     }
@@ -1651,8 +1648,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         .equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF) ? true : false;
                 jobCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> singletonList(
                     txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, wrtConfigTxn -> {
-                        Adjacencies portAdj = createPortIpAdjacencies(port, isRouterInterface, wrtConfigTxn, sn,
-                                    vpnIface);
+                        Adjacencies portAdj = createPortIpAdjacencies(port, isRouterInterface, wrtConfigTxn,
+                            vpnIface);
                         if (vpnIface == null) {
                             LOG.trace("addSubnetToVpn: create new VpnInterface for Port {}", vpnInfName);
                             Set<Uuid> listVpn = new HashSet<>();

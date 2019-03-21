@@ -74,15 +74,13 @@ public class NeutronvpnNatManager implements AutoCloseable {
 
     private final DataBroker dataBroker;
     private final NeutronvpnUtils neutronvpnUtils;
-    private final NeutronvpnManager nvpnManager;
     private final IElanService elanService;
 
     @Inject
     public NeutronvpnNatManager(final DataBroker dataBroker, final NeutronvpnUtils neutronvpnUtils,
-                                  final NeutronvpnManager neutronvpnManager, final IElanService elanService) {
+                                final IElanService elanService) {
         this.dataBroker = dataBroker;
         this.neutronvpnUtils = neutronvpnUtils;
-        this.nvpnManager = neutronvpnManager;
         this.elanService = elanService;
     }
 
