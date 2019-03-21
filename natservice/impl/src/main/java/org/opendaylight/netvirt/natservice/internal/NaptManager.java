@@ -376,68 +376,6 @@ public class NaptManager {
         return null;
     }
 
-    /**
-     * Release the existing mapping of internal ip/port to external ip/port pair
-     * if no mapping exist for given internal ip/port, it returns false.
-     *
-     * @param segmentId - Router ID
-     * @param address   - Session Address
-     * @param protocol  - TCP/UDP
-     * @return true if mapping exist and the mapping is removed successfully
-     */
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public boolean releaseAddressMapping(long segmentId, SessionAddress address, NAPTEntryEvent.Protocol protocol) {
-        LOG.debug("releaseAddressMapping : called with segmentId {}, internalIP {}, port {}",
-            segmentId, address.getIpAddress(), address.getPortNumber());
-        // delete entry from IpPort Map and IP Map if exists
-        String internalIpPort = address.getIpAddress() + ":" + address.getPortNumber();
-        SessionAddress existingIpPort = checkIpPortMap(segmentId, internalIpPort, protocol);
-        if (existingIpPort != null) {
-            // delete the entry from IpPortMap DS
-            try {
-                removeFromIpPortMapDS(segmentId, internalIpPort, protocol);
-            } catch (Exception e) {
-                LOG.error("releaseAddressMapping : failed, Removal of ipportmap {} for "
-                    + "router {} failed", internalIpPort, segmentId, e);
-                return false;
-            }
-        } else {
-            LOG.error("releaseAddressMapping : failed, segmentId {} and internalIpPort {} "
-                + "not found in IpPortMap DS", segmentId, internalIpPort);
-            return false;
-        }
-        String existingIp = checkIpMap(segmentId, address.getIpAddress());
-        if (existingIp != null) {
-            // delete the entry from IpMap DS
-            try {
-                removeFromIpMapDS(segmentId, address.getIpAddress());
-            } catch (Exception e) {
-                LOG.error("releaseAddressMapping : Removal of  ipmap {} for router {} failed",
-                    address.getIpAddress(), segmentId, e);
-                return false;
-            }
-            //delete the entry from snatIntIpportinfo
-            try {
-                removeFromSnatIpPortDS(segmentId, address.getIpAddress());
-            } catch (Exception e) {
-                LOG.error("releaseAddressMapping : failed, Removal of snatipportmap {} for "
-                    + "router {} failed", address.getIpAddress(), segmentId, e);
-                return false;
-            }
-        } else {
-            LOG.error("releaseAddressMapping : failed, segmentId {} and internalIpPort {} "
-                + "not found in IpMap DS", segmentId, internalIpPort);
-            return false;
-        }
-        // Finally release port from idmanager
-        removePortFromPool(internalIpPort, existingIpPort.getIpAddress());
-
-        LOG.debug("releaseAddressMapping : Exited successfully for segmentId {} and internalIpPort {}",
-                segmentId, internalIpPort);
-        return true;
-    }
-
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void releaseIpExtPortMapping(long segmentId, SessionAddress address, NAPTEntryEvent.Protocol protocol) {

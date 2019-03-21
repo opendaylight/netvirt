@@ -50,7 +50,6 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
@@ -106,7 +105,6 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     private final OdlArputilService arpUtilService;
     private final IElanService elanService;
     private final EvpnDnatFlowProgrammer evpnDnatFlowProgrammer;
-    private final INeutronVpnManager nvpnManager;
     private final NatServiceCounters natServiceCounters;
     private final NatOverVxlanUtil natOverVxlanUtil;
 
@@ -120,7 +118,6 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                                 final IVpnManager vpnManager,
                                 final IElanService elanService,
                                 final EvpnDnatFlowProgrammer evpnDnatFlowProgrammer,
-                                final INeutronVpnManager nvpnManager,
                                 final NatOverVxlanUtil natOverVxlanUtil,
                                 NatServiceCounters natServiceCounters) {
         this.dataBroker = dataBroker;
@@ -134,7 +131,6 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         this.vpnManager = vpnManager;
         this.elanService = elanService;
         this.evpnDnatFlowProgrammer = evpnDnatFlowProgrammer;
-        this.nvpnManager = nvpnManager;
         this.natServiceCounters = natServiceCounters;
         this.natOverVxlanUtil = natOverVxlanUtil;
     }
@@ -331,7 +327,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         if (provType == ProviderTypes.VXLAN) {
             Uuid floatingIpInterface = NatEvpnUtil.getFloatingIpInterfaceIdFromFloatingIpId(dataBroker, floatingIpId);
             evpnDnatFlowProgrammer.onRemoveFloatingIp(dpnId, vpnName, externalIp, floatingIpInterface.getValue(),
-                    floatingIpPortMacAddress, routerId, confTx);
+                    floatingIpPortMacAddress, routerId);
             return;
         }
         cleanupFibEntries(dpnId, vpnName, externalIp, label, confTx, provType);

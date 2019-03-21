@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -100,7 +99,7 @@ public class NatArpNotificationHandler implements OdlArputilListener {
         }
 
         VipState newVipState = this.vipStateTracker.buildVipState(srcIp.getIpv4Address().getValue(),
-                                    notification.getSrcMac().getValue(), notification.getDpnId(), targetIfc.getName());
+            notification.getDpnId(), targetIfc.getName());
         VipState cachedState = null;
         try {
             cachedState = this.vipStateTracker.get(newVipState.getIp()).orNull();

@@ -35,7 +35,6 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
-import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.serviceutils.upgrade.UpgradeState;
@@ -66,7 +65,6 @@ public class RouterDpnChangeListener
     private final IdManagerService idManager;
     private final INeutronVpnManager nvpnManager;
     private final ExternalNetworkGroupInstaller extNetGroupInstaller;
-    private final IElanService elanManager;
     private final JobCoordinator coordinator;
     private final SnatServiceManager natServiceManager;
     private final NatMode natMode;
@@ -81,7 +79,6 @@ public class RouterDpnChangeListener
                                    final INeutronVpnManager nvpnManager,
                                    final SnatServiceManager natServiceManager,
                                    final NatserviceConfig config,
-                                   final IElanService elanManager,
                                    final JobCoordinator coordinator,
                                    final UpgradeState upgradeState) {
         super(DpnVpninterfacesList.class, RouterDpnChangeListener.class);
@@ -93,7 +90,6 @@ public class RouterDpnChangeListener
         this.idManager = idManager;
         this.extNetGroupInstaller = extNetGroupInstaller;
         this.nvpnManager = nvpnManager;
-        this.elanManager = elanManager;
         this.natServiceManager = natServiceManager;
         this.coordinator = coordinator;
         this.natMode = config != null ? config.getNatMode() : NatMode.Controller;
@@ -211,7 +207,7 @@ public class RouterDpnChangeListener
                                         LOG.error("add : External Network Provider Type missing");
                                         return;
                                     }
-                                    handleSNATForDPN(dpnId, routerUuid, routerId, vpnId, confTx, extNwProvType);
+                                    handleSNATForDPN(dpnId, routerUuid, routerId, vpnId, confTx);
                                 } else {
                                     LOG.info("add : SNAT is not enabled for router {} to handle addDPN event {}",
                                         routerUuid, dpnId);
@@ -322,7 +318,7 @@ public class RouterDpnChangeListener
     }
 
     void handleSNATForDPN(BigInteger dpnId, String routerName, long routerId, Long routerVpnId,
-        TypedReadWriteTransaction<Configuration> confTx, ProviderTypes extNwProvType) {
+        TypedReadWriteTransaction<Configuration> confTx) {
        //Check if primary and secondary switch are selected, If not select the role
         //Install select group to NAPT switch
         //Install default miss entry to NAPT switch

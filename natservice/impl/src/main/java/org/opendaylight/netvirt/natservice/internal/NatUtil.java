@@ -37,7 +37,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.net.util.SubnetUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -260,7 +259,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.OpenvswitchOtherConfigs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -492,14 +490,6 @@ public final class NatUtil {
         }
     }
 
-    @Nonnull
-    public static List<Uuid> getRouterIdsfromNetworkId(DataBroker broker, Uuid networkId) {
-        InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Networks::getRouterIds).orElse(
-                emptyList());
-    }
-
     @Nullable
     static String getAssociatedExternalNetwork(DataBroker dataBroker, String routerId) {
         InstanceIdentifier<Routers> id = NatUtil.buildRouterIdentifier(routerId);
@@ -581,11 +571,6 @@ public final class NatUtil {
                 .build();
     }
 
-    public static long getIpAddress(byte[] rawIpAddress) {
-        return ((rawIpAddress[0] & 0xFF) << 3 * 8) + ((rawIpAddress[1] & 0xFF) << 2 * 8)
-            + ((rawIpAddress[2] & 0xFF) << 1 * 8) + (rawIpAddress[3] & 0xFF) & 0xffffffffL;
-    }
-
     @Nullable
     public static String getEndpointIpAddressForDPN(DataBroker broker, BigInteger dpnId) {
         String nextHopIp = null;
@@ -649,13 +634,6 @@ public final class NatUtil {
     static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
         return InstanceIdentifier.builder(VpnInterfaces.class)
             .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).build();
-    }
-
-    @Nullable
-    static VpnInterface getConfiguredVpnInterface(DataBroker broker, String interfaceName) {
-        InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, interfaceId).orNull();
     }
 
     @Nullable
@@ -2042,17 +2020,6 @@ public final class NatUtil {
         return tx.read(getVpnInstanceIdentifier(vpnName)).get().toJavaUtil().map(NatUtil::getPrimaryRd).orElse(null);
     }
 
-    public static String getPrimaryRd(DataBroker dataBroker, String vpnName) {
-        InstanceIdentifier<VpnInstance> id  = getVpnInstanceIdentifier(vpnName);
-        Optional<VpnInstance> vpnInstance =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                        LogicalDatastoreType.CONFIGURATION, id);
-        if (vpnInstance.isPresent()) {
-            return getPrimaryRd(vpnInstance.get());
-        }
-        return vpnName;
-    }
-
     @Nullable
     public static String getPrimaryRd(@Nullable VpnInstance vpnInstance) {
         if (vpnInstance == null) {
@@ -2074,17 +2041,6 @@ public final class NatUtil {
                 vpnConfig.getRouteDistinguisher()) : new ArrayList<>();
     }
 
-    public static long getVpnIdFromExternalSubnet(DataBroker dataBroker, String routerName, String externalIpAddress) {
-        if (routerName != null) {
-            Routers extRouter = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
-            if (extRouter != null) {
-                return getExternalSubnetVpnIdForRouterExternalIp(dataBroker, externalIpAddress, extRouter);
-            }
-        }
-
-        return NatConstants.INVALID_ID;
-    }
-
     public static String validateAndAddNetworkMask(String ipAddress) {
         return ipAddress.contains("/32") ? ipAddress : ipAddress + "/32";
     }
@@ -2093,13 +2049,6 @@ public final class NatUtil {
             String vpnInterfaceName, String vpnName) {
         return InstanceIdentifier.builder(VpnInterfaceOpData.class).child(VpnInterfaceOpDataEntry.class,
         new VpnInterfaceOpDataEntryKey(vpnInterfaceName, vpnName)).build();
-    }
-
-    @Nullable
-    public static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) {
-        InstanceIdentifier<VpnInstanceOpDataEntry> id = NatUtil.getVpnInstanceOpDataIdentifier(rd);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
-                 broker, LogicalDatastoreType.OPERATIONAL, id).orNull();
     }
 
     public static boolean checkForRoutersWithSameExtNetAndNaptSwitch(DataBroker broker, Uuid networkId,
@@ -2354,30 +2303,6 @@ public final class NatUtil {
         }
     }
 
-    public static DpnInterfaces getElanInterfaceInfoByElanDpn(String elanInstanceName, BigInteger dpId,
-            DataBroker broker) {
-        InstanceIdentifier<DpnInterfaces> elanDpnInterfacesId =
-                getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId);
-        DpnInterfaces dpnInterfaces = null;
-        try {
-            dpnInterfaces = SingleTransactionDataBroker.syncRead(broker, LogicalDatastoreType.OPERATIONAL,
-                    elanDpnInterfacesId);
-        }
-        catch (ReadFailedException e) {
-            LOG.warn("Failed to read ElanDpnInterfacesList with error {}", e.getMessage());
-        }
-        return dpnInterfaces;
-    }
-
-    public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
-            InstanceIdentifier<T> path) {
-        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
-            return tx.read(datastoreType, path).get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static boolean isLastExternalRouter(String networkid, String routerName, NatDataUtil natDataUtil) {
         Set<Map.Entry<String,Routers>> extRouter = natDataUtil.getAllRouters();
         for (Map.Entry<String,Routers> router : extRouter) {
@@ -2387,12 +2312,6 @@ public final class NatUtil {
             }
         }
         return true;
-    }
-
-    public static InstanceIdentifier<ExtRouters> buildExtRouters() {
-        InstanceIdentifier<ExtRouters> extRouterInstanceIndentifier = InstanceIdentifier.builder(ExtRouters.class)
-                .build();
-        return extRouterInstanceIndentifier;
     }
 
     @Nullable
@@ -2643,10 +2562,6 @@ public final class NatUtil {
                     + "between {} and {}", srcDpId, dstDpId);
         }
         return null;
-    }
-
-    public static String getIpv6JobKey(String routerName) {
-        return "Ipv6." + routerName;
     }
 
     static ReentrantLock lockForNat(final BigInteger dataPath) {

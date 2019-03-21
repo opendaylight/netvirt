@@ -171,10 +171,6 @@ public class NAPTSwitchSelector {
             return weight;
         }
 
-        public void incrementWeight() {
-            ++weight;
-        }
-
         @Override
         public int compareTo(@Nonnull SwitchWeight switchWeight) {
             return weight - switchWeight.getWeight();
