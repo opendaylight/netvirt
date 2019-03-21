@@ -216,7 +216,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         List<BigInteger> switches = naptSwitchSelector.getDpnsForVpn(routerName);
         addCentralizedRouter(confTx, routers, primarySwitchId, primarySwitchId);
         for (BigInteger dpnId : switches) {
-            if (primarySwitchId != dpnId) {
+            if (!Objects.equals(primarySwitchId, dpnId)) {
                 addCentralizedRouter(confTx, routers, primarySwitchId, dpnId);
             }
         }
@@ -237,7 +237,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         String routerName = routers.getRouterName();
         List<BigInteger> switches = naptSwitchSelector.getDpnsForVpn(routerName);
         for (BigInteger dpnId : switches) {
-            if (primarySwitchId != dpnId) {
+            if (!Objects.equals(primarySwitchId, dpnId)) {
                 removeCentralizedRouter(confTx, routers, primarySwitchId, dpnId);
             }
         }

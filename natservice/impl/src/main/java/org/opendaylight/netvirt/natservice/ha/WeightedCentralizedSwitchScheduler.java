@@ -12,7 +12,6 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,11 +21,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -94,7 +91,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     public boolean scheduleCentralizedSwitch(Routers router) {
         String providerNet = NatUtil.getElanInstancePhysicalNetwok(router.getNetworkId().getValue(),dataBroker);
         BigInteger nextSwitchId = getSwitchWithLowestWeight(providerNet);
-        if (nextSwitchId == BigInteger.valueOf(0)) {
+        if (BigInteger.ZERO.equals(nextSwitchId)) {
             LOG.error("In scheduleCentralizedSwitch, unable to schedule the router {} as there is no available switch.",
                     router.getRouterName());
             return false;
@@ -158,7 +155,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
         String providerNet = NatUtil.getElanInstancePhysicalNetwok(router.getNetworkId().getValue(),dataBroker);
         String routerName = router.getRouterName();
         BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
-        if (primarySwitchId == null || primarySwitchId == BigInteger.valueOf(0)) {
+        if (primarySwitchId == null || BigInteger.ZERO.equals(primarySwitchId)) {
             LOG.info("releaseCentralizedSwitch: NAPT Switch is not allocated for router {}", router.getRouterName());
             return false;
         }

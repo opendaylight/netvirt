@@ -11,8 +11,8 @@ package org.opendaylight.netvirt.natservice.ha;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import java.math.BigInteger;
-
 import java.time.Duration;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -98,7 +98,7 @@ public class SnatCentralizedSwitchChangeListener
         ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
             Routers origRouter = NatUtil.getRoutersFromConfigDS(confTx, origRouterToNaptSwitch.getRouterName());
             Routers updatedRouter = NatUtil.getRoutersFromConfigDS(confTx, updatedRouterToNaptSwitch.getRouterName());
-            if (origPrimarySwitchId != updatedPrimarySwitchId) {
+            if (!Objects.equals(origPrimarySwitchId, updatedPrimarySwitchId)) {
                 if (origRouter != null) {
                     snatServiceManger.notify(confTx, origRouter, null, origPrimarySwitchId, null,
                             SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_DISBL);

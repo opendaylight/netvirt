@@ -14,6 +14,7 @@ import static org.opendaylight.netvirt.natservice.internal.NatUtil.getGroupIdKey
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -101,7 +102,7 @@ public class Ipv6ForwardingService implements SnatServiceListener {
          */
         addCentralizedRouter(confTx, routers, primarySwitchId, primarySwitchId);
         for (BigInteger dpnId : switches) {
-            if (primarySwitchId != dpnId) {
+            if (!Objects.equals(primarySwitchId, dpnId)) {
                 addCentralizedRouter(confTx, routers, primarySwitchId, dpnId);
             }
         }
@@ -160,7 +161,7 @@ public class Ipv6ForwardingService implements SnatServiceListener {
          */
         removeCentralizedRouter(confTx, routers, primarySwitchId, primarySwitchId);
         for (BigInteger dpnId : switches) {
-            if (primarySwitchId != dpnId) {
+            if (!Objects.equals(primarySwitchId, dpnId)) {
                 removeCentralizedRouter(confTx, routers, primarySwitchId, dpnId);
             }
         }
@@ -220,7 +221,7 @@ public class Ipv6ForwardingService implements SnatServiceListener {
         if (!routerHasIpv6ExtSubnet(origRouter) && routerHasIpv6ExtSubnet(updatedRouter)) {
             List<BigInteger> switches = naptSwitchSelector.getDpnsForVpn(routerName);
             for (BigInteger dpnId : switches) {
-                if (primarySwitchId != dpnId) {
+                if (!Objects.equals(primarySwitchId, dpnId)) {
                     LOG.info("handleRouterUpdate (non-NAPTSwitch) : Installing flows on switch {} for router {}",
                             dpnId, routerName);
                     addIpv6PsNatMissEntryNonNaptSwitch(confTx, dpnId, routerId, routerName,

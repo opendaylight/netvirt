@@ -510,7 +510,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                 vrfEntry.getDestPrefix(), vpnId, localDpnId, remoteDpnId);
         String rd = vrfTableKey.getRouteDistinguisher();
 
-        if (localDpnId != null && localDpnId != BigInteger.ZERO) {
+        if (localDpnId != null && !BigInteger.ZERO.equals(localDpnId)) {
             // localDpnId is not known when clean up happens for last vm for a vpn on a dpn
             if (extraRouteOptional.isPresent()) {
                 nextHopManager.deleteLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix());

@@ -347,7 +347,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
                 vrfEntry.getDestPrefix(), vpnId, localDpnId, remoteDpnId);
         String rd = vrfTableKey.getRouteDistinguisher();
 
-        if (localDpnId != null && localDpnId != BigInteger.ZERO) {
+        if (localDpnId != null && !BigInteger.ZERO.equals(localDpnId)) {
             // localDpnId is not known when clean up happens for last vm for a vpn on a dpn
             if (extraRouteOptional.isPresent()) {
                 nexthopManager.deleteLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix());
