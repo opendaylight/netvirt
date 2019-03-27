@@ -508,43 +508,43 @@ public class QosNeutronUtils {
     }
 
     public void setPortDscpMarking(Port port, DscpmarkingRules dscpMark) {
-        if (!qosEosHandler.isQosClusterOwner()) {
-            LOG.trace("Not Qos Cluster Owner. Ignoring setting DSCP marking");
-            return;
-        }
 
         BigInteger dpnId = getDpnForInterface(port.getUuid().getValue());
         String ifName = port.getUuid().getValue();
-        Interface ifState = getInterfaceStateFromOperDS(ifName);
-        Short dscpValue = dscpMark.getDscpMark();
 
         if (dpnId.equals(BigInteger.ZERO)) {
             LOG.info("DPN ID for interface {} not found. Cannot set dscp value {} on port {}",
                     port.getUuid().getValue(), dscpMark, port.getUuid().getValue());
             return;
         }
-        int ipVersions = getIpVersions(port);
-        //1. OF rules
-        if (hasIpv4Addr(ipVersions)) {
-            LOG.trace("setting ipv4 flow for port: {}, dscp: {}", ifName, dscpValue);
-            addFlow(dpnId, dscpValue, ifName, NwConstants.ETHTYPE_IPV4, ifState);
-        }
-        if (hasIpv6Addr(ipVersions)) {
-            LOG.trace("setting ipv6 flow for port: {}, dscp: {}", ifName, dscpValue);
-            addFlow(dpnId, dscpValue, ifName, NwConstants.ETHTYPE_IPV6, ifState);
-        }
 
-        if (qosServiceConfiguredPorts.add(port.getUuid())) {
-            // bind qos service to interface
-            bindservice(ifName);
+        if (!qosEosHandler.isQosClusterOwner()) {
+            qosServiceConfiguredPorts.add(port.getUuid());
+            LOG.trace("Not Qos Cluster Owner. Ignoring setting DSCP marking");
+            return;
+        } else {
+            Interface ifState = getInterfaceStateFromOperDS(ifName);
+            Short dscpValue = dscpMark.getDscpMark();
+            int ipVersions = getIpVersions(port);
+            //1. OF rules
+            if (hasIpv4Addr(ipVersions)) {
+                LOG.trace("setting ipv4 flow for port: {}, dscp: {}", ifName, dscpValue);
+                addFlow(dpnId, dscpValue, ifName, NwConstants.ETHTYPE_IPV4, ifState);
+            }
+            if (hasIpv6Addr(ipVersions)) {
+                LOG.trace("setting ipv6 flow for port: {}, dscp: {}", ifName, dscpValue);
+                addFlow(dpnId, dscpValue, ifName, NwConstants.ETHTYPE_IPV6, ifState);
+            }
+
+            if (qosServiceConfiguredPorts.add(port.getUuid())) {
+                // bind qos service to interface
+                bindservice(ifName);
+            }
+
         }
     }
 
     public void unsetPortDscpMark(Port port) {
-        if (!qosEosHandler.isQosClusterOwner()) {
-            LOG.debug("Not Qos Cluster Owner. Ignoring unsetting DSCP marking");
-            return;
-        }
 
         BigInteger dpnId = getDpnForInterface(port.getUuid().getValue());
         String ifName = port.getUuid().getValue();
@@ -553,25 +553,30 @@ public class QosNeutronUtils {
             LOG.debug("DPN ID for port {} not found. Cannot unset dscp value", port.getUuid().getValue());
             return;
         }
-        LOG.trace("Removing dscp marking rule from Port {}", port.getUuid().getValue());
-        Interface intf = getInterfaceStateFromOperDS(ifName);
-        //unbind service from interface
-        unbindservice(ifName);
-        // 1. OF
-        int ipVersions = getIpVersions(port);
-        if (hasIpv4Addr(ipVersions)) {
-            removeFlow(dpnId, ifName, NwConstants.ETHTYPE_IPV4, intf);
+
+        if (!qosEosHandler.isQosClusterOwner()) {
+            qosServiceConfiguredPorts.remove(port.getUuid());
+            LOG.debug("Not Qos Cluster Owner. Ignoring unsetting DSCP marking");
+            return;
+        } else {
+            LOG.trace("Removing dscp marking rule from Port {}", port.getUuid().getValue());
+            Interface intf = getInterfaceStateFromOperDS(ifName);
+            //unbind service from interface
+            unbindservice(ifName);
+            // 1. OF
+            int ipVersions = getIpVersions(port);
+            if (hasIpv4Addr(ipVersions)) {
+                removeFlow(dpnId, ifName, NwConstants.ETHTYPE_IPV4, intf);
+            }
+            if (hasIpv6Addr(ipVersions)) {
+                removeFlow(dpnId, ifName, NwConstants.ETHTYPE_IPV6, intf);
+            }
+            qosServiceConfiguredPorts.remove(port.getUuid());
         }
-        if (hasIpv6Addr(ipVersions)) {
-            removeFlow(dpnId, ifName, NwConstants.ETHTYPE_IPV6, intf);
-        }
-        qosServiceConfiguredPorts.remove(port.getUuid());
     }
 
     public void unsetPortDscpMark(Port port, Interface intrf) {
-        if (!qosEosHandler.isQosClusterOwner()) {
-            return;
-        }
+
         BigInteger dpnId = getDpIdFromInterface(intrf);
         String ifName = port.getUuid().getValue();
 
@@ -579,16 +584,21 @@ public class QosNeutronUtils {
             LOG.error("Unable to retrieve DPN Id for interface {}. Cannot unset dscp value on port", ifName);
             return;
         }
-        LOG.trace("Removing dscp marking rule from Port {}", port.getUuid().getValue());
-        unbindservice(ifName);
-        int ipVersions = getIpVersions(port);
-        if (hasIpv4Addr(ipVersions)) {
-            removeFlow(dpnId, ifName, NwConstants.ETHTYPE_IPV4, intrf);
+        if (!qosEosHandler.isQosClusterOwner()) {
+            qosServiceConfiguredPorts.remove(port.getUuid());
+            return;
+        } else {
+            LOG.trace("Removing dscp marking rule from Port {}", port.getUuid().getValue());
+            unbindservice(ifName);
+            int ipVersions = getIpVersions(port);
+            if (hasIpv4Addr(ipVersions)) {
+                removeFlow(dpnId, ifName, NwConstants.ETHTYPE_IPV4, intrf);
+            }
+            if (hasIpv6Addr(ipVersions)) {
+                removeFlow(dpnId, ifName, NwConstants.ETHTYPE_IPV6, intrf);
+            }
+            qosServiceConfiguredPorts.remove(port.getUuid());
         }
-        if (hasIpv6Addr(ipVersions)) {
-            removeFlow(dpnId, ifName, NwConstants.ETHTYPE_IPV6, intrf);
-        }
-        qosServiceConfiguredPorts.remove(port.getUuid());
     }
 
     private static BigInteger getDpIdFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
@@ -879,5 +889,18 @@ public class QosNeutronUtils {
 
     public boolean hasIpv6Addr(int versions) {
         return (versions & (1 << QosConstants.IPV6_ADDR_MASK_BIT)) != 0;
+    }
+
+    public boolean isBindServiceDone(Optional<Uuid> uuid) {
+        if (uuid != null) {
+            return qosServiceConfiguredPorts.contains(uuid.get());
+        }
+        return false;
+    }
+
+    public void removeInterfaceInQosConfiguredPorts(Optional<Uuid> uuid) {
+        if (uuid != null) {
+            qosServiceConfiguredPorts.remove(uuid.get());
+        }
     }
 }
