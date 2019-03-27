@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.qosservice;
 
 import com.google.common.base.Optional;
+import java.util.Collections;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -16,6 +17,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.qosservice.recovery.QosServiceRecoveryHandler;
 import org.opendaylight.serviceutils.srm.RecoverableListener;
@@ -43,19 +45,22 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
     private final QosAlertManager qosAlertManager;
     private final QosNeutronUtils qosNeutronUtils;
     private final INeutronVpnManager neutronVpnManager;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
     public QosInterfaceStateChangeListener(final DataBroker dataBroker, final QosAlertManager qosAlertManager,
                                            final QosNeutronUtils qosNeutronUtils,
                                            final INeutronVpnManager neutronVpnManager,
                                            final ServiceRecoveryRegistry serviceRecoveryRegistry,
-                                           final QosServiceRecoveryHandler qosServiceRecoveryHandler) {
+                                           final QosServiceRecoveryHandler qosServiceRecoveryHandler,
+                                           final JobCoordinator jobCoordinator) {
         super(Interface.class, QosInterfaceStateChangeListener.class);
         this.dataBroker = dataBroker;
         this.uuidUtil = new UuidUtil();
         this.qosAlertManager = qosAlertManager;
         this.qosNeutronUtils = qosNeutronUtils;
         this.neutronVpnManager = neutronVpnManager;
+        this.jobCoordinator = jobCoordinator;
         serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
                 this);
         LOG.trace("{} created",  getClass().getSimpleName());
@@ -123,9 +128,16 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
             if (port != null) {
                 return Optional.fromJavaUtil(uuid.toJavaUtil().map(qosNeutronUtils::getNeutronPort));
             }
-            LOG.trace("Qos Service : interface {} clearing stale flow entries if any", portName);
-            qosNeutronUtils.removeStaleFlowEntry(intrf, NwConstants.ETHTYPE_IPV4);
-            qosNeutronUtils.removeStaleFlowEntry(intrf, NwConstants.ETHTYPE_IPV6);
+            if (qosNeutronUtils.isBindServiceDone(uuid)) {
+                LOG.trace("Qos Service : interface {} clearing stale flow entries if any", portName);
+                jobCoordinator.enqueueJob("QosPort-" + portName, () -> {
+                    qosNeutronUtils.removeStaleFlowEntry(intrf, NwConstants.ETHTYPE_IPV4);
+                    qosNeutronUtils.removeStaleFlowEntry(intrf, NwConstants.ETHTYPE_IPV6);
+                    qosNeutronUtils.unbindservice(portName);
+                    qosNeutronUtils.removeInterfaceInQosConfiguredPorts(uuid);
+                    return Collections.emptyList();
+                });
+            }
         }
         return Optional.absent();
     }
