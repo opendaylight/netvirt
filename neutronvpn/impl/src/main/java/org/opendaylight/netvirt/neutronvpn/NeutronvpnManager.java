@@ -2140,7 +2140,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             String nextHop = route.getNexthop().stringValue();
             List<String> nextHopList = new ArrayList<>();
             nextHopList.add(nextHop);
-            int nbNextHops = 0;
+            int nbNextHops = 1;
             for (Routes routeTmp : routeList) {
                 String routeDest = routeTmp.getDestination().stringValue();
                 if (!destination.equals(routeDest)) {
