@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c0412df_2e06e01a",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2019-04-01T06:34:37Z",
+      "side": 1,
+      "message": "let the DJC prefix be \"QOS\"",
+      "revId": "e5d9c65b9c9672b8785277168b180a9fdcfd807c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
