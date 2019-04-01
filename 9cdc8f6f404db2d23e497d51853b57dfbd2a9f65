@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb18ac9f_abac5cbc",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2019-04-01T06:31:51Z",
+      "side": 1,
+      "message": "why do we need a sync delete here? Is this job not enqueued using DJC?",
+      "revId": "9cdc8f6f404db2d23e497d51853b57dfbd2a9f65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
