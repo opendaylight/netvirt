@@ -112,7 +112,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             if (extNetChanged == EXTERNAL_REMOVED) {
                 origExtNetId = original.getExternalGatewayInfo().getExternalNetworkId();
                 origExtFixedIps = new ArrayList<ExternalFixedIps>(original.getExternalGatewayInfo()
-                        .getExternalFixedIps().values());
+                        .nonnullExternalFixedIps().values());
                 LOG.trace("External Network removal detected for router {}", routerId.getValue());
                 removeExternalNetworkFromRouter(origExtNetId, update, origExtFixedIps);
                 //gateway mac unset handled as part of gateway clear deleting top-level routers node
@@ -121,7 +121,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
 
             origExtNetId = original.getExternalGatewayInfo().getExternalNetworkId();
             origExtFixedIps = new ArrayList<ExternalFixedIps>(original.getExternalGatewayInfo()
-                    .getExternalFixedIps().values());
+                    .nonnullExternalFixedIps().values());
             updExtNetId = update.getExternalGatewayInfo().getExternalNetworkId();
             LOG.trace("External Network changed from {} to {} for router {}",
                 origExtNetId.getValue(), updExtNetId.getValue(), routerId.getValue());
@@ -308,7 +308,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
         Uuid routerId = update.getUuid();
         Uuid extNetId = update.getExternalGatewayInfo().getExternalNetworkId();
         Map<ExternalFixedIpsKey, ExternalFixedIps> keyExternalFixedIpsMap
-                = update.getExternalGatewayInfo().getExternalFixedIps();
+                = update.getExternalGatewayInfo().nonnullExternalFixedIps();
 
         try {
             Network input = neutronvpnUtils.getNeutronNetwork(extNetId);
@@ -544,7 +544,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             if (optionalRouters.isPresent()) {
                 RoutersBuilder builder = new RoutersBuilder(optionalRouters.get());
                 List<ExternalIps> externalIps = new ArrayList<>();
-                for (ExternalFixedIps fixedIps : update.getExternalGatewayInfo().getExternalFixedIps().values()) {
+                for (ExternalFixedIps fixedIps : update.getExternalGatewayInfo().nonnullExternalFixedIps().values()) {
                     addExternalFixedIpToExternalIpsList(externalIps, fixedIps);
                 }
 
@@ -552,7 +552,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
 
                 updateExternalSubnetsForRouter(routerId, update.getExternalGatewayInfo().getExternalNetworkId(),
                         new ArrayList<ExternalFixedIps>(update.getExternalGatewayInfo()
-                                .getExternalFixedIps().values()));
+                                .nonnullExternalFixedIps().values()));
                 Routers routerss = builder.build();
                 LOG.trace("Updating external fixed ips for router {} with value {}", routerId.getValue(), routerss);
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIdentifier,
@@ -787,7 +787,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 Optional<Adjacencies> optionalAdjacencies = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, adjacenciesIdentifier);
                 if (optionalAdjacencies.isPresent()) {
-                    Map<AdjacencyKey, Adjacency> keyAdjacencyMap = optionalAdjacencies.get().getAdjacency();
+                    Map<AdjacencyKey, Adjacency> keyAdjacencyMap = optionalAdjacencies.get().nonnullAdjacency();
                     Iterator<Adjacency> adjacencyIter = keyAdjacencyMap.values().iterator();
                     while (adjacencyIter.hasNext()) {
                         Adjacency adjacency = adjacencyIter.next();
