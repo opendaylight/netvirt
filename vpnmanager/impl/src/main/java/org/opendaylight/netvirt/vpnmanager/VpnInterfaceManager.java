@@ -2390,6 +2390,9 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
         if (vpnInstanceOpData == null) {
             return;
         }
+        if (vpnInstanceOpData.getVpnToDpnList() == null) {
+            return;
+        }
         List<VpnToDpnList> vpnToDpnLists = new ArrayList<VpnToDpnList>(vpnInstanceOpData.getVpnToDpnList().values());
         if (vpnToDpnLists == null || vpnToDpnLists.isEmpty()) {
             return;
