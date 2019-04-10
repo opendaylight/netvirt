@@ -372,13 +372,13 @@ public class ElanBridgeManager {
                                 .setBridgeOtherConfigValue(mac).build());
             }
         }
-
-        if (otherConfigs.stream().noneMatch(otherConfig ->
+        //ovsdb always adds disableInBand=true, so no need to add this default value here.
+        /*if (otherConfigs.stream().noneMatch(otherConfig ->
                 otherConfig.getBridgeOtherConfigKey().equals(OTHER_CONFIG_DISABLE_IN_BAND))) {
             otherConfigs.add(new BridgeOtherConfigsBuilder()
                             .setBridgeOtherConfigKey(OTHER_CONFIG_DISABLE_IN_BAND)
                             .setBridgeOtherConfigValue("true").build());
-        }
+        }*/
 
         return otherConfigs;
     }
