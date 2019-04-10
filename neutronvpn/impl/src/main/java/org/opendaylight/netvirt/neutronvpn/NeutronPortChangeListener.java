@@ -273,9 +273,9 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
                                 interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
                             } else if (isDhcpServerPort) {
                                 Set<FixedIps> oldIPs = getFixedIpSet(
-                                        new ArrayList<FixedIps>(original.getFixedIps().values()));
+                                        new ArrayList<FixedIps>(original.nonnullFixedIps().values()));
                                 Set<FixedIps> newIPs = getFixedIpSet(
-                                        new ArrayList<FixedIps>(update.getFixedIps().values()));
+                                        new ArrayList<FixedIps>(update.nonnullFixedIps().values()));
                                 if (!oldIPs.equals(newIPs)) {
                                     InterfaceAcl infAcl = neutronvpnUtils.getDhcpInterfaceAcl(update);
                                     interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
@@ -301,7 +301,7 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
             // populate floating-ip uuid and floating-ip port attributes (uuid, mac and subnet id for the ONLY
             // fixed IP) to be used by NAT, depopulated in NATService once mac is retrieved in the removal path
             addToFloatingIpPortInfo(new Uuid(update.getDeviceId()), update.getUuid(),
-                    new ArrayList<FixedIps>(update.getFixedIps().values()).get(0)
+                    new ArrayList<FixedIps>(update.nonnullFixedIps().values()).get(0)
                     .getSubnetId(), update.getMacAddress().getValue());
             elanService.addKnownL3DmacAddress(update.getMacAddress().getValue(), update.getNetworkId().getValue());
         }
@@ -882,13 +882,13 @@ public class NeutronPortChangeListener extends AbstractAsyncDataTreeChangeListen
                         NeutronvpnUtils.getUpdatedSecurityGroups(interfaceAcl.getSecurityGroups(),
                                 portOriginal.getSecurityGroups(), portUpdated.getSecurityGroups()));
                 List<AllowedAddressPairs> updatedAddressPairs = NeutronvpnUtils.getUpdatedAllowedAddressPairs(
-                        new ArrayList<AllowedAddressPairs>(interfaceAcl.getAllowedAddressPairs().values()),
-                        new ArrayList<>(portOriginal.getAllowedAddressPairs().values()),
+                        new ArrayList<AllowedAddressPairs>(interfaceAcl.nonnullAllowedAddressPairs().values()),
+                        new ArrayList<>(portOriginal.nonnullAllowedAddressPairs().values()),
                         new ArrayList<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port
-                                .attributes.AllowedAddressPairs>(portUpdated.getAllowedAddressPairs().values()));
+                                .attributes.AllowedAddressPairs>(portUpdated.nonnullAllowedAddressPairs().values()));
                 interfaceAclBuilder.setAllowedAddressPairs(NeutronvpnUtils.getAllowedAddressPairsForFixedIps(
                         updatedAddressPairs, portOriginal.getMacAddress(), portOriginal.getFixedIps(),
-                        portUpdated.getFixedIps().values()));
+                        portUpdated.nonnullFixedIps().values()));
 
                 if (portOriginal.getFixedIps() != null
                         && !portOriginal.getFixedIps().equals(portUpdated.getFixedIps())) {
