@@ -175,6 +175,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-ipv6service-config.xml" -->
             <groupId>${project.groupId}</groupId>
             <artifactId>ipv6service-impl</artifactId>
             <version>${project.version}</version>
@@ -259,6 +260,14 @@
             <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-vpnmanager-config.xml" -->
             <groupId>${project.groupId}</groupId>
             <artifactId>vpnmanager-impl</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>config</classifier>
+        </dependency>
+        <dependency>
+            <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-ipv6service-config.xml" -->
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ipv6service-impl</artifactId>
             <version>${project.version}</version>
             <type>xml</type>
             <classifier>config</classifier>
