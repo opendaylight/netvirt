@@ -1,4 +1,7 @@
 <ipv6service-config xmlns="urn:opendaylight:netvirt:ipv6service:config">
+  <na-responder-mode>switch</na-responder-mode>
+  <ipv6-router-reachable-time>120000</ipv6-router-reachable-time>
+  <ns-slow-path-protection-timeout>30000</ns-slow-path-protection-timeout>
   <router-discovery-punt-timeout>10</router-discovery-punt-timeout>
   <neighbor-discovery-punt-timeout>10</neighbor-discovery-punt-timeout>
 </ipv6service-config>

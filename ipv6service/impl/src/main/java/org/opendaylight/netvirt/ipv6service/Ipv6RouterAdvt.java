@@ -57,9 +57,9 @@ public class Ipv6RouterAdvt {
 
     public boolean transmitRtrAdvertisement(Ipv6RouterAdvertisementType raType, VirtualPort routerPort,
                                             long elanTag, @Nullable RouterSolicitationPacket rsPdu,
-                                            Uint64 dpnId, Uuid port) {
+                                            Uint64 dpnId, Uuid port, long ipv6RouterReachableTime) {
         RouterAdvertisementPacketBuilder raPacket = new RouterAdvertisementPacketBuilder();
-        updateRAResponse(raType, rsPdu, raPacket, routerPort);
+        updateRAResponse(raType, rsPdu, raPacket, routerPort, ipv6RouterReachableTime);
         // Serialize the response packet
         byte[] txPayload = fillRouterAdvertisementPacket(raPacket.build());
         TransmitPacketInput input = null;
@@ -89,7 +89,7 @@ public class Ipv6RouterAdvt {
 
     private static void updateRAResponse(Ipv6RouterAdvertisementType raType, @Nullable RouterSolicitationPacket pdu,
                                          RouterAdvertisementPacketBuilder raPacket,
-                                         VirtualPort routerPort) {
+                                         VirtualPort routerPort, long ipv6RouterReachableTime) {
         short icmpv6RaFlags = 0;
         String gatewayMac = null;
         IpAddress gatewayIp;
@@ -161,7 +161,12 @@ public class Ipv6RouterAdvt {
         } else {
             raPacket.setRouterLifetime(Ipv6Constants.IPV6_ROUTER_LIFETIME);
         }
-        raPacket.setReachableTime((long) Ipv6Constants.IPV6_RA_REACHABLE_TIME);
+
+        if (ipv6RouterReachableTime == 0L) {
+            raPacket.setReachableTime((long)Ipv6Constants.IPV6_RA_REACHABLE_TIME);
+        } else {
+            raPacket.setReachableTime(ipv6RouterReachableTime);
+        }
         raPacket.setRetransTime((long) 0);
 
         raPacket.setOptionSourceAddr(Ipv6Constants.ICMP_V6_OPTION_SOURCE_LLA);
