@@ -91,22 +91,29 @@ public class Ipv6ServiceInterfaceEventListener
             return;
         }
 
-        if (port.getServiceBindingStatus()) {
-            jobCoordinator.enqueueJob("IPv6-" + String.valueOf(portId), () -> {
+        String jobKey = Ipv6ServiceUtils.buildIpv6MonitorJobKey(portId.getValue());
+        jobCoordinator.enqueueJob(jobKey, () -> {
+            if (port.getServiceBindingStatus()) {
                 // Unbind Service
                 ipv6ServiceUtils.unbindIpv6Service(portId.getValue());
                 port.setServiceBindingStatus(false);
-                return Collections.emptyList();
-            }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
-        }
+                VirtualNetwork vnet = ifMgr.getNetwork(port.getNetworkID());
+                if (null != vnet) {
+                    Uint64 dpId = port.getDpId();
+                    vnet.updateDpnPortInfo(dpId, port.getOfPort(), portId, Ipv6ServiceConstants.DEL_ENTRY);
+                }
+            }
 
-        VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
-        ifMgr.handleInterfaceStateEvent(port, ipv6ServiceUtils.getDpIdFromInterfaceState(del), routerPort,
-                Ipv6ServiceConstants.DEL_FLOW);
+            VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
+            ifMgr.handleInterfaceStateEvent(port, ipv6ServiceUtils.getDpIdFromInterfaceState(del), routerPort,
+                    del.getIfIndex(), Ipv6ServiceConstants.DEL_FLOW);
+            return Collections.emptyList();
+        }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
     }
 
     @Override
     protected void update(InstanceIdentifier<Interface> key, Interface before, Interface after) {
+        LOG.debug("Port updated {}, {}", key, after);
         if (before.getType() == null && L2vlan.class.equals(after.getType())) {
             add(key, after);
         }
@@ -124,6 +131,7 @@ public class Ipv6ServiceInterfaceEventListener
 
     @Override
     protected void add(InstanceIdentifier<Interface> key, Interface add) {
+        LOG.debug("Port add {}, {}", key, add);
         List<String> ofportIds = add.getLowerLayerIf();
 
         if (!L2vlan.class.equals(add.getType())) {
@@ -164,17 +172,21 @@ public class Ipv6ServiceInterfaceEventListener
                     LOG.info("Port {} is not associated to a Router, skipping.", portId);
                     return;
                 }
-                ifMgr.handleInterfaceStateEvent(port, dpId, routerPort, Ipv6ServiceConstants.ADD_FLOW);
 
-                if (!port.getServiceBindingStatus()) {
-                    jobCoordinator.enqueueJob("IPv6-" + String.valueOf(portId), () -> {
+                // Check and program icmpv6 punt flows on the dpnID if its the first VM on the host.
+                String jobKey = Ipv6ServiceUtils.buildIpv6MonitorJobKey(portId.getValue());
+                jobCoordinator.enqueueJob(jobKey, () -> {
+                    ifMgr.handleInterfaceStateEvent(port, dpId, routerPort,add.getIfIndex().intValue(),
+                            Ipv6ServiceConstants.ADD_FLOW);
+                    if (!port.getServiceBindingStatus()) {
                         // Bind Service
                         Long elanTag = ifMgr.getNetworkElanTag(routerPort.getNetworkID());
                         ipv6ServiceUtils.bindIpv6Service(portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
                         port.setServiceBindingStatus(true);
-                        return Collections.emptyList();
-                    }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
-                }
+                    }
+                    return Collections.emptyList();
+                }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
+
             }
         }
     }
