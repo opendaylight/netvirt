@@ -11,7 +11,6 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.aclservice.tests.infra.DataTreeIdentifierDataObjectPairBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
@@ -26,7 +25,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.SubnetInfo;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-@NotThreadSafe
+/**
+ * This class is not ThreadSafe.
+ */
 public class IdentifiedInterfaceWithAclBuilder implements DataTreeIdentifierDataObjectPairBuilder<Interface> {
 
     private String interfaceName;

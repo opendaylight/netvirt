@@ -55,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712.security.rules.attributes.SecurityRules;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712.security.rules.attributes.security.rules.SecurityRule;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,7 +165,7 @@ public class NeutronSecurityRuleListener
         matchesBuilder.setAceType(aceIpBuilder.build());
         // set acl action as permit for the security rule
         ActionsBuilder actionsBuilder = new ActionsBuilder();
-        actionsBuilder.setPacketHandling(new PermitBuilder().setPermit(true).build());
+        actionsBuilder.setPacketHandling(new PermitBuilder().setPermit(Empty.getInstance()).build());
 
         AceBuilder aceBuilder = new AceBuilder();
         aceBuilder.withKey(new AceKey(securityRule.getUuid().getValue()));
