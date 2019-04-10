@@ -10,14 +10,15 @@ package org.opendaylight.netvirt.qosservice;
 
 import java.math.BigInteger;
 import java.util.function.Supplier;
-import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.node.connector.statistics.and.port.number.map.NodeConnectorStatisticsAndPortNumberMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@NotThreadSafe
+/**
+ * This class is ThreadSafe.
+ */
 public class QosAlertPortData {
     private static final Logger LOG = LoggerFactory.getLogger(QosAlertPortData.class);
     private static final BigInteger BIG_HUNDRED = new BigInteger("100");

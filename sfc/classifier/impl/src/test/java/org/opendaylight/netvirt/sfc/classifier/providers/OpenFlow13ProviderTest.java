@@ -61,6 +61,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.ni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.src.choice.grouping.src.choice.SrcNxRegCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.src.choice.grouping.src.choice.SrcNxTunIdCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxAugMatchNodesNodeTableFlow;
+import org.opendaylight.yangtools.yang.common.Empty;
 
 
 public class OpenFlow13ProviderTest {
@@ -556,7 +557,7 @@ public class OpenFlow13ProviderTest {
         NxActionRegLoadNodesNodeTableFlowApplyActionsCase regLoad =
                 (NxActionRegLoadNodesNodeTableFlowApplyActionsCase) action.getAction();
         DstNxTunIpv4DstCase tunDstTypeCase = (DstNxTunIpv4DstCase) regLoad.getNxRegLoad().getDst().getDstChoice();
-        assertTrue(tunDstTypeCase.isNxTunIpv4Dst());
+        assertEquals(Empty.getInstance(), tunDstTypeCase.getNxTunIpv4Dst());
         assertEquals(regLoad.getNxRegLoad().getValue().longValue(), ipl);
     }
 
@@ -564,7 +565,7 @@ public class OpenFlow13ProviderTest {
         NxActionRegLoadNodesNodeTableFlowApplyActionsCase regLoad =
                 (NxActionRegLoadNodesNodeTableFlowApplyActionsCase) action.getAction();
         DstNxTunIdCase mdTypeCase = (DstNxTunIdCase) regLoad.getNxRegLoad().getDst().getDstChoice();
-        assertTrue(mdTypeCase.isNxTunId());
+        assertEquals(Empty.getInstance(), mdTypeCase.getNxTunId());
         assertEquals(regLoad.getNxRegLoad().getValue().longValue(), tunId);
     }
 
@@ -577,9 +578,11 @@ public class OpenFlow13ProviderTest {
         NxActionRegMoveNodesNodeTableFlowApplyActionsCase regMove =
                 (NxActionRegMoveNodesNodeTableFlowApplyActionsCase) action.getAction();
         if (checkSrc) {
-            assertTrue(((SrcNxNspCase) regMove.getNxRegMove().getSrc().getSrcChoice()).isNxNspDst());
+            assertEquals(Empty.getInstance(), ((SrcNxNspCase) regMove.getNxRegMove()
+                    .getSrc().getSrcChoice()).getNxNspDst());
         } else {
-            assertTrue(((DstNxNspCase) regMove.getNxRegMove().getDst().getDstChoice()).isNxNspDst());
+            assertEquals(Empty.getInstance(), ((DstNxNspCase) regMove.getNxRegMove()
+                    .getDst().getDstChoice()).getNxNspDst());
         }
     }
 
@@ -587,9 +590,11 @@ public class OpenFlow13ProviderTest {
         NxActionRegMoveNodesNodeTableFlowApplyActionsCase regMove =
                 (NxActionRegMoveNodesNodeTableFlowApplyActionsCase) action.getAction();
         if (checkSrc) {
-            assertTrue(((SrcNxNsiCase) regMove.getNxRegMove().getSrc().getSrcChoice()).isNxNsiDst());
+            assertEquals(Empty.getInstance(), ((SrcNxNsiCase) regMove.getNxRegMove()
+                    .getSrc().getSrcChoice()).getNxNsiDst());
         } else {
-            assertTrue(((DstNxNsiCase) regMove.getNxRegMove().getDst().getDstChoice()).isNxNsiDst());
+            assertEquals(Empty.getInstance(), ((DstNxNsiCase) regMove.getNxRegMove()
+                    .getDst().getDstChoice()).getNxNsiDst());
         }
     }
 
@@ -598,10 +603,10 @@ public class OpenFlow13ProviderTest {
                 (NxActionRegMoveNodesNodeTableFlowApplyActionsCase) action.getAction();
         if (checkSrc) {
             SrcNxNshc1Case src = (SrcNxNshc1Case) regMove.getNxRegMove().getSrc().getSrcChoice();
-            assertTrue(src.isNxNshc1Dst());
+            assertEquals(Empty.getInstance(), src.getNxNshc1Dst());
         } else {
             DstNxNshc1Case dst = (DstNxNshc1Case) regMove.getNxRegMove().getDst().getDstChoice();
-            assertTrue(dst.isNxNshc1Dst());
+            assertEquals(Empty.getInstance(), dst.getNxNshc1Dst());
         }
     }
 
@@ -610,10 +615,10 @@ public class OpenFlow13ProviderTest {
                 (NxActionRegMoveNodesNodeTableFlowApplyActionsCase) action.getAction();
         if (checkSrc) {
             SrcNxNshc2Case src = (SrcNxNshc2Case) regMove.getNxRegMove().getSrc().getSrcChoice();
-            assertTrue(src.isNxNshc2Dst());
+            assertEquals(Empty.getInstance(), src.getNxNshc2Dst());
         } else {
             DstNxNshc2Case dst = (DstNxNshc2Case) regMove.getNxRegMove().getDst().getDstChoice();
-            assertTrue(dst.isNxNshc2Dst());
+            assertEquals(Empty.getInstance(), dst.getNxNshc2Dst());
         }
     }
 
@@ -622,10 +627,10 @@ public class OpenFlow13ProviderTest {
                 (NxActionRegMoveNodesNodeTableFlowApplyActionsCase) action.getAction();
         if (checkSrc) {
             SrcNxNshc4Case src = (SrcNxNshc4Case) regMove.getNxRegMove().getSrc().getSrcChoice();
-            assertTrue(src.isNxNshc4Dst());
+            assertEquals(Empty.getInstance(), src.getNxNshc4Dst());
         } else {
             DstNxNshc4Case dst = (DstNxNshc4Case) regMove.getNxRegMove().getDst().getDstChoice();
-            assertTrue(dst.isNxNshc4Dst());
+            assertEquals(Empty.getInstance(), dst.getNxNshc4Dst());
         }
     }
 
@@ -634,10 +639,10 @@ public class OpenFlow13ProviderTest {
                 (NxActionRegMoveNodesNodeTableFlowApplyActionsCase) action.getAction();
         if (checkSrc) {
             SrcNxTunIdCase src = (SrcNxTunIdCase) regMove.getNxRegMove().getSrc().getSrcChoice();
-            assertTrue(src.isNxTunId());
+            assertEquals(Empty.getInstance(), src.getNxTunId());
         } else {
             DstNxTunIdCase dst = (DstNxTunIdCase) regMove.getNxRegMove().getDst().getDstChoice();
-            assertTrue(dst.isNxTunId());
+            assertEquals(Empty.getInstance(), dst.getNxTunId());
         }
     }
 

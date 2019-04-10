@@ -10,15 +10,13 @@ package org.opendaylight.netvirt.qosservice;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.regex.Pattern;
-import javax.annotation.concurrent.ThreadSafe;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
 /**
  * Utility for {@link Uuid}.
- *
+ * This class is ThreadSafe.
  * @author Michael Vorburger.ch
  */
-@ThreadSafe
 class UuidUtil {
 
     private Pattern uuidPattern;
