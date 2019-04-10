@@ -818,10 +818,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected Adjacencies createPortIpAdjacencies(Port port, Boolean isRouterInterface,
                                                   TypedWriteTransaction<Configuration> wrtConfigTxn,
                                                   @Nullable VpnInterface vpnIface) {
-        List<Adjacency> adjList = new ArrayList<>();
-        if (vpnIface != null) {
-            adjList = vpnIface.augmentation(Adjacencies.class).getAdjacency();
-        }
+        List<Adjacency> adjList = vpnIface == null ? new ArrayList<>()
+                : new ArrayList<>(vpnIface.augmentation(Adjacencies.class).getAdjacency());
         String infName = port.getUuid().getValue();
         LOG.trace("neutronVpnManager: create config adjacencies for Port: {}", infName);
         for (FixedIps ip : port.nonnullFixedIps()) {
