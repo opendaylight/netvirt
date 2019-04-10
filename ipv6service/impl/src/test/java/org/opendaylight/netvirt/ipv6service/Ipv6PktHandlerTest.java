@@ -26,7 +26,9 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.netvirt.ipv6service.api.IIpv6PacketListener;
+import org.opendaylight.netvirt.ipv6service.utils.IpV6NAConfigHelper;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
@@ -64,13 +66,21 @@ public class Ipv6PktHandlerTest {
     private long counter;
     private static final int THREAD_WAIT_TIME = 100;
     private Ipv6TestUtils ipv6TestUtils;
+    private Ipv6ServiceUtils ipv6ServiceUtils;
+    private IpV6NAConfigHelper ipV6NAConfigHelper;
 
     @Before
     public void initTest() {
         pktProcessService = Mockito.mock(PacketProcessingService.class);
         ifMgrInstance = Mockito.mock(IfMgr.class);
+
+        ipv6ServiceUtils = Mockito.mock(Ipv6ServiceUtils.class);
+        ipV6NAConfigHelper = Mockito.mock(IpV6NAConfigHelper.class);
+        pktHandler = new Ipv6PktHandler(pktProcessService, ifMgrInstance, ipv6ServiceUtils, ipV6NAConfigHelper,
+                ipv6PktListener);
         ipv6PktListener = Mockito.mock(IIpv6PacketListener.class);
-        pktHandler = new Ipv6PktHandler(pktProcessService, ifMgrInstance, ipv6PktListener);
+        pktHandler = new Ipv6PktHandler(pktProcessService, ifMgrInstance, ipv6ServiceUtils, ipV6NAConfigHelper,
+                ipv6PktListener);
         counter = pktHandler.getPacketProcessedCounter();
         ipv6TestUtils = new Ipv6TestUtils();
     }
