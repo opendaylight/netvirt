@@ -171,7 +171,7 @@ public class NodeCopier {
                 @Override
                 public void onFailure(Throwable throwable) {
                 }
-            });
+            }, MoreExecutors.directExecutor());
             return;
         }
         NodeBuilder dstPsNodeBuilder = HwvtepHAUtil.getNodeBuilderForPath(dstPsPath);
