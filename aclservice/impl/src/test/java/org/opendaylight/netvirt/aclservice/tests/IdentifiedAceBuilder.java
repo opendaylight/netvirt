@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.aclservice.tests;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 
 import java.util.Optional;
-import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.aclservice.tests.infra.DataTreeIdentifierDataObjectPairBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
@@ -29,8 +28,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttrBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Empty;
 
-@NotThreadSafe
+/**
+ * This class is not ThreadSafe.
+ */
 public class IdentifiedAceBuilder implements DataTreeIdentifierDataObjectPairBuilder<Ace> {
 
     private String sgUuid;
@@ -62,7 +64,7 @@ public class IdentifiedAceBuilder implements DataTreeIdentifierDataObjectPairBui
             .setMatches(matches)
             .setActions(new ActionsBuilder()
                 .setPacketHandling(new PermitBuilder()
-                    .setPermit(true).build()
+                    .setPermit(Empty.getInstance()).build()
                 ).build()
             )
             .addAugmentation(SecurityRuleAttr.class, new SecurityRuleAttrBuilder()

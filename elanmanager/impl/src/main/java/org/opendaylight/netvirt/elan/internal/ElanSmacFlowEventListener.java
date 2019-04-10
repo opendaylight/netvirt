@@ -14,12 +14,14 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -154,7 +156,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
             public void onFailure(Throwable error) {
                 LOG.debug("Error {} while removing macEntry {} from Operational Datastore", error, srcMacAddress);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     @Override

@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.bgpmanager;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -233,7 +234,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
                         LOG.error("withdrwaPrefixIfPresent: Failed to retrieve ebgp networks for rd {} prefix {}",
                                 rd, prefix, throwable);
                     }
-                });
+                }, MoreExecutors.directExecutor());
         }
     }
 
