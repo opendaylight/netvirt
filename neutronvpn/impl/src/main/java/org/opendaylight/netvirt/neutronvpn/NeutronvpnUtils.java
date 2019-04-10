@@ -295,7 +295,7 @@ public class NeutronvpnUtils {
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().nonnullVpnMap() != null) {
             for (VpnMap vpnMap : new ArrayList<>(optionalVpnMaps.get().nonnullVpnMap().values())) {
                 Map<RouterIdsKey, org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602
-                        .vpnmaps.vpnmap.RouterIds> keyRouterIdsMap = vpnMap.getRouterIds();
+                        .vpnmaps.vpnmap.RouterIds> keyRouterIdsMap = vpnMap.nonnullRouterIds();
                 if (keyRouterIdsMap == null || keyRouterIdsMap.isEmpty()) {
                     continue;
                 }
@@ -347,7 +347,7 @@ public class NeutronvpnUtils {
         if (optionalVpnMap.isPresent()) {
             VpnMap vpnMap = optionalVpnMap.get();
             return NeutronUtils.getVpnMapRouterIdsListUuid(new ArrayList<org.opendaylight.yang.gen.v1.urn.opendaylight
-                    .netvirt.neutronvpn.rev150602.vpnmaps.vpnmap.RouterIds>(vpnMap.getRouterIds().values()));
+                    .netvirt.neutronvpn.rev150602.vpnmaps.vpnmap.RouterIds>(vpnMap.nonnullRouterIds().values()));
         }
         LOG.error("getRouterIdListforVpn: Failed as VPNMaps DS is absent for VPN {}", vpnId.getValue());
         return null;
@@ -462,7 +462,7 @@ public class NeutronvpnUtils {
         interfaceAclBuilder.setPortSecurityEnabled(false);
         interfaceAclBuilder.setInterfaceType(InterfaceAcl.InterfaceType.DhcpService);
         List<AllowedAddressPairs> aclAllowedAddressPairs = NeutronvpnUtils.getAllowedAddressPairsForAclService(
-                port.getMacAddress(), new ArrayList<FixedIps>(port.getFixedIps().values()));
+                port.getMacAddress(), new ArrayList<FixedIps>(port.nonnullFixedIps().values()));
         interfaceAclBuilder.setAllowedAddressPairs(aclAllowedAddressPairs);
         return interfaceAclBuilder.build();
     }
@@ -764,7 +764,7 @@ public class NeutronvpnUtils {
             interfaceAclBuilder.setSecurityGroups(securityGroups);
         }
         List<AllowedAddressPairs> aclAllowedAddressPairs = NeutronvpnUtils.getAllowedAddressPairsForAclService(
-                port.getMacAddress(), new ArrayList<FixedIps>(port.getFixedIps().values()));
+                port.getMacAddress(), new ArrayList<FixedIps>(port.nonnullFixedIps().values()));
         // Update the allowed address pair with the IPv6 LLA that is auto configured on the port.
         aclAllowedAddressPairs.add(NeutronvpnUtils.updateIPv6LinkLocalAddressForAclService(port.getMacAddress()));
         List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.AllowedAddressPairs>
@@ -863,7 +863,7 @@ public class NeutronvpnUtils {
             // FIXME: why are we not using getNeutronSubnet() here? it does caching for us...
             Optional<Subnet> subnet = read(LogicalDatastoreType.CONFIGURATION,
                 NEUTRON_SUBNETS_IID.child(Subnet.class, new SubnetKey(
-                        new ArrayList<FixedIps>(port.getFixedIps().values()).get(0).getSubnetId())));
+                        new ArrayList<FixedIps>(port.nonnullFixedIps().values()).get(0).getSubnetId())));
             if (subnet.isPresent()) {
                 String cidr = subnet.get().getCidr().stringValue();
                 // Extract the prefix length from cidr
@@ -1265,10 +1265,10 @@ public class NeutronvpnUtils {
 
     public static List<StaticMacEntries> buildStaticMacEntry(Port port) {
         PhysAddress physAddress = new PhysAddress(port.getMacAddress().getValue());
-        Map<FixedIpsKey, FixedIps> keyFixedIpsMap = port.getFixedIps();
+        Map<FixedIpsKey, FixedIps> keyFixedIpsMap = port.nonnullFixedIps();
         IpAddress ipAddress = null;
         if (isNotEmpty(keyFixedIpsMap.values())) {
-            ipAddress = new ArrayList<FixedIps>(port.getFixedIps().values()).get(0).getIpAddress();
+            ipAddress = new ArrayList<FixedIps>(port.nonnullFixedIps().values()).get(0).getIpAddress();
         }
         StaticMacEntriesBuilder staticMacEntriesBuilder = new StaticMacEntriesBuilder();
         List<StaticMacEntries> staticMacEntries = new ArrayList<>();
