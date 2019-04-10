@@ -95,6 +95,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.ni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.reg.grouping.NxmNxRegBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.tun.id.grouping.NxmNxTunIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.tun.ipv4.dst.grouping.NxmNxTunIpv4DstBuilder;
+import org.opendaylight.yangtools.yang.common.Empty;
 
 public final class OpenFlow13Utils {
     public static final long ETHERTYPE_NSH = 0x894f;
@@ -183,7 +184,7 @@ public final class OpenFlow13Utils {
 
     public static Action createActionNxLoadTunIpv4Dst(long value, int order) {
         ActionBuilder ab = createActionBuilder(order);
-        ab.setAction(nxLoadRegAction(new DstNxTunIpv4DstCaseBuilder().setNxTunIpv4Dst(Boolean.TRUE).build(),
+        ab.setAction(nxLoadRegAction(new DstNxTunIpv4DstCaseBuilder().setNxTunIpv4Dst(Empty.getInstance()).build(),
                 BigInteger.valueOf(value), 0,31, false));
 
         return ab.build();
@@ -191,7 +192,7 @@ public final class OpenFlow13Utils {
 
     public static Action createActionNxLoadTunId(long value, int order) {
         ActionBuilder ab = createActionBuilder(order);
-        ab.setAction(nxLoadRegAction(new DstNxTunIdCaseBuilder().setNxTunId(Boolean.TRUE).build(),
+        ab.setAction(nxLoadRegAction(new DstNxTunIdCaseBuilder().setNxTunId(Empty.getInstance()).build(),
                 BigInteger.valueOf(value), 0,31, false));
 
         return ab.build();
@@ -221,8 +222,8 @@ public final class OpenFlow13Utils {
 
     public static Action createActionNxMoveTunIdToNsc2Register(int order) {
         ActionBuilder ab = createActionBuilder(order);
-        ab.setAction(nxMoveRegAction(new SrcNxTunIdCaseBuilder().setNxTunId(Boolean.TRUE).build(), 0, 31,
-            new DstNxNshc2CaseBuilder().setNxNshc2Dst(Boolean.TRUE).build(), 0, 31,
+        ab.setAction(nxMoveRegAction(new SrcNxTunIdCaseBuilder().setNxTunId(Empty.getInstance()).build(), 0, 31,
+            new DstNxNshc2CaseBuilder().setNxNshc2Dst(Empty.getInstance()).build(), 0, 31,
                 false));
 
         return ab.build();
@@ -232,7 +233,7 @@ public final class OpenFlow13Utils {
         ActionBuilder ab = createActionBuilder(order);
         ab.setAction(nxMoveRegAction(
                 new SrcNxRegCaseBuilder().setNxReg(NxmNxReg0.class).build(), 0, 31,
-                new DstNxNshc1CaseBuilder().setNxNshc1Dst(Boolean.TRUE).build(), 0,31,
+                new DstNxNshc1CaseBuilder().setNxNshc1Dst(Empty.getInstance()).build(), 0,31,
                 false));
 
         return ab.build();
@@ -241,7 +242,7 @@ public final class OpenFlow13Utils {
     public static Action createActionNxMoveReg6ToNsc4Register(int order) {
         ActionBuilder ab = createActionBuilder(order);
         ab.setAction(nxMoveRegAction(new SrcNxRegCaseBuilder().setNxReg(NxmNxReg6.class).build(), 0, 31,
-                new DstNxNshc4CaseBuilder().setNxNshc4Dst(Boolean.TRUE).build(), 0, 31,
+                new DstNxNshc4CaseBuilder().setNxNshc4Dst(Empty.getInstance()).build(), 0, 31,
                 false));
 
         return ab.build();
@@ -249,7 +250,7 @@ public final class OpenFlow13Utils {
 
     public static Action createActionNxMoveNsc4ToReg6Register(int order) {
         ActionBuilder ab = createActionBuilder(order);
-        ab.setAction(nxMoveRegAction(new SrcNxNshc4CaseBuilder().setNxNshc4Dst(Boolean.TRUE).build(), 0, 31,
+        ab.setAction(nxMoveRegAction(new SrcNxNshc4CaseBuilder().setNxNshc4Dst(Empty.getInstance()).build(), 0, 31,
                 new DstNxRegCaseBuilder().setNxReg(NxmNxReg6.class).build(), 0, 31,
                 false));
 

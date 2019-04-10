@@ -1318,7 +1318,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                         interfaceName, vpnInterface.getDpnId(), vpnName);
                             })))));
                 futures.add(configFuture);
-                Futures.addCallback(configFuture, new PostVpnInterfaceWorker(interfaceName, false, "Config"));
+                Futures.addCallback(configFuture, new PostVpnInterfaceWorker(
+                        interfaceName, false, "Config"), MoreExecutors.directExecutor());
                 return futures;
             }, DJC_MAX_RETRIES);
     }
