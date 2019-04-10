@@ -28,6 +28,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.ipv6service.api.IIpv6PacketListener;
+import org.opendaylight.netvirt.ipv6service.utils.IpV6NAConfigHelper;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.openflowplugin.libraries.liblldp.BitBufferHelper;
 import org.opendaylight.openflowplugin.libraries.liblldp.BufferException;
@@ -62,14 +63,19 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
     private final PacketProcessingService pktService;
     private final IfMgr ifMgr;
     private final IIpv6PacketListener ipv6PktListener;
+    private final Ipv6ServiceUtils ipv6ServiceUtils;
+    private final IpV6NAConfigHelper ipV6NAConfigHelper;
 
     private final ExecutorService packetProcessor = Executors.newCachedThreadPool();
 
     @Inject
-    public Ipv6PktHandler(PacketProcessingService pktService, IfMgr ifMgr, IIpv6PacketListener ipv6PktListener) {
+    public Ipv6PktHandler(PacketProcessingService pktService, IfMgr ifMgr,Ipv6ServiceUtils ipv6ServiceUtils,
+                          IpV6NAConfigHelper ipV6NAConfigHelper, IIpv6PacketListener ipv6PktListener) {
         this.pktService = pktService;
         this.ifMgr = ifMgr;
         this.ipv6PktListener = ipv6PktListener;
+        this.ipv6ServiceUtils  = ipv6ServiceUtils;
+        this.ipV6NAConfigHelper = ipV6NAConfigHelper;
     }
 
     @Override
@@ -341,7 +347,8 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             LOG.debug("Sending Solicited Router Advertisement for the port {} belongs to the network {}", port,
                     port.getNetworkID());
             ipv6RouterAdvert.transmitRtrAdvertisement(Ipv6RouterAdvertisementType.SOLICITED_ADVERTISEMENT,
-                    routerPort, 0, rsPdu, port.getDpId(), port.getIntfUUID());
+                    routerPort, 0, rsPdu, port.getDpId(), port.getIntfUUID(),
+                    ipV6NAConfigHelper.getIpv6RouterReachableTimeinMS());
             pktProccessedCounter.incrementAndGet();
         }
 
