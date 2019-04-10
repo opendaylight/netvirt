@@ -865,13 +865,11 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
             futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
                 installEntriesForElanInterface(elanInstance, elanInterface, interfaceInfo,
                     isFirstInterfaceInDpn, confTx);
-
-                Map<StaticMacEntriesKey, StaticMacEntries> staticMacEntriesList =
+                Map<StaticMacEntriesKey, StaticMacEntries> staticMacEntriesMap =
                     elanInterface.nonnullStaticMacEntries();
                 List<PhysAddress> staticMacAddresses = Lists.newArrayList();
-
-                if (ElanUtils.isNotEmpty(staticMacEntriesList.values())) {
-                    for (StaticMacEntries staticMacEntry : staticMacEntriesList.values()) {
+                if (ElanUtils.isNotEmpty(staticMacEntriesMap.values())) {
+                    for (StaticMacEntries staticMacEntry : staticMacEntriesMap.values()) {
                         InstanceIdentifier<MacEntry> macId = getMacEntryOperationalDataPath(elanInstanceName,
                             staticMacEntry.getMacAddress());
                         Optional<MacEntry> existingMacEntry = ElanUtils.read(broker,
@@ -903,7 +901,7 @@ public class ElanInterfaceManager extends AbstractAsyncDataTreeChangeListener<El
                     if (isInterfaceOperational) {
                         // Add MAC in TOR's remote MACs via OVSDB. Outside of the loop
                         // on purpose.
-                        for (StaticMacEntries staticMacEntry : staticMacEntriesList.values()) {
+                        for (StaticMacEntries staticMacEntry : staticMacEntriesMap.values()) {
                             staticMacAddresses.add(staticMacEntry.getMacAddress());
                         }
                         elanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
