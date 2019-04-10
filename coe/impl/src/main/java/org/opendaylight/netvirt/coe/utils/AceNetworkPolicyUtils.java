@@ -46,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttrBuilder;
+import org.opendaylight.yangtools.yang.common.Empty;
 
 public final class AceNetworkPolicyUtils {
     private AceNetworkPolicyUtils() {}
@@ -136,7 +137,7 @@ public final class AceNetworkPolicyUtils {
         MatchesBuilder matchesBuilder = new MatchesBuilder();
         matchesBuilder.setAceType(aceIpBuilder.build());
         ActionsBuilder actionsBuilder = new ActionsBuilder();
-        actionsBuilder.setPacketHandling(new PermitBuilder().setPermit(true).build());
+        actionsBuilder.setPacketHandling(new PermitBuilder().setPermit(Empty.getInstance()).build());
 
         AceBuilder aceBuilder = new AceBuilder();
         aceBuilder.setRuleName(ruleName);
