@@ -14,13 +14,27 @@ module ipv6service-config {
     container ipv6service-config {
         config true;
 
+        leaf na-responder-mode {
+            type enumeration {
+                enum "controller";
+                enum "switch";
+            }
+            default "switch";
+        }
+        leaf ipv6-router-reachable-time {
+                    type uint32;
+                    default 120000;
+        }
+        leaf ns-slow-path-protection-timeout {
+                    type uint32;
+                    default 30000;
+        }
         leaf router-discovery-punt-timeout {
             description "Hard timeout value for learnt flows for router discovery punts (unit - seconds).
                 To turn off the rate limiting and installation of learnt flows, it should be set to 0";
             type uint16;
             default 10;
         }
-
         leaf neighbor-discovery-punt-timeout {
             description "Hard timeout value for learnt flows for neighbor discovery punts (unit - seconds).
                 To turn off the rate limiting and installation of learnt flows, it should be set to 0";
