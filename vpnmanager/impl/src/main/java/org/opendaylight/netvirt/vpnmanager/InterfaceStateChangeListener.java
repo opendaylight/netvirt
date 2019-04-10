@@ -180,7 +180,7 @@ public class InterfaceStateChangeListener
                         futures.add(configFuture);
                         //TODO: Allow immediateFailedFuture from writeCfgTxn to cancel writeInvTxn as well.
                         Futures.addCallback(configFuture, new PostVpnInterfaceThreadWorker(intrf.getName(), true,
-                                "Operational"));
+                                "Operational"), MoreExecutors.directExecutor());
                     }));
                     return futures;
                 });
@@ -246,7 +246,7 @@ public class InterfaceStateChangeListener
                                     })))));
                     futures.add(configFuture);
                     Futures.addCallback(configFuture, new PostVpnInterfaceThreadWorker(intrf.getName(), false,
-                            "Operational"));
+                            "Operational"), MoreExecutors.directExecutor());
                     return futures;
                 }, DJC_MAX_RETRIES);
             }
