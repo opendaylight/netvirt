@@ -29,9 +29,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.annotation.CheckReturnValue;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
