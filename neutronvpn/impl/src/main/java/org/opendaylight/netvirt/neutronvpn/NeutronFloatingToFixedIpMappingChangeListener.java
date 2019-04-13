@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.neutronvpn;
 import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingIpIdToPortMappingIdentifier;
 
 import com.google.common.base.Optional;
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -23,7 +24,8 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.infrautils.utils.concurrent.KeyedLocks;
+import org.opendaylight.infrautils.utils.concurrent.NamedLocks;
+import org.opendaylight.infrautils.utils.concurrent.NamedSimpleReentrantLock.AcquireResult;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
@@ -49,10 +51,10 @@ import org.slf4j.LoggerFactory;
 public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTreeChangeListenerBase<Floatingip,
         NeutronFloatingToFixedIpMappingChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronFloatingToFixedIpMappingChangeListener.class);
-    private static long LOCK_WAIT_TIME = 10L;
+    private static final long LOCK_WAIT_TIME = 10L;
 
     private final DataBroker dataBroker;
-    private final KeyedLocks<String> routerLock = new KeyedLocks<>();
+    private final NamedLocks<String> routerLock = new NamedLocks<>();
 
     @Inject
     public NeutronFloatingToFixedIpMappingChangeListener(final DataBroker dataBroker) {
@@ -128,7 +130,6 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
     private void addToFloatingIpInfo(String routerName, Uuid extNetworkId, String fixedNeutronPortName, String
             fixedIpAddress, String floatingIpAddress, Uuid floatingIpId) {
         RouterPortsBuilder routerPortsBuilder;
-        boolean isLockAcquired = false;
         InstanceIdentifier<RouterPorts> routerPortsIdentifier = InstanceIdentifier.builder(FloatingIpInfo.class)
                 .child(RouterPorts.class, new RouterPortsKey(routerName)).build();
         try {
@@ -179,25 +180,27 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                 portsList.add(fixedNeutronPortBuilder.build());
                 routerPortsBuilder.setPorts(portsList);
             }
-            isLockAcquired = routerLock.tryLock(routerName, LOCK_WAIT_TIME, TimeUnit.SECONDS);
-            LOG.debug("Creating/Updating routerPorts node {} in floatingIpInfo DS for floating IP {} on fixed "
-                + "neutron port {} : ", routerName, floatingIpAddress, fixedNeutronPortName);
-            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifier,
-                routerPortsBuilder.build());
-            LOG.debug("FloatingIpInfo DS updated for floating IP {} ", floatingIpAddress);
+
+            try (AcquireResult lock = tryRouterLock(routerName)) {
+                if (!lock.wasAcquired()) {
+                    // FIXME: why do we even bother with locking if we do not honor it?!
+                    logTryLockFailure(routerName);
+                }
+
+                LOG.debug("Creating/Updating routerPorts node {} in floatingIpInfo DS for floating IP {} on fixed "
+                        + "neutron port {} : ", routerName, floatingIpAddress, fixedNeutronPortName);
+                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifier,
+                    routerPortsBuilder.build());
+                LOG.debug("FloatingIpInfo DS updated for floating IP {} ", floatingIpAddress);
+            }
         } catch (ReadFailedException | RuntimeException e) {
             LOG.error("addToFloatingIpInfo failed for floating IP: {} ", floatingIpAddress, e);
-        } finally {
-            if (isLockAcquired) {
-                routerLock.unlock(routerName);
-            }
         }
     }
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void clearFromFloatingIpInfo(String routerName, String fixedNeutronPortName, String fixedIpAddress) {
-        boolean isLockAcquired = false;
         InstanceIdentifier.InstanceIdentifierBuilder<RouterPorts> routerPortsIdentifierBuilder = InstanceIdentifier
                 .builder(FloatingIpInfo.class).child(RouterPorts.class, new RouterPortsKey(routerName));
         try {
@@ -216,7 +219,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                 }
                 if (intExtPortMap.size() == 1) {
                     removeRouterPortsOrPortsNode(routerName, routerPortsIdentifierBuilder, portsList,
-                            fixedNeutronPortName, isLockAcquired);
+                            fixedNeutronPortName);
                 } else {
                     for (InternalToExternalPortMap intToExtMap : intExtPortMap) {
                         if (Objects.equals(intToExtMap.getInternalIp(), fixedIpAddress)) {
@@ -224,17 +227,20 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                                     routerPortsIdentifierBuilder.child(Ports
                                     .class, new PortsKey(fixedNeutronPortName)).child(InternalToExternalPortMap.class,
                                             new InternalToExternalPortMapKey(fixedIpAddress)).build();
-                            try {
+                            try (AcquireResult lock = tryRouterLock(fixedIpAddress)) {
+                                if (!lock.wasAcquired()) {
+                                    // FIXME: why do we even bother with locking if we do not honor it?!
+                                    logTryLockFailure(fixedIpAddress);
+                                }
+
                                 // remove particular internal-to-external-port-map
-                                isLockAcquired = routerLock.tryLock(fixedIpAddress, LOCK_WAIT_TIME, TimeUnit.SECONDS);
                                 LOG.debug("removing particular internal-to-external-port-map {}", intExtPortMap);
-                                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                try {
+                                    MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
                                         intExtPortMapIdentifier);
-                            } catch (Exception e) {
-                                LOG.error("Failure in deletion of internal-to-external-port-map {}", intExtPortMap, e);
-                            } finally {
-                                if (isLockAcquired) {
-                                    routerLock.unlock(fixedIpAddress);
+                                } catch (Exception e) {
+                                    LOG.error("Failure in deletion of internal-to-external-port-map {}", intExtPortMap,
+                                        e);
                                 }
                             }
                         }
@@ -251,7 +257,6 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
     }
 
     protected void dissociatefixedIPFromFloatingIP(String fixedNeutronPortName) {
-        boolean isLockAcquired = false;
         InstanceIdentifier.InstanceIdentifierBuilder<FloatingIpInfo> floatingIpInfoIdentifierBuilder =
                 InstanceIdentifier.builder(FloatingIpInfo.class);
         try {
@@ -271,7 +276,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                                         routerPortsIdentifierBuilder = floatingIpInfoIdentifierBuilder
                                         .child(RouterPorts.class, new RouterPortsKey(routerName));
                                     removeRouterPortsOrPortsNode(routerName, routerPortsIdentifierBuilder, portsList,
-                                            fixedNeutronPortName, isLockAcquired);
+                                            fixedNeutronPortName);
                                     LOG.debug("Deletion from FloatingIpInfo DS successful for fixedIP neutron port {} ",
                                             fixedNeutronPortName);
                                     break;
@@ -292,34 +297,32 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
         }
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    private void removeRouterPortsOrPortsNode(String routerName, InstanceIdentifier
-            .InstanceIdentifierBuilder<RouterPorts> routerPortsIdentifierBuilder, List<Ports> portsList,
-                                              String fixedNeutronPortName, boolean isLockAcquired) {
-        String lockName = null;
-        try {
-            if (portsList.size() == 1) {
-                // remove entire routerPorts node
-                lockName = routerName;
-                isLockAcquired = routerLock.tryLock(lockName, LOCK_WAIT_TIME, TimeUnit.SECONDS);
+    private void removeRouterPortsOrPortsNode(String routerName,
+            InstanceIdentifier.InstanceIdentifierBuilder<RouterPorts> routerPortsIdentifierBuilder,
+            List<Ports> portsList, String fixedNeutronPortName) {
+        if (portsList.size() == 1) {
+            // remove entire routerPorts node
+            try (AcquireResult lock = tryRouterLock(routerName)) {
+                if (!lock.wasAcquired()) {
+                    // FIXME: why do we even bother with locking if we do not honor it?!
+                    logTryLockFailure(routerName);
+                }
+
                 LOG.debug("removing routerPorts node: {} ", routerName);
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifierBuilder
-                        .build());
-            } else {
-                // remove entire ports node under this routerPorts node
-                lockName = fixedNeutronPortName;
-                isLockAcquired = routerLock.tryLock(lockName, LOCK_WAIT_TIME, TimeUnit.SECONDS);
-                LOG.debug("removing ports node {} under routerPorts node {}", fixedNeutronPortName, routerName);
-                InstanceIdentifier.InstanceIdentifierBuilder<Ports> portsIdentifierBuilder =
-                    routerPortsIdentifierBuilder.child(Ports.class, new PortsKey(fixedNeutronPortName));
-                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, portsIdentifierBuilder.build());
+                    .build());
             }
-        } catch (Exception e) {
-            LOG.error("Failure in deletion of routerPorts node {}", routerName, e);
-        } finally {
-            if (isLockAcquired) {
-                routerLock.unlock(lockName);
+        } else {
+            // remove entire ports node under this routerPorts node
+            try (AcquireResult lock = tryRouterLock(fixedNeutronPortName)) {
+                if (!lock.wasAcquired()) {
+                    // FIXME: why do we even bother with locking if we do not honor it?!
+                    logTryLockFailure(fixedNeutronPortName);
+                }
+
+                LOG.debug("removing ports node {} under routerPorts node {}", fixedNeutronPortName, routerName);
+                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    routerPortsIdentifierBuilder.child(Ports.class, new PortsKey(fixedNeutronPortName)).build());
             }
         }
     }
@@ -356,5 +359,14 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
             LOG.error("Deleting floating IP UUID {} to Floating IP neutron port mapping from Floating "
                 + "IP Port Info Config DS failed", floatingIpId.getValue(), e);
         }
+    }
+
+    @CheckReturnValue
+    private AcquireResult tryRouterLock(final String lockName) {
+        return routerLock.tryAcquire(lockName, LOCK_WAIT_TIME, TimeUnit.SECONDS);
+    }
+
+    private static void logTryLockFailure(String lockName) {
+        LOG.warn("Lock for {} was not acquired, continuing anyway", lockName, new Throwable());
     }
 }
