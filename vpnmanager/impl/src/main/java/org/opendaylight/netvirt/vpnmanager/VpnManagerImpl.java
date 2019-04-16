@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import com.google.common.base.Optional;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -26,7 +29,6 @@ import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -45,7 +47,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.infrautils.utils.function.InterruptibleCheckedConsumer;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
@@ -682,7 +684,7 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void updateRouteTargetsToSubnetAssociation(Set<VpnTarget> routeTargets, String cidr, String vpnName) {
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
             for (VpnTarget rt : routeTargets) {
                 String rtValue = rt.getVrfRTValue();
                 switch (rt.getVrfRTType()) {
@@ -713,7 +715,7 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void removeRouteTargetsToSubnetAssociation(Set<VpnTarget> routeTargets, String cidr, String vpnName) {
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
             for (VpnTarget rt : routeTargets) {
                 String rtValue = rt.getVrfRTValue();
                 switch (rt.getVrfRTType()) {
@@ -812,13 +814,13 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     private void addSubnetAssociationOperationToTx(String rt, RouteTarget.RtType rtType, String cidr,
-                                                   String vpnName, ReadWriteTransaction tx,
+                                                   String vpnName, TypedReadWriteTransaction<Operational> tx,
                                                    boolean isAssociationRemoved)
             throws InterruptedException, ExecutionException {
         if (isAssociationRemoved) {
             //Remove RT-Subnet-Vpn Association
-            Optional<AssociatedSubnet> associatedSubnet = tx.read(LogicalDatastoreType.OPERATIONAL,
-                    VpnUtil.getAssociatedSubnetIdentifier(rt, rtType, cidr)).get();
+            Optional<AssociatedSubnet> associatedSubnet =
+                tx.read(VpnUtil.getAssociatedSubnetIdentifier(rt, rtType, cidr)).get();
             boolean deleteParent = false;
             if (associatedSubnet.isPresent()) {
                 List<AssociatedVpn> associatedVpns = new ArrayList<>(associatedSubnet.get().nonnullAssociatedVpn());
@@ -838,32 +840,29 @@ public class VpnManagerImpl implements IVpnManager {
                 }
             }
             if (deleteParent) {
-                deleteParentForSubnetToVpnAssocication(rt, rtType, cidr, tx);
+                deleteParentForSubnetToVpnAssociation(rt, rtType, cidr, tx);
             } else {
                 //Some other VPNs are also part of this rtVal, rtType and subnetCidr combination.
                 //Delete only this AssociatedVpn Object
-                tx.delete(LogicalDatastoreType.OPERATIONAL,
-                        VpnUtil.getAssociatedSubnetAndVpnIdentifier(rt, rtType, cidr, vpnName));
+                tx.delete(VpnUtil.getAssociatedSubnetAndVpnIdentifier(rt, rtType, cidr, vpnName));
                 LOG.debug("addSubnetAssocOperationToTx: Removed vpn {} from association rt {} rtType {} cidr {}",
                         vpnName, rt, rtType, cidr);
             }
         } else {
             //Add RT-Subnet-Vpn Association
-            tx.put(LogicalDatastoreType.OPERATIONAL,
-                    VpnUtil.getAssociatedSubnetAndVpnIdentifier(rt, rtType, cidr, vpnName),
-                    VpnUtil.buildAssociatedSubnetAndVpn(vpnName), true);
+            tx.put(VpnUtil.getAssociatedSubnetAndVpnIdentifier(rt, rtType, cidr, vpnName),
+                    VpnUtil.buildAssociatedSubnetAndVpn(vpnName), CREATE_MISSING_PARENTS);
         }
     }
 
-    private void deleteParentForSubnetToVpnAssocication(String rt, RouteTarget.RtType rtType,
-                                                String cidr, ReadWriteTransaction tx)
+    private void deleteParentForSubnetToVpnAssociation(String rt, RouteTarget.RtType rtType,
+                                                String cidr, TypedReadWriteTransaction<Operational> tx)
             throws InterruptedException, ExecutionException {
         //Check if you need to delete rtVal+rtType or just the subnetCidr
         InstanceIdentifier<RouteTarget> rtIdentifier = InstanceIdentifier
                 .builder(SubnetsAssociatedToRouteTargets.class).child(RouteTarget.class,
                         new RouteTargetKey(rt, rtType)).build();
-        Optional<RouteTarget> rtToSubnetsAssociation = tx.read(LogicalDatastoreType.OPERATIONAL,
-                rtIdentifier).get();
+        Optional<RouteTarget> rtToSubnetsAssociation = tx.read(rtIdentifier).get();
         if (rtToSubnetsAssociation.isPresent()) {
             List<AssociatedSubnet> associatedSubnets = new ArrayList<>(rtToSubnetsAssociation.get()
                     .nonnullAssociatedSubnet());
@@ -877,15 +876,14 @@ public class VpnManagerImpl implements IVpnManager {
                 if (associatedSubnets.isEmpty()) {
                     //The entire rt to subnet association is empty
                     //Delete the RouteTarget object
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, rtIdentifier);
-                    LOG.debug("deleteParentForSubnetToVpnAssocication: Removed rt {} rtType {} from association,",
+                    tx.delete(rtIdentifier);
+                    LOG.debug("deleteParentForSubnetToVpnAssociation: Removed rt {} rtType {} from association,",
                             rt, rtType);
                 } else {
                     //Some other VPNs are also part of this rtVal, rtType combination
                     //Delete only this AssociatedSubnet
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, VpnUtil.getAssociatedSubnetIdentifier(rt, rtType,
-                            cidr));
-                    LOG.debug("deleteParentForSubnetToVpnAssocication: Removed cidr {} from association rt {}"
+                    tx.delete(VpnUtil.getAssociatedSubnetIdentifier(rt, rtType, cidr));
+                    LOG.debug("deleteParentForSubnetToVpnAssociation: Removed cidr {} from association rt {}"
                             + " rtType {}", cidr, rt, rtType);
                 }
             }
@@ -895,9 +893,9 @@ public class VpnManagerImpl implements IVpnManager {
     @Override
     public boolean checkForOverlappingSubnets(Uuid network, List<Subnetmap> subnetmapList, Uuid vpn,
                                        Set<VpnTarget> routeTargets, List<String> failedNwList) {
-        for (int i = 0; i < subnetmapList.size(); i++) {
+        for (Subnetmap subnetmap : subnetmapList) {
             //Check if any other subnet that is already part of a different vpn with same rt, has overlapping CIDR
-            if (checkExistingSubnetWithSameRoutTargets(routeTargets, vpn, subnetmapList.get(i), failedNwList)) {
+            if (checkExistingSubnetWithSameRoutTargets(routeTargets, vpn, subnetmap, failedNwList)) {
                 return true;
             }
         }

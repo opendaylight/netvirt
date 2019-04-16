@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
+import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
+import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -25,8 +28,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -135,10 +136,10 @@ public class VpnFootprintService implements IVpnFootprintService {
         final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName);
         lock.lock();
         try {
-            ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
                 InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
                 VpnInterfaces vpnInterface = new VpnInterfacesBuilder().setInterfaceName(intfName).build();
-                Optional<VpnToDpnList> dpnInVpn = tx.read(LogicalDatastoreType.OPERATIONAL, id).checkedGet();
+                Optional<VpnToDpnList> dpnInVpn = tx.read(id).get();
                 if (dpnInVpn.isPresent()) {
                     VpnToDpnList vpnToDpnList = dpnInVpn.get();
                     List<VpnInterfaces> vpnInterfaces = new ArrayList<>(vpnToDpnList.nonnullVpnInterfaces());
@@ -146,8 +147,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                     VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder(vpnToDpnList);
                     vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setVpnInterfaces(vpnInterfaces);
 
-                    tx.put(LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build(),
-                        WriteTransaction.CREATE_MISSING_PARENTS);
+                    tx.put(id, vpnToDpnListBuilder.build(), CREATE_MISSING_PARENTS);
                     /*
                      * If earlier state was inactive, it is considered new DPN coming back to the
                      * same VPN
@@ -163,8 +163,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                     VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder().setDpnId(dpnId);
                     vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setVpnInterfaces(vpnInterfaces);
 
-                    tx.put(LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build(),
-                        WriteTransaction.CREATE_MISSING_PARENTS);
+                    tx.put(id, vpnToDpnListBuilder.build(), CREATE_MISSING_PARENTS);
                     newDpnOnVpn.set(true);
                     LOG.debug("createOrUpdateVpnToDpnList: Creating vpn footprint for vpn {} vpnId {} interface {}"
                             + " on dpn {}", vpnName, vpnId, intfName, dpnId);
@@ -206,13 +205,13 @@ public class VpnFootprintService implements IVpnFootprintService {
         final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName);
         lock.lock();
         try {
-            ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
                 InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
                 IpAddressesBuilder ipAddressesBldr = new IpAddressesBuilder()
                         .setIpAddressSource(ipAddressSourceValuePair.getKey());
                 ipAddressesBldr.withKey(new IpAddressesKey(ipAddressSourceValuePair.getValue()));
                 ipAddressesBldr.setIpAddress(ipAddressSourceValuePair.getValue());
-                Optional<VpnToDpnList> dpnInVpn = tx.read(LogicalDatastoreType.OPERATIONAL, id).checkedGet();
+                Optional<VpnToDpnList> dpnInVpn = tx.read(id).get();
                 if (dpnInVpn.isPresent()) {
                     VpnToDpnList vpnToDpnList = dpnInVpn.get();
                     List<IpAddresses> ipAddresses = new ArrayList<>(vpnToDpnList.nonnullIpAddresses());
@@ -220,7 +219,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                     VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder(vpnToDpnList);
                     vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setIpAddresses(ipAddresses);
 
-                    tx.put(LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build(), true);
+                    tx.put(id, vpnToDpnListBuilder.build(), CREATE_MISSING_PARENTS);
                     /*
                      * If earlier state was inactive, it is considered new DPN coming back to the
                      * same VPN
@@ -233,7 +232,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                     ipAddresses.add(ipAddressesBldr.build());
                     VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder().setDpnId(dpnId);
                     vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setIpAddresses(ipAddresses);
-                    tx.put(LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build(), true);
+                    tx.put(id, vpnToDpnListBuilder.build(), CREATE_MISSING_PARENTS);
                     newDpnOnVpn.set(true);
                 }
 
@@ -267,10 +266,9 @@ public class VpnFootprintService implements IVpnFootprintService {
         lock.lock();
         try {
             try {
-                ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+                ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
                     InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(rd, dpnId);
-                    Optional<VpnToDpnList> dpnInVpnOpt = tx.read(LogicalDatastoreType.OPERATIONAL, id)
-                            .checkedGet();
+                    Optional<VpnToDpnList> dpnInVpnOpt = tx.read(id).get();
                     if (!dpnInVpnOpt.isPresent()) {
                         LOG.error("removeOrUpdateVpnToDpnList: Could not find DpnToVpn map for VPN=[name={}"
                                 + " rd={} id={}] and dpnId={}", vpnName, rd, id, dpnId);
@@ -299,12 +297,10 @@ public class VpnFootprintService implements IVpnFootprintService {
                             }
                             LOG.debug("removeOrUpdateVpnToDpnList: Removing vpn footprint for vpn {} vpnId {} "
                                     + "interface {}, on dpn {}", vpnName, vpnName, intfName, dpnId);
-                            tx.put(LogicalDatastoreType.OPERATIONAL, id, dpnInVpnBuilder.build(),
-                                    WriteTransaction.CREATE_MISSING_PARENTS);
+                            tx.put(id, dpnInVpnBuilder.build(), CREATE_MISSING_PARENTS);
 
                         } else {
-                            tx.delete(LogicalDatastoreType.OPERATIONAL,
-                                    id.child(VpnInterfaces.class, new VpnInterfacesKey(intfName)));
+                            tx.delete(id.child(VpnInterfaces.class, new VpnInterfacesKey(intfName)));
                             LOG.debug("removeOrUpdateVpnToDpnList: Updating vpn footprint for vpn {} vpnId {} "
                                     + "interface {}, on dpn {}", vpnName, vpnName, intfName, dpnId);
                         }
@@ -341,11 +337,10 @@ public class VpnFootprintService implements IVpnFootprintService {
         final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName);
         lock.lock();
         try {
-            ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
                 InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(rd, dpnId);
 
-                Optional<VpnToDpnList> dpnInVpnOpt = tx.read(LogicalDatastoreType.OPERATIONAL, id)
-                        .checkedGet();
+                Optional<VpnToDpnList> dpnInVpnOpt = tx.read(id).get();
                 if (!dpnInVpnOpt.isPresent()) {
                     LOG.error("removeOrUpdateVpnToDpnList: Could not find DpnToVpn map for VPN=[name={} "
                             + "rd={} id={}] and dpnId={}", vpnName, rd, id, dpnId);
@@ -374,11 +369,10 @@ public class VpnFootprintService implements IVpnFootprintService {
                             LOG.warn("ip addresses are empty but vpn interfaces are present for the vpn {} in "
                                     + "dpn {}", vpnName, dpnId);
                         }
-                        tx.put(LogicalDatastoreType.OPERATIONAL, id, dpnInVpnBuilder.build(), true);
+                        tx.put(id, dpnInVpnBuilder.build(), CREATE_MISSING_PARENTS);
 
                     } else {
-                        tx.delete(LogicalDatastoreType.OPERATIONAL, id.child(IpAddresses.class,
-                            new IpAddressesKey(ipAddressSourceValuePair.getValue())));
+                        tx.delete(id.child(IpAddresses.class, new IpAddressesKey(ipAddressSourceValuePair.getValue())));
                     }
                 }
 
