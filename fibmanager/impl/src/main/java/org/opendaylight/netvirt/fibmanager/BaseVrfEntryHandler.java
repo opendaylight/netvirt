@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import static java.util.stream.Collectors.toList;
+import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 
 import com.google.common.base.Optional;
@@ -27,8 +28,10 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -55,8 +58,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
-import org.opendaylight.genius.utils.batching.SubTransaction;
-import org.opendaylight.genius.utils.batching.SubTransactionImpl;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
@@ -238,10 +239,10 @@ public class BaseVrfEntryHandler implements AutoCloseable {
 
     protected void makeConnectedRoute(Uint64 dpId, Uint32 vpnId, VrfEntry vrfEntry, String rd,
                                       @Nullable List<InstructionInfo> instructions, int addOrRemove,
-                                      WriteTransaction tx, @Nullable List<SubTransaction> subTxns) {
+                                      TypedWriteTransaction<Configuration> tx) {
         if (tx == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                newTx -> makeConnectedRoute(dpId, vpnId, vrfEntry, rd, instructions, addOrRemove, newTx, subTxns)),
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                newTx -> makeConnectedRoute(dpId, vpnId, vrfEntry, rd, instructions, addOrRemove, newTx)),
                 LOG, "Error making connected route");
             return;
         }
@@ -295,23 +296,10 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                 .child(Node.class, nodeDpn.key()).augmentation(FlowCapableNode.class)
                 .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flowKey).build();
 
-        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
-            SubTransaction subTransaction = new SubTransactionImpl();
-            if (addOrRemove == NwConstants.ADD_FLOW) {
-                subTransaction.setInstanceIdentifier(flowInstanceId);
-                subTransaction.setInstance(flow);
-                subTransaction.setAction(SubTransaction.CREATE);
-            } else {
-                subTransaction.setInstanceIdentifier(flowInstanceId);
-                subTransaction.setAction(SubTransaction.DELETE);
-            }
-            subTxns.add(subTransaction);
-        }
-
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            tx.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow, true);
+            tx.put(flowInstanceId, flow, WriteTransaction.CREATE_MISSING_PARENTS);
         } else {
-            tx.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
+            tx.delete(flowInstanceId);
         }
     }
 
@@ -432,9 +420,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     }
 
     public void programRemoteFib(final Uint64 remoteDpnId, final Uint32 vpnId,
-                                 final VrfEntry vrfEntry, WriteTransaction tx, String rd,
-                                 List<AdjacencyResult> adjacencyResults,
-                                 @Nullable List<SubTransaction> subTxns) {
+                                 final VrfEntry vrfEntry, TypedWriteTransaction<Configuration> tx, String rd,
+                                 List<AdjacencyResult> adjacencyResults) {
         if (upgradeState.isUpgradeInProgress()) {
             InstanceIdentifier<Interface> absentInterfaceStateIid = getFirstAbsentInterfaceStateIid(adjacencyResults);
             if (absentInterfaceStateIid != null) {
@@ -444,16 +431,16 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                     absentInterfaceStateIid,
                     (before, after) -> {
                         LOG.info("programRemoteFib: waited for and got interface state {}", absentInterfaceStateIid);
-                        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                            (wtx) -> programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults, null)),
+                        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                            (wtx) -> programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults)),
                             LOG, "Failed to program remote FIB {}", absentInterfaceStateIid);
                         return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
                     },
                     Duration.of(15, ChronoUnit.MINUTES),
                     (iid) -> {
                         LOG.error("programRemoteFib: timed out waiting for {}", absentInterfaceStateIid);
-                        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                            (wtx) -> programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults, null)),
+                        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                            (wtx) -> programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults)),
                             LOG, "Failed to program timed-out remote FIB {}", absentInterfaceStateIid);
                     });
                 return;
@@ -481,18 +468,18 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             actionInfos.addAll(egressActions);
             instructions.add(new InstructionApplyActions(actionInfos));
         }
-        makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx, subTxns);
+        makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx);
     }
 
     public boolean checkDpnDeleteFibEntry(VpnNexthop localNextHopInfo, Uint64 remoteDpnId, Uint32 vpnId,
                                           VrfEntry vrfEntry, String rd,
-                                          WriteTransaction tx, @Nullable List<SubTransaction> subTxns) {
+                                          TypedWriteTransaction<Configuration> tx) {
         boolean isRemoteRoute = true;
         if (localNextHopInfo != null) {
             isRemoteRoute = !remoteDpnId.equals(localNextHopInfo.getDpnId());
         }
         if (isRemoteRoute) {
-            makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx, subTxns);
+            makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx);
             LOG.debug("Successfully delete FIB entry: vrfEntry={}, vpnId={}", vrfEntry.getDestPrefix(), vpnId);
             return true;
         } else {
@@ -505,9 +492,9 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     public void deleteRemoteRoute(@Nullable final Uint64 localDpnId, final Uint64 remoteDpnId,
                                   final Uint32 vpnId, final VrfTablesKey vrfTableKey,
                                   final VrfEntry vrfEntry, Optional<Routes> extraRouteOptional,
-                                  @Nullable WriteTransaction tx) {
+                                  @Nullable TypedWriteTransaction<Configuration> tx) {
         if (tx == null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 newTx -> deleteRemoteRoute(localDpnId, remoteDpnId, vpnId, vrfTableKey, vrfEntry,
                         extraRouteOptional, newTx)), LOG, "Error deleting remote route");
             return;
@@ -522,7 +509,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             if (extraRouteOptional.isPresent()) {
                 nextHopManager.deleteLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix());
             }
-            makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx, null);
+            makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx);
             LOG.debug("Successfully delete FIB entry: vrfEntry={}, vpnId={}", vrfEntry.getDestPrefix(), vpnId);
             return;
         }
@@ -532,7 +519,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         if (extraRouteOptional.isPresent()) {
             nextHopManager.deleteLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix());
         } else {
-            checkDpnDeleteFibEntry(localNextHopInfo, remoteDpnId, vpnId, vrfEntry, rd, tx, null);
+            checkDpnDeleteFibEntry(localNextHopInfo, remoteDpnId, vpnId, vrfEntry, rd, tx);
         }
     }
 
