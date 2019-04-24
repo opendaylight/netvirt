@@ -102,7 +102,7 @@ public class SnatCentralizedSwitchChangeListener
                 if (origRouter != null) {
                     snatServiceManger.notify(confTx, origRouter, null, origPrimarySwitchId, null,
                             SnatServiceManager.Action.CNT_ROUTER_ALL_SWITCH_DISBL);
-                    if (origRouterToNaptSwitch.isEnableSnat()) {
+                    if (origRouter.isEnableSnat()) {
                         snatServiceManger.notify(confTx, origRouter, null, origPrimarySwitchId, null,
                                 SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
                     }
