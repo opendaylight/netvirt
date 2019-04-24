@@ -29,6 +29,8 @@ import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
 import org.opendaylight.netvirt.natservice.internal.NatConstants;
 import org.opendaylight.netvirt.natservice.internal.NatUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
@@ -50,10 +52,11 @@ public class SnatCentralizedSwitchChangeListener
     private final SnatServiceManager snatServiceManger;
     private final NatDataUtil natDataUtil;
     private final DataTreeEventCallbackRegistrar eventCallbacks;
+    private final NatMode natMode;
 
     @Inject
     public SnatCentralizedSwitchChangeListener(final DataBroker dataBroker,
-            final SnatServiceManager snatServiceManger, NatDataUtil natDataUtil,
+            final SnatServiceManager snatServiceManger, NatDataUtil natDataUtil, final NatserviceConfig config,
             final DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar) {
         super(RouterToNaptSwitch.class, SnatCentralizedSwitchChangeListener.class);
         this.dataBroker = dataBroker;
@@ -61,6 +64,12 @@ public class SnatCentralizedSwitchChangeListener
         this.snatServiceManger = snatServiceManger;
         this.natDataUtil = natDataUtil;
         this.eventCallbacks = dataTreeEventCallbackRegistrar;
+        if (config != null) {
+            this.natMode = config.getNatMode();
+        } else {
+            LOG.info("NAT mode configured default as Controller as config is missing");
+            this.natMode = NatMode.Controller;
+        }
     }
 
     @Override
@@ -78,6 +87,12 @@ public class SnatCentralizedSwitchChangeListener
     @Override
     protected void remove(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
         LOG.debug("Deleting {}", routerToNaptSwitch);
+        if (natMode == NatMode.Controller) {
+            LOG.info("Do Not Processing this remove() event for (routerName:designatedDpn) {}:{}"
+                    + "configured in Controller Mode",
+                    routerToNaptSwitch.getRouterName(), routerToNaptSwitch.getPrimarySwitchId());
+            return;
+        }
         BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
         Routers router = natDataUtil.getRouter(routerToNaptSwitch.getRouterName());
         if (router != null) {
@@ -93,6 +108,12 @@ public class SnatCentralizedSwitchChangeListener
     protected void update(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch origRouterToNaptSwitch,
             RouterToNaptSwitch updatedRouterToNaptSwitch) {
         LOG.debug("Updating old {} new {}", origRouterToNaptSwitch, updatedRouterToNaptSwitch);
+        if (natMode == NatMode.Controller) {
+            LOG.info("Do Not Processing this update() event for (routerName:designatedDpn) {}:{}"
+                            + "configured in Controller Mode",
+                    updatedRouterToNaptSwitch.getRouterName(), updatedRouterToNaptSwitch.getPrimarySwitchId());
+            return;
+        }
         BigInteger origPrimarySwitchId = origRouterToNaptSwitch.getPrimarySwitchId();
         BigInteger updatedPrimarySwitchId = updatedRouterToNaptSwitch.getPrimarySwitchId();
         ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
@@ -142,6 +163,12 @@ public class SnatCentralizedSwitchChangeListener
     @Override
     protected void add(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
         LOG.debug("Adding {}", routerToNaptSwitch);
+        if (natMode == NatMode.Controller) {
+            LOG.info("Do Not Processing this add() event for (routerName:designatedDpn) {}:{}"
+                            + "configured in Controller Mode",
+                    routerToNaptSwitch.getRouterName(), routerToNaptSwitch.getPrimarySwitchId());
+            return;
+        }
         BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
         String routerName = routerToNaptSwitch.getRouterName();
         Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
