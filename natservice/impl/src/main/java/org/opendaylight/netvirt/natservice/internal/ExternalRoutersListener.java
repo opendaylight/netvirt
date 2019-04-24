@@ -1271,6 +1271,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         boolean updatedSNATEnabled = update.isEnableSnat();
         LOG.debug("update :called with originalFlag and updatedFlag for SNAT enabled "
             + "as {} and {}", originalSNATEnabled, updatedSNATEnabled);
+        LOG.trace("update : called original {}, update {}", original, update);
         /* Get Primary Napt Switch for existing router from "router-to-napt-switch" DS.
          * if dpnId value is null or zero then go for electing new Napt switch for existing router.
          */
@@ -1302,7 +1303,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             LOG.info("update : SNAT enabled for Router {}", original.getRouterName());
                             addOrDelDefFibRouteToSNAT(routerName, routerId, finalBgpVpnId, bgpVpnUuid,
                                     true, writeFlowInvTx);
-                            handleEnableSnat(original, routerId, dpnId, finalBgpVpnId, removeFlowInvTx);
+                            LOG.info("update : Param {}", update);
+                            handleEnableSnat(update, routerId, dpnId, finalBgpVpnId, removeFlowInvTx);
                         }
                     }
                     if (!Objects.equals(original.getExtGwMacAddress(), update.getExtGwMacAddress())) {
