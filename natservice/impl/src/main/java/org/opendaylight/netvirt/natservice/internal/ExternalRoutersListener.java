@@ -357,14 +357,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         // Allocate Primary Napt Switch for this router
         BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
         if (primarySwitchId != null && !primarySwitchId.equals(BigInteger.ZERO)) {
-            LOG.debug("handleEnableSnat : Primary NAPT switch with DPN ID {} is already elected for router {}",
+            LOG.debug("getPrimaryNaptSwitch : Primary NAPT switch with DPN ID {} is already elected for router {}",
                 primarySwitchId, routerName);
             return primarySwitchId;
         }
         // Allocated an id from VNI pool for the Router.
         natOverVxlanUtil.getRouterVni(routerName, NatConstants.INVALID_ID);
         primarySwitchId = naptSwitchSelector.selectNewNAPTSwitch(routerName);
-        LOG.debug("handleEnableSnat : Primary NAPT switch DPN ID {}", primarySwitchId);
+        LOG.debug("getPrimaryNaptSwitch : Primary NAPT switch DPN ID {}", primarySwitchId);
 
         return primarySwitchId;
     }
@@ -1271,6 +1271,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         boolean updatedSNATEnabled = update.isEnableSnat();
         LOG.debug("update :called with originalFlag and updatedFlag for SNAT enabled "
             + "as {} and {}", originalSNATEnabled, updatedSNATEnabled);
+        LOG.trace("update : called original {}, update {}", original, update);
         /* Get Primary Napt Switch for existing router from "router-to-napt-switch" DS.
          * if dpnId value is null or zero then go for electing new Napt switch for existing router.
          */
@@ -1302,7 +1303,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             LOG.info("update : SNAT enabled for Router {}", original.getRouterName());
                             addOrDelDefFibRouteToSNAT(routerName, routerId, finalBgpVpnId, bgpVpnUuid,
                                     true, writeFlowInvTx);
-                            handleEnableSnat(original, routerId, dpnId, finalBgpVpnId, removeFlowInvTx);
+                            handleEnableSnat(update, routerId, dpnId, finalBgpVpnId, writeFlowInvTx);
                         }
                     }
                     if (!Objects.equals(original.getExtGwMacAddress(), update.getExtGwMacAddress())) {
@@ -1310,38 +1311,15 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         NatUtil.installRouterGwFlows(txRunner, vpnManager, update, dpnId, NwConstants.ADD_FLOW);
                     }
 
+                    if (updatedSNATEnabled != originalSNATEnabled) {
+                        LOG.info("update : no need to process external/subnet changes as it's will taken care in "
+                                + "handleDisableSnat/handleEnableSnat");
+                        return;
+                    }
                     //Check if the Update is on External IPs
                     LOG.debug("update : Checking if this is update on External IPs");
                     List<String> originalExternalIps = NatUtil.getIpsListFromExternalIps(original.getExternalIps());
                     List<String> updatedExternalIps = NatUtil.getIpsListFromExternalIps(update.getExternalIps());
-
-                    //Check if the External IPs are added during the update.
-                    Set<String> addedExternalIps = new HashSet<>(updatedExternalIps);
-                    addedExternalIps.removeAll(originalExternalIps);
-                    if (addedExternalIps.size() != 0) {
-                        LOG.debug("update : Start processing of the External IPs addition during the update "
-                                + "operation");
-                        vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName, addedExternalIps,
-                                update.getExtGwMacAddress(), dpnId,
-                                update.getNetworkId());
-
-                        for (String addedExternalIp : addedExternalIps) {
-                /*
-                    1) Do nothing in the IntExtIp model.
-                    2) Initialise the count of the added external IP to 0 in the ExternalCounter model.
-                 */
-                            String[] externalIpParts = NatUtil.getExternalIpAndPrefix(addedExternalIp);
-                            String externalIp = externalIpParts[0];
-                            String externalIpPrefix = externalIpParts[1];
-                            String externalpStr = externalIp + "/" + externalIpPrefix;
-                            LOG.debug("update : Initialise the count mapping of the external IP {} for the "
-                                            + "router ID {} in the ExternalIpsCounter model.",
-                                    externalpStr, routerId);
-                            naptManager.initialiseNewExternalIpCounter(routerId, externalpStr);
-                        }
-                        LOG.debug(
-                                "update : End processing of the External IPs addition during the update operation");
-                    }
 
                     //Check if the External IPs are removed during the update.
                     Set<String> removedExternalIps = new HashSet<>(originalExternalIps);
@@ -1524,6 +1502,37 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         }
                         LOG.debug(
                                 "update : End processing of the External IPs removal during the update operation");
+                    }
+
+                    //Check if the External IPs are added during the update.
+                    Set<String> addedExternalIps = new HashSet<>(updatedExternalIps);
+                    addedExternalIps.removeAll(originalExternalIps);
+                    if (addedExternalIps.size() != 0) {
+                        LOG.debug("update : Start processing of the External IPs addition during the update "
+                                + "operation");
+                        vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName, addedExternalIps,
+                                update.getExtGwMacAddress(), dpnId,
+                                update.getNetworkId());
+
+                        for (String addedExternalIp : addedExternalIps) {
+                /*
+                    1) Do nothing in the IntExtIp model.
+                    2) Initialise the count of the added external IP to 0 in the ExternalCounter model.
+                 */
+                            String[] externalIpParts = NatUtil.getExternalIpAndPrefix(addedExternalIp);
+                            String externalIp = externalIpParts[0];
+                            String externalIpPrefix = externalIpParts[1];
+                            String externalpStr = externalIp + "/" + externalIpPrefix;
+                            LOG.debug("update : Initialise the count mapping of the external IP {} for the "
+                                            + "router ID {} in the ExternalIpsCounter model.",
+                                    externalpStr, routerId);
+                            naptManager.initialiseNewExternalIpCounter(routerId, externalpStr);
+                            subnetRegisterMapping(update, routerId);
+                            LOG.info("update : Installing fib flow fo newly added Ips");
+                            handleSnatReverseTraffic(writeFlowInvTx, dpnId, update, routerId, routerName, externalpStr);
+                        }
+                        LOG.debug(
+                                "update : End processing of the External IPs addition during the update operation");
                     }
 
                     //Check if its Update on subnets
