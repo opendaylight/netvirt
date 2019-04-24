@@ -1302,7 +1302,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             LOG.info("update : SNAT enabled for Router {}", original.getRouterName());
                             addOrDelDefFibRouteToSNAT(routerName, routerId, finalBgpVpnId, bgpVpnUuid,
                                     true, writeFlowInvTx);
-                            handleEnableSnat(original, routerId, dpnId, finalBgpVpnId, removeFlowInvTx);
+                            LOG.info("update : Param {}", update);
+                            handleEnableSnat(update, routerId, dpnId, finalBgpVpnId, removeFlowInvTx);
                         }
                     }
                     if (!Objects.equals(original.getExtGwMacAddress(), update.getExtGwMacAddress())) {
