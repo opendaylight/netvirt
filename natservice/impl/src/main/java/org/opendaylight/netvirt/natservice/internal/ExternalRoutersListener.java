@@ -357,14 +357,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         // Allocate Primary Napt Switch for this router
         BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
         if (primarySwitchId != null && !primarySwitchId.equals(BigInteger.ZERO)) {
-            LOG.debug("handleEnableSnat : Primary NAPT switch with DPN ID {} is already elected for router {}",
+            LOG.debug("getPrimaryNaptSwitch : Primary NAPT switch with DPN ID {} is already elected for router {}",
                 primarySwitchId, routerName);
             return primarySwitchId;
         }
         // Allocated an id from VNI pool for the Router.
         natOverVxlanUtil.getRouterVni(routerName, NatConstants.INVALID_ID);
         primarySwitchId = naptSwitchSelector.selectNewNAPTSwitch(routerName);
-        LOG.debug("handleEnableSnat : Primary NAPT switch DPN ID {}", primarySwitchId);
+        LOG.debug("getPrimaryNaptSwitch : Primary NAPT switch DPN ID {}", primarySwitchId);
 
         return primarySwitchId;
     }
@@ -1271,6 +1271,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         boolean updatedSNATEnabled = update.isEnableSnat();
         LOG.debug("update :called with originalFlag and updatedFlag for SNAT enabled "
             + "as {} and {}", originalSNATEnabled, updatedSNATEnabled);
+        LOG.trace("update : called original {}, update {}", original, update);
         /* Get Primary Napt Switch for existing router from "router-to-napt-switch" DS.
          * if dpnId value is null or zero then go for electing new Napt switch for existing router.
          */
@@ -1302,7 +1303,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             LOG.info("update : SNAT enabled for Router {}", original.getRouterName());
                             addOrDelDefFibRouteToSNAT(routerName, routerId, finalBgpVpnId, bgpVpnUuid,
                                     true, writeFlowInvTx);
-                            handleEnableSnat(original, routerId, dpnId, finalBgpVpnId, removeFlowInvTx);
+                            LOG.info("update : Param {}", update);
+                            handleEnableSnat(update, routerId, dpnId, finalBgpVpnId, writeFlowInvTx);
                         }
                     }
                     if (!Objects.equals(original.getExtGwMacAddress(), update.getExtGwMacAddress())) {
@@ -1310,6 +1312,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         NatUtil.installRouterGwFlows(txRunner, vpnManager, update, dpnId, NwConstants.ADD_FLOW);
                     }
 
+                    if (updatedSNATEnabled != originalSNATEnabled) {
+                        LOG.info("update : no need to process external/subnet changes as it's will taken care in "
+                                + "handleDisableSnat/handleEnableSnat");
+                        return;
+                    }
                     //Check if the Update is on External IPs
                     LOG.debug("update : Checking if this is update on External IPs");
                     List<String> originalExternalIps = NatUtil.getIpsListFromExternalIps(original.getExternalIps());
@@ -1338,6 +1345,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                             + "router ID {} in the ExternalIpsCounter model.",
                                     externalpStr, routerId);
                             naptManager.initialiseNewExternalIpCounter(routerId, externalpStr);
+                            LOG.info("update : Installing fib flow fo newly added Ips");
+                            handleSnatReverseTraffic(writeFlowInvTx, dpnId, update, routerId, routerName, externalIp);
                         }
                         LOG.debug(
                                 "update : End processing of the External IPs addition during the update operation");
