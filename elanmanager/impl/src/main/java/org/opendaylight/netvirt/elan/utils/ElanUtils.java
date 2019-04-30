@@ -42,6 +42,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
@@ -65,6 +66,8 @@ import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetTunnelDestinationIp;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -80,6 +83,8 @@ import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
+import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
+import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -102,9 +107,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeRefInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.IfIndexesInterfaceMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
@@ -194,6 +202,7 @@ import org.slf4j.LoggerFactory;
 public class ElanUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanUtils.class);
+    private static final String LOCAL_IP = "local_ip";
 
     private final DataBroker broker;
     private final ManagedNewTransactionRunner txRunner;
@@ -206,6 +215,8 @@ public class ElanUtils {
     private final ElanEtreeUtils elanEtreeUtils;
     private final ElanInterfaceCache elanInterfaceCache;
     private final IITMProvider iitmProvider;
+    private final SingleTransactionDataBroker singleTxBroker;
+    private final SouthboundUtils southBoundUtils;
 
     public static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
@@ -235,6 +246,8 @@ public class ElanUtils {
         this.elanItmUtils = elanItmUtils;
         this.elanInterfaceCache = elanInterfaceCache;
         this.iitmProvider = iitmProvider;
+        this.singleTxBroker = new SingleTransactionDataBroker(broker);
+        this.southBoundUtils = new SouthboundUtils(new MdsalUtils(broker));
     }
 
     public final Boolean isOpenstackVniSemanticsEnforced() {
@@ -1002,6 +1015,47 @@ public class ElanUtils {
         }
     }
 
+    @SuppressWarnings("checkstyle:linelength")
+    private Optional<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node> getNodeByDpnId(BigInteger dpnId) throws ReadFailedException {
+        InstanceIdentifier<BridgeRefEntry> bridgeRefInfoPath = InstanceIdentifier.create(BridgeRefInfo.class)
+                .child(BridgeRefEntry.class, new BridgeRefEntryKey(dpnId));
+
+        // FIXME: Read this through a cache
+        Optional<BridgeRefEntry> optionalBridgeRefEntry =
+            singleTxBroker.syncReadOptional(LogicalDatastoreType.OPERATIONAL, bridgeRefInfoPath);
+        if (!optionalBridgeRefEntry.isPresent()) {
+            LOG.error("no bridge ref entry found for dpnId {}", dpnId);
+            return Optional.absent();
+        }
+
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node> nodeId =
+                optionalBridgeRefEntry.get().getBridgeReference().getValue().firstIdentifierOf(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node.class);
+
+        // FIXME: Read this through a cache
+        Optional<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node> optionalNode = singleTxBroker.syncReadOptional(LogicalDatastoreType.OPERATIONAL, nodeId);
+        if (!optionalNode.isPresent()) {
+            LOG.error("missing node for dpnId {}", dpnId);
+        }
+        return optionalNode;
+    }
+
+    @SuppressWarnings("checkstyle:linelength")
+    private String getDpnLocalIp(BigInteger dpId) throws ReadFailedException {
+        Optional<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node> node = getNodeByDpnId(dpId);
+
+        if (node.isPresent()) {
+            String localIp = southBoundUtils.getOpenvswitchOtherConfig(node.get(), LOCAL_IP);
+            if (localIp == null) {
+                LOG.error("missing local_ip key in ovsdb:openvswitch-other-configs in operational"
+                        + " network-topology for node: {}", node.get().getNodeId().getValue());
+            } else {
+                return localIp;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Builds a Flow to be programmed in a remote DPN's DMAC table. This flow
      * consists in: Match: + elanTag in packet's metadata + packet going to a
@@ -1037,7 +1091,21 @@ public class ElanUtils {
         try {
             List<Action> actions = null;
             if (isVxlanNetworkOrVxlanSegment(elanInstance)) {
+                String localIp = "";
+                String remoteIp = "";
+                try {
+                    localIp = getDpnLocalIp(destDpId);
+                    remoteIp = getDpnLocalIp(srcDpId);
+                } catch (Exception e) {
+                    LOG.error("Could not get IP for remote dpId {}", srcDpId, e);
+                }
+                LOG.info("buildRemoteDmacFlowEntry for "
+                       + "vni {} mac {} DpId {} localIp {} remoteIp {} ",
+                         lportTagOrVni, macAddress, srcDpId, localIp, remoteIp);
+                IpAddress nodeIp = IpAddressBuilder.getDefaultInstance(localIp);
                 actions = elanItmUtils.getInternalTunnelItmEgressAction(srcDpId, destDpId, lportTagOrVni);
+                actions.add(new ActionSetFieldTunnelId(BigInteger.valueOf(lportTagOrVni)).buildAction());
+                actions.add(new ActionSetTunnelDestinationIp(nodeIp).buildAction());
             } else if (isVlan(elanInstance) || isFlat(elanInstance)) {
                 String interfaceName = getExternalElanInterface(elanInstance.getElanInstanceName(), srcDpId);
                 if (null == interfaceName) {
