@@ -76,7 +76,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.TransportZones;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.DeviceVteps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.DeviceVteps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.AddL2GwDeviceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.AddL2GwDeviceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
@@ -971,10 +971,8 @@ public class ElanL2GatewayUtils {
             }
             String psNodeId = globalNodeId + HwvtepHAUtil.PHYSICALSWITCH + psName;
             tzonesoptional.get().nonnullTransportZone().stream()
-                .filter(transportZone -> transportZone.getSubnets() != null)
-                .flatMap(transportZone -> transportZone.getSubnets().stream())
-                .filter(subnet -> subnet.getDeviceVteps() != null)
-                .flatMap(subnet -> subnet.getDeviceVteps().stream())
+                .filter(zone -> zone.getDeviceVteps() != null)
+                .flatMap(zone -> zone.getDeviceVteps().stream())
                 .filter(deviceVteps -> Objects.equals(getPsName(deviceVteps), psName)) //get device with same ps name
                 .filter(deviceVteps -> !Objects.equals(psNodeId, deviceVteps.getNodeId())
                         || !Objects.equals(tunnelIp, deviceVteps.getIpAddress()))//node id or tunnel ip is changed
