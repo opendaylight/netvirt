@@ -61,12 +61,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.Transp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.TransportZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.TransportZoneBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.TransportZoneKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.Subnets;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.SubnetsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.SubnetsKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.Vteps;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.VtepsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.VtepsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.Vteps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.VtepsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.VtepsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces;
@@ -130,10 +127,8 @@ public class TransportZoneNotificationUtil {
     }
 
     private TransportZone createZone(String subnetIp, String zoneName) {
-        List<Subnets> subnets = new ArrayList<>();
-        subnets.add(buildSubnets(subnetIp));
         TransportZoneBuilder tzb = new TransportZoneBuilder().withKey(new TransportZoneKey(zoneName))
-                .setTunnelType(TunnelTypeVxlan.class).setZoneName(zoneName).setSubnets(subnets);
+                .setTunnelType(TunnelTypeVxlan.class).setZoneName(zoneName);
         return tzb.build();
     }
 
@@ -389,13 +384,7 @@ public class TransportZoneNotificationUtil {
      * @return Whether a vtep was added or not.
      */
     private boolean addVtep(TransportZone zone, String subnetIp, BigInteger dpnId, @Nullable String localIp) {
-        List<Subnets> zoneSubnets = zone.getSubnets();
-        if (zoneSubnets == null) {
-            return false;
-        }
-
-        Subnets subnets = getOrAddSubnet(zoneSubnets, subnetIp);
-        for (Vteps existingVtep : subnets.nonnullVteps()) {
+        for (Vteps existingVtep : zone.nonnullVteps()) {
             if (Objects.equals(existingVtep.getDpnId(), dpnId)) {
                 return false;
             }
@@ -404,8 +393,8 @@ public class TransportZoneNotificationUtil {
         if (localIp != null) {
             IpAddress nodeIp = IpAddressBuilder.getDefaultInstance(localIp);
             VtepsBuilder vtepsBuilder = new VtepsBuilder().setDpnId(dpnId).setIpAddress(nodeIp)
-                    .setPortname(TUNNEL_PORT).setOptionOfTunnel(elanConfig.isUseOfTunnels());
-            subnets.getVteps().add(vtepsBuilder.build());
+                    .setOptionOfTunnel(elanConfig.isUseOfTunnels());
+            zone.getVteps().add(vtepsBuilder.build());
             return true;
         }
 
@@ -415,34 +404,8 @@ public class TransportZoneNotificationUtil {
     private void removeVtep(String zoneName, BigInteger dpId, @NonNull TypedWriteTransaction<Configuration> tx) {
         InstanceIdentifier<Vteps> path = InstanceIdentifier.builder(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zoneName))
-                .child(Subnets.class, new SubnetsKey(IpPrefixBuilder.getDefaultInstance(ALL_SUBNETS)))
                 .child(Vteps.class, new VtepsKey(dpId, TUNNEL_PORT)).build();
         tx.delete(path);
-    }
-
-    // search for relevant subnets for the given subnetIP, add one if it is
-    // necessary
-    private Subnets getOrAddSubnet(@NonNull List<Subnets> subnets, @NonNull String subnetIp) {
-        IpPrefix subnetPrefix = IpPrefixBuilder.getDefaultInstance(subnetIp);
-
-        for (Subnets subnet : subnets) {
-            if (Objects.equals(subnet.getPrefix(), subnetPrefix)) {
-                return subnet;
-            }
-        }
-
-        Subnets retSubnet = buildSubnets(subnetIp);
-        subnets.add(retSubnet);
-
-        return retSubnet;
-    }
-
-    private Subnets buildSubnets(String subnetIp) {
-        SubnetsBuilder subnetsBuilder = new SubnetsBuilder().setDeviceVteps(new ArrayList<>())
-                .setGatewayIp(IpAddressBuilder.getDefaultInstance(ALL_SUBNETS_GW))
-                .withKey(new SubnetsKey(IpPrefixBuilder.getDefaultInstance(subnetIp))).setVlanId(0)
-                .setVteps(new ArrayList<>());
-        return subnetsBuilder.build();
     }
 
     @Nullable
