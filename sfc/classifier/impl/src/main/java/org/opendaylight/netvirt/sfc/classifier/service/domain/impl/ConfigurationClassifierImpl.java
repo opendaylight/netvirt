@@ -151,7 +151,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
         }
 
         if (destinationPort != null) {
-            LOG.warn("Ace {}: destination port is ignored combined with RSP redirect");
+            LOG.warn("Ace {}: destination port is ignored combined with RSP redirect", ruleName);
         }
 
         List<String> interfaces = new ArrayList<>();

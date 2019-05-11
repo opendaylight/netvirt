@@ -424,7 +424,7 @@ public class InterfaceStateChangeListener
 
         @Override
         public void onFailure(Throwable throwable) {
-            LOG.debug("write Tx config operation failed {}", throwable);
+            LOG.debug("write Tx config operation failedTunnelEndPointChangeListener", throwable);
         }
     }
 }

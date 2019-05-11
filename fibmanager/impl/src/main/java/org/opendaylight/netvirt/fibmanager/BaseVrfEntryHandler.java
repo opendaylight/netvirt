@@ -59,6 +59,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.genius.utils.batching.SubTransactionImpl;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -151,7 +152,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         try {
             nextHopManager.removeLocalNextHop(dpId, vpnId, ipAddress, ipPrefixAddress);
         } catch (NullPointerException e) {
-            LOG.trace("", e);
+            // FIXME: NPEs should not be caught but rather their root cause should be eliminated
+            LOG.trace("Failed to remove nexthop", e);
         }
     }
 
@@ -227,7 +229,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                         .collect(toList()));
             }
         } catch (NullPointerException e) {
-            LOG.trace("", e);
+            // FIXME: NPEs should not be caught but rather their root cause should be eliminated
+            LOG.trace("Failed to remove adjacency", e);
         }
         return adjacencyList;
     }
@@ -418,7 +421,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         for (AdjacencyResult adjacencyResult : adjacencyResults) {
             String interfaceName = adjacencyResult.getInterfaceName();
             if (null == fibUtil.getInterfaceStateFromOperDS(interfaceName)) {
-                res = fibUtil.buildStateInterfaceId(interfaceName);
+                res = FibUtil.buildStateInterfaceId(interfaceName);
                 break;
             }
         }
@@ -439,15 +442,17 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                     absentInterfaceStateIid,
                     (before, after) -> {
                         LOG.info("programRemoteFib: waited for and got interface state {}", absentInterfaceStateIid);
-                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                            (wtx) -> programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults, null));
+                        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                            (wtx) -> programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults, null)),
+                            LOG, "Failed to program remote FIB {}", absentInterfaceStateIid);
                         return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
                     },
                     Duration.of(15, ChronoUnit.MINUTES),
                     (iid) -> {
                         LOG.error("programRemoteFib: timed out waiting for {}", absentInterfaceStateIid);
-                        txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                            (wtx) -> programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults, null));
+                        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                            (wtx) -> programRemoteFib(remoteDpnId, vpnId, vrfEntry, wtx, rd, adjacencyResults, null)),
+                            LOG, "Failed to program timed-out remote FIB {}", absentInterfaceStateIid);
                     });
                 return;
             }

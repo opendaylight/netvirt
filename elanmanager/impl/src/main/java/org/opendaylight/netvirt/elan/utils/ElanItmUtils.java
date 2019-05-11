@@ -94,7 +94,7 @@ public class ElanItmUtils {
             }
 
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error in RPC call getTunnelInterfaceName {}", e);
+            LOG.error("Error in RPC call getTunnelInterfaceName", e);
         }
 
         return result;
@@ -118,7 +118,7 @@ public class ElanItmUtils {
             }
 
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error in RPC call getTunnelInterfaceName {}", e);
+            LOG.error("Error in RPC call getTunnelInterfaceName", e);
         }
 
         return result;
@@ -158,7 +158,7 @@ public class ElanItmUtils {
                         destinationDpnId);
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error in RPC call getTunnelInterfaceName {}", e);
+            LOG.error("Error in RPC call getTunnelInterfaceName", e);
         }
         return result;
     }
@@ -224,7 +224,7 @@ public class ElanItmUtils {
                 }
             }
         } catch (Exception e) {
-            LOG.error("Error in RPC call getEgressActionsForInterface {}", e);
+            LOG.error("Error in RPC call getEgressActionsForInterface", e);
         }
         LOG.warn("Could not build Egress actions for interface {} and tunnelId {}", interfaceName, tunnelKey);
         return Collections.emptyList();
