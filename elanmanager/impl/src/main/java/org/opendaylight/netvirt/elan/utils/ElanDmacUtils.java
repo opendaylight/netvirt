@@ -131,7 +131,7 @@ public class ElanDmacUtils {
         return Collections.emptyList();
     }
 
-    private ListenableFuture<Void> removeTheDropFlow(
+    private static ListenableFuture<Void> removeTheDropFlow(
             long elanTag, BigInteger dpId, String extDeviceNodeId, String macToRemove) {
         String flowId =
                 ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId, macToRemove,
@@ -141,7 +141,7 @@ public class ElanDmacUtils {
                 ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY, ElanUtils.getFlowIid(flowToRemove, dpId));
     }
 
-    private ListenableFuture<Void> removeFlowThatSendsThePacketOnAnExternalTunnel(long elanTag, BigInteger dpId,
+    private static ListenableFuture<Void> removeFlowThatSendsThePacketOnAnExternalTunnel(long elanTag, BigInteger dpId,
             String extDeviceNodeId, String macToRemove) {
         String flowId =
                 ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId, macToRemove,
@@ -200,7 +200,7 @@ public class ElanDmacUtils {
         return Futures.immediateFuture(null);
     }
 
-    private ListenableFuture<Void> buildEtreeDmacFlowDropIfPacketComingFromTunnelwithBatch(
+    private static ListenableFuture<Void> buildEtreeDmacFlowDropIfPacketComingFromTunnelwithBatch(
             BigInteger dpnId, String extDeviceNodeId, String macAddress, EtreeLeafTagName etreeLeafTag) {
         if (etreeLeafTag != null) {
             Flow dropFlow = buildDmacFlowDropIfPacketComingFromTunnel(dpnId, extDeviceNodeId,

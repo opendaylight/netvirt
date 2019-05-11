@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Locale;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -144,7 +143,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
         }
     }
 
-    private void addCallBack(ListenableFuture<Void> writeResult, String srcMacAddress) {
+    private static void addCallBack(ListenableFuture<Void> writeResult, String srcMacAddress) {
         //WRITE Callback
         Futures.addCallback(writeResult, new FutureCallback<Void>() {
             @Override

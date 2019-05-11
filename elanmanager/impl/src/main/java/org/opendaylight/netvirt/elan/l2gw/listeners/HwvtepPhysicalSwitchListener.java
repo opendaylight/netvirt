@@ -349,11 +349,11 @@ public class HwvtepPhysicalSwitchListener
      *            the identifier
      * @return the node id
      */
-    private NodeId getNodeId(InstanceIdentifier<PhysicalSwitchAugmentation> identifier) {
+    private static NodeId getNodeId(InstanceIdentifier<PhysicalSwitchAugmentation> identifier) {
         return identifier.firstKeyOf(Node.class).getNodeId();
     }
 
-    private String getManagedByNodeId(InstanceIdentifier<PhysicalSwitchAugmentation> identifier) {
+    private static String getManagedByNodeId(InstanceIdentifier<PhysicalSwitchAugmentation> identifier) {
         String psNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
         if (psNodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
             return psNodeId.substring(0, psNodeId.indexOf(HwvtepHAUtil.PHYSICALSWITCH));
@@ -362,7 +362,8 @@ public class HwvtepPhysicalSwitchListener
     }
 
     @Nullable
-    private InstanceIdentifier<Node> getManagedByNodeIid(InstanceIdentifier<PhysicalSwitchAugmentation> identifier) {
+    private static InstanceIdentifier<Node> getManagedByNodeIid(
+            InstanceIdentifier<PhysicalSwitchAugmentation> identifier) {
         String psNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
         if (psNodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
             psNodeId = psNodeId.substring(0, psNodeId.indexOf(HwvtepHAUtil.PHYSICALSWITCH));
@@ -372,7 +373,7 @@ public class HwvtepPhysicalSwitchListener
     }
 
     @Nullable
-    private String getPsName(InstanceIdentifier<PhysicalSwitchAugmentation> identifier) {
+    private static String getPsName(InstanceIdentifier<PhysicalSwitchAugmentation> identifier) {
         String psNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
         if (psNodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
             return psNodeId.substring(psNodeId.indexOf(HwvtepHAUtil.PHYSICALSWITCH) + HwvtepHAUtil.PHYSICALSWITCH

@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.elanmanager.tests;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 
 import com.google.common.collect.Sets;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,7 +20,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import org.awaitility.core.ConditionFactory;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -137,9 +135,9 @@ public class Verifications {
                 }
             }
             if (checkForExists) {
-                return (remoteMcastFoundFlag == true);
+                return remoteMcastFoundFlag == true;
             } else {
-                return (remoteMcastFoundFlag == false);
+                return remoteMcastFoundFlag == false;
             }
         } catch (ReadFailedException e) {
             return false;
@@ -179,9 +177,9 @@ public class Verifications {
                 }
             }
             if (checkForExists) {
-                return (remoteUcastFoundFlag == true);
+                return remoteUcastFoundFlag == true;
             } else {
-                return (remoteUcastFoundFlag == false);
+                return remoteUcastFoundFlag == false;
             }
         } catch (ReadFailedException e) {
             return false;
@@ -270,7 +268,7 @@ public class Verifications {
         return true;
     }
 
-    private Set<Bucket> modifyBucketId(List<Bucket> input) {
+    private static Set<Bucket> modifyBucketId(List<Bucket> input) {
         return input.stream()
                 .map(bucket -> new BucketBuilder(bucket).setBucketId(new BucketId(1L))
                         .withKey(new BucketKey(new BucketId(1L))).build())
@@ -403,7 +401,7 @@ public class Verifications {
         }
     }
 
-    private InstanceIdentifier<Flow> getFlowIid(short tableId, FlowId flowid, BigInteger dpnId) {
+    private static InstanceIdentifier<Flow> getFlowIid(short tableId, FlowId flowid, BigInteger dpnId) {
 
         FlowKey flowKey = new FlowKey(new FlowId(flowid));
         NodeId nodeId = GET_OPENFLOW_NODE_ID.apply(dpnId);
@@ -415,12 +413,12 @@ public class Verifications {
                 .child(Table.class, new TableKey(tableId)).child(Flow.class, flowKey).build();
     }
 
-    private InstanceIdentifier<Group> buildGroupIid(ElanInstance actualElanInstances, BigInteger dpnId) {
+    private static InstanceIdentifier<Group> buildGroupIid(ElanInstance actualElanInstances, BigInteger dpnId) {
         return DpnNodeBuilders.buildGroupInstanceIdentifier(
                 ElanUtils.getElanRemoteBCGId(actualElanInstances.getElanTag()), DpnNodeBuilders.buildDpnNode(dpnId));
     }
 
-    private InstanceIdentifier<Group> buildLocalGroupIid(ElanInstance actualElanInstances, BigInteger dpnId) {
+    private static InstanceIdentifier<Group> buildLocalGroupIid(ElanInstance actualElanInstances, BigInteger dpnId) {
         return DpnNodeBuilders.buildGroupInstanceIdentifier(
                 ElanUtils.getElanLocalBCGId(actualElanInstances.getElanTag()), DpnNodeBuilders.buildDpnNode(dpnId));
     }

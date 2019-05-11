@@ -183,7 +183,7 @@ public abstract class HwvtepNodeDataListener<D extends Datastore, T extends Data
         }
     }
 
-    private String getNodeId(InstanceIdentifier<Node> iid) {
+    private static String getNodeId(InstanceIdentifier<Node> iid) {
         return iid.firstKeyOf(Node.class).getNodeId().getValue();
     }
 

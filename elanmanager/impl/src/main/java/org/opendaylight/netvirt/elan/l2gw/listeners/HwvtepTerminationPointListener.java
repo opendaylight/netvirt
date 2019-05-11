@@ -195,7 +195,7 @@ public class HwvtepTerminationPointListener
         return vlanBindings;
     }
 
-    private boolean isL2GatewayConfigured(L2GatewayDevice l2GwDevice) {
+    private static boolean isL2GatewayConfigured(L2GatewayDevice l2GwDevice) {
         return l2GwDevice.getHwvtepNodeId() != null
                 && !l2GwDevice.getL2GatewayIds().isEmpty() && l2GwDevice.getTunnelIp() != null;
     }

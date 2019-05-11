@@ -250,7 +250,7 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
         }
     }
 
-    private InstanceIdentifier<Node> getWildcardPath() {
+    private static InstanceIdentifier<Node> getWildcardPath() {
         InstanceIdentifier<Node> path = InstanceIdentifier
                 .create(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID))

@@ -54,7 +54,7 @@ public class ElanMacTableGet extends OsgiCommandSupport {
         return null;
     }
 
-    private Object getMacTableHeaderOutput() {
+    private static Object getMacTableHeaderOutput() {
         StringBuilder headerBuilder = new StringBuilder();
         headerBuilder.append(
                 String.format(ElanCLIUtils.MAC_TABLE_CLI_FORMAT, "Elan Instance", "Interface Name", "MacAddress", ""));

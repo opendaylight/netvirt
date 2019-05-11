@@ -118,7 +118,7 @@ public class StaleVlanBindingsCleaner {
         });
     }
 
-    private Node defaultNode(final NodeId nodeId) {
+    private static Node defaultNode(final NodeId nodeId) {
         return new NodeBuilder().setNodeId(nodeId).build();
     }
 
@@ -149,7 +149,7 @@ public class StaleVlanBindingsCleaner {
         }
     }
 
-    private Map<String, List<InstanceIdentifier<VlanBindings>>> getVlansByLogicalSwitchOnDevice(
+    private static Map<String, List<InstanceIdentifier<VlanBindings>>> getVlansByLogicalSwitchOnDevice(
             final Node configPsNode) {
         List<TerminationPoint> ports = configPsNode.getTerminationPoint();
         if (ports == null) {
@@ -164,18 +164,18 @@ public class StaleVlanBindingsCleaner {
         return vlans;
     }
 
-    private void putVlanBindingVsLogicalSwitch(final Node configPsNode,
-                                               final Map<String, List<InstanceIdentifier<VlanBindings>>> vlans,
-                                               final TerminationPoint port,
-                                               final VlanBindings binding) {
+    private static void putVlanBindingVsLogicalSwitch(final Node configPsNode,
+                                                      final Map<String, List<InstanceIdentifier<VlanBindings>>> vlans,
+                                                      final TerminationPoint port,
+                                                      final VlanBindings binding) {
         String logicalSwitch = LOGICAL_SWITCH_FROM_BINDING.apply(binding);
         vlans.computeIfAbsent(logicalSwitch, (name) -> new ArrayList<>())
                 .add(createVlanIid(configPsNode.getNodeId(), port, binding));
     }
 
-    private InstanceIdentifier<VlanBindings> createVlanIid(final NodeId nodeId,
-                                                           final TerminationPoint tp,
-                                                           final VlanBindings vlanBinding) {
+    private static InstanceIdentifier<VlanBindings> createVlanIid(final NodeId nodeId,
+                                                                  final TerminationPoint tp,
+                                                                  final VlanBindings vlanBinding) {
         return HwvtepSouthboundUtils.createInstanceIdentifier(nodeId)
                 .child(TerminationPoint.class, tp.key())
                 .augmentation(HwvtepPhysicalPortAugmentation.class)
@@ -197,7 +197,7 @@ public class StaleVlanBindingsCleaner {
         elanL2GatewayUtils.scheduleDeleteLogicalSwitch(new NodeId(globalNodeId), staleLogicalSwitch, true);
     }
 
-    private List<String> getLogicalSwitchesOnDevice(final Node globalConfigNode) {
+    private static List<String> getLogicalSwitchesOnDevice(final Node globalConfigNode) {
         HwvtepGlobalAugmentation augmentation = globalConfigNode.augmentation(HwvtepGlobalAugmentation.class);
         if (augmentation == null || augmentation.getLogicalSwitches() == null) {
             return Collections.emptyList();

@@ -452,7 +452,7 @@ public class ElanBridgeManager {
         return patchPortName.substring(0, MAX_LINUX_INTERFACE_NAME_LENGTH - 1);
     }
 
-    private String getExSidePatchPortName(String physicalInterfaceName) {
+    private static String getExSidePatchPortName(String physicalInterfaceName) {
         return physicalInterfaceName + EX_SIDE_PATCH_PORT_SUFFIX;
     }
 
@@ -525,7 +525,7 @@ public class ElanBridgeManager {
                 .map(datapathId -> MDSALUtil.getDpnId(datapathId.getValue()));
     }
 
-    private InstanceIdentifier<Node> getIntegrationBridgeIdentifier(String managerNodeId) {
+    private static InstanceIdentifier<Node> getIntegrationBridgeIdentifier(String managerNodeId) {
         NodeId brNodeId = new NodeId(
                 managerNodeId + "/" + ITMConstants.BRIDGE_URI_PREFIX + "/" + ITMConstants.DEFAULT_BRIDGE_NAME);
         return InstanceIdentifier.create(NetworkTopology.class)
@@ -552,7 +552,7 @@ public class ElanBridgeManager {
         return stringBuilder.toString();
     }
 
-    private Map<String, String> getMultiValueMap(String multiKeyValueStr) {
+    private static Map<String, String> getMultiValueMap(String multiKeyValueStr) {
         if (Strings.isNullOrEmpty(multiKeyValueStr)) {
             return Collections.emptyMap();
         }

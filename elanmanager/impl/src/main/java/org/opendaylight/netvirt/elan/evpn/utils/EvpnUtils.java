@@ -400,7 +400,7 @@ public class EvpnUtils {
         }), LOG, "Error binding an ELAN service to an external tunnel");
     }
 
-    private List<InstructionInfo> getInstructionsForExtTunnelTable(Long elanTag) {
+    private static List<InstructionInfo> getInstructionsForExtTunnelTable(Long elanTag) {
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionWriteMetadata(ElanUtils.getElanMetadataLabel(elanTag, false),
                 ElanHelper.getElanMetadataMask()));
@@ -408,7 +408,7 @@ public class EvpnUtils {
         return mkInstructions;
     }
 
-    private String getFlowRef(long tableId, long elanTag, BigInteger dpnId) {
+    private static String getFlowRef(long tableId, long elanTag, BigInteger dpnId) {
         return new StringBuilder().append(tableId).append(elanTag).append(dpnId).toString();
     }
 
