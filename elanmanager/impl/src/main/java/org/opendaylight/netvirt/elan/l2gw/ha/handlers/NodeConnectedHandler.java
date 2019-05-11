@@ -20,7 +20,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAJobScheduler;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
@@ -92,7 +92,7 @@ public class NodeConnectedHandler {
                  (created in the device)
                  */
                 HAJobScheduler.getInstance().submitJob(() -> {
-                    ListenableFutures.addErrorLogging(
+                    LoggingFutures.addErrorLogging(
                         txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, jobTx -> {
                             hwvtepNodeHACache.updateConnectedNodeStatus(childNodePath);
                             LOG.info("HA child reconnected handleNodeReConnected {}",

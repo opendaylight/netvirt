@@ -11,6 +11,7 @@ import static java.util.Collections.emptyList;
 import static org.opendaylight.controller.md.sal.binding.api.WriteTransaction.CREATE_MISSING_PARENTS;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
+import static org.opendaylight.infrautils.utils.concurrent.LoggingFutures.addErrorLogging;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
 import com.google.common.base.Optional;
@@ -70,7 +71,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
@@ -490,7 +491,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private void deleteAllRemoteMacsInADpn(String elanName, BigInteger dpId, long elanTag) {
         List<DpnInterfaces> dpnInterfaces = elanUtils.getInvolvedDpnsInElan(elanName);
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
+        addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
             for (DpnInterfaces dpnInterface : dpnInterfaces) {
                 BigInteger currentDpId = dpnInterface.getDpId();
                 if (!currentDpId.equals(dpId) && dpnInterface.getInterfaces() != null) {
@@ -563,7 +564,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         for (StaticMacEntries staticMacEntry : updatedEntries) {
             InstanceIdentifier<MacEntry> macEntryIdentifier = getMacEntryOperationalDataPath(elanName,
                     staticMacEntry.getMacAddress());
-            ListenableFutures.addErrorLogging(ElanUtils.waitForTransactionToComplete(
+            addErrorLogging(ElanUtils.waitForTransactionToComplete(
                 txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
                     Optional<MacEntry> existingMacEntry = tx.read(macEntryIdentifier).get();
                     if (existingMacEntry.isPresent()) {
@@ -580,7 +581,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     @Override
     protected void add(InstanceIdentifier<ElanInterface> identifier, ElanInterface elanInterfaceAdded) {
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, operTx -> {
+        addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, operTx -> {
             String elanInstanceName = elanInterfaceAdded.getElanInstanceName();
             String interfaceName = elanInterfaceAdded.getName();
             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
@@ -1690,7 +1691,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             LOG.debug("Elan instance:{} is present in Dpn:{} ", elanName, dpId);
 
             final BigInteger finalDpId = dpId;
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 confTx -> elanL2GatewayMulticastUtils.setupElanBroadcastGroups(elanInfo, finalDpId, confTx)), LOG,
                 "Error setting up ELAN BGs");
             // install L2gwDevices local macs in dpn.
@@ -1799,7 +1800,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     public void handleExternalInterfaceEvent(ElanInstance elanInstance, DpnInterfaces dpnInterfaces,
                                              BigInteger dpId) {
         LOG.debug("setting up remote BC group for elan {}", elanInstance.getPhysicalNetworkName());
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+        addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
             confTx -> elanL2GatewayMulticastUtils.setupStandardElanBroadcastGroups(elanInstance, dpnInterfaces, dpId,
                 confTx)), LOG, "Error setting up remote BC group for ELAN {}", elanInstance.getPhysicalNetworkName());
         try {

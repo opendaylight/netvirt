@@ -32,7 +32,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -384,7 +384,7 @@ public class HwvtepPhysicalSwitchListener
     private void updateConfigTunnelIp(InstanceIdentifier<PhysicalSwitchAugmentation> identifier,
                                       PhysicalSwitchAugmentation phySwitchAdded) {
         if (phySwitchAdded.getTunnelIps() != null) {
-            ListenableFutures.addErrorLogging(
+            LoggingFutures.addErrorLogging(
                 txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
                     Optional<PhysicalSwitchAugmentation> existingSwitch = tx.read(identifier).get();
                     PhysicalSwitchAugmentationBuilder psBuilder = new PhysicalSwitchAugmentationBuilder();

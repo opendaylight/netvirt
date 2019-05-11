@@ -30,7 +30,7 @@ import org.opendaylight.infrautils.metrics.Labeled;
 import org.opendaylight.infrautils.metrics.Meter;
 import org.opendaylight.infrautils.metrics.MetricDescriptor;
 import org.opendaylight.infrautils.metrics.MetricProvider;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
@@ -139,7 +139,7 @@ public abstract class HwvtepNodeBaseListener<D extends Datastore>
 
     @Override
     public void onDataTreeChanged(final Collection<DataTreeModification<Node>> changes) {
-        HAJobScheduler.getInstance().submitJob(() -> ListenableFutures.addErrorLogging(
+        HAJobScheduler.getInstance().submitJob(() -> LoggingFutures.addErrorLogging(
             txRunner.callWithNewReadWriteTransactionAndSubmit(datastoreType, tx -> {
                 processConnectedNodes(changes, tx);
                 processUpdatedNodes(changes, tx);

@@ -30,7 +30,7 @@ import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -250,7 +250,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                     macEntry.getMacAddress(), macEntry.getInterface());
             return;
         }
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
             tx -> elanUtils.deleteMacFlows(elanInfo, oldInterfaceLport, macEntry, tx)), LOG,
             "Error deleting invalid MAC entry");
         elanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo,

@@ -24,7 +24,7 @@ import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAJobScheduler;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
@@ -69,7 +69,7 @@ public class NodeCopier {
             Futures.addCallback(tx.read(srcPath), new FutureCallback<Optional<Node>>() {
                 @Override
                 public void onSuccess(Optional<Node> nodeOptional) {
-                    HAJobScheduler.getInstance().submitJob(() -> ListenableFutures.addErrorLogging(
+                    HAJobScheduler.getInstance().submitJob(() -> LoggingFutures.addErrorLogging(
                         txRunner.callWithNewReadWriteTransactionAndSubmit(datastoreType, tx -> {
                             if (nodeOptional.isPresent()) {
                                 copyGlobalNode(nodeOptional, srcPath, dstPath, datastoreType, tx);
@@ -122,7 +122,7 @@ public class NodeCopier {
             haBuilder.setManagers(HwvtepHAUtil.buildManagersForHANode(srcGlobalNodeOptional.get(),
                     existingDstGlobalNodeOptional));
             //Also update the manager section in config which helps in cluster reboot scenarios
-            ListenableFutures.addErrorLogging(
+            LoggingFutures.addErrorLogging(
                 txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     confTx -> haBuilder.getManagers().forEach(manager -> {
                         InstanceIdentifier<Managers> managerIid =
@@ -153,7 +153,7 @@ public class NodeCopier {
                 @Override
                 public void onSuccess(Optional<Node> nodeOptional) {
                     HAJobScheduler.getInstance().submitJob(() -> {
-                        ListenableFutures.addErrorLogging(
+                        LoggingFutures.addErrorLogging(
                             txRunner.callWithNewReadWriteTransactionAndSubmit(datastoreType, tx -> {
                                 if (nodeOptional.isPresent()) {
                                     copyPSNode(nodeOptional,

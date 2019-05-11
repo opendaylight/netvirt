@@ -12,13 +12,12 @@ import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTeps;
@@ -58,7 +57,7 @@ public class ElanExtnTepConfigListener
 
     @Override
     protected void add(InstanceIdentifier<ExternalTeps> iid, ExternalTeps tep) {
-        JdkFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
             tx.put(iid, tep, true);
         }), LOG, "Failed to update operational external teps {}", iid);
     }
@@ -69,7 +68,7 @@ public class ElanExtnTepConfigListener
 
     @Override
     protected void remove(InstanceIdentifier<ExternalTeps> iid, ExternalTeps tep) {
-        JdkFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
             tx.delete(iid);
         }), LOG, "Failed to update operational external teps {}", iid);
     }
