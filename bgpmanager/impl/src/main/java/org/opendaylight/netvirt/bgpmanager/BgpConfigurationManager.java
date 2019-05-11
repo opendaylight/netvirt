@@ -2476,7 +2476,7 @@ public class BgpConfigurationManager {
         do {
             try {
                 br.sendEOR();
-                LOG.debug("Replay sendEOR {} successful");
+                LOG.debug("Replay sendEOR() successful");
                 break;
             } catch (Exception e) {
                 eorRetry.errorOccured();

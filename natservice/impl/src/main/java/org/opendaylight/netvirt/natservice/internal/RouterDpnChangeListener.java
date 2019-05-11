@@ -276,8 +276,7 @@ public class RouterDpnChangeListener
                                     }
                                     LOG.debug("remove : Retrieved vpnId {} for router {}", vpnId, routerUuid);
                                     //Remove default entry in FIB
-                                    LOG.debug("remove : Removing default route in FIB on dpn {} for vpn {} ...", dpnId,
-                                        vpnName);
+                                    LOG.debug("remove : Removing default route in FIB on dpn {} ...", dpnId);
                                     snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, confTx);
                                 } else {
                                     LOG.debug("remove : External vpn associated to router {}", routerUuid);
