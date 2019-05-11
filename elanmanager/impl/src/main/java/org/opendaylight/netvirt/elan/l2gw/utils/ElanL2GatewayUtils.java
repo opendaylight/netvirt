@@ -539,7 +539,7 @@ public class ElanL2GatewayUtils {
                 }, MoreExecutors.directExecutor());
     }
 
-    private String getLogicalSwitchName(LocalUcastMacs mac) {
+    private static String getLogicalSwitchName(LocalUcastMacs mac) {
         return ((InstanceIdentifier<LogicalSwitches>)mac.getLogicalSwitchRef().getValue())
                 .firstKeyOf(LogicalSwitches.class).getHwvtepNodeName().getValue();
     }

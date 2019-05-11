@@ -73,7 +73,7 @@ public class ElanInterfaceRecoveryHandler implements ServiceRecoveryInterface {
         }
     }
 
-    private String buildServiceRegistryKey() {
+    private static String buildServiceRegistryKey() {
         return NetvirtElanInterface.class.toString();
     }
 }

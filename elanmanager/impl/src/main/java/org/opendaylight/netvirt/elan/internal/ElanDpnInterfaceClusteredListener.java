@@ -153,7 +153,7 @@ public class ElanDpnInterfaceClusteredListener
         });
     }
 
-    private String getElanName(InstanceIdentifier<DpnInterfaces> identifier) {
+    private static String getElanName(InstanceIdentifier<DpnInterfaces> identifier) {
         return identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
     }
 

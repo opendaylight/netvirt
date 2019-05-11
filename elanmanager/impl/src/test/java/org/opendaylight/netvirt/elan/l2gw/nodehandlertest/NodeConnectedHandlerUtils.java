@@ -84,19 +84,19 @@ public class NodeConnectedHandlerUtils {
         tx.put(path, nodeBuilder.build(), CREATE_MISSING_PARENTS);
     }
 
-    private NodeBuilder prepareOperationalNode(InstanceIdentifier<Node> iid) {
+    private static NodeBuilder prepareOperationalNode(InstanceIdentifier<Node> iid) {
         NodeBuilder nodeBuilder = new NodeBuilder();
         nodeBuilder.setNodeId(iid.firstKeyOf(Node.class).getNodeId());
         return nodeBuilder;
     }
 
-    private HwvtepGlobalAugmentationBuilder prepareAugmentationBuilder() {
+    private static HwvtepGlobalAugmentationBuilder prepareAugmentationBuilder() {
         HwvtepGlobalAugmentationBuilder builder = new HwvtepGlobalAugmentationBuilder();
         builder.setManagers(TestBuilders.buildManagers());
         return builder;
     }
 
-    private List<String> getData(String data) {
+    private static List<String> getData(String data) {
         return Arrays.asList(data.split(","));
     }
 

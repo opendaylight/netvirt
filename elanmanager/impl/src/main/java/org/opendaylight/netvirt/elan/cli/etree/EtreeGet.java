@@ -69,7 +69,7 @@ public class EtreeGet extends OsgiCommandSupport {
         return null;
     }
 
-    private Object getEtreeHeaderOutput() {
+    private static Object getEtreeHeaderOutput() {
         StringBuilder headerBuilder = new StringBuilder();
         headerBuilder.append(String.format(ElanCLIUtils.ETREE_CLI_FORMAT, "Etree Instance", "Mac-TimeOut", "Etree Tag",
                 "Etree Leaves Tag"));

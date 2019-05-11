@@ -282,7 +282,7 @@ public class ElanL2GatewayMulticastUtils {
     }
 
     @Nullable
-    private DpnInterfaces getDpnInterfaces(ElanDpnInterfacesList elanDpns, BigInteger dpnId) {
+    private static DpnInterfaces getDpnInterfaces(ElanDpnInterfacesList elanDpns, BigInteger dpnId) {
         if (elanDpns != null) {
             for (DpnInterfaces dpnInterface : elanDpns.nonnullDpnInterfaces()) {
                 if (Objects.equals(dpnInterface.getDpId(), dpnId)) {
@@ -389,7 +389,7 @@ public class ElanL2GatewayMulticastUtils {
         return listBucketInfo;
     }
 
-    private int getNextAvailableBucketId(int bucketSize) {
+    private static int getNextAvailableBucketId(int bucketSize) {
         return bucketSize + 1;
     }
 
