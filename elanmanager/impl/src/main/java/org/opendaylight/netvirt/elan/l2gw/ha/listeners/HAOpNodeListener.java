@@ -27,7 +27,7 @@ import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.infrautils.metrics.MetricProvider;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.HAEventHandler;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.IHAEventHandler;
@@ -84,7 +84,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener<Operational> {
         LOG.trace("Ha enabled child node connected {}", childNode.getNodeId().getValue());
         try {
             nodeCopier.copyGlobalNode(Optional.fromNullable(childNode), childGlobalPath, haNodePath, OPERATIONAL, tx);
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+            LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                 confTx -> nodeCopier.copyGlobalNode(Optional.fromNullable(null), haNodePath, childGlobalPath,
                     CONFIGURATION, confTx)), LOG, "Error copying to configuration");
         } catch (InterruptedException | ExecutionException e) {
@@ -161,7 +161,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener<Operational> {
         try {
             nodeCopier.copyPSNode(Optional.fromNullable(childPsNode), childPsPath, haPsPath, haGlobalPath,
                     OPERATIONAL, tx);
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+            LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                 confTx -> nodeCopier.copyPSNode(Optional.fromNullable(null), haPsPath, childPsPath, childGlobalPath,
                     CONFIGURATION, confTx)), LOG, "Error copying to configuration");
         } catch (InterruptedException | ExecutionException e) {

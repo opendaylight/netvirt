@@ -20,7 +20,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
@@ -76,7 +76,7 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
                             tx.delete(iid);
                         }
                     });
-                ListenableFutures.addErrorLogging(future, LOG,
+                LoggingFutures.addErrorLogging(future, LOG,
                         "Failed to delete associate L2 gateway connection while deleting network");
                 return Collections.singletonList(future);
             });

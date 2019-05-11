@@ -38,7 +38,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadTransaction;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.internal.ElanBridgeManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -147,7 +147,7 @@ public class TransportZoneNotificationUtil {
     }
 
     public void updateTransportZone(String zoneNamePrefix, BigInteger dpnId) {
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             Map<String, String> localIps = getDpnLocalIps(dpnId);
             if (!localIps.isEmpty()) {
                 LOG.debug("Will use local_ips for transport zone update for dpn {} and zone name prefix {}", dpnId,
@@ -196,7 +196,7 @@ public class TransportZoneNotificationUtil {
     }
 
     public void deleteTransportZone(String zoneNamePrefix, BigInteger dpnId) {
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             Map<String, String> localIps = getDpnLocalIps(dpnId);
             if (!localIps.isEmpty()) {
                 LOG.debug("Will use local_ips for transport zone delete for dpn {} and zone name prefix {}", dpnId,
@@ -266,7 +266,7 @@ public class TransportZoneNotificationUtil {
             return;
         }
 
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             BigInteger dpId = dpIdOpt.get();
             Optional<DPNTEPsInfo> dpnTepsInfoOpt = getDpnTepsInfo(dpId, tx);
             if (!dpnTepsInfoOpt.isPresent()) {

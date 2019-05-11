@@ -39,7 +39,7 @@ import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.l2gw.jobs.HwvtepDeviceMcastMacUpdateJob;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanItmUtils;
@@ -119,7 +119,7 @@ public class ElanL2GatewayMulticastUtils {
      */
     public void handleMcastForElanL2GwDeviceAdd(String elanName, L2GatewayDevice device) {
         InstanceIdentifier<ExternalTeps> tepPath = buildExternalTepPath(elanName, device.getTunnelIp());
-        JdkFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
             tx -> tx.put(tepPath, buildExternalTeps(device))), LOG, "Failed to write to config external tep {}",
             tepPath);
         updateMcastMacsForAllElanDevices(elanName, device, true/* updateThisDevice */);

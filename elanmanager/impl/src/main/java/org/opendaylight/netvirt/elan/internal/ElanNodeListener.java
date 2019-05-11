@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
+import static org.opendaylight.infrautils.utils.concurrent.LoggingFutures.addErrorLogging;
 
 import java.math.BigInteger;
 import java.time.Duration;
@@ -16,11 +17,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -59,7 +58,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderConstant;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
@@ -139,13 +138,12 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
             LOG.warn("Unexpected nodeId {}", nodeId.getValue());
             return;
         }
-        ListenableFutures.addErrorLogging(
-            txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION, tx -> {
-                BigInteger dpId = new BigInteger(node[1]);
-                createTableMissEntry(tx, dpId);
-                createMulticastFlows(tx, dpId);
-                createArpDefaultFlowsForArpCheckTable(dpId);
-            }), LOG, "Error handling ELAN node addition for {}", add);
+        addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION, tx -> {
+            BigInteger dpId = new BigInteger(node[1]);
+            createTableMissEntry(tx, dpId);
+            createMulticastFlows(tx, dpId);
+            createArpDefaultFlowsForArpCheckTable(dpId);
+        }), LOG, "Error handling ELAN node addition for {}", add);
     }
 
     private void createArpDefaultFlowsForArpCheckTable(BigInteger dpId) {
@@ -355,7 +353,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         eventCallbacks.onAddOrUpdate(LogicalDatastoreType.CONFIGURATION,
                 ElanUtils.getGroupInstanceid(dpId, arpRequestGroupId), (unused, newGroupId) -> {
                 LOG.info("group {} added in the config", arpRequestGroupId);
-                ListenableFutures.addErrorLogging(
+                LoggingFutures.addErrorLogging(
                         txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                             innerConfTx -> createArpRequestMatchFlowsForGroup(dpId, arpRequestGroupId,
                                     innerConfTx)),

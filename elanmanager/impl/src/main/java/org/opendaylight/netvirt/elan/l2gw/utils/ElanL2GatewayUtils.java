@@ -50,7 +50,7 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceDpnsCache;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
@@ -1022,7 +1022,7 @@ public class ElanL2GatewayUtils {
             if (!optionalElan.isPresent()) {
                 return;
             }
-            JdkFutures.addErrorLogging(
+            LoggingFutures.addErrorLogging(
                 new ManagedNewTransactionRunnerImpl(dataBroker).callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                     tx -> optionalElan.get().nonnullElanInstance().stream()
                         .flatMap(elan -> elan.nonnullExternalTeps().stream()

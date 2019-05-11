@@ -47,7 +47,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.utils.SettableFutureCallback;
@@ -227,7 +227,7 @@ public class EvpnUtils {
             return;
         }
         int vpnLabel = 0;
-        long l2vni = elanUtils.getVxlanSegmentationId(elanInfo);
+        long l2vni = ElanUtils.getVxlanSegmentationId(elanInfo);
         long l3vni = 0;
         String gatewayMacAddr = null;
         String l3VpName = getL3vpnNameFromElan(elanInfo);
@@ -370,7 +370,7 @@ public class EvpnUtils {
     }
 
     public void bindElanServiceToExternalTunnel(String elanName, String interfaceName) {
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             int instructionKey = 0;
             LOG.trace("Binding external interface {} elan {}", interfaceName, elanName);
             List<Instruction> instructions = new ArrayList<>();
@@ -389,7 +389,7 @@ public class EvpnUtils {
     }
 
     public void unbindElanServiceFromExternalTunnel(String elanName, String interfaceName) {
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx -> {
             LOG.trace("UnBinding external interface {} elan {}", interfaceManager, elanName);
             short elanServiceIndex =
                     ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
@@ -415,7 +415,7 @@ public class EvpnUtils {
     private void programEvpnL2vniFlow(ElanInstance elanInfo, BiConsumer<BigInteger, FlowEntity> flowHandler) {
         long elanTag = elanInfo.getElanTag();
         List<MatchInfo> mkMatches = new ArrayList<>();
-        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(elanUtils.getVxlanSegmentationId(elanInfo))));
+        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(ElanUtils.getVxlanSegmentationId(elanInfo))));
         NWUtil.getOperativeDPNs(broker).forEach(dpnId -> {
             LOG.debug("Updating tunnel flow to dpnid {}", dpnId);
             List<InstructionInfo> instructions = getInstructionsForExtTunnelTable(elanTag);

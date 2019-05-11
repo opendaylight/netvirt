@@ -23,7 +23,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.MergeCommand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -115,7 +115,7 @@ public abstract class HwvtepNodeDataListener<D extends Datastore, T extends Data
             LOG.trace("Copy child op data {} to parent {}", mergeCommand.getDescription(), getNodeId(parent));
             T parentData = mergeCommand.transform(parent, data);
             InstanceIdentifier<T> parentIdentifier = mergeCommand.generateId(parent, parentData);
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(datastoreType,
+            LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(datastoreType,
                 tx -> writeToMdsal(tx, parentData, parentIdentifier)), LOG, "Error copying to parent");
         }
     }
@@ -127,7 +127,7 @@ public abstract class HwvtepNodeDataListener<D extends Datastore, T extends Data
         }
         InstanceIdentifier<Node> parent = getHAParent(identifier);
         if (parent != null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(datastoreType, tx -> {
+            LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(datastoreType, tx -> {
                 if (isNodeConnected(identifier)) {
                     LOG.trace("Copy child op data {} to parent {} create:{}", mergeCommand.getDescription(),
                             getNodeId(parent), false);
@@ -142,7 +142,7 @@ public abstract class HwvtepNodeDataListener<D extends Datastore, T extends Data
     private void copyToChildren(final InstanceIdentifier<T> parentIdentifier, final T parentData) {
         Set<InstanceIdentifier<Node>> children = getChildrenForHANode(parentIdentifier);
         if (children != null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(datastoreType, tx -> {
+            LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(datastoreType, tx -> {
                 for (InstanceIdentifier<Node> child : children) {
                     LOG.trace("Copy parent config data {} to child {}", mergeCommand.getDescription(),
                             getNodeId(child));
@@ -157,7 +157,7 @@ public abstract class HwvtepNodeDataListener<D extends Datastore, T extends Data
     private void deleteFromChildren(final InstanceIdentifier<T> parentIdentifier, final T parentData) {
         Set<InstanceIdentifier<Node>> children = getChildrenForHANode(parentIdentifier);
         if (children != null) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(datastoreType, tx -> {
+            LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(datastoreType, tx -> {
                 for (InstanceIdentifier<Node> child : children) {
                     LOG.trace("Delete parent config data {} to child {}", mergeCommand.getDescription(),
                             getNodeId(child));

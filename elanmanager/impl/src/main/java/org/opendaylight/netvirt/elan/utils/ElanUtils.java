@@ -32,7 +32,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -74,8 +73,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.packet.ARP;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
-import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
@@ -270,7 +268,7 @@ public class ElanUtils {
 
     public static void releaseId(IdManagerService idManager, String poolName, String idKey) {
         ReleaseIdInput releaseIdInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
-        JdkFutures.addErrorLogging(idManager.releaseId(releaseIdInput), LOG, "Release Id");
+        LoggingFutures.addErrorLogging(idManager.releaseId(releaseIdInput), LOG, "Release Id");
     }
 
     /**
@@ -1403,7 +1401,7 @@ public class ElanUtils {
     public void addDmacRedirectToDispatcherFlows(Long elanTag, String displayName,
             String macAddress, List<BigInteger> dpnIds) {
         for (BigInteger dpId : dpnIds) {
-            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+            LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                 tx -> mdsalManager.addFlow(tx, buildDmacRedirectToDispatcherFlow(dpId, macAddress, displayName,
                         elanTag))), LOG,
                 "Error adding DMAC redirect to dispatcher flows");
@@ -1411,7 +1409,7 @@ public class ElanUtils {
     }
 
     public void removeDmacRedirectToDispatcherFlows(Long elanTag, String macAddress, List<BigInteger> dpnIds) {
-        ListenableFutures.addErrorLogging(
+        LoggingFutures.addErrorLogging(
             txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION, tx -> {
                 for (BigInteger dpId : dpnIds) {
                     String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, macAddress, elanTag);
@@ -1588,7 +1586,7 @@ public class ElanUtils {
             int lportTag) {
         LOG.info("Removing the ARP responder flow on DPN {} of Interface {} with IP {}", dpnId, ingressInterfaceName,
                 ipAddress);
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION,
             tx -> mdsalManager.removeFlow(tx, dpnId, ArpResponderUtil.getFlowId(lportTag, ipAddress),
                 NwConstants.ARP_RESPONDER_TABLE)), LOG, "Error removing ARP responder flow");
     }
