@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -509,7 +510,7 @@ public class ElanL2GatewayUtils {
         Collection<LocalUcastMacs> lstUcastLocalMacs = l2gwDevice.getUcastLocalMacs();
         if (!lstUcastLocalMacs.isEmpty()) {
             macs.addAll(lstUcastLocalMacs.stream().filter(Objects::nonNull)
-                    .map(mac -> new MacAddress(mac.getMacEntryKey().getValue().toLowerCase()))
+                    .map(mac -> new MacAddress(mac.getMacEntryKey().getValue().toLowerCase(Locale.ENGLISH)))
                     .collect(Collectors.toList()));
         }
 
@@ -1117,7 +1118,7 @@ public class ElanL2GatewayUtils {
         Set<MacAddress> macs = new HashSet<>();
         if (!lstUcastLocalMacs.isEmpty()) {
             macs.addAll(lstUcastLocalMacs.stream().filter(Objects::nonNull)
-                    .map(mac -> new MacAddress(mac.getMacEntryKey().getValue().toLowerCase()))
+                    .map(mac -> new MacAddress(mac.getMacEntryKey().getValue().toLowerCase(Locale.ENGLISH)))
                     .collect(Collectors.toList()));
         }
         Optional<Node> configNode = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,

@@ -277,9 +277,9 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                                 bgpManager.addVrf(rd, importRTList, ertList, AddressFamily.IPV6);
                             }
                         }
-                    } catch (Exception e) {
-                        LOG.error("VpnOpStatusListener.update: Exception when updating VRF to BGP"
-                               + " for vpn {} rd {}", vpnName, rd);
+                    } catch (RuntimeException e) {
+                        LOG.error("VpnOpStatusListener.update: Exception when updating VRF to BGP for vpn {} rd {}",
+                            vpnName, rd, e);
                     }
                 });
                 return emptyList();

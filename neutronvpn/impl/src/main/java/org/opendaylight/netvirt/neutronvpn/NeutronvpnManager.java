@@ -2564,7 +2564,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
             Network network = neutronvpnUtils.getNeutronNetwork(nw);
             if (network == null) {
-                LOG.error("dissociateNetworksFromVpn: Network {} not found in ConfigDS");
+                LOG.error("dissociateNetworksFromVpn: Network {} not found in ConfigDS", nw.getValue());
                 failedNwList.add(String.format("Failed to disassociate network %s as is not found in ConfigDS",
                         nw.getValue()));
                 continue;

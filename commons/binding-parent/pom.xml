@@ -121,16 +121,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
         <configuration>
-          <plugins>
-            <plugin>
-              <groupId>jp.skypencil.findbugs.slf4j</groupId>
-              <artifactId>bug-pattern</artifactId>
-              <version>1.4.0</version>
-            </plugin>
-          </plugins>
           <failOnError>true</failOnError>
         </configuration>
       </plugin>

@@ -328,12 +328,12 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
         // During controller restart we'll get add for designatedDpns as well and we
         // need not install drop flows for those dpns
         if (designatedDpnsToTunnelIpElanNameCache.get(dpId) != null) {
-            LOG.trace("The dpn {} is designated DPN need not install drop flows");
+            LOG.trace("The dpn {} is designated DPN need not install drop flows", dpId);
             return;
         }
         // Read from DS since the cache may not get loaded completely in restart scenario
         if (isDpnDesignatedDpn(dpId)) {
-            LOG.trace("The dpn {} is designated DPN need not install drop flows");
+            LOG.trace("The dpn {} is designated DPN need not install drop flows", dpId);
             return;
         }
         List<String> vmMacs = getAllVmMacs();

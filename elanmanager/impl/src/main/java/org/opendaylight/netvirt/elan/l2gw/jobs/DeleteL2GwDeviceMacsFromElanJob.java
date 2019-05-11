@@ -13,10 +13,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
-
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager.ShardResource;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
@@ -90,8 +90,7 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
                 this.l2GwDevice.getHwvtepNodeId(), this.elanName);
         final String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(this.elanName);
         List<MacAddress> macs = new ArrayList<>();
-        macAddresses.forEach((mac) -> macs.add(new MacAddress(mac.getValue().toLowerCase())));
-
+        macAddresses.forEach((mac) -> macs.add(new MacAddress(mac.getValue().toLowerCase(Locale.ENGLISH))));
 
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils

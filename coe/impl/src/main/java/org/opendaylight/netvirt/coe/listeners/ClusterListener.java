@@ -55,7 +55,7 @@ public class ClusterListener extends AbstractSyncDataTreeChangeListener<K8sClust
     public void remove(@NonNull InstanceIdentifier<K8sClusters> instanceIdentifier, @NonNull K8sClusters clusters) {
         LOG.trace("K8 Cluster deleted {}", clusters);
         if (clusters.getClusterId() == null) {
-            LOG.error("K8 cluster {} deleted with null cluster-id");
+            LOG.error("K8 cluster {} deleted with null cluster-id", clusters);
             return;
         }
         jobCoordinator.enqueueJob(clusters.getClusterId().getValue(),
@@ -74,7 +74,7 @@ public class ClusterListener extends AbstractSyncDataTreeChangeListener<K8sClust
     public void add(@NonNull InstanceIdentifier<K8sClusters> instanceIdentifier, @NonNull K8sClusters clusters) {
         LOG.trace("K8 Cluster added {}", clusters);
         if (clusters.getClusterId() == null) {
-            LOG.error("K8 cluster {} added with null cluster-id");
+            LOG.error("K8 cluster {} added with null cluster-id", clusters);
             return;
         }
         jobCoordinator.enqueueJob(clusters.getClusterId().getValue(),
