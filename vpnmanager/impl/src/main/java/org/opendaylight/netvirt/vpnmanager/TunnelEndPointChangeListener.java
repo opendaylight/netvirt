@@ -15,7 +15,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -148,7 +147,7 @@ public class TunnelEndPointChangeListener
 
                                     @Override
                                     public void onFailure(Throwable throwable) {
-                                        LOG.debug("addVpnInterface: write Tx config execution failed {}", throwable);
+                                        LOG.debug("addVpnInterface: write Tx config execution failed", throwable);
                                     }
                                 }, MoreExecutors.directExecutor());
                                 futures.add(writeConfigFuture);

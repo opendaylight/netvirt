@@ -775,7 +775,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         boolean isL3VpnOverVxLan = VpnUtil.isL3VpnOverVxLan(l3vni);
         VrfEntry.EncapType encapType = isL3VpnOverVxLan ? VrfEntry.EncapType.Vxlan : VrfEntry.EncapType.Mplsgre;
         VpnPopulator registeredPopulator = L3vpnRegistry.getRegisteredPopulator(encapType);
-        List<Adjacency> nextHops = (adjacencies != null) ? adjacencies.getAdjacency() : emptyList();
+        List<Adjacency> nextHops = adjacencies != null ? adjacencies.getAdjacency() : emptyList();
         List<Adjacency> value = new ArrayList<>();
         for (Adjacency nextHop : nextHops) {
             String rd = primaryRd;
@@ -795,7 +795,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 LOG.debug("processVpnInterfaceAdjacencies: Adding prefix {} to interface {} with nextHops {} on dpn {}"
                         + " for vpn {}", prefix, interfaceName, nhList, dpnId, vpnName);
 
-                Prefixes prefixes = (intfnetworkUuid != null)
+                Prefixes prefixes = intfnetworkUuid != null
                     ? VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix, intfnetworkUuid ,networkType,
                             segmentationId, prefixCue) :
                     VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix, prefixCue);
@@ -1641,7 +1641,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             isVpnInstanceUpdate = true;
             if (VpnUtil.isDualRouterVpnUpdate(oldVpnListCopy, newVpnListCopy)) {
                 if ((oldVpnListCopy.size() == 2 || oldVpnListCopy.size() == 3)
-                        && (oldVpnList.size() == 1 && newVpnList.size() == 0)) {
+                        && oldVpnList.size() == 1 && newVpnList.size() == 0) {
                     //Identify the external BGP-VPN Instance and pass that value as newVpnList
                     List<String> externalBgpVpnList = new ArrayList<>();
                     for (String newVpnName : newVpnListCopy) {
@@ -1658,7 +1658,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             externalBgpVpnList, oldVpnListCopy, futures);
 
                 } else if ((oldVpnListCopy.size() == 2 || oldVpnListCopy.size() == 3)
-                        && (oldVpnList.size() == 0 && newVpnList.size() == 1)) {
+                        && oldVpnList.size() == 0 && newVpnList.size() == 1) {
                     //Identify the router VPN Instance and pass that value as oldVpnList
                     List<String> routerVpnList = new ArrayList<>();
                     for (String newVpnName : newVpnListCopy) {
@@ -1692,10 +1692,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                          List<String> newVpnList, List<String> oldVpnListCopy,
                                          List<ListenableFuture<Void>> futures) {
         final Adjacencies origAdjs = original.augmentation(Adjacencies.class);
-        final List<Adjacency> oldAdjs = (origAdjs != null && origAdjs.getAdjacency() != null)
+        final List<Adjacency> oldAdjs = origAdjs != null && origAdjs.getAdjacency() != null
                 ? origAdjs.getAdjacency() : new ArrayList<>();
         final Adjacencies updateAdjs = update.augmentation(Adjacencies.class);
-        final List<Adjacency> newAdjs = (updateAdjs != null && updateAdjs.getAdjacency() != null)
+        final List<Adjacency> newAdjs = updateAdjs != null && updateAdjs.getAdjacency() != null
                 ? updateAdjs.getAdjacency() : new ArrayList<>();
 
         boolean isOldVpnRemoveCallExecuted = false;
@@ -2414,7 +2414,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
         @Override
         public void onFailure(Throwable throwable) {
-            LOG.debug("write Tx config operation failed {}", throwable);
+            LOG.debug("write Tx config operation failed", throwable);
         }
     }
 }

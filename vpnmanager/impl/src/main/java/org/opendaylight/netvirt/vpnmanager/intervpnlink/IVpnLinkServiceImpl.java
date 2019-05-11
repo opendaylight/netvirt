@@ -446,7 +446,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         try {
             interVpnLinkUtil.handleStaticRoute(ivpnLink, vpnId, destination, routeNextHop, label);
         } catch (Exception e) {
-            LOG.error("Exception while advertising prefix for intervpn link, {}", e);
+            LOG.error("Exception while advertising prefix for intervpn link", e);
         }
     }
 }

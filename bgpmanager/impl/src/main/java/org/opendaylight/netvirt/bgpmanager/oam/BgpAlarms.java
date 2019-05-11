@@ -99,7 +99,7 @@ public class BgpAlarms implements Runnable, AutoCloseable {
                     Integer.parseInt(nbrshipStatus);
                     alarmToRaise = false;
                 } catch (NumberFormatException e) {
-                    LOG.trace("Exception thrown in parsing the integers. {}", e);
+                    LOG.trace("Exception thrown in parsing the integers.", e);
                 }
 
                 final BgpAlarmStatus alarmStatus = neighborsRaisedAlarmStatusMap.get(nbr.getAddress().getValue());
