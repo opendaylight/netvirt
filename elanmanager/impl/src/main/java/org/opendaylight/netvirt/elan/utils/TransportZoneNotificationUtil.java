@@ -129,7 +129,7 @@ public class TransportZoneNotificationUtil {
         return false;
     }
 
-    private TransportZone createZone(String subnetIp, String zoneName) {
+    private static TransportZone createZone(String subnetIp, String zoneName) {
         List<Subnets> subnets = new ArrayList<>();
         subnets.add(buildSubnets(subnetIp));
         TransportZoneBuilder tzb = new TransportZoneBuilder().withKey(new TransportZoneKey(zoneName))
@@ -137,7 +137,7 @@ public class TransportZoneNotificationUtil {
         return tzb.build();
     }
 
-    private void updateTransportZone(TransportZone zone, BigInteger dpnId,
+    private static void updateTransportZone(TransportZone zone, BigInteger dpnId,
             @NonNull TypedWriteTransaction<Configuration> tx) {
         InstanceIdentifier<TransportZone> path = InstanceIdentifier.builder(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zone.getZoneName())).build();
@@ -187,7 +187,7 @@ public class TransportZoneNotificationUtil {
         }
     }
 
-    private void deleteTransportZone(TransportZone zone, BigInteger dpnId,
+    private static void deleteTransportZone(TransportZone zone, BigInteger dpnId,
             @NonNull TypedWriteTransaction<Configuration> tx) {
         InstanceIdentifier<TransportZone> path = InstanceIdentifier.builder(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zone.getZoneName())).build();
@@ -212,7 +212,7 @@ public class TransportZoneNotificationUtil {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void deleteTransportZone(String zoneName, BigInteger dpnId,
+    private static void deleteTransportZone(String zoneName, BigInteger dpnId,
             @NonNull TypedReadWriteTransaction<Configuration> tx) throws ExecutionException, InterruptedException {
         InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zoneName));
@@ -339,8 +339,9 @@ public class TransportZoneNotificationUtil {
         }
     }
 
-    private void handleRemovedLocalIps(Map<String, String> removedEntries, BigInteger dpId, Set<String> zonePrefixes,
-            Map<String, List<String>> tepTzMap, @NonNull TypedWriteTransaction<Configuration> tx) {
+    private static void handleRemovedLocalIps(Map<String, String> removedEntries, BigInteger dpId,
+            Set<String> zonePrefixes, Map<String, List<String>> tepTzMap,
+            @NonNull TypedWriteTransaction<Configuration> tx) {
         if (removedEntries == null || removedEntries.isEmpty()) {
             LOG.trace("No removed local_ips found on DPN {}", dpId);
             return;
@@ -372,7 +373,7 @@ public class TransportZoneNotificationUtil {
                 .collect(Collectors.toList());
     }
 
-    private Optional<DPNTEPsInfo> getDpnTepsInfo(BigInteger dpId, TypedReadTransaction<Configuration> tx) {
+    private static Optional<DPNTEPsInfo> getDpnTepsInfo(BigInteger dpId, TypedReadTransaction<Configuration> tx) {
         InstanceIdentifier<DPNTEPsInfo> identifier = InstanceIdentifier.builder(DpnEndpoints.class)
                 .child(DPNTEPsInfo.class, new DPNTEPsInfoKey(dpId)).build();
         try {
@@ -412,7 +413,7 @@ public class TransportZoneNotificationUtil {
         return false;
     }
 
-    private void removeVtep(String zoneName, BigInteger dpId, @NonNull TypedWriteTransaction<Configuration> tx) {
+    private static void removeVtep(String zoneName, BigInteger dpId, @NonNull TypedWriteTransaction<Configuration> tx) {
         InstanceIdentifier<Vteps> path = InstanceIdentifier.builder(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zoneName))
                 .child(Subnets.class, new SubnetsKey(IpPrefixBuilder.getDefaultInstance(ALL_SUBNETS)))
@@ -422,7 +423,7 @@ public class TransportZoneNotificationUtil {
 
     // search for relevant subnets for the given subnetIP, add one if it is
     // necessary
-    private Subnets getOrAddSubnet(@NonNull List<Subnets> subnets, @NonNull String subnetIp) {
+    private static Subnets getOrAddSubnet(@NonNull List<Subnets> subnets, @NonNull String subnetIp) {
         IpPrefix subnetPrefix = IpPrefixBuilder.getDefaultInstance(subnetIp);
 
         for (Subnets subnet : subnets) {
@@ -437,7 +438,7 @@ public class TransportZoneNotificationUtil {
         return retSubnet;
     }
 
-    private Subnets buildSubnets(String subnetIp) {
+    private static Subnets buildSubnets(String subnetIp) {
         SubnetsBuilder subnetsBuilder = new SubnetsBuilder().setDeviceVteps(new ArrayList<>())
                 .setGatewayIp(IpAddressBuilder.getDefaultInstance(ALL_SUBNETS_GW))
                 .withKey(new SubnetsKey(IpPrefixBuilder.getDefaultInstance(subnetIp))).setVlanId(0)
@@ -494,11 +495,11 @@ public class TransportZoneNotificationUtil {
         return optionalNode;
     }
 
-    private String getTzNameForUnderlayNetwork(String zoneNamePrefix, String underlayNetworkName) {
+    private static String getTzNameForUnderlayNetwork(String zoneNamePrefix, String underlayNetworkName) {
         return zoneNamePrefix + IP_NETWORK_ZONE_NAME_DELIMITER + underlayNetworkName;
     }
 
-    private Optional<String> getZonePrefixForUnderlayNetwork(String zoneName, String underlayNetworkName) {
+    private static Optional<String> getZonePrefixForUnderlayNetwork(String zoneName, String underlayNetworkName) {
         String[] zoneParts = zoneName.split(IP_NETWORK_ZONE_NAME_DELIMITER + underlayNetworkName);
         return zoneParts.length == 2 ? Optional.of(zoneParts[0]) : Optional.absent();
     }

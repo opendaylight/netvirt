@@ -68,7 +68,7 @@ public class ElanInterfaceGet extends OsgiCommandSupport {
         return null;
     }
 
-    private Object getElanInterfaceHeaderOutput() {
+    private static Object getElanInterfaceHeaderOutput() {
         StringBuilder headerBuilder = new StringBuilder();
         headerBuilder.append(String.format(ElanCLIUtils.ELAN_INTERFACE_CLI_FORMAT, "ElanInstance/Tag",
                 "ElanInterface/Tag", "OpState", "AdminState"));

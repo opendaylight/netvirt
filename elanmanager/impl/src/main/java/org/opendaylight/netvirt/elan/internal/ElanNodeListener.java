@@ -313,7 +313,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         mdsalManager.addFlow(tx, flow);
     }
 
-    private String getTableMissFlowRef(long tableId) {
+    private static String getTableMissFlowRef(long tableId) {
         return String.valueOf(tableId);
     }
 

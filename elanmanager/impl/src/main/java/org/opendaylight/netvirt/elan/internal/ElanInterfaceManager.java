@@ -364,7 +364,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
     }
 
-    private Elan removeElanStateForInterface(ElanInstance elanInfo, String interfaceName,
+    private static Elan removeElanStateForInterface(ElanInstance elanInfo, String interfaceName,
             TypedReadWriteTransaction<Operational> tx) throws ExecutionException, InterruptedException {
         String elanName = elanInfo.getElanInstanceName();
         Elan elanState = ElanUtils.getElanByName(tx, elanName);
@@ -911,7 +911,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         return interfaces.size() == dummyInterfaceCount;
     }
 
-    private InstanceIdentifier<MacEntry> getMacEntryOperationalDataPath(String elanName, PhysAddress physAddress) {
+    private static InstanceIdentifier<MacEntry> getMacEntryOperationalDataPath(String elanName,
+            PhysAddress physAddress) {
         return InstanceIdentifier.builder(ElanForwardingTables.class).child(MacTable.class, new MacTableKey(elanName))
                 .child(MacEntry.class, new MacEntryKey(physAddress)).build();
     }
@@ -1084,20 +1085,20 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
     }
 
-    private List<MatchInfo> buildMatchesForVni(Long vni) {
+    private static List<MatchInfo> buildMatchesForVni(Long vni) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         MatchInfo match = new MatchTunnelId(BigInteger.valueOf(vni));
         mkMatches.add(match);
         return mkMatches;
     }
 
-    private List<InstructionInfo> getInstructionsForOutGroup(long groupId) {
+    private static List<InstructionInfo> getInstructionsForOutGroup(long groupId) {
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionWriteActions(Collections.singletonList(new ActionGroup(groupId))));
         return mkInstructions;
     }
 
-    private List<MatchInfo> getMatchesForElanTag(long elanTag, boolean isSHFlagSet) {
+    private static List<MatchInfo> getMatchesForElanTag(long elanTag, boolean isSHFlagSet) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchMetadata(
@@ -1113,7 +1114,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
      *            elanTag to be written in metadata when flow is selected
      * @return the instructions ready to be installed in a flow
      */
-    private List<InstructionInfo> getInstructionsIntOrExtTunnelTable(Long elanTag) {
+    private static List<InstructionInfo> getInstructionsIntOrExtTunnelTable(Long elanTag) {
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionWriteMetadata(ElanHelper.getElanMetadataLabel(elanTag), ElanHelper
                 .getElanMetadataMask()));
@@ -1149,7 +1150,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         return emptyList();
     }
 
-    private void createDropBucket(List<Bucket> listBucket) {
+    private static void createDropBucket(List<Bucket> listBucket) {
         List<Action> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionDrop().buildAction());
         Bucket dropBucket = MDSALUtil.buildBucket(actionsInfos, MDSALUtil.GROUP_WEIGHT, 0, MDSALUtil.WATCH_PORT,
@@ -1464,7 +1465,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
     }
 
-    private boolean isStandardElanService(ElanInterface elanInterface) {
+    private static boolean isStandardElanService(ElanInterface elanInterface) {
         return elanInterface.augmentation(EtreeInterface.class) == null;
     }
 
@@ -1477,20 +1478,20 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
     }
 
-    private String getFlowRef(long tableId, long elanTag) {
+    private static String getFlowRef(long tableId, long elanTag) {
         return String.valueOf(tableId) + elanTag;
     }
 
-    private String getFlowRef(long tableId, long elanTag, String flowName) {
+    private static String getFlowRef(long tableId, long elanTag, String flowName) {
         return new StringBuffer().append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(elanTag)
                 .append(NwConstants.FLOWID_SEPARATOR).append(flowName).toString();
     }
 
-    private String getUnknownDmacFlowRef(long tableId, long elanTag, boolean shFlag) {
+    private static String getUnknownDmacFlowRef(long tableId, long elanTag, boolean shFlag) {
         return String.valueOf(tableId) + elanTag + shFlag;
     }
 
-    private List<Action> getInterfacePortActions(InterfaceInfo interfaceInfo) {
+    private static List<Action> getInterfacePortActions(InterfaceInfo interfaceInfo) {
         List<Action> listAction = new ArrayList<>();
         int actionKey = 0;
         listAction.add(
@@ -1500,7 +1501,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         return listAction;
     }
 
-    private DpnInterfaces updateElanDpnInterfacesList(String elanInstanceName, BigInteger dpId,
+    private static DpnInterfaces updateElanDpnInterfacesList(String elanInstanceName, BigInteger dpId,
             List<String> interfaceNames, TypedWriteTransaction<Operational> tx) {
         DpnInterfaces dpnInterface = new DpnInterfacesBuilder().setDpId(dpId).setInterfaces(interfaceNames)
                 .withKey(new DpnInterfacesKey(dpId)).build();
@@ -1517,7 +1518,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
      * @param dpId
      *            the dp id
      */
-    private void deleteElanDpnInterface(String elanInstanceName, BigInteger dpId,
+    private static void deleteElanDpnInterface(String elanInstanceName, BigInteger dpId,
             TypedReadWriteTransaction<Operational> tx) throws ExecutionException, InterruptedException {
         InstanceIdentifier<DpnInterfaces> dpnInterfacesId = ElanUtils
                 .getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId);
@@ -1527,8 +1528,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
     }
 
-    private DpnInterfaces createElanInterfacesList(String elanInstanceName, String interfaceName, BigInteger dpId,
-            TypedWriteTransaction<Operational> tx) {
+    private static DpnInterfaces createElanInterfacesList(String elanInstanceName, String interfaceName,
+            BigInteger dpId, TypedWriteTransaction<Operational> tx) {
         List<String> interfaceNames = new ArrayList<>();
         interfaceNames.add(interfaceName);
         DpnInterfaces dpnInterface = new DpnInterfacesBuilder().setDpId(dpId).setInterfaces(interfaceNames)
@@ -1538,7 +1539,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         return dpnInterface;
     }
 
-    private void createElanInterfaceTablesList(String interfaceName, TypedReadWriteTransaction<Operational> tx)
+    private static void createElanInterfaceTablesList(String interfaceName, TypedReadWriteTransaction<Operational> tx)
             throws ExecutionException, InterruptedException {
         InstanceIdentifier<ElanInterfaceMac> elanInterfaceMacTables = ElanUtils
                 .getElanInterfaceMacEntriesOperationalDataPath(interfaceName);
@@ -1553,7 +1554,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
     }
 
-    private void createElanStateList(String elanInstanceName, String interfaceName,
+    private static void createElanStateList(String elanInstanceName, String interfaceName,
             TypedReadWriteTransaction<Operational> tx) throws ExecutionException, InterruptedException {
         InstanceIdentifier<Elan> elanInstance = ElanUtils.getElanInstanceOperationalDataPath(elanInstanceName);
         Optional<Elan> elanInterfaceLists = tx.read(elanInstance).get();
@@ -1571,11 +1572,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
     }
 
-    private boolean isOperational(InterfaceInfo interfaceInfo) {
-        if (interfaceInfo == null) {
-            return false;
-        }
-        return interfaceInfo.getAdminState() == InterfaceInfo.InterfaceAdminState.ENABLED;
+    private static boolean isOperational(InterfaceInfo interfaceInfo) {
+        return interfaceInfo != null && interfaceInfo.getAdminState() == InterfaceInfo.InterfaceAdminState.ENABLED;
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
@@ -1783,7 +1781,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         return false;
     }
 
-    private List<MatchInfo> getMatchesForFilterEqualsLPortTag(int lportTag) {
+    private static List<MatchInfo> getMatchesForFilterEqualsLPortTag(int lportTag) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(

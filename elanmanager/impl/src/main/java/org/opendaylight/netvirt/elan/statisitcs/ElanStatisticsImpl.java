@@ -74,14 +74,13 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
     }
 
     @Nullable
-    private GetElanInterfaceStatisticsOutput queryforElanInterfaceStatistics() {
+    private static GetElanInterfaceStatisticsOutput queryforElanInterfaceStatistics() {
         return null;
     }
 
-    private ListenableFuture<RpcResult<GetElanInterfaceStatisticsOutput>> getFutureWithAppErrorMessage(
+    private static ListenableFuture<RpcResult<GetElanInterfaceStatisticsOutput>> getFutureWithAppErrorMessage(
         RpcResultBuilder<GetElanInterfaceStatisticsOutput> rpcResultBuilder, String message) {
-        rpcResultBuilder.withError(ErrorType.APPLICATION, message);
-        return rpcResultBuilder.buildFuture();
+        return rpcResultBuilder.withError(ErrorType.APPLICATION, message).buildFuture();
     }
 
 }

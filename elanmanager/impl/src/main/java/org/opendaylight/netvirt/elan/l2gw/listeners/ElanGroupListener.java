@@ -88,7 +88,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
     }
 
     @Nullable
-    private BigInteger getDpnId(String node) {
+    private static BigInteger getDpnId(String node) {
         //openflow:1]
         String[] temp = node.split(":");
         if (temp.length == 2) {

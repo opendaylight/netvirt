@@ -74,7 +74,7 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
         return null;
     }
 
-    private Object getEtreeInterfaceHeaderOutput() {
+    private static Object getEtreeInterfaceHeaderOutput() {
         StringBuilder headerBuilder = new StringBuilder();
         headerBuilder.append(String.format(ElanCLIUtils.ETREE_INTERFACE_CLI_FORMAT, "EtreeInstance/Tag",
                 "EtreeInterface/Tag", "OpState", "AdminState", "Root/Leaf"));

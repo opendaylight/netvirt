@@ -12,18 +12,15 @@ import static org.opendaylight.genius.infra.Datastore.OPERATIONAL;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -203,7 +200,7 @@ public class ElanLearntVpnVipToPortListener extends
         }
     }
 
-    private String buildJobKey(String mac, String interfaceName) {
+    private static String buildJobKey(String mac, String interfaceName) {
         return "ENTERPRISEMACJOB" + mac + interfaceName;
     }
 

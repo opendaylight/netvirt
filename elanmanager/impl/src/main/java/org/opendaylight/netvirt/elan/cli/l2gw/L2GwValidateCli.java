@@ -165,7 +165,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
         }
     }
 
-    private boolean isPresent(Map<InstanceIdentifier<Node>, Map<InstanceIdentifier, DataObject>> dataMap,
+    private static boolean isPresent(Map<InstanceIdentifier<Node>, Map<InstanceIdentifier, DataObject>> dataMap,
                               InstanceIdentifier<Node> nodeIid, InstanceIdentifier dataIid) {
         if (dataMap.containsKey(nodeIid)) {
             return dataMap.get(nodeIid).containsKey(dataIid);
@@ -174,7 +174,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
     }
 
     @Nullable
-    private DataObject getData(Map<InstanceIdentifier<Node>, Map<InstanceIdentifier, DataObject>> dataMap,
+    private static DataObject getData(Map<InstanceIdentifier<Node>, Map<InstanceIdentifier, DataObject>> dataMap,
                                InstanceIdentifier<Node> nodeIid, InstanceIdentifier dataIid) {
         if (dataMap.containsKey(nodeIid)) {
             return dataMap.get(nodeIid).get(dataIid);
@@ -268,7 +268,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
         }
     }
 
-    private boolean containsLogicalSwitch(Node node) {
+    private static boolean containsLogicalSwitch(Node node) {
         if (node == null || node.augmentation(HwvtepGlobalAugmentation.class) == null
                 || HwvtepHAUtil.isEmptyList(
                 node.augmentation(HwvtepGlobalAugmentation.class).getLogicalSwitches())) {
@@ -436,7 +436,8 @@ public class L2GwValidateCli extends OsgiCommandSupport {
         return true;
     }
 
-    private  InstanceIdentifier<TerminationPoint> getPhysicalPortTerminationPointIid(NodeId nodeId, String portName) {
+    private static InstanceIdentifier<TerminationPoint> getPhysicalPortTerminationPointIid(NodeId nodeId,
+            String portName) {
         TerminationPointKey tpKey = new TerminationPointKey(new TpId(portName));
         InstanceIdentifier<TerminationPoint> iid = HwvtepSouthboundUtils.createTerminationPointId(nodeId, tpKey);
         return iid;

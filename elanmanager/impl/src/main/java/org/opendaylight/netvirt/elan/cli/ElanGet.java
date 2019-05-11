@@ -66,7 +66,7 @@ public class ElanGet extends OsgiCommandSupport {
         return null;
     }
 
-    private Object getElanHeaderOutput() {
+    private static Object getElanHeaderOutput() {
         StringBuilder headerBuilder = new StringBuilder();
         headerBuilder.append(String.format(ElanCLIUtils.ELAN_CLI_FORMAT, "Elan Instance", "Mac-TimeOut", "Tag"));
         headerBuilder.append('\n');

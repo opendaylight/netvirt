@@ -618,15 +618,15 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         }
     }
 
-    private boolean hasDatapathIdAdded(boolean hasDatapathIdOnOrigNode, boolean hasDatapathIdOnUpdatedNode) {
+    private static boolean hasDatapathIdAdded(boolean hasDatapathIdOnOrigNode, boolean hasDatapathIdOnUpdatedNode) {
         return !hasDatapathIdOnOrigNode && hasDatapathIdOnUpdatedNode;
     }
 
-    private boolean hasPortNameUpdated(String origPortName, String updatedPortName) {
+    private static boolean hasPortNameUpdated(String origPortName, String updatedPortName) {
         return updatedPortName != null && !updatedPortName.equals(origPortName);
     }
 
-    private boolean hasPortNameRemoved(String origPortName, String updatedPortName) {
+    private static boolean hasPortNameRemoved(String origPortName, String updatedPortName) {
         return origPortName != null && !origPortName.equals(updatedPortName);
     }
 
@@ -823,7 +823,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         }
     }
 
-    private String getTrunkInterfaceName(String parentRef) {
+    private static String getTrunkInterfaceName(String parentRef) {
         return parentRef + IfmConstants.OF_URI_SEPARATOR + "trunk";
     }
 

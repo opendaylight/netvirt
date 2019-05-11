@@ -107,9 +107,9 @@ public class NodeConnectedHandler {
         deleteChildPSConfigIfHAPSConfigIsMissing(haGlobalCfg, childNode, confTx);
     }
 
-    private void deleteChildPSConfigIfHAPSConfigIsMissing(Optional<Node> haPSCfg,
-                                                          Node childNode,
-                                                          TypedReadWriteTransaction<Configuration> tx)
+    private static void deleteChildPSConfigIfHAPSConfigIsMissing(Optional<Node> haPSCfg,
+                                                                 Node childNode,
+                                                                 TypedReadWriteTransaction<Configuration> tx)
             throws ExecutionException, InterruptedException {
         if (haPSCfg.isPresent()) {
             return;
