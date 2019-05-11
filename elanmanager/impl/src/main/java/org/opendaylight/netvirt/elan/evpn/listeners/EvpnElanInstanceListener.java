@@ -20,7 +20,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnMacVrfUtils;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
@@ -76,7 +76,7 @@ public class EvpnElanInstanceListener extends AsyncDataTreeChangeListenerBase<El
     protected void update(InstanceIdentifier<ElanInstance> instanceIdentifier, ElanInstance original,
                           ElanInstance update) {
         String elanName = update.getElanInstanceName();
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
             if (evpnUtils.isWithdrawEvpnRT2Routes(original, update)) {
                 evpnUtils.withdrawEvpnRT2Routes(original.augmentation(EvpnAugmentation.class), elanName);
                 evpnMacVrfUtils.updateEvpnDmacFlows(original, false);

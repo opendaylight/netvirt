@@ -16,7 +16,6 @@ import java.util.Collections;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -24,7 +23,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -107,8 +106,8 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         if (existingElanTag == null || !existingElanTag.equals(update.getElanTag())) {
             if (update.getElanTag() == null  || update.getElanTag() == 0L) {
                 // update the elan-Instance with new properties
-                ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
-                    operTx -> ListenableFutures.addErrorLogging(
+                LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
+                    operTx -> LoggingFutures.addErrorLogging(
                         txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                             confTx -> ElanUtils.updateOperationalDataStore(idManager, update, new ArrayList<>(), confTx,
                                 operTx)), LOG, "Error updating ELAN tag in ELAN instance")), LOG,
@@ -122,11 +121,11 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     @Override
     protected void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance elanInstanceAdded) {
-        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
+        LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
             String elanInstanceName  = elanInstanceAdded.getElanInstanceName();
             Elan elanInfo = ElanUtils.getElanByName(operTx, elanInstanceName);
             if (elanInfo == null) {
-                ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
                     confTx -> ElanUtils.updateOperationalDataStore(idManager, elanInstanceAdded, new ArrayList<>(),
                         confTx, operTx)), LOG, "Error adding an ELAN instance");
             }

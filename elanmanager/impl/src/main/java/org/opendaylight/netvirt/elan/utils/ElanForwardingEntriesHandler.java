@@ -24,7 +24,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
@@ -143,7 +143,7 @@ public class ElanForwardingEntriesHandler {
                 flowTx -> elanUtils.deleteMacFlows(elanInfo, interfaceInfo, macEntry, flowTx)));
         }));
         for (ListenableFuture<Void> future : futures) {
-            ListenableFutures.addErrorLogging(future, LOG, "Error deleting ELAN interface forwarding entries");
+            LoggingFutures.addErrorLogging(future, LOG, "Error deleting ELAN interface forwarding entries");
         }
     }
 }

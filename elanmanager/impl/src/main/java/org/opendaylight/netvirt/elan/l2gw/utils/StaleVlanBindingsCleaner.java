@@ -29,7 +29,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.utils.Scheduler;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
@@ -187,7 +187,7 @@ public class StaleVlanBindingsCleaner {
                                       final String staleLogicalSwitch) {
 
         LOG.trace("CleanupStaleBindings for logical switch {}", staleLogicalSwitch);
-        ListenableFutures.addErrorLogging(
+        LoggingFutures.addErrorLogging(
             txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 if (vlans.containsKey(staleLogicalSwitch)) {
                     vlans.get(staleLogicalSwitch).forEach((vlanIid) -> tx.delete(vlanIid));

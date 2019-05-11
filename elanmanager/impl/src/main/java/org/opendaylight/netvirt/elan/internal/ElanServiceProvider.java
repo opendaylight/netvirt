@@ -41,7 +41,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
-import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.eos.binding.api.Entity;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistration;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
@@ -866,7 +866,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 ArpResponderUtil.generateCookie(lportTag, ipAddress),
                 ArpResponderUtil.getMatchCriteria(lportTag, elanInstance, ipAddress),
                 arpResponderInput.getInstructions());
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
             tx -> mdsalManager.addFlow(tx, dpnId, flowEntity)), LOG, "Error adding flow {}", flowEntity);
         LOG.info("Installed the ARP Responder flow for Interface {}", ingressInterfaceName);
     }
@@ -894,7 +894,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 ArpResponderUtil.generateCookie(lportTag, ipAddress),
                 ArpResponderUtil.getMatchCriteria(lportTag, elanInstance, ipAddress),
                 arpResponderInput.getInstructions());
-        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
+        LoggingFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(Datastore.CONFIGURATION,
             tx -> mdsalManager.addFlow(tx, dpnId, flowEntity)), LOG, "Error adding flow {}", flowEntity);
         LOG.trace("Installed the ExternalTunnel ARP Responder flow for ElanInstance {}", elanInstanceName);
     }
@@ -914,7 +914,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
      */
     @Override
     public Long retrieveNewElanTag(String idKey) {
-        return elanUtils.retrieveNewElanTag(idManager, idKey);
+        return ElanUtils.retrieveNewElanTag(idManager, idKey);
     }
 
     @Override
