@@ -237,7 +237,8 @@ public class NexthopManager implements AutoCloseable {
             RpcResult<AllocateIdOutput> rpcResult = result.get();
             return rpcResult.getResult().getIdValue();
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.trace("", e);
+            // FIXME: NPEs should not be caught but rather their root cause should be eliminated
+            LOG.trace("Failed to allocate {}", getIdInput, e);
         }
         return 0;
     }
