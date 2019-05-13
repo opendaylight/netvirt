@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "f9811d8b_7e26deb2",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanItmUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-05-13T06:06:22Z",
+      "side": 1,
+      "message": "LOG.error(\"Error in RPC call geTunnelInterfaceName with srcDpnId :{} Destination Tor: {}\", srcDpnId, torNode.getValue(), e);",
+      "range": {
+        "startLine": 97,
+        "startChar": 12,
+        "endLine": 97,
+        "endChar": 69
+      },
+      "revId": "f25ec67f88823bffac3ee890aeea814e9272e90a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "101d57ce_32366ec4",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanItmUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-05-13T06:06:22Z",
+      "side": 1,
+      "message": "Same comment as above. Lets us log the src and destination dpns to to which the RPCs failed",
+      "range": {
+        "startLine": 121,
+        "startChar": 12,
+        "endLine": 121,
+        "endChar": 68
+      },
+      "revId": "f25ec67f88823bffac3ee890aeea814e9272e90a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eddcb2cb_e9900e24",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/BaseVrfEntryHandler.java",
         "patchSetId": 5
