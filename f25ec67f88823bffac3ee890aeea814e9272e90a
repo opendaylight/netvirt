@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eddcb2cb_e9900e24",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/BaseVrfEntryHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-05-13T06:01:16Z",
+      "side": 1,
+      "message": "LOG.trace(\"Failed to remove nexthop for ip {} from dpn {} of vpn {} \", ipAddress, dpId, vpnId, e);",
+      "range": {
+        "startLine": 156,
+        "startChar": 12,
+        "endLine": 156,
+        "endChar": 53
+      },
+      "revId": "f25ec67f88823bffac3ee890aeea814e9272e90a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "12b2e758_18cd39ac",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-05-13T06:01:16Z",
+      "side": 1,
+      "message": "Can log nexthopKey here\n\nLOG.trace(\"Failed to allocate id for {} from {}\", nexthopKey, NEXTHOP_ID_POOL_NAME, e);",
+      "range": {
+        "startLine": 241,
+        "startChar": 47,
+        "endLine": 241,
+        "endChar": 57
+      },
+      "revId": "f25ec67f88823bffac3ee890aeea814e9272e90a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "45ff4182_e8790dc9",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-05-13T06:01:16Z",
+      "side": 1,
+      "message": "Invalid Name. Please name as VpnInterfaceCallBackHandler",
+      "revId": "f25ec67f88823bffac3ee890aeea814e9272e90a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
