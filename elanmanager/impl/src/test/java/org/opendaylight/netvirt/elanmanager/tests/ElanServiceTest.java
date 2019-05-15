@@ -12,10 +12,8 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.base.Optional;
-
 import java.util.List;
 import javax.inject.Inject;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -160,6 +158,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
                                 .network.topology.rev131021.network.topology.topology.Node.class)
                         .augmentation(HwvtepGlobalAugmentation.class)
                         .child(LogicalSwitches.class).build(), cacheProvider) {
+            @Override
             protected void added(InstanceIdentifier<LogicalSwitches> path, LogicalSwitches dataObject) {
                 new Thread(() -> {
                     try {
@@ -475,6 +474,8 @@ public class ElanServiceTest extends  ElanServiceTestBase {
     public void verifyL2gwPreProvisioning() throws Exception {
 
         createElanInstance(ExpectedObjects.ELAN1, ExpectedObjects.ELAN1_SEGMENT_ID);
+        awaitForElanTag(ExpectedObjects.ELAN1);
+
         addElanInterface(ExpectedObjects.ELAN1, ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC1).getLeft(), DPN1IP1);
 
         singleTxdataBroker.syncDelete(OPERATIONAL, TOR1_NODE_IID);
