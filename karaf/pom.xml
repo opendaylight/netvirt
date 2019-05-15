@@ -23,6 +23,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
 
     <properties>
         <!-- <karaf.localFeature>odl-netvirt-openstack</karaf.localFeature> -->
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
     </properties>
 
     <dependencies>
@@ -116,14 +118,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <!-- Temporarily deploy the karaf artifact -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <configuration>
-                    <skip>false</skip>
-                </configuration>
             </plugin>
         </plugins>
     </build>
