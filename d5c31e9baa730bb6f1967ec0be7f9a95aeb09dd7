@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1230249_127a3560",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/SnatCentralizedSwitchChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2019-05-17T05:58:40Z",
+      "side": 1,
+      "message": "Please print routertoNaptSwitch to get to know ifnore for which event processing",
+      "range": {
+        "startLine": 91,
+        "startChar": 95,
+        "endLine": 91,
+        "endChar": 99
+      },
+      "revId": "d5c31e9baa730bb6f1967ec0be7f9a95aeb09dd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7f6c59f8_854fb991",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/SnatCentralizedSwitchChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2019-05-17T05:58:40Z",
+      "side": 1,
+      "message": "Do Not Process",
+      "range": {
+        "startLine": 91,
+        "startChar": 22,
+        "endLine": 91,
+        "endChar": 25
+      },
+      "revId": "d5c31e9baa730bb6f1967ec0be7f9a95aeb09dd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d1d06462_f4e84bb6",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/SnatCentralizedSwitchChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2019-05-17T05:58:40Z",
+      "side": 1,
+      "message": "ditto comment",
+      "revId": "d5c31e9baa730bb6f1967ec0be7f9a95aeb09dd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3aa01d74_147fd77c",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1253,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2019-05-17T05:58:40Z",
+      "side": 1,
+      "message": "Please keep either DEBUG OR TRACE LOG with necessary details to be printed here",
+      "revId": "d5c31e9baa730bb6f1967ec0be7f9a95aeb09dd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4d6eb7c2_8310a8d3",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1293,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2019-05-17T05:58:40Z",
+      "side": 1,
+      "message": "Can you please move this check at the beginning of the update() method",
+      "revId": "d5c31e9baa730bb6f1967ec0be7f9a95aeb09dd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
