@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "d2174959_8b565351",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/SnatCentralizedSwitchChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-05-17T06:36:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1230249_127a3560",
+      "range": {
+        "startLine": 91,
+        "startChar": 95,
+        "endLine": 91,
+        "endChar": 99
+      },
+      "revId": "d5c31e9baa730bb6f1967ec0be7f9a95aeb09dd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d1d06462_f4e84bb6",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/SnatCentralizedSwitchChangeListener.java",
         "patchSetId": 3
@@ -59,6 +83,24 @@
       "writtenOn": "2019-05-17T05:58:40Z",
       "side": 1,
       "message": "ditto comment",
+      "revId": "d5c31e9baa730bb6f1967ec0be7f9a95aeb09dd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c305707_74d2e229",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/ha/SnatCentralizedSwitchChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-05-17T06:36:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1d06462_f4e84bb6",
       "revId": "d5c31e9baa730bb6f1967ec0be7f9a95aeb09dd7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -82,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "e33fb5e7_871d28cd",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1253,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-05-17T06:36:22Z",
+      "side": 1,
+      "message": "Removed as the new debug added(as added temporarily for debugging)",
+      "parentUuid": "3aa01d74_147fd77c",
+      "revId": "d5c31e9baa730bb6f1967ec0be7f9a95aeb09dd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4d6eb7c2_8310a8d3",
         "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 3
@@ -93,6 +153,24 @@
       "writtenOn": "2019-05-17T05:58:40Z",
       "side": 1,
       "message": "Can you please move this check at the beginning of the update() method",
+      "revId": "d5c31e9baa730bb6f1967ec0be7f9a95aeb09dd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b823995_dfb40783",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1293,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-05-17T06:36:22Z",
+      "side": 1,
+      "message": "No. Before this SNAT Enabled/Disabled proccecssing is done. and as part of update if the enable/disable SNAT along with other parameters(external ips, subnet addition/deletion), then the further logic is not needed to be processed as handleEnableSnat()/handleDisableSnat() already takes are of that logic",
+      "parentUuid": "4d6eb7c2_8310a8d3",
       "revId": "d5c31e9baa730bb6f1967ec0be7f9a95aeb09dd7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
