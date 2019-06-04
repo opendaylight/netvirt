@@ -398,9 +398,9 @@ public class ElanL2GatewayMulticastUtils {
             long elanTagOrVni) {
         List<Bucket> listBucketInfo = new ArrayList<>();
         if (elanDpns != null) {
-            for (DpnInterfaces dpnInterface : elanDpns.nonnullDpnInterfaces()) {
-                if (elanUtils.isDpnPresent(dpnInterface.getDpId()) && !Objects.equals(dpnInterface.getDpId(), dpnId)
-                        && dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty()) {
+            for (DpnInterfaces dpnInterface : elanDpns.getDpnInterfaces()) {
+                if (!Objects.equals(dpnInterface.getDpId(), dpnId) && dpnInterface.getInterfaces() != null
+                        && !dpnInterface.getInterfaces().isEmpty()) {
                     try {
                         List<Action> listActionInfo = elanItmUtils.getInternalTunnelItmEgressAction(dpnId,
                                 dpnInterface.getDpId(), elanTagOrVni);
