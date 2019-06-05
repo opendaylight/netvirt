@@ -17,18 +17,13 @@ Installing OpenDaylight on an existing OpenStack
       cd distribution-karaf-0.5.1-Boron-SR1
       ./bin/start # Start OpenDaylight as a server process
 
-* Connect to the Karaf shell, and install the odl-netvirt-openstack bundle,
-  dlux and their dependencies:
+* Connect to the Karaf shell, and install the odl-netvirt-openstack bundle
+  and their dependencies:
 
   .. code-block:: bash
 
       ./bin/client # Connect to OpenDaylight with the client
-      opendaylight-user@root> feature:install odl-netvirt-openstack odl-dlux-core odl-mdsal-apidocs
-
-* If everything is installed correctly, you should now be able to log in to the dlux interface on
-  http://CONTROL_HOST:8181/index.html - the default username and password is "admin/admin" (see screenshot below)
-
-  .. figure:: dlux-login.png
+      opendaylight-user@root> feature:install odl-netvirt-openstack odl-mdsal-apidocs
 
 Optional - Advanced OpenDaylight Installation - Configurations and Clustering
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -220,9 +215,6 @@ Open vSwitch config and set OpenDaylight to manage the switch:
         sed -i -e 's/SELINUX=enforcing/SELINUX=permissive/g' /etc/selinux/config
 
 * Make sure all nodes, including the control node, are connected to OpenDaylight.
-* If you reload DLUX, you should now see that all of your Open vSwitch nodes are now connected to OpenDaylight.
-
-  .. figure:: dlux-with-switches.png
 
 * If something has gone wrong, check ``data/log/karaf.log`` under
   the OpenDaylight distribution directory. If you do not see any interesting
