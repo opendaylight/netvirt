@@ -2,7 +2,7 @@
       :depth: 5
 
 ============================
-Enhance Robustness of L3VPN 
+Enhance Robustness of L3VPN
 ============================
 
 https://git.opendaylight.org/gerrit/#/q/topic:l3vpn-robustness
@@ -15,7 +15,7 @@ Problem description
 ===================
 
 Witnessing issues faced in L3VPN with production
-deployments of OpenDaylight, it was gradually occurring 
+deployments of OpenDaylight, it was gradually occurring
 that piecemeal fixing issues in L3VPN (and all its
 related modules) unfortunately wouldn't scale.
 
@@ -99,7 +99,7 @@ UC 2.2 -  Evacuate multiple dualstack VMs across multiple vpns from the same com
 
 UC 3: An Extra-route serviced by one or more VMs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This use-case is to ensure ECMP handling robustness within L3VPN Engine. 
+This use-case is to ensure ECMP handling robustness within L3VPN Engine.
 This mimics an ipv4 address being reachable from multiple nexthops (or multiple vpninterfaces).
 Has the following sub-cases:
 UC 3.1 -  Append a nexthop to an existing IPv4 extra-route
@@ -232,14 +232,14 @@ Details about the proposal is given below to facilitate implementors.
    VRFEntry handling by the VPNEngine.  The VRFEntry would become an artifact instead of a trigger source.
    This type of design also enables use of DJC to enforce IP Serialization within a given VPNInstance.
    This change additionally provides elimination of backpulls from the FIBEngine towards VPNEngine and other
-   modules for non-BGP-imported-rows   
+   modules for non-BGP-imported-rows
 
 5. Other than imported BGP routes, all other types of route processing (VM ports, exported VM ports, extra-routes, MIPs), will
    be done in the way quoted in point 4 above.  The BGP imported routes from other neighbours will continue to be
    driven from within the VRFEntryListener.
 
 6. Re-use as much existing handlers within the engines of L3VPN Service in order to contain the robustness effort
-   
+
 7. All the VPN Datastores will continued to be made available the same way for other external interfaces and consumers of
    external interfaces to remain unaffected.  Most specifically implementing this area will not effect NATEngine,
    InterVPNLinksEngine and BGPEngine.

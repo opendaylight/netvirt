@@ -15,14 +15,14 @@ This flooding of multicast packets results in wasted bandwidth, as packets are s
 interested listeners of the particular multicast group address.
 
 The main benefit of IGMP Snooping is to eliminate the flooding of packets by listening to IGMP messages between
-hosts and multicast routers, and build a database that will be used to forward multicast packets selectively 
+hosts and multicast routers, and build a database that will be used to forward multicast packets selectively
 to interested hosts and multicast routers.
 
 This feature will implement IGMPv3 Snooping, as defined in RFC 4541.
 
 Highlights of RFC 4541 that will be addressed by this feature:
 
-- A snooping switch should forward IGMP Membership Reports only to those ports where multicast routers are attached. 
+- A snooping switch should forward IGMP Membership Reports only to those ports where multicast routers are attached.
 - The switch supporting IGMP snooping must maintain a list of multicast routers and the ports on which they are attached.
 - Packets with a destination IP address outside 224.0.0.X which are not IGMP should be forwarded according to group-based port membership tables and must also be forwarded on router ports.
 - Packets with a destination IP (DIP) address in the 224.0.0.X range which are not IGMP must be forwarded on all ports.
@@ -30,19 +30,19 @@ Highlights of RFC 4541 that will be addressed by this feature:
 
 This feature will not IPv6 MLD Snooping.
 
-A global flag will be supported to enable/disable IGMP Snooping. Initially, this value will be read with ODL starts. 
+A global flag will be supported to enable/disable IGMP Snooping. Initially, this value will be read with ODL starts.
 Support for dynamic changes of this flag may not be initially supported.
 
 IGMP Packet Processing and Forwarding
 =====================================
 We need to keep track of where the multicast listeners and multicast routers are located.
 
-The switch learns about interfaces by monitoring IGMP traffic. If an interface receives IGMP queries, this will indicate that a 
-multicast router is attached to that interface, and the port will be added to the multicast forwarding table as a multicast-router 
+The switch learns about interfaces by monitoring IGMP traffic. If an interface receives IGMP queries, this will indicate that a
+multicast router is attached to that interface, and the port will be added to the multicast forwarding table as a multicast-router
 interface (querier).
 
 If an interface receives membership reports or igmp join for a multicast group, this will indicate that a multicast listener (host)
-is attached to that interface, and the port will be added to the multicast forwarding table as a group-member interface. 
+is attached to that interface, and the port will be added to the multicast forwarding table as a group-member interface.
 
 If an interface receives igmp leave for a multicast group, remove the port from the multicast forwarding table as a group-member interface.
 
@@ -73,9 +73,9 @@ IGMP packets will be sent to ODL Controller learning, and then forwarded via sen
 
 Multicast traffic that is not IGMP:
 
-An unregistered packet is defined as an IPv4 multicast packet with a destination address which does not match 
-any of the groups announced in earlier IGMP Membership Reports. A registered packet is defined as an IPv4 multicast 
-packet with a destination address which matches one of the groups announced in earlier IGMP Membership Reports. 
+An unregistered packet is defined as an IPv4 multicast packet with a destination address which does not match
+any of the groups announced in earlier IGMP Membership Reports. A registered packet is defined as an IPv4 multicast
+packet with a destination address which matches one of the groups announced in earlier IGMP Membership Reports.
 
 
 - destination address of 224.0.0.0/24 is flooded to all ports in domain
@@ -101,7 +101,7 @@ IGMP
 As you can see above, when port security is disabled, multicast packets are flooded. When port security
 is enabled, multicast packets are dropped by ACL rules.
 
-This IGMP Snooping feature, when enabled, will learn about multicast hosts and multicast routers from the IGMP 
+This IGMP Snooping feature, when enabled, will learn about multicast hosts and multicast routers from the IGMP
 conversation. These learned entries will be used to build a multicast forwarding database to forward IPv4
 multicast packets as described in the Multicast Forwarding Rules section above.
 
@@ -134,20 +134,20 @@ Multicast listener and sender on different compute nodes. One
 of the compute nodes is connected to L2GW. This will ensure
 IGMP Snooping works across external tunnels.
 
-UC6 
+UC6
 Multicast router on physical network (querier)
 
 
 Proposed change
 ===============
 
-IGMP Snooping feature will send IGMP Packets to the ODL Controller. The IGMP messages will be parsed, and a multicast database will be built, consisting of multicast goup member ports and multicast router ports. This database will be used to populate Multicast Broadcast Groups, that will 
+IGMP Snooping feature will send IGMP Packets to the ODL Controller. The IGMP messages will be parsed, and a multicast database will be built, consisting of multicast goup member ports and multicast router ports. This database will be used to populate Multicast Broadcast Groups, that will
 then be used to forward IPv4 multicast packets per the Multicast Forwarding Rules section above.
 
 New Multicast Broadcast Groups (BC)
 ===================================
-There will be a total of 3 broadcast groups/network needed for IGMP Snooping.  These broadcast groups will be very similar to existing 
-L2 BC groups. There would be a Local BC group per network (local ports only - packet ingress on tunnel port) and a Full BC group per 
+There will be a total of 3 broadcast groups/network needed for IGMP Snooping.  These broadcast groups will be very similar to existing
+L2 BC groups. There would be a Local BC group per network (local ports only - packet ingress on tunnel port) and a Full BC group per
 network (local ports and tunnel ports - packet ingress on vm port).
 
 - Multicast Router L/F - This group has the multicast router ports for the network.
@@ -204,7 +204,7 @@ Flows to get Multicast packets to Multicast Table(61) from ARP Table (43)
 - sudo ovs-ofctl add-flow -OOpenflow13 br-int table=43,priority=100,dl_type=0x0800,nw_proto=0x02,actions=goto_table:61
 - sudo ovs-ofctl add-flow -OOpenflow13 br-int "table=43,priority=90,dl_type=0x0800,dl_dst=01:00:5e:00:00:00/ff:ff:ff:00:00:00,actions=goto_table:61"
 
-NOTE: The 2 rules above would also have to be added to Internal Tunnel Table (36) and External Tunnel Table (38). 
+NOTE: The 2 rules above would also have to be added to Internal Tunnel Table (36) and External Tunnel Table (38).
 
 Flows to get Multicast packets to Multicast Table(61) from Internal Tunnel Table (36)
 -------------------------------------------------------------------------------------
@@ -248,7 +248,7 @@ This adds a rule to table 240 that allows IGMP pkts to proceed through pipeline,
 
 cookie=0x6900000, duration=82.942s, table=240, n_packets=8, n_bytes=432, priority=61010,ip,reg6=0xa00/0xfffff00,dl_dst=01:00:5e:00:00:16,nw_dst=224.0.0.22 actions=goto_table:241
 
-ODL Security groups do not currently support IGMP. As such, some small code changes are required to support IGMP. For example, in 
+ODL Security groups do not currently support IGMP. As such, some small code changes are required to support IGMP. For example, in
 ODL Oxygen, if you issue the command:
 
 - openstack security group rule create goPacketGo --ingress --ethertype IPv4 --protocol igmp
@@ -261,7 +261,7 @@ patch as part of this feature.
 Pipeline changes
 ================
 
-Add rules to ARP Table (43) to send IPv4 multicast packets to new IPv4 Multicast Table(61). Currently, ARP Table (43) sends packets to L2 Pipeline (48) if not ARP. We do not want IPv4 multicast packets to be processed in L2 Pipeline (and flooded to all ports in the network). 
+Add rules to ARP Table (43) to send IPv4 multicast packets to new IPv4 Multicast Table(61). Currently, ARP Table (43) sends packets to L2 Pipeline (48) if not ARP. We do not want IPv4 multicast packets to be processed in L2 Pipeline (and flooded to all ports in the network).
 
 In table 43:
 

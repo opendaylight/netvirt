@@ -13,8 +13,8 @@ applied.
 Problem description
 ===================
 
-If QoS bandwidth policy is applied on a neutron port, all packets exceeding the rate limit are 
-dropped by the switch. This spec proposes a new service to monitor the packet drop ratio and log 
+If QoS bandwidth policy is applied on a neutron port, all packets exceeding the rate limit are
+dropped by the switch. This spec proposes a new service to monitor the packet drop ratio and log
 the alert message if packet drop ratio is greater than the configured threshold value.
 
 Use Cases
@@ -143,7 +143,7 @@ QoS Alert Service minimizes scale and performance impact by following:
 
 - Proposed service uses the direct-statistics RPC instead of OpenflowPlugin statistics-manager. This
   is lightweight because only node-connector statistics are queried instead of all statistics.
-- Polling frequency is quite slow. Default polling interval is **two minutes** and minimum allowed 
+- Polling frequency is quite slow. Default polling interval is **two minutes** and minimum allowed
   value is 1 minute.
 
 Targeted Release
@@ -260,7 +260,7 @@ N.A.
 
 CSIT
 ----
-Following new CSIT tests shall be added 
+Following new CSIT tests shall be added
 
 1. Verify that alerts are generated if drop packets percentage is more than the configured threshold
    value.
@@ -280,7 +280,7 @@ References
 
 [1] `Neutron QoS <http://docs.openstack.org/developer/neutron/devref/quality_of_service.html>`__
 
-[2] `Spec for NetVirt QoS <http://docs.opendaylight.org/en/latest/submodules/netvirt/docs/specs/qos.html>`__ 
+[2] `Spec for NetVirt QoS <http://docs.opendaylight.org/en/latest/submodules/netvirt/docs/specs/qos.html>`__
 
 [3] `Openflowplugin port statistics
 <https://github.com/opendaylight/openflowplugin/blob/master/model/model-flow-statistics/src/main/yang/opendaylight-direct-statistics.yang>`__

@@ -206,7 +206,7 @@ which has bfd-config container as below.
         leaf detect-mult {
             type        uint32;
             default     3;
-            description "The number of packets that have to be missed 
+            description "The number of packets that have to be missed
                          in a row to declare the session to be down.";
         }
         leaf min-rx {

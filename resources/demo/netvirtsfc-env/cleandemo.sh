@@ -9,7 +9,7 @@ for i in `seq 1 $NUM_NODES`; do
   vagrant ssh $hostname -c "sudo ovs-vsctl del-br $switchname; sudo ovs-vsctl del-manager; sudo /vagrant/vmclean.sh"
 
 done
- 
+
 ./rest-clean.py
 
 if [ -f "demo.lock" ] ; then

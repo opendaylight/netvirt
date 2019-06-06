@@ -123,14 +123,14 @@ A new function ``setPeerSecret`` is added to the service ``BgpConfigurator``.
    + * ERR_NOT_SUPPORTED when the server does not support
    + *    the operation.
      */
-    
+
     const i32 BGP_ERR_FAILED = 1
    @@ -38,6 +40,7 @@ const i32 BGP_ERR_ACTIVE = 10
     const i32 BGP_ERR_INACTIVE = 11
     const i32 BGP_ERR_NOT_ITER = 15
     const i32 BGP_ERR_PARAM = 100
    +const i32 BGP_ERR_NOT_SUPPORTED = 200
-    
+
     // these are the supported afi-safi combinations
     enum af_afi {
    @@ -122,6 +125,33 @@ service BgpConfigurator {

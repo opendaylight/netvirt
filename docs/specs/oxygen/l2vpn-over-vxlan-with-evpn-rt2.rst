@@ -139,7 +139,7 @@ Intra subnet Traffic from Local DPN to DC-Gateway
   | Dispatcher table (17) ``l2vpn service: set elan-tag=vxlan-net-tag`` =>
   | ELAN base table (48) =>
   | ELAN SMAC table (50) ``match: elan-tag=vxlan-net-tag,src-mac=vm1-mac`` =>
-  | ELAN DMAC table (51) ``match: elan-tag=vxlan-net-tag,dst-mac=external-vm-mac set tun-id=vxlan-net-tag group=next-hop-group`` 
+  | ELAN DMAC table (51) ``match: elan-tag=vxlan-net-tag,dst-mac=external-vm-mac set tun-id=vxlan-net-tag group=next-hop-group``
   | Next Hop Group ``bucket0 :set reg6=tunnel-lport-tag  bucket1 :set reg6=tunnel2-lport-tag``
   | Egress table (220) ``match: reg6=tunnel2-lport-tag`` output to ``tunnel2``
 
