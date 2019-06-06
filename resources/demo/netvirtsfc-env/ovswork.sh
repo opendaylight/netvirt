@@ -66,19 +66,19 @@ ip link set $LOCAL_IFNAME up
 ip link set $GUEST_IFNAME netns $NSPID
 if [ "$VLANTAG" ]
 then
-	ovs-vsctl add-port $BRIDGE $LOCAL_IFNAME tag=$VLANTAG 
-	echo $LOCAL_IFNAME 
+	ovs-vsctl add-port $BRIDGE $LOCAL_IFNAME tag=$VLANTAG
+	echo $LOCAL_IFNAME
 else
-	ovs-vsctl add-port $BRIDGE $LOCAL_IFNAME 
+	ovs-vsctl add-port $BRIDGE $LOCAL_IFNAME
 	echo $LOCAL_IFNAME
 fi
 
 # Step 5: Configure netwroking within the container
 ip netns exec $NSPID ip link set $GUEST_IFNAME name eth0
 ip netns exec $NSPID ip addr add $IPADDR broadcast $BROADCAST dev eth0
-ip netns exec $NSPID ifconfig eth0 hw ether $MAC 
+ip netns exec $NSPID ifconfig eth0 hw ether $MAC
 ip netns exec $NSPID ip addr add 127.0.0.1 dev lo
 ip netns exec $NSPID ip link set eth0 up
 ip netns exec $NSPID ip link set lo up
-ip netns exec $NSPID ip route add default via $GWADDR 
+ip netns exec $NSPID ip route add default via $GWADDR
 

@@ -8,7 +8,7 @@ OFFLINE=true
 disable_all_services
 #enable_service n-cpu quantum q-agt n-novnc qpid
 enable_service neutron nova n-cpu quantum q-agt n-novnc qpid
- 
+
 HOST_NAME=fedora2
 HOST_IP=192.168.56.102
 SERVICE_HOST_NAME=fedora1
@@ -37,7 +37,7 @@ RABBIT_HOST=$SERVICE_HOST
 GLANCE_HOSTPORT=$SERVICE_HOST:9292
 KEYSTONE_AUTH_HOST=$SERVICE_HOST
 KEYSTONE_SERVICE_HOST=$SERVICE_HOST
- 
+
 MYSQL_PASSWORD=mysql
 RABBIT_PASSWORD=rabbit
 QPID_PASSWORD=rabbit

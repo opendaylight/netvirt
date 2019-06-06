@@ -222,7 +222,7 @@ set the NSP and NSI accordingly, initialize C1 and C2 to 0, and send
 the packet down the rest of the pipeline. Since the SFC service (SFF)
 will most likely not be bound to this same Neutron port, the packet
 wont be processed by the SFF on the ingress pipeline. If the classifier
-and first SFF are in the same node, when the packet is processed by 
+and first SFF are in the same node, when the packet is processed by
 the egress SFC classifier, it will be resubmitted back to the Ingress SFC
 service (SFC SFF) for SFC processing. If not, the packet will be sent to
 the first SFF.

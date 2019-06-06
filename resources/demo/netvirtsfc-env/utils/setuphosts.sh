@@ -7,5 +7,5 @@ for i in `seq 1 $NUM_NODES`; do
   echo $hostname
   vagrant ssh $hostname -c "sudo cp /vagrant/utils/hosts /etc/hosts"
 done
- 
+
 

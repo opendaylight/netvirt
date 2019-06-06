@@ -132,8 +132,8 @@ The following order will be used to support external network connectivity:
 
 ::
 
-   config 1:  
-   +----+     
+   config 1:
+   +----+
    | VM |     +-------------+  +-----------+
    +----+-----| Subnet A(v6)|--|router-id-1|
               +-------------+  | Router 1  |-----+--------------------+
@@ -164,7 +164,7 @@ The following order will be used to support external network connectivity:
               +-------------+  |Router 4(IPv4)|-+   +------------------+
                                |router-id-3   |
                                +--------------+
-	      
+
 Discussion of the various setups solutions
 ******************************************
 

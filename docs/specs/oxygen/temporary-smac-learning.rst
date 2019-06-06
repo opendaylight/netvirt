@@ -8,7 +8,7 @@ to reduce a large scale of packets punted to the controller for an unlearned sou
 
 Problem description
 ===================
-Currently any packet originating from an unknown source MAC address is punted to the controller from the ELAN service (L2 SMAC table 50). 
+Currently any packet originating from an unknown source MAC address is punted to the controller from the ELAN service (L2 SMAC table 50).
 
 This behavior continues for each packet from this source MAC until ODL properly processes this packet and adds an explicit source MAC rule to this table.
 

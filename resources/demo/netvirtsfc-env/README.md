@@ -17,11 +17,11 @@ for initially putting it together goes to our friends Keith, Thomas, and others 
 https://github.com/alagalah/gbpsfc-env
 ```
 
-The initial installation may take some time, with vagrant and docker image downloads. 
+The initial installation may take some time, with vagrant and docker image downloads.
 
 After the first time it is very quick.
 
-1. Set up Vagrant. 
+1. Set up Vagrant.
   * Edit env.sh for NUM_NODES. (Keep all other vars the same for this version)
     Also set 'ODL_ROOT_DIR' to point to the directory ./openstack/net-virt-sfc/karaf/target/assembly
 
@@ -37,7 +37,7 @@ After the first time it is very quick.
 source ./env.sh
 vagrant up
 ```
-  * This takes quite some time initially. 
+  * This takes quite some time initially.
 
 3. Start controller.
   * Currently it is expected that that controller runs on the machine hosting the vagrant VMs.

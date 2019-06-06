@@ -26,7 +26,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       compute.vm.network "private_network", ip: "#{vm_ip}"
       compute.vm.provider :virtualbox do |vb|
         vb.memory = 512
-        vb.customize ["modifyvm", :id, "--ioapic", "on"]      
+        vb.customize ["modifyvm", :id, "--ioapic", "on"]
         vb.cpus = 1
       end
     end

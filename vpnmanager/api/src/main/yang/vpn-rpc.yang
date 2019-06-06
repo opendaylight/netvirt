@@ -101,5 +101,5 @@ module vpn-rpc {
                 type boolean;
             }
         }
-    }    
+    }
 }

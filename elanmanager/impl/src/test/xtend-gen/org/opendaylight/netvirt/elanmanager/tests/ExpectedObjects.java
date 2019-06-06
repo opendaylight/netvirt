@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2016, 2017 Red Hat, Inc. and others. All rights reserved.
- * 
+ *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -24,15 +24,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.VlanId;
 
 /**
  * Definitions of complex objects expected in tests.
- * 
+ *
  * These were originally generated {@link AssertDataObjects#assertEqualBeans}.
  */
 @SuppressWarnings("all")
 public class ExpectedObjects {
   public static String ELAN1 = "34701c04-1118-4c65-9425-78a80d49a211";
-  
+
   public static Long ELAN1_SEGMENT_ID = Long.valueOf(100L);
-  
+
   public static Interface newInterfaceConfig(final String interfaceName, final String parentName) {
     InterfaceBuilder _interfaceBuilder = new InterfaceBuilder();
     final Procedure1<InterfaceBuilder> _function = (InterfaceBuilder it) -> {
@@ -56,7 +56,7 @@ public class ExpectedObjects {
     };
     return XtendBuilderExtensions.<Interface, InterfaceBuilder>operator_doubleGreaterThan(_interfaceBuilder, _function);
   }
-  
+
   public static Object createElanInstance() {
     throw new Error("Unresolved compilation problems:"
       + "\nElanInstancesBuilder cannot be resolved."
@@ -69,7 +69,7 @@ public class ExpectedObjects {
       + "\n>> cannot be resolved"
       + "\n>> cannot be resolved");
   }
-  
+
   public static Object createElanInstance(final String elan, final Long segmentId) {
     throw new Error("Unresolved compilation problems:"
       + "\nElanInstanceBuilder cannot be resolved."
@@ -81,7 +81,7 @@ public class ExpectedObjects {
       + "\nThe method macTimeout(long) is undefined"
       + "\n>> cannot be resolved");
   }
-  
+
   public static Object createElanInstance(final String elan, final Long segmentId, final Long tag) {
     throw new Error("Unresolved compilation problems:"
       + "\nElanInstanceBuilder cannot be resolved."
@@ -94,22 +94,22 @@ public class ExpectedObjects {
       + "\nThe method macTimeout(long) is undefined"
       + "\n>> cannot be resolved");
   }
-  
+
   public static Flow checkSmac(final String flowId, final InterfaceInfo interfaceInfo, final /* ElanInstance */Object elanInstance) {
     throw new Error("Unresolved compilation problems:"
       + "\ngetElanTag cannot be resolved");
   }
-  
+
   public static Flow checkDmacOfSameDpn(final String flowId, final InterfaceInfo interfaceInfo, final /* ElanInstance */Object elanInstance) {
     throw new Error("Unresolved compilation problems:"
       + "\ngetElanTag cannot be resolved");
   }
-  
+
   public static Flow checkDmacOfOtherDPN(final String flowId, final InterfaceInfo interfaceInfo, final TunnelInterfaceDetails tepDetails, final /* ElanInstance */Object elanInstance) {
     throw new Error("Unresolved compilation problems:"
       + "\ngetElanTag cannot be resolved");
   }
-  
+
   public static Object checkEvpnAdvertiseRoute(final Long vni, final String mac, final String tepip, final String prefix, final String rd1) {
     throw new Error("Unresolved compilation problems:"
       + "\nNetworksBuilder cannot be resolved."
@@ -129,7 +129,7 @@ public class ExpectedObjects {
       + "\nPROTOCOLEVPN cannot be resolved"
       + "\nVXLAN cannot be resolved");
   }
-  
+
   public static /* Networks */Object checkEvpnWithdrawRT2DelIntf() {
     return null;
   }
