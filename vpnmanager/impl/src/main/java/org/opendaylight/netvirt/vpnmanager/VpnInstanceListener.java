@@ -79,6 +79,7 @@ import org.slf4j.LoggerFactory;
 public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInstance, VpnInstanceListener> {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceListener.class);
     private static final String LOGGING_PREFIX_ADD = "VPN-ADD:";
+    private static final String LOGGING_PREFIX_UPDATE = "VPN-UPDATE:";
     private static final String LOGGING_PREFIX_DELETE = "VPN-REMOVE:";
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -125,24 +126,28 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
     @Override
     protected void remove(InstanceIdentifier<VpnInstance> identifier, VpnInstance del) {
-        LOG.trace("{} remove: VPN event key: {}, value: {}", LOGGING_PREFIX_DELETE, identifier, del);
+        LOG.trace("{} : VPN event key: {}, value: {}", LOGGING_PREFIX_DELETE, identifier, del);
         final String vpnName = del.getVpnInstanceName();
         Optional<VpnInstanceOpDataEntry> vpnOpValue;
-        String primaryRd = VpnUtil.getPrimaryRd(del);
+        String primaryRd = vpnUtil.getVpnRd(vpnName);
+        if (primaryRd == null) {
+            LOG.error("{}, failed to remove VPN: primaryRd is null for vpn {}", LOGGING_PREFIX_DELETE, vpnName);
+            return;
+        }
 
         //TODO(vpnteam): Entire code would need refactoring to listen only on the parent object - VPNInstance
         try {
             vpnOpValue = SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd));
         } catch (ReadFailedException e) {
-            LOG.error("{} remove: Exception when attempting to retrieve VpnInstanceOpDataEntry for VPN {}. ",
+            LOG.error("{}, failed to remove VPN: Exception while retrieving VpnInstanceOpDataEntry for VPN {}. ",
                     LOGGING_PREFIX_DELETE,  vpnName, e);
             return;
         }
 
         if (!vpnOpValue.isPresent()) {
-            LOG.error("{} remove: Unable to retrieve VpnInstanceOpDataEntry for VPN {}. ", LOGGING_PREFIX_DELETE,
-                    vpnName);
+            LOG.error("{}, failed to remove VPN: Unable to retrieve VpnInstanceOpDataEntry for VPN {}. ",
+                LOGGING_PREFIX_DELETE, vpnName);
             return;
         } else {
             jobCoordinator.enqueueJob("VPN-" + vpnName, () ->
