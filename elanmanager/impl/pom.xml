@@ -11,7 +11,7 @@ this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
     <parent>
         <groupId>org.opendaylight.netvirt</groupId>
         <artifactId>binding-parent</artifactId>
-        <version>0.7.3-SNAPSHOT</version>
+        <version>0.7.3</version>
         <relativePath>../../commons/binding-parent</relativePath>
     </parent>
 
@@ -39,7 +39,7 @@ this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>org.opendaylight.serviceutils</groupId>
             <artifactId>tools-api</artifactId>
-            <version>0.2.3-SNAPSHOT</version>
+            <version>0.2.3</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
@@ -49,7 +49,7 @@ this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>org.opendaylight.serviceutils</groupId>
             <artifactId>srm-api</artifactId>
-            <version>0.2.3-SNAPSHOT</version>
+            <version>0.2.3</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>
