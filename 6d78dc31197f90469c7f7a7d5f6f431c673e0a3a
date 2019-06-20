@@ -22,6 +22,30 @@
       "revId": "6d78dc31197f90469c7f7a7d5f6f431c673e0a3a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab3d1645_8fd16948",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-06-20T08:11:41Z",
+      "side": 1,
+      "message": "Thanks, missed it in rebase.",
+      "parentUuid": "ea345530_75cdf731",
+      "range": {
+        "startLine": 132,
+        "startChar": 8,
+        "endLine": 132,
+        "endChar": 76
+      },
+      "revId": "6d78dc31197f90469c7f7a7d5f6f431c673e0a3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
