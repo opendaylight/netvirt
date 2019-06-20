@@ -201,11 +201,15 @@ public class ElanPacketInHandler implements PacketProcessingListener {
         return "MAC-" + macAddress + " ELAN_TAG-" + elanTag;
     }
 
+    private static String getElanMacDPNKey(long elanTag, String macAddress, BigInteger dpnId) {
+        return "MAC-" + macAddress + " ELAN_TAG-" + elanTag + "DPN_ID-" + dpnId;
+    }
+
     private void enqueueJobForDPNSpecificTasks(final String macAddress, final long elanTag, String interfaceName,
                                                PhysAddress physAddress, ElanInstance elanInstance,
                                                InterfaceInfo interfaceInfo, MacEntry oldMacEntry,
                                                MacEntry newMacEntry, boolean isVlanOrFlatProviderIface) {
-        jobCoordinator.enqueueJob(ElanUtils.getElanMacDPNKey(elanTag, macAddress, interfaceInfo.getDpId()), () -> {
+        jobCoordinator.enqueueJob(getElanMacDPNKey(elanTag, macAddress, interfaceInfo.getDpId()), () -> {
             macMigrationFlowsCleanup(interfaceName, elanInstance, oldMacEntry, isVlanOrFlatProviderIface);
             BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
             elanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,

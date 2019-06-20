@@ -23,6 +23,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.utils.concurrent.NamedSimpleReentrantLock.Acquired;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanEtreeUtils;
 import org.opendaylight.netvirt.elan.utils.ElanItmUtils;
@@ -70,7 +71,7 @@ public class ElanEvpnFlowUtils {
 
     public List<ListenableFuture<Void>> evpnDeleteDmacFlowsToExternalMac(EvpnDmacFlow evpnDmacFlow) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        synchronized (ElanUtils.getElanMacDPNKey(evpnDmacFlow.getElanTag(), evpnDmacFlow.getDstMacAddress(),
+        try (Acquired lock = ElanUtils.lockElanMacDPN(evpnDmacFlow.getElanTag(), evpnDmacFlow.getDstMacAddress(),
                 evpnDmacFlow.getDpId())) {
             futures.addAll(
                     evpnRemoveFlowThatSendsThePacketOnAnExternalTunnel(evpnDmacFlow.getElanTag(), evpnDmacFlow.dpId,
@@ -165,12 +166,12 @@ public class ElanEvpnFlowUtils {
     }
 
     static class EvpnDmacFlow {
-        private BigInteger dpId;
-        private String nexthopIP;
-        private long elanTag;
-        private Long vni;
-        private String dstMacAddress;
-        private String elanName;
+        private final BigInteger dpId;
+        private final String nexthopIP;
+        private final long elanTag;
+        private final Long vni;
+        private final String dstMacAddress;
+        private final String elanName;
 
         EvpnDmacFlow(BigInteger dpId, String nexthopIP, long elanTag, Long vni, String dstMacAddress,
                             String elanName) {
