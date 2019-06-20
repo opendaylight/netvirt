@@ -74,6 +74,8 @@ import org.opendaylight.genius.mdsalutil.packet.ARP;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.infrautils.utils.concurrent.NamedLocks;
+import org.opendaylight.infrautils.utils.concurrent.NamedSimpleReentrantLock.Acquired;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
@@ -188,8 +190,38 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ElanUtils {
+    private static final class ElanLockName {
+        private final String macAddress;
+        private final BigInteger dpnId;
+        private final long elanTag;
+
+        ElanLockName(long elanTag, String macAddress, BigInteger dpnId) {
+            this.elanTag = elanTag;
+            this.macAddress = macAddress;
+            this.dpnId = dpnId;
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * Long.hashCode(elanTag) + Objects.hash(macAddress, dpnId);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof ElanLockName)) {
+                return false;
+            }
+            final ElanLockName other = (ElanLockName) obj;
+            return elanTag == other.elanTag && Objects.equals(macAddress, other.macAddress)
+                    && Objects.equals(dpnId, other.dpnId);
+        }
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanUtils.class);
+    private static final NamedLocks<ElanLockName> ELAN_LOCKS = new NamedLocks<>();
 
     private final DataBroker broker;
     private final ManagedNewTransactionRunner txRunner;
@@ -565,7 +597,7 @@ public class ElanUtils {
     public void setupMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
                               long macTimeout, String macAddress, boolean configureRemoteFlows,
                               TypedWriteTransaction<Configuration> writeFlowGroupTx) {
-        synchronized (getElanMacDPNKey(elanInfo.getElanTag(), macAddress, interfaceInfo.getDpId())) {
+        try (Acquired lock = lockElanMacDPN(elanInfo.getElanTag(), macAddress, interfaceInfo.getDpId())) {
             setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalManager,
                 writeFlowGroupTx);
             setupOrigDmacFlows(elanInfo, interfaceInfo, macAddress, configureRemoteFlows, mdsalManager,
@@ -999,7 +1031,7 @@ public class ElanUtils {
             return;
         }
         String macAddress = macEntry.getMacAddress().getValue();
-        synchronized (getElanMacDPNKey(elanInfo.getElanTag(), macAddress, interfaceInfo.getDpId())) {
+        try (Acquired lock = lockElanMacDPN(elanInfo.getElanTag(), macAddress, interfaceInfo.getDpId())) {
             deleteMacFlows(elanInfo, interfaceInfo, macAddress, /* alsoDeleteSMAC */ true, flowTx);
         }
     }
@@ -1452,9 +1484,8 @@ public class ElanUtils {
         return null;
     }
 
-    public static String getElanMacDPNKey(long elanTag, String macAddress, BigInteger dpnId) {
-        String elanMacDmacDpnKey = "MAC-" + macAddress + " ELAN_TAG-" + elanTag + "DPN_ID-" + dpnId;
-        return elanMacDmacDpnKey.intern();
+    public static Acquired lockElanMacDPN(long elanTag, String macAddress, BigInteger dpnId) {
+        return ELAN_LOCKS.acquire(new ElanLockName(elanTag, macAddress, dpnId));
     }
 
     public static List<ListenableFuture<Void>>

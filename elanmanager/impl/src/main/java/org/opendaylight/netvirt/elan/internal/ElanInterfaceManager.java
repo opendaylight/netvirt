@@ -72,6 +72,7 @@ import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
+import org.opendaylight.infrautils.utils.concurrent.NamedSimpleReentrantLock.Acquired;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
@@ -1138,7 +1139,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         String macAddress = macEntry.getMacAddress().getValue();
                         LOG.info("Installing remote dmac for mac address {} and interface {}", macAddress,
                             interfaceName);
-                        synchronized (ElanUtils.getElanMacDPNKey(elanInfo.getElanTag(), macAddress,
+                        try (Acquired lock = ElanUtils.lockElanMacDPN(elanInfo.getElanTag(), macAddress,
                             interfaceInfo.getDpId())) {
                             LOG.info("Acquired lock for mac : {}, proceeding with remote dmac install operation",
                                 macAddress);
