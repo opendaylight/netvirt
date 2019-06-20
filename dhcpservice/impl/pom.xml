@@ -12,7 +12,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <parent>
         <groupId>org.opendaylight.netvirt</groupId>
         <artifactId>binding-parent</artifactId>
-        <version>0.7.3-SNAPSHOT</version>
+        <version>0.7.4-SNAPSHOT</version>
         <relativePath>../../commons/binding-parent</relativePath>
     </parent>
 
@@ -101,7 +101,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>org.opendaylight.serviceutils</groupId>
             <artifactId>tools-api</artifactId>
-            <version>0.2.3-SNAPSHOT</version>
+            <version>0.2.4-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
