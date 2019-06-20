@@ -242,7 +242,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     private void handleAclChange(List<FlowEntity> flowEntries, AclInterface port, List<Uuid> aclList,
             int addOrRemove) {
-        int operationForAclRules = (addOrRemove == NwConstants.DEL_FLOW) ? NwConstants.MOD_FLOW : addOrRemove;
+        int operationForAclRules = addOrRemove == NwConstants.DEL_FLOW ? NwConstants.MOD_FLOW : addOrRemove;
         programAclRules(flowEntries, port, aclList, operationForAclRules);
         updateRemoteAclFilterTable(flowEntries, port, aclList, port.getAllowedAddressPairs(), addOrRemove);
         programAclDispatcherTable(flowEntries, port, addOrRemove);
@@ -469,7 +469,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             List<MatchInfoBase> matches, Integer priority) {
         AceIp acl = (AceIp) ace.getMatches().getAceType();
         final String newFlowName = flowName + this.directionString + "_" + port.getDpId() + "_" + port.getLPortTag()
-                + "_" + ((acl.getAceIpVersion() instanceof AceIpv4) ? "_IPv4" : "_IPv6") + "_FlowAfterRuleDeleted";
+                + "_" + (acl.getAceIpVersion() instanceof AceIpv4 ? "_IPv4" : "_IPv6") + "_FlowAfterRuleDeleted";
 
         final List<MatchInfoBase> newMatches =
                 matches.stream().filter(obj -> !(obj instanceof NxMatchCtState || obj instanceof MatchMetadata))
@@ -481,7 +481,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 AclServiceUtils.createCtMarkInstructionForNewState(getAclFilterCumDispatcherTable(), port.getElanId());
         // Reversing the flow add/delete operation for this table.
         List<FlowEntity> flowEntries = new ArrayList<>();
-        int operation = (addOrRemove == NwConstants.ADD_FLOW) ? NwConstants.DEL_FLOW : NwConstants.ADD_FLOW;
+        int operation = addOrRemove == NwConstants.ADD_FLOW ? NwConstants.DEL_FLOW : NwConstants.ADD_FLOW;
         addFlowEntryToList(flowEntries, port.getDpId(), getAclForExistingTrafficTable(), newFlowName, priority, 0,
                 AclServiceUtils.getHardTimoutForApplyStatefulChangeOnExistingTraffic(ace, aclServiceUtils),
                 AclConstants.COOKIE_ACL_BASE, newMatches, instructions, operation);
@@ -757,7 +757,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                     syncRemoteAclTable(flowEntries, portId, aclId, aclTag, aaps, addOrRemove);
                 }
                 else if (addOrRemove == NwConstants.DEL_FLOW) {
-                    jobCoordinator.enqueueJob(aclId.getValue().intern(), () -> {
+                    jobCoordinator.enqueueJob(aclId.getValue(), () -> {
                         List<FlowEntity> remoteTableFlowEntries = new ArrayList<>();
                         syncRemoteAclTable(remoteTableFlowEntries, portId, aclId, aclTag, aaps, addOrRemove);
                         programFlows(AclConstants.ACL_JOB_KEY_PREFIX + aclId.getValue(),

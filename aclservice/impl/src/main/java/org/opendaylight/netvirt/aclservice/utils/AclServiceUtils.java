@@ -1123,7 +1123,7 @@ public final class AclServiceUtils {
 
         for (Uuid aclId : aclList) {
             String aclName = aclId.getValue();
-            jobCoordinator.enqueueJob(aclName.intern(), () -> {
+            jobCoordinator.enqueueJob(aclName, () -> {
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                     for (AllowedAddressPairs aap : allowedAddresses) {
@@ -1152,7 +1152,7 @@ public final class AclServiceUtils {
 
         for (Uuid aclId : aclList) {
             String aclName = aclId.getValue();
-            jobCoordinator.enqueueJob(aclName.intern(), () -> {
+            jobCoordinator.enqueueJob(aclName, () -> {
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                     for (AllowedAddressPairs aap : allowedAddresses) {

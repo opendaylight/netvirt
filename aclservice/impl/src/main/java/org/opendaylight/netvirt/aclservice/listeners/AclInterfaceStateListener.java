@@ -109,7 +109,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
             }
             if (aclList != null) {
                 for (Uuid acl : aclList) {
-                    jobCoordinator.enqueueJob(acl.getValue().intern(), () -> {
+                    jobCoordinator.enqueueJob(acl.getValue(), () -> {
                         aclDataUtil.removeAclInterfaceMap(acl, aclInterface);
                         return Collections.emptyList();
                     });
