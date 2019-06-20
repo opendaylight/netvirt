@@ -1457,11 +1457,6 @@ public class ElanUtils {
         return elanMacDmacDpnKey.intern();
     }
 
-    public static String getElanMacKey(long elanTag, String macAddress) {
-        String elanMacKey = "MAC-" + macAddress + " ELAN_TAG-" + elanTag;
-        return elanMacKey.intern();
-    }
-
     public static List<ListenableFuture<Void>>
         returnFailedListenableFutureIfTransactionCommitFailedExceptionCauseOrElseThrow(RuntimeException exception) {
 

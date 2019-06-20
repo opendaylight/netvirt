@@ -166,7 +166,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                                                String elanName, PhysAddress physAddress,
                                                MacEntry oldMacEntry, MacEntry newMacEntry,
                                                final boolean isVlanOrFlatProviderIface) {
-        jobCoordinator.enqueueJob(ElanUtils.getElanMacKey(elanTag, macAddress),
+        jobCoordinator.enqueueJob(getElanMacKey(elanTag, macAddress),
             () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
                 if (oldMacEntry != null && Objects.equals(oldMacEntry.getInterface(), interfaceName)) {
                     // This should never occur because of ovs temporary mac learning
@@ -195,6 +195,10 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                     tx.put(elanMacEntryId, newMacEntry, WriteTransaction.CREATE_MISSING_PARENTS);
                 }
             })));
+    }
+
+    private static String getElanMacKey(long elanTag, String macAddress) {
+        return "MAC-" + macAddress + " ELAN_TAG-" + elanTag;
     }
 
     private void enqueueJobForDPNSpecificTasks(final String macAddress, final long elanTag, String interfaceName,
