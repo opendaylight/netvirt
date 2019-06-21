@@ -475,7 +475,8 @@ public final class VpnServiceChainUtils {
      * this kind of flows.
      */
     public static String getL3VpnToScfLportDispatcherFlowRef(Integer lportTag) {
-        return new StringBuffer(64).append(CloudServiceChainConstants.VPN_PSEUDO_VPN2SCF_FLOWID_PREFIX).append(lportTag)
+        return new StringBuilder(64).append(CloudServiceChainConstants.VPN_PSEUDO_VPN2SCF_FLOWID_PREFIX)
+                                   .append(lportTag)
                                    .append(NwConstants.FLOWID_SEPARATOR)
                                    .append(ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME,
                                                                  NwConstants.SCF_SERVICE_INDEX))
@@ -490,7 +491,7 @@ public final class VpnServiceChainUtils {
      *
      */
     public static String getScfToL3VpnLportDispatcherFlowRef(Integer lportTag) {
-        return new StringBuffer().append(CloudServiceChainConstants.VPN_PSEUDO_SCF2VPN_FLOWID_PREFIX).append(lportTag)
+        return new StringBuilder().append(CloudServiceChainConstants.VPN_PSEUDO_SCF2VPN_FLOWID_PREFIX).append(lportTag)
                                  .append(NwConstants.FLOWID_SEPARATOR)
                                  .append(ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
                                                                NwConstants.L3VPN_SERVICE_INDEX))

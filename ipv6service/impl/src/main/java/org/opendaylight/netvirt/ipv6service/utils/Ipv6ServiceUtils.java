@@ -199,7 +199,7 @@ public class Ipv6ServiceUtils {
     }
 
     private static String getIPv6FlowRef(BigInteger dpId, Long elanTag, String flowType) {
-        return new StringBuffer().append(Ipv6ServiceConstants.FLOWID_PREFIX)
+        return new StringBuilder().append(Ipv6ServiceConstants.FLOWID_PREFIX)
                 .append(dpId).append(Ipv6ServiceConstants.FLOWID_SEPARATOR)
                 .append(elanTag).append(Ipv6ServiceConstants.FLOWID_SEPARATOR)
                 .append(flowType).toString();

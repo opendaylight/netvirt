@@ -139,7 +139,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
     private @Inject CacheProvider cacheProvider;
 
     private L2GatewayListener l2gwListener;
-    private MetricProvider metricProvider = new TestMetricProviderImpl();
+    private final MetricProvider metricProvider = new TestMetricProviderImpl();
 
     private Verifications verifications;
     private L2gwBuilders l2gwBuilders;
@@ -210,7 +210,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         awaitForData(LogicalDatastoreType.CONFIGURATION, l2gwBuilders.buildL2gwIid(l2gwName));
 
         //Create l2gwconn
-        singleTxdataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+        SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 l2gwBuilders.buildConnectionIid(connectionName), l2gwBuilders.buildConnection(connectionName,
                         l2gwName, ExpectedObjects.ELAN1, 100));
         awaitForData(LogicalDatastoreType.CONFIGURATION, l2gwBuilders.buildConnectionIid(connectionName));
@@ -231,7 +231,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         ElanInstance actualElanInstances = singleTxdataBroker.syncRead(CONFIGURATION, elanInstanceIid);
 
         // Read and Compare SMAC flow
-        String flowId =  new StringBuffer()
+        String flowId = new StringBuilder()
                 .append(NwConstants.ELAN_SMAC_TABLE)
                 .append(actualElanInstances.getElanTag())
                 .append(DPN1_ID)
@@ -264,7 +264,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         ElanInstance actualElanInstances = singleTxdataBroker.syncRead(CONFIGURATION, elanInstanceIid);
 
         // Read DMAC Flow in DPN1
-        String flowId =  new StringBuffer()
+        String flowId = new StringBuilder()
                 .append(NwConstants.ELAN_DMAC_TABLE)
                 .append(actualElanInstances.getElanTag())
                 .append(DPN1_ID)

@@ -1483,7 +1483,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     private static String getFlowRef(long tableId, long elanTag, String flowName) {
-        return new StringBuffer().append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(elanTag)
+        return new StringBuilder().append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(elanTag)
                 .append(NwConstants.FLOWID_SEPARATOR).append(flowName).toString();
     }
 
