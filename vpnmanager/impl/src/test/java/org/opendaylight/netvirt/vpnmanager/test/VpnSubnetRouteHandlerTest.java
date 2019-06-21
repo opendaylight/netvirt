@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.vpnmanager.test;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -414,7 +414,7 @@ public class VpnSubnetRouteHandlerTest {
     }
 
     public static String buildNodeConnectorString(BigInteger dpn, long portNo) {
-        return new StringBuffer().append(IfmConstants.OF_URI_PREFIX).append(dpn)
+        return new StringBuilder().append(IfmConstants.OF_URI_PREFIX).append(dpn)
             .append(IfmConstants.OF_URI_SEPARATOR).append(portNo).toString();
     }
 

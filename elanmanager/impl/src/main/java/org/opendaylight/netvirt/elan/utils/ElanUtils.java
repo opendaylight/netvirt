@@ -679,7 +679,7 @@ public class ElanUtils {
      * @return the Internal tunnel
      */
     public static String getIntTunnelTableFlowRef(short tableId, int elanTag) {
-        return new StringBuffer().append(tableId).append(elanTag).toString();
+        return new StringBuilder().append(tableId).append(elanTag).toString();
     }
 
     /**

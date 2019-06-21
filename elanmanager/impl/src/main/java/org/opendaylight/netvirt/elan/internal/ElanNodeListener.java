@@ -255,7 +255,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         mkMatches.add(new NxMatchRegister(NxmNxReg4.class, LEARN_MATCH_REG4_VALUE));
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_DMAC_TABLE));
-        String flowRef = new StringBuffer().append(NwConstants.ELAN_SMAC_TABLE).append(NwConstants.FLOWID_SEPARATOR)
+        String flowRef = new StringBuilder().append(NwConstants.ELAN_SMAC_TABLE).append(NwConstants.FLOWID_SEPARATOR)
                 .append(LEARN_MATCH_REG4_VALUE).toString();
         FlowEntity flowEntity =
                 MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_SMAC_TABLE, flowRef, 10, "ELAN sMac Table Reg4 Flow",

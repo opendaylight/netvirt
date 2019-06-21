@@ -148,14 +148,14 @@ public final class DhcpServiceUtils {
     }
 
     private static String getDhcpFlowRef(BigInteger dpId, long tableId, String vmMacAddress) {
-        return new StringBuffer().append(DhcpMConstants.FLOWID_PREFIX)
+        return new StringBuilder().append(DhcpMConstants.FLOWID_PREFIX)
                 .append(dpId).append(NwConstants.FLOWID_SEPARATOR)
                 .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
                 .append(vmMacAddress).toString();
     }
 
     private static String getDhcpArpFlowRef(BigInteger dpId, long tableId, long lportTag, String ipAddress) {
-        return new StringBuffer().append(DhcpMConstants.FLOWID_PREFIX)
+        return new StringBuilder().append(DhcpMConstants.FLOWID_PREFIX)
                 .append(dpId).append(NwConstants.FLOWID_SEPARATOR)
                 .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
                 .append(lportTag).append(NwConstants.FLOWID_SEPARATOR)
