@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager.ShardResource;
@@ -93,9 +92,7 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
         macAddresses.forEach((mac) -> macs.add(new MacAddress(mac.getValue().toLowerCase(Locale.ENGLISH))));
 
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils
-                .getInvolvedL2GwDevices(this.elanName);
-        for (L2GatewayDevice otherDevice : elanL2GwDevices.values()) {
+        for (L2GatewayDevice otherDevice : ElanL2GwCacheUtils.getInvolvedL2GwDevices(this.elanName)) {
             if (!otherDevice.getHwvtepNodeId().equals(this.l2GwDevice.getHwvtepNodeId())
                     && !ElanL2GatewayUtils.areMLAGDevices(this.l2GwDevice, otherDevice)) {
                 final String hwvtepId = otherDevice.getHwvtepNodeId();

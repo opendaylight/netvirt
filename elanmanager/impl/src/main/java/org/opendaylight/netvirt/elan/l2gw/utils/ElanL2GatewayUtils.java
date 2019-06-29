@@ -355,14 +355,13 @@ public class ElanL2GatewayUtils {
         final String extDeviceNodeId = extL2GwDevice.getHwvtepNodeId();
         final String elanInstanceName = elan.getElanInstanceName();
         final Collection<DpnInterfaces> elanDpns = getElanDpns(elanInstanceName);
-        ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils
-                .getInvolvedL2GwDevices(elanInstanceName);
+        Collection<L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanInstanceName);
 
         // Retrieve all participating DPNs in this Elan. Populate this MAC in
         // DMAC table.
         // Looping through all DPNs in order to add/remove mac flows in their
         // DMAC table
-        if (elanDpns.size() > 0 || elanL2GwDevices.values().size() > 0) {
+        if (elanDpns.size() > 0 || elanL2GwDevices.size() > 0) {
             String jobKey = elanInstanceName + ":" + macToBeAdded;
             IpAddress extL2GwDeviceTepIp = extL2GwDevice.getTunnelIp();
             List<PhysAddress> macList = Lists.newArrayList(new PhysAddress(macToBeAdded));
@@ -375,7 +374,7 @@ public class ElanL2GatewayUtils {
                                 extDeviceNodeId, elan.getElanTag(), ElanUtils.getVxlanSegmentationId(elan),
                                 macToBeAdded, elanInstanceName, interfaceName));
                     }
-                    for (L2GatewayDevice otherDevice : elanL2GwDevices.values()) {
+                    for (L2GatewayDevice otherDevice : elanL2GwDevices) {
                         if (!otherDevice.getHwvtepNodeId().equals(extDeviceNodeId)
                                 && !areMLAGDevices(extL2GwDevice, otherDevice)) {
                             final String hwvtepId = otherDevice.getHwvtepNodeId();
@@ -475,8 +474,8 @@ public class ElanL2GatewayUtils {
      *            the dpn id
      */
     public void deleteElanL2GwDevicesUcastLocalMacsFromDpn(final String elanName, final BigInteger dpnId) {
-        ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName);
-        if (elanL2GwDevices == null || elanL2GwDevices.isEmpty()) {
+        Collection<L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName);
+        if (elanL2GwDevices.isEmpty()) {
             LOG.trace("No L2 gateway devices in Elan [{}] cache.", elanName);
             return;
         }
@@ -488,7 +487,7 @@ public class ElanL2GatewayUtils {
         LOG.info("Deleting Elan [{}] L2GatewayDevices UcastLocalMacs from Dpn [{}]", elanName, dpnId);
 
         final Long elanTag = elan.getElanTag();
-        for (final L2GatewayDevice l2GwDevice : elanL2GwDevices.values()) {
+        for (final L2GatewayDevice l2GwDevice : elanL2GwDevices) {
             getL2GwDeviceLocalMacsAndRunCallback(elan.getElanInstanceName(), l2GwDevice, (localMacs) -> {
                 for (MacAddress mac : localMacs) {
                     String jobKey = elanName + ":" + mac.getValue();
@@ -668,23 +667,19 @@ public class ElanL2GatewayUtils {
     public static List<RemoteUcastMacs> getOtherDevicesMacs(String elanName,
             L2GatewayDevice l2GatewayDeviceToBeConfigured, NodeId hwVtepNodeId, String logicalSwitchName) {
         List<RemoteUcastMacs> lstRemoteUcastMacs = new ArrayList<>();
-        ConcurrentMap<String, L2GatewayDevice> elanL2GwDevicesFromCache = ElanL2GwCacheUtils
-                .getInvolvedL2GwDevices(elanName);
 
-        if (elanL2GwDevicesFromCache != null) {
-            for (L2GatewayDevice otherDevice : elanL2GwDevicesFromCache.values()) {
-                if (l2GatewayDeviceToBeConfigured.getHwvtepNodeId().equals(otherDevice.getHwvtepNodeId())) {
-                    continue;
-                }
-                if (!areMLAGDevices(l2GatewayDeviceToBeConfigured, otherDevice)) {
-                    for (LocalUcastMacs localUcastMac : otherDevice.getUcastLocalMacs()) {
-                        HwvtepPhysicalLocatorAugmentation physLocatorAug = HwvtepSouthboundUtils
-                                .createHwvtepPhysicalLocatorAugmentation(otherDevice.getTunnelIp());
-                        RemoteUcastMacs remoteUcastMac = HwvtepSouthboundUtils.createRemoteUcastMac(hwVtepNodeId,
-                            IetfYangUtil.INSTANCE.canonizeMacAddress(localUcastMac.getMacEntryKey()).getValue(),
-                            localUcastMac.getIpaddr(), logicalSwitchName, physLocatorAug);
-                        lstRemoteUcastMacs.add(remoteUcastMac);
-                    }
+        for (L2GatewayDevice otherDevice : ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName)) {
+            if (l2GatewayDeviceToBeConfigured.getHwvtepNodeId().equals(otherDevice.getHwvtepNodeId())) {
+                continue;
+            }
+            if (!areMLAGDevices(l2GatewayDeviceToBeConfigured, otherDevice)) {
+                for (LocalUcastMacs localUcastMac : otherDevice.getUcastLocalMacs()) {
+                    HwvtepPhysicalLocatorAugmentation physLocatorAug = HwvtepSouthboundUtils
+                            .createHwvtepPhysicalLocatorAugmentation(otherDevice.getTunnelIp());
+                    RemoteUcastMacs remoteUcastMac = HwvtepSouthboundUtils.createRemoteUcastMac(hwVtepNodeId,
+                        IetfYangUtil.INSTANCE.canonizeMacAddress(localUcastMac.getMacEntryKey()).getValue(),
+                        localUcastMac.getIpaddr(), logicalSwitchName, physLocatorAug);
+                    lstRemoteUcastMacs.add(remoteUcastMac);
                 }
             }
         }
@@ -1042,8 +1037,7 @@ public class ElanL2GatewayUtils {
 
     public void scheduleAddDpnMacInExtDevices(String elanName, BigInteger dpId,
             List<PhysAddress> staticMacAddresses) {
-        ConcurrentMap<String, L2GatewayDevice> elanDevices = ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName);
-        for (final L2GatewayDevice externalDevice : elanDevices.values()) {
+        for (final L2GatewayDevice externalDevice : ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName)) {
             scheduleAddDpnMacsInExtDevice(elanName, dpId, staticMacAddresses, externalDevice);
         }
     }

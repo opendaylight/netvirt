@@ -70,7 +70,7 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
                         session.getConsole().println(DEMARCATION);
                     }
                 } else {
-                    print(elanName, ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName).values());
+                    print(elanName, ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName));
                 }
                 break;
             case L2GATEWAY_CACHE_NAME:
