@@ -11,6 +11,7 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -39,6 +40,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -103,6 +105,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical.port.attributes.VlanBindings;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -247,31 +250,43 @@ public class ElanL2GatewayUtils {
      *            the elan instance
      * @param macAddresses
      *            the mac addresses
+     * @return Future which completes once the removal is done.
      */
-    public void removeMacsFromElanExternalDevices(ElanInstance elanInstance, List<PhysAddress> macAddresses) {
-        String elanName = elanInstance.getElanInstanceName();
-        for (L2GatewayDevice l2GatewayDevice : ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName)) {
-            removeRemoteUcastMacsFromExternalDevice(l2GatewayDevice.getHwvtepNodeId(), elanName, macAddresses);
+    public FluentFuture<?> removeMacsFromElanExternalDevices(ElanInstance elanInstance,
+            List<PhysAddress> macAddresses) {
+        WriteTransaction transaction = null;
+        try {
+            List<MacAddress> lstMac = null;
+            final String elanName = elanInstance.getElanInstanceName();
+            for (L2GatewayDevice l2GatewayDevice : ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName)) {
+                if (lstMac == null) {
+                    lstMac = macAddresses.stream().filter(Objects::nonNull).map(
+                        physAddress -> new MacAddress(physAddress.getValue())).collect(Collectors.toList());
+                }
+
+                if (!lstMac.isEmpty()) {
+                    if (transaction == null) {
+                        transaction = broker.newWriteOnlyTransaction();
+                    }
+                    final NodeId nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
+                    for (MacAddress mac : lstMac) {
+                        HwvtepUtils.deleteRemoteUcastMac(transaction, nodeId, elanName, mac);
+                    }
+                }
+            }
+
+            if (transaction != null) {
+                final FluentFuture<?> ret = transaction.commit();
+                transaction = null;
+                return ret;
+            }
+        } finally {
+            if (transaction != null) {
+                transaction.cancel();
+            }
         }
-    }
 
-    /**
-     * Removes the given MAC Addresses from the specified External Device.
-     *
-     * @param deviceNodeId
-     *            the device node id
-     * @param macAddresses
-     *            the mac addresses
-     * @return the listenable future
-     */
-    private ListenableFuture<Void> removeRemoteUcastMacsFromExternalDevice(String deviceNodeId,
-            String logicalSwitchName, List<PhysAddress> macAddresses) {
-        NodeId nodeId = new NodeId(deviceNodeId);
-
-        // TODO (eperefr)
-        List<MacAddress> lstMac = macAddresses.stream().filter(Objects::nonNull).map(
-            physAddress -> new MacAddress(physAddress.getValue())).collect(Collectors.toList());
-        return HwvtepUtils.deleteRemoteUcastMacs(broker, nodeId, logicalSwitchName, lstMac);
+        return FluentFutures.immediateNullFluentFuture();
     }
 
     /**
