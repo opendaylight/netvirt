@@ -16,9 +16,9 @@ import com.google.common.util.concurrent.SettableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
@@ -143,7 +143,7 @@ public class ElanL2GatewayMulticastUtils {
      *            the elan to be updated
      */
     public void updateRemoteMcastMacOnElanL2GwDevices(String elanName) {
-        for (L2GatewayDevice device : ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName).values()) {
+        for (L2GatewayDevice device : ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName)) {
             prepareRemoteMcastMacUpdateOnDevice(elanName, device);
         }
     }
@@ -167,8 +167,7 @@ public class ElanL2GatewayMulticastUtils {
 
     public void prepareRemoteMcastMacUpdateOnDevice(String elanName,
             L2GatewayDevice device) {
-        ConcurrentMap<String, L2GatewayDevice> elanL2gwDevices = ElanL2GwCacheUtils
-                .getInvolvedL2GwDevices(elanName);
+        Collection<L2GatewayDevice> elanL2gwDevices = ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName);
         List<DpnInterfaces> dpns = elanUtils.getElanDPNByName(elanName);
         List<IpAddress> dpnsTepIps = getAllTepIpsOfDpns(device, dpns);
         List<IpAddress> l2GwDevicesTepIps = getAllTepIpsOfL2GwDevices(elanL2gwDevices);
@@ -195,8 +194,7 @@ public class ElanL2GatewayMulticastUtils {
 
         List<DpnInterfaces> dpns = elanUtils.getElanDPNByName(elanName);
 
-        ConcurrentMap<String, L2GatewayDevice> devices = ElanL2GwCacheUtils
-                .getInvolvedL2GwDevices(elanName);
+        Collection<L2GatewayDevice> devices = ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName);
 
         List<IpAddress> dpnsTepIps = getAllTepIpsOfDpns(device, dpns);
         List<IpAddress> l2GwDevicesTepIps = getAllTepIpsOfL2GwDevices(devices);
@@ -211,7 +209,7 @@ public class ElanL2GatewayMulticastUtils {
 
         // TODO: Need to revisit below logic as logical switches might not be
         // present to configure RemoteMcastMac entry
-        for (L2GatewayDevice otherDevice : devices.values()) {
+        for (L2GatewayDevice otherDevice : devices) {
             if (!otherDevice.getDeviceName().equals(device.getDeviceName())) {
                 prepareRemoteMcastMacEntry(elanName, otherDevice, dpnsTepIps, l2GwDevicesTepIps);
             }
@@ -335,9 +333,7 @@ public class ElanL2GatewayMulticastUtils {
     public List<Bucket> getRemoteBCGroupBucketsOfElanL2GwDevices(ElanInstance elanInfo, BigInteger dpnId,
             int bucketId) {
         List<Bucket> listBucketInfo = new ArrayList<>();
-        ConcurrentMap<String, L2GatewayDevice> map = ElanL2GwCacheUtils
-                .getInvolvedL2GwDevices(elanInfo.getElanInstanceName());
-        for (L2GatewayDevice device : map.values()) {
+        for (L2GatewayDevice device : ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanInfo.getElanInstanceName())) {
             String interfaceName = elanItmUtils.getExternalTunnelInterfaceName(String.valueOf(dpnId),
                     device.getHwvtepNodeId());
             if (interfaceName == null) {
@@ -535,9 +531,9 @@ public class ElanL2GatewayMulticastUtils {
      *            the devices
      * @return the all tep ips of l2 gw devices
      */
-    private static List<IpAddress> getAllTepIpsOfL2GwDevices(ConcurrentMap<String, L2GatewayDevice> devices) {
+    private static List<IpAddress> getAllTepIpsOfL2GwDevices(Collection<L2GatewayDevice> devices) {
         List<IpAddress> tepIps = new ArrayList<>();
-        for (L2GatewayDevice otherDevice : devices.values()) {
+        for (L2GatewayDevice otherDevice : devices) {
             // There is no need to add the same tep ip to the list.
             if (!tepIps.contains(otherDevice.getTunnelIp())) {
                 tepIps.add(otherDevice.getTunnelIp());
