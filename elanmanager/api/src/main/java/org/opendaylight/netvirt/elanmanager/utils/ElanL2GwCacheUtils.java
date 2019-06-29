@@ -5,102 +5,69 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.elanmanager.utils;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.utils.cache.CacheUtil;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 
 public final class ElanL2GwCacheUtils {
 
     private static final ConcurrentHashMap<String, L2GatewayDevice> EMPTY_MAP = new ConcurrentHashMap<>();
-    public static final String L2GATEWAY_CONN_CACHE_NAME = "L2GWCONN";
+    private static final LoadingCache<String, ConcurrentMap<String, L2GatewayDevice>> CACHES = CacheBuilder.newBuilder()
+            .build(new CacheLoader<String, ConcurrentMap<String, L2GatewayDevice>>() {
+                @Override
+                public ConcurrentMap<String, L2GatewayDevice> load(String key) {
+                    return new ConcurrentHashMap<>();
+                }
+            });
 
     private ElanL2GwCacheUtils() {
     }
 
-    static {
-        CacheUtil.createCache(ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
-    }
-
     public static void addL2GatewayDeviceToCache(String elanName, L2GatewayDevice l2GwDevice) {
-        ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap =
-                (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil.getCache(
-                        ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
-        ConcurrentMap<String, L2GatewayDevice> deviceMap = cachedMap.get(elanName);
-        if (deviceMap == null) {
-            synchronized (ElanL2GwCacheUtils.class) {
-                deviceMap = cachedMap.computeIfAbsent(elanName, k -> new ConcurrentHashMap<>());
-            }
-        }
-        deviceMap.put(l2GwDevice.getHwvtepNodeId(), l2GwDevice);
+        CACHES.getUnchecked(elanName).put(l2GwDevice.getHwvtepNodeId(), l2GwDevice);
     }
 
     public static void removeL2GatewayDeviceFromAllElanCache(String deviceName) {
-        ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap =
-                (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil.getCache(
-                        ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
-        cachedMap.values().forEach(deviceMap -> deviceMap.remove(deviceName));
+        CACHES.asMap().values().forEach(deviceMap -> deviceMap.remove(deviceName));
     }
 
     @Nullable
     public static L2GatewayDevice removeL2GatewayDeviceFromCache(String elanName, String l2gwDeviceNodeId) {
-        ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap =
-                (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil.getCache(
-                        ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
-        ConcurrentMap<String, L2GatewayDevice> deviceMap = cachedMap.get(elanName);
-        if (deviceMap != null) {
-            return deviceMap.remove(l2gwDeviceNodeId);
-        } else {
-            return null;
-        }
+        ConcurrentMap<String, L2GatewayDevice> deviceMap = CACHES.getIfPresent(elanName);
+        return deviceMap == null ? null : deviceMap.remove(l2gwDeviceNodeId);
     }
 
     @Nullable
     public static L2GatewayDevice getL2GatewayDeviceFromCache(String elanName, String l2gwDeviceNodeId) {
-        ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap =
-                (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil.getCache(
-                        ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
-        ConcurrentMap<String, L2GatewayDevice> deviceMap = cachedMap.get(elanName);
-        if (deviceMap != null) {
-            return deviceMap.get(l2gwDeviceNodeId);
-        } else {
-            return null;
-        }
+        ConcurrentMap<String, L2GatewayDevice> deviceMap = CACHES.getIfPresent(elanName);
+        return deviceMap == null ? null : deviceMap.get(l2gwDeviceNodeId);
     }
 
     public static ConcurrentMap<String, L2GatewayDevice> getInvolvedL2GwDevices(String elanName) {
-        ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap =
-                (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil
-                .getCache(ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
-        ConcurrentMap<String, L2GatewayDevice> result = cachedMap.get(elanName);
-        if (result == null) {
-            result = EMPTY_MAP;
-        }
-        return result;
+        ConcurrentMap<String, L2GatewayDevice> result = CACHES.getIfPresent(elanName);
+        return result == null ? EMPTY_MAP : result;
+    }
+
+    public static Set<Entry<String, ConcurrentMap<String, L2GatewayDevice>>> getCaches() {
+        return CACHES.asMap().entrySet();
     }
 
     @NonNull
     public static List<L2GatewayDevice> getAllElanDevicesFromCache() {
-        ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap =
-                (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil.getCache(
-                        ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
-        if (cachedMap == null || cachedMap.isEmpty()) {
-            return Collections.emptyList();
-        }
-
         List<L2GatewayDevice> l2GwDevices = new ArrayList<>();
-        for (ConcurrentMap<String, L2GatewayDevice> l2gwDevices : cachedMap.values()) {
-            for (L2GatewayDevice l2gwDevice : l2gwDevices.values()) {
-                l2GwDevices.add(l2gwDevice);
-            }
+        for (ConcurrentMap<String, L2GatewayDevice> cache : CACHES.asMap().values()) {
+            l2GwDevices.addAll(cache.values());
         }
         return l2GwDevices;
     }
