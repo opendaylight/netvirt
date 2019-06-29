@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.elan.cli.l2gw;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -21,7 +20,6 @@ import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.utils.cache.CacheUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
@@ -32,6 +30,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 @Command(scope = "l2gw", name = "show-cache", description = "display l2gateways cache")
 public class L2GwUtilsCacheCli extends OsgiCommandSupport {
     private static final String L2GATEWAY_CACHE_NAME = "L2GW";
+    private static final String L2GATEWAY_CONN_CACHE_NAME = "L2GWCONN";
+
     private static final String DEMARCATION = "=================================";
 
     @Option(name = "-cache", aliases = {"--cache"}, description = "cache name",
@@ -55,15 +55,23 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
     protected Object doExecute() throws IOException {
         if (cacheName == null) {
             session.getConsole().println("Available caches");
-            session.getConsole().println(ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
+            session.getConsole().println(L2GATEWAY_CONN_CACHE_NAME);
             session.getConsole().println(L2GATEWAY_CACHE_NAME);
             session.getConsole().println("HA");
             session.getConsole().println("HA_EVENTS");
             return null;
         }
         switch (cacheName) {
-            case ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME:
-                dumpElanL2GwCache();
+            case L2GATEWAY_CONN_CACHE_NAME:
+                if (elanName == null) {
+                    for (Entry<String, ConcurrentMap<String, L2GatewayDevice>> entry : ElanL2GwCacheUtils.getCaches()) {
+                        print(entry.getKey(), entry.getValue().values());
+                        session.getConsole().println(DEMARCATION);
+                        session.getConsole().println(DEMARCATION);
+                    }
+                } else {
+                    print(elanName, ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName).values());
+                }
                 break;
             case L2GATEWAY_CACHE_NAME:
                 dumpL2GwCache();
@@ -129,31 +137,10 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
         }
     }
 
-    private void dumpElanL2GwCache() {
-        if (elanName == null) {
-            ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cache =
-                    (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil.getCache(
-                            cacheName);
-            if (cache == null) {
-                session.getConsole().println("no devices are present in elan cache");
-            } else {
-                for (Entry<String, ConcurrentMap<String, L2GatewayDevice>> entry : cache.entrySet()) {
-                    print(entry.getKey(), entry.getValue());
-                    session.getConsole().println(DEMARCATION);
-                    session.getConsole().println(DEMARCATION);
-                }
-            }
-            return;
-        }
-        ConcurrentMap<String, L2GatewayDevice> elanDevices = ElanL2GwCacheUtils
-                .getInvolvedL2GwDevices(elanName);
-        print(elanName, elanDevices);
-    }
-
-    private void print(String elan, ConcurrentMap<String, L2GatewayDevice> devices) {
+    private void print(String elan, Collection<L2GatewayDevice> devices) {
         session.getConsole().println("Elan name : " + elan);
-        session.getConsole().println("No of devices in elan " + devices.keySet().size());
-        for (L2GatewayDevice device : devices.values()) {
+        session.getConsole().println("No of devices in elan " + devices.size());
+        for (L2GatewayDevice device : devices) {
             session.getConsole().println("device " + device);
         }
     }
