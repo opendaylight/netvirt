@@ -11,7 +11,6 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import java.math.BigInteger;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
@@ -117,9 +116,8 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
             return;
         }
 
-        ConcurrentMap<String, L2GatewayDevice> devices =
-                ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanInstance.getElanInstanceName());
-        if (devices == null || devices.isEmpty()) {
+        final int devicesSize = ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanInstance.getElanInstanceName()).size();
+        if (devicesSize == 0) {
             LOG.trace("no elan devices in elan cache {} {}", elanInstance.getElanInstanceName(),
                     update.key().getGroupId());
             return;
@@ -131,7 +129,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         } else {
             updateGroup = true;
         }
-        expectedElanFootprint += devices.size();
+        expectedElanFootprint += devicesSize;
         if (update.getBuckets() != null && update.getBuckets().getBucket() != null) {
             if (update.getBuckets().getBucket().size() != expectedElanFootprint) {
                 updateGroup = true;
