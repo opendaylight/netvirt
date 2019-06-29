@@ -50,6 +50,7 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.LoggingFutures;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
@@ -105,6 +106,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical.port.attributes.VlanBindings;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -183,7 +185,7 @@ public class ElanL2GatewayUtils {
         for (String interfaceName : lstElanInterfaceNames) {
             ElanInterfaceMac elanInterfaceMac = ElanUtils.getElanInterfaceMacByInterfaceName(broker, interfaceName);
             if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null) {
-                for (MacEntry macEntry : new ArrayList<MacEntry>(elanInterfaceMac.getMacEntry().values())) {
+                for (MacEntry macEntry : new ArrayList<>(elanInterfaceMac.getMacEntry().values())) {
                     result.add(macEntry.getMacAddress());
                 }
             }
@@ -255,32 +257,43 @@ public class ElanL2GatewayUtils {
      *            the elan instance
      * @param macAddresses
      *            the mac addresses
+     * @return Future which completes once the removal is done.
      */
-    public void removeMacsFromElanExternalDevices(ElanInstance elanInstance, List<PhysAddress> macAddresses) {
-        String elanName = elanInstance.getElanInstanceName();
-        for (L2GatewayDevice l2GatewayDevice : ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName)) {
-            removeRemoteUcastMacsFromExternalDevice(l2GatewayDevice.getHwvtepNodeId(), elanName, macAddresses);
+    public FluentFuture<?> removeMacsFromElanExternalDevices(ElanInstance elanInstance,
+            List<PhysAddress> macAddresses) {
+        WriteTransaction transaction = null;
+        try {
+            List<MacAddress> lstMac = null;
+            final String elanName = elanInstance.getElanInstanceName();
+            for (L2GatewayDevice l2GatewayDevice : ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName)) {
+                if (lstMac == null) {
+                    lstMac = macAddresses.stream().filter(Objects::nonNull).map(
+                        physAddress -> new MacAddress(physAddress.getValue())).collect(Collectors.toList());
+                }
+
+                if (!lstMac.isEmpty()) {
+                    if (transaction == null) {
+                        transaction = broker.newWriteOnlyTransaction();
+                    }
+                    final NodeId nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
+                    for (MacAddress mac : lstMac) {
+                        HwvtepUtils.deleteRemoteUcastMac(transaction, nodeId, elanName, mac);
+                    }
+                }
+            }
+
+            if (transaction != null) {
+                final FluentFuture<?> ret = transaction.commit();
+                transaction = null;
+                return ret;
+            }
+        } finally {
+            if (transaction != null) {
+                transaction.cancel();
+            }
         }
-    }
 
-    /**
-     * Removes the given MAC Addresses from the specified External Device.
-     *
-     * @param deviceNodeId
-     *            the device node id
-     * @param macAddresses
-     *            the mac addresses
-     * @return the listenable future
-     */
-    private FluentFuture<? extends CommitInfo> removeRemoteUcastMacsFromExternalDevice(String deviceNodeId,
-                                                                                       String logicalSwitchName,
-                                                                                       List<PhysAddress> macAddresses) {
-        NodeId nodeId = new NodeId(deviceNodeId);
-
-        // TODO (eperefr)
-        List<MacAddress> lstMac = macAddresses.stream().filter(Objects::nonNull).map(
-            physAddress -> new MacAddress(physAddress.getValue())).collect(Collectors.toList());
-        return HwvtepUtils.deleteRemoteUcastMacs(broker, nodeId, logicalSwitchName, lstMac);
+        return FluentFutures.immediateNullFluentFuture();
     }
 
     /**
@@ -527,7 +540,7 @@ public class ElanL2GatewayUtils {
                             HwvtepGlobalAugmentation augmentation = configNode.get().augmentation(
                                     HwvtepGlobalAugmentation.class);
                             if (augmentation != null && augmentation.getLocalUcastMacs() != null) {
-                                macs.addAll(new ArrayList<LocalUcastMacs>(augmentation
+                                macs.addAll(new ArrayList<>(augmentation
                                         .getLocalUcastMacs().values()).stream()
                                         .filter(mac -> getLogicalSwitchName(mac).equals(elanName))
                                         .map(HwvtepMacTableGenericAttributes::getMacEntryKey)
@@ -738,7 +751,7 @@ public class ElanL2GatewayUtils {
             return lstRemoteUcastMacs;
         }
 
-        for (MacEntry macEntry : new ArrayList<MacEntry>(macTable.getMacEntry().values())) {
+        for (MacEntry macEntry : new ArrayList<>(macTable.getMacEntry().values())) {
             Uint64 dpnId = getDpidFromInterface(macEntry.getInterface());
             if (dpnId == null) {
                 LOG.error("DPN ID not found for interface {}", macEntry.getInterface());
@@ -996,7 +1009,7 @@ public class ElanL2GatewayUtils {
             String psNodeId = globalNodeId + HwvtepHAUtil.PHYSICALSWITCH + psName;
             tzonesoptional.get().nonnullTransportZone().stream()
                 .filter(zone -> zone.getDeviceVteps() != null)
-                .flatMap(zone -> new ArrayList<DeviceVteps>(zone.getDeviceVteps().values()).stream())
+                .flatMap(zone -> new ArrayList<>(zone.getDeviceVteps().values()).stream())
                 .filter(deviceVteps -> Objects.equals(getPsName(deviceVteps), psName)) //get device with same ps name
                 .filter(deviceVteps -> !Objects.equals(psNodeId, deviceVteps.getNodeId())
                         || !Objects.equals(tunnelIp, deviceVteps.getIpAddress()))//node id or tunnel ip is changed
