@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f28a107f_28a7846f",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayMulticastUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-07-01T12:24:31Z",
+      "side": 1,
+      "message": "this will NPE if dpnInterfaces becomes empty (and thus null)",
+      "range": {
+        "startLine": 401,
+        "startChar": 55,
+        "endLine": 401,
+        "endChar": 58
+      },
+      "revId": "abff77714b996bd7f9bcb76514013bd9e948a8cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
