@@ -261,10 +261,11 @@ public class ElanPacketInHandler implements PacketProcessingListener {
             return;
         }
         LoggingFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-            tx -> elanUtils.deleteMacFlows(elanInfo, oldInterfaceLport, macEntry, tx)), LOG,
-            "Error deleting invalid MAC entry");
-        elanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo,
-                Collections.singletonList(macEntry.getMacAddress()));
+            tx -> {
+                elanUtils.deleteMacFlows(elanInfo, oldInterfaceLport, macEntry, tx);
+                elanL2GatewayUtils.removeMacsFromElanExternalDevices(tx, elanInfo,
+                    Collections.singletonList(macEntry.getMacAddress()));
+            }), LOG, "Error deleting invalid MAC entry");
     }
 
 }
