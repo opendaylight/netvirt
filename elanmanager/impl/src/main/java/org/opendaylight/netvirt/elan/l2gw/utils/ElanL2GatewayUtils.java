@@ -41,8 +41,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
@@ -105,7 +107,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical.port.attributes.VlanBindings;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -256,14 +257,13 @@ public class ElanL2GatewayUtils {
      *            the elan instance
      * @param macAddresses
      *            the mac addresses
-     * @return Future which completes once the removal is done.
      */
-    public FluentFuture<?> removeMacsFromElanExternalDevices(ElanInstance elanInstance,
+    public void removeMacsFromElanExternalDevices(TypedWriteTransaction<Configuration> tx, ElanInstance elanInstance,
             List<PhysAddress> macAddresses) {
         final String elanName = elanInstance.getElanInstanceName();
         final Collection<L2GatewayDevice> devices = ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName);
         if (devices.isEmpty()) {
-            return FluentFutures.immediateNullFluentFuture();
+            return;
         }
 
         final List<MacAddress> lstMac = macAddresses.stream()
@@ -271,17 +271,15 @@ public class ElanL2GatewayUtils {
                 .map(physAddress -> new MacAddress(physAddress.getValue()))
                 .collect(Collectors.toList());
         if (lstMac.isEmpty()) {
-            return FluentFutures.immediateNullFluentFuture();
+            return;
         }
 
-        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, transaction -> {
-            for (L2GatewayDevice l2GatewayDevice : devices) {
-                final NodeId nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
-                for (MacAddress mac : lstMac) {
-                    HwvtepUtils.deleteRemoteUcastMac(transaction, nodeId, elanName, mac);
-                }
+        for (L2GatewayDevice l2GatewayDevice : devices) {
+            final NodeId nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
+            for (MacAddress mac : lstMac) {
+                HwvtepUtils.deleteRemoteUcastMac(tx, nodeId, elanName, mac);
             }
-        });
+        }
     }
 
     /**
