@@ -433,7 +433,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             // Removing all those MACs from External Devices belonging
                             // to this ELAN
                             if (isVxlanNetworkOrVxlanSegment(elanInfo) && ! macAddresses.isEmpty()) {
-                                elanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo, macAddresses);
+                                elanL2GatewayUtils.removeMacsFromElanExternalDevices(flowTx, elanInfo, macAddresses);
                             }
                         }
                     }
