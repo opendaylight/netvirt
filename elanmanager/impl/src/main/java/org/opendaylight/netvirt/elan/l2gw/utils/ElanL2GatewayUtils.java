@@ -40,7 +40,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -254,35 +253,20 @@ public class ElanL2GatewayUtils {
      */
     public FluentFuture<?> removeMacsFromElanExternalDevices(ElanInstance elanInstance,
             List<PhysAddress> macAddresses) {
-        WriteTransaction transaction = null;
-        try {
-            List<MacAddress> lstMac = null;
-            final String elanName = elanInstance.getElanInstanceName();
-            for (L2GatewayDevice l2GatewayDevice : ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName)) {
-                if (lstMac == null) {
-                    lstMac = macAddresses.stream().filter(Objects::nonNull).map(
-                        physAddress -> new MacAddress(physAddress.getValue())).collect(Collectors.toList());
-                }
-
-                if (!lstMac.isEmpty()) {
-                    if (transaction == null) {
-                        transaction = broker.newWriteOnlyTransaction();
+        final String elanName = elanInstance.getElanInstanceName();
+        Collection<L2GatewayDevice> involvedL2GwDevices = ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName);
+        if (!involvedL2GwDevices.isEmpty()) {
+            final List<MacAddress> lstMac = macAddresses.stream().filter(Objects::nonNull).map(
+                physAddress -> new MacAddress(physAddress.getValue())).collect(Collectors.toList());
+            if (!lstMac.isEmpty()) {
+                return txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
+                    for (L2GatewayDevice l2GatewayDevice : involvedL2GwDevices) {
+                        final NodeId nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
+                        for (MacAddress mac : lstMac) {
+                            HwvtepUtils.deleteRemoteUcastMac(tx, nodeId, elanName, mac);
+                        }
                     }
-                    final NodeId nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
-                    for (MacAddress mac : lstMac) {
-                        HwvtepUtils.deleteRemoteUcastMac(transaction, nodeId, elanName, mac);
-                    }
-                }
-            }
-
-            if (transaction != null) {
-                final FluentFuture<?> ret = transaction.commit();
-                transaction = null;
-                return ret;
-            }
-        } finally {
-            if (transaction != null) {
-                transaction.cancel();
+                });
             }
         }
 
