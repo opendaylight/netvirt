@@ -11,11 +11,9 @@ import static java.util.Collections.emptyList;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +26,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore;
+import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
@@ -186,8 +185,7 @@ public class ElanL2GatewayMulticastUtils {
      * @param updateThisDevice
      *            the update this device
      */
-    private void updateMcastMacsForAllElanDevices(String elanName, L2GatewayDevice device,
-                                                                    boolean updateThisDevice) {
+    private void updateMcastMacsForAllElanDevices(String elanName, L2GatewayDevice device, boolean updateThisDevice) {
 
         SettableFuture<Void> ft = SettableFuture.create();
         ft.set(null);
@@ -427,11 +425,10 @@ public class ElanL2GatewayMulticastUtils {
      *            the dpns tep ips
      * @param l2GwDevicesTepIps
      *            the l2 gw devices tep ips
-     * @return the write transaction
      */
     private void prepareRemoteMcastMacEntry(String elanName,
-                                             L2GatewayDevice device, List<IpAddress> dpnsTepIps,
-                                             List<IpAddress> l2GwDevicesTepIps) {
+                                            L2GatewayDevice device, List<IpAddress> dpnsTepIps,
+                                            List<IpAddress> l2GwDevicesTepIps) {
         NodeId nodeId = new NodeId(device.getHwvtepNodeId());
 
         ArrayList<IpAddress> remoteTepIps = new ArrayList<>(l2GwDevicesTepIps);
@@ -545,33 +542,32 @@ public class ElanL2GatewayMulticastUtils {
     /**
      * Handle mcast for elan l2 gw device delete.
      *
+     * @param tx
+     *            the transaction to use
      * @param elanName
      *            the elan instance name
      * @param l2GatewayDevice
      *            the l2 gateway device
-     * @return the listenable future
      */
-    public List<ListenableFuture<Void>> handleMcastForElanL2GwDeviceDelete(String elanName,
-                                                                           L2GatewayDevice l2GatewayDevice) {
-        ListenableFuture<Void> deleteTepFuture =
-            txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
-                tx -> tx.delete(buildExternalTepPath(elanName, l2GatewayDevice.getTunnelIp())));
+    public void handleMcastForElanL2GwDeviceDelete(TypedWriteTransaction<Configuration> tx, String elanName,
+                                                   L2GatewayDevice l2GatewayDevice) {
+        tx.delete(buildExternalTepPath(elanName, l2GatewayDevice.getTunnelIp()));
         updateMcastMacsForAllElanDevices(elanName, l2GatewayDevice, false/* updateThisDevice */);
-        ListenableFuture<Void> deleteRemoteMcastMacFuture = deleteRemoteMcastMac(
-                new NodeId(l2GatewayDevice.getHwvtepNodeId()), elanName);
-        return Arrays.asList(deleteRemoteMcastMacFuture, deleteTepFuture);
+        deleteRemoteMcastMac(tx, new NodeId(l2GatewayDevice.getHwvtepNodeId()), elanName);
     }
 
     /**
      * Delete remote mcast mac from Hwvtep node.
      *
+     * @param tx
+     *            the transaction to use
      * @param nodeId
      *            the node id
      * @param logicalSwitchName
      *            the logical switch name
-     * @return the listenable future
      */
-    private ListenableFuture<Void> deleteRemoteMcastMac(NodeId nodeId, String logicalSwitchName) {
+    private static void deleteRemoteMcastMac(TypedWriteTransaction<Configuration> tx, NodeId nodeId,
+                                             String logicalSwitchName) {
         InstanceIdentifier<LogicalSwitches> logicalSwitch = HwvtepSouthboundUtils
                 .createLogicalSwitchesInstanceIdentifier(nodeId, new HwvtepNodeName(logicalSwitchName));
         RemoteMcastMacsKey remoteMcastMacsKey = new RemoteMcastMacsKey(new HwvtepLogicalSwitchRef(logicalSwitch),
@@ -579,7 +575,7 @@ public class ElanL2GatewayMulticastUtils {
 
         LOG.info("Deleting RemoteMcastMacs entry on node: {} for logical switch: {}", nodeId.getValue(),
                 logicalSwitchName);
-        return HwvtepUtils.deleteRemoteMcastMac(broker, nodeId, remoteMcastMacsKey);
+        HwvtepUtils.deleteRemoteMcastMac(tx, nodeId, remoteMcastMacsKey);
     }
 
     /**

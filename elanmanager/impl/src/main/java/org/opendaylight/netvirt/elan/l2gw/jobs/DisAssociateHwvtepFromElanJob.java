@@ -7,11 +7,12 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.jobs;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -61,39 +62,34 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
         String strHwvtepNodeId = hwvtepNodeId.getValue();
         LOG.info("running disassosiate l2gw connection job for {} {}", elanName, strHwvtepNodeId);
 
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
-
         // Remove remote MACs and vlan mappings from physical port
         // Once all above configurations are deleted, delete logical
         // switch
-        LOG.info("delete vlan bindings for {} {}", elanName, strHwvtepNodeId);
-        futures.add(elanL2GatewayUtils.deleteVlanBindingsFromL2GatewayDevice(hwvtepNodeId, l2Device, defaultVlan));
+        return ImmutableList.of(elanL2GatewayUtils.getTxRunner().callWithNewReadWriteTransactionAndSubmit(
+            Datastore.CONFIGURATION, tx -> {
+                LOG.info("delete vlan bindings for {} {}", elanName, strHwvtepNodeId);
 
-        if (isLastL2GwConnDeleted) {
-            if (l2GatewayDevice == null) {
-                LOG.info("Scheduled delete logical switch {} {}", elanName, strHwvtepNodeId);
-                elanL2GatewayUtils.scheduleDeleteLogicalSwitch(hwvtepNodeId,
-                        ElanL2GatewayUtils.getLogicalSwitchFromElan(elanName));
-                return futures;
-            }
-            LOG.info("delete remote ucast macs {} {}", elanName, strHwvtepNodeId);
-            futures.add(elanL2GatewayUtils.deleteElanMacsFromL2GatewayDevice(hwvtepNodeId.getValue(), elanName));
+                ElanL2GatewayUtils.deleteVlanBindingsFromL2GatewayDevice(tx, hwvtepNodeId, l2Device, defaultVlan);
 
-            LOG.info("delete mcast mac for {} {}", elanName, strHwvtepNodeId);
-            futures.addAll(elanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceDelete(this.elanName,
-                    l2GatewayDevice));
+                if (isLastL2GwConnDeleted) {
+                    if (l2GatewayDevice != null) {
+                        LOG.info("delete remote ucast macs {} {}", elanName, strHwvtepNodeId);
+                        ElanL2GatewayUtils.deleteElanMacsFromL2GatewayDevice(tx, strHwvtepNodeId, elanName);
 
-            LOG.info("delete local ucast macs {} {}", elanName, strHwvtepNodeId);
-            elanL2GatewayUtils.deleteL2GwDeviceUcastLocalMacsFromElan(l2GatewayDevice, elanName);
+                        LOG.info("delete mcast mac for {} {}", elanName, strHwvtepNodeId);
+                        elanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceDelete(tx, elanName, l2GatewayDevice);
 
-            LOG.info("scheduled delete logical switch {} {}", elanName, strHwvtepNodeId);
-            elanL2GatewayUtils.scheduleDeleteLogicalSwitch(hwvtepNodeId,
-                    ElanL2GatewayUtils.getLogicalSwitchFromElan(elanName));
-        } else {
-            LOG.info("l2gw mcast delete not triggered for nodeId {}  with elan {}",
-                    l2GatewayDevice != null ? l2GatewayDevice.getHwvtepNodeId() : null, elanName);
-        }
+                        LOG.info("delete local ucast macs {} {}", elanName, strHwvtepNodeId);
+                        elanL2GatewayUtils.deleteL2GwDeviceUcastLocalMacsFromElan(tx, l2GatewayDevice, elanName);
+                    }
 
-        return futures;
+                    LOG.info("scheduled delete logical switch {} {}", elanName, strHwvtepNodeId);
+                    elanL2GatewayUtils.scheduleDeleteLogicalSwitch(hwvtepNodeId,
+                            ElanL2GatewayUtils.getLogicalSwitchFromElan(elanName));
+                } else {
+                    LOG.info("l2gw mcast delete not triggered for nodeId {}  with elan {}",
+                            l2GatewayDevice != null ? l2GatewayDevice.getHwvtepNodeId() : null, elanName);
+                }
+            }));
     }
 }

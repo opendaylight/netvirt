@@ -7,13 +7,12 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.jobs;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
-
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -25,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacsKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yangtools.util.concurrent.FluentFutures;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +33,16 @@ import org.slf4j.LoggerFactory;
  * The Class DeleteLogicalSwitchJob.
  */
 public class DeleteLogicalSwitchJob implements Callable<List<ListenableFuture<Void>>> {
-    private DataBroker broker;
+    private static final List<ListenableFuture<Void>> CANCELED_FUTURE = ImmutableList.of(
+        FluentFutures.immediateNullFluentFuture());
+
+    private final DataBroker broker;
 
     /** The logical switch name. */
-    private String logicalSwitchName;
+    private final String logicalSwitchName;
 
     /** The physical device. */
-    private NodeId hwvtepNodeId;
+    private final NodeId hwvtepNodeId;
 
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final boolean clearUcast;
@@ -69,25 +72,26 @@ public class DeleteLogicalSwitchJob implements Callable<List<ListenableFuture<Vo
     public List<ListenableFuture<Void>> call() {
         if (cancelled) {
             LOG.info("Delete logical switch job cancelled ");
-            return Collections.emptyList();
+            return CANCELED_FUTURE;
         }
+
         LOG.debug("running logical switch deleted job for {} in {}", logicalSwitchName, hwvtepNodeId);
-        elanL2GatewayUtils.deleteElanMacsFromL2GatewayDevice(hwvtepNodeId.getValue(), logicalSwitchName);
-        InstanceIdentifier<LogicalSwitches> logicalSwitch = HwvtepSouthboundUtils
-                .createLogicalSwitchesInstanceIdentifier(hwvtepNodeId, new HwvtepNodeName(logicalSwitchName));
-        RemoteMcastMacsKey remoteMcastMacsKey = new RemoteMcastMacsKey(new HwvtepLogicalSwitchRef(logicalSwitch),
-                new MacAddress(ElanConstants.UNKNOWN_DMAC));
-        HwvtepUtils.deleteRemoteMcastMac(broker, hwvtepNodeId, remoteMcastMacsKey);
+        return ImmutableList.of(elanL2GatewayUtils.getTxRunner().callWithNewReadWriteTransactionAndSubmit(
+            Datastore.CONFIGURATION, tx -> {
+                ElanL2GatewayUtils.deleteElanMacsFromL2GatewayDevice(tx, hwvtepNodeId.getValue(), logicalSwitchName);
+                InstanceIdentifier<LogicalSwitches> logicalSwitch = HwvtepSouthboundUtils
+                        .createLogicalSwitchesInstanceIdentifier(hwvtepNodeId, new HwvtepNodeName(logicalSwitchName));
+                HwvtepUtils.deleteRemoteMcastMac(tx, hwvtepNodeId, new RemoteMcastMacsKey(
+                    new HwvtepLogicalSwitchRef(logicalSwitch), new MacAddress(ElanConstants.UNKNOWN_DMAC)));
 
-        L2GatewayDevice l2GatewayDevice = new L2GatewayDevice("");
-        l2GatewayDevice.setHwvtepNodeId(hwvtepNodeId.getValue());
+                L2GatewayDevice l2GatewayDevice = new L2GatewayDevice("");
+                l2GatewayDevice.setHwvtepNodeId(hwvtepNodeId.getValue());
 
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
-        futures.add(HwvtepUtils.deleteLogicalSwitch(broker, hwvtepNodeId, logicalSwitchName));
-        if (clearUcast) {
-            LOG.trace("Clearing the local ucast macs of device {} macs ", hwvtepNodeId.getValue());
-            elanL2GatewayUtils.deleteL2GwDeviceUcastLocalMacsFromElan(l2GatewayDevice, logicalSwitchName);
-        }
-        return futures;
+                HwvtepUtils.deleteLogicalSwitch(tx, hwvtepNodeId, logicalSwitchName);
+                if (clearUcast) {
+                    LOG.trace("Clearing the local ucast macs of device {} macs ", hwvtepNodeId.getValue());
+                    elanL2GatewayUtils.deleteL2GwDeviceUcastLocalMacsFromElan(tx, l2GatewayDevice, logicalSwitchName);
+                }
+        }));
     }
 }
