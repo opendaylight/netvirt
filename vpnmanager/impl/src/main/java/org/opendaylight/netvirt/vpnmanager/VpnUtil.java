@@ -1574,11 +1574,14 @@ public final class VpnUtil {
                 .augmentation(Adjacencies.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
     }
 
-    static InstanceIdentifier<Adjacency> getVpnInterfaceOpDataEntryAdjacencyIdentifier(String intfName, String vpnName,
-                String ipAddress) {
+    static InstanceIdentifier<Adjacency> getVpnInterfaceOpDataEntryAdjacencyIdentifier(String intfName,
+                                                                                       String vpnName,
+                                                                                       String ipAddress) {
+        LOG.debug("getVpnInterfaceO pDataEntryAdjacencyIdentifier intfName {}, vpnName {}, ipAddress {}",
+                intfName, vpnName, ipAddress);
         return InstanceIdentifier.builder(VpnInterfaceOpData.class)
-                .child(VpnInterfaceOpDataEntry.class, new VpnInterfaceOpDataEntryKey(intfName, vpnName))
-                .augmentation(AdjacenciesOp.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
+                    .child(VpnInterfaceOpDataEntry.class, new VpnInterfaceOpDataEntryKey(intfName, vpnName))
+                    .augmentation(AdjacenciesOp.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
     }
 
     public static List<String> getIpsListFromExternalIps(List<ExternalIps> externalIps) {

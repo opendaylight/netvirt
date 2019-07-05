@@ -2071,6 +2071,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         for (Adjacency adjacency : adjacencies) {
                             if (Objects.equals(adjacency.getIpAddress(), adj.getIpAddress())) {
                                 String rd = adjacency.getVrfId();
+                                InstanceIdentifier<Adjacency> adjIdentifier = VpnUtil
+                                        .getVpnInterfaceOpDataEntryAdjacencyIdentifier(currVpnIntf.getName(),
+                                                currVpnIntf.getVpnInstanceName(), adj.getIpAddress());
+                                LOG.debug("delAdjFromVpnInterface: adjIdentifier {}", adjIdentifier);
+                                writeOperTxn.delete(adjIdentifier);
                                 if (adj.getNextHopIpList() != null) {
                                     for (String nh : adj.getNextHopIpList()) {
                                         deleteExtraRouteFromCurrentAndImportingVpns(
