@@ -100,7 +100,8 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         if (aclTag != null) {
             this.aclDataUtil.removeAclTag(aclName);
         }
-        updateRemoteAclCache(acl.getAccessListEntries().getAce(), aclName, AclServiceManager.Action.REMOVE);
+
+        updateRemoteAclCache(AclServiceUtils.getAceListFromAcl(acl), aclName, AclServiceManager.Action.REMOVE);
         if (aclClusterUtil.isEntityOwner()) {
             if (aclTag != null) {
                 this.aclServiceUtils.releaseAclTag(aclName);
@@ -164,7 +165,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
             this.aclDataUtil.addAclTag(aclName, aclTag);
         }
 
-        updateRemoteAclCache(acl.getAccessListEntries().getAce(), aclName, AclServiceManager.Action.ADD);
+        updateRemoteAclCache(AclServiceUtils.getAceListFromAcl(acl), aclName, AclServiceManager.Action.ADD);
     }
 
     /**
@@ -175,9 +176,6 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
      * @param action the action
      */
     private void updateRemoteAclCache(@Nullable List<Ace> aceList, String aclName, AclServiceManager.Action action) {
-        if (null == aceList) {
-            return;
-        }
         for (Ace ace : aceList) {
             SecurityRuleAttr aceAttributes = ace.augmentation(SecurityRuleAttr.class);
             if (AclServiceUtils.doesAceHaveRemoteGroupId(aceAttributes)) {
