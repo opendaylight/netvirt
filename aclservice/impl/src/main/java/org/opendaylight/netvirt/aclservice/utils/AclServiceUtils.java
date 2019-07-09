@@ -952,6 +952,17 @@ public final class AclServiceUtils {
         return flowMatches;
     }
 
+    public static List<Ace> getAceListFromAcl(Acl acl) {
+        if (acl.getAccessListEntries() != null) {
+            List<Ace> aceList = acl.getAccessListEntries().getAce();
+            if (aceList != null && !aceList.isEmpty()
+                    && aceList.get(0).augmentation(SecurityRuleAttr.class) != null) {
+                return aceList;
+            }
+        }
+        return Collections.emptyList();
+    }
+
     /**
      * Builds the ip protocol matches.
      *
