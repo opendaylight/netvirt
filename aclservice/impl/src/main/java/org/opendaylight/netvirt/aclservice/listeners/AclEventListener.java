@@ -100,6 +100,10 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         if (aclTag != null) {
             this.aclDataUtil.removeAclTag(aclName);
         }
+        if (!AclServiceUtils.isOfAclInterest(acl)) {
+            LOG.trace("{} does not have SecurityRuleAttr augmentation", aclName);
+            return;
+        }
         updateRemoteAclCache(acl.getAccessListEntries().getAce(), aclName, AclServiceManager.Action.REMOVE);
         if (aclClusterUtil.isEntityOwner()) {
             if (aclTag != null) {
@@ -164,6 +168,10 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
             this.aclDataUtil.addAclTag(aclName, aclTag);
         }
 
+        if (!AclServiceUtils.isOfAclInterest(acl)) {
+            LOG.trace("{} does not have SecurityRuleAttr augmentation", aclName);
+            return;
+        }
         updateRemoteAclCache(acl.getAccessListEntries().getAce(), aclName, AclServiceManager.Action.ADD);
     }
 
