@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d7d1f81_56f9629c",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 955,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-07-09T15:36:35Z",
+      "side": 1,
+      "message": "I am not quite sure about this return. The two call sites effectively end up re-doing the work for getAce() -- wouldn\u0027t it be better to return Optional\u003cList\u003cAce\u003e\u003e, where the contract (documented) would be that the list is non-empty?\n\nAlso ...",
+      "range": {
+        "startLine": 955,
+        "startChar": 18,
+        "endLine": 955,
+        "endChar": 25
+      },
+      "revId": "c96a9ae46c84b2d0ee906452975eb9d25fad6130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5324687d_b0a9e8fd",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 959,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2019-07-09T15:36:35Z",
+      "side": 1,
+      "message": "... could it happen that the first entry does not have the augmentation, but the second one does?",
+      "range": {
+        "startLine": 959,
+        "startChar": 23,
+        "endLine": 959,
+        "endChar": 37
+      },
+      "revId": "c96a9ae46c84b2d0ee906452975eb9d25fad6130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
