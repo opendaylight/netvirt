@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,30 +34,17 @@ import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.infra.TypedReadWriteTransaction;
-import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.ip.port.map.IpPortExternal;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.neutron.vip.states.VipState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.snatint.ip.port.map.intip.port.map.IpPort;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.snatint.ip.port.map.intip.port.map.ip.port.IntIpProtoType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetFixedIPsForNeutronPortInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetFixedIPsForNeutronPortOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -324,51 +310,6 @@ public class NatSouthboundEventHandlers {
         return port.get().nonnullInternalToExternalPortMap();
     }
 
-    @Nullable
-    private BigInteger getNaptSwitchforRouter(DataBroker broker, String routerName) {
-        InstanceIdentifier<RouterToNaptSwitch> rtrNaptSw = InstanceIdentifier.builder(NaptSwitches.class)
-            .child(RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerName)).build();
-        Optional<RouterToNaptSwitch> routerToNaptSwitchData =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                        LogicalDatastoreType.CONFIGURATION, rtrNaptSw);
-        if (routerToNaptSwitchData.isPresent()) {
-            RouterToNaptSwitch routerToNaptSwitchInstance = routerToNaptSwitchData.get();
-            return routerToNaptSwitchInstance.getPrimarySwitchId();
-        }
-        return null;
-    }
-
-    private void removeNatFlow(BigInteger dpnId, short tableId, Long routerId, String ipAddress, int ipPort) {
-
-        String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(routerId), ipAddress, ipPort);
-        FlowEntity snatFlowEntity = NatUtil.buildFlowEntity(dpnId, tableId, switchFlowRef);
-
-        mdsalManager.removeFlow(snatFlowEntity);
-        LOG.debug("removeNatFlow : Removed the flow in table {} for the switch with the DPN ID {} for "
-            + "router {} ip {} port {}", tableId, dpnId, routerId, ipAddress, ipPort);
-    }
-
-    @Nullable
-    private List<String> getFixedIpsForPort(String interfname) {
-        LOG.debug("getFixedIpsForPort : getFixedIpsForPort method is called for interface {}", interfname);
-        try {
-            Future<RpcResult<GetFixedIPsForNeutronPortOutput>> result =
-                neutronVpnService.getFixedIPsForNeutronPort(new GetFixedIPsForNeutronPortInputBuilder()
-                    .setPortId(new Uuid(interfname)).build());
-
-            RpcResult<GetFixedIPsForNeutronPortOutput> rpcResult = result.get();
-            if (!rpcResult.isSuccessful()) {
-                LOG.error("getFixedIpsForPort : RPC Call to GetFixedIPsForNeutronPortOutput returned with Errors {}",
-                    rpcResult.getErrors());
-            } else {
-                return rpcResult.getResult().getFixedIPs();
-            }
-        } catch (InterruptedException | ExecutionException | NullPointerException ex) {
-            LOG.error("getFixedIpsForPort : Exception while receiving fixedIps for port {}", interfname, ex);
-        }
-        return null;
-    }
-
     private void processInterfaceRemoved(String portName, BigInteger dpnId, String routerId,
             List<ListenableFuture<Void>> futures) {
         LOG.trace("processInterfaceRemoved : Processing Interface Removed Event for interface {} on DPN ID {}",
@@ -390,89 +331,6 @@ public class NatSouthboundEventHandlers {
             future.get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error processing interface removal", e);
-        }
-    }
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    private void removeSnatEntriesForPort(String interfaceName, String routerName) {
-        Long routerId = NatUtil.getVpnId(dataBroker, routerName);
-        if (routerId == NatConstants.INVALID_ID) {
-            LOG.error("removeSnatEntriesForPort : routerId not found for routername {}", routerName);
-            return;
-        }
-        BigInteger naptSwitch = getNaptSwitchforRouter(dataBroker, routerName);
-        if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
-            LOG.error("removeSnatEntriesForPort : NaptSwitch is not elected for router {} with Id {}",
-                    routerName, routerId);
-            return;
-        }
-        //getInternalIp for port
-        List<String> fixedIps = getFixedIpsForPort(interfaceName);
-        if (fixedIps == null) {
-            LOG.warn("removeSnatEntriesForPort : Internal Ips not found for InterfaceName {} in router {} with id {}",
-                interfaceName, routerName, routerId);
-            return;
-        }
-
-        for (String internalIp : fixedIps) {
-            LOG.debug("removeSnatEntriesForPort : Internal Ip retrieved for interface {} is {} in router with Id {}",
-                interfaceName, internalIp, routerId);
-            IpPort ipPort = NatUtil.getInternalIpPortInfo(dataBroker, routerId, internalIp);
-            if (ipPort == null) {
-                LOG.debug("removeSnatEntriesForPort : no snatint-ip-port-map found for ip:{}", internalIp);
-                continue;
-            }
-
-            for (IntIpProtoType protoType : ipPort.nonnullIntIpProtoType()) {
-                ProtocolTypes protocol = protoType.getProtocol();
-                @Nullable List<Integer> ports = protoType.getPorts();
-                for (Integer portnum : (ports != null ? ports : Collections.<Integer>emptyList())) {
-                    //build and remove the flow in outbound table
-                    try {
-                        removeNatFlow(naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE, routerId, internalIp, portnum);
-                    } catch (Exception ex) {
-                        LOG.error("removeSnatEntriesForPort : Failed to remove snat flow for internalIP {} with "
-                                + "Port {} protocol {} for routerId {} in OUTBOUNDTABLE of NaptSwitch {}",
-                            internalIp, portnum, protocol, routerId, naptSwitch, ex);
-                    }
-                    //Get the external IP address and the port from the model
-                    NAPTEntryEvent.Protocol proto = protocol.toString().equals(ProtocolTypes.TCP.toString())
-                        ? NAPTEntryEvent.Protocol.TCP : NAPTEntryEvent.Protocol.UDP;
-                    IpPortExternal ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId,
-                        internalIp, String.valueOf(portnum), proto);
-                    if (ipPortExternal == null) {
-                        LOG.error("removeSnatEntriesForPort : Mapping for internalIp {} with port {} is not found in "
-                            + "router with Id {}", internalIp, portnum, routerId);
-                        return;
-                    }
-                    String externalIpAddress = ipPortExternal.getIpAddress();
-                    Integer portNumber = ipPortExternal.getPortNum();
-
-                    //build and remove the flow in inboundtable
-                    try {
-                        removeNatFlow(naptSwitch, NwConstants.INBOUND_NAPT_TABLE, routerId,
-                            externalIpAddress, portNumber);
-                    } catch (Exception ex) {
-                        LOG.error("removeSnatEntriesForPort : Failed to remove snat flow internalIP {} with "
-                                + "Port {} protocol {} for routerId {} in INBOUNDTABLE of naptSwitch {}",
-                            externalIpAddress, portNumber, protocol, routerId, naptSwitch, ex);
-                    }
-
-                    String internalIpPort = internalIp + ":" + portnum;
-                    // delete the entry from IntExtIpPortMap DS
-                    try {
-                        naptManager.removeFromIpPortMapDS(routerId, internalIpPort, proto);
-                        naptManager.removePortFromPool(internalIpPort, externalIpAddress);
-                    } catch (Exception ex) {
-                        LOG.error("removeSnatEntriesForPort : releaseIpExtPortMapping failed, Removal of "
-                            + "ipportmap {} for router {} failed", internalIpPort, routerId, ex);
-                    }
-                }
-            }
-            // delete the entry from SnatIntIpPortMap DS
-            LOG.debug("removeSnatEntriesForPort : Removing InternalIp:{} on router {}", internalIp, routerId);
-            naptManager.removeFromSnatIpPortDS(routerId, internalIp);
         }
     }
 
@@ -532,7 +390,10 @@ public class NatSouthboundEventHandlers {
             } else if (state.equals(IntfTransitionState.STATE_DOWN)) {
                 LOG.debug("call : Port DOWN event received for interface {} ", interfaceName);
                 try {
-                    removeSnatEntriesForPort(interfaceName, routerName);
+                    if (NatUtil.isSnatEnabledForRouterId(dataBroker, routerName)) {
+                        NatUtil.removeSnatEntriesForPort(dataBroker, naptManager, mdsalManager, neutronVpnService,
+                            interfaceName, routerName);
+                    }
                 } catch (Exception ex) {
                     LOG.error("call : Exception caught in Interface {} OperationalStateDown", interfaceName, ex);
                 }
@@ -560,7 +421,10 @@ public class NatSouthboundEventHandlers {
             try {
                 LOG.trace("call : Port removed event received for interface {} ", interfaceName);
                 processInterfaceRemoved(interfaceName, intfDpnId, routerName, futures);
-                removeSnatEntriesForPort(interfaceName, routerName);
+                if (NatUtil.isSnatEnabledForRouterId(dataBroker, routerName)) {
+                    NatUtil.removeSnatEntriesForPort(dataBroker, naptManager, mdsalManager, neutronVpnService,
+                        interfaceName, routerName);
+                }
             } catch (Exception e) {
                 LOG.error("call : Exception caught in Interface {} OperationalStateRemove", interfaceName, e);
             }
