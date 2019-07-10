@@ -16,6 +16,7 @@ public class NAPTEntryEvent {
     private final String ipAddress;
     private final int portNumber;
     private final Long routerId;
+    private String flowDpn;
     private final Operation op;
     private final Protocol protocol;
     private final PacketReceived packetReceived;
@@ -36,11 +37,12 @@ public class NAPTEntryEvent {
         this.objectCreationTime = System.currentTimeMillis();
     }
 
-    NAPTEntryEvent(String ipAddress, int portNumber, Long routerId, Operation op, Protocol protocol) {
+    NAPTEntryEvent(String ipAddress, int portNumber, String flowDpn, Long routerId, Operation op, Protocol protocol) {
         this.op = op;
         this.ipAddress = ipAddress;
         this.portNumber = portNumber;
         this.routerId = routerId;
+        this.flowDpn = flowDpn;
         this.protocol = protocol;
         this.packetReceived = null;
         this.pktProcessed = false;
@@ -66,6 +68,10 @@ public class NAPTEntryEvent {
 
     public Long getRouterId() {
         return routerId;
+    }
+
+    public String getFlowDpn() {
+        return flowDpn;
     }
 
     public Operation getOperation() {
