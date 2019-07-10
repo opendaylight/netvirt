@@ -1145,8 +1145,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     private List<VpnInstanceOpDataEntry> getVpnsExportingMyRoute(final String vpnName) {
         List<VpnInstanceOpDataEntry> vpnsToExportRoute = new ArrayList<>();
-
         String vpnRd = vpnUtil.getVpnRd(vpnName);
+        
         final VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnUtil.getVpnInstanceOpData(vpnRd);
         if (vpnInstanceOpDataEntry == null) {
             LOG.debug("getVpnsExportingMyRoute: Could not retrieve vpn instance op data for {}"
