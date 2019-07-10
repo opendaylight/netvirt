@@ -1257,10 +1257,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
         }
         BigInteger dpnId = getPrimaryNaptSwitch(routerName);
-        if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
-            // Router has no interface attached
-            return;
-        }
         final long finalBgpVpnId = bgpVpnId;
         coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.key(), () -> {
             List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -1269,6 +1265,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     Uuid networkId = original.getNetworkId();
                     if (originalSNATEnabled != updatedSNATEnabled) {
                         if (originalSNATEnabled) {
+                            if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
+                                // Router has no interface attached
+                                return;
+                            }
                             //SNAT disabled for the router
                             Uuid networkUuid = original.getNetworkId();
                             LOG.info("update : SNAT disabled for Router {}", routerName);
@@ -1369,7 +1369,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             LOG.debug("update : Remove the NAPT translation entries from "
                                     + "Inbound and Outbound NAPT tables for the removed external IPs.");
                             //Get the internalIP and internal Port which were associated to the removed external IP.
-                            List<Integer> externalPorts = new ArrayList<>();
                             Map<ProtocolTypes, List<String>> protoTypesIntIpPortsMap = new HashMap<>();
                             InstanceIdentifier<IpPortMapping> ipPortMappingId = InstanceIdentifier
                                     .builder(IntextIpPortMap.class)
@@ -1391,7 +1390,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                     for (IpPortMap ipPortMap : intextIpProtocolType.nonnullIpPortMap()) {
                                         IpPortExternal ipPortExternal = ipPortMap.getIpPortExternal();
                                         if (ipPortExternal.getIpAddress().equals(externalIp)) {
-                                            externalPorts.add(ipPortExternal.getPortNum());
                                             List<String> removedInternalIpPorts =
                                                     protoTypesIntIpPortsMap.get(protoType);
                                             if (removedInternalIpPorts != null) {
@@ -1433,10 +1431,37 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                         if (removedInternalPortsList != null) {
                                             removedInternalPortsList.add(removedInternalPort);
                                             internalIpPortMap.put(removedInternalIp, removedInternalPortsList);
+                                            naptPacketInHandler.removeIncomingPacketMap(routerId
+                                                + NatConstants.COLON_SEPARATOR + removedInternalIp
+                                                + NatConstants.COLON_SEPARATOR + removedInternalPort);
+                                            //Remove the NAPT translation entries from Outbound NAPT table
+                                            naptEventHandler.removeNatFlows(dpnId,
+                                                NwConstants.OUTBOUND_NAPT_TABLE,
+                                                routerId, removedInternalIp,
+                                                Integer.parseInt(removedInternalPort),
+                                                protocolType.getName());
+                                            naptEventHandler.removeNatFlows(dpnId,
+                                                NwConstants.INBOUND_NAPT_TABLE,
+                                                routerId, removedInternalIp,
+                                                Integer.parseInt(removedInternalPort),
+                                                protocolType.getName());
                                         } else {
                                             removedInternalPortsList = new ArrayList<>();
                                             removedInternalPortsList.add(removedInternalPort);
                                             internalIpPortMap.put(removedInternalIp, removedInternalPortsList);
+                                            naptPacketInHandler.removeIncomingPacketMap(routerId
+                                                + NatConstants.COLON_SEPARATOR + removedInternalIp
+                                                + NatConstants.COLON_SEPARATOR + removedInternalPort);
+                                            //Remove the NAPT translation entries from Outbound NAPT table
+                                            naptEventHandler.removeNatFlows(dpnId,
+                                                NwConstants.OUTBOUND_NAPT_TABLE,
+                                                routerId, removedInternalIp,
+                                                Integer.parseInt(removedInternalPort),
+                                                protocolType.getName());
+                                            naptEventHandler.removeNatFlows(dpnId,
+                                                NwConstants.INBOUND_NAPT_TABLE, routerId, removedInternalIp,
+                                                Integer.parseInt(removedInternalPort),
+                                                protocolType.getName());
                                         }
                                     }
                                 }
@@ -1451,30 +1476,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             }
 
                             naptManager.removeNaptPortPool(externalIp);
-
-                            LOG.debug("update : Remove the NAPT translation entries from Inbound NAPT tables for "
-                                    + "the removed external IP {}", externalIp);
-                            for (Integer externalPort : externalPorts) {
-                                //Remove the NAPT translation entries from Inbound NAPT table
-                                naptEventHandler.removeNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
-                                        routerId, externalIp, externalPort);
-                            }
-
-                            Set<Map.Entry<String, List<String>>> internalIpPorts = internalIpPortMap.entrySet();
-                            for (Map.Entry<String, List<String>> internalIpPort : internalIpPorts) {
-                                String internalIp = internalIpPort.getKey();
-                                LOG.debug("update : Remove the NAPT translation entries from Outbound NAPT tables "
-                                        + "for the removed internal IP {}", internalIp);
-                                List<String> internalPorts = internalIpPort.getValue();
-                                for (String internalPort : internalPorts) {
-                                    //Remove the NAPT translation entries from Outbound NAPT table
-                                    naptPacketInHandler.removeIncomingPacketMap(
-                                            routerId + NatConstants.COLON_SEPARATOR + internalIp
-                                                    + NatConstants.COLON_SEPARATOR + internalPort);
-                                    naptEventHandler.removeNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE,
-                                            routerId, internalIp, Integer.parseInt(internalPort));
-                                }
-                            }
                         }
                         LOG.debug(
                                 "update : End processing of the External IPs removal during the update operation");
@@ -2027,6 +2028,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
 
         for (IntextIpProtocolType intextIpProtocolType : ipPortMapping.nonnullIntextIpProtocolType()) {
+            String protocol = intextIpProtocolType.getProtocol().name();
             for (IpPortMap ipPortMap : intextIpProtocolType.nonnullIpPortMap()) {
                 String ipPortInternal = ipPortMap.getIpPortInternal();
                 String[] ipPortParts = ipPortInternal.split(":");
@@ -2041,7 +2043,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 naptPacketInHandler.removeIncomingPacketMap(routerId + NatConstants.COLON_SEPARATOR + internalIp
                     + NatConstants.COLON_SEPARATOR + internalPort);
                 String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE,
-                    String.valueOf(routerId), internalIp, Integer.parseInt(internalPort));
+                    String.valueOf(routerId), internalIp, Integer.parseInt(internalPort), protocol);
                 FlowEntity outboundNaptFlowEntity =
                     NatUtil.buildFlowEntity(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, cookieSnatFlow, switchFlowRef);
 
@@ -2049,13 +2051,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     + "with the DPN ID {} and router ID {}", NwConstants.OUTBOUND_NAPT_TABLE, dpnId, routerId);
                 mdsalManager.removeFlow(confTx, outboundNaptFlowEntity);
 
-                IpPortExternal ipPortExternal = ipPortMap.getIpPortExternal();
-                String externalIp = ipPortExternal.getIpAddress();
-                int externalPort = ipPortExternal.getPortNum();
-
-                //Build the flow for the inbound NAPT table
+                 //Build the flow for the inbound NAPT table
                 switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NwConstants.INBOUND_NAPT_TABLE,
-                    String.valueOf(routerId), externalIp, externalPort);
+                    String.valueOf(routerId), internalIp, Integer.parseInt(internalPort), protocol);
                 FlowEntity inboundNaptFlowEntity =
                     NatUtil.buildFlowEntity(dpnId, NwConstants.INBOUND_NAPT_TABLE, cookieSnatFlow, switchFlowRef);
 
@@ -2141,6 +2139,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 return;
             }
             for (IntextIpProtocolType intextIpProtocolType : ipPortMapping.nonnullIntextIpProtocolType()) {
+                String protocol = intextIpProtocolType.getProtocol().name();
                 for (IpPortMap ipPortMap : intextIpProtocolType.nonnullIpPortMap()) {
                     String ipPortInternal = ipPortMap.getIpPortInternal();
                     String[] ipPortParts = ipPortInternal.split(":");
@@ -2156,7 +2155,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     naptPacketInHandler.removeIncomingPacketMap(routerId + NatConstants.COLON_SEPARATOR + internalIp
                             + NatConstants.COLON_SEPARATOR + internalPort);
                     String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NwConstants.OUTBOUND_NAPT_TABLE,
-                        String.valueOf(routerId), internalIp, Integer.parseInt(internalPort));
+                        String.valueOf(routerId), internalIp, Integer.parseInt(internalPort), protocol);
                     FlowEntity outboundNaptFlowEntity =
                         NatUtil.buildFlowEntity(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, cookieSnatFlow, switchFlowRef);
 
@@ -2166,12 +2165,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     mdsalManager.removeFlow(writeFlowInvTx, outboundNaptFlowEntity);
 
                     IpPortExternal ipPortExternal = ipPortMap.getIpPortExternal();
-                    String externalIp = ipPortExternal.getIpAddress();
-                    int externalPort = ipPortExternal.getPortNum();
+                    final String externalIp = ipPortExternal.getIpAddress();
 
                     //Build the flow for the inbound NAPT table
                     switchFlowRef = NatUtil.getNaptFlowRef(dpnId, NwConstants.INBOUND_NAPT_TABLE,
-                        String.valueOf(routerId), externalIp, externalPort);
+                        String.valueOf(routerId), internalIp, Integer.parseInt(internalPort), protocol);
                     FlowEntity inboundNaptFlowEntity =
                         NatUtil.buildFlowEntity(dpnId, NwConstants.INBOUND_NAPT_TABLE, cookieSnatFlow, switchFlowRef);
 

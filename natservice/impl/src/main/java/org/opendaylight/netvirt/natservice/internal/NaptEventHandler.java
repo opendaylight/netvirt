@@ -99,7 +99,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.ip.port.map.IpPortExternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -170,6 +169,7 @@ public class NaptEventHandler {
             Long routerId = naptEntryEvent.getRouterId();
             String internalIpAddress = naptEntryEvent.getIpAddress();
             int internalPort = naptEntryEvent.getPortNumber();
+            NAPTEntryEvent.Protocol protocol = naptEntryEvent.getProtocol();
             String sourceIPPortKey = routerId + NatConstants.COLON_SEPARATOR
                 + internalIpAddress + NatConstants.COLON_SEPARATOR + internalPort;
             LOG.trace("handleEvent : Time Elapsed before procesing snat ({}:{}) packet is {} ms,routerId: {},"
@@ -241,7 +241,6 @@ public class NaptEventHandler {
                     Long vpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
 
                     SessionAddress internalAddress = new SessionAddress(internalIpAddress, internalPort);
-                    NAPTEntryEvent.Protocol protocol = naptEntryEvent.getProtocol();
 
                     //Get the external IP address for the corresponding internal IP address
                     SessionAddress externalAddress =
@@ -287,7 +286,7 @@ public class NaptEventHandler {
                                             public void onSuccess(@Nullable RpcResult<AddFlowOutput> result) {
                                                 LOG.debug("handleEvent : Configured outbound rule, sending packet out"
                                                         + "from {} to {}", internalAddress, externalAddress);
-                                                prepareAndSendPacketOut(naptEntryEvent, finalRouterId);
+                                                prepareAndSendPacketOut(naptEntryEvent, finalRouterId, sourceIPPortKey);
                                             }
 
                                             @Override
@@ -307,7 +306,7 @@ public class NaptEventHandler {
                                 }
                             }, MoreExecutors.directExecutor());
                 } else {
-                    prepareAndSendPacketOut(naptEntryEvent, routerId);
+                    prepareAndSendPacketOut(naptEntryEvent, routerId, sourceIPPortKey);
                 }
                 LOG.trace("handleEvent : Time elapsed after Processsing snat ({}:{}) packet: {}ms,isPktProcessed:{} ",
                         naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(),
@@ -324,7 +323,7 @@ public class NaptEventHandler {
         }
     }
 
-    private void prepareAndSendPacketOut(NAPTEntryEvent naptEntryEvent, Long routerId) {
+    private void prepareAndSendPacketOut(NAPTEntryEvent naptEntryEvent, Long routerId, String sourceIPPortKey) {
         //Send Packetout - tcp or udp packets which got punted to controller.
         BigInteger metadata = naptEntryEvent.getPacketReceived().getMatch().getMetadata().getMetadata();
         byte[] inPayload = naptEntryEvent.getPacketReceived().getPayload();
@@ -333,6 +332,7 @@ public class NaptEventHandler {
             try {
                 ethPkt.deserialize(inPayload, 0, inPayload.length * Byte.SIZE);
             } catch (PacketException e) {
+                NaptPacketInHandler.removeIncomingPacketMap(sourceIPPortKey);
                 LOG.error("prepareAndSendPacketOut : Failed to decode Packet", e);
                 return;
             }
@@ -351,6 +351,7 @@ public class NaptEventHandler {
             int vlanId = 0;
             iface = interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
             if (iface == null) {
+                NaptPacketInHandler.removeIncomingPacketMap(sourceIPPortKey);
                 LOG.error("prepareAndSendPacketOut : Unable to read interface {} from config DataStore", interfaceName);
                 return;
             }
@@ -445,9 +446,14 @@ public class NaptEventHandler {
         int translatedPort = translatedSourceAddress.getPortNumber();
         String actualIp = actualSourceAddress.getIpAddress();
         int actualPort = actualSourceAddress.getPortNumber();
-        String switchFlowRef =
-            NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(routerId), actualIp, actualPort);
-
+        String switchFlowRef = null;
+        if (tableId == NwConstants.OUTBOUND_NAPT_TABLE) {
+            switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(routerId), actualIp, actualPort,
+                protocol.name());
+        } else {
+            switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(routerId), translatedIp,
+                translatedPort, protocol.name());
+        }
         FlowEntity snatFlowEntity = new FlowEntityBuilder()
             .setDpnId(dpnId)
             .setTableId(tableId)
@@ -625,7 +631,7 @@ public class NaptEventHandler {
         return instructionInfo;
     }
 
-    void removeNatFlows(BigInteger dpnId, short tableId ,long segmentId, String ip, int port) {
+    void removeNatFlows(BigInteger dpnId, short tableId ,long segmentId, String ip, int port, String protocol) {
         if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
             LOG.error("removeNatFlows : DPN ID {} is invalid" , dpnId);
             return;
@@ -634,7 +640,7 @@ public class NaptEventHandler {
             dpnId, segmentId, ip, port);
 
         //Build the flow with the port IP and port as the match info.
-        String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(segmentId), ip, port);
+        String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(segmentId), ip, port, protocol);
         FlowEntity snatFlowEntity = NatUtil.buildFlowEntity(dpnId, tableId, switchFlowRef);
         LOG.debug("removeNatFlows : Remove the flow in the table {} for the switch with the DPN ID {}",
                 tableId, dpnId);
@@ -647,7 +653,7 @@ public class NaptEventHandler {
     @Nullable
     @SuppressFBWarnings("PZLA_PREFER_ZERO_LENGTH_ARRAYS")
     protected byte[] buildNaptPacketOut(Ethernet etherPkt) {
-        LOG.debug("removeNatFlows : About to build Napt Packet Out");
+        LOG.debug("buildNaptPacketOut : About to build Napt Packet Out");
         if (etherPkt.getPayload() instanceof IPv4) {
             byte[] rawPkt;
             IPv4 ipPkt = (IPv4) etherPkt.getPayload();
@@ -660,11 +666,11 @@ public class NaptEventHandler {
                     return null;
                 }
             } else {
-                LOG.error("removeNatFlows : Unable to build NaptPacketOut since its neither TCP nor UDP");
+                LOG.error("buildNaptPacketOut : Unable to build NaptPacketOut since its neither TCP nor UDP");
                 return null;
             }
         }
-        LOG.error("removeNatFlows : Unable to build NaptPacketOut since its not IPv4 packet");
+        LOG.error("buildNaptPacketOut : Unable to build NaptPacketOut since its not IPv4 packet");
         return null;
     }
 
@@ -720,19 +726,17 @@ public class NaptEventHandler {
         Integer internalPortNumber = naptEntryEvent.getPortNumber();
         NAPTEntryEvent.Protocol protocol = naptEntryEvent.getProtocol();
         //Get the external IP address and the port from the model
-        IpPortExternal ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId, internalIpv4HostAddress,
-                internalPortNumber.toString(), protocol);
-        if (ipPortExternal == null) {
-            LOG.error("handleFlowRemoved : IpPortExternal is null while queried from the model for routerId {}",
-                    routerId);
-            return;
-        }
-        String externalIpAddress = ipPortExternal.getIpAddress();
-        int externalPortNumber = ipPortExternal.getPortNum();
+        LOG.trace("handleFlowRemoved: Failed to remove snat flow internalIP {} with "
+                + "Port {} protocol {} for routerId {} in OUTBOUNDTABLE of naptSwitch {}",
+            internalIpv4HostAddress, internalPortNumber, protocol, routerId, dpnId);
+        removeNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId, internalIpv4HostAddress,
+            internalPortNumber, protocol.name());
 
-        removeNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId, externalIpAddress, externalPortNumber);
-
-        removeNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, routerId, internalIpv4HostAddress, internalPortNumber);
+        LOG.trace("handleFlowRemoved: Failed to remove snat flow internalIP {} with "
+                + "Port {} protocol {} for routerId {} in INBOUNDTABLE of naptSwitch {}",
+            internalIpv4HostAddress, internalPortNumber, protocol, routerId, dpnId);
+        removeNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId, internalIpv4HostAddress,
+            internalPortNumber, protocol.name());
 
         //Remove the SourceIP:Port key from the Napt packet handler map.
         NaptPacketInHandler.removeIncomingPacketMap(sourceIPPortKey);
