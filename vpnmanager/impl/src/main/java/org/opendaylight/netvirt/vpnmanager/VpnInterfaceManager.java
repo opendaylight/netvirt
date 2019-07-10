@@ -1143,14 +1143,23 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private List<VpnInstanceOpDataEntry> getVpnsExportingMyRoute(final String vpnName) {
         List<VpnInstanceOpDataEntry> vpnsToExportRoute = new ArrayList<>();
+        final VpnInstanceOpDataEntry vpnInstanceOpDataEntry;
 
-        String vpnRd = vpnUtil.getVpnRd(vpnName);
-        final VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnUtil.getVpnInstanceOpData(vpnRd);
-        if (vpnInstanceOpDataEntry == null) {
-            LOG.debug("getVpnsExportingMyRoute: Could not retrieve vpn instance op data for {}"
-                    + " to check for vpns exporting the routes", vpnName);
+        String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnName);
+        try {
+            VpnInstanceOpDataEntry opDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
+            if (opDataEntry == null) {
+                LOG.error("getVpnsExportingMyRoute: Null vpn instance op data for vpn {} rd {}"
+                        + " when check for vpns exporting the routes", vpnName, vpnRd);
+                return vpnsToExportRoute;
+            }
+            vpnInstanceOpDataEntry = opDataEntry;
+        } catch (Exception re) {
+            LOG.error("getVpnsExportingMyRoute: DSexception when retrieving vpn instance op data for vpn {} rd {}"
+                    + " to check for vpns exporting the routes", vpnName, vpnRd, re);
             return vpnsToExportRoute;
         }
 
