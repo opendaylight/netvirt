@@ -308,8 +308,9 @@ public class NaptSwitchHA {
                 LOG.debug("removeSnatFlowsInOldNaptSwitch : No {} session associated to router {},"
                         + "no flows need to be removed in oldNaptSwitch {}",
                     intextIpProtocolType.getProtocol(), routerId, naptSwitch);
-                break;
+                continue;
             }
+            String protocol = intextIpProtocolType.getProtocol().name();
             List<IpPortMap> ipPortMaps = intextIpProtocolType.getIpPortMap();
             for (IpPortMap ipPortMap : ipPortMaps) {
                 String ipPortInternal = ipPortMap.getIpPortInternal();
@@ -324,7 +325,7 @@ public class NaptSwitchHA {
                 //Build and remove flow in outbound NAPT table
                 String switchFlowRef =
                     NatUtil.getNaptFlowRef(naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE, String.valueOf(routerId),
-                        internalIp, Integer.parseInt(internalPort));
+                        internalIp, Integer.parseInt(internalPort), protocol);
                 FlowEntity outboundNaptFlowEntity =
                     NatUtil.buildFlowEntity(naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE,
                         cookieSnatFlow, switchFlowRef);
@@ -333,20 +334,10 @@ public class NaptSwitchHA {
                     + "with the DPN ID {} and router ID {}", NwConstants.OUTBOUND_NAPT_TABLE, naptSwitch, routerId);
                 mdsalManager.removeFlow(confTx, outboundNaptFlowEntity);
 
-                IpPortExternal ipPortExternal = ipPortMap.getIpPortExternal();
-                if (ipPortExternal == null) {
-                    LOG.debug(
-                        "removeSnatFlowsInOldNaptSwitch : External Ipport mapping not found for internalIp {} "
-                            + "with port {} for router {}", internalIp, internalPort, routerId);
-                    continue;
-                }
-                String externalIp = ipPortExternal.getIpAddress();
-                int externalPort = ipPortExternal.getPortNum();
-
                 //Build and remove flow in  inbound NAPT table
                 switchFlowRef =
                     NatUtil.getNaptFlowRef(naptSwitch, NwConstants.INBOUND_NAPT_TABLE, String.valueOf(routerId),
-                        externalIp, externalPort);
+                        internalIp, Integer.parseInt(internalPort), protocol);
                 FlowEntity inboundNaptFlowEntity =
                     NatUtil.buildFlowEntity(naptSwitch, NwConstants.INBOUND_NAPT_TABLE,
                         cookieSnatFlow, switchFlowRef);
