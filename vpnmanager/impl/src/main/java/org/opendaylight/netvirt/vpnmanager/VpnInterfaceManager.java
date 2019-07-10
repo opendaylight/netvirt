@@ -1145,7 +1145,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     private List<VpnInstanceOpDataEntry> getVpnsExportingMyRoute(final String vpnName) {
         List<VpnInstanceOpDataEntry> vpnsToExportRoute = new ArrayList<>();
-
         String vpnRd = vpnUtil.getVpnRd(vpnName);
         final VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnUtil.getVpnInstanceOpData(vpnRd);
         if (vpnInstanceOpDataEntry == null) {
@@ -1153,7 +1152,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     + " to check for vpns exporting the routes", vpnName);
             return vpnsToExportRoute;
         }
-
         Predicate<VpnInstanceOpDataEntry> excludeVpn = input -> {
             if (input.getVpnInstanceName() == null) {
                 LOG.error("getVpnsExportingMyRoute.excludeVpn: Received vpn instance with rd {}  without a name",

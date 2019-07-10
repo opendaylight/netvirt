@@ -209,7 +209,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, operTx ->
                         addVpnInstance(vpnInstance, confTx, operTx));
                 ListenableFutures.addErrorLogging(future, LOG, "{} call: error creating VPN {}", LOGGING_PREFIX_ADD,
-                        vpnInstance.getVpnInstanceName());
+                        vpnInstance.getVpnInstanceName(), vpnInstance.getIpv4Family().getRouteDistinguisher());
                 futures.add(future);
             }));
             Futures.addCallback(Futures.allAsList(futures),
