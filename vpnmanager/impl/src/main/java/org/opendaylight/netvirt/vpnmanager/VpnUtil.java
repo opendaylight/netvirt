@@ -437,13 +437,19 @@ public final class VpnUtil {
     }
 
     @NonNull
+    @SuppressWarnings("checkstyle:IllegalCatch")
     List<VpnInstanceOpDataEntry> getAllVpnInstanceOpData() {
-        InstanceIdentifier<VpnInstanceOpData> id = InstanceIdentifier.builder(VpnInstanceOpData.class).build();
-        Optional<VpnInstanceOpData> vpnInstanceOpDataOptional = read(LogicalDatastoreType.OPERATIONAL, id);
-        return
-            vpnInstanceOpDataOptional.isPresent() && vpnInstanceOpDataOptional.get().getVpnInstanceOpDataEntry() != null
-                ? vpnInstanceOpDataOptional.get().getVpnInstanceOpDataEntry()
-                : emptyList();
+        try {
+            InstanceIdentifier<VpnInstanceOpData> id = InstanceIdentifier.builder(VpnInstanceOpData.class).build();
+            Optional<VpnInstanceOpData> vpnInstanceOpDataOptional = read(LogicalDatastoreType.OPERATIONAL, id);
+            return
+                    vpnInstanceOpDataOptional.isPresent() && vpnInstanceOpDataOptional.get()
+                            .getVpnInstanceOpDataEntry() != null ? vpnInstanceOpDataOptional.get()
+                            .getVpnInstanceOpDataEntry() : emptyList();
+        } catch (Exception e) {
+            LOG.error("getAllVpnInstanceOpData: Could not retrieve all vpn instance op data subtree...", e);
+            return emptyList();
+        }
     }
 
     @NonNull
@@ -1757,17 +1763,30 @@ public final class VpnUtil {
         return isVpnPendingDelete;
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public List<VpnInstanceOpDataEntry> getVpnsImportingMyRoute(final String vpnName) {
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = new ArrayList<>();
+        final VpnInstanceOpDataEntry vpnInstanceOpDataEntry;
         final String vpnRd = getVpnRd(vpnName);
         if (vpnRd == null) {
             LOG.error("getVpnsImportingMyRoute: vpn {} not present in config DS.", vpnName);
             return vpnsToImportRoute;
         }
-        final VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpData(vpnRd);
-        if (vpnInstanceOpDataEntry == null) {
-            LOG.error("getVpnsImportingMyRoute: Could not retrieve vpn instance op data for {}"
-                    + " to check for vpns importing the routes", vpnName);
+        if (vpnRd.equals(vpnName)) {
+            LOG.error("getVpnsImportingMyRoute: Internal vpn {} do not export/import routes", vpnName);
+            return vpnsToImportRoute;
+        }
+        try {
+            final VpnInstanceOpDataEntry opDataEntry = getVpnInstanceOpData(vpnRd);
+            if (opDataEntry == null) {
+                LOG.error("getVpnsImportingMyRoute: Could not retrieve vpn instance op data for vpn {} rd {}"
+                        + " to check for vpns importing the routes", vpnName, vpnRd);
+                return vpnsToImportRoute;
+            }
+            vpnInstanceOpDataEntry = opDataEntry;
+        } catch (Exception e) {
+            LOG.error("getVpnsImportingMyRoute: DSException when retrieving vpn instance op data for vpn {} rd {}"
+                    + " to check for vpns importing the routes", vpnName, vpnRd);
             return vpnsToImportRoute;
         }
         Predicate<VpnInstanceOpDataEntry> excludeVpn = input -> {
