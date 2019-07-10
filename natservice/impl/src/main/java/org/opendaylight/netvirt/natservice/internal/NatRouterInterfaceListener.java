@@ -21,11 +21,13 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces;
@@ -41,13 +43,21 @@ public class NatRouterInterfaceListener
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
     private final OdlInterfaceRpcService interfaceManager;
+    private final IMdsalApiManager mdsalManager;
+    private final NaptManager naptManager;
+    private final NeutronvpnService neutronVpnService;
 
     @Inject
-    public NatRouterInterfaceListener(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceManager) {
+    public NatRouterInterfaceListener(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceManager,
+        final IMdsalApiManager mdsalManager,final NaptManager naptManager,
+        final NeutronvpnService neutronvpnService) {
         super(Interfaces.class, NatRouterInterfaceListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.interfaceManager = interfaceManager;
+        this.mdsalManager = mdsalManager;
+        this.naptManager = naptManager;
+        this.neutronVpnService = neutronvpnService;
     }
 
     @Override
@@ -130,6 +140,10 @@ public class NatRouterInterfaceListener
         final ReentrantLock lock = NatUtil.lockForNat(dpId);
         lock.lock();
         try {
+            if (NatUtil.isSnatEnabledForRouterId(dataBroker, routerId)) {
+                NatUtil.removeSnatEntriesForPort(dataBroker, naptManager, mdsalManager, neutronVpnService,
+                    interfaceName, routerId);
+            }
             ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, operTx -> {
                 //Delete the NeutronRouterDpnMap from the ODL:L3VPN operational model
                 NatUtil.removeFromNeutronRouterDpnsMap(routerId, interfaceName, dpId, operTx);
