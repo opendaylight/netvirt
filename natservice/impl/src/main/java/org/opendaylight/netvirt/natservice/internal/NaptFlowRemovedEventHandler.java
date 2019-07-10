@@ -121,8 +121,9 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
                 LOG.error("onFlowRemoved : Null exception while retrieving routerId");
                 return;
             }
-            NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIpv4HostAddress, internalPortNumber, routerId,
-                    NAPTEntryEvent.Operation.DELETE, protocol);
+            String flowDpn = NatUtil.getDpnFromNodeRef(flowRemoved.getNode());
+            NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIpv4HostAddress, internalPortNumber, flowDpn,
+                routerId, NAPTEntryEvent.Operation.DELETE, protocol);
             naptEventdispatcher.addFlowRemovedNaptEvent(naptEntryEvent);
         } else {
             LOG.debug("onFlowRemoved : Received flow removed notification due to flowdelete from switch for flowref");
@@ -139,13 +140,10 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
     @Override
     public void onNodeErrorNotification(NodeErrorNotification arg0) {
         // TODO Auto-generated method stub
-
     }
 
     @Override
     public void onNodeExperimenterErrorNotification(NodeExperimenterErrorNotification arg0) {
         // TODO Auto-generated method stub
-
     }
-
 }

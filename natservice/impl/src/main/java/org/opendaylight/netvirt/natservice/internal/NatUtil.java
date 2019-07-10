@@ -16,6 +16,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -40,6 +41,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.controller.sal.common.util.Arguments;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
 import org.opendaylight.genius.infra.Datastore.Operational;
@@ -131,6 +133,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.GroupKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
@@ -231,8 +234,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.snatint.ip.port.map.intip.port.map.IpPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.snatint.ip.port.map.intip.port.map.ip.port.IntIpProtoType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.snatint.ip.port.map.intip.port.map.ip.port.IntIpProtoTypeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetFixedIPsForNeutronPortInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetFixedIPsForNeutronPortOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
@@ -260,6 +266,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.OpenvswitchOtherConfigs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -394,19 +401,23 @@ public final class NatUtil {
        getFlowRef() returns a string identfier for the SNAT flows using the router ID as the reference.
     */
     public static String getFlowRef(BigInteger dpnId, short tableId, long routerID, String ip) {
-        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
-                .FLOWID_SEPARATOR + routerID + NatConstants.FLOWID_SEPARATOR + ip;
+        return new StringBuilder().append(NatConstants.NAPT_FLOWID_PREFIX).append(dpnId)
+            .append(NatConstants.FLOWID_SEPARATOR).append(tableId).append(NatConstants.FLOWID_SEPARATOR)
+            .append(routerID).append(NatConstants.FLOWID_SEPARATOR).append(ip).toString();
     }
 
     public static String getFlowRef(BigInteger dpnId, short tableId, InetAddress destPrefix, long vpnId) {
-        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
-                .FLOWID_SEPARATOR + destPrefix.getHostAddress() + NatConstants.FLOWID_SEPARATOR + vpnId;
+        return new StringBuilder().append(NatConstants.NAPT_FLOWID_PREFIX).append(dpnId)
+            .append(NatConstants.FLOWID_SEPARATOR).append(tableId).append(NatConstants.FLOWID_SEPARATOR)
+            .append(destPrefix.getHostAddress()).append(NatConstants.FLOWID_SEPARATOR).append(vpnId).toString();
     }
 
-    public static String getNaptFlowRef(BigInteger dpnId, short tableId, String routerID, String ip, int port) {
-        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
-                .FLOWID_SEPARATOR + routerID + NatConstants.FLOWID_SEPARATOR + ip + NatConstants.FLOWID_SEPARATOR
-                + port;
+    public static String getNaptFlowRef(BigInteger dpnId, short tableId, String routerID, String ip,
+        int port, String protocol) {
+        return new StringBuilder().append(NatConstants.NAPT_FLOWID_PREFIX).append(dpnId)
+            .append(NatConstants.FLOWID_SEPARATOR).append(tableId).append(NatConstants.FLOWID_SEPARATOR)
+            .append(routerID).append(NatConstants.FLOWID_SEPARATOR).append(ip).append(NatConstants.FLOWID_SEPARATOR)
+            .append(port).append(NatConstants.FLOWID_SEPARATOR).append(protocol).toString();
     }
 
     @Nullable
@@ -2566,5 +2577,128 @@ public final class NatUtil {
     static ReentrantLock lockForNat(final BigInteger dataPath) {
         // FIXME: wrap this in an Identifier
         return JvmGlobalLocks.getLockForString(NatConstants.NAT_DJC_PREFIX + dataPath);
+    }
+
+    public static void removeSnatEntriesForPort(DataBroker dataBroker, NaptManager naptManager,
+        IMdsalApiManager mdsalManager, NeutronvpnService neutronVpnService,
+        String interfaceName, String routerName) {
+        Long routerId = NatUtil.getVpnId(dataBroker, routerName);
+        if (routerId == NatConstants.INVALID_ID) {
+            LOG.error("removeSnatEntriesForPort: routerId not found for routername {}", routerName);
+            return;
+        }
+        BigInteger naptSwitch = getPrimaryNaptfromRouterName(dataBroker, routerName);
+        if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
+            LOG.error("removeSnatEntriesForPort: NaptSwitch is not elected for router {}"
+                + "with Id {}", routerName, routerId);
+            return;
+        }
+        //getInternalIp for port
+        List<String> fixedIps = getFixedIpsForPort(neutronVpnService, interfaceName);
+        if (fixedIps == null) {
+            LOG.error("removeSnatEntriesForPort: Internal Ips not found for InterfaceName {} in router {} with id {}",
+                interfaceName, routerName, routerId);
+            return;
+        }
+        List<ProtocolTypes> protocolTypesList = getPortocolList();
+        for (String internalIp : fixedIps) {
+            LOG.debug("removeSnatEntriesForPort: Internal Ip retrieved for interface {} is {} in router with Id {}",
+                interfaceName, internalIp, routerId);
+            for (ProtocolTypes protocol : protocolTypesList) {
+                List<Integer> portList = NatUtil.getInternalIpPortListInfo(dataBroker, routerId, internalIp, protocol);
+                if (portList != null) {
+                    for (Integer portnum : portList) {
+                        //build and remove the flow in outbound table
+                        removeNatFlow(mdsalManager, naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE,
+                            routerId, internalIp, portnum, protocol.getName());
+
+                        //build and remove the flow in inboundtable
+
+                        removeNatFlow(mdsalManager, naptSwitch, NwConstants.INBOUND_NAPT_TABLE, routerId,
+                            internalIp, portnum, protocol.getName());
+
+                        //Get the external IP address and the port from the model
+
+                        NAPTEntryEvent.Protocol proto = protocol.toString().equals(ProtocolTypes.TCP.toString())
+                            ? NAPTEntryEvent.Protocol.TCP : NAPTEntryEvent.Protocol.UDP;
+                        IpPortExternal ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId,
+                            internalIp, String.valueOf(portnum), proto);
+                        if (ipPortExternal == null) {
+                            LOG.error("removeSnatEntriesForPort: Mapping for internalIp {} "
+                                + "with port {} is not found in "
+                                + "router with Id {}", internalIp, portnum, routerId);
+                            return;
+                        }
+                        String externalIpAddress = ipPortExternal.getIpAddress();
+                        String internalIpPort = internalIp + ":" + portnum;
+                        // delete the entry from IntExtIpPortMap DS
+
+                        naptManager.removeFromIpPortMapDS(routerId, internalIpPort, proto);
+                        naptManager.removePortFromPool(internalIpPort, externalIpAddress);
+
+                    }
+                } else {
+                    LOG.debug("removeSnatEntriesForPort: No {} session for interface {} with internalIP {} "
+                            + "in router with id {}",
+                        protocol, interfaceName, internalIp, routerId);
+                }
+            }
+            // delete the entry from SnatIntIpPortMap DS
+            LOG.debug("removeSnatEntriesForPort: Removing InternalIp :{} of router {} from snatint-ip-port-map",
+                internalIp, routerId);
+            naptManager.removeFromSnatIpPortDS(routerId, internalIp);
+        }
+    }
+
+    private static List<String> getFixedIpsForPort(NeutronvpnService neutronVpnService, String interfname) {
+        LOG.debug("getFixedIpsForPort: getFixedIpsForPort method is called for interface {}", interfname);
+        try {
+            Future<RpcResult<GetFixedIPsForNeutronPortOutput>> result =
+                neutronVpnService.getFixedIPsForNeutronPort(new GetFixedIPsForNeutronPortInputBuilder()
+                    .setPortId(new Uuid(interfname)).build());
+
+            RpcResult<GetFixedIPsForNeutronPortOutput> rpcResult = result.get();
+            if (!rpcResult.isSuccessful()) {
+                LOG.error("getFixedIpsForPort: RPC Call to GetFixedIPsForNeutronPortOutput returned with Errors {}",
+                    rpcResult.getErrors());
+            } else {
+                return rpcResult.getResult().getFixedIPs();
+            }
+        } catch (InterruptedException | ExecutionException | NullPointerException ex) {
+            LOG.error("getFixedIpsForPort: Exception while receiving fixedIps for port {}", interfname, ex);
+        }
+        return null;
+    }
+
+    private static List<ProtocolTypes> getPortocolList() {
+        List<ProtocolTypes> protocollist = new ArrayList<>();
+        protocollist.add(ProtocolTypes.TCP);
+        protocollist.add(ProtocolTypes.UDP);
+        return protocollist;
+    }
+
+    private static void removeNatFlow(IMdsalApiManager mdsalManager, BigInteger dpnId, short tableId, Long routerId,
+        String ipAddress, int ipPort, String protocol) {
+
+        String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(routerId), ipAddress, ipPort,
+            protocol);
+        FlowEntity snatFlowEntity = NatUtil.buildFlowEntity(dpnId, tableId, switchFlowRef);
+
+        mdsalManager.removeFlow(snatFlowEntity);
+        LOG.debug("removeNatFlow: Removed the flow in table {} for the switch with the DPN ID {} for "
+            + "router {} ip {} port {}", tableId, dpnId, routerId, ipAddress, ipPort);
+    }
+
+    public static String getDpnFromNodeRef(NodeRef node) {
+        PathArgument pathArgument = Iterables.get(node.getValue().getPathArguments(), 1);
+        InstanceIdentifier.IdentifiableItem<?, ?> item = Arguments.checkInstanceOf(pathArgument,
+            InstanceIdentifier.IdentifiableItem.class);
+        NodeKey key = Arguments.checkInstanceOf(item.getKey(), NodeKey.class);
+        String dpnKey = key.getId().getValue();
+        String dpnID = null;
+        if (dpnKey.contains(NatConstants.COLON_SEPARATOR)) {
+            dpnID = new BigInteger(dpnKey.split(NatConstants.COLON_SEPARATOR)[1]).toString();
+        }
+        return dpnID;
     }
 }
