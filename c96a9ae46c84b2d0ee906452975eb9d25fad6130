@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9ff3ca3b_3953eeb0",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 955,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2019-07-10T12:38:58Z",
+      "side": 1,
+      "message": "Ace list is returned from the util method now(empty list if there are no Ace in ACL).",
+      "parentUuid": "7d7d1f81_56f9629c",
+      "range": {
+        "startLine": 955,
+        "startChar": 18,
+        "endLine": 955,
+        "endChar": 25
+      },
+      "revId": "c96a9ae46c84b2d0ee906452975eb9d25fad6130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5324687d_b0a9e8fd",
         "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2019-07-09T15:36:35Z",
       "side": 1,
       "message": "... could it happen that the first entry does not have the augmentation, but the second one does?",
+      "range": {
+        "startLine": 959,
+        "startChar": 23,
+        "endLine": 959,
+        "endChar": 37
+      },
+      "revId": "c96a9ae46c84b2d0ee906452975eb9d25fad6130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a0a71b3_c31b50d0",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 959,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2019-07-10T12:38:58Z",
+      "side": 1,
+      "message": "SecurityRuleAttr augmentation if present would be there in all ACEs of the ACL; otherwise it would not be present any of the ACEs.",
+      "parentUuid": "5324687d_b0a9e8fd",
       "range": {
         "startLine": 959,
         "startChar": 23,
