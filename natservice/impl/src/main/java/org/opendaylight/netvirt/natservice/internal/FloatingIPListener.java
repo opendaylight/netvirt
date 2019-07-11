@@ -57,6 +57,7 @@ import org.opendaylight.netvirt.natservice.api.NatSwitchCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
@@ -527,8 +528,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             //routerId = associatedVpnId;
         }
 
-        Uint32 vpnId = getVpnId(extNwId, mapping.getExternalId());
-        if (vpnId.longValue() < 0) {
+        String vpnUuid = NatUtil.getAssociatedVPN(dataBroker, extNwId);
+        VpnInstance vpnInstance = NatUtil.getVpnIdToVpnInstance(dataBroker, vpnUuid);
+        if (vpnInstance == null || vpnInstance.getVpnId() == null) {
             LOG.error("createNATFlowEntries : No VPN associated with Ext nw {}. Unable to create SNAT table entry "
                     + "for fixed ip {}", extNwId, mapping.getInternalIp());
             return;
@@ -539,15 +541,17 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             addOrDelDefaultFibRouteForDnat(dpnId, routerName, routerId, confTx, true);
         }
         //Create the DNAT and SNAT table entries
+        Uint32 vpnId = vpnInstance.getVpnId();
+        String vrfId = vpnInstance.getVrfId();
         createDNATTblEntry(dpnId, mapping, routerId, associatedVpnId, confTx);
         createSNATTblEntry(dpnId, mapping, vpnId, routerId, associatedVpnId, extNwId, confTx);
-        floatingIPHandler.onAddFloatingIp(dpnId, routerName, routerId, extNwId, interfaceName, mapping, confTx);
+        floatingIPHandler.onAddFloatingIp(dpnId, routerName, routerId, extNwId, interfaceName, mapping,
+            vrfId, confTx);
     }
 
     void createNATFlowEntries(Uint64 dpnId,  String interfaceName, String routerName, Uuid externalNetworkId,
                               InternalToExternalPortMap mapping, TypedReadWriteTransaction<Configuration> confTx)
             throws ExecutionException, InterruptedException {
-        String internalIp = mapping.getInternalIp();
         Uint32 routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
             LOG.error("createNATFlowEntries : Could not retrieve router id for {} to create NAT Flow entries",
@@ -564,9 +568,11 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             //routerId = associatedVpnId;
         }
 
-        Uint32 vpnId = getVpnId(externalNetworkId, mapping.getExternalId());
-        if (vpnId.longValue() < 0) {
-            LOG.error("createNATFlowEntries : Unable to create SNAT table entry for fixed ip {}", internalIp);
+        String vpnUuid = NatUtil.getAssociatedVPN(dataBroker, externalNetworkId);
+        VpnInstance vpnInstance = NatUtil.getVpnIdToVpnInstance(dataBroker, vpnUuid);
+        if (vpnInstance == null || vpnInstance.getVpnId() == null) {
+            LOG.error("createNATFlowEntries: No VPN associated with Ext nw {}. Unable to create SNAT table entry"
+                    + " for fixed ip {}",externalNetworkId, mapping.getInternalIp());
             return;
         }
         //Install the DNAT default FIB flow L3_FIB_TABLE (21) -> PSNAT_TABLE (26) if SNAT is disabled
@@ -575,16 +581,17 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             addOrDelDefaultFibRouteForDnat(dpnId, routerName, routerId, confTx, true);
         }
         //Create the DNAT and SNAT table entries
+        Uint32 vpnId = vpnInstance.getVpnId();
+        String vrfId = vpnInstance.getVrfId();
         createDNATTblEntry(dpnId, mapping, routerId, associatedVpnId, confTx);
         createSNATTblEntry(dpnId, mapping, vpnId, routerId, associatedVpnId, externalNetworkId, confTx);
         floatingIPHandler.onAddFloatingIp(dpnId, routerName, routerId, externalNetworkId, interfaceName, mapping,
-                confTx);
+            vrfId, confTx);
     }
 
     void createNATOnlyFlowEntries(Uint64 dpnId, String routerName, @Nullable String associatedVPN,
                                   Uuid externalNetworkId, InternalToExternalPortMap mapping)
             throws ExecutionException, InterruptedException {
-        String internalIp = mapping.getInternalIp();
         //String segmentId = associatedVPN == null ? routerName : associatedVPN;
         LOG.debug("createNATOnlyFlowEntries : Retrieving vpn id for VPN {} to proceed with create NAT Flows",
                 routerName);
@@ -598,7 +605,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         LOG.debug("createNATOnlyFlowEntries : Associated VPN Id {} for router {}", associatedVpnId, routerName);
         Uint32 vpnId = getVpnId(externalNetworkId, mapping.getExternalId());
         if (vpnId.longValue() < 0) {
-            LOG.error("createNATOnlyFlowEntries : Unable to create SNAT table entry for fixed ip {}", internalIp);
+            LOG.error("createNATOnlyFlowEntries : Unable to create SNAT table entry for fixed ip {}",
+                    mapping.getInternalIp());
             return;
         }
         //Install the DNAT default FIB flow L3_FIB_TABLE (21) -> PSNAT_TABLE (26) if SNAT is disabled
@@ -614,7 +622,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         mdsalManager.installFlow(flowEntity);
 
         String externalIp = mapping.getExternalIp();
-        preFlowEntity = buildPreSNATFlowEntity(dpnId, internalIp, externalIp, vpnId , routerId, associatedVpnId);
+        preFlowEntity = buildPreSNATFlowEntity(dpnId, mapping.getInternalIp(), externalIp, vpnId,
+                routerId, associatedVpnId);
         mdsalManager.installFlow(preFlowEntity);
 
         flowEntity = buildSNATFlowEntity(dpnId, mapping, vpnId, externalNetworkId);
@@ -659,12 +668,15 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         //Delete the DNAT and SNAT table entries
         removeDNATTblEntry(dpnId, internalIp, externalIp, routerId, removeFlowInvTx);
 
-        Uint32 vpnId = getVpnId(extNwId, mapping.getExternalId());
-        if (vpnId.longValue() < 0) {
-            LOG.error("removeNATFlowEntries : No VPN associated with ext nw {}. Unable to delete SNAT table "
-                + "entry for fixed ip {}", extNwId, internalIp);
+        String vpnUuid = NatUtil.getAssociatedVPN(dataBroker, extNwId);
+        VpnInstance vpnInstance = NatUtil.getVpnIdToVpnInstance(dataBroker, vpnUuid);
+        if (vpnInstance == null || vpnInstance.getVpnId() == null) {
+            LOG.error("removeNATFlowEntries: No VPN associated with Ext nw {}. Unable to create SNAT table entry "
+                + "for fixed ip {}", extNwId, mapping.getInternalIp());
             return;
         }
+        Uint32 vpnId = vpnInstance.getVpnId();
+        String vrfId = vpnInstance.getVrfId();
         removeSNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId, removeFlowInvTx);
         //Remove the DNAT default FIB flow L3_FIB_TABLE (21) -> PSNAT_TABLE (26) if SNAT is disabled
         boolean isSnatEnabled = NatUtil.isSnatEnabledForRouterId(dataBroker, routerName);
@@ -678,7 +690,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
         if (provType == ProviderTypes.VXLAN) {
             floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, routerId, extNwId, mapping,
-                    NatConstants.DEFAULT_L3VNI_VALUE, removeFlowInvTx);
+                    NatConstants.DEFAULT_L3VNI_VALUE, vrfId, removeFlowInvTx);
             removeOperationalDS(routerName, interfaceName, internalIp);
             return;
         }
@@ -688,7 +700,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                     internalIp, routerId);
             return;
         }
-        floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, routerId, extNwId, mapping, label,
+        floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, routerId, extNwId, mapping, label, vrfId,
                 removeFlowInvTx);
         removeOperationalDS(routerName, interfaceName, internalIp);
     }
@@ -705,11 +717,14 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
 
-        Uint32 vpnId = NatUtil.getVpnId(dataBroker, vpnName);
-        if (vpnId == NatConstants.INVALID_ID) {
-            LOG.warn("removeNATFlowEntries : VPN Id not found for {} to remove NAT flow entries {}",
-                    vpnName, internalIp);
+        VpnInstance vpnInstance = NatUtil.getVpnIdToVpnInstance(dataBroker, vpnName);
+        if (vpnInstance == null || vpnInstance.getVpnId() == null) {
+            LOG.warn("removeNATFlowEntries: VPN Id not found for {} to remove NAT flow entries {}",
+                vpnName, internalIp);
+            return;
         }
+        Uint32 vpnId = vpnInstance.getVpnId();
+        String vrfId = vpnInstance.getVrfId();
 
         //Delete the DNAT and SNAT table entries
         removeDNATTblEntry(dpnId, internalIp, externalIp, routerId, confTx);
@@ -726,18 +741,24 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
         if (provType == ProviderTypes.VXLAN) {
-            floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, NatConstants.DEFAULT_L3VNI_VALUE,
+            floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, NatConstants.DEFAULT_L3VNI_VALUE, vrfId,
                     confTx, provType);
             removeOperationalDS(routerName, interfaceName, internalIp);
             return;
         }
         Uint32 label = getOperationalIpMapping(routerName, interfaceName, internalIp);
-        if (label.longValue() < 0) {
+        if (label != null && label.longValue() < 0) {
             LOG.error("removeNATFlowEntries : Could not retrieve label for prefix {} in router {}",
                     internalIp, routerId);
             return;
         }
-        floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, label, confTx, provType);
+        if (provType == ProviderTypes.VXLAN) {
+            floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, NatConstants.DEFAULT_L3VNI_VALUE, vrfId,
+                confTx, provType);
+            removeOperationalDS(routerName, interfaceName, internalIp);
+            return;
+        }
+        floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, label, vrfId, confTx, provType);
         removeOperationalDS(routerName, interfaceName, internalIp);
     }
 
