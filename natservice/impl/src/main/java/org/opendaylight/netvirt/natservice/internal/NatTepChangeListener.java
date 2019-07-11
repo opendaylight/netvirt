@@ -447,8 +447,7 @@ public class NatTepChangeListener extends
                             + "associated to the router {}", routerVpnId, routerName);
                 }
                 //Re-elect the other available switch as the NAPT switch and program the NAT flows.
-                NatUtil
-                    .removeSNATFromDPN(dataBroker, mdsalManager, idManager, naptSwitchHA, dpnId,
+                NatUtil.removeSNATFromDPN(dataBroker, mdsalManager, idManager, naptSwitchHA, dpnId,
                         routerName, routerId, routerVpnId, networkId, extNwProvType, confTx);
             } else {
                 LOG.info(
