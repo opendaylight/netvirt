@@ -306,12 +306,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
 
         if (bgpVpnId != NatConstants.INVALID_ID) {
-            installFlowsWithUpdatedVpnId(primarySwitchId, routerName, bgpVpnId, routerId, false, confTx,
-                    extNwProvType);
+            installFlowsWithUpdatedVpnId(primarySwitchId, routerName, bgpVpnId, routerId,
+                routers.getNetworkId(),false, confTx, extNwProvType);
         } else {
             // write metadata and punt
             installOutboundMissEntry(routerName, routerId, primarySwitchId, confTx);
-            handlePrimaryNaptSwitch(primarySwitchId, routerName, routerId, confTx);
+            handlePrimaryNaptSwitch(primarySwitchId, routerName, routerId, routers.getNetworkId(), confTx);
             // Now install entries in SNAT tables to point to Primary for each router
             List<Uint64> switches = naptSwitchSelector.getDpnsForVpn(routerName);
             for (Uint64 dpnId : switches) {
@@ -331,6 +331,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             for (String externalIpAddrPrefix : externalIps) {
                 LOG.debug("handleEnableSnat : Calling handleSnatReverseTraffic for primarySwitchId {}, "
                     + "routerName {} and externalIpAddPrefix {}", primarySwitchId, routerName, externalIpAddrPrefix);
+                externalIpAddrPrefix = NatUtil.validateAndAddNetworkMask(externalIpAddrPrefix);
                 handleSnatReverseTraffic(confTx, primarySwitchId, routers, routerId, routerName, externalIpAddrPrefix
                 );
             }
@@ -928,7 +929,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         return listBucketInfo;
     }
 
-    protected void handlePrimaryNaptSwitch(Uint64 dpnId, String routerName, Uint32 routerId,
+    protected void handlePrimaryNaptSwitch(Uint64 dpnId, String routerName, Uint32 routerId, Uuid externalNwUuid,
         TypedWriteTransaction<Configuration> confTx) {
 
        /*
@@ -953,12 +954,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         if (networkId != null) {
             Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
             if (vpnUuid != null) {
-                Uint32 vpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
+                Uint32 extVpnId = NatUtil.getExternalVpnIdForExtNetwork(dataBroker, externalNwUuid);
                 coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + networkId, () -> {
                     installNaptPfibEntriesForExternalSubnets(routerName, dpnId, null);
                     //Install the NAPT PFIB TABLE which forwards outgoing packet to FIB Table matching on the VPN ID.
-                    if (vpnId != NatConstants.INVALID_ID) {
-                        installNaptPfibEntry(dpnId, vpnId, null);
+                    if (extVpnId != null && extVpnId != NatConstants.INVALID_ID) {
+                        installNaptPfibEntry(dpnId, extVpnId, null);
                     }
                     return Collections.emptyList();
                 });
@@ -1279,7 +1280,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             Uuid networkUuid = original.getNetworkId();
                             LOG.info("update : SNAT disabled for Router {}", routerName);
                             Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
-                            handleDisableSnat(original, networkUuid, externalIps, false, null,
+                            final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId);
+                            handleDisableSnat(original, networkUuid, externalIps, false, vpnName,
                                     dpnId, routerId, removeFlowInvTx);
                         }  else if (updatedSNATEnabled) {
                             LOG.info("update : SNAT enabled for Router {}", routerName);
@@ -1772,7 +1774,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     return;
                 } else {
                     Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
-                    handleDisableSnat(router, networkUuid, externalIps, true, null, primarySwitchId,
+                    final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkUuid);
+                    handleDisableSnat(router, networkUuid, externalIps, true, vpnName, primarySwitchId,
                             routerId, tx);
                 }
                 if (NatUtil.releaseId(idManager, NatConstants.ODL_VNI_POOL_NAME, routerName)
@@ -2285,6 +2288,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         //Remove custom FIB routes
         //Future<RpcResult<java.lang.Void>> removeFibEntry(RemoveFibEntryInput input);
         for (String extIp : externalIps) {
+            extIp = NatUtil.validateAndAddNetworkMask(extIp);
             clrRtsFromBgpAndDelFibTs(dpnId, routerId, extIp, vpnName, networkUuid, extGwMacAddress, confTx);
         }
     }
@@ -2567,7 +2571,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
      * @param routerId - router id
      * @param bgpVpnName BGP VPN name
      */
-    public void changeLocalVpnIdToBgpVpnId(String routerName, Uint32 routerId, String bgpVpnName,
+    public void changeLocalVpnIdToBgpVpnId(String routerName, Uint32 routerId, String extNetwork, String bgpVpnName,
             TypedWriteTransaction<Configuration> writeFlowInvTx, ProviderTypes extNwProvType) {
         LOG.debug("changeLocalVpnIdToBgpVpnId : Router associated to BGP VPN");
         if (chkExtRtrAndSnatEnbl(new Uuid(routerName))) {
@@ -2590,8 +2594,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
                 // Get the group ID
                 Uint64 primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
-                installFlowsWithUpdatedVpnId(primarySwitchId, routerName, bgpVpnId, routerId, true, writeFlowInvTx,
-                        extNwProvType);
+                installFlowsWithUpdatedVpnId(primarySwitchId, routerName, bgpVpnId, routerId, new Uuid(extNetwork),
+                    true, writeFlowInvTx, extNwProvType);
             }
         }
     }
@@ -2603,7 +2607,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
      * @param routerId - router id
      * @param bgpVpnName BGP VPN name
      */
-    public void changeBgpVpnIdToLocalVpnId(String routerName, Uint32 routerId, String bgpVpnName,
+    public void changeBgpVpnIdToLocalVpnId(String routerName, Uint32 routerId, String bgpVpnName, String extNetwork,
             TypedWriteTransaction<Configuration> writeFlowInvTx, ProviderTypes extNwProvType) {
         LOG.debug("changeBgpVpnIdToLocalVpnId : Router dissociated from BGP VPN");
         if (chkExtRtrAndSnatEnbl(new Uuid(routerName))) {
@@ -2618,8 +2622,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
             // Get the group ID
             Uint64 primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
-            installFlowsWithUpdatedVpnId(primarySwitchId, routerName, NatConstants.INVALID_ID, routerId, true,
-                    writeFlowInvTx, extNwProvType);
+            installFlowsWithUpdatedVpnId(primarySwitchId, routerName, NatConstants.INVALID_ID, routerId,
+                new Uuid(extNetwork), true, writeFlowInvTx, extNwProvType);
         }
     }
 
@@ -2639,7 +2643,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     public void installFlowsWithUpdatedVpnId(Uint64 primarySwitchId, String routerName, Uint32 bgpVpnId,
-                                             Uint32 routerId, boolean isSnatCfgd,
+                                             Uint32 routerId, Uuid extNwUuid, boolean isSnatCfgd,
                                              TypedWriteTransaction<Configuration> confTx, ProviderTypes extNwProvType) {
 
         Uint32 changedVpnId = bgpVpnId;
@@ -2710,10 +2714,17 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
                 LOG.debug("installFlowsWithUpdatedVpnId : Installing SNAT PFIB flow in the primary switch {}",
                         primarySwitchId);
-                Uint32 vpnId = NatUtil.getNetworkVpnIdFromRouterId(dataBroker, routerId);
-                //Install the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table matching on the VPN ID.
-                if (vpnId != NatConstants.INVALID_ID) {
-                    installNaptPfibEntry(primarySwitchId, vpnId, confTx);
+                //Get the VPN ID from the ExternalNetworks model
+                Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, extNwUuid);
+                if (vpnUuid != null) {
+                    Uint32 vpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
+                    //Install the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table
+                    // matching on the VPN ID.
+                    if (vpnId != null && vpnId != NatConstants.INVALID_ID) {
+                        installNaptPfibEntry(primarySwitchId, vpnId, confTx);
+                    }
+                } else {
+                    LOG.error("NAT Service : vpnUuid is null");
                 }
             }
         }
