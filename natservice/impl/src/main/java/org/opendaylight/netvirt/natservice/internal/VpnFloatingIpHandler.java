@@ -138,7 +138,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     @Override
     public void onAddFloatingIp(final BigInteger dpnId, final String routerUuid, final long routerId,
                                 final Uuid networkId, final String interfaceName,
-                                final InternalToExternalPortMap mapping,
+                                final InternalToExternalPortMap mapping, final String rd,
                                 TypedReadWriteTransaction<Configuration> confTx) {
         String externalIp = mapping.getExternalIp();
         String internalIp = mapping.getInternalIp();
@@ -159,7 +159,6 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     + "for router {}", networkId, externalIp, routerId);
             return;
         }
-        String rd = NatUtil.getVpnRd(dataBroker, vpnName);
         if (rd == null) {
             LOG.error("onAddFloatingIp: Unable to retrieve external (internet) VPN RD from external VPN {} for "
                     + "router {} to handle floatingIp {}", vpnName, routerId, externalIp);
@@ -288,8 +287,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
     @Override
     public void onRemoveFloatingIp(final BigInteger dpnId, String routerUuid, long routerId, final Uuid networkId,
-                                   InternalToExternalPortMap mapping, final long label,
-                                   TypedReadWriteTransaction<Configuration> confTx) {
+                                   InternalToExternalPortMap mapping, final long label, final String vrfId,
+                                    TypedReadWriteTransaction<Configuration> confTx) {
         String externalIp = mapping.getExternalIp();
         Uuid floatingIpId = mapping.getExternalId();
         Uuid subnetId = NatUtil.getFloatingIpPortSubnetIdFromFloatingIpId(confTx, floatingIpId);
@@ -330,14 +329,14 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     floatingIpPortMacAddress, routerId);
             return;
         }
-        cleanupFibEntries(dpnId, vpnName, externalIp, label, confTx, provType);
+        cleanupFibEntries(dpnId, vpnName, externalIp, label, vrfId, confTx, provType);
     }
 
     @Override
     public void cleanupFibEntries(BigInteger dpnId, String vpnName, String externalIp,
-                                  long label, TypedReadWriteTransaction<Configuration> confTx, ProviderTypes provType) {
+                                  long label, final String rd, TypedReadWriteTransaction<Configuration> confTx,
+                                    ProviderTypes provType) {
         //Remove Prefix from BGP
-        String rd = NatUtil.getVpnRd(confTx, vpnName);
         String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
         NatUtil.removePrefixFromBGP(bgpManager, fibManager, rd, fibExternalIp, vpnName, LOG);
 

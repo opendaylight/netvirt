@@ -18,12 +18,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 public interface FloatingIPHandler {
 
     void onAddFloatingIp(BigInteger dpnId, String routerUuid, long routerId, Uuid networkId, String interfaceName,
-                         InternalToExternalPortMap mapping, TypedReadWriteTransaction<Configuration> confTx);
+                         InternalToExternalPortMap mapping, String vrfId,
+                         TypedReadWriteTransaction<Configuration> confTx);
 
     void onRemoveFloatingIp(BigInteger dpnId, String routerUuid, long routerId, Uuid networkId,
-                            InternalToExternalPortMap mapping, long label,
+                            InternalToExternalPortMap mapping, long label, String vrfId,
                             TypedReadWriteTransaction<Configuration> confTx);
 
-    void cleanupFibEntries(BigInteger dpnId, String vpnName, String externalIp, long label,
-                           TypedReadWriteTransaction<Configuration> confTx, ProviderTypes provType);
+    void cleanupFibEntries(BigInteger dpnId, String vpnName, String externalIp, long label, String vrfId,
+                            TypedReadWriteTransaction<Configuration> confTx, ProviderTypes provType);
 }
