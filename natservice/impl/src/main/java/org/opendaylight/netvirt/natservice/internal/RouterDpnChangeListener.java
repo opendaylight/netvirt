@@ -198,8 +198,8 @@ public class RouterDpnChangeListener
                                         LOG.error("add : External Network Provider Type missing");
                                         return;
                                     }
-                                    NatUtil.handleSNATForDPN(dataBroker, mdsalManager, idManager, naptSwitchHA, dpnId,
-                                        router, routerId, vpnId, confTx, extNwProvType, upgradeState);
+                                    NatUtil.handleSNATForDPN(dataBroker, mdsalManager, idManager, naptSwitchHA,
+                                        dpnId, router, routerId, vpnId, confTx, extNwProvType, upgradeState);
                                 } else {
                                     LOG.info("add : SNAT is not enabled for router {} to handle addDPN event {}",
                                         routerUuid, dpnId);
@@ -295,8 +295,10 @@ public class RouterDpnChangeListener
                                         return;
                                     }
                                     LOG.info("remove : SNAT enabled for router {}", routerUuid);
-                                    NatUtil.removeSNATFromDPN(dataBroker, mdsalManager, idManager, naptSwitchHA,
-                                        dpnId, routerUuid, routerId, vpnId, networkId, extNwProvType, confTx);
+                                    String externalVpnName = NatUtil.getAssociatedVPN(dataBroker,
+                                        routerData.get().getNetworkId());
+                                    NatUtil.removeSNATFromDPN(dataBroker, mdsalManager, idManager, naptSwitchHA, dpnId,
+                                        router, routerId, vpnId, externalVpnName, extNwProvType, confTx);
                                 } else {
                                     LOG.info("remove : SNAT is not enabled for router {} to handle removeDPN event {}",
                                         routerUuid, dpnId);
