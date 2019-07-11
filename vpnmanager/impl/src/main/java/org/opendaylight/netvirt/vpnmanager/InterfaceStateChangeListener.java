@@ -157,6 +157,9 @@ public class InterfaceStateChangeListener
                                                                 e);
                                                         return;
                                                     }
+                                                    LOG.error("InterfaceStateChangeListener- Processing ifState"
+                                                                    + " {} add event with dpnId {}",
+                                                            intrf.getName(), intfDpnId);
                                                     final BigInteger dpnId = intfDpnId;
                                                     final int ifIndex = intrf.getIfIndex();
                                                     LOG.info("VPN Interface add event - intfName {} onto vpnName {}"
@@ -298,6 +301,10 @@ public class InterfaceStateChangeListener
                                                          original.getOperStatus(), update.getOperStatus());
                                                     return;
                                                 }
+                                                LOG.error("InterfaceStateChangeListener- Processing ifState {} "
+                                                                + "update event "
+                                                                + "with dpnId {} operstate {}",
+                                                        ifName, dpnId, update.getOperStatus());
                                                 if (state.equals(IntfTransitionState.STATE_UP)
                                                         && vpnIf.getVpnInstanceNames() != null) {
                                                     for (VpnInstanceNames vpnInterfaceVpnInstance :
