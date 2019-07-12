@@ -28,8 +28,10 @@ The following table details the expected supported combinations.
    Nitrogen, Pike, 2.9, S,
    Oxygen, Pike, 2.8,,"Combination drops when Queens releases"
    Oxygen, Queens, 2.9, S,
-   Flourine, Queens, 2.9,, "Combination drops when Rocky releases"
-   Flourine, Rocky, 2.10, S,
+   Fluorine, Queens, 2.9,, "Combination drops when Rocky releases"
+   Fluorine, Rocky, 2.11, S,
+   Neon, Rocky, 2.11,, "Combination drops when Stein releases"
+   Neon, Stein, 2.11, S,
 
 * (S): in the Sync column indicates the final supported combination for that
   OpenDaylight release.
