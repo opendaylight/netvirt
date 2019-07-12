@@ -41,7 +41,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventAction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.name.learnt.ip.map.LearntIp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -166,6 +171,7 @@ public class InterfaceStateChangeListener
                                                             ifIndex, false, writeConfigTxn, writeOperTxn, writeInvTxn,
                                                             intrf, vpnName, prefixes);
                                                     mapOfRdAndPrefixesForRefreshFib.put(primaryRd, prefixes);
+                                                    startArpMonitorTaskForMips(vpnIf, vpnName);
                                                 }
                                             }
 
@@ -230,6 +236,7 @@ public class InterfaceStateChangeListener
                                                     + " triggered by northbound agent. ignoring.", ifName, vpnName);
                                                 continue;
                                             }
+                                            handleMipAdjRemoval(cfgVpnInterface, vpnName);
                                             final VpnInterfaceOpDataEntry vpnInterface = optVpnInterface.get();
                                             String gwMac = intrf.getPhysAddress() != null ? intrf.getPhysAddress()
                                                 .getValue() : vpnInterface.getGatewayMacAddress();
@@ -364,6 +371,30 @@ public class InterfaceStateChangeListener
         }
     }
 
+    private void handleMipAdjRemoval(VpnInterface cfgVpnInterface, String vpnName) {
+        String interfaceName = cfgVpnInterface.getName();
+        Adjacencies adjacencies = cfgVpnInterface.augmentation(Adjacencies.class);
+        if (adjacencies != null) {
+            List<Adjacency> adjacencyList = adjacencies.getAdjacency();
+            if (!adjacencyList.isEmpty()) {
+                for (Adjacency adj : adjacencyList) {
+                    if (adj.getAdjacencyType().equals(Adjacency.AdjacencyType.LearntIp)) {
+                        String ipAddress = adj.getIpAddress();
+                        String prefix = ipAddress.split("/")[0];
+                        VpnPortipToPort vpnVipToPort = vpnUtil.getVpnPortipToPort(vpnName, prefix);
+                        if (vpnVipToPort != null && vpnVipToPort.getPortName().equals(interfaceName)) {
+                            vpnUtil.removeMipAdjacency(interfaceName, ipAddress);
+                        } else {
+                            LOG.debug("IP {} could be extra-route or learnt-ip on different interface"
+                                    + "than oper-vpn-interface {}", ipAddress, interfaceName);
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
     private class PostVpnInterfaceThreadWorker implements FutureCallback<Void> {
         private final String interfaceName;
         private final boolean add;
@@ -425,6 +456,24 @@ public class InterfaceStateChangeListener
         @Override
         public void onFailure(Throwable throwable) {
             LOG.debug("write Tx config operation failedTunnelEndPointChangeListener", throwable);
+        }
+    }
+
+    private void startArpMonitorTaskForMips(VpnInterface vpnInterface, String vpnName) {
+        String interfaceName = vpnInterface.getName();
+        LearntIp learntIpPortIdMap = vpnUtil.getPortNameLearntIpMap(dataBroker, vpnName, interfaceName);
+
+        if (learntIpPortIdMap == null) {
+            return;
+        }
+        String learntIpAddr = learntIpPortIdMap.getLearntIp();
+        VpnPortipToPort vpnVipToPort = vpnUtil.getVpnPortipToPort(vpnName, learntIpAddr);
+        if (vpnVipToPort != null && vpnVipToPort.isLearntIp()) {
+            synchronized ((vpnName + learntIpAddr).intern()) {
+                vpnUtil.createLearntVpnVipToPortEvent(vpnName, learntIpAddr, learntIpAddr, interfaceName,
+                        vpnVipToPort.getMacAddress(), LearntVpnVipToPortEventAction.StartAlivenessMonitor, null);
+            }
+
         }
     }
 }
