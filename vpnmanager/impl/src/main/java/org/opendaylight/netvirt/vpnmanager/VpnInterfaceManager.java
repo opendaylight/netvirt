@@ -1436,13 +1436,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         }
                     }
                     String ip = nextHop.getIpAddress().split("/")[0];
-                    LearntVpnVipToPort vpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, ip);
-                    if (vpnVipToPort != null && vpnVipToPort.getPortName().equals(interfaceName)) {
-                        vpnUtil.removeLearntVpnVipToPort(vpnName, ip, null);
-                        LOG.info("removeAdjacenciesFromVpn: VpnInterfaceManager removed LearntVpnVipToPort entry"
-                                 + " for Interface {} ip {} on dpn {} for vpn {}",
-                                vpnVipToPort.getPortName(), ip, dpnId, vpnName);
-                    }
                     // Remove the MIP-IP from VpnPortIpToPort.
                     if (isNonPrimaryAdjIp) {
                         VpnPortipToPort persistedIp = vpnUtil.getVpnPortipToPort(vpnName, ip);
@@ -1453,14 +1446,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     "removeAdjacenciesFromVpn: Learnt-IP: {} interface {} of vpn {} removed "
                                             + "from VpnPortipToPort",
                                     persistedIp.getPortFixedip(), persistedIp.getPortName(), vpnName);
+                            vpnUtil.removePortNameLearntIpMap(dataBroker, vpnName, interfaceName, null);
                         }
-                    }
-                    VpnPortipToPort vpnPortipToPort = vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, ip);
-                    if (vpnPortipToPort != null) {
-                        VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ip, null);
-                        LOG.info("removeAdjacenciesFromVpn: VpnInterfaceManager removed vpnPortipToPort entry for "
-                                 + "Interface {} ip {} on dpn {} for vpn {}",
-                            vpnPortipToPort.getPortName(), ip, dpnId, vpnName);
                     }
                 }
             } else {

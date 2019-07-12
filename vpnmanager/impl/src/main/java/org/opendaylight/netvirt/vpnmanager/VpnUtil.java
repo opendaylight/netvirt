@@ -47,6 +47,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -162,9 +163,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.DpnToMacEntryData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PortNameLearntIpMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PortOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetsAssociatedToRouteTargets;
@@ -175,12 +179,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency.AdjacencyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.mac.entry.data.DpnToMacEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.mac.entry.data.DpnToMacEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.mac.entry.data.DpnToMacEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.mac.entry.data.dpn.to.mac.entry.MacEntryInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.mac.entry.data.dpn.to.mac.entry.MacEntryInfoBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.event.data.LearntVpnVipToPortEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.event.data.LearntVpnVipToPortEventBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.event.data.LearntVpnVipToPortEventKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.name.learnt.ip.map.LearntIp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.name.learnt.ip.map.LearntIpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.name.learnt.ip.map.LearntIpKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
@@ -1091,6 +1105,12 @@ public final class VpnUtil {
     static InstanceIdentifier<VpnPortipToPort> buildVpnPortipToPortIdentifier(String vpnName, String fixedIp) {
         return InstanceIdentifier.builder(NeutronVpnPortipPortData.class).child(VpnPortipToPort.class,
                 new VpnPortipToPortKey(fixedIp, vpnName)).build();
+    }
+
+    static InstanceIdentifier<LearntIp> buildPortNameLearntIpMapIdentifier(String vpnName, String portId) {
+        InstanceIdentifier<LearntIp> id = InstanceIdentifier.builder(PortNameLearntIpMap.class)
+                .child(LearntIp.class, new LearntIpKey(portId, vpnName)).build();
+        return id;
     }
 
     @Nullable
@@ -2450,4 +2470,129 @@ public final class VpnUtil {
         // FIXME: is there some identifier we can use? LearntVpnVipToPortKey perhaps?
         return JvmGlobalLocks.getLockForString(vpnName + fixedIp);
     }
+
+    protected LearntIp getPortNameLearntIpMap(DataBroker broker, String vpnName, String portName) {
+        InstanceIdentifier id = buildPortNameLearntIpMapIdentifier(vpnName, portName);
+        Optional<LearntIp> learntIpPortIdMapOptional = read(LogicalDatastoreType.CONFIGURATION, id);
+        if (learntIpPortIdMapOptional.isPresent()) {
+            return learntIpPortIdMapOptional.get();
+        }
+        LOG.error("getPortNameLearntIpMap: Failed as PortNameLearntIpMap DS is absent for VPN {} and port {}",
+                vpnName, portName);
+        return null;
+    }
+
+    private static InstanceIdentifier<DpnToMacEntry> buildDpnToMacEntryId(BigInteger dpnId) {
+        InstanceIdentifier<DpnToMacEntry> id = InstanceIdentifier.builder(DpnToMacEntryData.class)
+                .child(DpnToMacEntry.class, new DpnToMacEntryKey(dpnId)).build();
+        return id;
+    }
+
+    public static List<MacEntryInfo> getDpnToMacEntryInfo(DataBroker broker, BigInteger dpnId) {
+        InstanceIdentifier<DpnToMacEntry> id = buildDpnToMacEntryId(dpnId);
+        Optional<DpnToMacEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        if (entry.isPresent()) {
+            return entry.get().getMacEntryInfo();
+        }
+        return Collections.emptyList();
+    }
+
+    public void addOrUpdateDpnToMacEntry(DataBroker broker, BigInteger dpnId, MacEntry macEntry) {
+        InstanceIdentifier<DpnToMacEntry> id = buildDpnToMacEntryId(dpnId);
+        Optional<DpnToMacEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        MacEntryInfo macEntryInfo = getMacEntryInfo(macEntry);
+        if (entry.isPresent()) {
+            List<MacEntryInfo> macEntryList = entry.get().getMacEntryInfo();
+            macEntryList.add(macEntryInfo);
+            DpnToMacEntryBuilder builder = new DpnToMacEntryBuilder(entry.get());
+            builder.setMacEntryInfo(macEntryList);
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
+            LOG.debug("addOrUpdateDpnToMacEntry: Updated MacEntry for dpn {} Ip {} portName {} vpnName {}",
+                    dpnId, macEntry.getIpAddress(), macEntry.getInterfaceName(), macEntry.getVpnName());
+        } else {
+            List<MacEntryInfo> macEntryList = new ArrayList<>();
+            macEntryList.add(macEntryInfo);
+            DpnToMacEntryBuilder builder = new DpnToMacEntryBuilder().setDpnId(dpnId);
+            builder.setMacEntryInfo(macEntryList);
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
+            LOG.debug("addOrUpdateDpnToMacEntry: Added MacEntry for dpn {} Ip {} portName {} vpnName {}",
+                    dpnId, macEntry.getIpAddress(), macEntry.getInterfaceName(), macEntry.getVpnName());
+        }
+    }
+
+    public void removeOrUpdateDpnToMacEntry(DataBroker broker, BigInteger dpnId, MacEntry macEntry) {
+        InstanceIdentifier<DpnToMacEntry> id = buildDpnToMacEntryId(dpnId);
+        Optional<DpnToMacEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        MacEntryInfo macEntryInfo = getMacEntryInfo(macEntry);
+        if (entry.isPresent()) {
+            List<MacEntryInfo> macEntryList = entry.get().getMacEntryInfo();
+            macEntryList.remove(macEntryInfo);
+            if (macEntryList.isEmpty()) {
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
+                LOG.debug("removeOrUpdateDpnToMacEntry: Deleted DpnToMacEntry for dpn {}", dpnId);
+            } else {
+                DpnToMacEntryBuilder builder = new DpnToMacEntryBuilder(entry.get());
+                builder.setMacEntryInfo(macEntryList);
+                MDSALUtil.syncUpdate(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
+                LOG.debug("removeOrUpdateDpnToMacEntry: Removed Ip {} portName {} vpnName {} from DpnToMacEntry for "
+                        + "dpn {}", macEntry.getIpAddress(), macEntry.getInterfaceName(), macEntry.getVpnName(), dpnId);
+            }
+        }
+    }
+
+    public static String buildJobKey(String ip, String vpnName) {
+        return new StringBuilder(ArpConstants.ARPJOB).append('-').append(vpnName).append('-').append(ip).toString();
+    }
+
+    public PortOpDataEntry getPortOpDataEntry(DataBroker broker, String intfName) {
+        // Remove PortOpData and return out
+        InstanceIdentifier<PortOpDataEntry> portOpIdentifier = InstanceIdentifier.builder(PortOpData.class)
+                .child(PortOpDataEntry.class, new PortOpDataEntryKey(intfName)).build();
+        Optional<PortOpDataEntry> optionalPortOp =
+                read(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
+        if (!optionalPortOp.isPresent()) {
+            LOG.info("getPortOpDataEntry: Cannot get, portOp for port {}"
+                    + "is not available in datastore", intfName);
+            return null;
+        }
+        return optionalPortOp.get();
+    }
+
+    private static MacEntryInfo getMacEntryInfo(MacEntry macEntry) {
+        String macAddr = macEntry.getMacAddress().getValue();
+        String ipAddr = macEntry.getIpAddress().getHostAddress();
+        String portName = macEntry.getInterfaceName();
+        String vpnName = macEntry.getVpnName();
+        MacEntryInfo macEntryInfo = new MacEntryInfoBuilder().setMacAddress(macAddr)
+                .setPortFixedIp(ipAddr).setCreationTime(macEntry.getCreatedTime()).setPortName(portName)
+                .setVpnName(vpnName).build();
+        return macEntryInfo;
+    }
+
+    public static void createPortNameLearntIpMap(DataBroker broker,String vpnName, String portName,String learntIp,
+                                                 WriteTransaction writeConfigTxn) {
+        InstanceIdentifier<LearntIp> id = buildPortNameLearntIpMapIdentifier(vpnName, portName);
+        LearntIpBuilder builder =
+                new LearntIpBuilder().setKey(new LearntIpKey(portName, vpnName)).setLearntIp(learntIp);
+        if (writeConfigTxn != null) {
+            writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, id, builder.build());
+        } else {
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, builder.build());
+        }
+        LOG.trace("LearntIp {} in Port {} vpn {} added to PortNameLearntIpMap DS", learntIp, portName, vpnName);
+    }
+
+    public void removePortNameLearntIpMap(DataBroker broker, String vpnName,
+                                          String portName, WriteTransaction writeConfigTxn) {
+        synchronized ((vpnName + portName).intern()) {
+            InstanceIdentifier<LearntIp> id = buildPortNameLearntIpMapIdentifier(vpnName, portName);
+            if (writeConfigTxn != null) {
+                writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, id);
+            } else {
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
+            }
+            LOG.trace("Port {}, vpn {} removed from PortNameLearntIpMap DS", portName, vpnName);
+        }
+    }
+
 }
