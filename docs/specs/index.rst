@@ -10,6 +10,7 @@ Contents:
    :maxdepth: 1
 
    Design Specification Template <specs-template>
+   Netvirt Design Specifications - Sodium <sodium/index>
    Netvirt Design Specifications - Neon <neon/index>
    Netvirt Design Specifications - Fluorine <fluorine/index>
    Netvirt Design Specifications - Oxygen <oxygen/index>
