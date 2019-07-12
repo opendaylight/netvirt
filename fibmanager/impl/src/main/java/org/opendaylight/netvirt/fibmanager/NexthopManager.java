@@ -259,7 +259,8 @@ public class NexthopManager implements AutoCloseable {
     }
 
     protected List<ActionInfo> getEgressActionsForInterface(final String ifName, int actionKey,
-                                                            boolean isTunnelInterface) {
+                                                            boolean isTunnelInterface,
+                                                            long vpnId, String destIpPrefix) {
         List<Action> actions;
         try {
             if (isTunnelInterface && interfaceManager.isItmDirectTunnelsEnabled()) {
@@ -278,8 +279,8 @@ public class NexthopManager implements AutoCloseable {
                         .getEgressActionsForInterface(new GetEgressActionsForInterfaceInputBuilder()
                                 .setIntfName(ifName).build()).get();
                 if (!rpcResult.isSuccessful()) {
-                    LOG.error("RPC Call to Get egress vm actions for interface {} returned with Errors {}",
-                            ifName, rpcResult.getErrors());
+                    LOG.error("RPC Call to Get egress vm actions for interface {} vpnId {} ipPrefix {} returned with "
+                                    + "Errors {}", ifName, vpnId, destIpPrefix, rpcResult.getErrors());
                     return Collections.emptyList();
                 } else {
                     actions = rpcResult.getResult().nonnullAction();
@@ -313,8 +314,9 @@ public class NexthopManager implements AutoCloseable {
                 }
             }
             return listActionInfo;
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when egress actions for interface {}", ifName, e);
+        } catch (InterruptedException | ExecutionException | NullPointerException e) {
+            LOG.error("Exception when egress actions for interface {} isTunnel {} vpnId {} ipPrefix {}", ifName,
+                    isTunnelInterface, vpnId, destIpPrefix, e);
         }
         LOG.warn("Exception when egress actions for interface {}", ifName);
         return Collections.emptyList();
@@ -361,7 +363,7 @@ public class NexthopManager implements AutoCloseable {
                 return rpcResult.getResult().getInterfaceName();
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when getting tunnel interface Id for tunnel between {} and  {}", srcDpId, dstIp, e);
+            LOG.error("Exception when getting tunnel interface Id for tunnel between {} and  {}", srcDpId, dstIp, e);
         }
         return null;
     }
@@ -411,7 +413,6 @@ public class NexthopManager implements AutoCloseable {
                     if (nexthop == null) {
                         String encMacAddress = macAddress == null
                                 ? fibUtil.getMacAddressFromPrefix(ifName, vpnName, primaryIpAddress) : macAddress;
-                        List<BucketInfo> listBucketInfo = new ArrayList<>();
                         List<ActionInfo> listActionInfo = new ArrayList<>();
                         int actionKey = 0;
                         // MAC re-write
@@ -429,8 +430,15 @@ public class NexthopManager implements AutoCloseable {
                             // FIXME: Log message here.
                             LOG.debug("mac address for new local nexthop is null");
                         }
-                        listActionInfo.addAll(getEgressActionsForInterface(ifName, actionKey, false));
+                        List<ActionInfo> nhActionInfoList = getEgressActionsForInterface(ifName, actionKey, false,
+                                vpnId, currDestIpPrefix);
+                        if (nhActionInfoList.isEmpty()) {
+                            LOG.error("createLocalNextHop: Skipping, Empty list of egress actions received for "
+                                    + "interface {} on dpn {} for vpn {} prefix {}", ifName, dpnId, vpnId,
+                                    currDestIpPrefix);
+                        }
                         BucketInfo bucket = new BucketInfo(listActionInfo);
+                        List<BucketInfo> listBucketInfo = new ArrayList<>();
 
                         listBucketInfo.add(bucket);
                         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, primaryIpAddress,
@@ -1027,7 +1035,13 @@ public class NexthopManager implements AutoCloseable {
                 if (egressActionMap.containsKey(egressInterface)) {
                     egressActions = egressActionMap.get(egressInterface);
                 } else {
-                    egressActions = getEgressActionsForInterface(egressInterface, actionInfos.size(), true);
+                    egressActions = getEgressActionsForInterface(egressInterface, actionInfos.size(),
+                            true, vpnId, vrfEntry.getDestPrefix());
+                    if (egressActions.isEmpty()) {
+                        LOG.error("Skipping getBucketsForRemoteNexthop: Empty list of egress actions received for "
+                                        + "interface {} on dpn {} for vpn {} prefix {} nextHop {}", ifName, dpnId,
+                                vpnId, vrfEntry.getDestPrefix(), nextHopPrefixIp);
+                    }
                     egressActionMap.put(egressInterface, egressActions);
                 }
                 if (egressActions.isEmpty()) {
