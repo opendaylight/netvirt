@@ -33,14 +33,16 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class IpMonitoringHandler
-        extends AsyncClusteredDataTreeChangeListenerBase<LearntVpnVipToPort, IpMonitoringHandler> {
-    private static final Logger LOG = LoggerFactory.getLogger(IpMonitoringHandler.class);
+public class NeutronVpnPortIpListener
+        extends AsyncClusteredDataTreeChangeListenerBase<VpnPortipToPort, NeutronVpnPortIpListener> {
+    private static final Logger LOG = LoggerFactory.getLogger(NeutronVpnPortIpListener.class);
     private final DataBroker dataBroker;
     private final AlivenessMonitorService alivenessManager;
     private final AlivenessMonitorUtils alivenessMonitorUtils;
@@ -55,11 +57,11 @@ public class IpMonitoringHandler
     private EntityOwnershipCandidateRegistration candidateRegistration;
 
     @Inject
-    public IpMonitoringHandler(final DataBroker dataBroker, AlivenessMonitorService alivenessManager,
+    public NeutronVpnPortIpListener(final DataBroker dataBroker, AlivenessMonitorService alivenessManager,
             INeutronVpnManager neutronVpnService, IInterfaceManager interfaceManager,
             EntityOwnershipService entityOwnershipService, JobCoordinator jobCoordinator,
             AlivenessMonitorUtils alivenessMonitorUtils, VpnUtil vpnUtil) {
-        super(LearntVpnVipToPort.class, IpMonitoringHandler.class);
+        super(VpnPortipToPort.class, NeutronVpnPortIpListener.class);
         this.dataBroker = dataBroker;
         this.alivenessManager = alivenessManager;
         this.neutronVpnService = neutronVpnService;
@@ -78,7 +80,7 @@ public class IpMonitoringHandler
             LOG.error("Error while allocating ARP and IPv6 ND Profile Ids: ARP={}, IPv6ND={}", arpMonitorProfileId,
                     ipv6NdMonitorProfileId);
         }
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
 
         try {
             candidateRegistration = entityOwnershipUtils.getEntityOwnershipService().registerCandidate(
@@ -99,20 +101,20 @@ public class IpMonitoringHandler
     }
 
     @Override
-    protected InstanceIdentifier<LearntVpnVipToPort> getWildCardPath() {
-        return InstanceIdentifier.create(LearntVpnVipToPortData.class).child(LearntVpnVipToPort.class);
+    protected InstanceIdentifier<VpnPortipToPort> getWildCardPath() {
+        return InstanceIdentifier.create(NeutronVpnPortipPortData.class).child(VpnPortipToPort.class);
     }
 
     @Override
-    protected IpMonitoringHandler getDataTreeChangeListener() {
+    protected NeutronVpnPortIpListener getDataTreeChangeListener() {
         return this;
     }
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
-    protected void update(InstanceIdentifier<LearntVpnVipToPort> id, LearntVpnVipToPort value,
-            LearntVpnVipToPort dataObjectModificationAfter) {
+    protected void update(InstanceIdentifier<VpnPortipToPort> id, VpnPortipToPort value,
+                          VpnPortipToPort dataObjectModificationAfter) {
         runOnlyInOwnerNode("IpMonitoringHandler: update event", () -> {
             try {
                 if (value.getMacAddress() == null || dataObjectModificationAfter.getMacAddress() == null) {
@@ -130,7 +132,7 @@ public class IpMonitoringHandler
     }
 
     @Override
-    protected void add(InstanceIdentifier<LearntVpnVipToPort> identifier, LearntVpnVipToPort value) {
+    protected void add(InstanceIdentifier<VpnPortipToPort> identifier, VpnPortipToPort value) {
         runOnlyInOwnerNode("IpMonitoringHandler: add event", () -> {
             try {
                 InetAddress srcInetAddr = InetAddress.getByName(value.getPortFixedip());
@@ -155,7 +157,7 @@ public class IpMonitoringHandler
     }
 
     @Override
-    protected void remove(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort value) {
+    protected void remove(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort value) {
         runOnlyInOwnerNode("IpMonitoringHandler: remove event", () -> {
             try {
                 InetAddress srcInetAddr = InetAddress.getByName(value.getPortFixedip());
