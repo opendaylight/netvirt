@@ -223,6 +223,9 @@ module odl-l3vpn {
             leaf gateway-mac-address {
                 type string;
             }
+            leaf gateway-ip-address {
+                type string;
+            }
             leaf lport-tag {
                 type uint32;
             }
