@@ -16,7 +16,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                odl:type="default" />
     <reference id="iMdsalApiManager"
                interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
-    <reference id="iNeutronVpnManager"
+    <reference id="iNeutronVpnManager" timeout="600000"
                interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
     <reference id="entityOwnershipService"
                interface="org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService" />

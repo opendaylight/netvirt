@@ -18,7 +18,7 @@
              interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
   <reference id="iFibManager"
              interface="org.opendaylight.netvirt.fibmanager.api.IFibManager" />
-  <reference id="iNeutronVpnManager"
+  <reference id="iNeutronVpnManager" timeout="600000"
              interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager"
              availability="optional" />
   <reference id="entityOwnershipService"
