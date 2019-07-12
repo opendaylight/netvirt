@@ -879,25 +879,6 @@ public class NeutronvpnUtils {
         }
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void removeLearntVpnVipToPort(String vpnName, String fixedIp) {
-        InstanceIdentifier<LearntVpnVipToPort> id = NeutronvpnUtils.buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
-        // FIXME: can we use 'id' as the lock name?
-        final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName + fixedIp);
-        lock.lock();
-        try {
-            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-            LOG.trace("Neutron router port with fixedIp: {}, vpn {} removed from LearntVpnPortipToPort DS", fixedIp,
-                    vpnName);
-        } catch (Exception e) {
-            LOG.error("Failure while removing LearntVpnPortFixedIpToPort map for vpn {} - fixedIP {}",
-                vpnName, fixedIp, e);
-        } finally {
-            lock.unlock();
-        }
-    }
-
     public void addToNetworkCache(Network network) {
         networkMap.put(network.getUuid(), network);
     }
@@ -974,13 +955,6 @@ public class NeutronvpnUtils {
         InstanceIdentifier<VpnPortipToPort> id =
             InstanceIdentifier.builder(NeutronVpnPortipPortData.class)
                 .child(VpnPortipToPort.class, new VpnPortipToPortKey(fixedIp, vpnName)).build();
-        return id;
-    }
-
-    static InstanceIdentifier<LearntVpnVipToPort> buildLearntVpnVipToPortIdentifier(String vpnName, String fixedIp) {
-        InstanceIdentifier<LearntVpnVipToPort> id =
-            InstanceIdentifier.builder(LearntVpnVipToPortData.class)
-                .child(LearntVpnVipToPort.class, new LearntVpnVipToPortKey(fixedIp, vpnName)).build();
         return id;
     }
 

@@ -69,13 +69,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.Group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -659,17 +659,20 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     private void removeLearntIpPorts(Routers routers) {
         LOG.info("removeLearntIpPorts for router {} and network {}", routers.getRouterName(), routers.getNetworkId());
         String networkId = routers.getNetworkId().getValue();
-        LearntVpnVipToPortData learntVpnVipToPortData = NatUtil.getLearntVpnVipToPortData(dataBroker);
-        if (learntVpnVipToPortData == null) {
-            LOG.info("removeLearntIpPorts, no learned ports present");
+        NeutronVpnPortipPortData neutronVpnPortipPortData = NatUtil.getNeutronVpnVipToPortData(dataBroker);
+        if (neutronVpnPortipPortData == null) {
+            LOG.info("neutronVpnPortipPortData, no ports present");
             return;
         }
-        LearntVpnVipToPortDataBuilder learntVpnVipToPortDataBuilder = new LearntVpnVipToPortDataBuilder();
-        List<LearntVpnVipToPort> learntVpnVipToPortList = new ArrayList<>();
-        for (LearntVpnVipToPort learntVpnVipToPort : learntVpnVipToPortData.nonnullLearntVpnVipToPort()) {
-            if (!networkId.equals(learntVpnVipToPort.getVpnName())) {
-                LOG.info("The learned port belongs to Vpn {} hence not removing", learntVpnVipToPort.getVpnName());
-                learntVpnVipToPortList.add(learntVpnVipToPort);
+        NeutronVpnPortipPortDataBuilder neutronVpnPortipPortDataBuilder = new NeutronVpnPortipPortDataBuilder();
+        List<VpnPortipToPort> neutronVpnPortipPortDataList = new ArrayList<>();
+        for (VpnPortipToPort neutronVpnPortipPort : neutronVpnPortipPortData.nonnullVpnPortipToPort()) {
+            if (!neutronVpnPortipPort.isLearntIp()) {
+                continue;
+            }
+            if (!networkId.equals(neutronVpnPortipPort.getVpnName())) {
+                LOG.info("The learned port belongs to Vpn {} hence not removing", neutronVpnPortipPort.getVpnName());
+                neutronVpnPortipPortDataList.add(neutronVpnPortipPort);
             } else {
                 String externalSubNetId = null;
                 for (ExternalIps externalIp : routers.nonnullExternalIps()) {
@@ -685,18 +688,18 @@ public abstract class AbstractSnatService implements SnatServiceListener {
                             routers.getRouterName());
                     return;
                 }
-                String prefix = learntVpnVipToPort.getPortFixedip() + "/32";
+                String prefix = neutronVpnPortipPort.getPortFixedip() + "/32";
                 NatUtil.deletePrefixToInterface(dataBroker, NatUtil.getVpnId(dataBroker,
                         externalSubNetId), prefix);
             }
         }
 
         try {
-            learntVpnVipToPortDataBuilder.setLearntVpnVipToPort(learntVpnVipToPortList);
-            InstanceIdentifier<LearntVpnVipToPortData> learntVpnVipToPortDataId = NatUtil
-                    .getLearntVpnVipToPortDataId();
+            neutronVpnPortipPortDataBuilder.setVpnPortipToPort(neutronVpnPortipPortDataList);
+            InstanceIdentifier<NeutronVpnPortipPortData> learntVpnVipToPortDataId = NatUtil
+                    .getNeutronVpnVipToPortDataId();
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                    learntVpnVipToPortDataId, learntVpnVipToPortDataBuilder.build());
+                    learntVpnVipToPortDataId, neutronVpnPortipPortDataBuilder.build());
 
         } catch (TransactionCommitFailedException e) {
             LOG.warn("Failed to remove removeLearntIpPorts with error {}", e.getMessage());
