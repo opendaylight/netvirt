@@ -1876,117 +1876,118 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             () -> {
                 InstanceIdentifier<VrfTables> id = buildVrfId(rd);
                 final VpnInstanceOpDataEntry vpnInstance = fibUtil.getVpnInstance(rd);
-                List<SubTransaction> txnObjects =  new ArrayList<>();
+                List<SubTransaction> txnObjects = new ArrayList<>();
                 final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, id);
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
-                if (vrfTable.isPresent()) {
-                    final ReentrantLock lock = lockFor(vpnInstance);
-                    lock.lock();
-                    try {
-                        futures.add(retryingTxRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
-                            String vpnName = fibUtil.getVpnNameFromId(vpnInstance.getVpnId());
-                            for (final VrfEntry vrfEntry : vrfTable.get().nonnullVrfEntry()) {
-                                /* parentRd is only filled for external PNF cases where the interface on the external
-                                 * network VPN are used to cleanup the flows. For all other cases, use "rd" for
-                                 * #fibUtil.isInterfacePresentInDpn().
-                                * */
-                                String parentRd = vrfEntry.getParentVpnRd() != null ? vrfEntry.getParentVpnRd()
-                                        : rd;
-                                /* Handle subnet routes here */
-                                SubnetRoute subnetRoute = vrfEntry.augmentation(SubnetRoute.class);
-                                if (subnetRoute != null && !fibUtil
-                                        .isInterfacePresentInDpn(parentRd, dpnId)) {
-                                    LOG.trace("SUBNETROUTE: cleanUpDpnForVpn: Cleaning subnetroute {} on dpn {}"
-                                            + " for vpn {}", vrfEntry.getDestPrefix(), dpnId, rd);
-                                    baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null,
-                                            NwConstants.DEL_FLOW, TransactionAdapter.toWriteTransaction(tx), null);
-                                    List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
-                                    if (routePaths != null) {
-                                        for (RoutePaths routePath : routePaths) {
-                                            makeLFibTableEntry(dpnId, routePath.getLabel(), null,
-                                                    DEFAULT_FIB_FLOW_PRIORITY,
-                                                    NwConstants.DEL_FLOW, tx);
-                                            LOG.trace("SUBNETROUTE: cleanUpDpnForVpn: Released subnetroute label {}"
-                                                    + " for rd {} prefix {}", routePath.getLabel(), rd,
-                                                    vrfEntry.getDestPrefix());
-                                        }
-                                    }
-                                    installSubnetBroadcastAddrDropRule(dpnId, rd, vpnId, vrfEntry,
-                                            NwConstants.DEL_FLOW, tx);
-                                    continue;
-                                }
-                                // ping responder for router interfaces
-                                RouterInterface routerInt = vrfEntry.augmentation(RouterInterface.class);
-                                if (routerInt != null) {
-                                    LOG.trace("Router augmented vrfentry found for rd:{}, uuid:{}, ip:{}, mac:{}",
-                                            rd, routerInt.getUuid(), routerInt.getIpAddress(),
-                                            routerInt.getMacAddress());
-                                    routerInterfaceVrfEntryHandler.installRouterFibEntry(vrfEntry, dpnId, vpnId,
-                                            routerInt.getIpAddress(), new MacAddress(routerInt.getMacAddress()),
-                                            NwConstants.DEL_FLOW);
-                                    continue;
-                                }
-
-                                //Handle local flow deletion for imports
-                                if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.SELF_IMPORTED) {
-                                    java.util.Optional<Uint32> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
-                                    if (optionalLabel.isPresent()) {
-                                        List<String> nextHopList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
-                                        LabelRouteInfo lri = getLabelRouteInfo(optionalLabel.get());
-                                        if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopList,
-                                                lri) && Objects.equals(lri.getDpnId(), dpnId)) {
-                                            deleteLocalFibEntry(vpnId, rd, vrfEntry);
-                                        }
-                                    }
-                                }
-
-                                // Passing null as we don't know the dpn
-                                // to which prefix is attached at this point
-                                List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker,
-                                        vpnInstance.getVpnId(), vrfEntry.getDestPrefix());
-                                Optional<Routes> extraRouteOptional;
-                                //Is this fib route an extra route? If yes, get the nexthop which would be
-                                //an adjacency in the vpn
-                                if (usedRds != null && !usedRds.isEmpty()) {
-                                    if (usedRds.size() > 1) {
-                                        LOG.error("The extra route prefix is still present in some DPNs");
-                                        return;
-                                    } else {
-                                        extraRouteOptional = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker, vpnName,
-                                                usedRds.get(0), vrfEntry.getDestPrefix());
-
-                                    }
-                                } else {
-                                    extraRouteOptional = Optional.absent();
-                                }
-                                if (RouteOrigin.BGP.getValue().equals(vrfEntry.getOrigin())) {
-                                    bgpRouteVrfEntryHandler.deleteRemoteRoute(null, dpnId, vpnId,
-                                        vrfTable.get().key(), vrfEntry, extraRouteOptional,
-                                        TransactionAdapter.toWriteTransaction(tx), txnObjects);
-                                } else {
-                                    if (subnetRoute == null || !fibUtil
-                                            .isInterfacePresentInDpn(parentRd, dpnId)) {
-                                        baseVrfEntryHandler.deleteRemoteRoute(null, dpnId, vpnId,
-                                            vrfTable.get().key(), vrfEntry, extraRouteOptional,
-                                            TransactionAdapter.toWriteTransaction(tx));
-                                    }
-                                }
-                            }
-                        }));
-                    } finally {
-                        lock.unlock();
-                    }
+                if (!vrfTable.isPresent()) {
+                    LOG.error("cleanUpDpnForVpn: VRF Table not available for RD {}", rd);
                     if (callback != null) {
                         ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
                         Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
                     }
-                } else {
-                    LOG.error("cleanUpDpnForVpn: No vrf table found for rd {} vpnId {} dpn {}", rd, vpnId, dpnId);
+                    return futures;
+                }
+                final ReentrantLock lock = lockFor(vpnInstance);
+                lock.lock();
+                try {
+                    futures.add(retryingTxRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
+                        String vpnName = fibUtil.getVpnNameFromId(vpnInstance.getVpnId());
+                        for (final VrfEntry vrfEntry : vrfTable.get().nonnullVrfEntry()) {
+                            /* parentRd is only filled for external PNF cases where the interface on the external
+                             * network VPN are used to cleanup the flows. For all other cases, use "rd" for
+                             * #fibUtil.isInterfacePresentInDpn().
+                             * */
+                            String parentRd = vrfEntry.getParentVpnRd() != null ? vrfEntry.getParentVpnRd()
+                                    : rd;
+                            /* Handle subnet routes here */
+                            SubnetRoute subnetRoute = vrfEntry.augmentation(SubnetRoute.class);
+                            if (subnetRoute != null && !fibUtil
+                                    .isInterfacePresentInDpn(parentRd, dpnId)) {
+                                LOG.trace("SUBNETROUTE: cleanUpDpnForVpn: Cleaning subnetroute {} on dpn {}"
+                                        + " for vpn {}", vrfEntry.getDestPrefix(), dpnId, rd);
+                                baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null,
+                                        NwConstants.DEL_FLOW, TransactionAdapter.toWriteTransaction(tx), null);
+                                List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
+                                if (routePaths != null) {
+                                    for (RoutePaths routePath : routePaths) {
+                                        makeLFibTableEntry(dpnId, routePath.getLabel(), null,
+                                                DEFAULT_FIB_FLOW_PRIORITY,
+                                                NwConstants.DEL_FLOW, tx);
+                                        LOG.trace("SUBNETROUTE: cleanUpDpnForVpn: Released subnetroute label {}"
+                                                        + " for rd {} prefix {}", routePath.getLabel(), rd,
+                                                vrfEntry.getDestPrefix());
+                                    }
+                                }
+                                installSubnetBroadcastAddrDropRule(dpnId, rd, vpnId, vrfEntry,
+                                        NwConstants.DEL_FLOW, tx);
+                                continue;
+                            }
+                            // ping responder for router interfaces
+                            RouterInterface routerInt = vrfEntry.augmentation(RouterInterface.class);
+                            if (routerInt != null) {
+                                LOG.trace("Router augmented vrfentry found for rd:{}, uuid:{}, ip:{}, mac:{}",
+                                        rd, routerInt.getUuid(), routerInt.getIpAddress(),
+                                        routerInt.getMacAddress());
+                                routerInterfaceVrfEntryHandler.installRouterFibEntry(vrfEntry, dpnId, vpnId,
+                                        routerInt.getIpAddress(), new MacAddress(routerInt.getMacAddress()),
+                                        NwConstants.DEL_FLOW);
+                                continue;
+                            }
+                            //Handle local flow deletion for imports
+                            if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.SELF_IMPORTED) {
+                                java.util.Optional<Uint32> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
+                                if (optionalLabel.isPresent()) {
+                                    List<String> nextHopList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
+                                    LabelRouteInfo lri = getLabelRouteInfo(optionalLabel.get());
+                                    if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopList,
+                                            lri) && Objects.equals(lri.getDpnId(), dpnId)) {
+                                        deleteLocalFibEntry(vpnId, rd, vrfEntry);
+                                    }
+                                }
+                            }
+                            // Passing null as we don't know the dpn
+                            // to which prefix is attached at this point
+                            List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker,
+                                    vpnInstance.getVpnId(), vrfEntry.getDestPrefix());
+                            Optional<Routes> extraRouteOptional;
+                            //Is this fib route an extra route? If yes, get the nexthop which would be
+                            //an adjacency in the vpn
+                            if (usedRds != null && !usedRds.isEmpty()) {
+                                if (usedRds.size() > 1) {
+                                    LOG.error("The extra route prefix is still present in some DPNs");
+                                    return;
+                                } else {
+                                    extraRouteOptional = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker, vpnName,
+                                            usedRds.get(0), vrfEntry.getDestPrefix());
+
+                                }
+                            } else {
+                                extraRouteOptional = Optional.absent();
+                            }
+                            if (RouteOrigin.BGP.getValue().equals(vrfEntry.getOrigin())) {
+                                bgpRouteVrfEntryHandler.deleteRemoteRoute(null, dpnId, vpnId,
+                                        vrfTable.get().key(), vrfEntry, extraRouteOptional,
+                                        TransactionAdapter.toWriteTransaction(tx), txnObjects);
+                            } else {
+                                if (subnetRoute == null || !fibUtil
+                                        .isInterfacePresentInDpn(parentRd, dpnId)) {
+                                    baseVrfEntryHandler.deleteRemoteRoute(null, dpnId, vpnId,
+                                            vrfTable.get().key(), vrfEntry, extraRouteOptional,
+                                            TransactionAdapter.toWriteTransaction(tx));
+                                }
+                            }
+                        }
+                    }));
+                } finally {
+                    lock.unlock();
+                }
+                if (callback != null) {
+                    ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
+                    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
                 }
                 return futures;
             });
-
     }
 
     public void cleanUpExternalRoutesOnDpn(final Uint64 dpnId, final Uint32 vpnId, final String rd,
