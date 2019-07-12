@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.iplearn.model.MacEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,18 +44,17 @@ public class IpMonitorStopTask implements Callable<List<ListenableFuture<Void>>>
                     macEntry.getIpAddress(), macEntry.getInterfaceName());
         }
 
-        String learntIp = macEntry.getIpAddress().getHostAddress();
         if (this.isRemoveMipAdjAndLearntIp) {
+            String learntIp = macEntry.getIpAddress().getHostAddress();
             String vpnName =  macEntry.getVpnName();
-            LearntVpnVipToPort vpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, learntIp);
+            VpnPortipToPort vpnVipToPort = vpnUtil.getNeutronPortFromVpnPortFixedIp(vpnName, learntIp);
             if (vpnVipToPort != null && !Objects.equals(vpnVipToPort.getCreationTime(), macEntry.getCreatedTime())) {
                 LOG.warn("The MIP {} over vpn {} has been learnt again and processed. "
                         + "Ignoring this remove event.", learntIp, vpnName);
                 return futures;
             }
-            vpnUtil.removeMipAdjAndLearntIp(vpnName, macEntry.getInterfaceName(), learntIp);
-        } else {
-            // Delete only MIP adjacency
+            vpnUtil.removeVpnPortFixedIpToPort(vpnName, learntIp, null);
+            vpnUtil.removePortNameLearntIpMap(vpnName, macEntry.getInterfaceName(), null);
             vpnUtil.removeMipAdjacency(macEntry.getInterfaceName(), learntIp);
         }
         return futures;
