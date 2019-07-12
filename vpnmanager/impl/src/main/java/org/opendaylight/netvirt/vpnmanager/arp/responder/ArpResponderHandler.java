@@ -137,6 +137,8 @@ public class ArpResponderHandler {
             ArpReponderInputBuilder builder = new ArpReponderInputBuilder();
             builder.setDpId(dpId.toJava()).setInterfaceName(ifName).setSpa(gatewayIp).setLportTag(lportTag);
             elanService.removeArpResponderFlow(builder.buildForRemoveFlow());
+        } else {
+            LOG.error("Subnet-Gateway-IP is null for interface {}, arpResponderFlow not removed", ifName);
         }
     }
 
