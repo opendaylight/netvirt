@@ -27,7 +27,8 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -498,16 +499,18 @@ public class NexthopManager implements AutoCloseable {
         Future<RpcResult<AddGroupOutput>> groupStats = salGroupService.addGroup(input);
         RpcResult<AddGroupOutput> rpcResult = null;
         try {
-            rpcResult = groupStats.get();
+            rpcResult = groupStats.get(WAIT_TIME_FOR_SYNC_INSTALL, TimeUnit.MILLISECONDS);
             if (rpcResult != null && rpcResult.isSuccessful()) {
-                LOG.info("Group {} with key {} has been successfully installed directly on dpn {}.", groupId,
-                        nextHopKey, dpnId);
+                LOG.info("installGroupOnDpn: Group {} with key {} has been successfully installed directly on dpn {}.",
+                        groupId, nextHopKey, dpnId);
             } else {
-                LOG.error("Unable to install group {} with key {} directly on dpn {} due to {}.", groupId, nextHopKey,
-                        dpnId, rpcResult != null ? rpcResult.getErrors() : null);
+                LOG.error("installGroupOnDpn: Unable to install group {} with key {} directly on dpn {} due to {}.",
+                        groupId, nextHopKey, dpnId, rpcResult != null ? rpcResult.getErrors() : null);
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error while installing group {} directly on dpn {}", groupId, dpnId);
+            LOG.error("installGroupOnDpn: Error while installing group {} directly on dpn {}", groupId, dpnId);
+        } catch (TimeoutException e) {
+            LOG.error("installGroupOnDpn: Group {} installation on dpn {} timed out.", groupId, dpnId);
         }
     }
 
