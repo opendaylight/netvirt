@@ -20,7 +20,7 @@
              interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" availability="optional"/>
   <reference id="iBgpManager"
              interface="org.opendaylight.netvirt.bgpmanager.api.IBgpManager" availability="optional"/>
-  <reference id="iNeutronVpnManager"
+  <reference id="iNeutronVpnManager" timeout="600000"
              interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" availability="optional"/>
   <reference id="diagStatusService"
              interface="org.opendaylight.infrautils.diagstatus.DiagStatusService" />
