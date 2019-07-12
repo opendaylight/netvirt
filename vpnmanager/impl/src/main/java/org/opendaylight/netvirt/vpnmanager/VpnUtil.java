@@ -337,11 +337,11 @@ public final class VpnUtil {
     }
 
     static VpnInterfaceOpDataEntry getVpnInterfaceOpDataEntry(String intfName, String vpnName, AdjacenciesOp aug,
-                                                       Uint64 dpnId, long lportTag,
-                                                       String gwMac) {
+                                                              Uint64 dpnId, long lportTag,
+                                                              String gwMac, String gwIp) {
         return new VpnInterfaceOpDataEntryBuilder().withKey(new VpnInterfaceOpDataEntryKey(intfName, vpnName))
-            .setDpnId(dpnId).addAugmentation(AdjacenciesOp.class, aug)
-                .setLportTag(lportTag).setGatewayMacAddress(gwMac).build();
+                .setDpnId(dpnId).addAugmentation(AdjacenciesOp.class, aug)
+                .setLportTag(lportTag).setGatewayMacAddress(gwMac).setGatewayIpAddress(gwIp).build();
     }
 
     Optional<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntry(String vpnInterfaceName, String vpnName) {

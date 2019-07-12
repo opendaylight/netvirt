@@ -152,10 +152,17 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         } else {
             jobCoordinator.enqueueJob("VPN-" + vpnName, () ->
                 Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL, tx -> {
-                    VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder().setVrfId(primaryRd)
-                            .setVpnState(VpnInstanceOpDataEntry.VpnState.PendingDelete);
-                    InstanceIdentifier<VpnInstanceOpDataEntry> id =
-                            VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd);
+                    VpnInstanceOpDataEntryBuilder builder = null;
+                    InstanceIdentifier<VpnInstanceOpDataEntry> id = null;
+                    if (primaryRd != null) {
+                        builder = new VpnInstanceOpDataEntryBuilder().setVrfId(primaryRd)
+                                .setVpnState(VpnInstanceOpDataEntry.VpnState.PendingDelete);
+                        id = VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd);
+                    } else {
+                        builder = new VpnInstanceOpDataEntryBuilder().setVrfId(vpnName)
+                                .setVpnState(VpnInstanceOpDataEntry.VpnState.PendingDelete);
+                        id = VpnUtil.getVpnInstanceOpDataIdentifier(vpnName);
+                    }
                     tx.merge(id, builder.build());
 
                     LOG.info("{} call: Operational status set to PENDING_DELETE for vpn {} with rd {}",
