@@ -195,14 +195,6 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             return;
         }
 
-        if (vpnUtil.getLearntVpnVipToPort(vpnIdVpnInstanceName, dstIpStr) != null) {
-            vpnManagerCounters.subnetRoutePacketIgnored();
-            LOG.info("{} onPacketReceived: IP Packet received with Target IP {} source Ip {} vpnId {}"
-                    + " is an already discovered IPAddress, ignoring subnet route processing",
-                    LOGGING_PREFIX, dstIpStr, srcIp, vpnId);
-            return;
-        }
-
         long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
         if (elanTag == 0L) {
             vpnManagerCounters.subnetRoutePacketFailed();
