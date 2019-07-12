@@ -144,7 +144,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.DpnRouters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
@@ -157,8 +156,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.dpn.routers.list.RoutersList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.dpn.routers.list.RoutersListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.dpn.routers.list.RoutersListKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnListKey;
@@ -1536,16 +1533,6 @@ public final class NatUtil {
             return portIpToPortOpt.get().getMacAddress();
         }
 
-        InstanceIdentifier<LearntVpnVipToPort> learntIpInst = InstanceIdentifier.builder(LearntVpnVipToPortData.class)
-            .child(LearntVpnVipToPort.class, new LearntVpnVipToPortKey(gatewayIp.getIpv4Address().getValue(), vpnName))
-            .build();
-        Optional<LearntVpnVipToPort> learntIpToPortOpt =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                        LogicalDatastoreType.OPERATIONAL, learntIpInst);
-        if (learntIpToPortOpt.isPresent()) {
-            return learntIpToPortOpt.get().getMacAddress();
-        }
-
         LOG.info("getSubnetGwMac : No resolution was found to GW ip {} in subnet {}", gatewayIp, subnetId.getValue());
         return null;
     }
@@ -2314,7 +2301,7 @@ public final class NatUtil {
     }
 
     @Nullable
-    public static LearntVpnVipToPortData getLearntVpnVipToPortData(DataBroker dataBroker) {
+    public static VpnPortipToPort getNeutronVpnVipToPortData(DataBroker dataBroker) {
         try {
             return SingleTransactionDataBroker.syncRead(dataBroker,
                     LogicalDatastoreType.OPERATIONAL, getLearntVpnVipToPortDataId());
@@ -2325,10 +2312,24 @@ public final class NatUtil {
         }
     }
 
-    public static InstanceIdentifier<LearntVpnVipToPortData> getLearntVpnVipToPortDataId() {
-        InstanceIdentifier<LearntVpnVipToPortData> learntVpnVipToPortDataId = InstanceIdentifier
-                .builder(LearntVpnVipToPortData.class).build();
-        return learntVpnVipToPortDataId;
+    public static InstanceIdentifier<NeutronVpnPortipPortData> getLearntVpnVipToPortDataId() {
+        return InstanceIdentifier.builder(NeutronVpnPortipPortData.class).child(VpnPortipToPort.class).build();
+    }
+
+
+    static InstanceIdentifier<VpnPortipToPort> buildVpnPortipToPortIdentifier(String vpnName, String fixedIp) {
+        return InstanceIdentifier.builder(NeutronVpnPortipPortData.class).child(VpnPortipToPort.class,
+                new VpnPortipToPortKey(fixedIp, vpnName)).build();
+    }
+
+    @Nullable
+    public VpnPortipToPort getNeutronPortFromVpnPortFixedIp(String vpnName, String fixedIp) {
+        InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
+        Optional<VpnPortipToPort> vpnPortipToPortData = read(LogicalDatastoreType.CONFIGURATION, id);
+        if (vpnPortipToPortData.isPresent()) {
+            return vpnPortipToPortData.get();
+        }
+        return null;
     }
 
     public static InstanceIdentifier<DpnInterfaces> getElanDpnInterfaceOperationalDataPath(String elanInstanceName,

@@ -69,10 +69,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.Group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
@@ -659,7 +656,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     private void removeLearntIpPorts(Routers routers) {
         LOG.info("removeLearntIpPorts for router {} and network {}", routers.getRouterName(), routers.getNetworkId());
         String networkId = routers.getNetworkId().getValue();
-        LearntVpnVipToPortData learntVpnVipToPortData = NatUtil.getLearntVpnVipToPortData(dataBroker);
+        LearntVpnVipToPortData learntVpnVipToPortData = NatUtil.getNeutronVpnVipToPortData(dataBroker);
         if (learntVpnVipToPortData == null) {
             LOG.info("removeLearntIpPorts, no learned ports present");
             return;
