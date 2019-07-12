@@ -126,11 +126,11 @@ public class LearntVpnVipToPortEventProcessor
                 try {
                     String vpnName = value.getVpnName();
                     String ipAddress = value.getSrcFixedip();
-                    if (value.getEventAction() == LearntVpnVipToPortEventAction.Add) {
+                    if (value.getEventAction() == LearntVpnVipToPortEventAction.AddMipAdjacency) {
                         jobCoordinator.enqueueJob(VpnUtil.buildIpMonitorJobKey(ipAddress, vpnName),
                                 new AddMipAdjacencyWorker(value));
                     }
-                    if (value.getEventAction() == LearntVpnVipToPortEventAction.Delete) {
+                    if (value.getEventAction() == LearntVpnVipToPortEventAction.DeleteMipAdjacency) {
                         jobCoordinator.enqueueJob(VpnUtil.buildIpMonitorJobKey(ipAddress, vpnName),
                                 new DeleteMipAdjacencyWorker(value));
                     }

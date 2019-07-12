@@ -55,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPortsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIps;
@@ -792,12 +793,12 @@ public class NeutronvpnNatManager implements AutoCloseable {
                             adjacency.getIpAddress(), infName, extSubnetId);
                         String extNetVpnName = extNetId.getValue();
                         String learnedSrcIp = adjacency.getIpAddress().split("/")[0];
-                        InstanceIdentifier<LearntVpnVipToPort> id =
-                            NeutronvpnUtils.buildLearntVpnVipToPortIdentifier(extNetVpnName, learnedSrcIp);
-                        Optional<LearntVpnVipToPort> optionalLearntVpnVipToPort = SingleTransactionDataBroker
+                        InstanceIdentifier<VpnPortipToPort> id =
+                            NeutronvpnUtils.buildVpnPortipToPortIdentifier(extNetVpnName, learnedSrcIp);
+                        Optional<VpnPortipToPort> optionalLearntVpnVipToPort = SingleTransactionDataBroker
                             .syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
                         if (optionalLearntVpnVipToPort.isPresent()) {
-                            neutronvpnUtils.removeLearntVpnVipToPort(extNetVpnName, learnedSrcIp);
+                            neutronvpnUtils.removeVpnPortFixedIpToPort(extNetVpnName, learnedSrcIp, null);
                             LOG.trace("Removed Learnt Entry for fixedIP {} for port {}",
                                 adjacency.getIpAddress(), infName);
                         }

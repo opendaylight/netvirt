@@ -154,28 +154,18 @@ public abstract class AbstractIpLearnNotificationHandler {
                         continue;
                     }
                 }
-                LearntVpnVipToPort learntVpnVipToPort = vpnUtil.getLearntVpnVipToPort(vpnName, srcIpToQuery);
-                if (learntVpnVipToPort != null) {
-                    String oldPortName = learntVpnVipToPort.getPortName();
-                    String oldMac = learntVpnVipToPort.getMacAddress();
+                if (vpnPortipToPort != null) {
+                    String oldPortName = vpnPortipToPort.getPortName();
+                    String oldMac = vpnPortipToPort.getMacAddress();
                     if (!oldMac.equalsIgnoreCase(srcMac.getValue())) {
                         // MAC has changed for requested IP
                         LOG.info("ARP/NA Source IP/MAC data modified for IP {} with MAC {} and Port {}", srcIpToQuery,
                                 srcMac, srcInterface);
                         vpnUtil.createLearntVpnVipToPortEvent(vpnName, srcIpToQuery, destIpToQuery, oldPortName, oldMac,
-                                LearntVpnVipToPortEventAction.Delete, null);
+                                LearntVpnVipToPortEventAction.DeleteMipAdjacency, null);
                         putVpnIpToMigrateIpCache(vpnName, srcIpToQuery, srcMac);
                     }
                 } else if (!isIpInMigrateCache(vpnName, srcIpToQuery)) {
-                    if (vpnPortipToPort != null && !vpnPortipToPort.getPortName().equals(srcInterface)) {
-                        LOG.trace(
-                                "LearntIp: {} vpnName {} is already present in VpnPortIpToPort with " + "PortName {} ",
-                                srcIpToQuery, vpnName, vpnPortipToPort.getPortName());
-                        vpnUtil.createLearntVpnVipToPortEvent(vpnName, srcIpToQuery, destIpToQuery,
-                                vpnPortipToPort.getPortName(), vpnPortipToPort.getMacAddress(),
-                                LearntVpnVipToPortEventAction.Delete, null);
-                        continue;
-                    }
                     learnMacFromIncomingPacket(vpnName, srcInterface, srcIP, srcMac, dstIP);
                 }
             } finally {
@@ -192,7 +182,7 @@ public abstract class AbstractIpLearnNotificationHandler {
         lock.lock();
         try {
             vpnUtil.createLearntVpnVipToPortEvent(vpnName, srcIpToQuery, destIpToQuery, srcInterface,
-                    srcMac.getValue(), LearntVpnVipToPortEventAction.Add, null);
+                    srcMac.getValue(), LearntVpnVipToPortEventAction.AddMipAdjacency, null);
         } finally {
             lock.unlock();
         }

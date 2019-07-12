@@ -45,13 +45,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ElanLearntVpnVipToPortListener extends
-        AsyncDataTreeChangeListenerBase<LearntVpnVipToPort, ElanLearntVpnVipToPortListener> {
+        AsyncDataTreeChangeListenerBase<VpnPortipToPort, ElanLearntVpnVipToPortListener> {
     private static final Logger LOG = LoggerFactory.getLogger(ElanLearntVpnVipToPortListener.class);
     private final DataBroker broker;
     private final ManagedNewTransactionRunner txRunner;
@@ -64,7 +66,7 @@ public class ElanLearntVpnVipToPortListener extends
     @Inject
     public ElanLearntVpnVipToPortListener(DataBroker broker, IInterfaceManager interfaceManager, ElanUtils elanUtils,
             JobCoordinator jobCoordinator, ElanInstanceCache elanInstanceCache, ElanInterfaceCache elanInterfaceCache) {
-        super(LearntVpnVipToPort.class, ElanLearntVpnVipToPortListener.class);
+        super(VpnPortipToPort.class, ElanLearntVpnVipToPortListener.class);
         this.broker = broker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.interfaceManager = interfaceManager;
@@ -81,12 +83,15 @@ public class ElanLearntVpnVipToPortListener extends
     }
 
     @Override
-    protected InstanceIdentifier<LearntVpnVipToPort> getWildCardPath() {
-        return InstanceIdentifier.create(LearntVpnVipToPortData.class).child(LearntVpnVipToPort.class);
+    protected InstanceIdentifier<VpnPortipToPort> getWildCardPath() {
+        return InstanceIdentifier.create(NeutronVpnPortipPortData.class).child(VpnPortipToPort.class);
     }
 
     @Override
-    protected void remove(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort dataObjectModification) {
+    protected void remove(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort dataObjectModification) {
+        if (!dataObjectModification.isLearntIp()) {
+            return;
+        }
         String macAddress = dataObjectModification.getMacAddress();
         String interfaceName = dataObjectModification.getPortName();
         LOG.trace("Removing mac address {} from interface {} ", macAddress, interfaceName);
@@ -95,12 +100,15 @@ public class ElanLearntVpnVipToPortListener extends
     }
 
     @Override
-    protected void update(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort dataObjectModificationBefore,
-            LearntVpnVipToPort dataObjectModificationAfter) {
+    protected void update(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort dataObjectModificationBefore,
+                          VpnPortipToPort dataObjectModificationAfter) {
     }
 
     @Override
-    protected void add(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort dataObjectModification) {
+    protected void add(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort dataObjectModification) {
+        if (!dataObjectModification.isLearntIp()) {
+            return;
+        }
         String macAddress = dataObjectModification.getMacAddress();
         String interfaceName = dataObjectModification.getPortName();
         LOG.trace("Adding mac address {} to interface {} ", macAddress, interfaceName);
