@@ -111,11 +111,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortIdSubportData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.port.id.subport.data.PortIdToSubport;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.port.id.subport.data.PortIdToSubportKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
@@ -424,6 +427,17 @@ public class NeutronvpnUtils {
             prt = port.get();
         }
         return prt;
+    }
+
+    public PortIdToSubport getPortIdToSubport(Uuid portId) {
+        InstanceIdentifier<PortIdToSubport> portIdToSubportIdentifier = buildPortIdSubportMappingIdentifier(portId);
+        Optional<PortIdToSubport> optionalPortIdToSubport = read(LogicalDatastoreType.CONFIGURATION,
+                portIdToSubportIdentifier);
+        if (optionalPortIdToSubport.isPresent()) {
+            return optionalPortIdToSubport.get();
+        }
+        LOG.error("getPortIdToSubport failed, PortIdToSubport {} not present", portId.getValue());
+        return null;
     }
 
     /**
@@ -1010,6 +1024,12 @@ public class NeutronvpnUtils {
     static InstanceIdentifier<Interface> buildVlanInterfaceIdentifier(String interfaceName) {
         InstanceIdentifier<Interface> id = InstanceIdentifier.builder(Interfaces.class).child(Interface.class, new
                 InterfaceKey(interfaceName)).build();
+        return id;
+    }
+
+    static InstanceIdentifier<PortIdToSubport> buildPortIdSubportMappingIdentifier(Uuid interfaceName) {
+        InstanceIdentifier<PortIdToSubport> id = InstanceIdentifier.builder(NeutronVpnPortIdSubportData.class)
+                .child(PortIdToSubport.class, new PortIdToSubportKey(interfaceName)).build();
         return id;
     }
 

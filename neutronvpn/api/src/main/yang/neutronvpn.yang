@@ -209,6 +209,16 @@ module neutronvpn {
         }
     }
 
+    container neutron-vpn-port-id-subport-data {
+        config true;
+        list port-id-to-subport {
+            key port-id;
+            leaf port-id { type yang:uuid; }
+            leaf vlan-id { type uint32; }
+            leaf trunk-port-id { type yang:uuid; }
+        }
+    }
+
     container router-interfaces-map {
         list router-interfaces {
             key router-id;
