@@ -222,7 +222,7 @@ public class BgpConfigurationManager {
     private int totalExternalMacRoutes;
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(
-            new ThreadFactoryBuilder().setNameFormat("BgpConfigurationManager-%d").setDaemon(true).build());
+            new ThreadFactoryBuilder().setNameFormat("bgp-config-%d").setDaemon(true).build());
 
     /**
      * this map store the new address families to send to quagga. When it is sended you must clear it.
