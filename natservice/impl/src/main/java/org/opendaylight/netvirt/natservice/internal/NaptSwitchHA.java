@@ -491,12 +491,19 @@ public class NaptSwitchHA {
             }
 
             //remove group in new naptswitch, coz this switch acted previously as ordinary switch
-            long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(routerName), idManager);
-            try {
-                LOG.info("isNaptSwitchDown : Removing NAPT Group in new naptSwitch {}", naptSwitch);
-                mdsalManager.removeGroup(confTx, naptSwitch, groupId);
-            } catch (Exception ex) {
-                LOG.error("isNaptSwitchDown : Failed to remove group in new naptSwitch {}", naptSwitch, ex);
+            long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
+                NatUtil.getGroupIdKey(routerName));
+            if (groupId != NatConstants.INVALID_ID) {
+                try {
+                    LOG.info("isNaptSwitchDown : Removing NAPT Group in new naptSwitch {}",
+                        naptSwitch);
+                    mdsalManager.removeGroup(confTx, naptSwitch, groupId);
+                } catch (Exception ex) {
+                    LOG.error("isNaptSwitchDown : Failed to remove group in new naptSwitch {}",
+                        naptSwitch, ex);
+                }
+            } else {
+                LOG.error("NAT Service : Unable to obtain groupId for router:{}", routerName);
             }
         }
         return true;
@@ -561,7 +568,7 @@ public class NaptSwitchHA {
         }
         Long bgpVpnId;
         if (routerId.equals(routerVpnId)) {
-            bgpVpnId = NatConstants.INVALID_ID;
+            bgpVpnId = Long.valueOf(NatConstants.INVALID_ID);
         } else {
             bgpVpnId = routerVpnId;
         }
@@ -673,7 +680,7 @@ public class NaptSwitchHA {
         } catch (Exception ex) {
             LOG.error("getVpnIdForRouter : Exception while retrieving vpnId for router {}", routerId, ex);
         }
-        return NatConstants.INVALID_ID;
+        return Long.valueOf(NatConstants.INVALID_ID);
     }
 
     @NonNull
@@ -706,13 +713,20 @@ public class NaptSwitchHA {
     protected void installSnatGroupEntry(BigInteger dpnId, List<BucketInfo> bucketInfo, String routerName) {
         GroupEntity groupEntity = null;
         try {
-            long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(routerName), idManager);
-            LOG.debug("installSnatGroupEntry : install SnatMissEntry for groupId {} for dpnId {} for router {}",
+            long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
+                NatUtil.getGroupIdKey(routerName));
+            if (groupId != NatConstants.INVALID_ID) {
+                LOG.debug(
+                    "installSnatGroupEntry : install SnatMissEntry for groupId {} for dpnId {} for router {}",
                     groupId, dpnId, routerName);
-            groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName,
-                GroupTypes.GroupAll, bucketInfo);
-            mdsalManager.syncInstallGroup(groupEntity);
-            LOG.debug("installSnatGroupEntry : installed the SNAT to NAPT GroupEntity:{}", groupEntity);
+                groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName,
+                    GroupTypes.GroupAll, bucketInfo);
+                mdsalManager.syncInstallGroup(groupEntity);
+                LOG.debug("installSnatGroupEntry : installed the SNAT to NAPT GroupEntity:{}",
+                    groupEntity);
+            } else {
+                LOG.error("installSnatGroupEntry: Unable to obtain groupId for router:{}", routerName);
+            }
         } catch (Exception ex) {
             LOG.error("installSnatGroupEntry : Failed to install group for groupEntity {}", groupEntity, ex);
         }

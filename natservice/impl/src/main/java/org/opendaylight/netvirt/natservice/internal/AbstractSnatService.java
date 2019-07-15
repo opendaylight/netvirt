@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -59,9 +58,6 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
@@ -77,7 +73,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.pre
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -468,23 +463,26 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         LOG.debug("installSnatMissEntry : installSnatMissEntry called for dpnId {} with primaryBucket {} ", dpnId,
             listBucketInfo.get(0));
         // Install the select group
-        long groupId = createGroupId(getGroupIdKey(routerName));
+        long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME, getGroupIdKey(routerName));
+        if (groupId != NatConstants.INVALID_ID) {
+            GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll,
+                listBucketInfo);
+            LOG.debug("installing the PSNAT to NAPTSwitch GroupEntity:{} with GroupId: {}", groupEntity, groupId);
+            mdsalManager.addGroup(confTx, groupEntity);
 
-        GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll,
-            listBucketInfo);
-        LOG.debug("installing the PSNAT to NAPTSwitch GroupEntity:{} with GroupId: {}", groupEntity, groupId);
-        mdsalManager.addGroup(confTx, groupEntity);
-
-        // Add the flow to send the packet to the group only after group is available in Config datastore
-        eventCallbacks.onAddOrUpdate(LogicalDatastoreType.CONFIGURATION,
-                NatUtil.getGroupInstanceId(dpnId, groupId), (unused, newGroupId) -> {
-                LOG.info("group {} is created in the config", groupId);
-                ListenableFutures.addErrorLogging(
-                        txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
-                            innerConfTx -> addSnatMissFlowForGroup(innerConfTx, dpnId, routerId, groupId)),
-                        LOG, "Error adding flow for the group {}",groupId);
-                return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
-            }, Duration.ofSeconds(5), iid -> LOG.error("groupId {} not found in config datastore", groupId));
+            // Add the flow to send the packet to the group only after group is available in Config datastore
+            eventCallbacks.onAddOrUpdate(LogicalDatastoreType.CONFIGURATION,
+                    NatUtil.getGroupInstanceId(dpnId, groupId), (unused, newGroupId) -> {
+                    LOG.info("group {} is created in the config", groupId);
+                    ListenableFutures.addErrorLogging(
+                            txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+                                innerConfTx -> addSnatMissFlowForGroup(innerConfTx, dpnId, routerId, groupId)),
+                            LOG, "Error adding flow for the group {}",groupId);
+                    return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
+                }, Duration.ofSeconds(5), iid -> LOG.error("groupId {} not found in config datastore", groupId));
+        } else {
+            LOG.error("installSnatMissEntry: Unable to get groupId for routerName:{}", routerName);
+        }
     }
 
     private void addSnatMissFlowForGroup(TypedReadWriteTransaction<Configuration> confTx,
@@ -511,15 +509,18 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
     protected void removeSnatMissEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId,
             Long routerId, String routerName) throws ExecutionException, InterruptedException {
-        LOG.debug("installSnatMissEntry : Removing SNAT miss entry from switch {}", dpnId);
+        LOG.debug("removeSnatMissEntry : Removing SNAT miss entry from switch {}", dpnId);
         // Install the select group
-        long groupId = createGroupId(getGroupIdKey(routerName));
-
-        LOG.debug("removing the PSNAT to NAPTSwitch on DPN {} with GroupId: {}", dpnId, groupId);
-        mdsalManager.removeGroup(confTx, dpnId, groupId);
-
+        long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME, getGroupIdKey(routerName));
+        if (groupId != NatConstants.INVALID_ID) {
+            LOG.debug("removeSnatMissEntry : removing the PSNAT to NAPTSwitch on DPN {} with GroupId: {}", dpnId,
+                groupId);
+            mdsalManager.removeGroup(confTx, dpnId, groupId);
+        } else {
+            LOG.error("removeSnatMissEntry: Unable to get groupId for routerName:{}", routerName);
+        }
         // Install miss entry pointing to group
-        LOG.debug("installSnatMissEntry : buildSnatFlowEntity is called for dpId {}, routerName {} and groupId {}",
+        LOG.debug("removeSnatMissEntry : buildSnatFlowEntity is called for dpId {}, routerName {} and groupId {}",
             dpnId, routerName, groupId);
 
         String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
@@ -586,20 +587,6 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected String getFlowRef(BigInteger dpnId, short tableId, long routerID) {
         return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR
             + tableId + NatConstants.FLOWID_SEPARATOR + routerID;
-    }
-
-    protected long createGroupId(String groupIdKey) {
-        AllocateIdInput getIdInput = new AllocateIdInputBuilder()
-            .setPoolName(NatConstants.SNAT_IDPOOL_NAME).setIdKey(groupIdKey)
-            .build();
-        try {
-            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
-            RpcResult<AllocateIdOutput> rpcResult = result.get();
-            return rpcResult.getResult().getIdValue();
-        } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("createGroupId: Exception while creating group with key : {}",groupIdKey, e);
-        }
-        return 0;
     }
 
     protected String getGroupIdKey(String routerName) {
