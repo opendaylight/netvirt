@@ -142,18 +142,24 @@ public class ExternalNetworkGroupInstaller {
             return;
         }
 
-        long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetName), idManager);
-
-        LOG.info("installExtNetGroupEntries : Installing ext-net group {} entry for subnet {} with macAddress {} "
-                + "(extInterfaces: {})", groupId, subnetName, macAddress, Arrays.toString(extInterfaces.toArray()));
-        for (String extInterface : extInterfaces) {
-            BigInteger dpId = NatUtil.getDpnForInterface(odlInterfaceRpcService, extInterface);
-            if (BigInteger.ZERO.equals(dpId)) {
-                LOG.info("installExtNetGroupEntries: No DPN for interface {}. NAT ext-net flow will not be installed "
-                    + "for subnet {}", extInterface, subnetName);
-                return;
+        long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
+            NatUtil.getGroupIdKey(subnetName));
+        if (groupId != NatConstants.INVALID_ID) {
+            LOG.info("installExtNetGroupEntries : Installing ext-net group {} entry for subnet {} with macAddress {} "
+                    + "(extInterfaces: {})", groupId, subnetName, macAddress,
+                    Arrays.toString(extInterfaces.toArray()));
+            for (String extInterface : extInterfaces) {
+                BigInteger dpId = NatUtil.getDpnForInterface(odlInterfaceRpcService, extInterface);
+                if (BigInteger.ZERO.equals(dpId)) {
+                    LOG.info(
+                        "installExtNetGroupEntries: No DPN for interface {}. NAT ext-net flow will not be installed "
+                            + "for subnet {}", extInterface, subnetName);
+                    return;
+                }
+                installExtNetGroupEntry(groupId, subnetName, extInterface, macAddress, dpId);
             }
-            installExtNetGroupEntry(groupId, subnetName, extInterface, macAddress, dpId);
+        } else {
+            LOG.error("installExtNetGroupEntries: Unable to get groupId for subnet:{}", subnetName);
         }
     }
 
@@ -165,11 +171,15 @@ public class ExternalNetworkGroupInstaller {
                     networkId, subnetName, dpnId);
             //return;
         }
-
-        long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetName), idManager);
-        LOG.info("installExtNetGroupEntry : Installing ext-net group {} entry for subnet {} with macAddress {} "
-                + "(extInterface: {})", groupId, subnetName, macAddress, extInterface);
-        installExtNetGroupEntry(groupId, subnetName, extInterface, macAddress, dpnId);
+        long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME, NatUtil.getGroupIdKey(subnetName));
+        if (groupId != NatConstants.INVALID_ID) {
+            LOG.info(
+                "installExtNetGroupEntry : Installing ext-net group {} entry for subnet {} with macAddress {} "
+                    + "(extInterface: {})", groupId, subnetName, macAddress, extInterface);
+            installExtNetGroupEntry(groupId, subnetName, extInterface, macAddress, dpnId);
+        } else {
+            LOG.error("installExtNetGroupEntry: Unable to get groupId for subnet:{}", subnetName);
+        }
     }
 
     private void installExtNetGroupEntry(long groupId, String subnetName, String extInterface,
@@ -201,15 +211,20 @@ public class ExternalNetworkGroupInstaller {
             return;
         }
 
-        long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetName), idManager);
-
-        for (String extInterface : extInterfaces) {
-            GroupEntity groupEntity = buildEmptyExtNetGroupEntity(subnetName, groupId, extInterface);
-            if (groupEntity != null) {
-                LOG.info("removeExtNetGroupEntries : Remove ext-net Group: id {}, subnet id {}", groupId, subnetName);
-                natServiceCounters.removeExternalNetworkGroup();
-                mdsalManager.syncRemoveGroup(groupEntity);
+        long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME, NatUtil.getGroupIdKey(subnetName));
+        if (groupId != NatConstants.INVALID_ID) {
+            for (String extInterface : extInterfaces) {
+                GroupEntity groupEntity = buildEmptyExtNetGroupEntity(subnetName, groupId,
+                    extInterface);
+                if (groupEntity != null) {
+                    LOG.info("removeExtNetGroupEntries : Remove ext-net Group: id {}, subnet id {}",
+                        groupId, subnetName);
+                    natServiceCounters.removeExternalNetworkGroup();
+                    mdsalManager.syncRemoveGroup(groupEntity);
+                }
             }
+        } else {
+            LOG.error("removeExtNetGroupEntries: Unable to get groupId for subnet:{}", subnetName);
         }
     }
 
