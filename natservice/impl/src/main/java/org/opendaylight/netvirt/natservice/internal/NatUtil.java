@@ -247,6 +247,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.router
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -349,6 +350,52 @@ public final class NatUtil {
         }
         Long vpnId = NatUtil.getVpnId(broker, vpnUuid.getValue());
         return vpnId;
+    }
+
+    public static Boolean validateIsIntefacePartofRouter(DataBroker broker, String routerName, String interfaceName) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces
+            .map.router.interfaces.Interfaces> vmInterfaceIdentifier = getRoutersInterfacesIdentifier(routerName,
+            interfaceName);
+
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces
+            .map.router.interfaces.Interfaces> routerInterfacesData;
+        try {
+            routerInterfacesData = SingleTransactionDataBroker.syncReadOptional(broker,
+                LogicalDatastoreType.CONFIGURATION, vmInterfaceIdentifier);
+        } catch (ReadFailedException e) {
+            LOG.error("Read Failed Exception While read RouterInterface data for router {}", routerName, e);
+            routerInterfacesData = Optional.absent();
+        }
+        if (routerInterfacesData.isPresent()) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    private static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn
+        .rev150602.router.interfaces
+        .map.router.interfaces.Interfaces> getRoutersInterfacesIdentifier(String routerName, String interfaceName) {
+        return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn
+            .rev150602.RouterInterfacesMap.class)
+            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router
+                    .interfaces.map.RouterInterfaces.class,
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router
+                    .interfaces.map.RouterInterfacesKey(new Uuid(routerName)))
+            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces
+                    .map.router.interfaces.Interfaces.class,
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces
+                    .map.router.interfaces.InterfacesKey(interfaceName)).build();
+    }
+
+    private static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn
+        .rev150602.router.interfaces.map.RouterInterfaces> getRoutersInterfacesIdentifier(String routerName) {
+        return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn
+            .rev150602.RouterInterfacesMap.class)
+            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router
+                    .interfaces.map.RouterInterfaces.class,
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router
+                    .interfaces.map.RouterInterfacesKey(new Uuid(routerName))).build();
     }
 
     static InstanceIdentifier<RouterPorts> getRouterPortsId(String routerId) {
@@ -1308,16 +1355,6 @@ public final class NatUtil {
             + "Hence DPN router model WILL be cleared. Possibly last VM for the router "
             + "deleted in the DPN", routerName, curDpnId, vpnInterfaceName);
         operTx.delete(routersListIdentifier);
-    }
-
-    private static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn
-        .rev150602.router.interfaces.map.RouterInterfaces> getRoutersInterfacesIdentifier(String routerName) {
-        return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn
-            .rev150602.RouterInterfacesMap.class)
-            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router
-                    .interfaces.map.RouterInterfaces.class,
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router
-                    .interfaces.map.RouterInterfacesKey(new Uuid(routerName))).build();
     }
 
     private static InstanceIdentifier<RoutersList> getRoutersList(BigInteger dpnId, String routerName) {
@@ -2561,6 +2598,36 @@ public final class NatUtil {
                     + "between {} and {}", srcDpId, dstDpId);
         }
         return null;
+    }
+
+    public static Boolean isRouterInterfacePort(DataBroker broker, String ifaceName) {
+        Port neutronPort = getNeutronPort(broker, ifaceName);
+        if (neutronPort == null) {
+            return Boolean.TRUE;
+        } else {
+            return (NatConstants.NETWORK_ROUTER_INTERFACE.equalsIgnoreCase(neutronPort.getDeviceOwner()) ? Boolean.TRUE
+                : Boolean.FALSE);
+        }
+    }
+
+    private static Port getNeutronPort(DataBroker broker, String ifaceName) {
+        InstanceIdentifier<Port>
+            portsIdentifier = InstanceIdentifier.create(Neutron.class)
+            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports.class)
+            .child(Port.class, new PortKey(new Uuid(ifaceName)));
+        Optional<Port> portsOptional;
+        try {
+            portsOptional = SingleTransactionDataBroker
+                .syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION, portsIdentifier);
+        } catch (ReadFailedException e) {
+            LOG.error("Read Failed Exception While Reading Neutron Port for {}", ifaceName, e);
+            portsOptional = Optional.absent();
+        }
+        if (!portsOptional.isPresent()) {
+            LOG.error("getNeutronPort : No neutron ports found for interface {}", ifaceName);
+            return null;
+        }
+        return portsOptional.get();
     }
 
     static ReentrantLock lockForNat(final BigInteger dataPath) {
