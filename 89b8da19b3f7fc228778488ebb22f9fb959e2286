@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dbbdf1a3_73cf56b9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-07-15T06:04:11Z",
+      "side": 1,
+      "message": "saw that the review increased timeout to 600000. \nDid we check how much time actually it took to come up?",
+      "revId": "89b8da19b3f7fc228778488ebb22f9fb959e2286",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
