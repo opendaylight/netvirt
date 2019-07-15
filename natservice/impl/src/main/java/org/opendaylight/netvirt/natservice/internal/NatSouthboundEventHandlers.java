@@ -30,6 +30,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.Datastore.Operational;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
@@ -116,12 +117,27 @@ public class NatSouthboundEventHandlers {
     public void handleAdd(String interfaceName, BigInteger intfDpnId,
                           RouterInterface routerInterface, @Nullable VipState vipState) {
         String routerName = routerInterface.getRouterName();
-        NatInterfaceStateAddWorker natIfaceStateAddWorker = new NatInterfaceStateAddWorker(interfaceName,
+        if (NatUtil.validateIsIntefacePartofRouter(dataBroker, routerName, interfaceName)) {
+            NatInterfaceStateAddWorker natIfaceStateAddWorker = new NatInterfaceStateAddWorker(
+                interfaceName,
                 intfDpnId, routerName);
-        coordinator.enqueueJob(NAT_DS + "-" + interfaceName, natIfaceStateAddWorker);
+            coordinator.enqueueJob(NAT_DS + "-" + interfaceName, natIfaceStateAddWorker);
 
-        NatFlowAddWorker natFlowAddWorker = new NatFlowAddWorker(interfaceName, routerName, intfDpnId, vipState);
-        coordinator.enqueueJob(NAT_DS + "-" + interfaceName, natFlowAddWorker, NatConstants.NAT_DJC_MAX_RETRIES);
+            NatFlowAddWorker natFlowAddWorker = new NatFlowAddWorker(interfaceName, routerName,
+                intfDpnId, vipState);
+            coordinator.enqueueJob(NAT_DS + "-" + interfaceName, natFlowAddWorker,
+                NatConstants.NAT_DJC_MAX_RETRIES);
+        } else {
+            LOG.error("NAT Service : Router {} not valid for interface {} during add. Deleting it from "
+                + "router-interfaces DS", routerName, routerInterface);
+            try {
+                SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    NatUtil.getRouterInterfaceId(interfaceName));
+            } catch (TransactionCommitFailedException e) {
+                LOG.error("NAT Service : Failed to stale Router Interface entry for interface {}",
+                    interfaceName, e);
+            }
+        }
     }
 
     public void handleRemove(String interfaceName, BigInteger intfDpnId, RouterInterface routerInterface) {
@@ -133,17 +149,33 @@ public class NatSouthboundEventHandlers {
         NatFlowRemoveWorker natFlowRemoveWorker = new NatFlowRemoveWorker(interfaceName, intfDpnId, routerName);
         coordinator.enqueueJob(NAT_DS + "-" + interfaceName, natFlowRemoveWorker,
                 NatConstants.NAT_DJC_MAX_RETRIES);
+        // Validate whether the routerInterface is still part of given router in router-interface-map
+        if (!NatUtil.validateIsIntefacePartofRouter(dataBroker, routerName, interfaceName)) {
+            LOG.error("NAT Service : Router {} not valid for interface {} during remove. "
+                + "Deleting it from router-interfaces DS", routerName, routerInterface);
+            try {
+                SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    NatUtil.getRouterInterfaceId(interfaceName));
+            } catch (TransactionCommitFailedException e) {
+                LOG.error("NAT Service : Failed to stale Router Interface entry for interface {}",
+                    interfaceName, e);
+            }
+        }
     }
 
     public void handleUpdate(Interface original, Interface update,
                              BigInteger intfDpnId, RouterInterface routerInterface) {
         String routerName = routerInterface.getRouterName();
-        NatInterfaceStateUpdateWorker natIfaceStateupdateWorker = new NatInterfaceStateUpdateWorker(original,
+        if (NatUtil.validateIsIntefacePartofRouter(dataBroker, routerName, update.getName())) {
+            NatInterfaceStateUpdateWorker natIfaceStateupdateWorker = new NatInterfaceStateUpdateWorker(
+                original,
                 update, intfDpnId, routerName);
-        coordinator.enqueueJob(NAT_DS + "-" + update.getName(), natIfaceStateupdateWorker);
-        NatFlowUpdateWorker natFlowUpdateWorker = new NatFlowUpdateWorker(original, update, routerName);
-        coordinator.enqueueJob(NAT_DS + "-" + update.getName(), natFlowUpdateWorker,
+            coordinator.enqueueJob(NAT_DS + "-" + update.getName(), natIfaceStateupdateWorker);
+            NatFlowUpdateWorker natFlowUpdateWorker = new NatFlowUpdateWorker(original, update,
+                routerName);
+            coordinator.enqueueJob(NAT_DS + "-" + update.getName(), natFlowUpdateWorker,
                 NatConstants.NAT_DJC_MAX_RETRIES);
+        }
     }
 
     void handleRouterInterfacesUpEvent(String routerName, String interfaceName, BigInteger dpId,
