@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.neutronvpn;
 import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlanBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
@@ -33,6 +35,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.SplitHorizon;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.SplitHorizonBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.VlanId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.port.id.subport.data.PortIdToSubportBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.port.id.subport.data.PortIdToSubportKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.trunks.rev170118.trunk.attributes.SubPorts;
@@ -128,6 +132,21 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
 
         // Should we use parentName?
         jobCoordinator.enqueueJob("PORT- " + portName, () -> {
+            /*
+            *  Build Port-to-Subport details first, irrespective of port being available or not.
+            */
+            PortIdToSubportBuilder portIdToSubportBuilder = new PortIdToSubportBuilder();
+            Uuid subPortUuid = subPort.getPortId();
+            portIdToSubportBuilder.withKey(new PortIdToSubportKey(subPortUuid)).setPortId(subPortUuid)
+                    .setTrunkPortId(trunk.getPortId()).setVlanId(subPort.getSegmentationId());
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                CONFIGURATION, tx -> {
+                    tx.merge(NeutronvpnUtils.buildPortIdSubportMappingIdentifier(subPortUuid),
+                            portIdToSubportBuilder.build());
+                    LOG.trace("Creating PortIdSubportMapping for port{}", portName);
+                }));
+
             Interface iface = ifMgr.getInterfaceInfoFromConfigDataStore(portName);
             if (iface == null) {
                 /*
@@ -138,7 +157,7 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
                  *      node as this one. Use of DSJC helps ensure the order.
                  */
                 LOG.warn("Interface not present for Trunk SubPort: {}", subPort);
-                return Collections.emptyList();
+                return futures;
             }
             InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
             IfL2vlan ifL2vlan = new IfL2vlanBuilder().setL2vlanMode(IfL2vlan.L2vlanMode.TrunkMember)
@@ -152,11 +171,12 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
              * Interface is already created for parent NeutronPort. We're updating parent refs
              * and VLAN Information
              */
-            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 CONFIGURATION, tx -> {
                     tx.merge(interfaceIdentifier, newIface);
                     LOG.trace("Creating trunk member interface {}", newIface);
                 }));
+            return futures;
         });
     }
 
@@ -189,11 +209,18 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
              * and this being subport delete path, don't expect any significant changes to
              * corresponding Neutron Port. Deletion of NeutronPort should follow soon enough.
              */
-            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 CONFIGURATION, tx -> {
                     tx.put(interfaceIdentifier, newIface);
                     LOG.trace("Resetting trunk member interface {}", newIface);
                 }));
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                CONFIGURATION, tx -> {
+                    tx.delete(NeutronvpnUtils.buildPortIdSubportMappingIdentifier(subPort.getPortId()));
+                    LOG.trace("Deleting PortIdSubportMapping for portName {}", portName);
+                }));
+            return futures;
         });
 
     }
