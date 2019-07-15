@@ -8,14 +8,21 @@
 
 package org.opendaylight.netvirt.elan.utils;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import javax.inject.Singleton;
 
 @Singleton
 public class Scheduler implements AutoCloseable {
 
-    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+    private final ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
+            .setNameFormat("elan-sched-%d").build();
+
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1,
+            namedThreadFactory);
 
     public ScheduledExecutorService getScheduledExecutorService() {
         return scheduledExecutorService;
