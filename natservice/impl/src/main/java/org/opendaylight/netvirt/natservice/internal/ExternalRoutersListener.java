@@ -87,9 +87,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
@@ -378,7 +375,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 LOG.debug("installNaptPfibExternalOutputFlow - dpnId {} extVpnId {} subnetId {}",
                     dpnId, extVpnId, subnetId);
                 FlowEntity postNaptFlowEntity = buildNaptPfibFlowEntity(dpnId, extVpnId);
-                mdsalManager.addFlow(confTx, postNaptFlowEntity);
+                if (postNaptFlowEntity != null) {
+                    mdsalManager.addFlow(confTx, postNaptFlowEntity);
+                }
             }
         }
     }
@@ -751,7 +750,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         LOG.debug("installSnatMissEntry : called for dpnId {} with primaryBucket {} ",
             dpnId, bucketInfo.get(0));
         // Install the select group
-        long groupId = createGroupId(getGroupIdKey(routerName));
+        long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
+            NatUtil.getGroupIdKey(routerName));
+        if (groupId == NatConstants.INVALID_ID) {
+            LOG.error("installSnatMissEntry: Unable to obtain group ID for Key: {}", routerName);
+            return;
+        }
         GroupEntity groupEntity =
             MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll, bucketInfo);
         LOG.debug("installSnatMissEntry : installing the SNAT to NAPT GroupEntity:{}", groupEntity);
@@ -767,13 +771,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         mdsalManager.installFlow(flowEntity);
     }
 
-    long installGroup(BigInteger dpnId, String routerName, List<BucketInfo> bucketInfo) {
-        long groupId = createGroupId(getGroupIdKey(routerName));
+    void installGroup(BigInteger dpnId, String routerName, long groupId, List<BucketInfo> bucketInfo) {
         GroupEntity groupEntity =
             MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll, bucketInfo);
         LOG.debug("installGroup : installing the SNAT to NAPT GroupEntity:{}", groupEntity);
         mdsalManager.syncInstallGroup(groupEntity);
-        return groupId;
     }
 
     private FlowEntity buildSnatFlowEntity(BigInteger dpId, String routerName, long routerId, long groupId) {
@@ -863,24 +865,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     public static String getFlowRefSnat(BigInteger dpnId, short tableId, String routerID) {
         return NatConstants.SNAT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
                 .FLOWID_SEPARATOR + routerID;
-    }
-
-    private String getGroupIdKey(String routerName) {
-        return "snatmiss." + routerName;
-    }
-
-    protected long createGroupId(String groupIdKey) {
-        AllocateIdInput getIdInput = new AllocateIdInputBuilder()
-            .setPoolName(NatConstants.SNAT_IDPOOL_NAME).setIdKey(groupIdKey)
-            .build();
-        try {
-            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
-            RpcResult<AllocateIdOutput> rpcResult = result.get();
-            return rpcResult.getResult().getIdValue();
-        } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("Exception While allocating id for group: {}", groupIdKey, e);
-        }
-        return 0;
     }
 
     protected void handleSwitches(BigInteger dpnId, String routerName, long routerId, BigInteger primarySwitchId) {
@@ -1758,7 +1742,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     handleDisableSnat(router, networkUuid, externalIps, true, null, primarySwitchId,
                             routerId, tx);
                 }
-                natOverVxlanUtil.releaseVNI(routerName);
+                if (NatUtil.releaseId(idManager, NatConstants.ODL_VNI_POOL_NAME, routerName)
+                    == NatConstants.INVALID_ID) {
+                    LOG.error("remove: Unable to release VNI for router - {}", routerName);
+                }
             })), NatConstants.NAT_DJC_MAX_RETRIES);
     }
 
@@ -1860,7 +1847,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 LOG.error("handleDisableSnatInternetVpn : Failed to remove fib entries for routerId {} "
                         + "in naptSwitchDpnId {}", routerId, naptSwitchDpnId, ex);
             }
-            natOverVxlanUtil.releaseVNI(vpnId);
+            if (NatUtil.releaseId(idManager, NatConstants.ODL_VNI_POOL_NAME, vpnId) == NatConstants.INVALID_ID) {
+                LOG.error("handleDisableSnatInternetVpn : Unable to release VNI for vpnId {} ", vpnId);
+            }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("handleDisableSnatInternetVpn: Exception while handling disableSNATInternetVpn for router {} "
                     + "with internet vpn {}", routerName, vpnId, e);
@@ -2220,11 +2209,16 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 mdsalManager.removeFlow(removeFlowInvTx, preSnatFlowEntity);
 
                 //Remove the group entry which forwards the traffic to the out port (VXLAN tunnel).
-                long groupId = createGroupId(getGroupIdKey(routerName));
-
-                LOG.info("removeFlowsFromNonActiveSwitches : Remove the group {} for the non active switch with "
-                    + "the DPN ID {} and router ID {}", groupId, dpnId, routerId);
-                mdsalManager.removeGroup(removeFlowInvTx, dpnId, groupId);
+                long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
+                    NatUtil.getGroupIdKey(routerName));
+                if (groupId != NatConstants.INVALID_ID) {
+                    LOG.info(
+                        "removeFlowsFromNonActiveSwitches : Remove the group {} for the non active switch with "
+                            + "the DPN ID {} and router ID {}", groupId, dpnId, routerId);
+                    mdsalManager.removeGroup(removeFlowInvTx, dpnId, groupId);
+                } else {
+                    LOG.error("removeFlowsFromNonActiveSwitches: Unable to obtained groupID for router:{}", routerName);
+                }
             }
         }
     }
@@ -2560,15 +2554,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     getRoutersIdentifier(bgpVpnId), rtrs);
 
                 // Get the allocated Primary NAPT Switch for this router
-                LOG.debug("changeLocalVpnIdToBgpVpnId : Router ID value {} ", routerId);
-
                 LOG.debug("changeLocalVpnIdToBgpVpnId : Update the Router ID {} to the BGP VPN ID {} ",
                         routerId, bgpVpnId);
                 addDefaultFibRouteForSnatWithBgpVpn(routerName, routerId, bgpVpnId, writeFlowInvTx);
 
                 // Get the group ID
                 BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
-                createGroupId(getGroupIdKey(routerName));
                 installFlowsWithUpdatedVpnId(primarySwitchId, routerName, bgpVpnId, routerId, true, writeFlowInvTx,
                         extNwProvType);
             }
@@ -2596,7 +2587,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             addDefaultFibRouteForSnatWithBgpVpn(routerName, routerId, NatConstants.INVALID_ID, writeFlowInvTx);
 
             // Get the group ID
-            createGroupId(getGroupIdKey(routerName));
             BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
             installFlowsWithUpdatedVpnId(primarySwitchId, routerName, NatConstants.INVALID_ID, routerId, true,
                     writeFlowInvTx, extNwProvType);
@@ -2639,16 +2629,21 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 LOG.debug("installFlowsWithUpdatedVpnId : Install group in non NAPT switch {}", dpnId);
                 List<BucketInfo> bucketInfoForNonNaptSwitches =
                     getBucketInfoForNonNaptSwitches(dpnId, primarySwitchId, routerName, routerId);
-                long groupId = createGroupId(getGroupIdKey(routerName));
-                if (!isSnatCfgd) {
-                    groupId = installGroup(dpnId, routerName, bucketInfoForNonNaptSwitches);
-                }
-
-                LOG.debug(
+                long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
+                    NatUtil.getGroupIdKey(routerName));
+                if (groupId != NatConstants.INVALID_ID) {
+                    if (!isSnatCfgd) {
+                        installGroup(dpnId, routerName, groupId, bucketInfoForNonNaptSwitches);
+                    }
+                    LOG.debug(
                         "installFlowsWithUpdatedVpnId : Update the {} ID {} in the SNAT miss entry pointing to group "
-                                + "{} in the non NAPT switch {}", idType, changedVpnId, groupId, dpnId);
-                FlowEntity flowEntity = buildSnatFlowEntityWithUpdatedVpnId(dpnId, routerName, groupId, changedVpnId);
-                mdsalManager.addFlow(confTx, flowEntity);
+                            + "{} in the non NAPT switch {}", idType, changedVpnId, groupId, dpnId);
+                    FlowEntity flowEntity = buildSnatFlowEntityWithUpdatedVpnId(dpnId, routerName,
+                        groupId, changedVpnId);
+                    mdsalManager.addFlow(confTx, flowEntity);
+                } else {
+                    LOG.error("installFlowsWithUpdatedVpnId: Unable to get groupId for router:{}", routerName);
+                }
             } else {
                 LOG.debug(
                         "installFlowsWithUpdatedVpnId : Update the {} ID {} in the SNAT miss entry pointing to group "

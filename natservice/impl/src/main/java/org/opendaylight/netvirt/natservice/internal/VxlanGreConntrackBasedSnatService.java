@@ -457,48 +457,57 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
     @Override
     protected void addSnatMissEntry(TypedReadWriteTransaction<Configuration> confTx, BigInteger dpnId, Long routerId,
         String routerName, BigInteger primarySwitchId) {
-        LOG.debug("installSnatMissEntry : Installing SNAT miss entry in switch {}", dpnId);
+        LOG.debug("addSnatMissEntry : Installing SNAT miss entry in switch {}", dpnId);
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
         String ifNamePrimary = NatUtil.getTunnelInterfaceName(dpnId, primarySwitchId, itmManager);
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         if (ifNamePrimary != null) {
-            LOG.debug("installSnatMissEntry : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
+            LOG.debug("addSnatMissEntry : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
             listActionInfoPrimary = NatUtil.getEgressActionsForInterface(odlInterfaceRpcService, itmManager,
                     interfaceManager, ifNamePrimary, routerId, true);
         }
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
         listBucketInfo.add(0, bucketPrimary);
-        LOG.debug("installSnatMissEntry : installSnatMissEntry called for dpnId {} with primaryBucket {} ", dpnId,
+        LOG.debug("addSnatMissEntry : addSnatMissEntry called for dpnId {} with primaryBucket {} ", dpnId,
                 listBucketInfo.get(0));
         // Install the select group
-        long groupId = createGroupId(getGroupIdKey(routerName));
-        GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll,
-                listBucketInfo);
-        LOG.debug("installSnatMissEntry : installing the SNAT to NAPT GroupEntity:{}", groupEntity);
-        mdsalManager.addGroup(confTx, groupEntity);
-        // Install miss entry pointing to group
-        LOG.debug("installSnatMissEntry : buildSnatFlowEntity is called for dpId {}, routerName {} and groupId {}",
+        long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME, getGroupIdKey(routerName));
+        if (groupId != NatConstants.INVALID_ID) {
+            GroupEntity groupEntity = MDSALUtil
+                .buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll,
+                    listBucketInfo);
+            LOG.debug("addSnatMissEntry : installing the SNAT to NAPT GroupEntity:{}", groupEntity);
+            mdsalManager.addGroup(confTx, groupEntity);
+            // Install miss entry pointing to group
+            LOG.debug(
+                "addSnatMissEntry : buildSnatFlowEntity is called for dpId {}, routerName {} and groupId {}",
                 dpnId, routerName, groupId);
-        List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchEthernetType(0x0800L));
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
+            List<MatchInfo> matches = new ArrayList<>();
+            matches.add(new MatchEthernetType(0x0800L));
+            matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId),
+                MetaDataUtil.METADATA_MASK_VRFID));
 
-        List<ActionInfo> actionsInfo = new ArrayList<>();
+            List<ActionInfo> actionsInfo = new ArrayList<>();
 
-        BigInteger tunnelId = BigInteger.valueOf(routerId);
-        if (elanManager.isOpenStackVniSemanticsEnforced()) {
-            tunnelId = natOverVxlanUtil.getRouterVni(routerName, routerId);
-        }
+            BigInteger tunnelId = BigInteger.valueOf(routerId);
+            if (elanManager.isOpenStackVniSemanticsEnforced()) {
+                tunnelId = natOverVxlanUtil.getRouterVni(routerName, routerId);
+            }
 
-        actionsInfo.add(new ActionSetFieldTunnelId(tunnelId));
-        LOG.debug("AbstractSnatService : Setting the tunnel to the list of action infos {}", actionsInfo);
-        actionsInfo.add(new ActionGroup(groupId));
-        List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionApplyActions(actionsInfo));
-        String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
-        NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.PSNAT_TABLE, flowRef,
-                NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE, matches,
+            actionsInfo.add(new ActionSetFieldTunnelId(tunnelId));
+            LOG.debug("addSnatMissEntry : Setting the tunnel to the list of action infos {}",
+                actionsInfo);
+            actionsInfo.add(new ActionGroup(groupId));
+            List<InstructionInfo> instructions = new ArrayList<>();
+            instructions.add(new InstructionApplyActions(actionsInfo));
+            String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
+            NatUtil.addFlow(confTx, mdsalManager, dpnId, NwConstants.PSNAT_TABLE, flowRef,
+                NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, NwConstants.COOKIE_SNAT_TABLE,
+                matches,
                 instructions);
+        } else {
+            LOG.error("installSnatMissEntry: Unable to get groupId for router:{}", routerName);
+        }
     }
 
     @Override
