@@ -150,6 +150,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             new ConcurrentHashMap<>();
 
     private final InstanceIdDataObjectCache<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryCache;
+    private static final String FIB_EVENT_SOURCE_ADD_EXTRA_ROUTE = "addExtraRoute";
+    private static final String FIB_EVENT_SOURCE_DEL_EXTRA_ROUTE = "deleteExtraRoute";
+    private static final String FIB_EVENT_SOURCE_SELF_IMPORT_ROUTE = "selfImportRoute";
 
     @Inject
     public VpnInterfaceManager(final DataBroker dataBroker,
@@ -1207,8 +1210,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                             vpn.getVrfId(), prefix, nh, label, vpnName, vpnRd);
                                         fibManager.addOrUpdateFibEntry(vpnRd, null /*macAddress*/, prefix,
                                             Collections.singletonList(nh), VrfEntry.EncapType.Mplsgre, label,
-                                                Uint32.ZERO /*l3vni*/, gwMac, vpn.getVrfId(), RouteOrigin.SELF_IMPORTED,
-                                            confTx);
+                                            0 /*l3vni*/, gwMac, vpn.getVrfId(), RouteOrigin.SELF_IMPORTED,
+                                                FIB_EVENT_SOURCE_SELF_IMPORT_ROUTE , confTx);
                                     } else {
                                         LOG.info("handleVpnsExportingRoutes: Importing subnet route fib entry"
                                                 + " rd {} prefix {} nexthop {} label {} to vpn {} vpnRd {}",
