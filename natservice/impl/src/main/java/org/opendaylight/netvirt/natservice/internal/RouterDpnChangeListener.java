@@ -373,20 +373,26 @@ public class RouterDpnChangeListener
                 naptSwitchHA.installSnatGroupEntry(dpnId, bucketInfo, routerName);
 
                 // Install miss entry (table 26) pointing to group
-                long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(routerName), idManager);
-                FlowEntity flowEntity =
+                long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
+                    NatUtil.getGroupIdKey(routerName));
+                if (groupId != NatConstants.INVALID_ID) {
+                    FlowEntity flowEntity =
                         naptSwitchHA.buildSnatFlowEntity(dpnId, routerName, groupId,
-                                routerVpnId, NatConstants.ADD_FLOW);
-                if (flowEntity == null) {
-                    LOG.error("handleSNATForDPN : Failed to populate flowentity for router {} with dpnId {} groupId {}",
+                            routerVpnId, NatConstants.ADD_FLOW);
+                    if (flowEntity == null) {
+                        LOG.error(
+                            "handleSNATForDPN : Failed to populate flowentity for router {} with dpnId {} groupId {}",
                             routerName, dpnId, groupId);
-                    return;
-                }
-                LOG.debug("handleSNATForDPN : Successfully installed flow for dpnId {} router {} group {}",
+                        return;
+                    }
+                    LOG.debug(
+                        "handleSNATForDPN : Successfully installed flow for dpnId {} router {} group {}",
                         dpnId, routerName, groupId);
-                mdsalManager.addFlow(confTx, flowEntity);
+                    mdsalManager.addFlow(confTx, flowEntity);
+                } else {
+                    LOG.error("handleSNATForDPN : Failed to Obtain groupId  for router {}", routerName);
+                }
             }
-
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("handleSNATForDPN : Exception in handleSNATForDPN", e);
         }
@@ -424,19 +430,26 @@ public class RouterDpnChangeListener
             if (!naptStatus) {
                 LOG.debug("removeSNATFromDPN: Switch with DpnId {} is not naptSwitch for router {}",
                     dpnId, routerName);
-                long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(routerName), idManager);
                 FlowEntity flowEntity = null;
+                long groupId = NatUtil.getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME,
+                    NatUtil.getGroupIdKey(routerName));
                 try {
-                    flowEntity = naptSwitchHA.buildSnatFlowEntity(dpnId, routerName, groupId, routerVpnId,
-                        NatConstants.DEL_FLOW);
-                    if (flowEntity == null) {
-                        LOG.error("removeSNATFromDPN : Failed to populate flowentity for router:{} "
-                                + "with dpnId:{} groupId:{}", routerName, dpnId, groupId);
-                        return;
-                    }
-                    LOG.debug("removeSNATFromDPN : Removing default SNAT miss entry flow entity {}", flowEntity);
-                    mdsalManager.removeFlow(confTx, flowEntity);
 
+                    if (groupId != NatConstants.INVALID_ID) {
+                        flowEntity = naptSwitchHA
+                            .buildSnatFlowEntity(dpnId, routerName, groupId, routerVpnId,
+                                NatConstants.DEL_FLOW);
+                        if (flowEntity == null) {
+                            LOG.error("removeSNATFromDPN : Failed to populate flowentity for router:{} "
+                                + "with dpnId:{} groupId:{}", routerName, dpnId, groupId);
+                            return;
+                        }
+                        LOG.debug("removeSNATFromDPN : Removing default SNAT miss entry flow entity {}",
+                            flowEntity);
+                        mdsalManager.removeFlow(confTx, flowEntity);
+                    } else {
+                        LOG.error("removeSNATFromDPN : Failed to Obtained Groupid for Router {}", routerName);
+                    }
                 } catch (Exception ex) {
                     LOG.error("removeSNATFromDPN : Failed to remove default SNAT miss entry flow entity {}",
                         flowEntity, ex);

@@ -24,7 +24,7 @@ public interface NatConstants {
     int EVENT_QUEUE_LENGTH = 1000000;
     String FLOWID_PREFIX = "L3.";
     int DEFAULT_DNAT_FLOW_PRIORITY = 10;
-    long INVALID_ID = -1;
+    int INVALID_ID = -1;
     short SNAT_FIB_FLOW_PRIORITY = 42;
     short SNAT_TRK_FLOW_PRIORITY = 6;
     short SNAT_NEW_FLOW_PRIORITY = 5;

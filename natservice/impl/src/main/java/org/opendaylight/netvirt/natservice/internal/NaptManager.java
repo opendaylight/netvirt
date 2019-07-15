@@ -32,9 +32,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
@@ -42,9 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpPortMap;
@@ -296,79 +290,66 @@ public class NaptManager {
                 createNaptPortPool(extIp);
                 LOG.debug("getExternalAddressMapping : Created Pool for next Ext IP {}", extIp);
             }
-            AllocateIdInput getIdInput = new AllocateIdInputBuilder()
-                    .setPoolName(extIp).setIdKey(internalIpPort)
-                    .build();
-            try {
-                Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
-                RpcResult<AllocateIdOutput> rpcResult;
-                if (result != null && result.get().isSuccessful()) {
-                    LOG.debug("getExternalAddressMapping : Got id from idManager");
-                    rpcResult = result.get();
-                } else {
-                    LOG.error("getExternalAddressMapping : getExternalAddressMapping, idManager could not "
-                            + "allocate id retry if subnet");
-                    if (!extSubnetFlag) {
-                        LOG.error("getExternalAddressMapping : getExternalAddressMapping returning null "
-                                + "for single IP case, may be ports exhausted");
-                        return null;
-                    }
-                    LOG.debug("getExternalAddressMapping : Could be ports exhausted case, "
-                            + "try with another externalIP if possible");
-                    nextExtIpFlag = true;
-                    continue;
+            int extPort = NatUtil.getUniqueId(idManager, extIp, internalIpPort);
+            if (extPort == NatConstants.INVALID_ID) {
+                LOG.error("getExternalAddressMapping : getExternalAddressMapping, idManager could not "
+                    + "allocate id retry if subnet");
+                if (!extSubnetFlag) {
+                    LOG.error("getExternalAddressMapping : getExternalAddressMapping returning null "
+                        + "for single IP case, may be ports exhausted");
+                    return null;
                 }
-                int extPort = rpcResult.getResult().getIdValue().intValue();
-                // Write to ip-port-map before returning
-                IpPortExternalBuilder ipExt = new IpPortExternalBuilder();
-                IpPortExternal ipPortExt = ipExt.setIpAddress(extIp).setPortNum(extPort).build();
-                IpPortMap ipm = new IpPortMapBuilder().withKey(new IpPortMapKey(internalIpPort))
-                        .setIpPortInternal(internalIpPort).setIpPortExternal(ipPortExt).build();
-                LOG.debug("getExternalAddressMapping : writing into ip-port-map with "
-                        + "externalIP {} and port {}",
-                        ipPortExt.getIpAddress(), ipPortExt.getPortNum());
+                LOG.debug("getExternalAddressMapping : Could be ports exhausted case, "
+                    + "try with another externalIP if possible");
+                nextExtIpFlag = true;
+                continue;
+            }
+            // Write to ip-port-map before returning
+            IpPortExternalBuilder ipExt = new IpPortExternalBuilder();
+            IpPortExternal ipPortExt = ipExt.setIpAddress(extIp).setPortNum(extPort).build();
+            IpPortMap ipm = new IpPortMapBuilder().withKey(new IpPortMapKey(internalIpPort))
+                    .setIpPortInternal(internalIpPort).setIpPortExternal(ipPortExt).build();
+            LOG.debug("getExternalAddressMapping : writing into ip-port-map with "
+                    + "externalIP {} and port {}",
+                    ipPortExt.getIpAddress(), ipPortExt.getPortNum());
+            try {
+                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    getIpPortMapIdentifier(segmentId, internalIpPort, protocol), ipm);
+            } catch (UncheckedExecutionException uee) {
+                LOG.error("getExternalAddressMapping : Failed to write into ip-port-map with exception",
+                    uee);
+            }
+
+            // Write to snat-internal-ip-port-info
+            String internalIpAddress = sourceAddress.getIpAddress();
+            int ipPort = sourceAddress.getPortNumber();
+            ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
+            final ReentrantLock lock = lockFor(segmentId, internalIpAddress, protocolType);
+            lock.lock();
+            try {
+                List<Integer> portList = new ArrayList<>(
+                        NatUtil.getInternalIpPortListInfo(dataBroker, segmentId, internalIpAddress,
+                            protocolType));
+                portList.add(ipPort);
+
+                IntIpProtoTypeBuilder builder = new IntIpProtoTypeBuilder();
+                IntIpProtoType intIpProtocolType =
+                        builder.withKey(new IntIpProtoTypeKey(protocolType)).setPorts(portList).build();
                 try {
                     MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                        getIpPortMapIdentifier(segmentId, internalIpPort, protocol), ipm);
-                } catch (UncheckedExecutionException uee) {
-                    LOG.error("getExternalAddressMapping : Failed to write into ip-port-map with exception",
-                        uee);
+                        NatUtil.buildSnatIntIpPortIdentifier(segmentId, internalIpAddress, protocolType),
+                        intIpProtocolType);
+                } catch (Exception ex) {
+                    LOG.error("getExternalAddressMapping : Failed to write into snat-internal-ip-port-info "
+                            + "with exception", ex);
                 }
-
-                // Write to snat-internal-ip-port-info
-                String internalIpAddress = sourceAddress.getIpAddress();
-                int ipPort = sourceAddress.getPortNumber();
-                ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
-                final ReentrantLock lock = lockFor(segmentId, internalIpAddress, protocolType);
-                lock.lock();
-                try {
-                    List<Integer> portList = new ArrayList<>(
-                            NatUtil.getInternalIpPortListInfo(dataBroker, segmentId, internalIpAddress,
-                                protocolType));
-                    portList.add(ipPort);
-
-                    IntIpProtoTypeBuilder builder = new IntIpProtoTypeBuilder();
-                    IntIpProtoType intIpProtocolType =
-                            builder.withKey(new IntIpProtoTypeKey(protocolType)).setPorts(portList).build();
-                    try {
-                        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                            NatUtil.buildSnatIntIpPortIdentifier(segmentId, internalIpAddress, protocolType),
-                            intIpProtocolType);
-                    } catch (Exception ex) {
-                        LOG.error("getExternalAddressMapping : Failed to write into snat-internal-ip-port-info "
-                                + "with exception", ex);
-                    }
-                } finally {
-                    lock.unlock();
-                }
-                SessionAddress externalIpPort = new SessionAddress(extIp, extPort);
-                LOG.debug("getExternalAddressMapping : successfully returning externalIP {} "
-                        + "and port {}", externalIpPort.getIpAddress(), externalIpPort.getPortNumber());
-                return externalIpPort;
-            } catch (InterruptedException | ExecutionException e) {
-                LOG.error("getExternalAddressMapping : Exception caught", e);
-                return null;
+            } finally {
+                lock.unlock();
             }
+            SessionAddress externalIpPort = new SessionAddress(extIp, extPort);
+            LOG.debug("getExternalAddressMapping : successfully returning externalIP {} "
+                    + "and port {}", externalIpPort.getIpAddress(), externalIpPort.getPortNumber());
+            return externalIpPort;
         } // end of for loop
         LOG.error("getExternalAddressMapping : Unable to handle external IP address and port mapping with segmentId {},"
                 + "internalIp {} and internalPort {}", segmentId, sourceAddress.getIpAddress(),
@@ -386,7 +367,11 @@ public class NaptManager {
             try {
                 removeFromIpPortMapDS(segmentId, internalIpPort, protocol);
                 // Finally release port from idmanager
-                removePortFromPool(internalIpPort, existingIpPort.getIpAddress());
+                long releasedId = NatUtil.releaseId(idManager, existingIpPort.getIpAddress(), internalIpPort);
+                if (releasedId == NatConstants.INVALID_ID) {
+                    LOG.error("releaseIpExtPortMapping : Unable to release ID for key {}",
+                        existingIpPort.getIpAddress());
+                }
             } catch (Exception e) {
                 LOG.error("releaseIpExtPortMapping : failed, Removal of ipportmap {} for "
                     + "router {} failed", internalIpPort, segmentId, e);
@@ -680,20 +665,8 @@ public class NaptManager {
     }
 
     void removePortFromPool(String internalIpPort, String externalIp) {
-        LOG.debug("removePortFromPool : method called");
-        ReleaseIdInput idInput = new ReleaseIdInputBuilder()
-            .setPoolName(externalIp)
-            .setIdKey(internalIpPort).build();
-        try {
-            RpcResult<ReleaseIdOutput> rpcResult = idManager.releaseId(idInput).get();
-            if (!rpcResult.isSuccessful()) {
-                LOG.error("removePortFromPool : idmanager failed to remove port from pool {}", rpcResult.getErrors());
-            }
-            LOG.debug("removePortFromPool : Removed port from pool for InternalIpPort {} with externalIp {}",
-                internalIpPort, externalIp);
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("removePortFromPool : idmanager failed when removing entry in pool with key {} with Exception",
-                    internalIpPort, e);
+        if (NatUtil.releaseId(idManager, externalIp, internalIpPort) == NatConstants.INVALID_ID) {
+            LOG.error("Unable to release id {} from Pool {}", internalIpPort, externalIp);
         }
     }
 

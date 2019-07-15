@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -37,20 +36,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMapping;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,21 +52,6 @@ public final class NatEvpnUtil {
 
     private NatEvpnUtil() { }
 
-    static long getLPortTagForRouter(String routerIdKey, IdManagerService idManager) {
-        AllocateIdInput getIdInput = new AllocateIdInputBuilder()
-                .setPoolName(IfmConstants.IFM_IDPOOL_NAME).setIdKey(routerIdKey)
-                .build();
-        try {
-            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
-            RpcResult<AllocateIdOutput> rpcResult = result.get();
-            return rpcResult.getResult().getIdValue();
-        } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("getLPortTagForRouter : ID manager failed while allocating lport_tag for router {}.",
-                    routerIdKey, e);
-        }
-        return 0;
-    }
-
     public static void releaseLPortTagForRouter(DataBroker dataBroker, IdManagerService idManager, String routerName) {
 
         String rd = NatUtil.getVpnRd(dataBroker, routerName);
@@ -83,19 +60,8 @@ public final class NatEvpnUtil {
             LOG.info("releaseLPortTagForRouter : Router:{} is not part of L3VPNOverVxlan", routerName);
             return;
         }
-        ReleaseIdInput getIdInput = new ReleaseIdInputBuilder()
-                .setPoolName(IfmConstants.IFM_IDPOOL_NAME).setIdKey(routerName)
-                .build();
-        try {
-            RpcResult<ReleaseIdOutput> rpcResult = idManager.releaseId(getIdInput).get();
-            if (!rpcResult.isSuccessful()) {
-                LOG.error("releaseLPortTagForRouter:ID manager failed while releasing allocated lport_tag "
-                        + "for router {}. Exception {} ", routerName, rpcResult.getErrors());
-                return;
-            }
-        } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("releaseLPortTagForRouter:ID : ID manager failed while releasing allocated lport_tag "
-                    + "for router {}.", routerName, e);
+        if (NatUtil.releaseId(idManager, IfmConstants.IFM_IDPOOL_NAME, routerName) == NatConstants.INVALID_ID) {
+            LOG.error("releaseLPortTagForRouter: Unable to release VNI for router {}", routerName);
         }
     }
 
@@ -110,8 +76,8 @@ public final class NatEvpnUtil {
         String rd = NatUtil.getVpnRd(dataBroker, routerName);
         long l3Vni = getL3Vni(dataBroker, rd);
         if (isL3VpnOverVxLan(l3Vni)) {
-            long routerLportTag = getLPortTagForRouter(routerName, idManager);
-            if (routerLportTag != 0) {
+            int routerLportTag = NatUtil.getUniqueId(idManager, IfmConstants.IFM_IDPOOL_NAME, routerName);
+            if (routerLportTag != NatConstants.INVALID_ID) {
                 LOG.trace("getTunnelIdForRouter : Successfully allocated Router_lPort_Tag = {} from ID Manager for "
                         + "Router ID = {}", routerLportTag, routerId);
                 return routerLportTag;
