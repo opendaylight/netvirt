@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.ipv6service;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -14,6 +15,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -63,7 +65,10 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
     private final IfMgr ifMgr;
     private final IIpv6PacketListener ipv6PktListener;
 
-    private final ExecutorService packetProcessor = Executors.newCachedThreadPool();
+    private final ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
+            .setNameFormat("ipv6-pkt-%d").build();
+
+    private final ExecutorService packetProcessor = Executors.newCachedThreadPool(namedThreadFactory);
 
     @Inject
     public Ipv6PktHandler(PacketProcessingService pktService, IfMgr ifMgr, IIpv6PacketListener ipv6PktListener) {
