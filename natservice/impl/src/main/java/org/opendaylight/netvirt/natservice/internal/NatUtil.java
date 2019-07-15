@@ -104,6 +104,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeRefInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntryKey;
@@ -325,7 +328,7 @@ public final class NatUtil {
         try {
             return confTx.read(getVpnInstanceToVpnIdIdentifier(vpnName)).get().toJavaUtil().map(
                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                    .VpnInstance::getVpnId).orElse(NatConstants.INVALID_ID);
+                    .VpnInstance::getVpnId).orElse(Long.valueOf(NatConstants.INVALID_ID));
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error retrieving VPN id for {}", vpnName, e);
         }
@@ -338,14 +341,14 @@ public final class NatUtil {
         Uuid networkId = NatUtil.getNetworkIdFromRouterId(broker, routerId);
         if (networkId == null) {
             LOG.error("getNetworkVpnIdFromRouterId : networkId is null");
-            return NatConstants.INVALID_ID;
+            return Long.valueOf(NatConstants.INVALID_ID);
         }
 
         //Get the VPN ID from the ExternalNetworks model
         Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(broker, networkId);
         if (vpnUuid == null) {
             LOG.error("getNetworkVpnIdFromRouterId : vpnUuid is null");
-            return NatConstants.INVALID_ID;
+            return Long.valueOf(NatConstants.INVALID_ID);
         }
         Long vpnId = NatUtil.getVpnId(broker, vpnUuid.getValue());
         return vpnId;
@@ -730,7 +733,7 @@ public final class NatUtil {
         InstanceIdentifier<Routermapping> routerMappingId = NatUtil.getRouterVpnMappingId(routerName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                 LogicalDatastoreType.OPERATIONAL, routerMappingId).toJavaUtil().map(Routermapping::getVpnId).orElse(
-                NatConstants.INVALID_ID);
+                Long.valueOf(NatConstants.INVALID_ID));
     }
 
     @Nullable
@@ -897,18 +900,34 @@ public final class NatUtil {
         return "snatmiss." + routerName;
     }
 
-    public static long createGroupId(String groupIdKey, IdManagerService idManager) {
-        AllocateIdInput getIdInput = new AllocateIdInputBuilder()
-            .setPoolName(NatConstants.SNAT_IDPOOL_NAME).setIdKey(groupIdKey)
-            .build();
+    public static int getUniqueId(IdManagerService idManager, String poolName, String idKey) {
+
+        AllocateIdInput getIdInput = (new AllocateIdInputBuilder()).setPoolName(poolName).setIdKey(idKey).build();
         try {
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
-            RpcResult<AllocateIdOutput> rpcResult = result.get();
-            return rpcResult.getResult().getIdValue();
-        } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("createGroupId : Creating Group with Key: {} failed", groupIdKey, e);
+            RpcResult<AllocateIdOutput> rpcResult = (RpcResult)result.get();
+            return rpcResult.isSuccessful() ? rpcResult.getResult().getIdValue().intValue() : NatConstants.INVALID_ID;
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("releaseId: Exception when releasing Id for key {} from pool {}", idKey, poolName, e);
         }
-        return 0;
+        return NatConstants.INVALID_ID;
+    }
+
+    public static Integer releaseId(IdManagerService idManager, String poolName, String idKey) {
+        ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
+        try {
+            Future<RpcResult<ReleaseIdOutput>> result = idManager.releaseId(idInput);
+            if (result == null || result.get() == null || !result.get().isSuccessful()) {
+                LOG.error("releaseId: RPC Call to release Id from pool {} with key {} returned with Errors {}",
+                    poolName, idKey,
+                    (result != null && result.get() != null) ? result.get().getErrors() : "RpcResult is null");
+            } else {
+                return 1;
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("releaseId: Exception when releasing Id for key {} from pool {}", idKey, poolName, e);
+        }
+        return NatConstants.INVALID_ID;
     }
 
     // TODO Clean up the exception handling
@@ -1679,7 +1698,11 @@ public final class NatUtil {
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfo = new ArrayList<>();
-        long groupId = createGroupId(NatUtil.getGroupIdKey(subnetId), idManager);
+        long groupId = getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME, NatUtil.getGroupIdKey(subnetId));
+        if (groupId == NatConstants.INVALID_ID) {
+            LOG.error("Unable to get groupId for subnet {} while building defauly flow entity", subnetId);
+            return null;
+        }
         actionsInfo.add(new ActionGroup(groupId));
         String flowRef = getFlowRef(dpId, NwConstants.L3_FIB_TABLE, defaultIP, vpnId);
         instructions.add(new InstructionApplyActions(actionsInfo));
@@ -2158,18 +2181,24 @@ public final class NatUtil {
         if (!naptStatus) {
             LOG.debug("removeSNATFromDPN: Switch with DpnId {} is not naptSwitch for router {}",
                 dpnId, routerName);
-            long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(routerName), idManager);
+            long groupId = getUniqueId(idManager, NatConstants.SNAT_IDPOOL_NAME, NatUtil.getGroupIdKey(routerName));
             FlowEntity flowEntity = null;
             try {
-                flowEntity = naptSwitchHA.buildSnatFlowEntity(dpnId, routerName, groupId, routerVpnId,
-                    NatConstants.DEL_FLOW);
-                if (flowEntity == null) {
-                    LOG.error("removeSNATFromDPN : Failed to populate flowentity for router:{} "
+                if (groupId != NatConstants.INVALID_ID) {
+                    flowEntity = naptSwitchHA
+                        .buildSnatFlowEntity(dpnId, routerName, groupId, routerVpnId,
+                            NatConstants.DEL_FLOW);
+                    if (flowEntity == null) {
+                        LOG.error("removeSNATFromDPN : Failed to populate flowentity for router:{} "
                             + "with dpnId:{} groupId:{}", routerName, dpnId, groupId);
-                    return;
+                        return;
+                    }
+                    LOG.debug("removeSNATFromDPN : Removing default SNAT miss entry flow entity {}",
+                        flowEntity);
+                    mdsalManager.removeFlow(confTx, flowEntity);
+                } else {
+                    LOG.error("removeSNATFromDPN: Unable to get groupId for router:{}", routerName);
                 }
-                LOG.debug("removeSNATFromDPN : Removing default SNAT miss entry flow entity {}", flowEntity);
-                mdsalManager.removeFlow(confTx, flowEntity);
 
             } catch (Exception ex) {
                 LOG.error("removeSNATFromDPN : Failed to remove default SNAT miss entry flow entity {}",
@@ -2182,10 +2211,14 @@ public final class NatUtil {
             //remove group
             GroupEntity groupEntity = null;
             try {
-                groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName,
-                    GroupTypes.GroupAll, emptyList() /*listBucketInfo*/);
-                LOG.info("removeSNATFromDPN : Removing NAPT GroupEntity:{}", groupEntity);
-                mdsalManager.removeGroup(groupEntity);
+                if (groupId != NatConstants.INVALID_ID) {
+                    groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName,
+                        GroupTypes.GroupAll, emptyList() /*listBucketInfo*/);
+                    LOG.info("removeSNATFromDPN : Removing NAPT GroupEntity:{}", groupEntity);
+                    mdsalManager.removeGroup(groupEntity);
+                } else {
+                    LOG.error("removeSNATFromDPN: Unable to get groupId for router:{}", routerName);
+                }
             } catch (Exception ex) {
                 LOG.error("removeSNATFromDPN : Failed to remove group entity {}", groupEntity, ex);
                 return;
