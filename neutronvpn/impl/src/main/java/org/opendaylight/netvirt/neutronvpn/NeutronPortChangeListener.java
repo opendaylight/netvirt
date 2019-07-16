@@ -225,7 +225,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         }
         final String portName = update.getUuid().getValue();
         Network network = neutronvpnUtils.getNeutronNetwork(update.getNetworkId());
-        LOG.info("Update port {} from network {}", portName, update.getNetworkId().toString());
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
             LOG.warn("neutron vpn received a port update() for a network without a provider extension augmentation "
                     + "or with an unsupported network type for the port {} which is part of network {}",
@@ -291,8 +290,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     }
 
     private void handleFloatingIpPortUpdated(@Nullable Port original, Port update) {
-        if ((original == null || NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING.equals(original.getDeviceId()))
-            && !NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING.equals(update.getDeviceId())) {
+        if ((original == null || NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING.equals(original.getDeviceId())
+                && !NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING.equals(update.getDeviceId()))) {
             // populate floating-ip uuid and floating-ip port attributes (uuid, mac and subnet id for the ONLY
             // fixed IP) to be used by NAT, depopulated in NATService once mac is retrieved in the removal path
             addToFloatingIpPortInfo(new Uuid(update.getDeviceId()), update.getUuid(), update.getFixedIps().get(0)
@@ -570,7 +569,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             return false;
         }
         String vnicType = portBinding.getVnicType().trim().toLowerCase(Locale.getDefault());
-        return vnicType.equals(NeutronConstants.VNIC_TYPE_DIRECT);
+        return NeutronConstants.VNIC_TYPE_DIRECT.equals(vnicType);
     }
 
     private boolean isSupportedVnicTypeByHost(final Port port, final String vnicType) {

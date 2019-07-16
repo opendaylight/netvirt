@@ -1190,20 +1190,19 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    public void createL3InternalVpn(Uuid vpn, @Nullable String name, @Nullable Uuid tenant, @Nullable List<String> rd,
-            @Nullable List<String> irt, @Nullable List<String> ert, @Nullable Uuid router,
-            @Nullable List<Uuid> networks) {
+    public void createL3InternalVpn(Uuid vpnId, String name, Uuid tenantId, List<String> rdList, List<String> irtList,
+                                    List<String> ertList, Uuid routerId, List<Uuid> networksList) {
 
-        IpVersionChoice ipVersChoices = neutronvpnUtils.getIpVersionChoicesFromRouterUuid(router);
+        IpVersionChoice ipVersChoices = neutronvpnUtils.getIpVersionChoicesFromRouterUuid(routerId);
 
         // Update VPN Instance node
-        updateVpnInstanceNode(vpn, rd, irt, ert, VpnInstance.Type.L3, 0 /*l3vni*/, ipVersChoices);
+        updateVpnInstanceNode(vpnId, rdList, irtList, ertList, VpnInstance.Type.L3, 0 /*l3vni*/, ipVersChoices);
 
         // Update local vpn-subnet DS
-        updateVpnMaps(vpn, name, router, tenant, networks);
+        updateVpnMaps(vpnId, name, routerId, tenantId, networksList);
 
-        if (router != null) {
-            Uuid existingVpn = neutronvpnUtils.getVpnForRouter(router, true);
+        if (routerId != null) {
+            Uuid existingVpn = neutronvpnUtils.getVpnForRouter(routerId, true);
             if (existingVpn != null) {
                 // use case when a cluster is rebooted and router add DCN is received, triggering #createL3InternalVpn
                 // if before reboot, router was already associated to VPN, should not proceed associating router to
@@ -1212,10 +1211,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 // For a non-reboot case #associateRouterToInternalVPN already takes care of adding to
                 // RouterInterfacesMap via #createVPNInterface call.
                 LOG.info("Associating router to Internal VPN skipped for VPN {} due to router {} already associated "
-                    + "to external VPN {}", vpn.getValue(), router.getValue(), existingVpn.getValue());
+                        + "to external VPN {}", vpnId.getValue(), routerId.getValue(), existingVpn.getValue());
                 return;
             }
-            associateRouterToInternalVpn(vpn, router);
+            associateRouterToInternalVpn(vpnId, routerId);
         }
     }
 
