@@ -885,8 +885,8 @@ public class NeutronvpnUtils {
             LOG.trace("Neutron port with fixedIp: {}, vpn {}, interface {}, mac {}, isSubnetIp {} added to "
                 + "VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress, isSubnetIp);
         } catch (Exception e) {
-            LOG.error("Failure while creating VPNPortFixedIpToPort map for vpn {} - fixedIP {}", vpnName, fixedIp,
-                    e);
+            LOG.error("Failure while creating VPNPortFixedIpToPort map for vpn {} - fixedIP {} for port {} with "
+                    + "macAddress {}", vpnName, fixedIp, portName, macAddress, e);
         }
     }
 
