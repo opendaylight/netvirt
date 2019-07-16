@@ -11,6 +11,7 @@ import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -249,15 +250,14 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
         if (origSecurityEnabled || updatedSecurityEnabled) {
             InstanceIdentifier<Interface>  interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(portName);
-            jobCoordinator.enqueueJob("PORT- " + portName,
-                () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
+            jobCoordinator.enqueueJob("PORT- " + portName, () -> {
+                ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION,
                     confTx -> {
-                        Optional<Interface> optionalInf =
-                                confTx.read(interfaceIdentifier).get();
+                        Optional<Interface> optionalInf = confTx.read(interfaceIdentifier).get();
                         if (optionalInf.isPresent()) {
                             InterfaceBuilder interfaceBuilder = new InterfaceBuilder(optionalInf.get());
-                            InterfaceAcl infAcl = handlePortSecurityUpdated(original, update,
-                                    origSecurityEnabled, updatedSecurityEnabled, interfaceBuilder).build();
+                            InterfaceAcl infAcl = handlePortSecurityUpdated(original, update, origSecurityEnabled,
+                                    updatedSecurityEnabled, interfaceBuilder).build();
                             interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
                             LOG.info("update: Of-port-interface updation for port {}", portName);
                             // Update OFPort interface for this neutron port
@@ -265,7 +265,11 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                         } else {
                             LOG.warn("update: Interface {} is not present", portName);
                         }
-                    })));
+                    });
+                ListenableFutures.addErrorLogging(future, LOG,
+                        "update: Failed to update interface {} with networkId {}", portName, network);
+                return Collections.singletonList(future);
+            });
         }
     }
 
@@ -605,23 +609,26 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private void handleNeutronPortCreated(final Port port) {
         final String portName = port.getUuid().getValue();
         final Uuid portId = port.getUuid();
+        final String networkId = port.getNetworkId().getValue();
         final List<FixedIps> portIpAddrsList = port.nonnullFixedIps();
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(port)) {
             return;
         }
-        jobCoordinator.enqueueJob("PORT- " + portName, () -> {
-            // add direct port to subnetMaps config DS
-            if (!(NeutronUtils.isPortVnicTypeNormal(port)
+        if (!(NeutronUtils.isPortVnicTypeNormal(port)
                 || isPortTypeSwitchdev(port)
                 && isSupportedVnicTypeByHost(port, NeutronConstants.VNIC_TYPE_DIRECT))) {
-                for (FixedIps ip: portIpAddrsList) {
-                    nvpnManager.updateSubnetmapNodeWithPorts(ip.getSubnetId(), null, portId);
-                }
-                LOG.info("Port {} is not a normal and not a direct with switchdev VNIC type ;"
-                         + "OF Port interfaces are not created", portName);
-                return Collections.emptyList();
+            for (FixedIps ip: portIpAddrsList) {
+                nvpnManager.updateSubnetmapNodeWithPorts(ip.getSubnetId(), null, portId);
             }
-            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
+            LOG.info("Port {} is not a normal and not a direct with switchdev VNIC type ;"
+                    + "OF Port interfaces are not created", portName);
+            return;
+        }
+        jobCoordinator.enqueueJob("PORT- " + portName, () -> {
+            // add direct port to subnetMaps config DS
+            // TODO: for direct port as well, operations should be carried out per subnet based on port IP
+
+            ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, tx -> {
                 LOG.info("Of-port-interface creation for port {}", portName);
                 // Create of-port interface for this neutron port
                 String portInterfaceName = createOfPortInterface(port, tx);
@@ -651,7 +658,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 if (!vpnIdList.isEmpty()) {
                     // create new vpn-interface for neutron port
                     LOG.debug("handleNeutronPortCreated: Adding VPN Interface for port {} from network {}", portName,
-                            port.getNetworkId().toString());
+                            networkId);
                     nvpnManager.createVpnInterface(vpnIdList, port, tx);
                     if (!routerIds.isEmpty()) {
                         for (Uuid routerId : routerIds) {
@@ -659,7 +666,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                         }
                     }
                 }
-            }));
+            });
+            ListenableFutures.addErrorLogging(future, LOG,
+                    "handleNeutronPortCreated: Failed for port {} with networkId {}", portName, networkId);
+            return Collections.singletonList(future);
         });
     }
 
@@ -667,17 +677,19 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         final String portName = port.getUuid().getValue();
         final Uuid portId = port.getUuid();
         final List<FixedIps> portIpsList = port.nonnullFixedIps();
-        jobCoordinator.enqueueJob("PORT- " + portName,
-            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, confTx -> {
-                if (!(NeutronUtils.isPortVnicTypeNormal(port) || isPortTypeSwitchdev(port))) {
-                    for (FixedIps ip : portIpsList) {
-                        // remove direct port from subnetMaps config DS
-                        nvpnManager.removePortsFromSubnetmapNode(ip.getSubnetId(), null, portId);
-                    }
-                    LOG.info("Port {} is not a normal and not a direct with switchdev VNIC type ;"
-                            + "Skipping OF Port interfaces removal", portName);
-                    return;
-                }
+        if (!(NeutronUtils.isPortVnicTypeNormal(port) || isPortTypeSwitchdev(port))) {
+            for (FixedIps ip : portIpsList) {
+                // remove direct port from subnetMaps config DS
+                // TODO: for direct port as well, operations should be carried out per subnet based on port IP
+                nvpnManager.removePortsFromSubnetmapNode(ip.getSubnetId(), null, portId);
+            }
+            LOG.info("Port {} is not a normal and not a direct with switchdev VNIC type ;"
+                    + "Skipping OF Port interfaces removal", portName);
+            return;
+        }
+        jobCoordinator.enqueueJob("PORT- " + portName, () -> {
+            ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, confTx -> {
+
                 Uuid vpnId = null;
                 Set<Uuid> routerIds = new HashSet<>();
                 Uuid internetVpnId = null;
@@ -724,7 +736,12 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 deleteOfPortInterface(port, confTx);
                 //dissociate fixedIP from floatingIP if associated
                 nvpnManager.dissociatefixedIPFromFloatingIP(port.getUuid().getValue());
-            })));
+            });
+            ListenableFutures.addErrorLogging(future, LOG,
+                    "handleNeutronPortDeleted: Failed to update interface {} with networkId", portName,
+                    port.getNetworkId().getValue());
+            return Collections.singletonList(future);
+        });
     }
 
 
