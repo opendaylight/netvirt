@@ -1472,7 +1472,8 @@ public class NeutronvpnUtils {
                         + "is not allowed. Do nothing", vpnName);
                 return Collections.emptyList();
             }
-            VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
+            VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder()
+                    .setVrfId(vpnInstanceOpDataEntry.getVrfId());
             boolean ipConfigured = add;
             if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4AND6)) {
                 builder.setIpv4Configured(ipConfigured);
