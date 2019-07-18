@@ -1030,9 +1030,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         FlowEntity terminatingServiceTableFlowEntity =
             MDSALUtil.buildFlowEntity(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE,
-            getTableMissFlowRef(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE, label), 5,
-                String.format("%s:%d", "TST Flow Entry ", label),
-            0, 0, COOKIE_TUNNEL.add(BigInteger.valueOf(label)), mkMatches, mkInstructions);
+            getTableMissFlowRef(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE, label),
+                    FibConstants.DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY,
+                    String.format("%s:%d", "TST Flow Entry ", label), 0, 0,
+                    COOKIE_TUNNEL.add(BigInteger.valueOf(label)), mkMatches, mkInstructions);
 
         FlowKey flowKey = new FlowKey(new FlowId(terminatingServiceTableFlowEntity.getFlowId()));
 
@@ -1055,8 +1056,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         flowEntity = MDSALUtil.buildFlowEntity(dpId,
             NwConstants.INTERNAL_TUNNEL_TABLE,
             getTableMissFlowRef(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, (int) label),
-            5, String.format("%s:%d", "TST Flow Entry ", label), 0, 0,
-            COOKIE_TUNNEL.add(BigInteger.valueOf(label)), mkMatches, null);
+                FibConstants.DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY,
+                String.format("%s:%d", "TST Flow Entry ", label), 0, 0,
+                COOKIE_TUNNEL.add(BigInteger.valueOf(label)), mkMatches, null);
         Node nodeDpn = FibUtil.buildDpnNode(flowEntity.getDpnId());
         FlowKey flowKey = new FlowKey(new FlowId(flowEntity.getFlowId()));
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
