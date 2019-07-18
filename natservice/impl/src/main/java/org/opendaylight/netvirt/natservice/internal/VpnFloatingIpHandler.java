@@ -417,7 +417,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         List<MatchInfo> mkMatches = new ArrayList<>();
 
         LOG.info("makeTunnelTableEntry on DpnId = {} and serviceId = {}", dpnId, serviceId);
-        int flowPriority = 5;
+        int flowPriority = NatConstants.DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY;
         // Increased the 36->25 flow priority. If SNAT is also configured on the same
         // DPN, then the traffic will be hijacked to DNAT and if there are no DNAT match,
         // then handled back to using using flow 25->44(which will be installed as part of SNAT)
