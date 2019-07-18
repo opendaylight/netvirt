@@ -1220,9 +1220,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
 
         Flow terminatingServiceTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
-            getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""), 5,
-            String.format("%s:%d", "TST Flow Entry ", serviceId),
-            0, 0, COOKIE_TUNNEL.add(BigInteger.valueOf(serviceId)), mkMatches, customInstructions);
+            getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""),
+                NatConstants.DEFAULT_VPN_INTERNAL_TUNNEL_TABLE_PRIORITY,
+                String.format("%s:%d", "TST Flow Entry ", serviceId), 0, 0,
+                COOKIE_TUNNEL.add(BigInteger.valueOf(serviceId)), mkMatches, customInstructions);
 
         mdsalManager.addFlow(confTx, dpnId, terminatingServiceTableFlowEntity);
     }
