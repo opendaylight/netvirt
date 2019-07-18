@@ -39,6 +39,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev16
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.RouterSolicitationPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.router.advertisement.packet.PrefixList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.router.advertisement.packet.PrefixListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.router.advertisement.packet.RouteInformationOptionList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.ipv6.nd.packet.rev160620.router.advertisement.packet.RouteInformationOptionListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.slf4j.Logger;
@@ -192,6 +194,22 @@ public class Ipv6RouterAdvt {
             prefix.setPrefix(v6Prefix);
             prefixList.add(prefix.build());
         }
+        /*An optional extension RIO (Route Information Option) is being added to Router Advertisement
+         *messages for communicating default router preferences and more-specific routes from routers to hosts.
+         */
+        List<RouteInformationOptionList> routeInformationOptionList = new ArrayList<>();
+        RouteInformationOptionListBuilder rioBuilder = new RouteInformationOptionListBuilder();
+        rioBuilder.setOptionType(Ipv6Constants.ICMP_V6_ROUTE_INFORMATION_OPTION); //must be 24.
+        rioBuilder.setOptionLength((short)8);
+        rioBuilder.setPrefixLength((short)64);
+        rioBuilder.setRouteLifetime((long)Ipv6Constants.IPV6_RIO_ROUTE_LIFETIME);// should be 0xffffffff
+        short rioFlags = 0;
+        for (Ipv6Prefix v6Prefix : autoConfigPrefixList) {
+            rioBuilder.setFlags(rioFlags);//should be 00 as medium priority.
+            rioBuilder.setPrefix(v6Prefix);
+            routeInformationOptionList.add(rioBuilder.build());
+        }
+        raPacket.setRouteInformationOptionList(routeInformationOptionList);
 
         short statefulPrefixFlags = 0;
         statefulPrefixFlags = (short) (statefulPrefixFlags | 1 << 7); // On-link flag
@@ -202,6 +220,7 @@ public class Ipv6RouterAdvt {
         }
 
         raPacket.setPrefixList(prefixList);
+
     }
 
     private byte[] fillRouterAdvertisementPacket(RouterAdvertisementPacket pdu) {
@@ -247,6 +266,15 @@ public class Ipv6RouterAdvt {
             buf.putInt((int)prefix.getPreferredLifetime().longValue());
             buf.putInt((int)prefix.getReserved().longValue());
             buf.put(IetfInetUtil.INSTANCE.ipv6PrefixToBytes(new Ipv6Prefix(prefix.getPrefix())),0,16);
+        }
+
+        for (RouteInformationOptionList rio : pdu.nonnullRouteInformationOptionList()) {
+            buf.put((byte)rio.getOptionType().shortValue());
+            buf.put((byte)rio.getOptionLength().shortValue());
+            buf.put((byte)rio.getPrefixLength().shortValue());
+            buf.put((byte)rio.getFlags().shortValue());
+            buf.putInt((int)rio.getRouteLifetime().longValue());
+            buf.put(IetfInetUtil.INSTANCE.ipv6PrefixToBytes(new Ipv6Prefix(rio.getPrefix())),0,16);
         }
         return data;
     }
