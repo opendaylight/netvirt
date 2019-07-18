@@ -7,9 +7,6 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
-import static org.opendaylight.netvirt.fibmanager.FibConstants.DEFAULT_FIB_FLOW_PRIORITY;
-import static org.opendaylight.netvirt.fibmanager.FibConstants.FLOWID_PREFIX;
-
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -159,7 +156,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, vpnId, ipAddress);
 
 
-        int priority = DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
+        int priority = FibConstants.DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_FIB_TABLE, flowRef,
             priority, flowRef, 0, 0,
             NwConstants.COOKIE_VM_FIB_TABLE, matches, null);
@@ -196,7 +193,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, vpnId, ipAddress);
 
 
-        int priority = DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
+        int priority = FibConstants.DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_FIB_TABLE, flowRef,
             priority, flowRef, 0, 0,
             NwConstants.COOKIE_VM_FIB_TABLE, matches, customInstructions);
@@ -206,8 +203,8 @@ public class FibRpcServiceImpl implements FibRpcService {
     }
 
     private String getFlowRef(BigInteger dpnId, short tableId, long id, String ipAddress) {
-        return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + id
-                + NwConstants.FLOWID_SEPARATOR + ipAddress;
+        return FibConstants.FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId
+                + NwConstants.FLOWID_SEPARATOR + id + NwConstants.FLOWID_SEPARATOR + ipAddress;
     }
 
     //TODO: Below Util methods to be removed once VpnUtil methods are exposed in api bundle
