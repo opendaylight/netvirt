@@ -16,16 +16,17 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.DpnOpElements;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.Vpns;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.Dpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
 public class VpnDpnToTransportZoneListener
-        extends AsyncDataTreeChangeListenerBase<VpnToDpnList, VpnDpnToTransportZoneListener> {
+        extends AsyncDataTreeChangeListenerBase<Dpns, VpnDpnToTransportZoneListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnDpnToTransportZoneListener.class);
     private final TransportZoneNotificationUtil transportZoneNotificationUtil;
@@ -50,18 +51,18 @@ public class VpnDpnToTransportZoneListener
     }
 
     @Override
-    protected InstanceIdentifier<VpnToDpnList> getWildCardPath() {
-        return InstanceIdentifier.builder(VpnInstanceOpData.class).child(VpnInstanceOpDataEntry.class)
-                .child(VpnToDpnList.class).build();
+    protected InstanceIdentifier<Dpns> getWildCardPath() {
+        return InstanceIdentifier.builder(DpnOpElements.class).child(Vpns.class)
+                .child(Dpns.class).build();
     }
 
     @Override
-    protected void remove(InstanceIdentifier<VpnToDpnList> identifier, VpnToDpnList del) {
+    protected void remove(InstanceIdentifier<Dpns> identifier, Dpns del) {
         LOG.debug("Vpn dpn {} remove detected, SHOULD BE deleting transport zones", del.getDpnId());
     }
 
     @Override
-    protected void update(InstanceIdentifier<VpnToDpnList> identifier, VpnToDpnList original, VpnToDpnList update) {
+    protected void update(InstanceIdentifier<Dpns> identifier, Dpns original, Dpns update) {
         LOG.debug("Vpn dpn {} update detected, updating transport zones", update.getDpnId());
 
         if (update.getVpnInterfaces() == null || update.getVpnInterfaces().isEmpty()) {
@@ -84,7 +85,7 @@ public class VpnDpnToTransportZoneListener
     }
 
     @Override
-    protected void add(InstanceIdentifier<VpnToDpnList> identifier, VpnToDpnList add) {
+    protected void add(InstanceIdentifier<Dpns> identifier, Dpns add) {
         LOG.debug("Vpn dpn {} add detected, updating transport zones", add.getDpnId());
 
         boolean shouldCreateVtep = transportZoneNotificationUtil.shouldCreateVtep(add.getVpnInterfaces());

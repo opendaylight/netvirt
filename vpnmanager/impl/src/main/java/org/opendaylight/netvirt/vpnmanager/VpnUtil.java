@@ -162,6 +162,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.DpnOpElements;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventData;
@@ -175,6 +176,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency.AdjacencyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.Vpns;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.VpnsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.Dpns;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.DpnsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortKey;
@@ -445,14 +450,24 @@ public final class VpnUtil {
     }
 
     @NonNull
-    List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-            .vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> getDpnVpnInterfaces(VpnInstance vpnInstance,
-                                                                                           BigInteger dpnId) {
+    public static List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op
+            .elements.vpns.dpns.VpnInterfaces> getDpnVpnInterfaces(DataBroker broker,
+                                                                   VpnInstance vpnInstance, BigInteger dpnId) {
         String primaryRd = getPrimaryRd(vpnInstance);
-        InstanceIdentifier<VpnToDpnList> dpnToVpnId = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
-        Optional<VpnToDpnList> dpnInVpn = read(LogicalDatastoreType.OPERATIONAL, dpnToVpnId);
-        return dpnInVpn.isPresent() && dpnInVpn.get().getVpnInterfaces() != null ? dpnInVpn.get().getVpnInterfaces()
-            : emptyList();
+        InstanceIdentifier<Dpns> dpnOpElementId = VpnUtil.getDpnListFromDpnOpElementsIdentifier(primaryRd, dpnId);
+        Optional<Dpns> dpnOpElement = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnOpElementId);
+        return dpnOpElement.isPresent() ? dpnOpElement.get().getVpnInterfaces() : Collections.emptyList();
+    }
+
+    static InstanceIdentifier<Dpns> getDpnListFromDpnOpElementsIdentifier(String rd, BigInteger dpnId) {
+        return InstanceIdentifier.builder(DpnOpElements.class)
+                .child(Vpns.class, new VpnsKey(rd))
+                .child(Dpns.class, new DpnsKey(dpnId)).build();
+    }
+
+    static InstanceIdentifier<Vpns> getVpnListFromDpnOpElementsIdentifier(String rd) {
+        return InstanceIdentifier.builder(DpnOpElements.class)
+                .child(Vpns.class, new VpnsKey(rd)).build();
     }
 
     @NonNull
@@ -607,6 +622,26 @@ public final class VpnUtil {
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Retrieves the VPN Route Distinguisher searching by its Vpn instance name.
+     *
+     * @param broker dataBroker service reference
+     * @param vpnName Name of the VPN
+     * @return the route-distinguisher of the VPN
+     */
+    public static String getVpnRd(DataBroker broker, String vpnName) {
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                .VpnInstance>
+                vpnInstance = read(broker, LogicalDatastoreType.CONFIGURATION,
+                VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName));
+
+        String rd = null;
+        if (vpnInstance.isPresent()) {
+            rd = vpnInstance.get().getVrfId();
+        }
+        return rd;
     }
 
     List<String> getVpnRdsFromVpnInstanceConfig(String vpnName) {
@@ -825,6 +860,16 @@ public final class VpnUtil {
         } catch (ReadFailedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
+                                                          InstanceIdentifier<T> path) {
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(broker, datastoreType, path);
+        } catch (ReadFailedException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Deprecated
