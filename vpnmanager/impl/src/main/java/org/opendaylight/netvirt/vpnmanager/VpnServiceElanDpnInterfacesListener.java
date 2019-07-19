@@ -23,16 +23,14 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
-import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.Dpns;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 import org.slf4j.Logger;
@@ -86,18 +84,19 @@ public class VpnServiceElanDpnInterfacesListener
         if (vpnName == null) {
             return;
         }
-        String primaryRd = vpnUtil.getPrimaryRd(vpnName);
+        final String primaryRd = vpnUtil.getPrimaryRd(vpnName);
         if (elanInstance != null && !elanInstance.isExternal() && VpnUtil.isVlan(elanInstance)) {
             jobCoordinator.enqueueJob(elanInstance.getElanInstanceName(), () -> {
                 List<String> addedInterfaces = getUpdatedInterfaceList(update.getInterfaces(),
                     original.getInterfaces());
                 for (String addedInterface : addedInterfaces) {
                     if (interfaceManager.isExternalInterface(addedInterface)) {
-                        InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
-                        Optional<VpnToDpnList> dpnInVpn = SingleTransactionDataBroker.syncReadOptional(dataBroker,
-                            LogicalDatastoreType.OPERATIONAL, id);
-                        if (!dpnInVpn.isPresent() || (dpnInVpn.get().getVpnInterfaces() != null
-                            && dpnInVpn.get().getVpnInterfaces().size() != 1)) {
+                        InstanceIdentifier<Dpns> dpnElementId = VpnUtil
+                                .getDpnListFromDpnOpElementsIdentifier(primaryRd, dpnId);
+                        Optional<Dpns> dpnOpElement = VpnUtil.read(dataBroker,
+                                LogicalDatastoreType.OPERATIONAL, dpnElementId);
+                        if (!dpnOpElement.isPresent() || (dpnOpElement.get().getVpnInterfaces() != null
+                                && dpnOpElement.get().getVpnInterfaces().size() != 1)) {
                             return Collections.emptyList();
                         }
                         if (!vpnUtil.shouldPopulateFibForVlan(vpnName, elanInstanceName, dpnId)) {
