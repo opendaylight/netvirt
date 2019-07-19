@@ -18,16 +18,16 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil;
 import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.DpnOpElements;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.Vpns;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.Dpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class VpnDpnToTransportZoneListener
-        extends AbstractAsyncDataTreeChangeListener<VpnToDpnList> {
+public class VpnDpnToTransportZoneListener extends AbstractAsyncDataTreeChangeListener<Dpns> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnDpnToTransportZoneListener.class);
     private final TransportZoneNotificationUtil transportZoneNotificationUtil;
@@ -37,8 +37,8 @@ public class VpnDpnToTransportZoneListener
     @Inject
     public VpnDpnToTransportZoneListener(final DataBroker dbx,
             final ElanConfig elanConfig, final TransportZoneNotificationUtil tznu) {
-        super(dbx, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(VpnInstanceOpData.class)
-                .child(VpnInstanceOpDataEntry.class).child(VpnToDpnList.class),
+        super(dbx, LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.create(DpnOpElements.class)
+                .child(Vpns.class).child(Dpns.class),
                 Executors.newListeningSingleThreadExecutor("VpnDpnToTransportZoneListener", LOG));
         useTransportZone = elanConfig.isAutoConfigTransportZones();
         transportZoneNotificationUtil = tznu;
@@ -60,7 +60,7 @@ public class VpnDpnToTransportZoneListener
     }
 
     @Override
-    public void remove(InstanceIdentifier<VpnToDpnList> identifier, VpnToDpnList del) {
+    public void remove(InstanceIdentifier<Dpns> identifier, Dpns del) {
         if (!useTransportZone) {
             return;
         }
@@ -68,7 +68,7 @@ public class VpnDpnToTransportZoneListener
     }
 
     @Override
-    public void update(InstanceIdentifier<VpnToDpnList> identifier, VpnToDpnList original, VpnToDpnList update) {
+    public void update(InstanceIdentifier<Dpns> identifier, Dpns original, Dpns update) {
         if (!useTransportZone) {
             return;
         }
@@ -96,7 +96,7 @@ public class VpnDpnToTransportZoneListener
     }
 
     @Override
-    public void add(InstanceIdentifier<VpnToDpnList> identifier, VpnToDpnList add) {
+    public void add(InstanceIdentifier<Dpns> identifier, Dpns add) {
         if (!useTransportZone) {
             return;
         }
