@@ -804,7 +804,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         localNextHopSeen = true;
                         Uint64 dpnId =
                                 checkCreateLocalFibEntry(localNextHopInfoLocal, localNextHopInfoLocal.getIpAddress(),
-                                        vpnId, rd, vrfEntry, vpnExtraRoute, vpnExtraRoutes, etherType);
+                                        vpnId, rd, vrfEntry, vpnExtraRoute, vpnExtraRoutes, etherType,
+                                        /*parentVpnId*/ null);
                         returnLocalDpnId.add(dpnId);
                     }
                 }
@@ -821,6 +822,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     labelLock.lock();
                     try {
                         LabelRouteInfo lri = getLabelRouteInfo(lriKey);
+                        long parentVpnId = lri.getParentVpnid();
                         if (isPrefixAndNextHopPresentInLri(localNextHopIP, nextHopAddressList, lri)) {
                             Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
                                     fibUtil.getVpnInstanceOpData(rd);
@@ -840,12 +842,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                         label, localNextHopInfo.getVpnInterfaceName(), lri.getDpnId());
                                 if (vpnExtraRoutes.isEmpty()) {
                                     Uint64 dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP,
-                                            vpnId, rd, vrfEntry, null, vpnExtraRoutes, etherType);
+                                            vpnId, rd, vrfEntry, null, vpnExtraRoutes, etherType, parentVpnId);
                                     returnLocalDpnId.add(dpnId);
                                 } else {
                                     for (Routes extraRoutes : vpnExtraRoutes) {
                                         Uint64 dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP,
-                                                vpnId, rd, vrfEntry, extraRoutes, vpnExtraRoutes, etherType);
+                                                vpnId, rd, vrfEntry, extraRoutes, vpnExtraRoutes, etherType,
+                                                parentVpnId);
                                         returnLocalDpnId.add(dpnId);
                                     }
                                 }
@@ -861,7 +864,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
         } else {
             Uint64 dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP, vpnId,
-                    rd, vrfEntry, /*routes*/ null, /*vpnExtraRoutes*/ null, etherType);
+                    rd, vrfEntry, /*routes*/ null, /*vpnExtraRoutes*/ null, etherType,
+                    /*parentVpnId*/ null);
             if (dpnId != null) {
                 returnLocalDpnId.add(dpnId);
             }
@@ -873,7 +877,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                                 final Uint32 vpnId, final String rd,
                                                 final VrfEntry vrfEntry,
                                                 @Nullable Routes routes, @Nullable List<Routes> vpnExtraRoutes,
-                                                int etherType) {
+                                                int etherType, Long parentVpnId) {
         String vpnName = fibUtil.getVpnNameFromId(vpnId);
         if (localNextHopInfo != null) {
             long groupId;
@@ -910,7 +914,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 }
             } else {
                 groupId = nextHopManager.createLocalNextHop(vpnId, dpnId, interfaceName, localNextHopIP, prefix,
-                        gwMacAddress);
+                        gwMacAddress, parentVpnId);
                 localGroupId = groupId;
             }
             if (groupId == FibConstants.INVALID_GROUP_ID) {

@@ -397,8 +397,9 @@ public class NexthopManager implements AutoCloseable {
 
     public long createLocalNextHop(Uint32 vpnId, Uint64 dpnId, String ifName,
                                    String primaryIpAddress, String currDestIpPrefix,
-                                   String gwMacAddress) {
-        String vpnName = fibUtil.getVpnNameFromId(vpnId);
+                                   String gwMacAddress, Long parentVpnId) {
+        //For VPN Imported routes, getting VPN Instance name using parentVpnId
+        String vpnName = parentVpnId != null ? fibUtil.getVpnNameFromId(parentVpnId) : fibUtil.getVpnNameFromId(vpnId);
         if (vpnName == null) {
             return 0;
         }
@@ -435,8 +436,8 @@ public class NexthopManager implements AutoCloseable {
                                     new MacAddress(encMacAddress)));
                             // listActionInfo.add(0, new ActionPopMpls());
                         } else {
-                            // FIXME: Log message here.
-                            LOG.debug("mac address for new local nexthop is null");
+                            LOG.error("mac address for new local nexthop group {} is null for vpnId {}, prefix {}, "
+                                    + "ifName {} on dpn {}", groupId, vpnId, primaryIpAddress, ifName, dpnId);
                         }
                         List<ActionInfo> nhActionInfoList = getEgressActionsForInterface(ifName, actionKey, false,
                                 vpnId, currDestIpPrefix);
