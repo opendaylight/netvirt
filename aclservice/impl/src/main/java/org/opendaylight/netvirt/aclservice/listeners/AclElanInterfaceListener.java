@@ -86,7 +86,9 @@ public class AclElanInterfaceListener extends AsyncDataTreeChangeListenerBase<El
             if (prevAclInterface.getElanId() == null) {
                 ElanInstance elanInfo = AclServiceUtils.getElanInstanceByName(elanInterface.getElanInstanceName(),
                         dataBroker);
-                builder.elanId(elanInfo.getElanTag());
+                if (elanInfo != null) {
+                    builder.elanId(elanInfo.getElanTag());
+                }
                 return true;
             }
 
