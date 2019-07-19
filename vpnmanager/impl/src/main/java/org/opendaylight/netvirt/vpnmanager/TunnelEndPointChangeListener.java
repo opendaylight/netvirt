@@ -36,7 +36,7 @@ import org.opendaylight.serviceutils.tools.listener.AbstractAsyncDataTreeChangeL
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.dpns.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.VpnInstance;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -112,7 +112,7 @@ public class TunnelEndPointChangeListener
             LOG.info("add: Handling TEP {} add for VPN instance {}", tep.getInterfaceName(), vpnName);
             final String primaryRd = vpnUtil.getPrimaryRd(vpnName);
             if (!vpnUtil.isVpnPendingDelete(primaryRd)) {
-                List<VpnInterfaces> vpnInterfaces = vpnUtil.getDpnVpnInterfaces(vpnInstance, dpnId);
+                List<VpnInterfaces> vpnInterfaces = vpnUtil.getDpnVpnInterfaces(broker, vpnInstance, dpnId);
                 if (vpnInterfaces != null) {
                     for (VpnInterfaces vpnInterface : vpnInterfaces) {
                         String vpnInterfaceName = vpnInterface.getInterfaceName();
