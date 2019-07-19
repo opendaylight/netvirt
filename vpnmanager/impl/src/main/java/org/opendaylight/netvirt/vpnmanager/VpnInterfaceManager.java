@@ -90,6 +90,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.Dpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnListKey;
@@ -2396,10 +2397,15 @@ public class VpnInterfaceManager extends AbstractAsyncDataTreeChangeListener<Vpn
         }
         LOG.debug("Update the VpnInterfaces for Unprocessed Adjancencies for vpnName:{}", vpnName);
         vpnToDpnLists.forEach(vpnToDpnList -> {
-            if (vpnToDpnList.getVpnInterfaces() == null) {
+            InstanceIdentifier<Dpns> dpnOpElementId = VpnUtil
+                    .getDpnListFromDpnOpElementsIdentifier(primaryRd, vpnToDpnList.getDpnId());
+            Optional<Dpns> dpnOpElement = VpnUtil.read(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, dpnOpElementId);
+            //if (vpnToDpnList.getVpnInterfaces() == null) {
+            if (dpnOpElement.get().getVpnInterfaces() == null) {
                 return;
             }
-            vpnToDpnList.nonnullVpnInterfaces().values().forEach(vpnInterface -> {
+            dpnOpElement.get().getVpnInterfaces().values().forEach(vpnInterface -> {
                 try {
                     InstanceIdentifier<VpnInterfaceOpDataEntry> existingVpnInterfaceId =
                             VpnUtil.getVpnInterfaceOpDataEntryIdentifier(vpnInterface.getInterfaceName(), vpnName);
