@@ -135,6 +135,40 @@ module odl-l3vpn {
            }
     }
 
+    container dpn-op-elements {
+        config false;
+        list vpns {
+            key route-distinguisher;
+            leaf route-distinguisher{ type string; }
+            list dpns {
+                key dpn-id;
+                leaf dpn-id {
+                    type uint64;
+                }
+                list vpn-interfaces {
+                    key interface-name;
+                    leaf interface-name {
+                        type string;
+                    }
+                }
+
+                list ip-addresses {
+                    key ip-address;
+                    leaf ip-address { type string; }
+                    leaf ip-address-source {
+                        description
+                         "This field indicates whether the IP address here is an External-Fixed-Ip(Owned by Router).
+                         or Floating-Ip(Used by Ports).";
+                        type enumeration {
+                            enum "ExternalFixedIP";
+                            enum "FloatingIP";
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     container evpn-rd-to-networks {
         description "Holds the networks to which given evpn is attached";
         list evpn-rd-to-network {
@@ -226,31 +260,11 @@ module odl-l3vpn {
                type string;
            }
 
-           leaf vpn-interface-count { type uint32; }
            uses vpn-route-list;
            list vpn-to-dpn-list {
                key dpnId;
                leaf dpnId {
                   type uint64;
-               }
-               list vpn-interfaces {
-                  key interface-name;
-                  leaf interface-name {
-                      type string;
-                  }
-               }
-               list ip-addresses {
-                   key ip-address;
-                   leaf ip-address { type string; }
-                   leaf ip-address-source {
-                        description
-                         "This field indicates whether the IP address here is an External-Fixed-Ip(Owned by Router).
-                          or Floating-Ip(Used by Ports).";
-                        type enumeration {
-                            enum "ExternalFixedIP";
-                            enum "FloatingIP";
-                        }
-                   }
                }
                leaf dpn-state {
                   description
