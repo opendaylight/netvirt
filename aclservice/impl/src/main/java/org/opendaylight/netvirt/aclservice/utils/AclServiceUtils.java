@@ -702,7 +702,7 @@ public final class AclServiceUtils {
         ElanInterface elanInterface = getElanInterfaceByElanInterfaceName(elanInterfaceName, broker);
         if (null != elanInterface) {
             ElanInstance elanInfo = getElanInstanceByName(elanInterface.getElanInstanceName(), broker);
-            return elanInfo.getElanTag();
+            return elanInfo != null ? elanInfo.getElanTag() : null;
         }
         return null;
     }
