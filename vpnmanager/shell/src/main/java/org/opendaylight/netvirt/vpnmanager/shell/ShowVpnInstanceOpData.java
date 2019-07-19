@@ -22,8 +22,6 @@ import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.vpn.instances.VpnInstance;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -73,19 +71,9 @@ public class ShowVpnInstanceOpData extends OsgiCommandSupport {
             session.getConsole().println(
                     "------------------------------------------------------------------------------");
             VpnInstanceOpDataEntry check = vpnInstanceOpDataEntryMap.get(detail);
-            Long intfCount = 0L;
-            Map<VpnToDpnListKey, VpnToDpnList> vpnToDpnListKeyVpnToDpnListMap = check.getVpnToDpnList();
-            if (vpnToDpnListKeyVpnToDpnListMap != null) {
-                for (VpnToDpnList dpn : vpnToDpnListKeyVpnToDpnListMap.values()) {
-                    if (dpn.getVpnInterfaces() != null) {
-                        intfCount = intfCount + dpn.getVpnInterfaces().size();
-                    }
-                }
-            }
             session.getConsole().println(
                     "VpnInstanceName: " + check.getVpnInstanceName() + "\nVpnId: " + check.getVpnId() + "\nVrfId: "
-                            + check.getVrfId() + "\nKey: " + check.key() + "\nVpnInterfaceCount: "
-                            + intfCount + "\nVpnToDpnList: " + check.getVpnToDpnList() + "\n");
+                            + check.getVrfId() + "\nVpnToDpnList: " + check.getVpnToDpnList() + "\n");
             session.getConsole().println(
                     "------------------------------------------------------------------------------");
         }
