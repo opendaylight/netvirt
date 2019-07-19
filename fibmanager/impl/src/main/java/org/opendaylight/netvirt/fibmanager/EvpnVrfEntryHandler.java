@@ -172,7 +172,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
         String jobKey = FibUtil.getCreateLocalNextHopJobKey(vpnId, dpnId, vrfEntry.getDestPrefix());
         final long groupId = nexthopManager.createLocalNextHop(vpnId, dpnId,
             localNextHopInfo.getVpnInterfaceName(), localNextHopIP, vrfEntry.getDestPrefix(),
-            vrfEntry.getGatewayMacAddress());
+            vrfEntry.getGatewayMacAddress(), /*parentVpnId*/ null);
         LOG.debug("LocalNextHopGroup {} created/reused for prefix {} rd {} evi {} route-paths {}", groupId,
             vrfEntry.getDestPrefix(), rd, vrfEntry.getL3vni(), vrfEntry.getRoutePaths());
 
