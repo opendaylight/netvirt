@@ -37,7 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.dpns.VpnInterfaces;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,7 +107,7 @@ public class TunnelEndPointChangeListener
             LOG.info("add: Handling TEP {} add for VPN instance {}", tep.getInterfaceName(), vpnName);
             final String primaryRd = vpnUtil.getPrimaryRd(vpnName);
             if (!vpnUtil.isVpnPendingDelete(primaryRd)) {
-                List<VpnInterfaces> vpnInterfaces = vpnUtil.getDpnVpnInterfaces(vpnInstance, dpnId);
+                List<VpnInterfaces> vpnInterfaces = vpnUtil.getDpnVpnInterfaces(broker, vpnInstance, dpnId);
                 if (vpnInterfaces != null) {
                     for (VpnInterfaces vpnInterface : vpnInterfaces) {
                         String vpnInterfaceName = vpnInterface.getInterfaceName();

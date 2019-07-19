@@ -24,7 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -72,19 +71,9 @@ public class ShowVpnInstanceOpData extends OsgiCommandSupport {
             session.getConsole().println(
                     "------------------------------------------------------------------------------");
             VpnInstanceOpDataEntry check = vpnInstanceOpDataEntryMap.get(detail);
-            Long intfCount = 0L;
-            List<VpnToDpnList> dpnToVpns = check.getVpnToDpnList();
-            if (dpnToVpns != null) {
-                for (VpnToDpnList dpn : dpnToVpns) {
-                    if (dpn.getVpnInterfaces() != null) {
-                        intfCount = intfCount + dpn.getVpnInterfaces().size();
-                    }
-                }
-            }
             session.getConsole().println(
                     "VpnInstanceName: " + check.getVpnInstanceName() + "\nVpnId: " + check.getVpnId() + "\nVrfId: "
-                            + check.getVrfId() + "\nKey: " + check.key() + "\nVpnInterfaceCount: "
-                            + intfCount + "\nVpnToDpnList: " + check.getVpnToDpnList() + "\n");
+                            + check.getVrfId() + "\nVpnToDpnList: " + check.getVpnToDpnList() + "\n");
             session.getConsole().println(
                     "------------------------------------------------------------------------------");
         }
