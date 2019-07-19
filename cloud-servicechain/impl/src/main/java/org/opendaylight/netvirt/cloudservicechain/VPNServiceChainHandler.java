@@ -44,7 +44,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev160711.vpn.to.pseudo.port.list.VpnToPseudoPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.DpnOpElements;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.Vpns;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.VpnsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.Dpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -95,6 +99,16 @@ public class VPNServiceChainHandler implements AutoCloseable {
         return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id).orElse(null);
     }
 
+    protected Vpns getVpnInstanceFromDpnOpElements(String rd) {
+        InstanceIdentifier<Vpns> id = InstanceIdentifier.create(DpnOpElements.class)
+                .child(Vpns.class, new VpnsKey(rd));
+        Optional<Vpns> vpnInstanceOpData = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        if (vpnInstanceOpData.isPresent()) {
+            return vpnInstanceOpData.get();
+        }
+        return null;
+    }
+
     /**
      * Programs the necessary flows in LFIB and LPortDispatcher table so that
      * the packets coming from a given VPN are delivered to a given
@@ -126,6 +140,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
             return;
         }
         VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
+        Vpns vpnInstanceFromOpData = getVpnInstanceFromDpnOpElements(rd);
         if (vpnInstance == null) {
             LOG.warn("Could not find a suitable VpnInstance for Route-Distinguisher={}", rd);
             return;
@@ -133,6 +148,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
 
         // Find out the set of DPNs for the given VPN ID
         Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+        Collection<Dpns> vpnToDpnFromDpnOpElements = vpnInstanceFromOpData.getDpns();
         List<VrfEntry> vrfEntries = VpnServiceChainUtils.getAllVrfEntries(dataBroker, rd);
         if (vrfEntries != null) {
             if (addOrRemove == NwConstants.ADD_FLOW) {
@@ -146,7 +162,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
                         removeVpnPseudoPortDataTask);
             }
 
-            for (VpnToDpnList dpnInVpn : vpnToDpnList) {
+            for (Dpns dpnInVpn : vpnToDpnFromDpnOpElements) {
                 BigInteger dpnId = dpnInVpn.getDpnId();
                 programVpnToScfPipelineOnDpn(dpnId, vrfEntries, tableId, (int) scfTag, lportTag, addOrRemove);
 
