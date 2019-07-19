@@ -16,23 +16,23 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunner;
 import org.opendaylight.mdsal.binding.util.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
@@ -48,6 +48,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add._interface.to.dpn.on.vpn.event.AddInterfaceEventDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add.dpn.event.AddEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add.dpn.event.AddEventDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.Dpns;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.DpnsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.dpns.IpAddresses;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.dpns.IpAddressesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.dpns.IpAddressesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.dpns.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.dpns.VpnInterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.dpns.VpnInterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove._interface.from.dpn.on.vpn.event.RemoveInterfaceEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove._interface.from.dpn.on.vpn.event.RemoveInterfaceEventDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventData;
@@ -55,12 +63,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rem
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddressesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddressesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -73,12 +75,12 @@ public class VpnFootprintService implements IVpnFootprintService {
     private static final Logger LOG = LoggerFactory.getLogger(VpnFootprintService.class);
 
     private final DataBroker dataBroker;
-    private final ManagedNewTransactionRunner txRunner;
     private final IFibManager fibManager;
     private final VpnOpDataSyncer vpnOpDataSyncer;
     private final NotificationPublishService notificationPublishService;
     private final IInterfaceManager interfaceManager;
     private final VpnUtil vpnUtil;
+    private final ManagedNewTransactionRunner txRunner;
 
     @Inject
     public VpnFootprintService(final DataBroker dataBroker, final IFibManager fibManager,
@@ -130,53 +132,72 @@ public class VpnFootprintService implements IVpnFootprintService {
     private void createOrUpdateVpnToDpnListForInterfaceName(Uint32 vpnId, String primaryRd, Uint64 dpnId,
             String intfName, String vpnName) {
         AtomicBoolean newDpnOnVpn = new AtomicBoolean(false);
+        final String rd = (VpnUtil.getVpnRd(dataBroker, vpnName) == null)
+                ? vpnName : VpnUtil.getVpnRd(dataBroker, vpnName);
         /* Starts synchronized block. This ensures only one reader/writer get access to vpn-dpn-list
          * The future.get ensures that the write to the datastore is complete before leaving the synchronized block.
          */
-        // FIXME: separate this out somehow?
-        final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName);
-        lock.lock();
         try {
-            ListenableFuture<?> future = txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
-                InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
-                VpnInterfaces vpnInterface = new VpnInterfacesBuilder().setInterfaceName(intfName).build();
-                Optional<VpnToDpnList> dpnInVpn = tx.read(id).get();
-                if (dpnInVpn.isPresent()) {
-                    VpnToDpnList vpnToDpnList = dpnInVpn.get();
-                    List<VpnInterfaces> vpnInterfaces = new ArrayList<>(vpnToDpnList.nonnullVpnInterfaces().values());
-                    vpnInterfaces.add(vpnInterface);
-                    VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder(vpnToDpnList);
-                    vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setVpnInterfaces(vpnInterfaces);
+            synchronized (vpnName.intern()) {
+                ListenableFuture<?> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
+                    writeTxn -> {
+                        InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
+                        Optional<VpnToDpnList> dpnInVpn = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                LogicalDatastoreType.OPERATIONAL, id);
+                        InstanceIdentifier<Dpns> dpnOpElementId = vpnUtil.getDpnListFromDpnOpElementsIdentifier(rd,
+                                dpnId);
+                        Optional<Dpns> dpnOpElement = vpnUtil.read(dataBroker,
+                                LogicalDatastoreType.OPERATIONAL, dpnOpElementId);
+                        VpnInterfaces vpnInterface = new VpnInterfacesBuilder().setInterfaceName(intfName).build();
+                        if (dpnInVpn.isPresent()) {
+                            VpnToDpnList vpnToDpnList = dpnInVpn.get();
+                            Dpns dpnElement = dpnOpElement.get();
+                            Collection<VpnInterfaces> vpnInterfacesCollection = dpnElement.getVpnInterfaces().values();
+                            List<VpnInterfaces> vpnInterfaces = new ArrayList<>(vpnInterfacesCollection != null
+                                    ? vpnInterfacesCollection : Collections.emptyList());
+                            //Add current vpnInterface to vpnInterfaces only if not existing already
+                            if (!vpnInterfaces.isEmpty() && !vpnInterfaces.contains(vpnInterface)) {
+                                vpnInterfaces.add(vpnInterface);
+                            }
+                            VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder(vpnToDpnList);
+                            vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active);
+                            DpnsBuilder dpnsBuilder = new DpnsBuilder(dpnElement);
+                            dpnsBuilder.setVpnInterfaces(vpnInterfaces);
 
-                    tx.mergeParentStructurePut(id, vpnToDpnListBuilder.build());
-                    /*
-                     * If earlier state was inactive, it is considered new DPN coming back to the
-                     * same VPN
-                     */
-                    if (vpnToDpnList.getDpnState() == VpnToDpnList.DpnState.Inactive) {
-                        newDpnOnVpn.set(true);
-                    }
-                    LOG.debug("createOrUpdateVpnToDpnList: Updating vpn footprint for vpn {} vpnId {} interface {}"
-                            + " on dpn {}", vpnName, vpnId, intfName, dpnId);
-                } else {
-                    List<VpnInterfaces> vpnInterfaces = new ArrayList<>();
-                    vpnInterfaces.add(vpnInterface);
-                    VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder().setDpnId(dpnId);
-                    vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setVpnInterfaces(vpnInterfaces);
+                            writeTxn.mergeParentStructurePut(id, vpnToDpnListBuilder.build());
+                            writeTxn.mergeParentStructurePut(dpnOpElementId, dpnsBuilder.build());
+                            /*
+                             * If earlier state was inactive, it is considered new DPN coming back to the
+                             * same VPN
+                             */
+                            if (vpnToDpnList.getDpnState() == VpnToDpnList.DpnState.Inactive) {
+                                newDpnOnVpn.set(true);
+                            }
+                            LOG.debug("createOrUpdateVpnToDpnList: Updating vpn footprint for vpn {} vpnId {} "
+                                    + "interface {} on dpn {}", vpnName, vpnId, intfName, dpnId);
+                        } else {
+                            List<VpnInterfaces> vpnInterfaces = new ArrayList<>();
+                            vpnInterfaces.add(vpnInterface);
+                            VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder().setDpnId(dpnId);
+                            vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active);
+                            DpnsBuilder dpnsBuilder = new DpnsBuilder().setDpnId(dpnId);
+                            dpnsBuilder.setVpnInterfaces(vpnInterfaces);
 
-                    tx.mergeParentStructurePut(id, vpnToDpnListBuilder.build());
-                    newDpnOnVpn.set(true);
-                    LOG.debug("createOrUpdateVpnToDpnList: Creating vpn footprint for vpn {} vpnId {} interface {}"
-                            + " on dpn {}", vpnName, vpnId, intfName, dpnId);
+                            writeTxn.mergeParentStructurePut(id, vpnToDpnListBuilder.build());
+                            writeTxn.mergeParentStructurePut(dpnOpElementId, dpnsBuilder.build());
+                            newDpnOnVpn.set(true);
+                            LOG.debug("createOrUpdateVpnToDpnList: Creating vpn footprint for vpn {} vpnId {} "
+                                    + "interface {} on dpn {}", vpnName, vpnId, intfName, dpnId);
+                        }
+                    });
+                if (!future.isDone()) {
+                    future.get();
                 }
-            });
-            future.get();
+            }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("createOrUpdateVpnToDpnList: Error adding to dpnToVpnList for vpn {} vpnId {} interface {}"
                     + " dpn {}", vpnName, vpnId, intfName, dpnId, e);
             throw new RuntimeException(e.getMessage(), e);
-        } finally {
-            lock.unlock();
         }
         LOG.info("createOrUpdateVpnToDpnList: Created/Updated vpn footprint for vpn {} vpnId {} interfacName{}"
                 + " on dpn {}", vpnName, vpnId, intfName, dpnId);
@@ -199,52 +220,68 @@ public class VpnFootprintService implements IVpnFootprintService {
     private void createOrUpdateVpnToDpnListForIPAddress(Uint32 vpnId, String primaryRd, Uint64 dpnId,
             ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, String vpnName) {
         AtomicBoolean newDpnOnVpn = new AtomicBoolean(false);
+        final String rd = (VpnUtil.getVpnRd(dataBroker, vpnName) == null)
+                ? vpnName : VpnUtil.getVpnRd(dataBroker, vpnName);
+
         /* Starts synchronized block. This ensures only one reader/writer get access to vpn-dpn-list
          * The future.get ensures that the write to the datastore is complete before leaving the synchronized block.
          */
-        // FIXME: separate this out somehow?
-        final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName);
-        lock.lock();
         try {
-            ListenableFuture<?> future = txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
-                InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
-                IpAddressesBuilder ipAddressesBldr = new IpAddressesBuilder()
-                        .setIpAddressSource(ipAddressSourceValuePair.getKey());
-                ipAddressesBldr.withKey(new IpAddressesKey(ipAddressSourceValuePair.getValue()));
-                ipAddressesBldr.setIpAddress(ipAddressSourceValuePair.getValue());
-                Optional<VpnToDpnList> dpnInVpn = tx.read(id).get();
-                if (dpnInVpn.isPresent()) {
-                    VpnToDpnList vpnToDpnList = dpnInVpn.get();
-                    List<IpAddresses> ipAddresses = new ArrayList<>(vpnToDpnList.nonnullIpAddresses().values());
-                    ipAddresses.add(ipAddressesBldr.build());
-                    VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder(vpnToDpnList);
-                    vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setIpAddresses(ipAddresses);
+            synchronized (vpnName.intern()) {
+                ListenableFuture<?> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
+                    writeTxn -> {
+                        InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(primaryRd, dpnId);
+                        Optional<VpnToDpnList> dpnInVpn = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                LogicalDatastoreType.OPERATIONAL, id);
+                        InstanceIdentifier<Dpns> dpnOpElementId = VpnUtil.getDpnListFromDpnOpElementsIdentifier(rd,
+                                dpnId);
+                        Optional<Dpns> dpnOpElements = vpnUtil.read(dataBroker,
+                                LogicalDatastoreType.OPERATIONAL, dpnOpElementId);
+                        IpAddressesBuilder ipAddressesBldr = new IpAddressesBuilder()
+                                .setIpAddressSource(ipAddressSourceValuePair.getKey());
+                        ipAddressesBldr.withKey(new IpAddressesKey(ipAddressSourceValuePair.getValue()));
+                        ipAddressesBldr.setIpAddress(ipAddressSourceValuePair.getValue());
+                        if (dpnInVpn.isPresent()) {
+                            VpnToDpnList vpnToDpnList = dpnInVpn.get();
+                            Dpns dpnElement = dpnOpElements.get();
+                            Collection<IpAddresses> ipAddressesCollection = dpnElement.getIpAddresses().values();
+                            List<IpAddresses> ipAddresses = new ArrayList<>(ipAddressesCollection != null
+                                    ? ipAddressesCollection : Collections.emptyList());
+                            ipAddresses.add(ipAddressesBldr.build());
+                            VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder(vpnToDpnList);
+                            vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active);
+                            DpnsBuilder dpnsBuilder = new DpnsBuilder(dpnElement);
+                            dpnsBuilder.setIpAddresses(ipAddresses);
 
-                    tx.mergeParentStructurePut(id, vpnToDpnListBuilder.build());
-                    /*
-                     * If earlier state was inactive, it is considered new DPN coming back to the
-                     * same VPN
-                     */
-                    if (vpnToDpnList.getDpnState() == VpnToDpnList.DpnState.Inactive) {
-                        newDpnOnVpn.set(true);
-                    }
-                } else {
-                    List<IpAddresses> ipAddresses = new ArrayList<>();
-                    ipAddresses.add(ipAddressesBldr.build());
-                    VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder().setDpnId(dpnId);
-                    vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active).setIpAddresses(ipAddresses);
-                    tx.mergeParentStructurePut(id, vpnToDpnListBuilder.build());
-                    newDpnOnVpn.set(true);
+                            writeTxn.mergeParentStructurePut(id, vpnToDpnListBuilder.build());
+                            writeTxn.mergeParentStructurePut(dpnOpElementId, dpnsBuilder.build());
+                            /*
+                             * If earlier state was inactive, it is considered new DPN coming back to the
+                             * same VPN
+                             */
+                            if (vpnToDpnList.getDpnState() == VpnToDpnList.DpnState.Inactive) {
+                                newDpnOnVpn.set(true);
+                            }
+                        } else {
+                            List<IpAddresses> ipAddresses = new ArrayList<>();
+                            ipAddresses.add(ipAddressesBldr.build());
+                            VpnToDpnListBuilder vpnToDpnListBuilder = new VpnToDpnListBuilder().setDpnId(dpnId);
+                            vpnToDpnListBuilder.setDpnState(VpnToDpnList.DpnState.Active);
+                            DpnsBuilder dpnsBuilder = new DpnsBuilder().setDpnId(dpnId);
+                            dpnsBuilder.setIpAddresses(ipAddresses);
+                            writeTxn.mergeParentStructurePut(id, vpnToDpnListBuilder.build());
+                            writeTxn.mergeParentStructurePut(dpnOpElementId, dpnsBuilder.build());
+                            newDpnOnVpn.set(true);
+                        }
+                    });
+                if (!future.isDone()) {
+                    future.get();
                 }
-
-            });
-            future.get();
+            } // Ends synchronized block
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("createOrUpdateVpnToDpnListForIPAddress: Error adding to dpnToVpnList for vpn {}"
                     + " ipAddresses {} dpn {}", vpnName, ipAddressSourceValuePair.getValue(), dpnId, e);
             throw new RuntimeException(e.getMessage(), e); //TODO: Avoid this
-        } finally {
-            lock.unlock();
         }
         /*
          * Informing the Fib only after writeTxn is submitted successfuly.
@@ -262,58 +299,70 @@ public class VpnFootprintService implements IVpnFootprintService {
         /* Starts synchronized block. This ensures only one reader/writer get access to vpn-dpn-list
          * The future.get ensures that the write to the datastore is complete before leaving the synchronized block.
          */
-        // FIXME: separate this out somehow?
-        final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName);
-        lock.lock();
         try {
-            try {
-                ListenableFuture<?> future = txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
-                    InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(rd, dpnId);
-                    Optional<VpnToDpnList> dpnInVpnOpt = tx.read(id).get();
-                    if (!dpnInVpnOpt.isPresent()) {
-                        LOG.error("removeOrUpdateVpnToDpnList: Could not find DpnToVpn map for VPN=[name={}"
-                                + " rd={} id={}] and dpnId={}", vpnName, rd, id, dpnId);
-                        return;
-                    }
-                    VpnToDpnList dpnInVpn = dpnInVpnOpt.get();
-                    List<VpnInterfaces> vpnInterfaces = new ArrayList<>(dpnInVpn.nonnullVpnInterfaces().values());
-                    if (vpnInterfaces == null) {
-                        LOG.error("Could not find vpnInterfaces for DpnInVpn map for VPN=[name={} rd={} id={}] and "
-                                + "dpnId={}", vpnName, rd, id, dpnId);
-                        return;
-                    }
-                    VpnInterfaces currVpnInterface = new VpnInterfacesBuilder().setInterfaceName(intfName).build();
-                    if (vpnInterfaces.remove(currVpnInterface)) {
-                        if (vpnInterfaces.isEmpty()) {
-                            Map<IpAddressesKey, IpAddresses> ipAddressesMap = dpnInVpn.nonnullIpAddresses();
-                            VpnToDpnListBuilder dpnInVpnBuilder =
-                                    new VpnToDpnListBuilder(dpnInVpn).setVpnInterfaces(Collections.EMPTY_LIST);
-                            if (ipAddressesMap == null || ipAddressesMap.isEmpty()) {
-                                dpnInVpnBuilder.setDpnState(VpnToDpnList.DpnState.Inactive);
-                                lastDpnOnVpn.set(true);
+            synchronized (vpnName.intern()) {
+                InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(rd, dpnId);
+                Optional<VpnToDpnList> dpnInVpnOpt = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, id);
+                if (!dpnInVpnOpt.isPresent()) {
+                    LOG.error("removeOrUpdateVpnToDpnList: Could not find DpnToVpn map for VPN=[name={}"
+                            + " rd={} id={}] and dpnId={}", vpnName, rd, id, dpnId);
+                    return;
+                }
+                VpnToDpnList dpnInVpn = dpnInVpnOpt.get();
+                InstanceIdentifier<Dpns> dpnOpElementId = VpnUtil.getDpnListFromDpnOpElementsIdentifier(rd, dpnId);
+                Optional<Dpns> dpnOpElements = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                        dpnOpElementId);
+                Collection<VpnInterfaces> vpnIntCollection = dpnOpElements.get().getVpnInterfaces().values();
+                List<VpnInterfaces> vpnInterfaces = new ArrayList<>(vpnIntCollection != null ? vpnIntCollection
+                        : Collections.emptyList());
+                if (vpnInterfaces.isEmpty()) {
+                    LOG.error("Could not find vpnInterfaces for DpnInVpn map for VPN=[name={} rd={} id={}] and "
+                            + "dpnId={}", vpnName, rd, id, dpnId);
+                    return;
+                }
+                VpnInterfaces currVpnInterface = new VpnInterfacesBuilder().setInterfaceName(intfName).build();
+                if (vpnInterfaces.remove(currVpnInterface)) {
+                    ListenableFuture<?> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
+                        writeTxn -> {
+                            if (vpnInterfaces.isEmpty()) {
+                                Collection<IpAddresses> ipAddressesCollection = dpnOpElements.get().getIpAddresses()
+                                        .values();
+                                List<IpAddresses> ipAddresses = new ArrayList<>(ipAddressesCollection != null
+                                        ? ipAddressesCollection : Collections.emptyList());
+                                VpnToDpnListBuilder dpnInVpnBuilder = new VpnToDpnListBuilder(dpnInVpn);
+                                final DpnsBuilder dpnsBuilder = new DpnsBuilder(dpnOpElements.get())
+                                        .setVpnInterfaces(Collections.emptyMap());
+                                if (ipAddresses == null || ipAddresses.isEmpty()) {
+                                    dpnInVpnBuilder.setDpnState(VpnToDpnList.DpnState.Inactive);
+                                    lastDpnOnVpn.set(true);
+                                } else {
+                                    LOG.error("removeOrUpdateVpnToDpnList: vpn interfaces are empty but ip "
+                                                    + "addresses are present for the vpn {} in dpn {} interface {}",
+                                            vpnName, dpnId, intfName);
+                                }
+                                LOG.debug("removeOrUpdateVpnToDpnList: Removing vpn footprint for vpn {} vpnId {} "
+                                        + "interface {}, on dpn {}", vpnName, vpnName, intfName, dpnId);
+                                writeTxn.mergeParentStructurePut(id, dpnInVpnBuilder.build());
+                                writeTxn.mergeParentStructurePut(dpnOpElementId, dpnsBuilder.build());
                             } else {
-                                LOG.error("removeOrUpdateVpnToDpnList: vpn interfaces are empty but ip addresses"
-                                        + " are present for the vpn {} in dpn {} interface {}", vpnName, dpnId,
-                                        intfName);
+                                writeTxn.delete(dpnOpElementId.child(VpnInterfaces.class,
+                                        new VpnInterfacesKey(intfName)));
+                                LOG.debug("removeOrUpdateVpnToDpnList: Updating vpn footprint for vpn {} vpnId {} "
+                                        + "interface {}, on dpn {}", vpnName, vpnName, intfName, dpnId);
                             }
-                            LOG.debug("removeOrUpdateVpnToDpnList: Removing vpn footprint for vpn {} vpnId {} "
-                                    + "interface {}, on dpn {}", vpnName, vpnName, intfName, dpnId);
-                            tx.mergeParentStructurePut(id, dpnInVpnBuilder.build());
-
-                        } else {
-                            tx.delete(id.child(VpnInterfaces.class, new VpnInterfacesKey(intfName)));
-                            LOG.debug("removeOrUpdateVpnToDpnList: Updating vpn footprint for vpn {} vpnId {} "
-                                    + "interface {}, on dpn {}", vpnName, vpnName, intfName, dpnId);
+                        });
+                    try {
+                        if (!future.isDone()) {
+                            future.get();
                         }
+                    } catch (InterruptedException | ExecutionException e) {
+                        LOG.error("removeOrUpdateVpnToDpnList: Error removing from dpnToVpnList for vpn {} vpnId {}"
+                                + " interface {} dpn {}", vpnName, vpnId, intfName, dpnId, e);
+                        throw new RuntimeException(e.getMessage(), e);
                     }
-                });
-                future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                LOG.error("removeOrUpdateVpnToDpnList: Error removing from dpnToVpnList for vpn {} vpnId {}"
-                        + " interface {} dpn {}", vpnName, vpnId, intfName, dpnId, e);
-                throw new RuntimeException(e.getMessage(), e);
-            }
-            // Ends synchronized block
+                }
+            } // Ends synchronized block
             LOG.info("removeOrUpdateVpnToDpnList: Updated/Removed vpn footprint for vpn {} vpnId {} interface {},"
                     + " on dpn {}", vpnName, vpnName, intfName, dpnId);
 
@@ -323,8 +372,9 @@ public class VpnFootprintService implements IVpnFootprintService {
                 LOG.info("removeOrUpdateVpnToDpnList: Sent cleanup event for dpn {} in VPN {} vpnId {} interface {}",
                         dpnId, vpnName, vpnId, intfName);
             }
-        } finally {
-            lock.unlock();
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("removeOrUpdateVpnToDpnList: Failed to read data store for interface {} dpn {} vpn {} rd {}",
+                    intfName, dpnId, vpnName, rd);
         }
     }
 
@@ -334,22 +384,25 @@ public class VpnFootprintService implements IVpnFootprintService {
         /* Starts synchronized block. This ensures only one reader/writer get access to vpn-dpn-list
          * The future.get ensures that the write to the datastore is complete before leaving the synchronized block.
          */
-        // FIXME: separate this out somehow?
-        final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnName);
-        lock.lock();
         try {
-            ListenableFuture<?> future = txRunner.callWithNewReadWriteTransactionAndSubmit(OPERATIONAL, tx -> {
+            synchronized (vpnName.intern()) {
                 InstanceIdentifier<VpnToDpnList> id = VpnHelper.getVpnToDpnListIdentifier(rd, dpnId);
 
-                Optional<VpnToDpnList> dpnInVpnOpt = tx.read(id).get();
+                Optional<VpnToDpnList> dpnInVpnOpt = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, id);
                 if (!dpnInVpnOpt.isPresent()) {
                     LOG.error("removeOrUpdateVpnToDpnList: Could not find DpnToVpn map for VPN=[name={} "
                             + "rd={} id={}] and dpnId={}", vpnName, rd, id, dpnId);
                     return;
                 }
                 VpnToDpnList dpnInVpn = dpnInVpnOpt.get();
-                List<IpAddresses> ipAddresses = new ArrayList<>(dpnInVpn.nonnullIpAddresses().values());
-                if (ipAddresses == null) {
+                InstanceIdentifier<Dpns> dpnOpElementId = VpnUtil.getDpnListFromDpnOpElementsIdentifier(rd, dpnId);
+                Optional<Dpns> dpnOpElements = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                        dpnOpElementId);
+                Collection<IpAddresses> ipAddrCollection = dpnOpElements.get().getIpAddresses().values();
+                List<IpAddresses> ipAddresses = new ArrayList<>(ipAddrCollection != null ? ipAddrCollection
+                        : Collections.emptyList());
+                if (ipAddresses.isEmpty()) {
                     LOG.info("Could not find ipAddresses for DpnInVpn map for VPN=[name={} rd={} id={}] "
                             + "and dpnId={}", vpnName, rd, id, dpnId);
                     return;
@@ -359,34 +412,40 @@ public class VpnFootprintService implements IVpnFootprintService {
                         .withKey(new IpAddressesKey(ipAddressSourceValuePair.getValue()))
                         .setIpAddressSource(ipAddressSourceValuePair.getKey()).build();
                 if (ipAddresses.remove(currIpAddress)) {
-                    if (ipAddresses.isEmpty()) {
-                        Map<VpnInterfacesKey, VpnInterfaces> vpnInterfacesMap = dpnInVpn.nonnullVpnInterfaces();
-                        VpnToDpnListBuilder dpnInVpnBuilder =
-                                new VpnToDpnListBuilder(dpnInVpn).setIpAddresses(Collections.<IpAddresses>emptyList());
-                        if (vpnInterfacesMap == null || vpnInterfacesMap.isEmpty()) {
-                            dpnInVpnBuilder.setDpnState(VpnToDpnList.DpnState.Inactive);
-                            lastDpnOnVpn.set(true);
-                        } else {
-                            LOG.warn("ip addresses are empty but vpn interfaces are present for the vpn {} in "
-                                    + "dpn {}", vpnName, dpnId);
-                        }
-                        tx.mergeParentStructurePut(id, dpnInVpnBuilder.build());
-
-                    } else {
-                        tx.delete(id.child(IpAddresses.class, new IpAddressesKey(ipAddressSourceValuePair.getValue())));
+                    ListenableFuture<?> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(OPERATIONAL,
+                        writeTxn -> {
+                            if (ipAddresses.isEmpty()) {
+                                Collection<VpnInterfaces> vpnIntCollection = dpnOpElements.get().getVpnInterfaces()
+                                        .values();
+                                List<VpnInterfaces> vpnInterfaces = new ArrayList<>(vpnIntCollection != null
+                                        ? vpnIntCollection : Collections.emptyList());
+                                final DpnsBuilder dpnsBuilder = new DpnsBuilder(dpnOpElements.get())
+                                        .setIpAddresses(Collections.emptyMap());
+                                VpnToDpnListBuilder dpnInVpnBuilder = new VpnToDpnListBuilder(dpnInVpn);
+                                if (vpnInterfaces == null || vpnInterfaces.isEmpty()) {
+                                    dpnInVpnBuilder.setDpnState(VpnToDpnList.DpnState.Inactive);
+                                    lastDpnOnVpn.set(true);
+                                } else {
+                                    LOG.warn("ip addresses are empty but vpn interfaces are present for the "
+                                            + "vpn {} in dpn {}", vpnName, dpnId);
+                                }
+                                writeTxn.mergeParentStructurePut(id, dpnInVpnBuilder.build());
+                                writeTxn.mergeParentStructurePut(dpnOpElementId, dpnsBuilder.build());
+                            } else {
+                                writeTxn.delete(dpnOpElementId.child(IpAddresses.class,
+                                        new IpAddressesKey(ipAddressSourceValuePair.getValue())));
+                            }
+                        });
+                    if (!future.isDone()) {
+                        future.get();
                     }
                 }
-
-            });
-            future.get();
+            } // Ends synchronized block
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error removing from dpnToVpnList for vpn {} Ipaddress {} dpn {}", vpnName,
                 ipAddressSourceValuePair.getValue(), dpnId, e);
             throw new RuntimeException(e.getMessage(), e); //TODO: Avoid this
-        } finally {
-            lock.unlock();
         }
-
         if (lastDpnOnVpn.get()) {
             LOG.debug("Sending cleanup event for dpn {} in VPN {}", dpnId, vpnName);
             fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd,

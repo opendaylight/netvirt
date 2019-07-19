@@ -26,7 +26,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.genius.datastoreutils.ExpectedDataObjectNotFoundException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.itm.api.IITMProvider;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -93,11 +92,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentrybase.RoutePathsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.DpnOpElements;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.L3vpnDcGws;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.L3vpnLbNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.Vpns;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.VpnsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.Dpns;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.op.elements.vpns.DpnsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.dc.gws.DcGateway;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.dc.gws.DcGatewayBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.l3vpn.dc.gws.DcGatewayKey;
@@ -111,8 +115,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.l3vpn.rev200204.adjacency.list.Adjacency;
@@ -980,18 +982,34 @@ public class FibUtil {
         }
     }
 
-    public boolean isInterfacePresentInDpn(String vpnName, Uint64 dpnId) {
-        InstanceIdentifier<VpnToDpnList> vpnToDpnListId = InstanceIdentifier.builder(VpnInstanceOpData.class)
-                .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(vpnName))
-                .child(VpnToDpnList.class, new VpnToDpnListKey(dpnId)).build();
+    public  String getVpnRd(String vpnName) {
+        InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
+        Optional<VpnInstance> vpnInstance;
+        String rd = null;
         try {
-            VpnToDpnList vpnToDpnList = SingleTransactionDataBroker.syncRead(dataBroker,
-                    LogicalDatastoreType.OPERATIONAL, vpnToDpnListId);
-            if (!(vpnToDpnList == null) && !(vpnToDpnList.getVpnInterfaces() == null)
-                    && !vpnToDpnList.getVpnInterfaces().isEmpty()) {
+            vpnInstance = SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    id);
+        } catch (ExecutionException | InterruptedException e) {
+            LOG.error("getVpnRd: Exception while reading vpnInstanceToVpnId DS for the vpn {}", vpnName, e);
+            return rd;
+        }
+        if (vpnInstance.isPresent()) {
+            rd = vpnInstance.get().getVrfId();
+        }
+        return rd;
+    }
+
+    public boolean isInterfacePresentInDpn(String vpnName, Uint64 dpnId) {
+        try {
+            String primaryRd = getVpnRd(vpnName);
+            InstanceIdentifier<Dpns> dpnOpElementId = getDpnListFromDpnOpElementsIdentifier(primaryRd, dpnId);
+            Optional<Dpns> dpnOpElement = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, dpnOpElementId);
+            if (!(dpnOpElement == null) && !(dpnOpElement.get().getVpnInterfaces() == null)
+                    && !dpnOpElement.get().getVpnInterfaces().isEmpty()) {
                 return true;
             }
-        } catch (ExpectedDataObjectNotFoundException e) {
+        } catch (ExecutionException | InterruptedException e) {
             LOG.warn("Failed to read interfaces with error {}", e.getMessage());
         }
         return false;
@@ -1012,12 +1030,18 @@ public class FibUtil {
         }
         if (entry.isPresent()) {
             Map<RoutePathsKey, RoutePaths> pathsMap = entry.get().nonnullRoutePaths();
-            for (RoutePaths path: pathsMap.values()) {
+            for (RoutePaths path : pathsMap.values()) {
                 if (path.getNexthopAddress().equals(nextHopIp)) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    static InstanceIdentifier<Dpns> getDpnListFromDpnOpElementsIdentifier(String rd, Uint64 dpnId) {
+        return InstanceIdentifier.builder(DpnOpElements.class)
+                .child(Vpns.class, new VpnsKey(rd))
+                .child(Dpns.class, new DpnsKey(dpnId)).build();
     }
 }
