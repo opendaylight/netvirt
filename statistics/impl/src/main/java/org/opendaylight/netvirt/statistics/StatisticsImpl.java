@@ -400,6 +400,8 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
             LOG.warn("failed to get counter request data from DB");
             return RpcResultBuilder.<GetElementCountersByHandlerOutput>failed()
                     .withError(ErrorType.APPLICATION, "failed to get counter request data from DB").buildFuture();
+        } finally {
+            tx.close();
         }
 
         GetElementCountersByHandlerOutputBuilder gecbhob = new GetElementCountersByHandlerOutputBuilder();
@@ -470,7 +472,8 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
             LOG.warn("failed to get counter request data from DB");
             return RpcResultBuilder.<CleanAllElementCounterRequestsOutput>failed()
                     .withError(ErrorType.APPLICATION, "failed to get counter request data from DB").buildFuture();
-
+        } finally {
+            tx.close();
         }
         return RpcResultBuilder.<CleanAllElementCounterRequestsOutput>success().buildFuture();
     }
@@ -1000,6 +1003,8 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
             }
         } catch (InterruptedException | ExecutionException e) {
             return false;
+        } finally {
+            roTransaction.close();
         }
         return false;
     }
