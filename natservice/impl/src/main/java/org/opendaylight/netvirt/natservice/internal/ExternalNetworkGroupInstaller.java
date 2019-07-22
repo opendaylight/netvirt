@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetDestinati
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -51,6 +53,7 @@ public class ExternalNetworkGroupInstaller {
     private final ItmRpcService itmRpcService;
     private final IInterfaceManager interfaceManager;
     private final NatServiceCounters natServiceCounters;
+    private final INeutronVpnManager neutronVpnManager;
 
     @Inject
     public ExternalNetworkGroupInstaller(final DataBroker broker, final IMdsalApiManager mdsalManager,
@@ -58,7 +61,8 @@ public class ExternalNetworkGroupInstaller {
                                          final OdlInterfaceRpcService odlInterfaceRpcService,
                                          final JobCoordinator coordinator, final ItmRpcService itmRpcService,
                                          final IInterfaceManager interfaceManager,
-                                         NatServiceCounters natServiceCounters) {
+                                         NatServiceCounters natServiceCounters,
+                                         final INeutronVpnManager neutronVpnManager) {
 
         this.broker = broker;
         this.mdsalManager = mdsalManager;
@@ -69,6 +73,7 @@ public class ExternalNetworkGroupInstaller {
         this.itmRpcService = itmRpcService;
         this.interfaceManager = interfaceManager;
         this.natServiceCounters = natServiceCounters;
+        this.neutronVpnManager = neutronVpnManager;
     }
 
     public void installExtNetGroupEntries(Subnetmap subnetMap) {
@@ -90,7 +95,7 @@ public class ExternalNetworkGroupInstaller {
             return;
         }
 
-        String macAddress = NatUtil.getSubnetGwMac(broker, subnetId, networkId.getValue());
+        String macAddress = NatUtil.getSubnetGwMac(broker, subnetId, subnetMap.getGatewayIp(), networkId.getValue());
         installExtNetGroupEntries(subnetMap, macAddress);
     }
 
@@ -121,7 +126,9 @@ public class ExternalNetworkGroupInstaller {
         }
 
         for (Uuid subnetId : subnetIds) {
-            String macAddress = NatUtil.getSubnetGwMac(broker, subnetId, networkId.getValue());
+            Optional<String> subnetGwIp = neutronVpnManager.getSubnetGatewayIpAddressIfV4Subnet(subnetId);
+            String macAddress = NatUtil.getSubnetGwMac(broker, subnetId,
+                    subnetGwIp.isPresent() ? subnetGwIp.get() : null, networkId.getValue());
             installExtNetGroupEntry(networkId, subnetId, dpnId, macAddress);
         }
     }

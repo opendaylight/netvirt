@@ -23,6 +23,18 @@ module neutronvpn {
                 description "Specifies the subnet IP in CIDR format";
             }
 
+            leaf subnet-type {
+               type enumeration {
+                   enum "IPV4";
+                   enum "IPV6";
+               }
+            }
+
+            leaf gateway-ip {
+               type   string;
+               description "Specifies the default subnet gateway IP";
+            }
+
             uses network-attributes;
 
             leaf tenant-id {

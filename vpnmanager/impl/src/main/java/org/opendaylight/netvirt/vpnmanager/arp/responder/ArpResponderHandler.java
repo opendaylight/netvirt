@@ -127,7 +127,7 @@ public class ArpResponderHandler {
     public void removeArpResponderFlow(BigInteger dpId, int lportTag, String ifName, String gatewayIp,
             Uuid subnetUuid) {
         if (gatewayIp == null) {
-            Optional<String> gwIpOptional = vpnUtil.getVpnSubnetGatewayIp(subnetUuid);
+            Optional<String> gwIpOptional = vpnUtil.getSubnetGwIpAddressIfV4Subnet(subnetUuid);
             if (gwIpOptional.isPresent()) {
                 gatewayIp = gwIpOptional.get();
             }

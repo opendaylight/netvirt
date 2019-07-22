@@ -249,7 +249,7 @@ public class NeutronSubnetGwMacResolver {
     @Nullable
     private IpAddress getExternalGwIpAddress(Uuid subnetId) {
         if (subnetId == null) {
-            LOG.error("Subnet id is null");
+            LOG.error("getExternalGwIpAddress: Subnet id is null");
             return null;
         }
 
