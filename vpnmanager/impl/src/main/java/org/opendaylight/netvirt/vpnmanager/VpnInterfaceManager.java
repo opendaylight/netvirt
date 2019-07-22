@@ -1581,6 +1581,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         LOG.trace("Received VpnInterface update event: original={}, update={}", original, update);
         LOG.info("update: VPN Interface update event - intfName {} on dpn {} oldVpn {} newVpn {}", update.getName(),
                 update.getDpnId(), original.getVpnInstanceNames(), update.getVpnInstanceNames());
+        if (original.equals(update)) {
+            LOG.info("update: original {} update {} are same. No update required.", original, update);
+            return;
+        }
         final String vpnInterfaceName = update.getName();
         final BigInteger dpnId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, vpnInterfaceName);
         LOG.info("VPN Interface update event - intfName {}", vpnInterfaceName);
