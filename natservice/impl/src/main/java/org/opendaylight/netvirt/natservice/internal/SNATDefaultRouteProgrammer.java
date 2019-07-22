@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import com.google.common.base.Optional;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -34,6 +36,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.natservice.api.NatSwitchCache;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
@@ -51,12 +54,13 @@ public class SNATDefaultRouteProgrammer {
     private final NatServiceCounters natServiceCounters;
     private final JobCoordinator jobCoordinator;
     private final NatSwitchCache natSwitchCache;
+    private final INeutronVpnManager neutronVpnManager;
 
     @Inject
     public SNATDefaultRouteProgrammer(final IMdsalApiManager mdsalManager, final DataBroker dataBroker,
             final IdManagerService idManager, final ExternalNetworkGroupInstaller extNetGroupInstaller,
             NatServiceCounters natServiceCounters, final JobCoordinator jobCoordinator,
-            final NatSwitchCache natSwitchCache) {
+            final NatSwitchCache natSwitchCache, final INeutronVpnManager neutronVpnManager) {
         this.mdsalManager = mdsalManager;
         this.dataBroker = dataBroker;
         this.idManager = idManager;
@@ -64,6 +68,7 @@ public class SNATDefaultRouteProgrammer {
         this.natServiceCounters = natServiceCounters;
         this.jobCoordinator = jobCoordinator;
         this.natSwitchCache = natSwitchCache;
+        this.neutronVpnManager = neutronVpnManager;
     }
 
     @Nullable
@@ -195,16 +200,17 @@ public class SNATDefaultRouteProgrammer {
     public void addOrDelDefaultFibRouteToSNATForSubnet(Subnets subnet, String networkId, int flowAction, long vpnId) {
         String providerNet = NatUtil.getElanInstancePhysicalNetwok(networkId, dataBroker);
         Set<BigInteger> dpnList = natSwitchCache.getSwitchesConnectedToExternal(providerNet);
-
+        Optional<String> subnetGwIp = neutronVpnManager.getSubnetGatewayIpAddressIfV4Subnet(subnet.getId());
+        String macAddress = NatUtil.getSubnetGwMac(dataBroker, subnet.getId(),
+                subnetGwIp.isPresent() ? subnetGwIp.get() : null, networkId);
         for (BigInteger dpn : dpnList) {
-            addOrDelDefaultFibRouteToSNATForSubnetInDpn(subnet, networkId, flowAction, vpnId, dpn);
+            addOrDelDefaultFibRouteToSNATForSubnetInDpn(subnet, macAddress, networkId, flowAction, vpnId, dpn);
         }
     }
 
-    public void addOrDelDefaultFibRouteToSNATForSubnetInDpn(Subnets subnet, String networkId, int flowAction,
-            long vpnId, BigInteger dpn) {
+    public void addOrDelDefaultFibRouteToSNATForSubnetInDpn(Subnets subnet, String macAddress, String networkId,
+                                                            int flowAction, long vpnId, BigInteger dpn) {
         String subnetId = subnet.getId().getValue();
-        String macAddress = NatUtil.getSubnetGwMac(dataBroker, subnet.getId(), networkId);
         extNetGroupInstaller.installExtNetGroupEntry(new Uuid(networkId), subnet.getId(),
                 dpn, macAddress);
         FlowEntity flowEntity = NatUtil.buildDefaultNATFlowEntityForExternalSubnet(dpn,

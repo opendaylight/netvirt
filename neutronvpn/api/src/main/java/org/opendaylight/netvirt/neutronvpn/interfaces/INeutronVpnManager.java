@@ -8,9 +8,12 @@
 
 package org.opendaylight.netvirt.neutronvpn.interfaces;
 
+import com.google.common.base.Optional;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -37,6 +40,10 @@ public interface INeutronVpnManager {
     List<Uuid> getNetworksForVpn(Uuid vpnId);
 
     void programV6InternetFallbackFlow(Uuid routerId, Uuid internetVpnId, int addOrRemove);
+
+    Optional<String> getSubnetGatewayIpAddressIfV4Subnet(Uuid subnetId);
+
+    Optional<String> getSubnetGatewayIpAddress(Uuid subnetId);
 
 }
 

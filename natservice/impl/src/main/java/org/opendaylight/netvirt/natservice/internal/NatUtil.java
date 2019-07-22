@@ -1500,34 +1500,17 @@ public final class NatUtil {
     }
 
     @Nullable
-    public static String getSubnetGwMac(DataBroker broker, Uuid subnetId, String vpnName) {
+    public static String getSubnetGwMac(DataBroker broker, Uuid subnetId, String subnetGwIp, String vpnName) {
         if (subnetId == null) {
             LOG.error("getSubnetGwMac : subnetID is null");
             return null;
         }
-
-        InstanceIdentifier<Subnet> subnetInst = InstanceIdentifier.create(Neutron.class).child(Subnets.class)
-            .child(Subnet.class, new SubnetKey(subnetId));
-        Optional<Subnet> subnetOpt =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                        LogicalDatastoreType.CONFIGURATION, subnetInst);
-        if (!subnetOpt.isPresent()) {
-            LOG.error("getSubnetGwMac : unable to obtain Subnet for id : {}", subnetId);
+        if (subnetGwIp == null) {
+            LOG.error("getSubnetGwMac : subnet {} Gateway-ip is null", subnetId);
             return null;
         }
-
-        IpAddress gatewayIp = subnetOpt.get().getGatewayIp();
-        if (gatewayIp == null) {
-            LOG.warn("getSubnetGwMac : No GW ip found for subnet {}", subnetId.getValue());
-            return null;
-        }
-
-        if (null != gatewayIp.getIpv6Address()) {
-            return null;
-        }
-
         InstanceIdentifier<VpnPortipToPort> portIpInst = InstanceIdentifier.builder(NeutronVpnPortipPortData.class)
-            .child(VpnPortipToPort.class, new VpnPortipToPortKey(gatewayIp.getIpv4Address().getValue(), vpnName))
+            .child(VpnPortipToPort.class, new VpnPortipToPortKey(subnetGwIp, vpnName))
             .build();
         Optional<VpnPortipToPort> portIpToPortOpt =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
@@ -1537,7 +1520,7 @@ public final class NatUtil {
         }
 
         InstanceIdentifier<LearntVpnVipToPort> learntIpInst = InstanceIdentifier.builder(LearntVpnVipToPortData.class)
-            .child(LearntVpnVipToPort.class, new LearntVpnVipToPortKey(gatewayIp.getIpv4Address().getValue(), vpnName))
+            .child(LearntVpnVipToPort.class, new LearntVpnVipToPortKey(subnetGwIp, vpnName))
             .build();
         Optional<LearntVpnVipToPort> learntIpToPortOpt =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
@@ -1546,7 +1529,7 @@ public final class NatUtil {
             return learntIpToPortOpt.get().getMacAddress();
         }
 
-        LOG.info("getSubnetGwMac : No resolution was found to GW ip {} in subnet {}", gatewayIp, subnetId.getValue());
+        LOG.info("getSubnetGwMac : No resolution was found to GW ip {} in subnet {}", subnetGwIp, subnetId.getValue());
         return null;
     }
 

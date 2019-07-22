@@ -232,17 +232,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -1416,35 +1412,6 @@ public final class VpnUtil {
         }
     }
 
-    public Optional<String> getVpnSubnetGatewayIp(final Uuid subnetUuid) {
-        Optional<String> gwIpAddress = Optional.absent();
-        final SubnetKey subnetkey = new SubnetKey(subnetUuid);
-        final InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
-                .child(Subnets.class)
-                .child(Subnet.class, subnetkey);
-        final Optional<Subnet> subnet = read(LogicalDatastoreType.CONFIGURATION, subnetidentifier);
-        if (subnet.isPresent()) {
-            Class<? extends IpVersionBase> ipVersionBase = subnet.get().getIpVersion();
-            if (IpVersionV4.class.equals(ipVersionBase)) {
-                Subnetmap subnetmap = getSubnetmapFromItsUuid(subnetUuid);
-                if (subnetmap != null && subnetmap.getRouterInterfaceFixedIp() != null) {
-                    LOG.trace("getVpnSubnetGatewayIp: Obtained subnetMap {} for vpn interface",
-                            subnetmap.getId().getValue());
-                    gwIpAddress = Optional.of(subnetmap.getRouterInterfaceFixedIp());
-                } else {
-                    //For direct L3VPN to network association (no router) continue to use subnet-gateway IP
-                    IpAddress gwIp = subnet.get().getGatewayIp();
-                    if (gwIp != null && gwIp.getIpv4Address() != null) {
-                        gwIpAddress = Optional.of(gwIp.getIpv4Address().getValue());
-                    }
-                }
-                LOG.trace("getVpnSubnetGatewayIp: Obtained subnet-gw ip {} for vpn interface",
-                        gwIpAddress.get());
-            }
-        }
-        return gwIpAddress;
-    }
-
     @Nullable
     RouterToNaptSwitch getRouterToNaptSwitch(String routerName) {
         InstanceIdentifier<RouterToNaptSwitch> id = InstanceIdentifier.builder(NaptSwitches.class)
@@ -2452,5 +2419,15 @@ public final class VpnUtil {
     private static ReentrantLock lockFor(String vpnName, String fixedIp) {
         // FIXME: is there some identifier we can use? LearntVpnVipToPortKey perhaps?
         return JvmGlobalLocks.getLockForString(vpnName + fixedIp);
+    }
+
+    public Optional<String> getSubnetGwIpAddressIfV4Subnet(Uuid subnetId) {
+        Subnetmap subnetMap = getSubnetmapFromItsUuid(subnetId);
+        if (subnetMap != null) {
+            if (subnetMap.getSubnetType().getName().equals(Subnetmap.SubnetType.IPV4.getName())) {
+                return Optional.of(subnetMap.getGatewayIp());
+            }
+        }
+        return Optional.absent();
     }
 }

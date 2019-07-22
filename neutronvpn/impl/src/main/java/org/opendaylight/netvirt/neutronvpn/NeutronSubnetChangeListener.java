@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
@@ -121,9 +122,14 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         Uuid subnetId = subnet.getUuid();
         ProviderTypes providerType = NeutronvpnUtils.getProviderNetworkType(network);
         String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(network);
+        String subnetGwIp = subnet.getGatewayIp() != null ? subnet.getGatewayIp().stringValue() : null;
+        Subnetmap.SubnetType subnetType = Subnetmap.SubnetType.IPV4;
+        if (subnet.getIpVersion().equals(IpVersionV6.class)) {
+            subnetType = Subnetmap.SubnetType.IPV6;
+        }
         nvpnManager.createSubnetmapNode(subnetId, subnet.getCidr().stringValue(), subnet.getTenantId(), networkId,
                 providerType != null ? NetworkAttributes.NetworkType.valueOf(providerType.getName()) : null,
-                segmentationId != null ? Long.parseLong(segmentationId) : 0L);
+                segmentationId != null ? Long.parseLong(segmentationId) : 0L, subnetGwIp, subnetType);
         createSubnetToNetworkMapping(subnetId, networkId);
     }
 

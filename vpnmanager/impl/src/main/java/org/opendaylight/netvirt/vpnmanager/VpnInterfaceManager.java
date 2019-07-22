@@ -812,9 +812,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
                 String gatewayIp = nextHop.getSubnetGatewayIp();
                 if (gatewayIp == null) {
-                    Optional<String> gatewayIpOptional = vpnUtil.getVpnSubnetGatewayIp(subnetId);
+                    Optional<String> gatewayIpOptional = vpnUtil.getSubnetGwIpAddressIfV4Subnet(subnetId);
                     if (gatewayIpOptional.isPresent()) {
                         gatewayIp = gatewayIpOptional.get();
+                        LOG.debug("processVpnInterfaceAdjacencies: Obtained gateway-ip {} of subnet {} for the "
+                                + "vpn {} ", gatewayIp, subnetId, vpnName);
                     }
                 }
 
