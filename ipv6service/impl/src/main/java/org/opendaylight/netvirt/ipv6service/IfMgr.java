@@ -1175,13 +1175,25 @@ public class IfMgr implements ElementCache, AutoCloseable {
                 for (VirtualNetwork.DpnInterfaceInfo dpnIfaceInfo : dpnIfaceList) {
                     ndExecutorService.execute(() ->
                             checkVmBootBeforeSubnetAddRouter(dpnIfaceInfo, intf, networkElanTag, action));
-                }
-                /* Router interface case. Default NS punt flows per subnet
-                 * 1. flow for matching nd_target = <Subnet_GW_IP>
-                 * 2. flow for matching nd_target = <Subnet_GW_LLA>
-                 */
-                for (Ipv6Address ndTarget : intf.getIpv6Addresses()) {
-                    programIcmpv6NsDefaultPuntFlows(intf, ndTarget, action);
+
+                    /* Router interface case. Default NS punt flows per subnet
+                     * 1. flow for matching nd_target = <Subnet_GW_IP>
+                     * 2. flow for matching nd_target = <Subnet_GW_LLA>
+                     */
+                    for (Ipv6Address ndTarget : intf.getIpv6Addresses()) {
+                        if ((action == Ipv6ServiceConstants.ADD_FLOW)
+                                && (dpnIfaceInfo.ofPortMap.size() == Ipv6ServiceConstants.FIRST_OR_LAST_VM_ON_DPN)) {
+                            LOG.debug("checkIcmpv6NsMatchAndResponderFlow: Subnet {} on Interface {} specific flows to"
+                                            + " be installed for {}", intf.getNetworkID().getValue(),
+                                    intf.getIntfUUID(), ndTarget.getValue());
+                            programIcmpv6NsDefaultPuntFlows(intf, ndTarget, action);
+                        } else if (action == Ipv6ServiceConstants.DEL_FLOW) {
+                            LOG.debug("checkIcmpv6NsMatchAndResponderFlow: Subnet {} on Interface {} specific flows "
+                                            + "to be removed for {}", intf.getNetworkID().getValue(),
+                                    intf.getIntfUUID(), ndTarget.getValue());
+                            programIcmpv6NsDefaultPuntFlows(intf, ndTarget, action);
+                        }
+                    }
                 }
             }
         } else {
