@@ -2333,18 +2333,22 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     public void removeVpn(Uuid vpnId) {
         // read VPNMaps
         VpnMap vpnMap = neutronvpnUtils.getVpnMap(vpnId);
-        List<RouterIds> routerIdsList = vpnMap != null ? vpnMap.getRouterIds() : null;
-        List<Uuid> routerUuidList = new ArrayList<>();
-        // dissociate router
-        if (routerIdsList != null && !routerIdsList.isEmpty()) {
-            for (RouterIds router : routerIdsList) {
-                Uuid routerId = router.getRouterId();
-                routerUuidList.add(routerId);
-                dissociateRouterFromVpn(vpnId, routerId);
+        if (vpnMap != null) {
+            List<RouterIds> routerIdsList = vpnMap.getRouterIds();
+            List<Uuid> routerUuidList = new ArrayList<>();
+            // dissociate router
+            if (routerIdsList != null && !routerIdsList.isEmpty()) {
+                for (RouterIds router : routerIdsList) {
+                    Uuid routerId = router.getRouterId();
+                    routerUuidList.add(routerId);
+                    dissociateRouterFromVpn(vpnId, routerId);
+                }
             }
-        }
-        if (!routerUuidList.contains(vpnId) && vpnMap.getNetworkIds() != null) {
-            dissociateNetworksFromVpn(vpnId, vpnMap.getNetworkIds());
+            if (!routerUuidList.contains(vpnId) && vpnMap.getNetworkIds() != null) {
+                dissociateNetworksFromVpn(vpnId, vpnMap.getNetworkIds());
+            }
+        } else {
+            LOG.error("removeVpn: vpnMap is null for vpn {}", vpnId.getValue());
         }
         // remove entire vpnMaps node
         deleteVpnMapsNode(vpnId);
