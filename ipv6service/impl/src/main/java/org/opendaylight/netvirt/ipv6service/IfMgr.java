@@ -383,7 +383,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         VirtualPort intf = VirtualPort.builder().intfUUID(portId).networkID(networkId).macAddress(macAddress)
                 .routerIntfFlag(false).deviceOwner(deviceOwner).build();
         intf.setSubnetInfo(snetId, fixedIp);
-
+        intf.setPeriodicTimer(ipv6Queue);
         VirtualPort prevIntf = vintfs.putIfAbsent(portId, intf);
         if (prevIntf == null) {
             Long elanTag = getNetworkElanTag(networkId);
@@ -520,10 +520,6 @@ public class IfMgr implements ElementCache, AutoCloseable {
                 for (VirtualSubnet subnet : intf.getSubnets()) {
                     programIcmpv6NaForwardFlows(networkID, subnet, Ipv6ServiceConstants.DEL_FLOW);
                 }
-                transmitRouterAdvertisement(intf, Ipv6RouterAdvertisementType.CEASE_ADVERTISEMENT);
-                timer.cancelPeriodicTransmissionTimeout(intf.getPeriodicTimeout());
-                intf.resetPeriodicTimeout();
-                LOG.debug("Reset the periodic RA Timer for intf {}", intf.getIntfUUID());
             } else {
                 LOG.info("In removePort for host interface, portId {}", portId);
                 jobCoordinator.enqueueJob("IPv6-" + String.valueOf(portId), () -> {
@@ -538,6 +534,10 @@ public class IfMgr implements ElementCache, AutoCloseable {
                     return Collections.emptyList();
                 });
             }
+            transmitRouterAdvertisement(intf, Ipv6RouterAdvertisementType.CEASE_ADVERTISEMENT);
+            timer.cancelPeriodicTransmissionTimeout(intf.getPeriodicTimeout());
+            intf.resetPeriodicTimeout();
+            LOG.debug("Reset the periodic RA Timer for intf {}", intf.getIntfUUID());
         }
     }
 
