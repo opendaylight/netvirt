@@ -3196,7 +3196,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         VpnInterface vpnIf = vpnb.build();
         try {
             LOG.info("Creating vpn interface {}", vpnIf);
-            wrtConfigTxn.put(vpnIfIdentifier, vpnIf);
+            wrtConfigTxn.merge(vpnIfIdentifier, vpnIf);
         } catch (Exception ex) {
             LOG.error("Creation of vpninterface {} failed", infName, ex);
         }

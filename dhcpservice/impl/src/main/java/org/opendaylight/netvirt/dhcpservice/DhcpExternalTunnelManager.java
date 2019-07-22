@@ -843,6 +843,8 @@ public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
             return new RemoteMcastMacsBuilder(remoteMcastMacs).setLocatorSet(new ArrayList<>(locators)).build();
         } catch (ReadFailedException e) {
             LOG.error("Failed to read the macs {}", iid);
+        } finally {
+            transaction.close();
         }
         return null;
     }
