@@ -241,6 +241,8 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
             sn = tx.read(LogicalDatastoreType.CONFIGURATION, id).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
+        } finally {
+            tx.close();
         }
 
         if (sn.isPresent()) {
