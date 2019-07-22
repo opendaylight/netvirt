@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.base.Optional;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -15,6 +17,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.natservice.api.NatSwitchCache;
 import org.opendaylight.netvirt.natservice.api.NatSwitchCacheListener;
 import org.opendaylight.netvirt.natservice.api.SwitchInfo;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
@@ -25,13 +28,15 @@ public class NatSwitchCacheListenerImpl implements NatSwitchCacheListener {
 
     private final DataBroker dataBroker;
     private final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer;
+    private final INeutronVpnManager neutronVpnManager;
 
     @Inject
     public NatSwitchCacheListenerImpl(final DataBroker dataBroker,
             final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer, NatSwitchCache natSwitchCache,
-            final NatserviceConfig config) {
+            final NatserviceConfig config, final INeutronVpnManager neutronVpnManager) {
         this.dataBroker = dataBroker;
         this.snatDefaultRouteProgrammer = snatDefaultRouteProgrammer;
+        this.neutronVpnManager = neutronVpnManager;
         if (config != null && config.getNatMode().equals(NatserviceConfig.NatMode.Conntrack)) {
             natSwitchCache.register(this);
         }
@@ -44,9 +49,13 @@ public class NatSwitchCacheListenerImpl implements NatSwitchCacheListener {
                 Uuid externalNetworkUuid = externalSubnet.getExternalNetworkId();
                 String providerNet = NatUtil.getElanInstancePhysicalNetwok(externalNetworkUuid.getValue(),
                         dataBroker);
+                Optional<String> subnetGwIp = neutronVpnManager.getSubnetGatewayIpAddressIfV4Subnet(
+                        externalSubnet.getId());
+                String macAddress = NatUtil.getSubnetGwMac(dataBroker, externalSubnet.getId(),
+                        subnetGwIp.isPresent() ? subnetGwIp.get() : null, externalNetworkUuid.getValue());
                 if (switchInfo.getProviderNets().contains(providerNet)) {
                     long vpnid = NatUtil.getVpnId(dataBroker, externalNetworkUuid.getValue());
-                    snatDefaultRouteProgrammer.addOrDelDefaultFibRouteToSNATForSubnetInDpn(externalSubnet,
+                    snatDefaultRouteProgrammer.addOrDelDefaultFibRouteToSNATForSubnetInDpn(externalSubnet, macAddress,
                             externalNetworkUuid.getValue(), NwConstants.ADD_FLOW, vpnid, switchInfo.getDpnId());
                 }
             }
