@@ -426,6 +426,23 @@ public class NeutronvpnUtils {
         return prt;
     }
 
+    public List<String> getExistingRDsExcludingVpn(String vpnName) {
+        List<String> existingRDs = new ArrayList<>();
+        InstanceIdentifier<VpnInstances> path = InstanceIdentifier.builder(VpnInstances.class).build();
+        Optional<VpnInstances> vpnInstancesOptional = read(LogicalDatastoreType.CONFIGURATION, path);
+        if (vpnInstancesOptional.isPresent() && vpnInstancesOptional.get().getVpnInstance() != null) {
+            for (VpnInstance vpnInstance : vpnInstancesOptional.get().getVpnInstance()) {
+                if (!vpnInstance.getVpnInstanceName().equals(vpnName)) {
+                    List<String> rds = vpnInstance.getRouteDistinguisher();
+                    if (rds != null) {
+                        existingRDs.addAll(rds);
+                    }
+                }
+            }
+        }
+        return existingRDs;
+    }
+
     /**
      * Returns port_security_enabled status with the port.
      *
