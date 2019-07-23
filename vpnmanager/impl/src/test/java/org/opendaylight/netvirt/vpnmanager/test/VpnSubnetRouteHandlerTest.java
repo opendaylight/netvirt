@@ -302,7 +302,7 @@ public class VpnSubnetRouteHandlerTest {
         dpntePsInfo = new DPNTEPsInfoBuilder().setDPNID(dpId).setUp(true).withKey(new DPNTEPsInfoKey(dpId))
             .setTunnelEndPoints(tunnelEndPoints).build();
         tunlEndPts =
-            new TunnelEndPointsBuilder().setInterfaceName(interfaceName).setIpAddress(ipAddress).build();
+            new TunnelEndPointsBuilder().setInterfaceName(interfaceName).setVLANID(10).setIpAddress(ipAddress).build();
         tunnelEndPoints.add(tunlEndPts);
         ipv4Family = new Ipv4FamilyBuilder().setRouteDistinguisher(routeDistinguishers).build();
         vpnInstnce = new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances
