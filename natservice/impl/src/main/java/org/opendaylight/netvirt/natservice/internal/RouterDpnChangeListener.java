@@ -188,8 +188,11 @@ public class RouterDpnChangeListener extends AbstractAsyncDataTreeChangeListener
                                 /* install V6 internet default fallback rule in FIB_TABLE if router
                                  * is having V6 subnet
                                  */
-                                nvpnManager.programV6InternetFallbackFlow(new Uuid(routerUuid),
-                                        NatUtil.getVpnIdfromNetworkId(dataBroker, networkId), NwConstants.ADD_FLOW);
+                                Uuid internetVpnId = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
+                                if (internetVpnId != null) {
+                                    nvpnManager.programV6InternetFallbackFlow(new Uuid(routerUuid),
+                                            internetVpnId, NwConstants.ADD_FLOW);
+                                }
                                 if (router.isEnableSnat()) {
                                     LOG.info("add : SNAT enabled for router {}", routerUuid);
                                     if (extNwProvType == null) {
@@ -284,8 +287,11 @@ public class RouterDpnChangeListener extends AbstractAsyncDataTreeChangeListener
                                 /* remove V6 internet default fallback rule in FIB_TABLE if router
                                  * is having V6 subnet
                                  */
-                                nvpnManager.programV6InternetFallbackFlow(new Uuid(routerUuid),
-                                        NatUtil.getVpnIdfromNetworkId(dataBroker, networkId), NwConstants.DEL_FLOW);
+                                Uuid internetVpnId = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
+                                if (internetVpnId != null) {
+                                    nvpnManager.programV6InternetFallbackFlow(new Uuid(routerUuid), internetVpnId,
+                                            NwConstants.DEL_FLOW);
+                                }
                                 if (router.isEnableSnat()) {
                                     ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker,
                                         routerUuid, networkId);
