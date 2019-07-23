@@ -1846,8 +1846,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         Uuid networkUuid = neutronvpnUtils.getSubnetmap(subnet).getNetworkId();
         Network network = neutronvpnUtils.getNeutronNetwork(networkUuid);
         boolean netIsExternal = NeutronvpnUtils.getIsExternal(network);
-        Uuid vpnExtUuid = netIsExternal ? null
-                : neutronvpnUtils.getInternetvpnUuidBoundToSubnetRouter(subnet);
+        Uuid vpnExtUuid = netIsExternal ? neutronvpnUtils.getInternetvpnUuidBoundToSubnetRouter(subnet) : null;
         Subnetmap sn = updateSubnetNode(subnet, null, newVpnId, vpnExtUuid);
         if (sn == null) {
             LOG.error("Updating subnet {} with newVpn {} failed", subnet.getValue(), newVpnId.getValue());
