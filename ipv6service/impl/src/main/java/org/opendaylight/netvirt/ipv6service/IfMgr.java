@@ -955,12 +955,17 @@ public class IfMgr implements ElementCache, AutoCloseable {
         if (vnet != null) {
             long elanTag = vnet.getElanTag();
             Collection<VirtualNetwork.DpnInterfaceInfo> dpnIfaceList = vnet.getDpnIfaceList();
+            /* For UNSOLICITED_ADVERTISEMENT and CEASE_ADVERTISEMENT invoking transmitRtrAdvertisement()
+             * one time is sufficient. Since using IPv6 network ELAN BC group it will send an RA packetOut
+             * information to all VMs OF port which are booted on that particular ELAN Group
+             */
             for (VirtualNetwork.DpnInterfaceInfo dpnIfaceInfo : dpnIfaceList) {
                 LOG.debug("transmitRouterAdvertisement: Transmitting RA {} for ELAN Tag {}",
                         advType, elanTag);
                 if (dpnIfaceInfo.getDpId() != null) {
                     ipv6RouterAdvert.transmitRtrAdvertisement(advType, intf, elanTag, null,
                             dpnIfaceInfo.getDpId(), intf.getIntfUUID());
+                    break;
                 }
             }
         }
