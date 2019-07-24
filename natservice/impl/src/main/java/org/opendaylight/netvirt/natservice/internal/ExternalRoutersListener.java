@@ -312,6 +312,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         } else {
             // write metadata and punt
             installOutboundMissEntry(routerName, routerId, primarySwitchId, confTx);
+            handlePrimaryNaptSwitch(primarySwitchId, routerName, routerId, confTx);
             // Now install entries in SNAT tables to point to Primary for each router
             List<BigInteger> switches = naptSwitchSelector.getDpnsForVpn(routerName);
             for (BigInteger dpnId : switches) {
@@ -319,9 +320,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 if (!dpnId.equals(primarySwitchId)) {
                     LOG.debug("handleEnableSnat : Handle Ordinary switch");
                     handleSwitches(dpnId, routerName, routerId, primarySwitchId);
-                } else {
-                    LOG.debug("handleEnableSnat : Handle NAPT switch");
-                    handlePrimaryNaptSwitch(dpnId, routerName, routerId, confTx);
                 }
             }
         }
