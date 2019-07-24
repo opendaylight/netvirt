@@ -415,7 +415,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         NatUtil.removeFlow(confTx, mdsalManager, dpnId, NwConstants.L3_FIB_TABLE, flowRef);
         String rd = NatUtil.getVpnRd(dataBroker, subNetId);
         String ipPrefix = externalIp + "/32";
-        fibManager.removeFibEntry(rd, ipPrefix, confTx);
+        fibManager.removeFibEntry(rd, ipPrefix, null, confTx);
         NatUtil.deletePrefixToInterface(dataBroker, NatUtil.getVpnId(dataBroker, subNetId), ipPrefix);
     }
 
