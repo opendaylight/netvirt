@@ -42,6 +42,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -187,7 +188,7 @@ public class NeutronvpnUtils {
     private final ConcurrentMap<Uuid, Subnet> subnetMap = new ConcurrentHashMap<>();
     private final Map<IpAddress, Set<Uuid>> subnetGwIpMap = new ConcurrentHashMap<>();
 
-    private final DataBroker dataBroker;
+    private static DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
     private final IdManagerService idManager;
     private final JobCoordinator jobCoordinator;
@@ -350,6 +351,42 @@ public class NeutronvpnUtils {
             }
         }
         return subnets;
+    }
+
+    public List<String> getExistingRDsExcludingVpn(String vpnName) {
+        List<String> existingRDs = new ArrayList<>();
+        InstanceIdentifier<VpnInstances> path = InstanceIdentifier.builder(VpnInstances.class).build();
+        Optional<VpnInstances> vpnInstancesOptional = read(LogicalDatastoreType.CONFIGURATION, path, null);
+        if (vpnInstancesOptional.isPresent() && vpnInstancesOptional.get().getVpnInstance() != null) {
+            for (VpnInstance vpnInstance : vpnInstancesOptional.get().getVpnInstance()) {
+                if (!vpnInstance.getVpnInstanceName().equals(vpnName)) {
+                    List<String> rds = vpnInstance.getRouteDistinguisher();
+                    if (rds != null) {
+                        existingRDs.addAll(rds);
+                    }
+                }
+            }
+        }
+        return existingRDs;
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    static <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path,
+                                                   ReadWriteTransaction tx) {
+        if (tx == null) {
+            try {
+                return SingleTransactionDataBroker.syncReadOptional(dataBroker, datastoreType, path);
+            } catch (ReadFailedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        else {
+            try {
+                return tx.read(datastoreType, path).checkedGet();
+            } catch (ReadFailedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Nullable
