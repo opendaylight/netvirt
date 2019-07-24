@@ -392,6 +392,31 @@ public class FibUtil {
         LOG.info("removeFibEntry: Removed Fib Entry rd {} prefix {}",rd, prefix);
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void removeSubnetRouteFibEntry(String rd, String prefix, String eventSource) {
+        if (rd == null || rd.isEmpty()) {
+            LOG.error("removeSubnetRouteFibEntry: Prefix {} not associated with vpn", prefix);
+            return;
+        }
+        try {
+            LOG.debug("removeSubnetRouteFibEntry: Removing fib entry with destination prefix {} from vrf "
+                    + "table for rd {}", prefix, rd);
+            
+            InstanceIdentifier.InstanceIdentifierBuilder<VrfEntry> idBuilder =
+                    InstanceIdentifier.builder(FibEntries.class)
+                            .child(VrfTables.class, new VrfTablesKey(rd)).child(VrfEntry.class,
+                            new VrfEntryKey(prefix));
+            InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
+            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+
+            LOG.error("removeSubnetRouteFibEntry: Removed Fib Entry rd {} prefix {} source {} ",
+                    rd, prefix, eventSource);
+        } catch (RuntimeException e) {
+            LOG.error("removeSubnetRouteFibEntry: Unable to remove Fib Entry for rd {} prefix {} source {} ",
+                    rd, prefix, eventSource);
+        }
+    }
+
     /**
      * Removes a specific Nexthop from a VrfEntry. If Nexthop to remove is the
      * last one in the VrfEntry, then the VrfEntry is removed too.
@@ -402,7 +427,6 @@ public class FibUtil {
      */
     public void removeOrUpdateFibEntry(String rd, String prefix, String nextHopToRemove,
             TypedWriteTransaction<Configuration> writeConfigTxn) {
-
         LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {} nextHop {}", prefix, rd,
                 nextHopToRemove);
 
