@@ -1008,7 +1008,7 @@ public final class NatUtil {
                                            String rd, String prefix, String vpnName) {
         try {
             LOG.debug("removePrefixFromBGP: Removing Fib entry rd {} prefix {}", rd, prefix);
-            fibManager.removeFibEntry(rd, prefix, null);
+            fibManager.removeFibEntry(rd, prefix, null, null);
             if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
                 bgpManager.withdrawPrefix(rd, prefix);
             }
