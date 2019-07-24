@@ -159,7 +159,13 @@ public class FibManagerImpl implements IFibManager {
 
     @Override
     public void removeFibEntry(String rd, String prefix, TypedWriteTransaction<Configuration> writeConfigTxn) {
-        fibUtil.removeFibEntry(rd, prefix, writeConfigTxn);
+        fibUtil.removeFibEntry(rd, prefix, /*event source*/ null, writeConfigTxn);
+    }
+
+    @Override
+    public void removeSubnetRouteFibEntry(String rd, String prefix, String eventSource,
+                                          TypedWriteTransaction<Configuration> writeConfigTxn) {
+        fibUtil.removeSubnetRouteFibEntry(rd, prefix, eventSource, writeConfigTxn);
     }
 
     @Override
