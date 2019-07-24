@@ -154,7 +154,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             }
         } else {
             LOG.debug("Removing leaked route to {} from VPN {}", prefix, dstVpnName);
-            fibManager.removeFibEntry(dstVpnRd, prefix, null /*writeConfigTxn*/);
+            fibManager.removeFibEntry(dstVpnRd, prefix, null, null /*writeConfigTxn*/);
             bgpManager.withdrawPrefix(dstVpnRd, prefix);
         }
     }
