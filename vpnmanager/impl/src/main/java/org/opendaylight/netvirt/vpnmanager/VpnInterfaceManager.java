@@ -1409,7 +1409,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         LOG.info("removeAdjacenciesFromVpn: Removing PNF FIB entry rd {} prefix {}",
                                 nextHop.getSubnetId().getValue(), nextHop.getIpAddress());
                         fibManager.removeFibEntry(nextHop.getSubnetId().getValue(), nextHop.getIpAddress(),
-                                null/*writeCfgTxn*/);
+                                null, null/*writeCfgTxn*/);
                     } else {
                         String rd = nextHop.getVrfId();
                         List<String> nhList;
@@ -1439,7 +1439,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                             + " interface {}", nextHop.getIpAddress(), rd,
                                     nextHop.getAdjacencyType().toString(), interfaceName);
                             bgpManager.withdrawPrefixIfPresent(rd, nextHop.getIpAddress());
-                            fibManager.removeFibEntry(primaryRd, nextHop.getIpAddress(), writeConfigTxn);
+                            fibManager.removeFibEntry(primaryRd, nextHop.getIpAddress(), null, writeConfigTxn);
                         }
                     }
                     String ip = nextHop.getIpAddress().split("/")[0];
@@ -1846,7 +1846,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                             LOG.debug("update: remove prefix {} from the FIB and BGP entry "
                                                 + "for the Vpn-Rd {} ", adj.getIpAddress(), vpnRd);
                                             //remove BGP entry
-                                            fibManager.removeFibEntry(vpnRd, adj.getIpAddress(), confTx);
+                                            fibManager.removeFibEntry(vpnRd, adj.getIpAddress(), null, confTx);
                                             if (vpnRd != null && !vpnRd.equalsIgnoreCase(newVpnName)) {
                                                 bgpManager.withdrawPrefix(vpnRd, adj.getIpAddress());
                                             }
@@ -2104,7 +2104,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     LOG.info("delAdjFromVpnInterface: deleting PNF adjacency prefix {} subnet {}",
                                             adj.getIpAddress(), adj.getSubnetId());
                                     fibManager.removeFibEntry(adj.getSubnetId().getValue(), adj.getIpAddress(),
-                                            writeConfigTxn);
+                                            null, writeConfigTxn);
                                 }
                                 break;
                             }
@@ -2198,7 +2198,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 if (adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
                     String primaryInterfaceIp = adj.getIpAddress();
                     String prefix = VpnUtil.getIpPrefix(primaryInterfaceIp);
-                    fibManager.removeFibEntry(rd, prefix, writeConfigTxn);
+                    fibManager.removeFibEntry(rd, prefix, null, writeConfigTxn);
                     LOG.info("deleteFibEntryForRouterInterface: FIB for router interface {} deleted for vpn {} rd {}"
                             + " prefix {}", vpnInterface.getName(), vpnName, rd, prefix);
                 }

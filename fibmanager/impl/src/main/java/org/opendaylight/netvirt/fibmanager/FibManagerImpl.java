@@ -158,8 +158,9 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void removeFibEntry(String rd, String prefix, TypedWriteTransaction<Configuration> writeConfigTxn) {
-        fibUtil.removeFibEntry(rd, prefix, writeConfigTxn);
+    public void removeFibEntry(String rd, String prefix, String eventSource,
+                               TypedWriteTransaction<Configuration> writeConfigTxn) {
+        fibUtil.removeFibEntry(rd, prefix, eventSource, writeConfigTxn);
     }
 
     @Override
