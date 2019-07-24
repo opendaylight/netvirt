@@ -1570,7 +1570,7 @@ public final class NatUtil {
             .child(DpnRoutersList.class, new DpnRoutersListKey(dpnId)).build();
     }
 
-    static InstanceIdentifier<DpnVpninterfacesList> getRouterDpnId(String routerName, BigInteger dpnId) {
+    public static InstanceIdentifier<DpnVpninterfacesList> getRouterDpnId(String routerName, BigInteger dpnId) {
         return InstanceIdentifier.builder(NeutronRouterDpns.class)
             .child(RouterDpnList.class, new RouterDpnListKey(routerName))
             .child(DpnVpninterfacesList.class, new DpnVpninterfacesListKey(dpnId)).build();
