@@ -126,6 +126,13 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                 // TODO - commented out for now to avoid "Dead store to rd" violation.
                 //rd = generateNewRD(input.getUuid());
             } else {
+
+                String errMessage = checkVpnCreation(input);
+                if (errMessage != null) {
+                    LOG.error(errMessage);
+                    return;
+                }
+
                 String[] rdParams = rd.get(0).split(":");
                 if (rdParams[0].trim().equals(adminRDValue)) {
                     LOG.error("AS specific part of RD should not be same as that defined by DC Admin. Error "
@@ -167,6 +174,32 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
         } else {
             LOG.warn("BGPVPN type for VPN {} is not L3", vpnName);
         }
+    }
+
+    protected String checkVpnCreation(Bgpvpn input) {
+
+        String vpnName = input.getName();
+        List<String> rd = input.getRouteDistinguishers();
+        String msg;
+
+        if (rd == null || rd.isEmpty()) {
+            msg = String.format("Creation of BGPVPN failed for VPN %s due to absence of RD/iRT/eRT input", vpnName);
+            return msg;
+        }
+        Optional<String> operationalVpn = getExistingOperationalVpn(vpnName, rd.get(0));
+        if (operationalVpn != null && operationalVpn.isPresent()) {
+            msg = String.format("Creation of BGPVPN failed for VPN %s as another VPN %s with the same RD %s "
+                    + "is still available. Please retry creation of a new vpn with the same RD"
+                    + " after a couple of minutes.", vpnName, operationalVpn.get(), rd.get(0));
+            return msg;
+        }
+        List<String> existingRDs = neutronvpnUtils.getExistingRDsExcludingVpn(vpnName);
+        if (existingRDs != null && existingRDs.contains(rd.get(0))) {
+            msg = String.format("Creation of BGPVPN failed for VPN %s as another VPN with the same RD %s "
+                    + "is already configured", vpnName, rd.get(0));
+            return msg;
+        }
+        return null;
     }
 
     @Override
