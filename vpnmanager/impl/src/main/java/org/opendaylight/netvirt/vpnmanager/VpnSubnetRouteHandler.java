@@ -64,6 +64,7 @@ import org.slf4j.LoggerFactory;
 public class VpnSubnetRouteHandler {
     private static final Logger LOG = LoggerFactory.getLogger(VpnSubnetRouteHandler.class);
     private static final String LOGGING_PREFIX = "SUBNETROUTE:";
+    private static final String VPN_EVENT_SOURCE_SUBNET_ROUTE = "vpnSubnetRouteEvent";
     private final DataBroker dataBroker;
     private final SubnetOpDpnManager subOpDpnManager;
     private final IBgpManager bgpManager;
@@ -928,11 +929,11 @@ public class VpnSubnetRouteHandler {
     }
 
     public void deleteSubnetRouteFibEntryFromDS(String rd, String prefix, String vpnName) {
-        fibManager.removeFibEntry(rd, prefix, null);
+        fibManager.removeFibEntry(rd, prefix, VPN_EVENT_SOURCE_SUBNET_ROUTE, null);
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnUtil.getVpnsImportingMyRoute(vpnName);
         for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
             String importingRd = vpnInstance.getVrfId();
-            fibManager.removeFibEntry(importingRd, prefix, null);
+            fibManager.removeFibEntry(importingRd, prefix, VPN_EVENT_SOURCE_SUBNET_ROUTE, null);
             LOG.info("SUBNETROUTE: deleteSubnetRouteFibEntryFromDS: Deleted imported subnet route rd {} prefix {}"
                     + " from vpn {} importingRd {}", rd, prefix, vpnInstance.getVpnInstanceName(), importingRd);
         }
