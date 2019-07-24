@@ -1576,6 +1576,8 @@ public final class VpnUtil {
 
     static InstanceIdentifier<Adjacency> getVpnInterfaceOpDataEntryAdjacencyIdentifier(String intfName, String vpnName,
                 String ipAddress) {
+        LOG.debug("getVpnInterfaceOpDataEntryAdjacencyIdentifier intfName {}, vpnName {}, ipAddress {}",
+                intfName, vpnName, ipAddress);
         return InstanceIdentifier.builder(VpnInterfaceOpData.class)
                 .child(VpnInterfaceOpDataEntry.class, new VpnInterfaceOpDataEntryKey(intfName, vpnName))
                 .augmentation(AdjacenciesOp.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
