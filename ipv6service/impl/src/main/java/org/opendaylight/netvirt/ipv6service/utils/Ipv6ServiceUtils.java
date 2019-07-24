@@ -419,12 +419,14 @@ public class Ipv6ServiceUtils {
                 .child(BoundServices.class, new BoundServicesKey(priority)).build();
     }
 
-    public void bindIpv6Service(String interfaceName, Long elanTag, short tableId) {
+    public void bindIpv6Service(String interfaceName, Long elanTag) {
+        LOG.info("Binding IPv6 service for interface={}, elanTag={}", interfaceName, elanTag);
+
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),
                 MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
-        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(tableId, ++instructionKey));
+        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.IPV6_TABLE, ++instructionKey));
         short serviceIndex = ServiceIndex.getIndex(NwConstants.IPV6_SERVICE_NAME, NwConstants.IPV6_SERVICE_INDEX);
         BoundServices
                 serviceInfo =
@@ -436,6 +438,7 @@ public class Ipv6ServiceUtils {
     }
 
     public void unbindIpv6Service(String interfaceName) {
+        LOG.info("UnBinding IPv6 service for interface={}", interfaceName);
         MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION,
                 buildServiceId(interfaceName, ServiceIndex.getIndex(NwConstants.IPV6_SERVICE_NAME,
                         NwConstants.IPV6_SERVICE_INDEX)));

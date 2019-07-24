@@ -419,27 +419,24 @@ public class IfMgr implements ElementCache, AutoCloseable {
         intf.setSubnetInfo(snetId, fixedIp);
 
         VirtualPort prevIntf = vintfs.putIfAbsent(portId, intf);
-        if (prevIntf == null) {
-            Long elanTag = getNetworkElanTag(networkId);
-            final VirtualPort virtIntf = intf;
-            String jobKey = Ipv6ServiceUtils.buildIpv6MonitorJobKey(portId.getValue());
-            coordinator.enqueueJob(jobKey, () -> {
-                // Do service binding for the port and set the serviceBindingStatus to true.
-                ipv6ServiceUtils.bindIpv6Service(portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
-                virtIntf.setServiceBindingStatus(true);
-
-                /* Update the intf dpnId/ofPort from the Operational Store */
-                updateInterfaceDpidOfPortInfo(portId);
-
-                if (Objects.equals(ipV6NAConfigHelper.getNaResponderMode(), Ipv6serviceConfig.NaResponderMode.Switch)) {
-                    checkIcmpv6NsMatchAndResponderFlow(Uint64.ZERO, 0, virtIntf, Ipv6ServiceConstants.ADD_FLOW);
-                }
-                return Collections.emptyList();
-            });
-        } else {
+        if (prevIntf != null) {
             intf = prevIntf;
             intf.setSubnetInfo(snetId, fixedIp);
         }
+        Long elanTag = getNetworkElanTag(networkId);
+        final VirtualPort virtIntf = intf;
+        String jobKey = Ipv6ServiceUtils.buildIpv6MonitorJobKey(portId.getValue());
+        coordinator.enqueueJob(jobKey, () -> {
+            // Do service binding for the port.
+            ipv6ServiceUtils.bindIpv6Service(portId.getValue(), elanTag);
+
+            /* Update the intf dpnId/ofPort from the Operational Store */
+            updateInterfaceDpidOfPortInfo(portId);
+            if (Objects.equals(ipV6NAConfigHelper.getNaResponderMode(), Ipv6serviceConfig.NaResponderMode.Switch)) {
+                checkIcmpv6NsMatchAndResponderFlow(Uint64.ZERO, 0, virtIntf, Ipv6ServiceConstants.ADD_FLOW);
+            }
+            return Collections.emptyList();
+        });
 
         VirtualSubnet snet = getSubnet(snetId);
 
@@ -463,6 +460,11 @@ public class IfMgr implements ElementCache, AutoCloseable {
     }
 
     public void updateHostIntf(Uuid portId, Boolean portIncludesV6Address) {
+        if (portIncludesV6Address) {
+            LOG.debug("Skipping update Host interface as portIncludesV6Address={} for port={},", portIncludesV6Address,
+                    portId.getValue());
+            return;
+        }
         VirtualPort intf = getPort(portId);
         if (intf == null) {
             LOG.debug("Update Host interface failed. Could not get Host interface details {}", portId);
@@ -475,26 +477,12 @@ public class IfMgr implements ElementCache, AutoCloseable {
           */
         String jobKey = Ipv6ServiceUtils.buildIpv6MonitorJobKey(portId.getValue());
         coordinator.enqueueJob(jobKey, () -> {
-            if (portIncludesV6Address) {
-                if (!intf.getServiceBindingStatus()) {
-                    Long elanTag = getNetworkElanTag(intf.getNetworkID());
-                    LOG.info("In updateHostIntf, service binding for portId {}", portId);
-                    ipv6ServiceUtils.bindIpv6Service(portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
-                    intf.setServiceBindingStatus(true);
-                    if (Objects.equals(ipV6NAConfigHelper.getNaResponderMode(),
-                            Ipv6serviceConfig.NaResponderMode.Switch)) {
-                        LOG.debug("In updateHostIntf: Host Interface {}", intf);
-                        checkIcmpv6NsMatchAndResponderFlow(Uint64.ZERO, 0, intf, Ipv6ServiceConstants.ADD_FLOW);
-                    }
-                }
-            } else {
-                LOG.info("In updateHostIntf, removing service binding for portId {}", portId);
-                ipv6ServiceUtils.unbindIpv6Service(portId.getValue());
-                intf.setServiceBindingStatus(false);
-                if (Objects.equals(ipV6NAConfigHelper.getNaResponderMode(), Ipv6serviceConfig.NaResponderMode.Switch)) {
-                    LOG.debug("In updateHostIntf: Host Interface {}", intf);
-                    checkIcmpv6NsMatchAndResponderFlow(Uint64.ZERO, 0, intf, Ipv6ServiceConstants.DEL_FLOW);
-                }
+            String portName = portId.getValue();
+            LOG.info("In updateHostIntf, removing service binding for portId {}", portName);
+            ipv6ServiceUtils.unbindIpv6Service(portName);
+            if (Objects.equals(ipV6NAConfigHelper.getNaResponderMode(), Ipv6serviceConfig.NaResponderMode.Switch)) {
+                LOG.debug("In updateHostIntf: Host Interface {}", intf);
+                checkIcmpv6NsMatchAndResponderFlow(Uint64.ZERO, 0, intf, Ipv6ServiceConstants.DEL_FLOW);
             }
             return Collections.emptyList();
         });
@@ -781,6 +769,8 @@ public class IfMgr implements ElementCache, AutoCloseable {
 
     public void handleInterfaceStateEvent(VirtualPort port, Uint64 dpId, VirtualPort routerPort,int lportTag ,
                                           int addOrRemove) {
+        LOG.debug("Handling InterfaceStateEvent portId={}, dpId={}, routerPort={}, lportTag={}, addOrRemove={}",
+                port.getIntfUUID(), dpId, routerPort, lportTag, addOrRemove);
         Long elanTag = getNetworkElanTag(port.getNetworkID());
         if (addOrRemove == Ipv6ServiceConstants.ADD_FLOW && routerPort != null) {
             // Check and program icmpv6 punt flows on the dpnID if its the first VM on the host.

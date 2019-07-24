@@ -43,7 +43,6 @@ public class VirtualPort implements IVirtualPort  {
 
     private volatile Long ofPort;
     private volatile Uint64 dpId;
-    private volatile boolean serviceBindingStatus;
     private volatile Ipv6PeriodicTimer periodicTimer;
     private volatile Timeout periodicTimeout;
     private volatile int mtu = 0;
@@ -175,14 +174,6 @@ public class VirtualPort implements IVirtualPort  {
 
     public Long getOfPort() {
         return ofPort;
-    }
-
-    public void setServiceBindingStatus(Boolean status) {
-        this.serviceBindingStatus = status;
-    }
-
-    public boolean getServiceBindingStatus() {
-        return serviceBindingStatus;
     }
 
     public void removeSelf() {

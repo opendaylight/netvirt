@@ -16,7 +16,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceConstants;
@@ -93,15 +92,12 @@ public class Ipv6ServiceInterfaceEventListener
 
         String jobKey = Ipv6ServiceUtils.buildIpv6MonitorJobKey(portId.getValue());
         jobCoordinator.enqueueJob(jobKey, () -> {
-            if (port.getServiceBindingStatus()) {
-                // Unbind Service
-                ipv6ServiceUtils.unbindIpv6Service(portId.getValue());
-                port.setServiceBindingStatus(false);
-                VirtualNetwork vnet = ifMgr.getNetwork(port.getNetworkID());
-                if (null != vnet) {
-                    Uint64 dpId = port.getDpId();
-                    vnet.updateDpnPortInfo(dpId, port.getOfPort(), portId, Ipv6ServiceConstants.DEL_ENTRY);
-                }
+            // Unbind Service
+            ipv6ServiceUtils.unbindIpv6Service(portId.getValue());
+            VirtualNetwork vnet = ifMgr.getNetwork(port.getNetworkID());
+            if (null != vnet) {
+                Uint64 dpId = port.getDpId();
+                vnet.updateDpnPortInfo(dpId, port.getOfPort(), portId, Ipv6ServiceConstants.DEL_ENTRY);
             }
 
             VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
@@ -178,12 +174,9 @@ public class Ipv6ServiceInterfaceEventListener
                 jobCoordinator.enqueueJob(jobKey, () -> {
                     ifMgr.handleInterfaceStateEvent(port, dpId, routerPort,add.getIfIndex().intValue(),
                             Ipv6ServiceConstants.ADD_FLOW);
-                    if (!port.getServiceBindingStatus()) {
-                        // Bind Service
-                        Long elanTag = ifMgr.getNetworkElanTag(routerPort.getNetworkID());
-                        ipv6ServiceUtils.bindIpv6Service(portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
-                        port.setServiceBindingStatus(true);
-                    }
+                    // Bind Service
+                    Long elanTag = ifMgr.getNetworkElanTag(routerPort.getNetworkID());
+                    ipv6ServiceUtils.bindIpv6Service(portId.getValue(), elanTag);
                     return Collections.emptyList();
                 }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
 
