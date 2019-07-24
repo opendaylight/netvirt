@@ -40,6 +40,7 @@ import org.opendaylight.genius.infra.TypedReadWriteTransaction;
 import org.opendaylight.genius.infra.TypedWriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
@@ -284,6 +285,39 @@ public class VpnManagerImpl implements IVpnManager {
             LOG.info("delExtraRoute: Removed extra route {} from interface {} for rd {}", destination, intfName,
                     routerID);
         }
+    }
+
+    @Override
+    public boolean removeOrUpdateDSForExtraRoute(String vpnName, String primaryRd, String extraRouteRd,
+                                                 String vpnInterfaceName, String prefix, String nextHop,
+                                                 String nextHopTunnelIp,
+                                                 TypedWriteTransaction<Configuration> confTx) {
+        LOG.info("removeOrUpdateDSForExtraRoute: VPN WITHDRAW: Removing Fib Entry rd {} prefix {} nexthop {}",
+                extraRouteRd, prefix, nextHop);
+        Optional<Routes> optVpnExtraRoutes = VpnExtraRouteHelper
+                .getVpnExtraroutes(dataBroker, vpnName, extraRouteRd, prefix);
+        if (optVpnExtraRoutes.isPresent()) {
+            List<String> nhList = optVpnExtraRoutes.get().getNexthopIpList();
+            if (nhList != null && nhList.size() > 1) {
+                // If nhList is more than 1, just update vpntoextraroute and prefixtointerface DS
+                // For other cases, remove the corresponding tep ip from fibentry and withdraw prefix
+                nhList.remove(nextHop);
+                vpnUtil.syncWrite(LogicalDatastoreType.OPERATIONAL,
+                        VpnExtraRouteHelper.getVpnToExtrarouteVrfIdIdentifier(vpnName, extraRouteRd, prefix),
+                        VpnUtil.getVpnToExtraroute(prefix, nhList));
+                MDSALUtil.syncDelete(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, VpnExtraRouteHelper.getUsedRdsIdentifier(
+                                vpnUtil.getVpnId(vpnName), prefix, nextHop));
+                LOG.debug("removeOrUpdateDSForExtraRoute: Removed vpn-to-extraroute with rd {} prefix {} nexthop {}",
+                        extraRouteRd, prefix, nextHop);
+                fibManager.refreshVrfEntry(primaryRd, prefix);
+                confTx.delete(VpnUtil.getVpnInterfaceOpDataEntryAdjacencyIdentifier(vpnInterfaceName, vpnName, prefix));
+                LOG.info("VPN WITHDRAW: removeOrUpdateDSForExtraRoute: Removed Fib Entry rd {} prefix {} nexthop {}",
+                        extraRouteRd, prefix, nextHopTunnelIp);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

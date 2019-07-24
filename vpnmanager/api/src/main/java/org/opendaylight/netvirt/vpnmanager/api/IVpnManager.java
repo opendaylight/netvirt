@@ -47,6 +47,10 @@ public interface IVpnManager {
                                     TypedWriteTransaction<Configuration> confTx,
                                     TypedWriteTransaction<Operational> operTx);
 
+    boolean removeOrUpdateDSForExtraRoute(String vpnName, String primaryRd, String extraRouteRd,
+                                          String vpnInterfaceName, String prefix, String nextHop,
+                                          String nextHopTunnelIp, TypedWriteTransaction<Configuration> confTx);
+
     boolean isVPNConfigured();
 
     String getPrimaryRdFromVpnInstance(VpnInstance vpnInstance);
