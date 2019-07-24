@@ -162,6 +162,11 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
+    public void removeSubnetRouteFibEntry(String rd, String prefix, String eventSource) {
+        fibUtil.removeSubnetRouteFibEntry(rd, prefix, eventSource);
+    }
+
+    @Override
     public void updateRoutePathForFibEntry(String rd, String prefix, String nextHop,
             long label, boolean nextHopAdd, WriteTransaction writeConfigTxn) {
         fibUtil.updateRoutePathForFibEntry(rd, prefix, nextHop, label, nextHopAdd, writeConfigTxn);

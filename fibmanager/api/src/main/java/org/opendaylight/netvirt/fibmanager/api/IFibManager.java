@@ -68,6 +68,8 @@ public interface IFibManager {
 
     void removeFibEntry(String rd, String prefix, @Nullable TypedWriteTransaction<Configuration> writeConfigTxn);
 
+    void removeSubnetRouteFibEntry(String rd, String prefix, String eventSource);
+
     void updateRoutePathForFibEntry(String rd, String prefix, String nextHop,
                                     long label, boolean nextHopAdd, WriteTransaction writeConfigTxn);
 
