@@ -2076,11 +2076,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         for (Adjacency adjacency : adjacencies) {
                             if (Objects.equals(adjacency.getIpAddress(), adj.getIpAddress())) {
                                 String rd = adjacency.getVrfId();
-                                InstanceIdentifier<Adjacency> adjIdentifier = VpnUtil
-                                        .getVpnInterfaceOpDataEntryAdjacencyIdentifier(currVpnIntf.getName(),
-                                                currVpnIntf.getVpnInstanceName(), adj.getIpAddress());
-                                LOG.debug("delAdjFromVpnInterface: adjIdentifier {}", adjIdentifier);
-                                writeOperTxn.delete(adjIdentifier);
                                 if (adj.getNextHopIpList() != null) {
                                     for (String nh : adj.getNextHopIpList()) {
                                         deleteExtraRouteFromCurrentAndImportingVpns(
@@ -2114,11 +2109,15 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private void deleteExtraRouteFromCurrentAndImportingVpns(String vpnName, String destination, String nextHop,
                                     String rd, String intfName, TypedWriteTransaction<Configuration> writeConfigTxn,
                                     TypedWriteTransaction<Operational> writeOperTx) {
+        LOG.info("removing extra-route {} for nexthop {} in VPN {} intfName {} rd {}",
+                destination, nextHop, vpnName, intfName, rd);
         vpnManager.delExtraRoute(vpnName, destination, nextHop, rd, vpnName, intfName, writeConfigTxn, writeOperTx);
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnUtil.getVpnsImportingMyRoute(vpnName);
         for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
             String vpnRd = vpn.getVrfId();
             if (vpnRd != null) {
+                LOG.info("deleting extra-route {} for nexthop {} in VPN {} intfName {} vpnRd {}",
+                        destination, nextHop, vpnName, intfName, vpnRd);
                 vpnManager.delExtraRoute(vpnName, destination, nextHop, vpnRd, vpnName, intfName, writeConfigTxn,
                         writeOperTx);
             }
