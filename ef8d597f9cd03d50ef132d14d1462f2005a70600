@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "253c0cc9_a3412996",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatRouterInterfaceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2019-07-25T11:16:46Z",
+      "side": 1,
+      "message": "print router and interface names",
+      "revId": "ef8d597f9cd03d50ef132d14d1462f2005a70600",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fffcfe4d_ad34456f",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatRouterInterfaceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2019-07-25T11:16:46Z",
+      "side": 1,
+      "message": "print router name as well",
+      "revId": "ef8d597f9cd03d50ef132d14d1462f2005a70600",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c1cf6555_4330f3df",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2019-07-25T11:16:46Z",
+      "side": 1,
+      "message": "print exception object",
+      "revId": "ef8d597f9cd03d50ef132d14d1462f2005a70600",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aeb271a0_3430ce13",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2608,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2019-07-25T11:16:46Z",
+      "side": 1,
+      "message": "pls swap the compare objects. First would be constant value",
+      "revId": "ef8d597f9cd03d50ef132d14d1462f2005a70600",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "008b4f34_7f906f1c",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2623,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2019-07-25T11:16:46Z",
+      "side": 1,
+      "message": "print exception object",
+      "revId": "ef8d597f9cd03d50ef132d14d1462f2005a70600",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d99fe3db_b7c0dc25",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2627,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2019-07-25T11:16:46Z",
+      "side": 1,
+      "message": "print interface name",
+      "revId": "ef8d597f9cd03d50ef132d14d1462f2005a70600",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
