@@ -296,6 +296,7 @@ public class VpnManagerImpl implements IVpnManager {
         // FIXME: separate out to somehow?
         final ReentrantLock lock = JvmGlobalLocks.getLockForString(vpnNamePrefixKey);
         lock.lock();
+        LOG.info("removing prefix {} for nexthop {} in VPN {} rd {}", prefix, nextHop, vpnName, extraRouteRd);
         try {
             if (vpnUtil.removeOrUpdateDSForExtraRoute(vpnName, primaryRd, extraRouteRd, vpnInterfaceName, prefix,
                     nextHop, nextHopTunnelIp, operTx)) {
