@@ -705,7 +705,7 @@ public final class VpnUtil {
                 MDSALUtil.syncDelete(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, VpnExtraRouteHelper.getUsedRdsIdentifier(getVpnId(vpnName),
                                 prefix, nextHop));
-                LOG.debug("removeOrUpdateDSForExtraRoute: Removed vpn-to-extraroute with rd {} prefix {} nexthop {}",
+                LOG.info("removeOrUpdateDSForExtraRoute: Removed vpn-to-extraroute with rd {} prefix {} nexthop {}",
                         extraRouteRd, prefix, nextHop);
                 fibManager.refreshVrfEntry(primaryRd, prefix);
                 operTx.delete(VpnUtil.getVpnInterfaceOpDataEntryAdjacencyIdentifier(vpnInterfaceName, vpnName, prefix));
