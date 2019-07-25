@@ -1509,19 +1509,19 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     private void removeAdjacencyFromBgpvpn(Adjacency nextHop, List<String> nhList, String vpnName, String primaryRd,
                                            BigInteger dpnId, String rd, String interfaceName,
-                                           TypedWriteTransaction<Configuration> writeConfigTxn,
-                                           TypedWriteTransaction<Operational> writeOperTx) {
+                                           TypedWriteTransaction<Configuration> confTx,
+                                           TypedWriteTransaction<Operational> operTx) {
         List<VpnInstanceOpDataEntry> vpnsToImportRoute =
                 vpnUtil.getVpnsImportingMyRoute(vpnName);
         nhList.forEach((nh) -> {
             //IRT: remove routes from other vpns importing it
             vpnManager.removePrefixFromBGP(vpnName, primaryRd, rd, interfaceName, nextHop.getIpAddress(),
-                    nextHop.getNextHopIpList().get(0), nh, dpnId, writeConfigTxn, writeOperTx);
+                    nextHop.getNextHopIpList().get(0), nh, dpnId, confTx, operTx);
             for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                 String vpnRd = vpn.getVrfId();
                 if (vpnRd != null) {
                     fibManager.removeOrUpdateFibEntry(vpnRd,
-                            nextHop.getIpAddress(), nh, writeConfigTxn);
+                            nextHop.getIpAddress(), nh, confTx);
                     LOG.info("removeAdjacenciesFromVpn: Removed Exported route with rd {}"
                                     + " prefix {} nextHop {} from VPN {} parentVpn {}"
                                     + " for interface {} on dpn {}", vpnRd, nextHop.getIpAddress(), nh,
