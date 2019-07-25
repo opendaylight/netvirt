@@ -22,6 +22,30 @@
       "revId": "9455abb2721be70d0106282104e4e694afff7083",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3e0099d9_79e95e1b",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2019-07-25T07:12:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "867d4e2e_7adfa332",
+      "range": {
+        "startLine": 426,
+        "startChar": 12,
+        "endLine": 426,
+        "endChar": 29
+      },
+      "revId": "9455abb2721be70d0106282104e4e694afff7083",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
