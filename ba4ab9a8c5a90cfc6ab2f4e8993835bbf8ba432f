@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "281d01fd_d2468b78",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2019-07-25T09:13:18Z",
+      "side": 1,
+      "message": "could you please check why there is no usages for this method in the current review",
+      "revId": "ba4ab9a8c5a90cfc6ab2f4e8993835bbf8ba432f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
