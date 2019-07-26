@@ -1804,8 +1804,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     } else {
                                         // add new adjacency
                                         if (!isBgpVpnInternetVpn || vpnUtil.isAdjacencyEligibleToVpnInternet(adj)) {
+                                            try {
                                             addNewAdjToVpnInterface(vpnInterfaceOpIdentifier, primaryRd, adj,
                                                     dpnId, operTx, confTx, confTx, prefixListForRefreshFib);
+                                            } catch (RuntimeException e) {
+                                                LOG.error("Caught exception {} {}", e.getClass().getName(), e);
+                                            }
                                         }
                                         LOG.info("update: new Adjacency {} with nextHop {} label {} subnet {} "
                                             + " added to vpn interface {} on vpn {} dpnId {}",
