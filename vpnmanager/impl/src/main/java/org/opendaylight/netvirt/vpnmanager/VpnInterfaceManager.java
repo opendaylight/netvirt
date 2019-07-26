@@ -1768,6 +1768,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private List<ListenableFuture<Void>> updateVpnInstanceAdjChange(VpnInterface original, VpnInterface update,
                                                                     String vpnInterfaceName,
                                                                     List<ListenableFuture<Void>> futures) {
@@ -1807,8 +1809,13 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     } else {
                                         // add new adjacency
                                         if (!isBgpVpnInternetVpn || vpnUtil.isAdjacencyEligibleToVpnInternet(adj)) {
-                                            addNewAdjToVpnInterface(vpnInterfaceOpIdentifier, primaryRd, adj,
+                                            try {
+                                                addNewAdjToVpnInterface(vpnInterfaceOpIdentifier, primaryRd, adj,
                                                     dpnId, operTx, confTx, confTx, prefixListForRefreshFib);
+                                            } catch (RuntimeException e) {
+                                                LOG.error("Failed to add adjacency {} to vpn interface {} with"
+                                                        + " dpnId {}", adj, vpnInterfaceName, dpnId, e);
+                                            }
                                         }
                                         LOG.info("update: new Adjacency {} with nextHop {} label {} subnet {} "
                                             + " added to vpn interface {} on vpn {} dpnId {}",
