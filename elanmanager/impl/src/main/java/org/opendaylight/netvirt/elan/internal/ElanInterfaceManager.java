@@ -148,7 +148,7 @@ import org.slf4j.LoggerFactory;
 public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanInterface, ElanInterfaceManager>
         implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceManager.class);
-    private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
+    public static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
     private static final boolean SH_FLAG_SET = true;
     private static final boolean SH_FLAG_UNSET = false;
 
