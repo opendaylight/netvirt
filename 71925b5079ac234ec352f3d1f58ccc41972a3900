@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b117a8f_179d95b4",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-08-01T07:04:32Z",
+      "side": 1,
+      "message": "This seems to be an issue. Where are you adding nhActionInfoList to listActionInfo ??",
+      "range": {
+        "startLine": 433,
+        "startChar": 0,
+        "endLine": 441,
+        "endChar": 76
+      },
+      "revId": "71925b5079ac234ec352f3d1f58ccc41972a3900",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
