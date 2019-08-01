@@ -437,9 +437,9 @@ public class NexthopManager implements AutoCloseable {
                                     + "interface {} on dpn {} for vpn {} prefix {}", ifName, dpnId, vpnId,
                                     currDestIpPrefix);
                         }
+                        listActionInfo.addAll(nhActionInfoList);
                         BucketInfo bucket = new BucketInfo(listActionInfo);
                         List<BucketInfo> listBucketInfo = new ArrayList<>();
-
                         listBucketInfo.add(bucket);
                         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, primaryIpAddress,
                                 GroupTypes.GroupAll, listBucketInfo);
