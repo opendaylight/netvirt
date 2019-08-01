@@ -468,7 +468,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                 addRewriteDstMacAction(vpnId, vrfEntry, null, actionInfos);
             }
             List<ActionInfo> egressActions = nextHopManager.getEgressActionsForInterface(egressInterface,
-                    actionInfos.size(), true, vpnId, vrfEntry.getDestPrefix());
+                    actionInfos.size(), true);
             if (egressActions.isEmpty()) {
                 LOG.error(
                         "Failed to retrieve egress action for prefix {} route-paths {} interface {}. "

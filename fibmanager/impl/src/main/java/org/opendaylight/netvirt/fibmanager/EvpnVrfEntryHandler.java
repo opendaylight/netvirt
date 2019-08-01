@@ -256,7 +256,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler {
             actionInfos.add(new ActionSetFieldTunnelId(tunnelId));
             List<ActionInfo> egressActions =
                     nexthopManager.getEgressActionsForInterface(adjacencyResult.getInterfaceName(), actionInfos.size(),
-                            true, vpnId, vrfEntry.getDestPrefix());
+                            true);
             if (egressActions.isEmpty()) {
                 LOG.error("Failed to retrieve egress action for prefix {} route-paths {} interface {}."
                         + " Aborting remote FIB entry creation..", vrfEntry.getDestPrefix(),
