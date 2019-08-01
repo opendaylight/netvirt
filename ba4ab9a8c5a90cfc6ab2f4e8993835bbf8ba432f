@@ -16,6 +16,24 @@
       "revId": "ba4ab9a8c5a90cfc6ab2f4e8993835bbf8ba432f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "498bfb59_f443fba8",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2019-08-01T07:44:48Z",
+      "side": 1,
+      "message": "Made the required changes since this method is now placed in vpnUtil.java file",
+      "parentUuid": "281d01fd_d2468b78",
+      "revId": "ba4ab9a8c5a90cfc6ab2f4e8993835bbf8ba432f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
