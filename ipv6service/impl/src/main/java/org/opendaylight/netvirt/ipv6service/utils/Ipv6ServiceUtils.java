@@ -228,7 +228,7 @@ public class Ipv6ServiceUtils {
             int addOrRemove) {
         String flowId = getIPv6FlowRef(dpId, elanTag, Ipv6Util.getFormattedIpv6Address(ipv6Address));
 
-        if (addOrRemove == Ipv6ServiceConstants.DEL_FLOW) {
+        if (isActionDelete(addOrRemove)) {
             LOG.trace("Removing IPv6 Neighbor Solicitation Flow DpId {}, elanTag {}", dpId, elanTag);
             LoggingFutures
                     .addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION, tx -> {
@@ -291,7 +291,7 @@ public class Ipv6ServiceUtils {
             return;
         }
         String flowId = getIPv6FlowRef(dpId, elanTag, "IPv6RS");
-        if (addOrRemove == Ipv6ServiceConstants.DEL_FLOW) {
+        if (isActionDelete(addOrRemove)) {
             LOG.trace("Removing IPv6 Router Solicitation Flow DpId {}, elanTag {}", dpId, elanTag);
             LoggingFutures
                     .addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(Datastore.CONFIGURATION, tx -> {
@@ -366,7 +366,7 @@ public class Ipv6ServiceUtils {
             FlowEntity rsFlowEntity =
                     MDSALUtil.buildFlowEntity(dpId, tableId, flowId, Ipv6ServiceConstants.DEFAULT_FLOW_PRIORITY,
                             "IPv6NA", 0, 0, NwConstants.COOKIE_IPV6_TABLE, matches, instructions);
-            if (addOrRemove == Ipv6ServiceConstants.DEL_FLOW) {
+            if (isActionDelete(addOrRemove)) {
                 LOG.trace("Removing IPv6 Neighbor Advertisement Flow DpId {}, elanTag {}, ipv6Address {}", dpId,
                         elanTag, ipv6Address.getValue());
                 mdsalUtil.removeFlow(rsFlowEntity);
@@ -393,7 +393,7 @@ public class Ipv6ServiceUtils {
         FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                 flowId, Ipv6ServiceConstants.PUNT_NA_FLOW_PRIORITY,
                 "IPv6NA", 0, 0, NwConstants.COOKIE_IPV6_TABLE, naMatch, instructions);
-        if (addOrRemove == Ipv6ServiceConstants.DEL_FLOW) {
+        if (isActionDelete(addOrRemove)) {
             LOG.trace("Removing IPv6 Neighbor Advertisement Flow DpId {}, elanTag {}", dpId, elanTag);
             mdsalUtil.removeFlow(rsFlowEntity);
         } else {
@@ -533,7 +533,7 @@ public class Ipv6ServiceUtils {
                 "IPv6NS", 0, 0, NwConstants.COOKIE_IPV6_TABLE,
                 neighborSolicitationMatch, instructions);
 
-        if (addOrRemove == Ipv6ServiceConstants.DEL_FLOW) {
+        if (isActionDelete(addOrRemove)) {
             LOG.debug("installIcmpv6NsResponderFlow: Removing IPv6 Neighbor Solicitation Flow on "
                             + "DpId {} for NDTraget {}, elanTag {}, lportTag {}", dpId, ndTargetAddr.getValue(),
                     elanTag, lportTag);
@@ -557,7 +557,7 @@ public class Ipv6ServiceUtils {
                 ndTargetAddr, isTllOptionSet);
         short priority = isTllOptionSet ? Ipv6ServiceConstants.SLLOPTION_SET_FLOW_PRIORITY :
                 Ipv6ServiceConstants.DEFAULT_FLOW_PRIORITY;
-        if (addOrRemove == Ipv6ServiceConstants.DEL_FLOW) {
+        if (isActionDelete(addOrRemove)) {
             FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     Boolean.TRUE.equals(isTllOptionSet)
                             ? getIPv6OvsFlowRef(tableId, dpId, lportTag, ndTargetAddr.getValue(),
@@ -621,7 +621,7 @@ public class Ipv6ServiceUtils {
                 getIPv6FlowRef(dpId, elanTag, ipv6Address + ".UNSPECIFIED.Switch.NS.Responder"),
                 Ipv6ServiceConstants.FLOW_SUBNET_PRIORITY , "IPv6NS",
                 0, 0, NwConstants.COOKIE_IPV6_TABLE, neighborSolicitationMatch, instructions);
-        if (addOrRemove == Ipv6ServiceConstants.DEL_FLOW) {
+        if (isActionDelete(addOrRemove)) {
             LOG.debug("installIcmpv6NsDefaultPuntFlow: Removing OVS based NA responder default subnet punt flow on "
                     + "DpId {}, elanTag {} for Unspecified Address", dpId, elanTag);
             mdsalUtil.removeFlow(tx, rsFlowEntity);
@@ -663,5 +663,13 @@ public class Ipv6ServiceUtils {
         matches.add(new MatchMetadata(ElanHelper.getElanMetadataLabel(elanTag, lportTag),
                 ElanHelper.getElanMetadataMask()));
         return matches;
+    }
+
+    public static boolean isActionAdd(int action) {
+        return action == Ipv6ServiceConstants.ADD_FLOW;
+    }
+
+    public static boolean isActionDelete(int action) {
+        return action == Ipv6ServiceConstants.DEL_FLOW;
     }
 }
