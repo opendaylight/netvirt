@@ -80,10 +80,6 @@ public class Ipv6ServiceInterfaceEventListener
             return;
         }
 
-        if (!ipv6ServiceEosHandler.isClusterOwner()) {
-            LOG.trace("Not a cluster Owner, skipping further IPv6 processing on this node.");
-            return;
-        }
         Uuid portId = new Uuid(del.getName());
         VirtualPort port = ifMgr.obtainV6Interface(portId);
         if (port == null) {
@@ -93,20 +89,24 @@ public class Ipv6ServiceInterfaceEventListener
 
         String jobKey = Ipv6ServiceUtils.buildIpv6MonitorJobKey(portId.getValue());
         jobCoordinator.enqueueJob(jobKey, () -> {
-            if (port.getServiceBindingStatus()) {
-                // Unbind Service
-                ipv6ServiceUtils.unbindIpv6Service(portId.getValue());
-                port.setServiceBindingStatus(false);
-                VirtualNetwork vnet = ifMgr.getNetwork(port.getNetworkID());
-                if (null != vnet) {
-                    BigInteger dpId = port.getDpId();
-                    vnet.updateDpnPortInfo(dpId, port.getOfPort(), portId, Ipv6ServiceConstants.DEL_ENTRY);
+            VirtualNetwork vnet = ifMgr.getNetwork(port.getNetworkID());
+            if (!ipv6ServiceEosHandler.isClusterOwner()) {
+                LOG.trace("Not a cluster Owner, skipping further IPv6 processing on this node.");
+                if (vnet != null) {
+                    vnet.updateDpnPortInfo(port.getDpId(), port.getOfPort(), portId, Ipv6ServiceConstants.DEL_ENTRY);
                 }
+                return Collections.emptyList();
             }
+
+            // Unbind Service
+            ipv6ServiceUtils.unbindIpv6Service(portId.getValue());
 
             VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
             ifMgr.handleInterfaceStateEvent(port, ipv6ServiceUtils.getDpIdFromInterfaceState(del), routerPort,
                     del.getIfIndex(), Ipv6ServiceConstants.DEL_FLOW);
+            if (vnet != null) {
+                vnet.updateDpnPortInfo(port.getDpId(), port.getOfPort(), portId, Ipv6ServiceConstants.DEL_ENTRY);
+            }
             return Collections.emptyList();
         }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
     }
@@ -146,49 +146,51 @@ public class Ipv6ServiceInterfaceEventListener
 
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface;
         iface = ipv6ServiceUtils.getInterface(add.getName());
-        if (null != iface) {
-            LOG.debug("Port {} is a Neutron port", iface.getName());
-            NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-            BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
-
-            if (!dpId.equals(Ipv6ServiceConstants.INVALID_DPID)) {
-                Uuid portId = new Uuid(iface.getName());
-                VirtualPort port = ifMgr.obtainV6Interface(portId);
-                if (port == null) {
-                    LOG.info("Port {} does not include IPv6Address, skipping.", portId);
-                    return;
-                }
-
-                Long ofPort = MDSALUtil.getOfPortNumberFromPortName(nodeConnectorId);
-                ifMgr.updateDpnInfo(portId, dpId, ofPort);
-
-                if (!ipv6ServiceEosHandler.isClusterOwner()) {
-                    LOG.trace("Not a cluster Owner, skipping further IPv6 processing on this node.");
-                    return;
-                }
-
-                VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
-                if (routerPort == null) {
-                    LOG.info("Port {} is not associated to a Router, skipping.", portId);
-                    return;
-                }
-
-                // Check and program icmpv6 punt flows on the dpnID if its the first VM on the host.
-                String jobKey = Ipv6ServiceUtils.buildIpv6MonitorJobKey(portId.getValue());
-                jobCoordinator.enqueueJob(jobKey, () -> {
-                    ifMgr.handleInterfaceStateEvent(port, dpId, routerPort,add.getIfIndex().intValue(),
-                            Ipv6ServiceConstants.ADD_FLOW);
-                    if (!port.getServiceBindingStatus()) {
-                        // Bind Service
-                        Long elanTag = ifMgr.getNetworkElanTag(routerPort.getNetworkID());
-                        ipv6ServiceUtils.bindIpv6Service(portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
-                        port.setServiceBindingStatus(true);
-                    }
-                    return Collections.emptyList();
-                }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
-
-            }
+        if (iface == null) {
+            LOG.debug("Config interface not found for interface={}", add.getName());
+            return;
         }
+        LOG.debug("Port {} is a Neutron port", iface.getName());
+        NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
+        BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+        if (dpId.equals(Ipv6ServiceConstants.INVALID_DPID)) {
+            LOG.error("Invalid DPN-ID for nodeConnectorId={} interface={}", nodeConnectorId, add.getName());
+            return;
+        }
+
+        Uuid portId = new Uuid(iface.getName());
+        VirtualPort port = ifMgr.obtainV6Interface(portId);
+        if (port == null) {
+            LOG.info("Port {} does not include IPv6Address, skipping.", portId);
+            return;
+        }
+
+        // Check and program icmpv6 punt flows on the dpnID if its the first VM on the
+        // host.
+        String jobKey = Ipv6ServiceUtils.buildIpv6MonitorJobKey(portId.getValue());
+        jobCoordinator.enqueueJob(jobKey, () -> {
+            Long ofPort = MDSALUtil.getOfPortNumberFromPortName(nodeConnectorId);
+            ifMgr.updateDpnInfo(portId, dpId, ofPort);
+
+            if (!ipv6ServiceEosHandler.isClusterOwner()) {
+                LOG.trace("Not a cluster Owner, skipping further IPv6 processing on this node.");
+                return Collections.emptyList();
+            }
+
+            VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
+            if (routerPort == null) {
+                LOG.info("Port {} is not associated to a Router, skipping.", portId);
+                return Collections.emptyList();
+            }
+
+            ifMgr.handleInterfaceStateEvent(port, dpId, routerPort, add.getIfIndex().intValue(),
+                    Ipv6ServiceConstants.ADD_FLOW);
+            // Bind Service
+            Long elanTag = ifMgr.getNetworkElanTag(routerPort.getNetworkID());
+            ipv6ServiceUtils.bindIpv6Service(portId.getValue(), elanTag);
+            return Collections.emptyList();
+        }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
+
     }
 
     @Override
