@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9497fbd9_d781c9e8",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2019-08-07T09:18:20Z",
+      "side": 0,
+      "message": "any reason for the removal of unsetting these parameters ??",
+      "range": {
+        "startLine": 274,
+        "startChar": 25,
+        "endLine": 274,
+        "endChar": 75
+      },
+      "revId": "4bbbbec2b6879070927fa5e80369c32649dd0a48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
