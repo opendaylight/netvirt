@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7e26f18f_6f36a55a",
+        "filename": "docs/specs/sodium/host-routes-in-ipv6.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2019-08-07T11:43:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75e5f291_f5291cba",
+      "range": {
+        "startLine": 44,
+        "startChar": 50,
+        "endLine": 44,
+        "endChar": 79
+      },
+      "revId": "b4018628fc566f12866e64fabafb72f2c2dc284e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f53bc7b4_cadf4703",
         "filename": "docs/specs/sodium/host-routes-in-ipv6.rst",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2019-08-07T11:15:19Z",
       "side": 1,
       "message": "Is this an operational yang or a config yang?\n\nUnclear why we need a yang change. We already know which subnets are attached to the router. All we need to do is formulate the RA packet with the CIDRs of the subnets attached to the router.",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 12
+      },
+      "revId": "b4018628fc566f12866e64fabafb72f2c2dc284e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78d7abd9_83628f83",
+        "filename": "docs/specs/sodium/host-routes-in-ipv6.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2019-08-07T11:43:08Z",
+      "side": 1,
+      "message": "This is the RA packet container which already exist in ipv6-neighbor-discovery.yang.\nAs it has to carry additional RIO info with it, new RIO list has been added to it in the end.\nlist route-information-option-list {\n                key \"prefix\";\n                leaf option-type {\n                    type uint8;\n                }\n                leaf option-length {\n                    type uint8;\n                }\n                leaf prefix-length {\n                    type uint8;\n                }\n                leaf flags {\n                    type uint8;\n                }\n                leaf route-lifetime {\n                    type uint32;\n                }\n                leaf prefix {\n                    type inet:ipv6-prefix;\n                }\n            }\n        }",
+      "parentUuid": "f53bc7b4_cadf4703",
       "range": {
         "startLine": 75,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "993dd3d8_beeb652a",
+        "filename": "docs/specs/sodium/host-routes-in-ipv6.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2019-08-07T11:43:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5caaa0e1_343320a8",
+      "range": {
+        "startLine": 233,
+        "startChar": 0,
+        "endLine": 233,
+        "endChar": 109
+      },
+      "revId": "b4018628fc566f12866e64fabafb72f2c2dc284e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f21e161e_bde3a427",
         "filename": "docs/specs/sodium/host-routes-in-ipv6.rst",
         "patchSetId": 4
@@ -82,6 +154,30 @@
       "writtenOn": "2019-08-07T11:15:19Z",
       "side": 1,
       "message": "same comment as above.",
+      "range": {
+        "startLine": 240,
+        "startChar": 0,
+        "endLine": 240,
+        "endChar": 112
+      },
+      "revId": "b4018628fc566f12866e64fabafb72f2c2dc284e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abaa7ca0_ca75824c",
+        "filename": "docs/specs/sodium/host-routes-in-ipv6.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2019-08-07T11:43:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f21e161e_bde3a427",
       "range": {
         "startLine": 240,
         "startChar": 0,
