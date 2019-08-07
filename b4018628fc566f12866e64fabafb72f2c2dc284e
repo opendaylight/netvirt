@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75e5f291_f5291cba",
+        "filename": "docs/specs/sodium/host-routes-in-ipv6.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2019-08-07T11:15:19Z",
+      "side": 1,
+      "message": "It is not possible to advertise host-route prefixes. Host-route implies both (prefix,nexthop) are advertised. \n\nWith RIO, the nexthop will always be the router that used the RIO option. \n\nWe can say \"It is possible to advertise prefixes that are reachable via the router.\"",
+      "range": {
+        "startLine": 44,
+        "startChar": 50,
+        "endLine": 44,
+        "endChar": 79
+      },
+      "revId": "b4018628fc566f12866e64fabafb72f2c2dc284e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f53bc7b4_cadf4703",
+        "filename": "docs/specs/sodium/host-routes-in-ipv6.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2019-08-07T11:15:19Z",
+      "side": 1,
+      "message": "Is this an operational yang or a config yang?\n\nUnclear why we need a yang change. We already know which subnets are attached to the router. All we need to do is formulate the RA packet with the CIDRs of the subnets attached to the router.",
+      "range": {
+        "startLine": 75,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 12
+      },
+      "revId": "b4018628fc566f12866e64fabafb72f2c2dc284e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5caaa0e1_343320a8",
+        "filename": "docs/specs/sodium/host-routes-in-ipv6.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2019-08-07T11:15:19Z",
+      "side": 1,
+      "message": "All subsequent router advertisements (unsolicited \u0026 solicited) must carry the new subnet CIDR as one of the RIO.",
+      "range": {
+        "startLine": 233,
+        "startChar": 0,
+        "endLine": 233,
+        "endChar": 109
+      },
+      "revId": "b4018628fc566f12866e64fabafb72f2c2dc284e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f21e161e_bde3a427",
+        "filename": "docs/specs/sodium/host-routes-in-ipv6.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2019-08-07T11:15:19Z",
+      "side": 1,
+      "message": "same comment as above.",
+      "range": {
+        "startLine": 240,
+        "startChar": 0,
+        "endLine": 240,
+        "endChar": 112
+      },
+      "revId": "b4018628fc566f12866e64fabafb72f2c2dc284e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
