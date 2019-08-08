@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Stephen Kitt <skitt@redhat.com>
+Submitted-by: Stephen Kitt <skitt@redhat.com>
+Submitted-at: Thu, 08 Aug 2019 07:28:43 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/netvirt/+/83499
+Project: netvirt
+Branch: refs/heads/master
