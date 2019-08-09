@@ -24,7 +24,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -116,12 +115,10 @@ public class ShowVpn extends OsgiCommandSupport {
                     operCount = vpnNameToOperInterfaceMap.get(vpnInstance.getVpnInstanceName());
                     totalOperCount = totalOperCount + operCount;
                 }
-                VpnAfConfig addrFamily = vpnInstance.getIpv4Family() != null ? vpnInstance.getIpv4Family() :
-                    vpnInstance.getIpv6Family();
 
                 session.getConsole().println(
                         String.format("%-32s  %-10s  %-10s  %-10s", vpnInstance.getVpnInstanceName(),
-                                addrFamily.getRouteDistinguisher(), configCount, operCount));
+                                vpnInstance.getRouteDistinguisher(), configCount, operCount));
             }
             session.getConsole().println("-----------------------------------------------------------------------");
             session.getConsole().println(
