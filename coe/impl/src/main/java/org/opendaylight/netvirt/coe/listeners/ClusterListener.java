@@ -25,7 +25,6 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.coe.utils.CoeUtils;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.serviceutils.tools.mdsal.listener.AbstractSyncDataTreeChangeListener;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.k8s.cluster.rev181127.K8sClustersInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.k8s.cluster.rev181127.k8s.clusters.info.K8sClusters;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -99,7 +98,7 @@ public class ClusterListener extends AbstractSyncDataTreeChangeListener<K8sClust
             futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx ->  {
                 LOG.debug("Creating VPN instance for k8cluster {}", clusters.getClusterId());
                 coeUtils.createVpnInstance(clusters.getClusterId().getValue(), null, null, null,
-                        VpnInstance.Type.L3, 0, IpVersionChoice.IPV4, tx);
+                        false /*isL2Vpn*/, 0, IpVersionChoice.IPV4, tx);
             }));
             return futures;
         }
