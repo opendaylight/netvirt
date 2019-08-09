@@ -42,6 +42,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -59,6 +60,7 @@ import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.ohuawei.params.xml.ns.yang.l3vpn.rev150602.vpn.instances.VpnInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -1181,10 +1183,7 @@ public class NeutronvpnUtils {
         Optional<VpnInstances> vpnInstancesOptional = read(LogicalDatastoreType.CONFIGURATION, path);
         if (vpnInstancesOptional.isPresent() && vpnInstancesOptional.get().getVpnInstance() != null) {
             for (VpnInstance vpnInstance : vpnInstancesOptional.get().getVpnInstance()) {
-                if (vpnInstance.getIpv4Family() == null) {
-                    continue;
-                }
-                List<String> rds = vpnInstance.getIpv4Family().getRouteDistinguisher();
+                List<String> rds = vpnInstance.getRouteDistinguisher();
                 if (rds != null) {
                     existingRDs.addAll(rds);
                 }
@@ -1428,13 +1427,13 @@ public class NeutronvpnUtils {
 
     public void updateVpnInstanceWithIpFamily(String vpnName, IpVersionChoice ipVersion, boolean add) {
         jobCoordinator.enqueueJob("VPN-" + vpnName, () -> {
-            VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName);
-            if (vpnInstanceOpDataEntry == null) {
+            VpnInstance vpnInstance = getVpnInstance(dataBroker, new Uuid(vpnName));
+            if (vpnInstance == null) {
                 return Collections.emptyList();
             }
-            if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
+            if (vpnInstance.isL2vpn()) {
                 LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}."
-                        + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnName, ipVersion);
+                        + "VpnInstance is L2 instance. Do nothing.", vpnName, ipVersion);
                 return Collections.emptyList();
             }
             if (ipVersion == IpVersionChoice.UNDEFINED) {
@@ -1442,26 +1441,33 @@ public class NeutronvpnUtils {
                         + "is not allowed. Do nothing", vpnName);
                 return Collections.emptyList();
             }
-            VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
+            VpnInstanceBuilder builder = new VpnInstanceBuilder(vpnInstance);
             boolean ipConfigured = add;
-            if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4AND6)) {
-                builder.setIpv4Configured(ipConfigured);
-                builder.setIpv6Configured(ipConfigured);
-            } else if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
-                builder.setIpv4Configured(ipConfigured);
-            } else if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
-                builder.setIpv6Configured(ipConfigured);
+
+            int originalValue = vpnInstance.getIpAddressFamilyConfigured().getIntValue();
+            int updatedValue = ipVersion.choice;
+
+            if (originalValue != updatedValue) {
+                if (ipConfigured) {
+                    originalValue = originalValue == 0 ? updatedValue : updatedValue + originalValue;
+                } else {
+                    originalValue = 10 - updatedValue;
+                }
+            } else if (!ipConfigured) {
+                originalValue = 0;
             }
-            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                    OPERATIONAL, tx -> {
-                    InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier
-                            .builder(VpnInstanceOpData.class).child(VpnInstanceOpDataEntry.class,
-                                        new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
-                    tx.merge(id, builder.build(), false);
-                    LOG.info("updateVpnInstanceWithIpFamily: Successfully {} {} to Vpn {}",
-                            add == true ? "added" : "removed", ipVersion, vpnName);
-                }));
+
+            builder.setIpAddressFamilyConfigured(VpnInstance.IpAddressFamilyConfigured.forValue(originalValue));
+
+            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+            InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
+                    .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+            writeTxn.merge(LogicalDatastoreType.CONFIGURATION, vpnIdentifier, builder.build(), false);
+            LOG.info("updateVpnInstanceWithIpFamily: Successfully {} IP family {} to Vpn {}",
+                    add == true ? "added" : "removed", ipVersion, vpnName);
+            return Collections.singletonList(writeTxn.submit());
         });
+        return;
     }
 
     /**
