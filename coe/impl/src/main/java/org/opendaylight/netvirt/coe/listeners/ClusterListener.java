@@ -99,7 +99,7 @@ public class ClusterListener extends AbstractSyncDataTreeChangeListener<K8sClust
             futures.add(txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, tx ->  {
                 LOG.debug("Creating VPN instance for k8cluster {}", clusters.getClusterId());
                 coeUtils.createVpnInstance(clusters.getClusterId().getValue(), null, null, null,
-                        VpnInstance.Type.L3, 0, IpVersionChoice.IPV4, tx);
+                        false /*isL2Vpn*/, 0, IpVersionChoice.IPV4, tx);
             }));
             return futures;
         }
