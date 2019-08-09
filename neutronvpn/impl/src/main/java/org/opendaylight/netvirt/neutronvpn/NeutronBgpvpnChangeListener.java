@@ -23,7 +23,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
@@ -96,7 +95,6 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
         LOG.trace("Adding Bgpvpn : key: {}, value={}", identifier, input);
         String vpnName = input.getUuid().getValue();
         if (isBgpvpnTypeL3(input.getType())) {
-            VpnInstance.Type vpnInstanceType = VpnInstance.Type.L3;
             // handle route-target(s)
             List<String> inputRouteList = input.getRouteTargets();
             List<String> inputImportRouteList = input.getImportTargets();
@@ -156,7 +154,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                     try {
                         nvpnManager.createVpn(input.getUuid(), input.getName(), input.getTenantId(), rd,
                                 importRouteTargets, exportRouteTargets, routersList, networkList,
-                                vpnInstanceType, 0 /*l3vni*/);
+                                false /*isL2Vpn*/, 0 /*l3vni*/);
                     } catch (Exception e) {
                         LOG.error("Creation of BGPVPN {} failed", vpnName, e);
                     }
