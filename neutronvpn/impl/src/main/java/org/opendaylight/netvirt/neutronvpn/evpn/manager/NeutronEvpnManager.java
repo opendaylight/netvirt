@@ -20,8 +20,8 @@ import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.netvirt.neutronvpn.NeutronvpnManager;
 import org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.CreateEVPNInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.CreateEVPNOutput;
@@ -76,7 +76,6 @@ public class NeutronEvpnManager {
                                 vpn.getId().getValue())));
                 continue;
             }
-            VpnInstance.Type vpnInstanceType = VpnInstance.Type.L2;
             if (vpn.getRouteDistinguisher().size() > 1) {
                 errorList.add(RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input",
                         formatAndLog(LOG::warn, "Creation of EVPN failed for VPN {} due to multiple RD input {}",
@@ -94,7 +93,7 @@ public class NeutronEvpnManager {
             try {
                 neutronvpnManager.createVpn(vpn.getId(), vpn.getName(), vpn.getTenantId(), vpn.getRouteDistinguisher(),
                         vpn.getImportRT(), vpn.getExportRT(), null /*router-id*/, null /*network-id*/,
-                        vpnInstanceType, 0 /*l2vni*/);
+                        true /*isL2Vpn*/, 0 /*l2vni*/);
             } catch (Exception ex) {
                 errorList.add(RpcResultBuilder.newError(RpcError.ErrorType.APPLICATION,
                         formatAndLog(LOG::error, "Creation of EVPN failed for VPN {}", vpn.getId().getValue(), ex),
@@ -129,8 +128,8 @@ public class NeutronEvpnManager {
             vpns = VpnHelper.getAllVpnInstances(dataBroker);
             if (!vpns.isEmpty()) {
                 for (VpnInstance vpn : vpns) {
-                    if (vpn.getIpv4Family().getRouteDistinguisher() != null
-                            && vpn.getType() == VpnInstance.Type.L2) {
+                    if (vpn.getRouteDistinguisher() != null
+                            && vpn.isL2vpn()) {
                         vpns.add(vpn);
                     }
                 }
@@ -142,8 +141,8 @@ public class NeutronEvpnManager {
         } else {
             String name = inputVpnId.getValue();
             VpnInstance vpnInstance = VpnHelper.getVpnInstance(dataBroker, name);
-            if (vpnInstance != null && vpnInstance.getIpv4Family().getRouteDistinguisher() != null
-                    && vpnInstance.getType() == VpnInstance.Type.L2) {
+            if (vpnInstance != null && vpnInstance.getRouteDistinguisher() != null
+                    && vpnInstance.isL2vpn()) {
                 vpns.add(vpnInstance);
             } else {
                 result.set(RpcResultBuilder.<GetEVPNOutput>failed().withWarning(RpcError.ErrorType.PROTOCOL,
@@ -157,10 +156,10 @@ public class NeutronEvpnManager {
             InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap
                     .class, new VpnMapKey(vpnId)).build();
             EvpnInstancesBuilder evpn = new EvpnInstancesBuilder();
-            List<String> rd = vpnInstance.getIpv4Family().getRouteDistinguisher();
+            List<String> rd = vpnInstance.getRouteDistinguisher();
             List<String> ertList = new ArrayList<>();
             List<String> irtList = new ArrayList<>();
-            for (VpnTarget vpnTarget : vpnInstance.getIpv4Family().getVpnTargets().nonnullVpnTarget()) {
+            for (VpnTarget vpnTarget : vpnInstance.getVpnTargets().nonnullVpnTarget()) {
                 if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
                     ertList.add(vpnTarget.getVrfRTValue());
                 }

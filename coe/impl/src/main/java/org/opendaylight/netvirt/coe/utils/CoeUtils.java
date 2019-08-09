@@ -36,16 +36,14 @@ import org.opendaylight.netvirt.coe.api.SouthboundInterfaceInfoBuilder;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargetsBuilder;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTargetBuilder;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTargetKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4FamilyBuilder;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv6FamilyBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.VpnTargets;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.VpnTargetsBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.vpntargets.VpnTarget;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.vpntargets.VpnTargetBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.vpntargets.VpnTargetKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -345,7 +343,7 @@ public final class CoeUtils {
     }
 
     public void createVpnInstance(String vpnName, List<String> rd, List<String> irt, List<String> ert,
-                                         VpnInstance.Type type, long l3vni, IpVersionChoice ipVersion,
+                                  boolean isL2Vpn, long l3vni, IpVersionChoice ipVersion,
                                          TypedReadWriteTransaction<Datastore.Configuration> tx)
             throws ExecutionException, InterruptedException {
         List<VpnTarget> vpnTargetList = new ArrayList<>();
@@ -353,7 +351,7 @@ public final class CoeUtils {
 
         VpnInstanceBuilder builder = new VpnInstanceBuilder().withKey(new VpnInstanceKey(vpnName))
                 .setVpnInstanceName(vpnName)
-                .setType(type).setL3vni(l3vni);
+                .setL2vpn(isL2Vpn).setL3vni(l3vni);
         if (rd == null) {
             String autoRd = rdUtils.getRD(vpnName);
             rd = Arrays.asList(autoRd);
@@ -389,31 +387,16 @@ public final class CoeUtils {
                 vpnTargetList.add(vpnTarget);
             }
         }
-
-        VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
-
-        Ipv4FamilyBuilder ipv4vpnBuilder = new Ipv4FamilyBuilder().setVpnTargets(vpnTargets);
-        Ipv6FamilyBuilder ipv6vpnBuilder = new Ipv6FamilyBuilder().setVpnTargets(vpnTargets);
-
+        final VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
+        builder.setIpAddressFamilyConfigured(VpnInstance.IpAddressFamilyConfigured.forValue(ipVersion.choice));
+        builder.setVpnTargets(vpnTargets);
         if (rd != null && !rd.isEmpty()) {
-            ipv4vpnBuilder.setRouteDistinguisher(rd);
-            ipv6vpnBuilder.setRouteDistinguisher(rd);
+            builder.setRouteDistinguisher(rd);
         }
-
-        if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
-            builder.setIpv4Family(ipv4vpnBuilder.build());
-        }
-        if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
-            builder.setIpv6Family(ipv6vpnBuilder.build());
-        }
-        if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.UNDEFINED)) {
-            builder.setIpv4Family(ipv4vpnBuilder.build());
-        }
-        VpnInstance newVpn = builder.build();
         LOG.debug("Creating/Updating vpn-instance for {} ", vpnName);
         InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
                 .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
-        tx.put(vpnIdentifier, newVpn);
+        tx.put(vpnIdentifier, builder.build());
     }
 
     public void deleteVpnInstance(String vpnName,
