@@ -1181,10 +1181,7 @@ public class NeutronvpnUtils {
         Optional<VpnInstances> vpnInstancesOptional = read(LogicalDatastoreType.CONFIGURATION, path);
         if (vpnInstancesOptional.isPresent() && vpnInstancesOptional.get().getVpnInstance() != null) {
             for (VpnInstance vpnInstance : vpnInstancesOptional.get().getVpnInstance()) {
-                if (vpnInstance.getIpv4Family() == null) {
-                    continue;
-                }
-                List<String> rds = vpnInstance.getIpv4Family().getRouteDistinguisher();
+                List<String> rds = vpnInstance.getRouteDistinguisher();
                 if (rds != null) {
                     existingRDs.addAll(rds);
                 }
@@ -1432,7 +1429,7 @@ public class NeutronvpnUtils {
             if (vpnInstanceOpDataEntry == null) {
                 return Collections.emptyList();
             }
-            if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
+            if (vpnInstanceOpDataEntry.isL2vpn()) {
                 LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}."
                         + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnName, ipVersion);
                 return Collections.emptyList();
@@ -1444,14 +1441,21 @@ public class NeutronvpnUtils {
             }
             VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
             boolean ipConfigured = add;
-            if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4AND6)) {
-                builder.setIpv4Configured(ipConfigured);
-                builder.setIpv6Configured(ipConfigured);
-            } else if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
-                builder.setIpv4Configured(ipConfigured);
-            } else if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
-                builder.setIpv6Configured(ipConfigured);
+            int originalValue = vpnInstance.getIpAddressFamilyConfigured().getIntValue();
+            int updatedValue = ipVersion.choice;
+
+            if (originalValue != updatedValue) {
+                if (ipConfigured) {
+                    originalValue = originalValue == 0 ? updatedValue : updatedValue + originalValue;
+                } else {
+                    originalValue = 10 - updatedValue;
+                }
+            } else if (!ipConfigured) {
+                originalValue = 0;
             }
+
+            builder.setIpAddressFamilyConfigured(VpnInstance.IpAddressFamilyConfigured.forValue(originalValue));
+
             return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                     OPERATIONAL, tx -> {
                     InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier

@@ -81,7 +81,6 @@ import org.opendaylight.netvirt.natservice.ha.NatDataUtil;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -2046,9 +2045,8 @@ public final class NatUtil {
 
     @NonNull
     public static List<String> getListOfRdsFromVpnInstance(VpnInstance vpnInstance) {
-        VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
-        return vpnConfig.getRouteDistinguisher() != null ? new ArrayList<>(
-                vpnConfig.getRouteDistinguisher()) : new ArrayList<>();
+        return vpnInstance.getRouteDistinguisher() != null ? new ArrayList<>(
+                vpnInstance.getRouteDistinguisher()) : new ArrayList<>();
     }
 
     public static String validateAndAddNetworkMask(String ipAddress) {
