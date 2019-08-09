@@ -42,8 +42,6 @@ import org.opendaylight.netvirt.vpnmanager.VpnSubnetRouteHandler;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4Family;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4FamilyBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
@@ -125,7 +123,6 @@ public class VpnSubnetRouteHandlerTest {
     DPNTEPsInfo dpntePsInfo = null;
     TunnelEndPoints tunlEndPts = null;
     IpAddress ipAddress = null;
-    Ipv4Family ipv4Family = null;
     String idKey = null;
     AllocateIdOutput allocateIdOutput = null;
     AllocateIdInput allocateIdInput = null;
@@ -304,11 +301,10 @@ public class VpnSubnetRouteHandlerTest {
         tunlEndPts =
             new TunnelEndPointsBuilder().setInterfaceName(interfaceName).setIpAddress(ipAddress).build();
         tunnelEndPoints.add(tunlEndPts);
-        ipv4Family = new Ipv4FamilyBuilder().setRouteDistinguisher(routeDistinguishers).build();
         vpnInstnce = new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances
             .VpnInstanceBuilder().withKey(new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn
             .rev140815.vpn.instances.VpnInstanceKey(interfaceName)).setVpnInstanceName(interfaceName)
-            .setIpv4Family(ipv4Family).build();
+                .setRouteDistinguisher(routeDistinguishers).build();
         networks = new NetworksBuilder().setId(portId).withKey(new NetworksKey(portId)).build();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
