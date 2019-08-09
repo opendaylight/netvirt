@@ -53,10 +53,9 @@ import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.VpnTargets;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.ExternalTunnelList;
@@ -162,14 +161,14 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         VpnInstance original, VpnInstance update) {
         LOG.trace("VPN-UPDATE: update: VPN event key: {}, value: {}.", identifier, update);
         String vpnName = update.getVpnInstanceName();
-        if (original.getIpv4Family() != null && update.getIpv4Family() != null
-                && original.getIpv4Family().getRouteDistinguisher() != null
-                && update.getIpv4Family().getRouteDistinguisher() != null
-                && original.getIpv4Family().getRouteDistinguisher().size()
-                !=  update.getIpv4Family().getRouteDistinguisher().size()) {
+        if (original != null && update != null
+                && original.getRouteDistinguisher() != null
+                && update.getRouteDistinguisher() != null
+                && original.getRouteDistinguisher().size()
+                !=  update.getRouteDistinguisher().size()) {
             LOG.debug("VPN-UPDATE: VpnInstance:{} updated with new RDs: {} from old RDs: {}", vpnName,
-                    update.getIpv4Family().getRouteDistinguisher(),  original.getIpv4Family().getRouteDistinguisher());
-            vpnUtil.updateVpnInstanceWithRdList(vpnName, update.getIpv4Family().getRouteDistinguisher());
+                    update.getRouteDistinguisher(),  original.getRouteDistinguisher());
+            vpnUtil.updateVpnInstanceWithRdList(vpnName, update.getRouteDistinguisher());
         }
         vpnInterfaceManager.updateVpnInterfacesForUnProcessAdjancencies(vpnName);
     }
@@ -226,7 +225,6 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 addVpnInstance(value, writeConfigTxn, tx)), LOG, "Error adding VPN instance {}", value);
             return;
         }
-        VpnAfConfig config = value.getIpv4Family();
         String vpnInstanceName = value.getVpnInstanceName();
 
         long vpnId = vpnUtil.getUniqueId(VpnConstants.VPN_IDPOOL_NAME, vpnInstanceName);
@@ -278,10 +276,10 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             if (value.getL3vni() != null) {
                 builder.setL3vni(value.getL3vni());
             }
-            if (value.getType() == VpnInstance.Type.L2) {
+            if (value.isL2vpn()) {
                 builder.setType(VpnInstanceOpDataEntry.Type.L2);
             }
-            VpnTargets vpnTargets = config.getVpnTargets();
+            VpnTargets vpnTargets = value.getVpnTargets();
             if (vpnTargets != null) {
                 List<VpnTarget> vpnTargetList = vpnTargets.getVpnTarget();
                 if (vpnTargetList != null) {
@@ -299,7 +297,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             VpnTargetsBuilder vpnTargetsBuilder = new VpnTargetsBuilder().setVpnTarget(opVpnTargetList);
             builder.setVpnTargets(vpnTargetsBuilder.build());
 
-            List<String> rds = config.getRouteDistinguisher();
+            List<String> rds = value.getRouteDistinguisher();
             builder.setRd(rds);
         } else {
             builder.setBgpvpnType(VpnInstanceOpDataEntry.BgpvpnType.VPN);
@@ -328,8 +326,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             if rd is null, then its either a router vpn instance (or) a vlan external network vpn instance.
             if rd is non-null, then it is a bgpvpn instance
              */
-            VpnAfConfig config = vpnInstance.getIpv4Family();
-            List<String> rd = config.getRouteDistinguisher();
+            List<String> rd = vpnInstance.getRouteDistinguisher();
             if (rd == null || addBgpVrf()) {
                 notifyTask();
                 vpnInterfaceManager.vpnInstanceIsReady(vpnName);
@@ -372,9 +369,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         // TODO Clean up the exception handling
         @SuppressWarnings("checkstyle:IllegalCatch")
         private boolean addBgpVrf() {
-            VpnAfConfig config = vpnInstance.getIpv4Family();
             String primaryRd = vpnUtil.getPrimaryRd(vpnName);
-            List<VpnTarget> vpnTargetList = config.getVpnTargets().getVpnTarget();
+            List<VpnTarget> vpnTargetList = vpnInstance.getVpnTargets().getVpnTarget();
 
             if (vpnTargetList == null) {
                 log.error("{} addBgpVrf: vpn target list is empty for vpn {} RD {}", LOGGING_PREFIX_ADD,
