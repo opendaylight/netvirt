@@ -72,8 +72,14 @@ public class ElanInterfaceCache extends InstanceIdDataObjectCache<ElanInterface>
 
     @Override
     protected void added(InstanceIdentifier<ElanInterface> path, ElanInterface elanInterface) {
-        elanInstanceToInterfacesCache.computeIfAbsent(elanInterface.getElanInstanceName(),
-            key -> ConcurrentHashMap.newKeySet()).add(elanInterface.getName());
+        if (null == elanInterface.getElanInstanceName()) {
+            return;
+        }
+        Set<String> interfaces = elanInstanceToInterfacesCache.computeIfAbsent(elanInterface.getElanInstanceName(),
+            key -> ConcurrentHashMap.newKeySet());
+        if (null != interfaces) {
+            interfaces.add(elanInterface.getName());
+        }
     }
 
     @Override
