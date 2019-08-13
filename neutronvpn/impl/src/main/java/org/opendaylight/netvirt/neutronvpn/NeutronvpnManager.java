@@ -1674,35 +1674,40 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
                 final Boolean isRouterInterface = port.getDeviceOwner()
                         .equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF) ? true : false;
-                jobCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> singletonList(
-                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION, wrtConfigTxn -> {
-                        Adjacencies portAdj = createPortIpAdjacencies(port, isRouterInterface, wrtConfigTxn,
-                            vpnIface);
-                        if (vpnIface == null) {
-                            LOG.trace("addSubnetToVpn: create new VpnInterface for Port {}", vpnInfName);
-                            Set<Uuid> listVpn = new HashSet<>();
-                            if (vpnId != null) {
-                                listVpn.add(vpnId);
+                jobCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> {
+                    ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(CONFIGURATION,
+                        wrtConfigTxn -> {
+                            Adjacencies portAdj = createPortIpAdjacencies(port, isRouterInterface, wrtConfigTxn,
+                                    vpnIface);
+                            if (vpnIface == null) {
+                                LOG.trace("addSubnetToVpn: create new VpnInterface for Port {}", vpnInfName);
+                                Set<Uuid> listVpn = new HashSet<>();
+                                if (vpnId != null) {
+                                    listVpn.add(vpnId);
+                                }
+                                if (internetId != null) {
+                                    listVpn.add(internetId);
+                                }
+                                writeVpnInterfaceToDs(listVpn, vpnInfName, portAdj, port.getNetworkId(),
+                                        isRouterInterface, wrtConfigTxn);
+                                if (sn.getRouterId() != null) {
+                                    addToNeutronRouterInterfacesMap(sn.getRouterId(), portId.getValue());
+                                }
+                            } else {
+                                LOG.trace("update VpnInterface for Port {} with adj {}", vpnInfName, portAdj);
+                                if (vpnId != null) {
+                                    updateVpnInterfaceWithAdjacencies(vpnId, vpnInfName, portAdj, wrtConfigTxn);
+                                }
+                                if (internetId != null) {
+                                    updateVpnInterfaceWithAdjacencies(internetId, vpnInfName, portAdj, wrtConfigTxn);
+                                }
                             }
-                            if (internetId != null) {
-                                listVpn.add(internetId);
-                            }
-                            writeVpnInterfaceToDs(listVpn,
-                                    vpnInfName, portAdj, port.getNetworkId(), isRouterInterface, wrtConfigTxn);
-                            if (sn.getRouterId() != null) {
-                                addToNeutronRouterInterfacesMap(sn.getRouterId(), portId.getValue());
-                            }
-                        } else {
-                            LOG.trace("update VpnInterface for Port {} with adj {}", vpnInfName, portAdj);
-                            if (vpnId != null) {
-                                updateVpnInterfaceWithAdjacencies(vpnId, vpnInfName, portAdj, wrtConfigTxn);
-                            }
-                            if (internetId != null) {
-                                updateVpnInterfaceWithAdjacencies(internetId, vpnInfName, portAdj, wrtConfigTxn);
-                            }
-                        }
-                    }))
-                );
+                        });
+                    ListenableFutures.addErrorLogging(future, LOG,
+                            "addSubnetToVpn: Failed while creating VPN interface for vpnId {}, portId {}"
+                                    + "{}, subnetId {}", vpnId.getValue(), portId, subnet.getValue());
+                    return Collections.singletonList(future);
+                });
             }
         }
     }
@@ -1764,18 +1769,25 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             for (final Uuid portId : portList) {
                 LOG.debug("withdrawing subnet IP {} from vpn-interface {}", sn.getSubnetIp(), portId.getValue());
                 final Port port = neutronvpnUtils.getNeutronPort(portId);
-                jobCoordinator.enqueueJob("PORT-" + portId.getValue(),
-                    () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                            CONFIGURATION, tx -> {
+                jobCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> {
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
+                    ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                        CONFIGURATION, tx -> {
                             if (port != null) {
                                 withdrawPortIpFromVpnIface(vpnId, internetId, port, sn, tx);
                             } else {
-                                LOG.warn(
-                                        "Cannot proceed with withdrawPortIpFromVpnIface for port {} in subnet {} since "
-                                                + "port is absent in Neutron config DS", portId.getValue(),
+                                LOG.warn("Cannot proceed with withdrawPortIpFromVpnIface for port {} in subnet {} since"
+                                                + " port is absent in Neutron config DS", portId.getValue(),
                                         subnet.getValue());
                             }
-                        })));
+                        });
+                    ListenableFutures.addErrorLogging(future, LOG,
+                            "removeSubnetFromVpn: Exception while processing deletion of VPN interfaces for port {}"
+                                    + " belonging to subnet {} and vpnId {}",
+                            portId.getValue(), subnet.getValue(), vpnId.getValue());
+                    futures.add(future);
+                    return futures;
+                });
             }
         }
         //update subnet-vpn association
