@@ -107,10 +107,12 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
                 this.aclServiceUtils.releaseAclTag(aclName);
             }
             // Handle Rule deletion If SG Remove event is received before SG Rule delete event
-            List<Ace> aceList = acl.getAccessListEntries().getAce();
-            Collection<AclInterface> aclInterfaces =
-                    ImmutableSet.copyOf(aclDataUtil.getInterfaceList(new Uuid(aclName)));
-            updateAceRules(aclInterfaces, aclName, aceList, AclServiceManager.Action.REMOVE);
+            if (null != acl.getAccessListEntries()) {
+                List<Ace> aceList = acl.getAccessListEntries().getAce();
+                Collection<AclInterface> aclInterfaces =
+                        ImmutableSet.copyOf(aclDataUtil.getInterfaceList(new Uuid(aclName)));
+                updateAceRules(aclInterfaces, aclName, aceList, AclServiceManager.Action.REMOVE);
+            }
         }
     }
 
