@@ -7,8 +7,6 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
-import static org.opendaylight.genius.infra.Datastore.CONFIGURATION;
-
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
@@ -17,6 +15,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -24,6 +23,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev170119.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
@@ -171,11 +171,11 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
              * Interface is already created for parent NeutronPort. We're updating parent refs
              * and VLAN Information
              */
-            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                CONFIGURATION, tx -> {
-                    tx.merge(interfaceIdentifier, newIface);
-                    LOG.trace("Creating trunk member interface {}", newIface);
-                }));
+            ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                txn -> txn.merge(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, newIface));
+            ListenableFutures.addErrorLogging(future, LOG,
+                    "createSubPortInterface: Failed for portName {}, parentName {}", portName, parentName);
+            futures.add(future);
             return futures;
         });
     }
@@ -186,9 +186,10 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
                         NeutronvpnUtils.buildVlanInterfaceIdentifier(subPort.getPortId().getValue());
         jobCoordinator.enqueueJob("PORT- " + portName, () -> {
             Interface iface = ifMgr.getInterfaceInfoFromConfigDataStore(portName);
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
             if (iface == null) {
                 LOG.warn("Interface not present for SubPort {}", subPort);
-                return Collections.emptyList();
+                return futures;
             }
             /*
              * We'll reset interface back to way it was? Can IFM handle parentRef delete?
@@ -209,7 +210,6 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
              * and this being subport delete path, don't expect any significant changes to
              * corresponding Neutron Port. Deletion of NeutronPort should follow soon enough.
              */
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 CONFIGURATION, tx -> {
                     tx.put(interfaceIdentifier, newIface);
