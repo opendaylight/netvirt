@@ -40,6 +40,9 @@ public class DhcpShowCommand extends OsgiCommandSupport {
         if (isDhcpConfigAvailable(dhcpConfig)) {
             leaseDuration = dhcpConfig.getConfigs().get(0).getLeaseDuration();
             defDomain = dhcpConfig.getConfigs().get(0).getDefaultDomain();
+        } else {
+            session.getConsole().println("DHCP Config not present");
+            LOG.error("doExecute: DHCP Config not present");
         }
         session.getConsole().println(
                 "Lease Duration: " + (leaseDuration != null ? leaseDuration : DhcpMConstants.DEFAULT_LEASE_TIME));
