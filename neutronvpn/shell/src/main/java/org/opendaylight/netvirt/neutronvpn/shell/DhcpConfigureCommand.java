@@ -65,6 +65,8 @@ public class DhcpConfigureCommand extends OsgiCommandSupport {
             if (dhcpConfig.getDefaultDomain() != null) {
                 currDefDomain = dhcpConfig.getDefaultDomain();
             }
+        } else {
+            LOG.error("doExecute: DHCP config not present");
         }
 
         dccBuilder.setLeaseDuration(leaseDuration == null ? currLeaseDuration : leaseDuration);
