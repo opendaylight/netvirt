@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_cf913f54",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-04T18:51:09Z",
+      "side": 1,
+      "message": "please add a topic and provide the gerrit link here. The spec can topic shall be the same",
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_64e5d5a7",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-04T18:51:09Z",
+      "side": 1,
+      "message": "we need to add this for +rel as well.",
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_19085e2c",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-28T14:02:52Z",
+      "side": 1,
+      "message": "We need to update the pipeline as per this? Or I am missing something?",
+      "parentUuid": "ba1f61a0_52000867",
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_c472c1e4",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-04T18:51:09Z",
+      "side": 1,
+      "message": "How about the first packet of a connection it will not have a ct_lable set to 0? Or the table 240 sets it?",
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_37694d8c",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-04T18:51:09Z",
+      "side": 1,
+      "message": "Should this be a ct-action like nat-action than a field in action-conntrack?",
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_576cc19c",
+        "filename": "docs/specs/acl-impl.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-04T18:51:09Z",
+      "side": 1,
+      "message": "Is this a 128bit [1] value?\n\n[1]https://github.com/openvswitch/ovs/blob/master/include/openvswitch/flow.h#L116",
+      "revId": "037710d63236424bb77b4d23d313f02e0b961c3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
