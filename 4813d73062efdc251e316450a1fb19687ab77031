@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_09376b4f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-02-16T07:30:26Z",
+      "side": 1,
+      "message": "This doesn\u0027t help to understand what this commit is, since that event is handled with and without this patch anyway.\n\nWhat is this patch about?\nIn my understanding, this patch introduces two changes in order to fix the bug 7606. The first is to change the flow ID of flows in Table 110 to avoid duplicate flow creation during VM migration. (Please note that this is not only for tunnel flow, this is for unicast flows to tunnel end point and unicast flows to local VM port. And please note the point is to change the flow *ID*, not the name. Changing name itself doesn\u0027t help the bug fix.) The second is to skip deleting the flows in table 110 and table 20 when processing an interface deletion event from OVSDB in the case that the interface deletion is due to VM migration.\n\nI think the above two changes are most important points about what this patch changes to fix the bug 7606. So I think we should write the two points in the commit message.",
+      "range": {
+        "startLine": 9,
+        "startChar": 6,
+        "endLine": 9,
+        "endChar": 78
+      },
+      "revId": "4813d73062efdc251e316450a1fb19687ab77031",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_29222f01",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/NetworkingProvider.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-02-16T07:30:26Z",
+      "side": 1,
+      "message": "I don\u0027t think this explanation is correct. If it is correct, then I think this parameter is always \u0027true\u0027, although I don\u0027t think this is your intention here.\n\n\nOn the other hand, again, I think it is about \"Whether the Neutron Port associated with the removed interface is being migrated to a new node\".",
+      "range": {
+        "startLine": 51,
+        "startChar": 29,
+        "endLine": 51,
+        "endChar": 87
+      },
+      "revId": "4813d73062efdc251e316450a1fb19687ab77031",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
