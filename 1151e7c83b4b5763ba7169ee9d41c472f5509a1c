@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "10b4e4ac_a3acbd28",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c0fe18e_f40420c2",
+      "revId": "1151e7c83b4b5763ba7169ee9d41c472f5509a1c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0cd85272_99ee72a0",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2018-03-01T23:47:45Z",
       "side": 1,
       "message": "THis is what I think.\n\n1) Your fix correctly identifies the issue.\n2) However the existing code for this method is also correct as it was intended.\n3) I suspect the issue is someplace else: the parameters passed into this method are incorrect. The acl and aclId should be of the remote ACL SG.\nCurrently the ACL info passed in are the ACL associated with the ACL interface.\n\nWhen associating a VM with an ACL with remote SG, the syncRemoteAclTableFromOtherDpns method would create flows in the remote ACL tables matching all ACLInterfaces for remote ACL.\n\nFor example:\n- SG1: ingress, remote SG: SG2\n- SG2: egress,  remote SG: SG1\n- associating VM1 with SG2\n- When associating VM2 with SG1 the syncRemoteAclTableFromOtherDpns method would create flows in the remote ACL tables matching all ACLInterfaces for SG2 (remote SG for SG1), which in is VM2.\n- Currently the SG2 are passed incorrectly for the method syncRemoteAclTableFromOtherDpns. I think the remote SG SG2 should pass in instead.\n4) see comment in line 465",
+      "range": {
+        "startLine": 477,
+        "startChar": 0,
+        "endLine": 498,
+        "endChar": 17
+      },
+      "revId": "1151e7c83b4b5763ba7169ee9d41c472f5509a1c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3d4ca5ea_9b2fd9b0",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0cd85272_99ee72a0",
       "range": {
         "startLine": 477,
         "startChar": 0,
