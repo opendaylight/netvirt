@@ -1,0 +1,92 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "260fcd39_b94378ab",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-12-13T12:40:05Z",
+      "side": 1,
+      "message": "do we need the acl key here ? or was this not added for a reason.\n\nWith default SG , when the SG is removed , I see only one drop  rules  programmed either the ipv4 or ipv6 but not both.",
+      "revId": "10a86b4f667a4c30cb7d18de0714838305a3b3df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03ebfebe_65fddcde",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-12-19T07:40:21Z",
+      "side": 1,
+      "message": "The expectation is to be clear the rules related to a port on  delete. The left over flows will never hit and given the TCP flows a have large time out, this may not be a good idea. Making the addOrRemove to carry a flag for update should solve the issue?",
+      "parentUuid": "046caeca_68353ab3",
+      "revId": "10a86b4f667a4c30cb7d18de0714838305a3b3df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad52cda2_9ebefda0",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-12-19T11:00:21Z",
+      "side": 1,
+      "message": "We have one more option MOD_FLOW in NwConstants. Can we use that in the case of update and if update is the case we can add the drop rules?\n\npublic static final int MOD_FLOW \u003d 2",
+      "parentUuid": "bdd035b0_af256580",
+      "revId": "10a86b4f667a4c30cb7d18de0714838305a3b3df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3ca23058_1c75e9ea",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-12-19T11:18:30Z",
+      "side": 1,
+      "message": "ya that\u0027s right. I think it should work.",
+      "parentUuid": "cbc0f52e_f0eb5e8f",
+      "revId": "10a86b4f667a4c30cb7d18de0714838305a3b3df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b2e84e49_7ac7d5a9",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjectsBase.xtend",
+        "patchSetId": 16
+      },
+      "lineNbr": 1660,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-12-13T12:40:05Z",
+      "side": 1,
+      "message": "Would be good to change this to Nwconstants.",
+      "revId": "10a86b4f667a4c30cb7d18de0714838305a3b3df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
