@@ -165,6 +165,23 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_d09b98c7",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "Attach the subnet with the first router..",
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_0a217f9f",
         "filename": "docs/specs/router-chaining-for-single-router.rst",
         "patchSetId": 7
@@ -329,6 +346,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "7a1969be_b0a09cf5",
+      "range": {
+        "startLine": 244,
+        "startChar": 21,
+        "endLine": 244,
+        "endChar": 39
+      },
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_b0a09cf5",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "If it connects...",
       "range": {
         "startLine": 244,
         "startChar": 21,
@@ -516,6 +556,29 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "7a1969be_30acaced",
+      "range": {
+        "startLine": 470,
+        "startChar": 50,
+        "endLine": 471,
+        "endChar": 9
+      },
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_30acaced",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 7876
+      },
+      "writtenOn": "2019-08-26T20:33:32Z",
+      "side": 1,
+      "message": "as above..two times",
       "range": {
         "startLine": 470,
         "startChar": 50,
